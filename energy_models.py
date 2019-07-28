@@ -137,6 +137,15 @@ class HeatPump:
     
 class EnergyStorage:
     def __init__(self, capacity = None, max_power_output = None, max_power_charging = None, efficiency = 1, loss_coeff = 0):
+        """
+        Args:
+            capacity (float): Maximum amount of energy that the storage unit is able to store (Wh)
+            max_power_output (float): Maximum amount of power that the storage unit can output (W)
+            max_power_charging (float): Maximum amount of power that the storage unit can use to charge (W)
+            efficiency (float): Efficiency factor of charging and discharging the storage unit (from 0 to 1)
+            loss_coeff (float): Loss coefficient used to calculate the amount of energy lost every hour (from 0 to 1)
+        """
+            
         self.capacity = capacity
         self.max_power_output = max_power_output
         self.max_power_charging = max_power_charging
@@ -148,21 +157,42 @@ class EnergyStorage:
         self.energy_balance = 0
         
     def charge(self, energy):
-        soc_init = self.soc*(1-self.loss_coeff)
-        losses =  - energy*(1 - self.efficiency)
-        energy = energy/self.efficiency
+        """Method that controls both the energy CHARGE and DISCHARGE of the energy storage device
+        energy < 0 -> Discharge
+        energy > 0 -> Charge
+        Args:
+            energy (float): Amount of energy stored in that time-step (Wh)
+        Return:
+            energy_balance (float): 
+        """
         
-        if self.max_power_charging is not None:
-            energy =  min(energy, self.max_power_charging)
+        #The initial State Of Charge (SOC) is the previous SOC minus the energy losses
+        soc_init = self.soc*(1-self.loss_coeff)
+        
+        #Charging    
+        if energy >= 0:
+            if self.max_power_charging is not None:
+                energy =  min(energy, self.max_power_charging)
+            self.soc = max(0, soc_init + energy*self.efficiency)  
+        #Discharging
+        else:
+            if self.max_power_output is not None:
+                energy = max(-max_power_output, energy/self.efficiency)
+                self.soc = max(0, soc_init + energy)  
+            else:
+                self.soc = max(0, soc_init + energy/self.efficiency)  
             
-        if self.max_power_output is not None:
-            energy = max(-max_power_output, energy)
-            
-        self.soc = max(0, soc_init + energy*self.efficiency)  
         if self.capacity is not None:
             self.soc = min(self.soc, self.capacity)
-            
-        self.energy_balance = self.soc - soc_init - losses
+          
+        #Calculating the energy balance with the electrical grid (amount of energy taken from or relseased to the power grid)
+        #Charging    
+        if energy >= 0:
+            self.energy_balance = (self.soc - soc_init)/self.efficiency
+        #Discharging
+        else:
+            self.energy_balance = (self.soc - soc_init)*self.efficiency
+        
         self.energy_balance_list.append(self.energy_balance)
         self.soc_list.append(self.soc)
         return self.energy_balance
@@ -175,6 +205,15 @@ class EnergyStorage:
 		
 class Building:  
     def __init__(self, buildingId, heating_storage = None, cooling_storage = None, electrical_storage = None, heating_device = None, cooling_device = None):
+        """
+        Args:
+            heating_storage (EnergyStorage)
+            cooling_storage (EnergyStorage)
+            electrical_storage (EnergyStorage)
+            heating_device (HeatPump)
+            cooling_device (HeatPump)
+        """
+        
         self.buildingId = buildingId
         self.heating_storage = heating_storage
         self.cooling_storage = cooling_storage
@@ -197,6 +236,13 @@ class Building:
         self.action_spaces = spaces.Box(low=min_action, high=max_action, dtype=np.float32)
 
     def set_storage_heating(self, action):
+        """
+        Args:
+            action (float): Amount of energy stored in that time-step as a fraction of the total capacity of the energy storage device (from 0 to 1)
+        Return:
+            elec_demand_heating (float): electricity consumption used for space heating
+        """
+            
         heat_power_avail = self.heating_device.get_max_heating_power(t_source_heating = self.sim_results['t_out'][self.time_step]) - self.sim_results['heating_demand'][self.time_step]
         heating_energy_balance = self.heating_storage.charge(min(heat_power_avail, action*self.heating_storage.capacity)) 
         heating_energy_balance = max(0,heating_energy_balance)
@@ -205,6 +251,13 @@ class Building:
         return elec_demand_heating
         
     def set_storage_cooling(self, action):
+        """
+        Args:
+            action (float): Amount of energy stored in that time-step as a fraction of the total capacity of the energy storage device (from 0 to 1)
+        Return:
+            elec_demand_heating (float): electricity consumption used for space cooling
+        """
+        
         cooling_power_avail = self.cooling_device.get_max_cooling_power(t_source_cooling = self.sim_results['t_out'][self.time_step]) - self.sim_results['cooling_demand'][self.time_step]
         cooling_energy_balance = self.cooling_storage.charge(min(cooling_power_avail, action*self.cooling_storage.capacity)) 
         cooling_energy_balance = max(0,cooling_energy_balance)
