@@ -13,6 +13,7 @@ class CityLearn(gym.Env):
         self.action_track = {}
         self.uid = None
         self.n_buildings = 0
+        self.state = None
         for uid in buildings:
             self.action_track[uid] = []
             self.n_buildings += 1
