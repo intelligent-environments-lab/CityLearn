@@ -23,9 +23,9 @@ class CityLearn(gym.Env):
         self.uid = current_building_id
         
     def next_hour(self):
-        self.time_step = [next(self.hour) for j in range(self.time_resolution)][-1]
-        for uid in self.buildings:
-            self.buildings[uid].time_step = self.time_step
+#         self.time_step = [next(self.hour) for j in range(self.time_resolution)][-1]
+#         for uid in self.buildings:
+        self.buildings[self.uid].time_step += self.time_resolution #self.time_step
         
     def step(self, action):
         action = action/self.time_resolution
@@ -34,7 +34,7 @@ class CityLearn(gym.Env):
         self.action_track[uid].append(action)
         electric_demand = 0
         reward = 0
-        for i in range(self.time_step, self.time_step + self.time_resolution):                
+        for i in range(self.buildings[self.uid].time_step, self.buildings[self.uid].time_step + self.time_resolution):                
             #Heating
             electric_demand += self.buildings[uid].set_storage_heating(0)
             #Cooling
@@ -52,6 +52,7 @@ class CityLearn(gym.Env):
         self.state = np.array([s1, s2, s3])
 
         terminal = self._terminal()
+        self.next_hour()
         return (self.state, reward, terminal, {})
     
     def reset(self):
@@ -73,7 +74,7 @@ class CityLearn(gym.Env):
         return np.array([s[0], s[1], s[2]], dtype=np.float32)
     
     def _terminal(self):
-        return bool(self.time_step >= self.simulation_period[1] and self.uid == self.last_building_uid)
+        return bool(self.buildings[self.uid].time_step >= self.simulation_period[1] and self.uid == self.last_building_uid)
     
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
