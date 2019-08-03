@@ -8,7 +8,7 @@ class CityLearn(gym.Env):
         self.buildings = buildings
         self.simulation_period = simulation_period
         self.hour = iter(np.array(range(simulation_period[0], simulation_period[1] + 1)))
-        self.time_step = next(self.hour)
+#         self.time_step = next(self.hour)
         self.total_electric_consumption = []
         self.action_track = {}
         self.uid = None
@@ -59,7 +59,7 @@ class CityLearn(gym.Env):
         #Initialization of variables
         self.action_track = {}
         self.hour = iter(np.array(range(self.simulation_period[0], self.simulation_period[1] + 1)))
-        self.time_step = next(self.hour)
+#         self.time_step = next(self.hour)
         self.state = np.array([0.0,0.0,0.0], dtype=np.float32)
         self.total_electric_consumption = []
         
