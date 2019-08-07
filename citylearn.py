@@ -28,17 +28,18 @@ class CityLearn(gym.Env):
             self.buildings[uid].time_step = self.time_step
         
     def step(self, action):
-        action = action/self.time_resolution
+        a = action[0]
+        a = a/self.time_resolution
         uid = self.uid
                 
-        self.action_track[uid].append(action)
+        self.action_track[uid].append(a)
         electric_demand = 0
         reward = 0
         for i in range(self.time_step, self.time_step + self.time_resolution):                
             #Heating
             electric_demand += self.buildings[uid].set_storage_heating(0)
             #Cooling
-            electric_demand += self.buildings[uid].set_storage_cooling(action)
+            electric_demand += self.buildings[uid].set_storage_cooling(a)
 
             #Electricity consumed
             reward = reward - electric_demand
@@ -51,7 +52,6 @@ class CityLearn(gym.Env):
         s3 = self.buildings[uid].cooling_storage.soc/self.buildings[uid].cooling_storage.capacity
         
         self.state = np.array([s1, s2, s3])
-        print(self.state)
         
         terminal = self._terminal()
         self.next_hour()
