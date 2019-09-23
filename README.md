@@ -9,6 +9,7 @@ We also provide an example of a reinforcement learning implementation. In partic
 
 # Buildings
 The heating and cooling demands for the buildings are obtained from CitySim, a building energy simulator for urban scale analysis. CitySim uses geometrical 3D and physical reduced order models to estimate the heating and cooling loads in the buildings. It accounts for the internal heat gains due to solar irradiance, activities of the occupants, and the thermal losses. We modelled the buildings as a single-thermal zones that are provided with various heating and cooling supply devices, and energy storage devices. Every building is instantiated by defining its associated energy supply and storage devices.
+The state variables are: hour of the day (1 to 24), outdoor air temperature, and state of charge of the energy storage device (0 to 1). The action variable of each agent is the change in the stored energy for the next time step (-1 to 1). 0 means no change in the state of charge, -1 means that the storage unit will try to release 100% of the total energy storage capacity into the building (if possible), and 1 will fully load the energy storage device (if possible). These actions are limited by the physical constraints of the system (cooling demand of the building, the maximum power that the heat pump can provide in a time-step, and the current state of charge of the storage device).
 
 ![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/agents.jpg)
 
