@@ -9,6 +9,9 @@ We also provide an example of a reinforcement learning implementation. In partic
 
 # Buildings
 The heating and cooling demands for the buildings are obtained from CitySim, a building energy simulator for urban scale analysis. CitySim uses geometrical 3D and physical reduced order models to estimate the heating and cooling loads in the buildings. It accounts for the internal heat gains due to solar irradiance, activities of the occupants, and the thermal losses. We modelled the buildings as a single-thermal zones that are provided with various heating and cooling supply devices, and energy storage devices. Every building is instantiated by defining its associated energy supply and storage devices.
+
+![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/agents.jpg)
+
 # Heat pumps
 Every time step of the simulation, the heating and cooling coefficients of performance (COP) of the heat pump are calculated as a function of the outdoor temperature (T_outdoorAir) from the weather file, the technical efficiency of the heat pump (η), and the target temperatures of the heat/cooling energy sink (T_target), which are specified by the user. Assuming an air-to-water heat pump, T_target is approximately the temperature of the water to which the heating or cooling energy is being supplied.
 The methods get_max_cooling_power() and get_max_heating_power() compute the maximum amount of heating or cooling that the heat pump can provide based on its nominal power of the compressor and its COP. Finally, the methods get_electric_consumption_cooling() and get_electric_consumption_heating() return the amount of electricity consumed by the heat pump for a given amount of supplied heating or cooling energy.
