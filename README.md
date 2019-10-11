@@ -1,11 +1,12 @@
-# CityLearn
+CityLearn
+**********
+.. contents:: **Contents of this document**
+   :depth: 2
 CityLearn is an open source OpenAI Gym environment for the implementation of reinforcement learning (RL) for simulated demand response scenarios in buildings and cities.
 ![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/dr.jpg)
 ## Description
 Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Demand response is the coordination of the electricity consuming agents (i.e. buildings) in order to flatten the overall curve of electrical demand.
 CityLearn allows the research community to explore the use of reinforcement learning to coordinate the electricity consumption in a district with multiple buildings by controlling the amount of stored energy in the summer period.
-.. contents:: **Contents of this document**
-   :depth: 2
 ## Files
 - [main.ipynb](/main.ipynb): Example of the implementation of a reinforcement learning agent ([DDPG](https://arxiv.org/abs/1509.02971)) in a single building in ```CityLearn```
 - [citylearn.py](/citylearn.py): Contains the ```CityLearn``` environment and the functions ```building_loader()``` and ```autosize()```
