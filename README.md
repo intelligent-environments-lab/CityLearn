@@ -4,6 +4,8 @@ CityLearn is an open source OpenAI Gym environment for the implementation of rei
 ## Description
 Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Demand response is the coordination of the electricity consuming agents (i.e. buildings) in order to flatten the overall curve of electrical demand.
 CityLearn allows the research community to explore the use of reinforcement learning to coordinate the electricity consumption in a district with multiple buildings by controlling the amount of stored energy in the summer period.
+.. contents:: **Contents of this document**
+   :depth: 2
 ## Files
 - [main.ipynb](/main.ipynb): Example of the implementation of a reinforcement learning agent ([DDPG](https://arxiv.org/abs/1509.02971)) in a single building in ```CityLearn```
 - [citylearn.py](/citylearn.py): Contains the ```CityLearn``` environment and the functions ```building_loader()``` and ```autosize()```
@@ -57,8 +59,8 @@ Storage devices allow heat pumps to store energy that can be later released into
 [Vázquez-Canteli, J.R., and Nagy, Z., “Reinforcement Learning for Demand Response: A Review of algorithms and modeling techniques”, Applied Energy 235, 1072-1089, 2019.](https://www.sciencedirect.com/science/article/abs/pii/S0306261918317082)
 [Vázquez-Canteli, J.R., Ulyanin, S., Kämpf J., and Nagy, Z., “Fusing TensorFlow with building energy simulation for intelligent energy management in smart cities”, Sustainable Cities and Society, 2018.](https://www.sciencedirect.com/science/article/abs/pii/S2210670718314380)
 ## Contact
-[José R. Vázquez-Canteli](https://www.researchgate.net/profile/Jose_Vazquez-Canteli2), PhD Candidate at The University of Texas at Austin, Department of Civil, Architectural, and Environmental Engineering. [Intelligent Environments Laboratory (IEL)](https://nagy.caee.utexas.edu/)
-[Dr. Zoltan Nagy](https://nagy.caee.utexas.edu/team/prof-zoltan-nagy-phd/), Assistant Professor at The University of Texas at Austin, Department of Civil, Architectural, and Environmental Engineering.
+- [José R. Vázquez-Canteli](https://www.researchgate.net/profile/Jose_Vazquez-Canteli2), PhD Candidate at The University of Texas at Austin, Department of Civil, Architectural, and Environmental Engineering. [Intelligent Environments Laboratory (IEL)](https://nagy.caee.utexas.edu/)
+- [Dr. Zoltan Nagy](https://nagy.caee.utexas.edu/team/prof-zoltan-nagy-phd/), Assistant Professor at The University of Texas at Austin, Department of Civil, Architectural, and Environmental Engineering.
 ## License
 The MIT License (MIT) Copyright (c) 2019, José Ramón Vázquez-Canteli
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
