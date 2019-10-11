@@ -5,18 +5,16 @@ CityLearn is an open source OpenAI Gym environment for the implementation of rei
 Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Demand response is the coordination of the electricity consuming agents (i.e. buildings) in order to flatten the overall curve of electrical demand.
 CityLearn allows the research community to explore the use of reinforcement learning to coordinate the electricity consumption in a district with multiple buildings by controlling the amount of stored energy in the summer period.
 ## Files
-- [main.ipynb](/main.py): Example of the implementation of a reinforcement learning agent ([DDPG](https://arxiv.org/abs/1509.02971)) in a single building in ```CityLearn```
-- [citylearn.py](/citylearn.py): Contains the ```CityLearn``` environment and the functions ```building_loader()``` and ```autosize()```
-- [energy_models.py](/energy_models.py): Contains the classes ```Building```, ```HeatPump``` and ```EnergyStorage```, which are called by the ```CityLearn``` class
-- [agent.py](/agent.py): Implementation of the Deep Deterministic Policy Gradient ([DDPG](https://arxiv.org/abs/1509.02971)) RL algorithm. This file must be modified with any other RL implementation, which can then be run in the [main.ipynb](/main.py) file.
+- [main.ipynb](main.py): Example of the implementation of a reinforcement learning agent ([DDPG](https://arxiv.org/abs/1509.02971)) in a single building in ```CityLearn```
+- [citylearn.py](citylearn.py): Contains the ```CityLearn``` environment and the functions ```building_loader()``` and ```autosize()```
+- [energy_models.py](energy_models.py): Contains the classes ```Building```, ```HeatPump``` and ```EnergyStorage```, which are called by the ```CityLearn``` class
+- [agent.py](agent.py): Implementation of the Deep Deterministic Policy Gradient ([DDPG](https://arxiv.org/abs/1509.02971)) RL algorithm. This file must be modified with any other RL implementation, which can then be run in the [main.ipynb](main.py) file.
 - [reward_function.py](/reward_function.py): Contains the reward function that wraps and modifies the rewards obtained from ```CityLearn```. This function can be modified by the user in order to minimize the cost function of ```CityLearn```.
 ### Classes
-```
-|-CityLearn
-  |-Building
-    |-HeatPump
-    |-EnergyStorage
-```
+- CityLearn
+  - Building
+    - HeatPump
+    - EnergyStorage
 ![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/agents.jpg)
 ### Building
 The heating and cooling demands of the buildings are obtained from [CitySim](https://www.epfl.ch/labs/leso/transfer/software/citysim/), a building energy simulator for urban scale analysis. Every building is instantiated by defining its associated energy supply and storage devices.
@@ -35,13 +33,13 @@ Storage devices allow heat pumps to store energy that can be later released into
   - ```charge()``` increases (+) or decreases (-) of the amount of energy stored. The input is the amount of energy as a ratio of the total capacity of the storage device (can vary from -1 to 1). Outputs the energy balance of the storage device.
 ## Environment variables
 ### States
-- s1: outdoor temperature in Celcius degrees. Same for every building for every time step. 
-- s2: hour of day (from 1 to 24). Same for every building for every time step. 
-- s3: state of the charge (SOC) of the energy storage device. From 0 (no energy stored) to 1 (at full capacity). It is different for every building and depends on the actions taken by each agent.
+- ```s1```: outdoor temperature in Celcius degrees. Same for every building for every time step. 
+- ```s2```: hour of day (from 1 to 24). Same for every building for every time step. 
+- ```s3```: state of the charge (SOC) of the energy storage device. From 0 (no energy stored) to 1 (at full capacity). It is different for every building and depends on the actions taken by each agent.
 ### Actions
-- a: increase (+) or decrease (-) of the amount of cooling energy stored in the energy storage device. Goes from -0.5 to 0.5 (attempts to decrease/increase the cooling energy stored in the storage device by an amount equivalent to 0.5 times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into the building. Therefore, the state of charge ```s3``` may not decrease by the same amount as the action ```a``` taken if the demand for cooling energy in the building is lower than ```a```.
+- ```a```: increase (+) or decrease (-) of the amount of cooling energy stored in the energy storage device. Goes from -0.5 to 0.5 (attempts to decrease/increase the cooling energy stored in the storage device by an amount equivalent to 0.5 times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into the building. Therefore, the state of charge ```s3``` may not decrease by the same amount as the action ```a``` taken if the demand for cooling energy in the building is lower than ```a```.
 ### Reward
-- r: -cost of electricity. By default, it is proportional to the negative value of the cost function ```env.cost()```. The square term incentivizes the heat pumps to flatten the curve of demand instead of simply consuming less energy. See ```reward_function.py```, which contains a function that wraps the rewards obtained from the environment. The ```reward_function``` can be customized by the user in order to minimize the cost returned by the environment.
+- ```r```: -cost of electricity. By default, it is proportional to the negative value of the cost function ```env.cost()```. The square term incentivizes the heat pumps to flatten the curve of demand instead of simply consuming less energy. See ```reward_function.py```, which contains a function that wraps the rewards obtained from the environment. The ```reward_function``` can be customized by the user in order to minimize the cost returned by the environment.
 ### Cost function
 ```env.cost()``` is the square of the total electricity consumption of all the buildings. Minimizing the ```env.cost()``` is achieved when the overall curve of electricity demand is flattened and reduced as much as possible.
 ## Additional functions
@@ -53,6 +51,6 @@ Storage devices allow heat pumps to store energy that can be later released into
 - Multiple buildings
   - If controlled independently of each other and with no coordination, they will all tend to consume more electricity simultaneously during the same hours at night (when the COPs are highest), raising the price for electricity that they all pay at this time and therefore the electricity cost won't be completely minimized.
 ### Challenges 
-1- Implement an independent RL agent for every building (this has already been done in this example) and try to minimize the scores in the minimum number of episodes for multiple buildings running simultaneously. The algorithm should be properly calibrated to maximize its likelyhood of converging to a good policy (the current example does not converge 100% of the times it is run). 
-2- Coordinate multiple decentralized RL agents or a single centralized agent to control all the buildings. The agents could share certain information with each other (i.e. ```s3```), while other variables (i.e. ```s1``` and ```s2```) are aleady common for all the agents. The agents could decide which actions to take sequentially and share this information whith other agents so they can decide what actions they will take. Pay especial attention to whether the environment (as seen by every agent) follows the Markov property or not, and how the states should be defined accordingly such that it is as Markovian as possible.
+1. Implement an independent RL agent for every building (this has already been done in this example) and try to minimize the scores in the minimum number of episodes for multiple buildings running simultaneously. The algorithm should be properly calibrated to maximize its likelyhood of converging to a good policy (the current example does not converge 100% of the times it is run). 
+2. Coordinate multiple decentralized RL agents or a single centralized agent to control all the buildings. The agents could share certain information with each other (i.e. ```s3```), while other variables (i.e. ```s1``` and ```s2```) are aleady common for all the agents. The agents could decide which actions to take sequentially and share this information whith other agents so they can decide what actions they will take. Pay especial attention to whether the environment (as seen by every agent) follows the Markov property or not, and how the states should be defined accordingly such that it is as Markovian as possible.
 
