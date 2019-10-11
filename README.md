@@ -46,9 +46,9 @@ Storage devices allow heat pumps to store energy that can be later released into
 - ```building_loader(demand_file, weather_file, buildings)``` receives a dictionary with all the building instances and their respectives IDs, and loads them with the data of heating and cooling loads from the simulations.
 - ```auto_size(buildings, t_target_heating, t_target_cooling)``` automatically sizes the heat pumps and the storage devices. It assumes fixed target temperatures of the heat pump for heating and cooling, which combines with weather data to estimate their hourly COP for the simulated period. The ```HeatPump``` is sized such that it will always be able to fully satisfy the heating and cooling demands of the building. This function also sizes the ```EnergyStorage``` devices, setting their capacity as 3 times the maximum hourly cooling demand in the simulated period.
 ## Multi-agent coordination
-- One building
+### One building
   - The optimal policy consists on storing cooling energy during the night (when the cooling demand of the building is low and the COP of the heat pump is higher), and releasing the stored cooling energy into the building during the day (high demand for cooling and low COP). 
-- Multiple buildings
+### Multiple buildings
   - If controlled independently of each other and with no coordination, they will all tend to consume more electricity simultaneously during the same hours at night (when the COPs are highest), raising the price for electricity that they all pay at this time and therefore the electricity cost won't be completely minimized.
 ### Challenges 
 1. Implement an independent RL agent for every building (this has already been done in this example) and try to minimize the scores in the minimum number of episodes for multiple buildings running simultaneously. The algorithm should be properly calibrated to maximize its likelyhood of converging to a good policy (the current example does not converge 100% of the times it is run). 
