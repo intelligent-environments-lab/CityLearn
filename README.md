@@ -1,7 +1,4 @@
-CityLearn
-**********
-.. contents:: **Contents of this document**
-   :depth: 2
+# CityLearn
 CityLearn is an open source OpenAI Gym environment for the implementation of reinforcement learning (RL) for simulated demand response scenarios in buildings and cities.
 ![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/dr.jpg)
 ## Description
