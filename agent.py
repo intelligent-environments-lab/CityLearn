@@ -70,7 +70,7 @@ class Batch:
         self.batch.append(sample)
         
     def sample(self, sample_size):
-        s, a, r, s_next = [],[],[],[]
+        s, a, r, s_next, done = [],[],[],[],[]
         
         if sample_size > len(self.batch):
             sample_size = len(self.batch)
@@ -81,7 +81,8 @@ class Batch:
             a.append(values[1])
             r.append(values[2])
             s_next.append(values[3])
-        return torch.tensor(s,dtype=torch.float32), torch.tensor(a,dtype=torch.float32), torch.tensor(r,dtype=torch.float32), torch.tensor(s_next,dtype=torch.float32)
+            done.append([4])
+        return torch.tensor(s,dtype=torch.float32), torch.tensor(a,dtype=torch.float32), torch.tensor(r,dtype=torch.float32), torch.tensor(s_next,dtype=torch.float32), done
     
     def __len__(self):
          return len(self.batch)
@@ -133,10 +134,10 @@ class RL_Agents:
             i += 1
         return actions
     
-    def add_to_batch(self, states, actions, rewards, next_states):
+    def add_to_batch(self, states, actions, rewards, next_states, dones):
         i = 0
-        for s, a, r, s_next in zip(states, actions, rewards, next_states):
-            self.batch[i].append_sample((s, a, r, s_next))
+        for s, a, r, s_next, done in zip(states, actions, rewards, next_states, dones):
+            self.batch[i].append_sample((s, a, r, s_next, done))
             i += 1
             
         batch, states_v, actions_v, rewards_v, dones_mask, states_next_v, q_v, last_act_v, q_last_v, q_ref_v, critic_loss_v, cur_actions_v, actor_loss_v = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}  
@@ -149,7 +150,7 @@ class RL_Agents:
             if len(self.batch[i]) > self.MIN_REPLAY_MEMORY:
                 #Every time-step we sample a random minibatch from the batch of experiences and perform the updates of the networks. We do this self.EPOCHS times every time-step
                 for k in range(self.EPOCHS):
-                    states_v[i], actions_v[i], rewards_v[i], states_next_v[i] = self.batch[i].sample(self.BATCH_SIZE)
+                    states_v[i], actions_v[i], rewards_v[i], states_next_v[i], dones_mask[i] = self.batch[i].sample(self.BATCH_SIZE)
 
                     # TRAIN CRITIC
                     self.crt_opt[i].zero_grad()
