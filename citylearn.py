@@ -26,25 +26,27 @@ class CityLearn(gym.Env):
         self.next_hour()
         rewards = []
         self.state = []
+        electric_demand = 0
         for a_bld, building in zip(actions,self.buildings):
             uid = building.buildingId
-            
+            building_electric_demand = 0
             for a in a_bld:
                 a = a/self.time_resolution
                 self.action_track[uid].append(a)
             
                 reward = 0
-                electric_demand = 0
+                
                 for _ in range(self.time_resolution):                
                     #Heating
-                    electric_demand += building.set_storage_heating(0)
+                    building_electric_demand += building.set_storage_heating(0)
                     #Cooling
-                    electric_demand += building.set_storage_cooling(a)
-
-                    #Electricity consumed
-                    reward = reward - electric_demand
-                
-                rewards.append(reward)
+                    building_electric_demand += building.set_storage_cooling(a)
+                    
+            #Electricity consumed by every building
+            rewards.append(building_electric_demand)    
+            
+            #Total electricity consumption
+            electric_demand += building_electric_demand
             
             #States: hour, Tout, Tin, Thermal_energy_stored    
             s1 = building.sim_results['hour'][self.time_step]
