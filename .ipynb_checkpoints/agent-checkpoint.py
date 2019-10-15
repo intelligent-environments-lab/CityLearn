@@ -91,7 +91,7 @@ class Batch:
 class RL_Agents:
     def __init__(self, observation_spaces = None, action_spaces = None):
         self.device = "cpu"
-        self.epsilon = 1.0
+        self.epsilon = 0.2
         self.n_buildings = len(observation_spaces)
         self.batch = {}
         self.frame_idx = {}
@@ -107,9 +107,9 @@ class RL_Agents:
         self.EPOCHS = 1 #Number of iterations used to update the networks for every time-step. It can be set to 1 if we are going to run the agent for an undefined number of episodes (in the main file). In this case, in the main file, we would use a stopping criterion based on a given threshold for the cost. To learn the policy within a single episode, we should increase the value of EPOCHS
         self.GAMMA = 0.99 #Discount factor
         #Epsilon multiplies the exploration noise using in the action selection. 
-        self.EPSILON_START = 1.0 #Epsilon at time-step 0
+        self.EPSILON_START = 0.2 #Epsilon at time-step 0
         self.EPSILON_FINAL = 0.01 #Epsilon at time-step EPSILON_DECAY_LAST_FRAME
-        self.EPSILON_DECAY_LAST_FRAME = 200000#4900 #Time-step in which Epsilon reaches the value EPSILON_FINAL and the steady state
+        self.EPSILON_DECAY_LAST_FRAME = 200000 #4900 #Time-step in which Epsilon reaches the value EPSILON_FINAL and the steady state
         self.SYNC_RATE = 0.01 #Rate at which the target networks are updated to converge towards the actual critic and actor networks. Decreasing SYNC_RATE may require to increase the hyper-parameter EPOCHS
         
         self.hour_idx = 0
@@ -126,16 +126,18 @@ class RL_Agents:
         
     def select_action(self, states):
         i, actions = 0, []
+        action_magnitude = 0.33
         for state in states:
-            a = 0.5*self.act_net[i](torch.tensor(state))
-            a = a.cpu().detach().numpy() + self.epsilon * 0.5 * np.random.normal(size=a.shape)
-            a = np.clip(a, -0.5, 0.5)
+            a = action_magnitude*self.act_net[i](torch.tensor(state))
+            a = a.cpu().detach().numpy() + self.epsilon * action_magnitude * np.random.normal(size=a.shape)
+            a = np.clip(a, -action_magnitude, action_magnitude)
             actions.append(a)
             i += 1
         return actions
     
     def add_to_batch(self, states, actions, rewards, next_states, dones):
         i = 0
+        dones = [dones for _ in range(self.n_buildings)]
         for s, a, r, s_next, done in zip(states, actions, rewards, next_states, dones):
             self.batch[i].append_sample((s, a, r, s_next, done))
             i += 1
@@ -185,3 +187,24 @@ class RL_Agents:
                     #Gradually copies the actor and critic networks to the target networks. Using target networks should make the algorithm more stable.
                     self.tgt_act_net[i].alpha_sync(alpha=1 - self.SYNC_RATE)
                     self.tgt_crt_net[i].alpha_sync(alpha=1 - self.SYNC_RATE)
+                     
+                    
+#MANUALLY OPTIMIZED RULE BASED CONTROLLER
+class RBC_Agent:
+    def __init__(self):
+        self.hour = 3500
+    def select_action(self, states):
+        self.hour += 1
+        hour_day = states[0][0]
+        #DAYTIME
+        a = 0.0
+        if hour_day >= 12 and hour_day <= 19:
+            #SUMMER (RELEASE COOLING)
+            if self.hour >= 2800 and self.hour <= 7000:
+                a = -0.34
+        #NIGHTTIME       
+        elif hour_day >= 2 and hour_day <= 9:
+            #SUMMER (STORE COOLING)
+            if self.hour >= 2800 and self.hour <= 7000:
+                a = 0.2
+        return np.array([[a] for _ in range(len(states))])

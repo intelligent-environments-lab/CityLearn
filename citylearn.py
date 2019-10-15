@@ -90,7 +90,7 @@ class CityLearn(gym.Env):
         return [seed]
     
     def cost(self):
-        return (np.array(self.total_electric_consumption)**2).sum()
+        return np.sqrt((np.array(self.total_electric_consumption)**2).sum())
 
 
 def building_loader(demand_file, weather_file, buildings):
