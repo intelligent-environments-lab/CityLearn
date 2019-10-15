@@ -105,11 +105,11 @@ class RL_Agents:
         self.MIN_REPLAY_MEMORY = 600 #Min number of tuples that are stored in the batch before the training process begins
         self.BATCH_SIZE = 120 #Size of each MINI-BATCH
         self.EPOCHS = 6 #Number of iterations used to update the networks for every time-step. It can be set to 1 if we are going to run the agent for an undefined number of episodes (in the main file). In this case, in the main file, we would use a stopping criterion based on a given threshold for the cost. To learn the policy within a single episode, we should increase the value of EPOCHS
-        self.GAMMA = 0.995 #Discount factor
+        self.GAMMA = 0.99 #Discount factor
         #Epsilon multiplies the exploration noise using in the action selection. 
-        self.EPSILON_START = 0.99 #Epsilon at time-step 0
+        self.EPSILON_START = 1.3 #Epsilon at time-step 0
         self.EPSILON_FINAL = 0.01 #Epsilon at time-step EPSILON_DECAY_LAST_FRAME
-        self.EPSILON_DECAY_LAST_FRAME = 4900 #4900 #Time-step in which Epsilon reaches the value EPSILON_FINAL and the steady state
+        self.EPSILON_DECAY_LAST_FRAME = 22000 #4900 #Time-step in which Epsilon reaches the value EPSILON_FINAL and the steady state
         self.SYNC_RATE = 0.01 #Rate at which the target networks are updated to converge towards the actual critic and actor networks. Decreasing SYNC_RATE may require to increase the hyper-parameter EPOCHS
         
         self.hour_idx = 0
@@ -129,7 +129,7 @@ class RL_Agents:
         action_magnitude = 0.33
         for state in states:
             a = action_magnitude*self.act_net[i](torch.tensor(state))
-            a = a.cpu().detach().numpy() + self.epsilon * np.random.normal(loc = 0, scale = action_magnitude,size=a.shape)
+            a = a.cpu().detach().numpy() + self.epsilon * np.random.normal(loc = 0, scale = action_magnitude, size=a.shape)
             a = np.clip(a, -action_magnitude, action_magnitude)
             actions.append(a)
             i += 1
