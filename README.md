@@ -10,6 +10,7 @@ CityLearn allows the research community to explore the use of reinforcement lear
 - [energy_models.py](/energy_models.py): Contains the classes ```Building```, ```HeatPump``` and ```EnergyStorage```, which are called by the ```CityLearn``` class
 - [agent.py](/agent.py): Implementation of the Deep Deterministic Policy Gradient ([DDPG](https://arxiv.org/abs/1509.02971)) RL algorithm. This file must be modified with any other RL implementation, which can then be run in the [main.ipynb](/main.ipynb) file.
 - [reward_function.py](/reward_function.py): Contains the reward function that wraps and modifies the rewards obtained from ```CityLearn```. This function can be modified by the user in order to minimize the cost function of ```CityLearn```.
+- [example_rbc.ipynb](/example_rbc.ipynb): Example of the implementation of a manually optimized Rule-based controller (RBC) that can be used as a comparison
 ### Classes
 - CityLearn
   - Building
@@ -39,9 +40,9 @@ Storage devices allow heat pumps to store energy that can be later released into
 ### Actions
 - ```a```: increase (+) or decrease (-) of the amount of cooling energy stored in the energy storage device. Goes from -0.5 to 0.5 (attempts to decrease/increase the cooling energy stored in the storage device by an amount equivalent to 0.5 times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into the building. Therefore, the state of charge ```s3``` may not decrease by the same amount as the action ```a``` taken if the demand for cooling energy in the building is lower than ```a```.
 ### Reward
-- ```r```: -cost of electricity. By default, it is proportional to the negative value of the cost function ```env.cost()```. The square term incentivizes the heat pumps to flatten the curve of demand instead of simply consuming less energy. See ```reward_function.py```, which contains a function that wraps the rewards obtained from the environment. The ```reward_function``` can be customized by the user in order to minimize the cost returned by the environment.
+- ```r```: the reward returned by CityLearn is the electricity consumption of every building for a given hour. Then, the function ```reward_function``` converts these rewards to electricity costs. See ```reward_function.py```, which contains a function that wraps the rewards obtained from the environment. The ```reward_function``` can be customized by the user in order to minimize the cost returned by the environment.
 ### Cost function
-```env.cost()``` is the square of the total electricity consumption of all the buildings. Minimizing the ```env.cost()``` is achieved when the overall curve of electricity demand is flattened and reduced as much as possible.
+```env.cost()``` sqrt(sum(e^2)). Where 'e' is the sum of the  electricity consumption of all the buildings in a given hour, and sum(e^2) is the sum of the squares of 'e' over the whole simulation period. The objetive of the agent(s) must be to minimize this cost. Minimizing the ```env.cost()``` is achieved when the overall curve of electricity demand is flattened and reduced as much as possible.
 ## Additional functions
 - ```building_loader(demand_file, weather_file, buildings)``` receives a dictionary with all the building instances and their respectives IDs, and loads them with the data of heating and cooling loads from the simulations.
 - ```auto_size(buildings, t_target_heating, t_target_cooling)``` automatically sizes the heat pumps and the storage devices. It assumes fixed target temperatures of the heat pump for heating and cooling, which combines with weather data to estimate their hourly COP for the simulated period. The ```HeatPump``` is sized such that it will always be able to fully satisfy the heating and cooling demands of the building. This function also sizes the ```EnergyStorage``` devices, setting their capacity as 3 times the maximum hourly cooling demand in the simulated period.
