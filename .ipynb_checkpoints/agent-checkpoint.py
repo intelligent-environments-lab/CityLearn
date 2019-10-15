@@ -105,13 +105,13 @@ class RL_Agents:
         LEARNING_RATE_CRITIC = 1e-3
         self.MIN_REPLAY_MEMORY = 600 #Min number of tuples that are stored in the batch before the training process begins
         self.BATCH_SIZE = 120 #Size of each MINI-BATCH
-        self.EPOCHS = 6 #Number of iterations used to update the networks for every time-step. It can be set to 1 if we are going to run the agent for an undefined number of episodes (in the main file). In this case, in the main file, we would use a stopping criterion based on a given threshold for the cost. To learn the policy within a single episode, we should increase the value of EPOCHS
+        self.ITERATIONS = 20 #Number of iterations used to update the networks for every time-step. It can be set to 1 if we are going to run the agent for an undefined number of episodes (in the main file). In this case, in the main file, we would use a stopping criterion based on a given threshold for the cost. To learn the policy within a single episode, we should increase the value of ITERATIONS
         self.GAMMA = 0.99 #Discount factor
         #Epsilon multiplies the exploration noise using in the action selection. 
         self.EPSILON_START = 1.3 #Epsilon at time-step 0
         self.EPSILON_FINAL = 0.01 #Epsilon at time-step EPSILON_DECAY_LAST_FRAME
         self.EPSILON_DECAY_LAST_FRAME = 22000 #4900 #Time-step in which Epsilon reaches the value EPSILON_FINAL and the steady state
-        self.SYNC_RATE = 0.01 #Rate at which the target networks are updated to converge towards the actual critic and actor networks. Decreasing SYNC_RATE may require to increase the hyper-parameter EPOCHS
+        self.SYNC_RATE = 0.01 #Rate at which the target networks are updated to converge towards the actual critic and actor networks. Decreasing SYNC_RATE may require to increase the hyper-parameter ITERATIONS
         
         self.hour_idx = 0
         i = 0
@@ -151,8 +151,8 @@ class RL_Agents:
         for i in range(self.n_buildings):
             #The learning begins when a minimum number of tuples have beena added to the batch
             if len(self.batch[i]) > self.MIN_REPLAY_MEMORY:
-                #Every time-step we sample a random minibatch from the batch of experiences and perform the updates of the networks. We do this self.EPOCHS times every time-step
-                for k in range(self.EPOCHS):
+                #Every time-step we sample a random minibatch from the batch of experiences and perform the updates of the networks. We do this self.ITERATIONS times every time-step
+                for k in range(self.ITERATIONS):
                     states_v[i], actions_v[i], rewards_v[i], states_next_v[i], dones_mask[i] = self.batch[i].sample(self.BATCH_SIZE)
 
                     # TRAIN CRITIC
