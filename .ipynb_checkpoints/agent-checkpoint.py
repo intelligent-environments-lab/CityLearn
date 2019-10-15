@@ -95,6 +95,7 @@ class RL_Agents:
         self.n_buildings = len(observation_spaces)
         self.batch = {}
         self.frame_idx = {}
+        self.actor_loss_list, self.critic_loss_list = {i: [] for i in range(self.n_buildings)}, {i: [] for i in range(self.n_buildings)}
         for i in range(len(observation_spaces)):
             self.batch[i] = Batch()
             
@@ -169,7 +170,8 @@ class RL_Agents:
                     #Q_target used to train critic net Q'
                     q_ref_v[i] = rewards_v[i].unsqueeze(dim=-1) + q_last_v[i] * self.GAMMA
                     critic_loss_v[i] = F.mse_loss(q_v[i], q_ref_v[i].detach())
-                    critic_loss_v[i].backward()
+                    self.critic_loss_list[i].append(critic_loss_v[i])
+                    critic_loss_v[i].backward()  
                     self.crt_opt[i].step()
 
                     # TRAIN ACTOR
@@ -180,6 +182,7 @@ class RL_Agents:
                     #Actor loss = mean{ -Q_i'(s_i, a|teta_mu) }
                     actor_loss_v[i] = -self.crt_net[i](states_v[i], cur_actions_v[i]) #<----- Critic is used to train the Actor
                     actor_loss_v[i] = actor_loss_v[i].mean()
+                    self.actor_loss_list[i].append(actor_loss_v[i])
                     #Find gradient of the loss and backpropagate to perform the updates of teta_mu
                     actor_loss_v[i].backward()
                     self.act_opt[i].step()
