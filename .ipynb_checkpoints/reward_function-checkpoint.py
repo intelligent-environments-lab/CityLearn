@@ -10,7 +10,7 @@ def reward_function(rewards):
     for r in rewards:
         total_energy_demand += -r
         
-    price = total_energy_demand*3e-5 + 0.045
+    price = total_energy_demand*3e-5 # + 0.045
     
     for i in range(len(rewards)):
         rewards[i] = price*rewards[i]

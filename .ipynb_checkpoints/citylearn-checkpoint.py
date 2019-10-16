@@ -43,7 +43,7 @@ class CityLearn(gym.Env):
                     building_electric_demand += building.set_storage_cooling(a)
                     
             #Electricity consumed by every building
-            rewards.append(building_electric_demand)    
+            rewards.append(-building_electric_demand)    
             
             #Total electricity consumption
             electric_demand += building_electric_demand
