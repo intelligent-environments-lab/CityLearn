@@ -2,8 +2,16 @@ from citylearn import  CityLearn, building_loader, auto_size
 from energy_models import HeatPump, EnergyStorage, Building
 import matplotlib.pyplot as plt
 import numpy as np
+import logging
 from pathlib import Path
 import sys
+
+logger = logging.getLogger('spam_application')
+logger.setLevel(logging.INFO)
+
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+logger.addHandler(ch)
 
 loss_coeff = 0.19/24
 efficiency = 1.0
@@ -11,6 +19,7 @@ efficiency = 1.0
 # TODO: Solve the losses due to discretization. Instead of specifying in action how much to charge/discharge, specify the
 # level you want to reach.
 # TODO: Extend to multiple buildings (assuming we have the same cooling demand pattern for the buildings for a time period).
+# TODO: Execute the optimal policy with the environment to assert the cost we have found.
 
 # TODO: Ensure positive transfer irrespective of start state
 
@@ -58,9 +67,9 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
   # TODO (Readability): Create numpy array that can be indexed using time_step instead of time_step - start_time
   # cost = lambda t, c, a: cost_array[t-start_time][c][a]
 
-  print("ES capacity {0}\n".format(cooling_storage.capacity))
-  # print("Cooling demand\n{0}\n".format(sim_results['cooling_demand'][start_time:end_time+1]))
-  # print("Outside temps\n{0}\n".format(sim_results['t_out'][start_time:end_time+1]))
+  logger.info("ES capacity {0}\n".format(cooling_storage.capacity))
+  # logger.debug("Cooling demand\n{0}\n".format(sim_results['cooling_demand'][start_time:end_time+1]))
+  # logger.debug("Outside temps\n{0}\n".format(sim_results['t_out'][start_time:end_time+1]))
 
   elec_no_es = []
   cooling_demand = []
@@ -70,10 +79,11 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
     e = cooling_pump.get_electric_consumption_cooling(sim_results['cooling_demand'][t])
     elec_no_es.append(e*e)
 
-  print("Sum of Electricity^2 without ES {0}\n".format(elec_no_es))
+  logger.debug("Sum of Electricity^2 without ES {0}\n".format(elec_no_es))
 
   # Store the optimal action sequence
   optimal_action_sequence = np.zeros((end_time - start_time + 2))
+  optimal_action_val = np.zeros((end_time - start_time + 2))
 
   for time_step in range(end_time, start_time-1, -1):
     for charge_level in range(charge_levels-1, -1, -1):
@@ -86,7 +96,7 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
         charge_on_es = charge_on_es*(1-loss_coeff)
         charge_transfer = get_val(-1, 1, action, action_levels)
 
-        print("Time {0} charge {1:.2f} action {2:.2f}".format(time_step, charge_on_es, charge_transfer))
+        logger.debug("Time {0} charge {1:.2f} action {2:.2f}".format(time_step, charge_on_es, charge_transfer))
 
         # If action tries to discharge more than what is available, skip it. All further actions in the loop
         # will discharge more, so break.
@@ -127,33 +137,36 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
         next_charge_floor = get_val(0., 1., next_charge_level, charge_levels)
 
         # J is used at places to denote energy instead of charge value.
-        print("Cooling demand {0:.2f}; Maybe power avail {1:.2f}; To ES {2:.2f} J, {3:.2f} -> {4:.2f} -> {5:.2f}; From pump {6:.2f}; Elec^2 {7:.2f}; COP {8:.2f}".format(sim_results['cooling_demand'][time_step],
+        logger.debug("Cooling demand {0:.2f}; Maybe power avail {1:.2f}; To ES {2:.2f} J, {3:.2f} -> {4:.2f} -> {5:.2f}; From pump {6:.2f}; Elec^2 {7:.2f}; COP {8:.2f}".format(sim_results['cooling_demand'][time_step],
           cooling_power_avail, cooling_energy_to_storage, charge_on_es, next_charge_on_es, next_charge_floor, cooling_energy_drawn_from_heat_pump, elec_demand_cooling*elec_demand_cooling,
           cooling_pump.cop_cooling))
 
-        #print("Minimum elec energy in step {0}, charge {1} is {2}".format(time_step+1, next_charge_level, min(cost[time_step+1][next_charge_level])))
+        #logger.debug("Minimum elec energy in step {0}, charge {1} is {2}".format(time_step+1, next_charge_level, min(cost[time_step+1][next_charge_level])))
         cost_array[time_step-start_time][charge_level][action] = elec_demand_cooling*elec_demand_cooling + min(cost_array[time_step+1-start_time][next_charge_level])
-        # print("\tMin sum of E^2 on this route {0:.2f}".format(cost_array[time_step-start_time][charge_level][action]))
+        # logger.debug("\tMin sum of E^2 on this route {0:.2f}".format(cost_array[time_step-start_time][charge_level][action]))
         if break_after_this_action:
             break
 
-  print("\n\nOptimal sequence ----> ")
+  logger.debug("\n\nOptimal sequence ----> ")
   charge_crwl = 0
 
   for time_step in range(start_time, end_time+1):
     curr_charge = get_val(0., 1., charge_crwl, charge_levels)
     curr_charge_after_loss = get_val(0., 1., charge_crwl, charge_levels) * (1-loss_coeff)
     optimal_action_sequence[time_step-start_time] = np.argmin(cost_array[time_step-start_time][charge_crwl])
+    optimal_action_val[time_step-start_time] = get_val(action_min, action_max,
+      optimal_action_sequence[time_step-start_time], action_levels)
+
     next_charge = get_val(-1, 1, optimal_action_sequence[time_step-start_time], action_levels) + curr_charge_after_loss
     next_charge_floor = get_val(0., 1., get_level(0., 1., next_charge, charge_levels), charge_levels)
 
-    print("Optimal action seq {0}".format(optimal_action_sequence[time_step-start_time]))
-    print("{0:.2f}: {1:.2f} -> {2:.2f} -> {3:.2f} -> {4:.2f}; {5:.2f}".format(time_step, curr_charge, curr_charge_after_loss,
+    logger.debug("Optimal action seq {0}".format(optimal_action_sequence[time_step-start_time]))
+    logger.debug("{0:.2f}: {1:.2f} -> {2:.2f} -> {3:.2f} -> {4:.2f}; {5:.2f}".format(time_step, curr_charge, curr_charge_after_loss,
       next_charge, next_charge_floor,
       cost_array[time_step-start_time][charge_crwl][int(optimal_action_sequence[time_step-start_time])]))
     charge_crwl = get_level(0., 1., next_charge, charge_levels)
 
-  return min(cost_array[0][0])
+  return np.sqrt(min(cost_array[0][0])), optimal_action_val
 
 def get_cost_of_building(building_uid, **kwargs):
   '''
@@ -182,9 +195,22 @@ def get_cost_of_building(building_uid, **kwargs):
   auto_size(buildings, t_target_heating = 45, t_target_cooling = 10)
 
   env = CityLearn(demand_file, weather_file, buildings = buildings, time_resolution = 1,
-    simulation_period = (kwargs["start_time"], kwargs["end_time"]))
+    simulation_period = (kwargs["start_time"]-1, kwargs["end_time"]))
 
-  return run_dp(heat_pump[buildings[-1].buildingId], cooling_tank[buildings[-1].buildingId], buildings[-1], **kwargs)
+  cost_from_dp, optimal_action_val = \
+    run_dp(heat_pump[buildings[-1].buildingId], cooling_tank[buildings[-1].buildingId], buildings[-1], **kwargs)
+
+  env.reset()
+  done = False
+  time_step = 0
+  while not done:
+      _, rewards, done, _ = env.step([[optimal_action_val[time_step]] for i in range(len(building_ids))])
+      time_step += 1
+  cost_via_env = env.cost()
+
+  logger.info("Cost via env {0}, Cost claimed by dp {1}".format(cost_via_env, cost_from_dp))
+  assert(cost_via_env == cost_from_dp)
+  return cost_via_env
 
 
 import argparse
@@ -208,14 +234,8 @@ parser.add_argument('--building_uid', help='Use 8 for now', type=int, required=T
 
 args = parser.parse_args()
 
-elect_consump = get_cost_of_building(args.building_uid, start_time=args.start_time, end_time=args.end_time,
+cost = get_cost_of_building(args.building_uid, start_time=args.start_time, end_time=args.end_time,
   action_levels=args.action_levels, min_action_val=args.min_action_val, max_action_val=args.max_action_val,
   charge_levels=args.action_levels, min_charge_val=args.min_action_val, max_charge_val=args.max_action_val)
 
-print("Cost -> {0}".format(np.sqrt(elect_consump)))
-  # Total electricity consumption profile of all the buildings for the last 100 hours of the simulation
-  # print("Plotted {0}...".format(building_idx))
-  # plt.plot(elect_consump)
-
-# plt.show()
-
+logger.info("Cost -> {0}".format(cost))
