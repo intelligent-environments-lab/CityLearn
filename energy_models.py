@@ -56,9 +56,9 @@ class Building:
             elec_demand_heating (float): electricity consumption used for space heating
         """
         cooling_power_avail = self.cooling_device.get_max_cooling_power(t_source_cooling = self.sim_results['t_out'][self.time_step]) - self.sim_results['cooling_demand'][self.time_step]
-        cooling_energy_balance = self.cooling_storage.charge(max(-self.sim_results['cooling_demand'][self.time_step], min(cooling_power_avail, action*self.cooling_storage.capacity))) 
-        cooling_energy_balance = max(0,cooling_energy_balance + self.sim_results['cooling_demand'][self.time_step])
-        elec_demand_cooling = self.cooling_device.get_electric_consumption_cooling(cooling_supply = cooling_energy_balance)
+        cooling_energy_to_storage = self.cooling_storage.charge(max(-self.sim_results['cooling_demand'][self.time_step], min(cooling_power_avail, action*self.cooling_storage.capacity)))
+        cooling_energy_drawn_from_heat_pump = cooling_energy_to_storage + self.sim_results['cooling_demand'][self.time_step]
+        elec_demand_cooling = self.cooling_device.get_electric_consumption_cooling(cooling_supply = cooling_energy_drawn_from_heat_pump)
         self.electricity_consumption_cooling.append(elec_demand_cooling)
         return elec_demand_cooling
     
@@ -109,8 +109,8 @@ class HeatPump:
         """
         Args:
             max_electric_power (float): Maximum amount of electric power that the heat pump can consume from the power grid
-            t_source_cooling (float): Temperature of the sisource from where the cooling energy is taken
-            t_target_cooling (float): Temperature of the sink where the cooling energy will be released
+            t_source_cooling (float): Temperature of the source from where the cooling energy is taken
+            t_target_cooling (float): Temperature of the sink where the cooling energy will be released //The colder one
             
         Returns:
             max_cooling (float): maximum amount of cooling energy that the heatpump can provide
@@ -141,7 +141,7 @@ class HeatPump:
         Args:
             max_electric_power (float): Maximum amount of electric power that the heat pump can consume from the power grid
             t_source_heating (float): Temperature of the source from where the heating energy is taken
-            t_target_heating (float): Temperature of the sink where the heating energy will be released
+            t_target_heating (float): Temperature of the sink where the heating energy will be released //The hotter one
             
         Returns:
             max_heating (float): maximum amount of heating energy that the heatpump can provide
@@ -251,15 +251,15 @@ class EnergyStorage:
         else:
             if self.max_power_output is not None:
                 energy = max(-max_power_output, energy/self.efficiency)
-                self.soc = max(0, soc_init + energy)  
+                self.soc = max(0, soc_init + energy)
             else:
-                self.soc = max(0, soc_init + energy/self.efficiency)  
+                self.soc = max(0, soc_init + energy/self.efficiency)
             
         if self.capacity is not None:
             self.soc = min(self.soc, self.capacity)
           
         #Calculating the energy balance with the electrical grid (amount of energy taken from or relseased to the power grid)
-        #Charging    
+        #Charging
         if energy >= 0:
             self.energy_balance = (self.soc - soc_init)/self.efficiency
         #Discharging
