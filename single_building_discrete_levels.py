@@ -5,10 +5,18 @@ import numpy as np
 from pathlib import Path
 import sys
 
+loss_coeff = 0.57 # 0.19/24
+efficiency = 1.0
+
 # TODO: Take into account losses in storage and while transferring charge.
 # TODO: Extend to multiple buildings (assuming we have the same cooling demand pattern for the buildings for a time period).
 
+# TODO: Ensure positive transfer irrespective of start state
+
 def run_dp(cooling_pump, cooling_storage, building, **kwargs):
+
+  global loss_coeff
+  global efficiency
 
   # Functions to discretize a continuous quantity in level numbers (levels are from 0 to steps - 1).
   # 1. Get level number from value
@@ -50,15 +58,20 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
   # TODO (Readability): Create numpy array that can be indexed using time_step instead of time_step - start_time
   # cost = lambda t, c, a: cost_array[t-start_time][c][a]
 
+  sim_results['t_out'][end_time] = 60.0
   print("ES capacity {0}\n".format(cooling_storage.capacity))
-  print("Cooling demand\n {0}\n".format(sim_results['cooling_demand'][start_time:end_time+1]))
+  print("Cooling demand\n{0}\n".format(sim_results['cooling_demand'][start_time:end_time+1]))
+  print("Outside temps\n{0}\n".format(sim_results['t_out'][start_time:end_time+1]))
 
   elec_no_es = []
   cooling_demand = []
 
   for t in range(start_time, end_time+1):
     #cooling_demand.append(sim_results['cooling_demand'][t])
+    # cooling_pump.time_step = t
+    cooling_pump.set_cop(t, sim_results['t_out'][t])
     e = cooling_pump.get_electric_consumption_cooling(sim_results['cooling_demand'][t])
+    print("Elec demand {0} - {1}".format(t, e))
     elec_no_es.append(e*e)
 
   #print("Demand {0}".format(cooling_demand))
@@ -69,8 +82,13 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
 
   for time_step in range(end_time, start_time-1, -1):
     for charge_level in range(charge_levels-1, -1, -1):
+      # Minor optimization for start time
+      if time_step == start_time and charge_level != 0:
+        continue
+
       for action in range(action_levels-1, -1, -1):
         charge_on_es = get_val(0., 1., charge_level, charge_levels)
+        charge_on_es = charge_on_es*(1-loss_coeff)
         charge_transfer = get_val(-1, 1, action, action_levels)
 
         print("Time {0} charge {1:.2f} action {2:.2f}".format(time_step, charge_on_es, charge_transfer))
@@ -90,25 +108,35 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
 
         # If we are discharging more than the required cooling demand it is valid, but it doesn't make sense to check higher
         # discharging actions after this action. So break after this one action.
-        if charge_transfer < 0 and -1 * charge_transfer * cooling_storage.capacity > sim_results['cooling_demand'][time_step]:
+        if charge_transfer < 0 and -1 * charge_transfer * cooling_storage.capacity * efficiency > sim_results['cooling_demand'][time_step]:
           break_after_this_action = True
 
         # Adapted from set_storage_cooling()
         cooling_power_avail = cooling_pump.get_max_cooling_power(t_source_cooling = sim_results['t_out'][time_step]) - sim_results['cooling_demand'][time_step]
-        cooling_energy_to_storage = max(-sim_results['cooling_demand'][time_step], min(cooling_power_avail, charge_transfer*cooling_storage.capacity))
+        if charge_transfer >= 0:
+          cooling_energy_to_storage = min(cooling_power_avail, charge_transfer*cooling_storage.capacity/efficiency)
+        else:
+          cooling_energy_to_storage = max(-sim_results['cooling_demand'][time_step], charge_transfer*cooling_storage.capacity*efficiency)
+
         cooling_energy_drawn_from_heat_pump = cooling_energy_to_storage + sim_results['cooling_demand'][time_step]
 
         elec_demand_cooling = cooling_pump.get_electric_consumption_cooling(cooling_supply = cooling_energy_drawn_from_heat_pump)
+        if charge_level == 0:
+          print("Elec demand {0} - {1}".format(time_step, elec_demand_cooling))
 
-        next_charge_on_es = charge_on_es + cooling_energy_to_storage/cooling_storage.capacity
+        if cooling_energy_to_storage >= 0:
+          next_charge_on_es = charge_on_es + cooling_energy_to_storage*efficiency/cooling_storage.capacity
+        else:
+          next_charge_on_es = charge_on_es + (cooling_energy_to_storage/efficiency)/cooling_storage.capacity
 
         # Note that we are getting the closest lower charge level from next_charge value, this will result in some losses.
         next_charge_level = get_level(0., 1., next_charge_on_es, charge_levels)
         next_charge_floor = get_val(0., 1., next_charge_level, charge_levels)
 
         # J is used at places to denote energy instead of charge value.
-        print("Cooling demand {0:.2f}; Maybe power avail {1:.2f}; To ES {2:.2f} J, {3:.2f} -> {4:.2f} -> {5:.2f}; From pump {6:.2f}; Elec^2 {7:.2f}".format(sim_results['cooling_demand'][time_step],
-          cooling_power_avail, cooling_energy_to_storage, charge_on_es, next_charge_on_es, next_charge_floor, cooling_energy_drawn_from_heat_pump, elec_demand_cooling*elec_demand_cooling))
+        print("Cooling demand {0:.2f}; Maybe power avail {1:.2f}; To ES {2:.2f} J, {3:.2f} -> {4:.2f} -> {5:.2f}; From pump {6:.2f}; Elec^2 {7:.2f}; COP {8:.2f}".format(sim_results['cooling_demand'][time_step],
+          cooling_power_avail, cooling_energy_to_storage, charge_on_es, next_charge_on_es, next_charge_floor, cooling_energy_drawn_from_heat_pump, elec_demand_cooling*elec_demand_cooling,
+          cooling_pump.cop_cooling))
 
         #print("Minimum elec energy in step {0}, charge {1} is {2}".format(time_step+1, next_charge_level, min(cost[time_step+1][next_charge_level])))
         cost_array[time_step-start_time][charge_level][action] = elec_demand_cooling*elec_demand_cooling + min(cost_array[time_step+1-start_time][next_charge_level])
@@ -120,12 +148,15 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
   charge_crwl = 0
 
   for time_step in range(start_time, end_time+1):
+    curr_charge = get_val(0., 1., charge_crwl, charge_levels)
+    curr_charge_after_loss = get_val(0., 1., charge_crwl, charge_levels) * (1-loss_coeff)
     optimal_action_sequence[time_step-start_time] = np.argmin(cost_array[time_step-start_time][charge_crwl])
-    next_charge = get_val(-1, 1, optimal_action_sequence[time_step-start_time], action_levels) + get_val(0., 1., charge_crwl, charge_levels)
+    next_charge = get_val(-1, 1, optimal_action_sequence[time_step-start_time], action_levels) + curr_charge_after_loss
     next_charge_floor = get_val(0., 1., get_level(0., 1., next_charge, charge_levels), charge_levels)
 
     print("Optimal action seq {0}".format(optimal_action_sequence[time_step-start_time]))
-    print("{0:.2f}: {1:.2f} -> {2:.2f} -> {3:.2f}; {4:.2f}".format(time_step, get_val(0., 1., charge_crwl, charge_levels), next_charge, next_charge_floor,
+    print("{0:.2f}: {1:.2f} -> {2:.2f} -> {3:.2f} -> {4:.2f}; {5:.2f}".format(time_step, curr_charge, curr_charge_after_loss,
+      next_charge, next_charge_floor,
       cost_array[time_step-start_time][charge_crwl][int(optimal_action_sequence[time_step-start_time])]))
     charge_crwl = get_level(0., 1., next_charge, charge_levels)
 
@@ -145,12 +176,11 @@ def get_cost_of_building(building_uid, **kwargs):
   heat_pump, heat_tank, cooling_tank = {}, {}, {}
 
   #Ref: Assessment of energy efficiency in electric storage water heaters (2008 Energy and Buildings)
-  loss_factor = 0.19/24
   buildings = []
   for uid in building_ids:
       heat_pump[uid] = HeatPump(nominal_power = 9e12, eta_tech = 0.22, t_target_heating = 45, t_target_cooling = 10)
-      heat_tank[uid] = EnergyStorage(capacity = 9e12, loss_coeff = loss_factor)
-      cooling_tank[uid] = EnergyStorage(capacity = 9e12, loss_coeff = loss_factor)
+      heat_tank[uid] = EnergyStorage(capacity = 9e12, loss_coeff = loss_coeff)
+      cooling_tank[uid] = EnergyStorage(capacity = 9e12, loss_coeff = loss_coeff)
       buildings.append(Building(uid, heating_storage = heat_tank[uid], cooling_storage = cooling_tank[uid], heating_device = heat_pump[uid], cooling_device = heat_pump[uid]))
       buildings[-1].state_space(np.array([24.0, 40.0, 1.001]), np.array([1.0, 17.0, -0.001]))
       buildings[-1].action_space(np.array([0.5]), np.array([-0.5]))
@@ -181,6 +211,8 @@ parser.add_argument('--start_time',
   required=True)
 parser.add_argument('--end_time', help='End hour', type=int, required=True)
 parser.add_argument('--building_uid', help='Use 8 for now', type=int, required=True)
+#parser.add_argument('--loss_coeff', help='The one given was 0.19/24', type=int, required=True)
+
 args = parser.parse_args()
 
 elect_consump = get_cost_of_building(args.building_uid, start_time=args.start_time, end_time=args.end_time,

@@ -105,6 +105,18 @@ class HeatPump:
         self.heat_supply = []
         self.cooling_supply = []
                    
+    def set_cop(self, time_step, t_source_cooling):
+        # This is a hack, fix this class
+        self.time_step = time_step
+        self.t_source_cooling = t_source_cooling
+
+        #Caping the COP (coefficient of performance) to 1.0 - 20.0
+        if self.t_source_cooling - self.t_target_cooling > 0.01:
+            self.cop_cooling = self.eta_tech*(self.t_target_cooling + 273.15)/(self.t_source_cooling - self.t_target_cooling)
+        else:
+            self.cop_cooling = 20.0
+        self.cop_cooling = max(min(self.cop_cooling, 20.0), 1.0)
+
     def get_max_cooling_power(self, max_electric_power = None, t_source_cooling = None, t_target_cooling = None):
         """
         Args:
@@ -246,7 +258,7 @@ class EnergyStorage:
         if energy >= 0:
             if self.max_power_charging is not None:
                 energy =  min(energy, self.max_power_charging)
-            self.soc = max(0, soc_init + energy*self.efficiency)  
+            self.soc = max(0, soc_init + energy*self.efficiency)
         #Discharging
         else:
             if self.max_power_output is not None:
