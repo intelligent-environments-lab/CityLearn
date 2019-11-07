@@ -5,10 +5,11 @@ import numpy as np
 from pathlib import Path
 import sys
 
-loss_coeff = 0.57 # 0.19/24
+loss_coeff = 0.19/24
 efficiency = 1.0
 
-# TODO: Take into account losses in storage and while transferring charge.
+# TODO: Solve the losses due to discretization. Instead of specifying in action how much to charge/discharge, specify the
+# level you want to reach.
 # TODO: Extend to multiple buildings (assuming we have the same cooling demand pattern for the buildings for a time period).
 
 # TODO: Ensure positive transfer irrespective of start state
@@ -34,7 +35,6 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
   # Gives val of level
   def get_val(min_val, max_val, level, level_cnt):
     slab_size = (max_val - min_val)/(level_cnt-1)
-    # print("Charge val for {0} to {1} for {2} is {3}".format(min, max, step, slab_size*step + min))
     return slab_size*level + min_val
 
 
@@ -58,23 +58,18 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
   # TODO (Readability): Create numpy array that can be indexed using time_step instead of time_step - start_time
   # cost = lambda t, c, a: cost_array[t-start_time][c][a]
 
-  sim_results['t_out'][end_time] = 60.0
   print("ES capacity {0}\n".format(cooling_storage.capacity))
-  print("Cooling demand\n{0}\n".format(sim_results['cooling_demand'][start_time:end_time+1]))
-  print("Outside temps\n{0}\n".format(sim_results['t_out'][start_time:end_time+1]))
+  # print("Cooling demand\n{0}\n".format(sim_results['cooling_demand'][start_time:end_time+1]))
+  # print("Outside temps\n{0}\n".format(sim_results['t_out'][start_time:end_time+1]))
 
   elec_no_es = []
   cooling_demand = []
 
   for t in range(start_time, end_time+1):
-    #cooling_demand.append(sim_results['cooling_demand'][t])
-    # cooling_pump.time_step = t
     cooling_pump.set_cop(t, sim_results['t_out'][t])
     e = cooling_pump.get_electric_consumption_cooling(sim_results['cooling_demand'][t])
-    print("Elec demand {0} - {1}".format(t, e))
     elec_no_es.append(e*e)
 
-  #print("Demand {0}".format(cooling_demand))
   print("Sum of Electricity^2 without ES {0}\n".format(elec_no_es))
 
   # Store the optimal action sequence
@@ -121,8 +116,6 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
         cooling_energy_drawn_from_heat_pump = cooling_energy_to_storage + sim_results['cooling_demand'][time_step]
 
         elec_demand_cooling = cooling_pump.get_electric_consumption_cooling(cooling_supply = cooling_energy_drawn_from_heat_pump)
-        if charge_level == 0:
-          print("Elec demand {0} - {1}".format(time_step, elec_demand_cooling))
 
         if cooling_energy_to_storage >= 0:
           next_charge_on_es = charge_on_es + cooling_energy_to_storage*efficiency/cooling_storage.capacity
@@ -140,7 +133,7 @@ def run_dp(cooling_pump, cooling_storage, building, **kwargs):
 
         #print("Minimum elec energy in step {0}, charge {1} is {2}".format(time_step+1, next_charge_level, min(cost[time_step+1][next_charge_level])))
         cost_array[time_step-start_time][charge_level][action] = elec_demand_cooling*elec_demand_cooling + min(cost_array[time_step+1-start_time][next_charge_level])
-        print("\tMin sum of E^2 on this route {0:.2f}".format(cost_array[time_step-start_time][charge_level][action]))
+        # print("\tMin sum of E^2 on this route {0:.2f}".format(cost_array[time_step-start_time][charge_level][action]))
         if break_after_this_action:
             break
 
@@ -219,7 +212,7 @@ elect_consump = get_cost_of_building(args.building_uid, start_time=args.start_ti
   action_levels=args.action_levels, min_action_val=args.min_action_val, max_action_val=args.max_action_val,
   charge_levels=args.action_levels, min_charge_val=args.min_action_val, max_charge_val=args.max_action_val)
 
-print("Electricity consumption {0}".format(elect_consump))
+print("Cost -> {0}".format(np.sqrt(elect_consump)))
   # Total electricity consumption profile of all the buildings for the last 100 hours of the simulation
   # print("Plotted {0}...".format(building_idx))
   # plt.plot(elect_consump)
