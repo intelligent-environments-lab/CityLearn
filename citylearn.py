@@ -14,6 +14,7 @@ class CityLearn(gym.Env):
         self.simulation_period = simulation_period
         self.uid = None
         self.n_buildings = len(buildings)
+        self.total_charges_made = {building.buildingId: 0 for building in self.buildings}
         self.reset()
         
     def next_hour(self):
@@ -31,6 +32,8 @@ class CityLearn(gym.Env):
             uid = building.buildingId
             building_electric_demand = 0
             for a in a_bld:
+                if a > 0:
+                    self.total_charges_made[building.buildingId] += a
                 a = a/self.time_resolution
                 self.action_track[uid].append(a)
             
@@ -92,6 +95,8 @@ class CityLearn(gym.Env):
     def cost(self):
         return np.sqrt((np.array(self.total_electric_consumption)**2).sum())
 
+    def get_total_charges_made(self):
+        return self.total_charges_made
 
 def building_loader(demand_file, weather_file, buildings):
     demand = pd.read_csv(demand_file,sep="\t")
@@ -112,24 +117,25 @@ def building_loader(demand_file, weather_file, buildings):
 
     #Creating a list with unique values of the IDs
     unique_id_str = sorted(list(set(ids)))
-    unique_id = [int(i) for i in unique_id_str if int(i) in building_ids]
-    unique_id_file = ["(" + str(uid) for uid in unique_id]
+    unique_ids = [int(i) for i in unique_id_str if int(i) in building_ids]
+    unique_id_file = ["(" + str(uid) for uid in unique_ids]
     
     #Filling out the variables of the buildings with the output files from CitySim
-    for uid, building_id in zip(unique_id, unique_id_file):
-        building_list_indx = building_ids[uid]
-        sim_var_name = {sim_var: [col for col in demand.columns if building_id in col if sim_var in col] for sim_var in list(['Qs','ElectricConsumption','Ta'])}
+    for uid in unique_ids:
+        building = buildings[building_ids[uid]]
+        for sub_building_uid in building.sub_building_uids:
+            sim_var_name = {sim_var: [col for col in demand.columns if "(" + str(uid) in col if sim_var in col] for sim_var in list(['Qs','ElectricConsumption','Ta'])}
 
-        #Summing up and averaging the values by the number of floors of the building
-        qs = demand[sim_var_name['Qs']]
-        buildings[building_list_indx].sim_results['cooling_demand'] = -qs[qs<0].sum(axis = 1)/1000
-        buildings[building_list_indx].sim_results['heating_demand'] = qs[qs>0].sum(axis = 1)/1000
-        buildings[building_list_indx].sim_results['non_shiftable_load'] = demand[sim_var_name['ElectricConsumption']]
-        buildings[building_list_indx].sim_results['t_in'] = demand[sim_var_name['Ta']].mean(axis = 1)
-        buildings[building_list_indx].sim_results['t_out'] = weather['Ta']
-        buildings[building_list_indx].sim_results['hour'] = weather['h']
+            #Summing up and averaging the values by the number of floors of the building
+            qs = demand[sim_var_name['Qs']]
+            building.sim_results['cooling_demand'] = -qs[qs<0].sum(axis = 1)/1000
+            building.sim_results['heating_demand'] = qs[qs>0].sum(axis = 1)/1000
+            building.sim_results['non_shiftable_load'] = demand[sim_var_name['ElectricConsumption']]
+            building.sim_results['t_in'] = demand[sim_var_name['Ta']].mean(axis = 1)
+            building.sim_results['t_out'] = weather['Ta']
+            building.sim_results['hour'] = weather['h']
 
-def auto_size(buildings, t_target_heating, t_target_cooling):  
+def auto_size(buildings, t_target_heating, t_target_cooling):
     for building in buildings:
         #Calculating COPs of the heat pumps for every hour
         building.heating_device.cop_heating = building.heating_device.eta_tech*building.heating_device.t_target_heating/(building.heating_device.t_target_heating - (building.sim_results['t_out'] + 273.15))

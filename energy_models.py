@@ -1,8 +1,8 @@
 from gym import spaces
 import numpy as np
 
-class Building:  
-    def __init__(self, buildingId, heating_storage = None, cooling_storage = None, electrical_storage = None, heating_device = None, cooling_device = None):
+class Building:
+    def __init__(self, buildingId, heating_storage = None, cooling_storage = None, electrical_storage = None, heating_device = None, cooling_device = None, sub_building_uids=[]):
         """
         Args:
             buildingId (int)
@@ -12,8 +12,11 @@ class Building:
             heating_device (HeatPump)
             cooling_device (HeatPump)
         """
-        
+
         self.buildingId = buildingId
+        self.sub_building_uids = sub_building_uids
+        self.sub_building_uids.append(self.buildingId)
+
         self.heating_storage = heating_storage
         self.cooling_storage = cooling_storage
         self.electrical_storage = electrical_storage
