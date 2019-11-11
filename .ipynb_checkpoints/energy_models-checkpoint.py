@@ -2,37 +2,39 @@ from gym import spaces
 import numpy as np
 
 class Building:  
-    def __init__(self, buildingId, heating_storage = None, cooling_storage = None, electrical_storage = None, heating_device = None, cooling_device = None):
+    def __init__(self, buildingId, dhw_storage = None, cooling_storage = None, electrical_storage = None, dhw_heating_device = None, cooling_device = None):
         """
         Args:
             buildingId (int)
-            heating_storage (EnergyStorage)
+            dhw_storage (EnergyStorage)
             cooling_storage (EnergyStorage)
             electrical_storage (EnergyStorage)
-            heating_device (HeatPump)
+            dhw_heating_device (ElectricHeater or HeatPump)
             cooling_device (HeatPump)
         """
         
         self.buildingId = buildingId
-        self.heating_storage = heating_storage
+        self.dhw_storage = dhw_storage
         self.cooling_storage = cooling_storage
         self.electrical_storage = electrical_storage
-        self.heating_device = heating_device
+        self.dhw_heating_device = dhw_heating_device
         self.cooling_device = cooling_device
-        self.observation_spaces = None
-        self.action_spaces = None
+        self.observation_space = None
+        self.action_space = None
         self.time_step = 0
-        self.sim_results = {} #'cooling_demand','heating_demand','non_shiftable_load','t_in','t_out','hour'
+        self.sim_results = {}
+        self.electricity_consumption_cooling_storage = 0.0
+        self.electricity_consumption_dhw_storage = 0.0
         self.electricity_consumption_heating = []
         self.electricity_consumption_cooling = []
         
-    def state_space(self, high_state, low_state):
+    def set_state_space(self, high_state, low_state):
         #Defining state space: hour, Tout, Tin, Thermal_energy_stored
-        self.observation_spaces = spaces.Box(low=low_state, high=high_state, dtype=np.float32)
+        self.observation_space = spaces.Box(low=low_state, high=high_state, dtype=np.float32)
     
-    def action_space(self, max_action, min_action):
+    def set_action_space(self, max_action, min_action):
         #Defining action space: new desired energy stored in the tank
-        self.action_spaces = spaces.Box(low=min_action, high=max_action, dtype=np.float32)
+        self.action_space = spaces.Box(low=min_action, high=max_action, dtype=np.float32)
 
     def set_storage_heating(self, action):
         """
@@ -41,10 +43,11 @@ class Building:
         Return:
             elec_demand_heating (float): electricity consumption used for space heating
         """
-        heat_power_avail = self.heating_device.get_max_heating_power(t_source_heating = self.sim_results['t_out'][self.time_step]) - self.sim_results['heating_demand'][self.time_step]
-        heating_energy_balance = self.heating_storage.charge(max(-self.sim_results['heating_demand'][self.time_step], min(heat_power_avail, action*self.heating_storage.capacity))) 
-        heating_energy_balance = max(0,heating_energy_balance + self.sim_results['heating_demand'][self.time_step])
-        elec_demand_heating = self.heating_device.get_electric_consumption_heating(heat_supply = heating_energy_balance)
+        heat_power_avail = self.dhw_heating_device.get_max_heating_power(t_source_heating = self.sim_results['t_out'][self.time_step]) - self.sim_results['dhw_demand'][self.time_step]
+        heating_energy_balance = self.dhw_storage.charge(max(-self.sim_results['dhw_demand'][self.time_step], min(heat_power_avail, action*self.dhw_storage.capacity))) 
+        heating_energy_balance = max(0,heating_energy_balance + self.sim_results['dhw_demand'][self.time_step])
+        elec_demand_heating = self.dhw_heating_device.get_electric_consumption_heating(heat_supply = heating_energy_balance)
+        self.electricity_consumption_dhw_storage = self.dhw_heating_device.get_electric_consumption_heating(heat_supply = heating_energy_balance) - self.dhw_heating_device.get_electric_consumption_heating(heat_supply = self.sim_results['dhw_demand'][self.time_step])
         self.electricity_consumption_heating.append(elec_demand_heating)
         return elec_demand_heating
         
@@ -59,18 +62,31 @@ class Building:
         cooling_energy_balance = self.cooling_storage.charge(max(-self.sim_results['cooling_demand'][self.time_step], min(cooling_power_avail, action*self.cooling_storage.capacity))) 
         cooling_energy_balance = max(0,cooling_energy_balance + self.sim_results['cooling_demand'][self.time_step])
         elec_demand_cooling = self.cooling_device.get_electric_consumption_cooling(cooling_supply = cooling_energy_balance)
+        self.electricity_consumption_cooling_storage = self.cooling_device.get_electric_consumption_cooling(cooling_supply = cooling_energy_balance) - self.cooling_device.get_electric_consumption_cooling(cooling_supply = self.sim_results['cooling_demand'][self.time_step])
         self.electricity_consumption_cooling.append(elec_demand_cooling)
         return elec_demand_cooling
     
+    def get_non_shiftable_load(self):
+        return self.sim_results['non_shiftable_load'][self.time_step]
+    
+    def get_solar_power(self):
+        return self.sim_results['solar_gen'][self.time_step]
+    
+    def get_dhw_electric_demand(self):
+        return self.dhw_heating_device.get_electric_consumption_heating(heat_supply = self.sim_results['dhw_demand'][self.time_step])
+        
+    def get_cooling_electric_demand(self):
+        return self.cooling_device.get_electric_consumption_cooling(cooling_supply = self.sim_results['cooling_demand'][self.time_step])
+    
     def reset(self):
-        if self.heating_storage is not None:
-            self.heating_storage.reset()
+        if self.dhw_storage is not None:
+            self.dhw_storage.reset()
         if self.cooling_storage is not None:
             self.cooling_storage.reset()
         if self.electrical_storage is not None:
             self.electrical_storage.reset()
-        if self.heating_device is not None:
-            self.heating_device.reset()
+        if self.dhw_heating_device is not None:
+            self.dhw_heating_device.reset()
         if self.cooling_device is not None:
             self.cooling_device.reset()
         self.electricity_consumption_heating = [self.set_storage_heating(0)]
@@ -109,7 +125,7 @@ class HeatPump:
         """
         Args:
             max_electric_power (float): Maximum amount of electric power that the heat pump can consume from the power grid
-            t_source_cooling (float): Temperature of the sisource from where the cooling energy is taken
+            t_source_cooling (float): Temperature of the source from where the cooling energy is taken
             t_target_cooling (float): Temperature of the sink where the cooling energy will be released
             
         Returns:
@@ -137,7 +153,8 @@ class HeatPump:
         return self.max_cooling
     
     def get_max_heating_power(self, max_electric_power = None, t_source_heating = None, t_target_heating = None):
-        """Method that calculates the heating COP and the maximum heating power available
+        """
+        Method that calculates the heating COP and the maximum heating power available
         Args:
             max_electric_power (float): Maximum amount of electric power that the heat pump can consume from the power grid
             t_source_heating (float): Temperature of the source from where the heating energy is taken
@@ -168,7 +185,8 @@ class HeatPump:
         return self.max_heating
             
     def get_electric_consumption_cooling(self, cooling_supply = 0):
-        """Method that calculates the cooling COP and the maximum cooling power available
+        """
+        Method that calculates the electricity consumption of the heat pump given an amount of cooling energy to be supplied
         Args:
             cooling_supply (float): Amount of cooling energy that the heat pump is going to supply
             
@@ -182,6 +200,7 @@ class HeatPump:
     
     def get_electric_consumption_heating(self, heat_supply = 0):
         """
+        Method that calculates the electricity consumption of the heat pump given an amount of heating energy to be supplied
         Args:
             heat_supply (float): Amount of heating energy that the heat pump is going to supply
             
@@ -206,11 +225,62 @@ class HeatPump:
         self.electrical_consumption_heating = []
         self.heat_supply = []
         self.cooling_supply = []
-       
+
+class ElectricHeater:
+    def __init__(self, nominal_power = None, efficiency = None):
+        """
+        Args:
+            nominal_power (float): Maximum amount of electric power that the electric heater can consume from the power grid
+            efficiency (float): efficiency
+        """
+        #Parameters
+        self.nominal_power = nominal_power
+        self.efficiency = efficiency
+        
+        #Variables
+        self.max_heating = None
+        self.electrical_consumption_heating = []
+        self.heat_supply = []
+    
+    def get_max_heating_power(self, max_electric_power = None, t_source_heating = None, t_target_heating = None):
+        """Method that calculates the maximum heating power available
+        Args:
+            max_electric_power (float): Maximum amount of electric power that the electric heater can consume from the power grid
+            t_source_heating (float): Not used by the electric heater
+            t_target_heating (float): Not used by electric heater
+            
+        Returns:
+            max_heating (float): maximum amount of heating energy that the electric heater can provide
+        """
+        if max_electric_power is None:
+            self.max_heating = self.nominal_power*self.efficiency
+        else:
+            self.max_heating = self.max_electric_power*self.efficiency
+        
+        return self.max_heating
+    
+    def get_electric_consumption_heating(self, heat_supply = 0):
+        """
+        Args:
+            heat_supply (float): Amount of heating energy that the electric heater is going to supply
+            
+        Returns:
+            _elec_consumption_heating (float): electricity consumption for heating
+        """
+        self.heat_supply.append(heat_supply)
+        _elec_consumption_heating = heat_supply/self.efficiency
+        self.electrical_consumption_heating.append(_elec_consumption_heating)
+        return _elec_consumption_heating
+    
+    def reset(self):
+        self.max_heating = None
+        self.electrical_consumption_heating = []
+        self.heat_supply = []
     
 class EnergyStorage:
     def __init__(self, capacity = None, max_power_output = None, max_power_charging = None, efficiency = 1, loss_coeff = 0):
         """
+        Generic energy storage class that can be used as either a thermal storage device (for cooling or heating), or as a simplified battery model
         Args:
             capacity (float): Maximum amount of energy that the storage unit is able to store (Wh)
             max_power_output (float): Maximum amount of power that the storage unit can output (W)
@@ -238,7 +308,6 @@ class EnergyStorage:
         Return:
             energy_balance (float): 
         """
-#         print('energy '+str(energy))
         #The initial State Of Charge (SOC) is the previous SOC minus the energy losses
         soc_init = self.soc*(1-self.loss_coeff)
         
@@ -268,7 +337,6 @@ class EnergyStorage:
         
         self.energy_balance_list.append(self.energy_balance)
         self.soc_list.append(self.soc)
-#         print('soc '+str(self.soc/self.capacity))
         return self.energy_balance
     
     def reset(self):
@@ -276,4 +344,3 @@ class EnergyStorage:
         self.soc = 0 #State of charge
         self.energy_balance_list = [] #Positive for energy entering the storage
         self.energy_balance = 0
-
