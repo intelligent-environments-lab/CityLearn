@@ -1,20 +1,23 @@
 # CityLearn
-CityLearn is an open source OpenAI Gym environment for the implementation of reinforcement learning (RL) for simulated demand response scenarios in buildings and cities. Its objective is to facilitiate the design of RL agents to manage energy more efficiently in cities, and also standardize this field of research such that different algorithms can be easily compared with each other.
+CityLearn is an open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities. Its objective is to facilitiate and standardize the evaluation of RL agents such that different algorithms can be easily compared with each other.
 ![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/dr.jpg)
 ## Description
-Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Demand response is the coordination of the electricity consuming agents (i.e. buildings) in order to flatten the overall curve of electrical demand.
-CityLearn allows the research community to explore the use of reinforcement learning to coordinate the electricity consumption in a district with multiple buildings by controlling the amount of stored energy in the summer period.
+Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Flattening, smoothening, and reducing the overall curve of electrical demand helps reduce operational and capital costs of electricity generation, transmission, and distribution networks. Demand response is the coordination of electricity consuming agents (i.e. buildings) in order to reshape the overall curve of electrical demand.
+CityLearn allows the easy implementation of reinforcement learning agents in a multi-agent setting to reshape their aggregated curve of electrical demand by controlling the storage of energy by every agent. Currently, CityLearn allows controlling the storage of domestic hot water (DHW), and chilled water (for sensible cooling and dehumidification). CityLearn also includes models of air-to-water heat pumps, electric heaters, solar photovoltaic arrays, and the pre-computed energy loads of the buildings, which include space cooling, dehumidification, appliances, DHW, and solar generation.
 ## Files
-- [main.ipynb](/main.ipynb): Example of the implementation of a reinforcement learning agent ([DDPG](https://arxiv.org/abs/1509.02971)) in a single building in ```CityLearn```
+- [main.ipynb](/main.ipynb): Example of the implementation of a reinforcement learning agent ([TD3](https://arxiv.org/abs/1802.09477)) in a single building in ```CityLearn```
+- [buildings_state_action_space.json](/buildings_state_action_space.json): json file containing the possible states and actions for every building, from which users can choose.
+- [building_attributes.json](/data/building_attributes.json): json file containing the attributes of the buildings and which users can modify.
 - [citylearn.py](/citylearn.py): Contains the ```CityLearn``` environment and the functions ```building_loader()``` and ```autosize()```
 - [energy_models.py](/energy_models.py): Contains the classes ```Building```, ```HeatPump``` and ```EnergyStorage```, which are called by the ```CityLearn``` class
 - [agent.py](/agent.py): Implementation of the Deep Deterministic Policy Gradient ([DDPG](https://arxiv.org/abs/1509.02971)) RL algorithm. This file must be modified with any other RL implementation, which can then be run in the [main.ipynb](/main.ipynb) file.
 - [reward_function.py](/reward_function.py): Contains the reward function that wraps and modifies the rewards obtained from ```CityLearn```. This function can be modified by the user in order to minimize the cost function of ```CityLearn```.
-- [example_rbc.ipynb](/example_rbc.ipynb): Example of the implementation of a manually optimized Rule-based controller (RBC) that can be used as a comparison
+- [example_rbc.ipynb](/example_rbc.ipynb): Example of the implementation of a manually optimized Rule-based controller (RBC) that can be used for comparison
 ### Classes
 - CityLearn
   - Building
     - HeatPump
+    - ElectricHeater
     - EnergyStorage
 ![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/citylearn_diagram.jpg)
 ### Building
@@ -34,7 +37,7 @@ Storage devices allow heat pumps to store energy that can be later released into
   - ```charge()``` increases (+) or decreases (-) of the amount of energy stored. The input is the amount of energy as a ratio of the total capacity of the storage device (can vary from -1 to 1). Outputs the energy balance of the storage device.
 ## Environment variables
 The file ```buildings_state_action_space.json file``` contains all the states and action variables that the buildings can possibly return:
-### States
+### Possible states
 - ```day```: type of day as provided by EnergyPlus (from 1 to 8). 1 (Sunday), 2 (Monday), ..., 7 (Saturday), 8 (Holiday)
 - ```hour```: hour of day (from 1 to 24).
 - ```daylight_savings_status```: indicates if the building is under daylight savings period (0 to 1). 0 indicates that the building has not changed its electricity consumption profiles due to daylight savings, while 1 indicates the period in which the building may have been affected.
@@ -50,11 +53,11 @@ The file ```buildings_state_action_space.json file``` contains all the states an
 - ```cooling_storage_soc```: state of the charge (SOC) of the cooling storage device. From 0 (no energy stored) to 1 (at full capacity).
 - ```dhw_storage_soc```: state of the charge (SOC) of the domestic hot water (DHW) storage device. From 0 (no energy stored) to 1 (at full capacity).
 
-### Actions
+### Possible actions
 - ```cooling_storage```: increase (+) or decrease (-) of the amount of cooling energy stored in the cooling storage device. Goes from -1.0 to 1.0 (attempts to decrease/increase the cooling energy stored in the storage device by an amount equivalent to action times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into the building. Therefore, the ```cooling_storage_soc``` may not decrease by the same amount as the action taken if the demand for cooling energy in the building is lower than the action times the maximum capacity of the cooling storage device.
 - ```dhw_storage```: increase (+) or decrease (-) of the amount of DHW stored in the DHW storage device. Goes from -1.0 to 1.0 (attempts to decrease/increase the DHW stored in the storage device by an amount equivalent to action times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into the building. Therefore, the ```dhw_storage_soc``` may not decrease by the same amount as the action taken if the demand for DHW in the building is lower than the action times the maximum capacity of the DHW storage device.
 ### Reward
-- ```r```: the reward returned by CityLearn is the electricity consumption of every building for a given hour. Then, the function ```reward_function``` can be used by the user to convert ```r``` into the final reward that will be used by the RL agent. ```reward_function.py``` contains the function ```reward_function``` to be customized in a way that can allows the agent to minimize the cost function of the environment.
+- ```r```: the reward returned by CityLearn is the electricity consumption of every building for a given hour. The function ```reward_function``` can be used to convert ```r``` into the final reward that the RL agent will receive. ```reward_function.py``` contains the function ```reward_function```, which should be modified in a way that can allows the agent to minimize the selected cost function of the environment.
 ### Cost function
 ```env.cost()``` is the cost function of the environment, which the RL controller must minimize. There are multiple cost functions available, which are all defined as a function of the total non-negative net electricity consumption of the whole neighborhood:
 - ```ramping```: sum(|e(t)-e(t-1)|), where e is the net non-negative electricity consumption every time-step.
