@@ -165,7 +165,7 @@ class RL_Agents:
 
                     #Obtaining Q'(s_i+1, a|teta_mu) from critic net Q'
                     q_last_v[i] = self.tgt_crt_net[i].target_model(states_next_v[i], last_act_v[i])
-#                     q_last_v[i][dones_mask[i]] = 0.0
+                    # q_last_v[i][dones_mask[i]] = 0.0
 
                     #Q_target used to train critic net Q'
                     q_ref_v[i] = rewards_v[i].unsqueeze(dim=-1) + q_last_v[i] * self.GAMMA
@@ -347,7 +347,7 @@ class TD3_Agents:
                     #Obtaining Q'(s_i+1, a|teta_mu) from critic net Q'
                     target_Q1, target_Q2 = self.tgt_crt_net[i].target_model(states_next_v[i], last_act_v[i])
                     q_last_v[i] = torch.min(target_Q1, target_Q2)
-#                     q_last_v[i][dones_mask[i]] = 0.0
+                    # q_last_v[i][dones_mask[i]] = 0.0
 
                     #Q_target used to train critic net Q'
                     q_ref_v[i] = rewards_v[i].unsqueeze(dim=-1) + q_last_v[i] * self.GAMMA
@@ -370,3 +370,50 @@ class TD3_Agents:
                         #Gradually copies the actor and critic networks to the target networks. Using target networks should make the algorithm more stable.
                         self.tgt_act_net[i].alpha_sync(alpha=1 - self.SYNC_RATE)
                         self.tgt_crt_net[i].alpha_sync(alpha=1 - self.SYNC_RATE)
+
+class Q_Learning:
+    def __init__(self):
+        self.Q = np.zeros((24, 24, 41, 41))
+        self.epsilon = 0.1
+        self.n_actions = 41
+        self.n_charges = 41
+        self.gamma = 0.99
+        self.alpha = 0.1
+
+    def discretize_states(self, states):
+        states_copy = np.copy(states)
+        states_copy[:,2] //= (1/(self.n_actions - 1))
+        states_copy[:,1] -= 17
+        states_copy[:,0] -= 1
+        # print("Disc", states, states_copy)
+        return states_copy.astype(np.int)
+
+    def discretize_actions(self, actions):
+        actions = (actions + 0.5) // (1/(self.n_actions - 1))
+        return actions.astype(np.int)
+
+    def undiscretize_actions(self, actions):
+        a = -0.5 + (actions) / (self.n_actions - 1)
+        # if a[0] < -0.5 or a[0] > 0.5:
+        # print("ERROR: ", a, actions)
+        return a
+
+    def select_action(self, states, episode, n_episodes):
+        states = self.discretize_states(states)
+        actions = np.zeros(states.shape[0])
+        for i, state in enumerate(states):
+            # print("Select Action", state)
+            actions[i] = np.argmax(self.Q[state[0], state[1], state[2], :])
+            if np.random.random() < self.epsilon * (1-episode/n_episodes):
+                actions[i] = np.random.choice(np.arange(self.n_actions))
+        return np.expand_dims(self.undiscretize_actions(actions), axis=0)
+
+    def add_to_batch(self, states, actions, rewards, next_states, dones, episode, n_episodes):
+        states = self.discretize_states(states[:])
+        actions = self.discretize_actions(actions)
+        for i in range(states.shape[0]):
+            # print("ATB", states[i])
+            self.Q[states[i,0], states[i,1], states[i,2], actions[i]] += \
+                (self.alpha * (1-episode/n_episodes)) * (rewards[i] + \
+                                self.gamma * np.max(self.Q[states[i,0], states[i,1], states[i,2], :]) - \
+                                self.Q[states[i,0], states[i,1], states[i,2], actions[i]])
