@@ -21,7 +21,7 @@ CityLearn allows the easy implementation of reinforcement learning agents in a m
     - EnergyStorage
 ![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/citylearn_diagram.jpg)
 ### Building
-The heating and cooling demands of the buildings are obtained from [CitySim](https://www.epfl.ch/labs/leso/transfer/software/citysim/), a building energy simulator for urban scale analysis. Every building is instantiated by defining its associated energy supply and storage devices.
+The heating and cooling demands of the buildings are obtained from [EnergyPlus](https://energyplus.net/). The file [building_attributes.json](/data/building_attributes.json) contains the attributes of each building, which can be modified. We do not advise to modify the attributes Building->HeatPump->nominal_power and Building->ElectricHeater->nominal_power from their default value "autosize", as they guarantee that the DHW and cooling demand are always satisfied.
 - Methods
   - ```state_space()``` and ```action_space()``` set the state-action space of each building
   - ```set_storage_heating()``` and ```set_storage_cooling()``` set the state of charge of the ```EnergyStorage``` device to the specified value and within the physical constraints of the system. Returns the total electricity consumption of the building at that time-step.
@@ -36,7 +36,7 @@ Storage devices allow heat pumps to store energy that can be later released into
 - Methods
   - ```charge()``` increases (+) or decreases (-) of the amount of energy stored. The input is the amount of energy as a ratio of the total capacity of the storage device (can vary from -1 to 1). Outputs the energy balance of the storage device.
 ## Environment variables
-The file ```buildings_state_action_space.json file``` contains all the states and action variables that the buildings can possibly return:
+The file [buildings_state_action_space.json](/buildings_state_action_space.json) contains all the states and action variables that the buildings can possibly return:
 ### Possible states
 - ```day```: type of day as provided by EnergyPlus (from 1 to 8). 1 (Sunday), 2 (Monday), ..., 7 (Saturday), 8 (Holiday)
 - ```hour```: hour of day (from 1 to 24).
