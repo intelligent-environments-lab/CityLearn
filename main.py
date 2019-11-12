@@ -203,26 +203,27 @@ def get_cost_of_building(building_uids, **kwargs):
   max_action_val = kwargs["max_action_val"]
   min_action_val = kwargs["min_action_val"]
 
-  #Ref: Assessment of energy efficiency in electric storage water heaters (2008 Energy and Buildings)
-  buildings = []
-  for uid in building_uids:
-      heat_pump[uid] = HeatPump(nominal_power = 9e12, eta_tech = 0.22, t_target_heating = 45, t_target_cooling = 10)
-      heat_tank[uid] = EnergyStorage(capacity = 9e12, loss_coeff = loss_coeff)
-      cooling_tank[uid] = EnergyStorage(capacity = 9e12, loss_coeff = loss_coeff)
-      buildings.append(Building(uid, heating_storage = heat_tank[uid], cooling_storage = cooling_tank[uid], heating_device = heat_pump[uid], cooling_device = heat_pump[uid]))
-      buildings[-1].state_space(np.array([24.0, 40.0, 1.001]), np.array([1.0, 17.0, -0.001]))
-      buildings[-1].action_space(np.array([max_action_val]), np.array([min_action_val]))
-      
-  building_loader(demand_file, weather_file, buildings)  
-  auto_size(buildings, t_target_heating = 45, t_target_cooling = 10)
-
-  env = CityLearn(demand_file, weather_file, buildings = buildings, time_resolution = 1,
-    simulation_period = (kwargs["start_time"]-1, kwargs["end_time"]))
-
   # Add different agents below.
   if kwargs["agent"] == "RBC":
     #RULE-BASED CONTROLLER (Stores energy at night and releases it during the day)
     from agent import RBC_Agent
+
+    #Ref: Assessment of energy efficiency in electric storage water heaters (2008 Energy and Buildings)
+    buildings = []
+    for uid in building_uids:
+        heat_pump[uid] = HeatPump(nominal_power = 9e12, eta_tech = 0.22, t_target_heating = 45, t_target_cooling = 10)
+        heat_tank[uid] = EnergyStorage(capacity = 9e12, loss_coeff = loss_coeff)
+        cooling_tank[uid] = EnergyStorage(capacity = 9e12, loss_coeff = loss_coeff)
+        buildings.append(Building(uid, heating_storage = heat_tank[uid], cooling_storage = cooling_tank[uid], heating_device = heat_pump[uid], cooling_device = heat_pump[uid],
+          sub_building_uids=[uid]))
+        buildings[-1].state_space(np.array([24.0, 40.0, 1.001]), np.array([1.0, 17.0, -0.001]))
+        buildings[-1].action_space(np.array([max_action_val]), np.array([min_action_val]))
+        
+    building_loader(demand_file, weather_file, buildings)
+    auto_size(buildings, t_target_heating = 45, t_target_cooling = 10)
+
+    env = CityLearn(demand_file, weather_file, buildings = buildings, time_resolution = 1,
+      simulation_period = (kwargs["start_time"]-1, kwargs["end_time"]))
 
     #Instantiatiing the control agent(s)
     agents = RBC_Agent()
@@ -237,17 +238,44 @@ def get_cost_of_building(building_uids, **kwargs):
     logger.info("{0}, {1}".format(cost_rbc, env.get_total_charges_made()))
 
   elif kwargs["agent"] == "DPDiscr":
+    buildings = []
+    for uid in building_uids:
+        heat_pump[uid] = HeatPump(nominal_power = 9e12, eta_tech = 0.22, t_target_heating = 45, t_target_cooling = 10)
+        heat_tank[uid] = EnergyStorage(capacity = 9e12, loss_coeff = loss_coeff)
+        cooling_tank[uid] = EnergyStorage(capacity = 9e12, loss_coeff = loss_coeff)
+        buildings.append(Building(uid, heating_storage = heat_tank[uid], cooling_storage = cooling_tank[uid], heating_device = heat_pump[uid], cooling_device = heat_pump[uid],
+          sub_building_uids=[uid]))
+        buildings[-1].state_space(np.array([24.0, 40.0, 1.001]), np.array([1.0, 17.0, -0.001]))
+        buildings[-1].action_space(np.array([max_action_val]), np.array([min_action_val]))
+        
+    building_loader(demand_file, weather_file, buildings)
+    auto_size(buildings, t_target_heating = 45, t_target_cooling = 10)
+
+    # Below is for building aggregation
+
+    # heat_pump = HeatPump(nominal_power = 9e12, eta_tech = 0.22, t_target_heating = 45, t_target_cooling = 10)
+    # heat_tank = EnergyStorage(capacity = 9e12, loss_coeff = loss_coeff)
+    # cooling_tank = EnergyStorage(capacity = 9e12, loss_coeff = loss_coeff)
+    # building = Building(8000, heating_storage = heat_tank, cooling_storage = cooling_tank, heating_device = heat_pump, cooling_device = heat_pump,
+    #   sub_building_uids=building_uids)
+    # building.state_space(np.array([24.0, 40.0, 1.001]), np.array([1.0, 17.0, -0.001]))
+    # building.action_space(np.array([max_action_val]), np.array([min_action_val]))
+
+    # buildings = [building]
+    # building_loader(demand_file, weather_file, buildings)
+    # auto_size(buildings, t_target_heating = 45, t_target_cooling = 10)
+
     learning_start_time = time.time()
-    optimal_action_val = \
-      run_dp(heat_pump[buildings[-1].buildingId], cooling_tank[buildings[-1].buildingId], buildings[-1], **kwargs)
+    optimal_action_val = run_dp(heat_pump[building_uids[-1]],
+      cooling_tank[building_uids[-1]], buildings[-1], **kwargs)
     learning_end_time = time.time()
 
-    # TODO: Remove below line, not needed mostly.
-    env.reset()
+    env = CityLearn(demand_file, weather_file, buildings = [buildings[-1]], time_resolution = 1,
+      simulation_period = (kwargs["start_time"]-1, kwargs["end_time"]))
     done = False
     time_step = 0
     while not done:
-      _, rewards, done, _ = env.step([[optimal_action_val[time_step]] for i in range(len(building_uids))])
+      _, rewards, done, _ = env.step([[optimal_action_val[time_step]]])
       time_step += 1
     cost_via_dp = env.cost()
     logger.info("{0}, {1}, {2}".format(cost_via_dp, env.get_total_charges_made(),
@@ -257,18 +285,22 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--action_levels',
   help='Select the number of action levels. Note: choose odd number if you want zero charging action',
-  type=int, required=True)
-parser.add_argument('--min_action_val', help='Select the min action value >= -1.', type=float, required=True)
-parser.add_argument('--max_action_val', help='Select the max action value <= 1.', type=float, required=True)
+  type=int, required=True, default=19)
+parser.add_argument('--min_action_val', help='Select the min action value >= -1.', type=float,
+  default=-1.0)
+parser.add_argument('--max_action_val', help='Select the max action value <= 1.', type=float,
+  default=1.0)
 parser.add_argument('--charge_levels',
   help='Select the number of charge levels. Note: choose odd number if you want zero charge value allowed',
-  type=int, required=True)
-parser.add_argument('--min_charge_val', help='Select the min charge value >= 0.', type=float, required=True)
-parser.add_argument('--max_charge_val', help='Select the max charge value <= 1.', type=float, required=True)
+  type=int, default=19)
+parser.add_argument('--min_charge_val', help='Select the min charge value >= 0.', type=float,
+  default=0.0)
+parser.add_argument('--max_charge_val', help='Select the max charge value <= 1.', type=float,
+  default=1.0)
 parser.add_argument('--start_time',
   help='Start hour. Note: For less than 3500 hr, there seems to be no data for a building 8, check this', type=int,
-  required=True)
-parser.add_argument('--end_time', help='End hour', type=int, required=True)
+  default=3500)
+parser.add_argument('--end_time', help='End hour', type=int, default=6000)
 parser.add_argument('--building_uids', nargs='+', type=int, required=True)
 parser.add_argument('--agent', type=str, help="RBC, DPDiscr", required=True)
 #parser.add_argument('--loss_coeff', help='The one given was 0.19/24', type=int, required=True)
