@@ -16,7 +16,7 @@ CityLearn allows the research community to explore the use of reinforcement lear
   - Building
     - HeatPump
     - EnergyStorage
-![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/agents.jpg)
+![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/citylearn_diagram.jpg)
 ### Building
 The heating and cooling demands of the buildings are obtained from [CitySim](https://www.epfl.ch/labs/leso/transfer/software/citysim/), a building energy simulator for urban scale analysis. Every building is instantiated by defining its associated energy supply and storage devices.
 - Methods
