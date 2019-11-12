@@ -218,18 +218,3 @@ class TD3_Agents:
                             target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
         self.time_step += 1
                             
-#MANUALLY OPTIMIZED RULE BASED CONTROLLER
-class RBC_Agent:
-    def __init__(self, actions_spaces):
-        self.actions_spaces = actions_spaces
-        
-    def select_action(self, states):
-        hour_day = states[0][1]
-        #DAYTIME
-        a = [[0.0 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(states))]
-        if hour_day >= 11 and hour_day <= 21:
-            a = [[-0.1 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(states))]
-        #NIGHTTIME       
-        elif (hour_day >= 1 and hour_day <= 6) or (hour_day >= 23 and hour_day <= 24):
-            a = [[0.125 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(states))]
-        return np.array(a)

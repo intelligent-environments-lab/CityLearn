@@ -5,29 +5,67 @@ import pandas as pd
 import json
 from energy_models import HeatPump, ElectricHeater, EnergyStorage, Building
 
-def auto_size(buildings):  
+# Reference Rule-based controller. Used as a baseline to calculate the costs in CityLearn
+class RBC_Agent:
+    def __init__(self, actions_spaces):
+        self.actions_spaces = actions_spaces
+        
+    def select_action(self, states):
+        hour_day = states[0][1]
+        
+        # Daytime: release stored energy
+        a = [[0.0 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(states))]
+        if hour_day >= 10 and hour_day <= 19:
+            a = [[-0.1 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(states))]
+        
+        # Early nightime: store DHW and/or cooling energy
+        if (hour_day >= 1 and hour_day <= 2) or (hour_day >= 23 and hour_day <= 24):
+            a = []
+            for i in range(len(states)):
+                if len(self.actions_spaces[i].sample()) == 2:
+                    a.append([0.0, 0.25])
+                else:
+                    a.append([0.125])
+        # Late nightime: store DHW and/or cooling energy
+        if (hour_day >= 2 and hour_day <= 5):
+            a = []
+            for i in range(len(states)):
+                if len(self.actions_spaces[i].sample()) == 2:
+                    a.append([0.25, 0.0])
+                else:
+                    a.append([0.125])
+        return np.array(a)
+
+def auto_size(buildings):
     for building in buildings:
         
+        # Autosize guarantees that the DHW device is large enough to always satisfy the maximum DHW demand
         if building.dhw_heating_device.nominal_power == 'autosize':
-            #Calculating COPs of the heat pumps for every hour
+            
+            # If the DHW device is a HeatPump
             if isinstance(building.dhw_heating_device, HeatPump):
+                
+                # Calculating COPs of the heat pumps for every hour
                 building.dhw_heating_device.cop_heating = building.dhw_heating_device.eta_tech*building.dhw_heating_device.t_target_heating/(building.dhw_heating_device.t_target_heating - (building.sim_results['t_out'] + 273.15))
                 building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating < 0] = 20.0
                 building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating > 20] = 20.0
-                #We assume that the heat pump is large enough to meet the highest heating or cooling demand of the building (Tindoor always satisfies Tsetpoint)
+                
+                #We assume that the heat pump is always large enough to meet the highest heating or cooling demand of the building
                 building.dhw_heating_device.nominal_power = max(building.sim_results['dhw_demand']/building.dhw_heating_device.cop_heating)
-            else:
+                
+            # If the device is an electric heater
+            elif isinstance(building.dhw_heating_device, ElectricHeater):
                 building.dhw_heating_device.nominal_power = max(building.sim_results['dhw_demand']/building.dhw_heating_device.efficiency)
-            
+        
+        # Autosize guarantees that the cooling device device is large enough to always satisfy the maximum DHW demand
         if building.cooling_device.nominal_power == 'autosize':
             building.cooling_device.cop_cooling = building.cooling_device.eta_tech*building.cooling_device.t_target_cooling/(building.sim_results['t_out'] + 273.15 - building.cooling_device.t_target_cooling)
             building.cooling_device.cop_cooling[building.cooling_device.cop_cooling < 0] = 20.0
             building.cooling_device.cop_cooling[building.cooling_device.cop_cooling > 20] = 20.0
 
-            #We assume that the heat pump is large enough to meet the highest heating or cooling demand of the building (Tindoor always satisfies Tsetpoint)
             building.cooling_device.nominal_power = max(building.sim_results['cooling_demand']/building.cooling_device.cop_cooling)
         
-        #Defining the capacity of the heat tanks based on the average non-zero heat demand
+        # Defining the capacity of the storage devices as three times the maximum demand
         if building.dhw_storage.capacity == 'autosize':
             building.dhw_storage.capacity = max(building.sim_results['dhw_demand'])*3
         if building.cooling_storage.capacity == 'autosize':    
@@ -79,6 +117,7 @@ def building_loader(building_attributes, solar_profile, building_ids, buildings_
 
             building.sim_results['solar_gen'] = attributes['Solar_Power_Installed(kW)']*data['Hourly Data: AC inverter power (W)']/1000
             
+            # Finding the max and min possible values of all the states, which can then be used by the RL agent to scale the states and train any function approximators more effectively
             s_low, s_high = [], []
             for state_name, value in zip(buildings_states_actions[uid]['states'], buildings_states_actions[uid]['states'].values()):
                 if value == True:
@@ -110,8 +149,14 @@ class CityLearn(gym.Env):
     def __init__(self, building_attributes, solar_profile, building_ids, buildings_states_actions = None, simulation_period = (0,8759), cost_function = ['quadratic']):
         with open(buildings_states_actions) as json_file:
             self.buildings_states_actions = json.load(json_file)
-         
+        
+        self.buildings_states_actions_filename = buildings_states_actions
+        self.building_attributes = building_attributes
+        self.solar_profile = solar_profile
+        self.building_ids = building_ids
         self.cost_function = cost_function
+        self.cost_rbc = None
+        
         self.buildings, self.observation_spaces, self.action_spaces = building_loader(building_attributes, solar_profile, building_ids, self.buildings_states_actions)
         self.action_track = {}
         for building in self.buildings:
@@ -247,27 +292,62 @@ class CityLearn(gym.Env):
         return [seed]
     
     def cost(self):
-        cost = 0
+        # Running the reference rule-based controller to find the baseline cost
+        if self.cost_rbc is None:
+            env_rbc = CityLearn(self.building_attributes, self.solar_profile, self.building_ids, buildings_states_actions = self.buildings_states_actions_filename, simulation_period = self.simulation_period, cost_function = self.cost_function)
+            _, actions_spaces = env_rbc.get_state_action_spaces()
+
+            #Instantiatiing the control agent(s)
+            agent_rbc = RBC_Agent(actions_spaces)
+
+            state = env_rbc.reset()
+            done = False
+            while not done:
+                action = agent_rbc.select_action(state)
+                next_state, rewards, done, _ = env_rbc.step(action)
+                state = next_state
+            self.cost_rbc = env_rbc.get_baseline_cost()
         
-        if 'quadratic' in self.cost_function:
-            cost += np.sqrt((self.net_electric_consumption.clip(min=0)**2).sum())
-            
+        # Compute the costs normalized by the baseline costs
+        cost = {}
         if 'ramping' in self.cost_function:
-            pass
+            cost['ramping'] = np.abs((self.net_electric_consumption - np.roll(self.net_electric_consumption,1))[1:]).sum()/self.cost_rbc['ramping']
             
-        if 'load_factor' in self.cost_function:
-            pass
+        if '1-load_factor' in self.cost_function:
+            cost['1-load_factor'] = np.mean([1-np.mean(self.net_electric_consumption[i:i+int(8760/12)])/ np.max(self.net_electric_consumption[i:i+int(8760/12)]) for i in range(0,len(self.net_electric_consumption), int(8760/12))])/self.cost_rbc['1-load_factor']
            
-        if 'peak_to_valley' in self.cost_function:
-            pass
+        if 'peak_to_valley_ratio' in self.cost_function:
+            cost['peak_to_valley_ratio'] = np.median([self.net_electric_consumption[i:i+24].max()/self.net_electric_consumption[i:i+24].min() for i in range(0,len(self.net_electric_consumption),24)])/self.cost_rbc['peak_to_valley_ratio']
             
         if 'peak_demand' in self.cost_function:
-            pass
+            cost['peak_demand'] = self.net_electric_consumption.max()/self.cost_rbc['peak_demand']
             
         if 'net_electricity_consumption' in self.cost_function:
-            pass
+            cost['net_electricity_consumption'] = self.net_electric_consumption.clip(min=0).sum()/self.cost_rbc['net_electricity_consumption']
+            
+        cost['total'] = np.mean([c for c in cost.values()])
             
         return cost
+    
+    def get_baseline_cost(self):
+        cost = {}
+        if 'ramping' in self.cost_function:
+            cost['ramping'] = np.abs((self.net_electric_consumption - np.roll(self.net_electric_consumption,1))[1:]).sum()
+            
+        if '1-load_factor' in self.cost_function:
+            cost['1-load_factor'] = np.mean([1-np.mean(self.net_electric_consumption[i:i+int(8760/12)])/ np.max(self.net_electric_consumption[i:i+int(8760/12)]) for i in range(0,len(self.net_electric_consumption), int(8760/12))])
+           
+        if 'peak_to_valley_ratio' in self.cost_function:
+            cost['peak_to_valley_ratio'] = np.median([self.net_electric_consumption[i:i+24].max()/self.net_electric_consumption[i:i+24].min() for i in range(0,len(self.net_electric_consumption),24)])
+            
+        if 'peak_demand' in self.cost_function:
+            cost['peak_demand'] = self.net_electric_consumption.max()
+            
+        if 'net_electricity_consumption' in self.cost_function:
+            cost['net_electricity_consumption'] = self.net_electric_consumption.clip(min=0).sum()
+            
+        return cost
+        
 
 
         
