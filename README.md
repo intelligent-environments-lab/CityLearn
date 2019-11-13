@@ -5,14 +5,14 @@ CityLearn is an open source OpenAI Gym environment for the implementation of Mul
 Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Flattening, smoothening, and reducing the overall curve of electrical demand helps reduce operational and capital costs of electricity generation, transmission, and distribution networks. Demand response is the coordination of electricity consuming agents (i.e. buildings) in order to reshape the overall curve of electrical demand.
 CityLearn allows the easy implementation of reinforcement learning agents in a multi-agent setting to reshape their aggregated curve of electrical demand by controlling the storage of energy by every agent. Currently, CityLearn allows controlling the storage of domestic hot water (DHW), and chilled water (for sensible cooling and dehumidification). CityLearn also includes models of air-to-water heat pumps, electric heaters, solar photovoltaic arrays, and the pre-computed energy loads of the buildings, which include space cooling, dehumidification, appliances, DHW, and solar generation.
 ## Files
-- [main.ipynb](/main.ipynb): Example of the implementation of a reinforcement learning agent ([TD3](https://arxiv.org/abs/1802.09477)) in a single building in ```CityLearn```
+- [main.ipynb](/main.ipynb): jupyter lab file. Example of the implementation of a reinforcement learning agent ([TD3](https://arxiv.org/abs/1802.09477)) in a single building in ```CityLearn```
 - [buildings_state_action_space.json](/buildings_state_action_space.json): json file containing the possible states and actions for every building, from which users can choose.
 - [building_attributes.json](/data/building_attributes.json): json file containing the attributes of the buildings and which users can modify.
 - [citylearn.py](/citylearn.py): Contains the ```CityLearn``` environment and the functions ```building_loader()``` and ```autosize()```
 - [energy_models.py](/energy_models.py): Contains the classes ```Building```, ```HeatPump``` and ```EnergyStorage```, which are called by the ```CityLearn``` class
 - [agent.py](/agent.py): Implementation of the Deep Deterministic Policy Gradient ([DDPG](https://arxiv.org/abs/1509.02971)) RL algorithm. This file must be modified with any other RL implementation, which can then be run in the [main.ipynb](/main.ipynb) file.
 - [reward_function.py](/reward_function.py): Contains the reward function that wraps and modifies the rewards obtained from ```CityLearn```. This function can be modified by the user in order to minimize the cost function of ```CityLearn```.
-- [example_rbc.ipynb](/example_rbc.ipynb): Example of the implementation of a manually optimized Rule-based controller (RBC) that can be used for comparison
+- [example_rbc.ipynb](/example_rbc.ipynb): jupyter lab file. Example of the implementation of a manually optimized Rule-based controller (RBC) that can be used for comparison
 ### Classes
 - CityLearn
   - Building
