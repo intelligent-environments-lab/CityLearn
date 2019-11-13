@@ -37,15 +37,15 @@ class Actor(nn.Module):
         super(Actor, self).__init__()
 
         self.l1 = nn.Linear(state_dim, 5)
-#         self.l2 = nn.Linear(5, 3)
-        self.l2 = nn.Linear(3+2, action_dim)
+        self.l2 = nn.Linear(5, 3)
+        self.l3 = nn.Linear(3, action_dim)
 
         self.max_action = max_action
         
     def forward(self, state):
         a = F.relu(self.l1(state))
-#         a = F.relu(self.l2(a))
-        return self.max_action * torch.tanh(self.l2(a))
+        a = F.relu(self.l2(a))
+        return self.max_action * torch.tanh(self.l3(a))
 
 class Critic(nn.Module):
     def __init__(self, state_dim, action_dim):
@@ -53,32 +53,32 @@ class Critic(nn.Module):
 
         # Q1 architecture
         self.l1 = nn.Linear(state_dim + action_dim, 7)
-#         self.l2 = nn.Linear(7, 6)
-        self.l2 = nn.Linear(6+1, 1)
+        self.l2 = nn.Linear(7, 6)
+        self.l3 = nn.Linear(6, 1)
 
         # Q2 architecture
-        self.l3 = nn.Linear(state_dim + action_dim, 7)
-#         self.l5 = nn.Linear(7, 6)
-        self.l4 = nn.Linear(6+1, 1)
+        self.l4 = nn.Linear(state_dim + action_dim, 7)
+        self.l5 = nn.Linear(7, 6)
+        self.l6 = nn.Linear(6, 1)
 
     def forward(self, state, action):
         sa = torch.cat([state, action], 1)
 
         q1 = F.relu(self.l1(sa))
-#         q1 = F.relu(self.l2(q1))
-        q1 = self.l2(q1)
+        q1 = F.relu(self.l2(q1))
+        q1 = self.l3(q1)
 
-        q2 = F.relu(self.l3(sa))
-#         q2 = F.relu(self.l4(q2))
-        q2 = self.l4(q2)
+        q2 = F.relu(self.l4(sa))
+        q2 = F.relu(self.l5(q2))
+        q2 = self.l6(q2)
         return q1, q2
 
     def Q1(self, state, action):
         sa = torch.cat([state, action], 1)
 
         q1 = F.relu(self.l1(sa))
-#         q1 = F.relu(self.l2(q1))
-        q1 = self.l2(q1)
+        q1 = F.relu(self.l2(q1))
+        q1 = self.l3(q1)
         return q1
     
 class TD3_Agents:
@@ -87,7 +87,7 @@ class TD3_Agents:
         #Hyper-parameters
         self.discount = 0.992 #Discount factor
         self.batch_size = 800 #Size of each MINI-BATCH
-        self.iterations = 1 # Number of updates of the actor-critic networks every time-step
+        self.iterations = 20 # Number of updates of the actor-critic networks every time-step
         self.policy_freq = 2 # Number of iterations after which the actor and target networks are updated
         self.tau = 0.0015*10 #Rate at which the target networks are updated
         self.lr_init = 5e-2
@@ -98,7 +98,7 @@ class TD3_Agents:
         self.expl_noise_decay_rate = 1/14000  # Decay rate of the exploration noise in 1/h
         self.policy_noise = 0.025
         self.noise_clip = 0.04
-        self.max_action = 0.2
+        self.max_action = 0.25
         self.min_samples_training = 400 #Min number of tuples that are stored in the batch before the training process begins
         
         # Parameters
