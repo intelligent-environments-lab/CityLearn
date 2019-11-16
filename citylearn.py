@@ -24,7 +24,6 @@ class CityLearn(gym.Env):
         
     def step(self, actions):
         assert len(actions) == self.n_buildings, "The length of the list of actions should match the length of the list of buildings."
-        self.next_hour()
         rewards = []
         self.state = []
         electric_demand = 0
@@ -50,7 +49,9 @@ class CityLearn(gym.Env):
             
             #Total electricity consumption
             electric_demand += building_electric_demand
-            
+
+        self.next_hour()
+        for building in self.buildings:
             #States: hour, Tout, Tin, Thermal_energy_stored    
             s1 = building.sim_results['hour'][self.time_step]
             s2 = building.sim_results['t_out'][self.time_step]
@@ -67,8 +68,7 @@ class CityLearn(gym.Env):
         #Initialization of variables
         self.hour = iter(np.array(range(self.simulation_period[0], self.simulation_period[1] + 1)))
         self.time_step = next(self.hour)
-        for building in self.buildings:
-            building.time_step = self.time_step
+        self.next_hour()
             
         self.total_electric_consumption = []
         
