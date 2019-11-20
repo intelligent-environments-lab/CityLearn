@@ -178,7 +178,6 @@ class CityLearn(gym.Env):
     def step(self, actions):
         assert len(actions) == self.n_buildings, "The length of the list of actions should match the length of the list of buildings."
         
-        self.next_hour()
         rewards = []
         self.state = []
         electric_demand = 0
@@ -225,6 +224,10 @@ class CityLearn(gym.Env):
             #Total electricity consumption
             electric_demand += building_electric_demand
             
+        self.next_hour()
+            
+        for a, building in zip(actions,self.buildings):
+            uid = building.buildingId
             #Possible states: type of day, hour of day, daylight savings status, outdoor temperature, outdoor Relative Humidity, diffuse solar radiation, direct solar radiation, average indoor temperature, average unmet temperature setpoint difference, average indoor relative humidity, state of charge of cooling device, state of charge of DHW device.
             s = []
             for state_name, value in zip(self.buildings_states_actions[uid]['states'], self.buildings_states_actions[uid]['states'].values()):
@@ -252,9 +255,7 @@ class CityLearn(gym.Env):
     def reset(self):
         #Initialization of variables
         self.hour = iter(np.array(range(self.simulation_period[0], self.simulation_period[1] + 1)))
-        self.time_step = next(self.hour)
-        for building in self.buildings:
-            building.time_step = self.time_step
+        self.next_hour()
             
         self.net_electric_consumption = np.array([])
         self.electric_consumption_dhw_storage = np.array([])
@@ -325,6 +326,9 @@ class CityLearn(gym.Env):
         if 'net_electricity_consumption' in self.cost_function:
             cost['net_electricity_consumption'] = self.net_electric_consumption.clip(min=0).sum()/self.cost_rbc['net_electricity_consumption']
             
+        if 'quadratic' in self.cost_function:
+            cost['quadratic'] = (self.net_electric_consumption.clip(min=0)**2).sum()/self.cost_rbc['quadratic']
+            
         cost['total'] = np.mean([c for c in cost.values()])
             
         return cost
@@ -345,6 +349,9 @@ class CityLearn(gym.Env):
             
         if 'net_electricity_consumption' in self.cost_function:
             cost['net_electricity_consumption'] = self.net_electric_consumption.clip(min=0).sum()
+            
+        if 'quadratic' in self.cost_function:
+            cost['quadratic'] = (self.net_electric_consumption.clip(min=0)**2).sum()
             
         return cost
         

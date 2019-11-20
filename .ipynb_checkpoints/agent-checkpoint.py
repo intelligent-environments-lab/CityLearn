@@ -86,18 +86,18 @@ class TD3_Agents:
         
         #Hyper-parameters
         self.discount = 0.992 #Discount factor
-        self.batch_size = 800 #Size of each MINI-BATCH
-        self.iterations = 20 # Number of updates of the actor-critic networks every time-step
+        self.batch_size = 100 #Size of each MINI-BATCH
+        self.iterations = 1 # Number of updates of the actor-critic networks every time-step
         self.policy_freq = 2 # Number of iterations after which the actor and target networks are updated
-        self.tau = 0.0015*10 #Rate at which the target networks are updated
-        self.lr_init = 5e-2
-        self.lr_final = 3e-3
-        self.lr_decay_rate = 1/10000
+        self.tau = 5e-3 #Rate at which the target networks are updated
+        self.lr_init = 1e-3 #5e-2
+        self.lr_final = 1e-3 #3e-3
+        self.lr_decay_rate = 1/(78*8760)
         self.expl_noise_init = 0.75 # Exploration noise at time-step 0
         self.expl_noise_final = 0.01 # Magnitude of the minimum exploration noise
-        self.expl_noise_decay_rate = 1/14000  # Decay rate of the exploration noise in 1/h
-        self.policy_noise = 0.025
-        self.noise_clip = 0.04
+        self.expl_noise_decay_rate = 1/(290*8760)  # Decay rate of the exploration noise in 1/h
+        self.policy_noise = 0.025*0
+        self.noise_clip = 0.04*0
         self.max_action = 0.25
         self.min_samples_training = 400 #Min number of tuples that are stored in the batch before the training process begins
         
