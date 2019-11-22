@@ -196,6 +196,7 @@ class RL_Agents:
 class RBC_Agent:
     def __init__(self):
         self.hour = 3500
+
     def select_action(self, states):
         self.hour += 1
         hour_day = states[0][0]
@@ -211,6 +212,9 @@ class RBC_Agent:
             if self.hour >= 2800 and self.hour <= 7000:
                 a = 0.2
         return np.array([[a] for _ in range(len(states))])
+
+    def add_to_batch(self, states, actions, rewards, next_states, dones):
+        pass
     
     
 ###############################################################################################    
@@ -372,48 +376,49 @@ class TD3_Agents:
                         self.tgt_crt_net[i].alpha_sync(alpha=1 - self.SYNC_RATE)
 
 class Q_Learning:
-    def __init__(self):
-        self.Q = np.zeros((24, 24, 41, 41))
+    def __init__(self, levels, min_action, max_action):
+        self.Q = np.ones((24, 24, levels, levels))
         self.epsilon = 0.1
-        self.n_actions = 41
-        self.n_charges = 41
-        self.gamma = 0.99
+        self.n_actions = levels
+        self.n_charges = levels
+        self.gamma = 0.9999
         self.alpha = 0.1
+        self.min_action = min_action
+        self.max_action = max_action
 
     def discretize_states(self, states):
         states_copy = np.copy(states)
-        states_copy[:,2] //= (1/(self.n_actions - 1))
-        states_copy[:,1] -= 17
-        states_copy[:,0] -= 1
+        states_copy[:,2] = np.floor(states_copy[:,2] * (self.n_charges - 1))
+        states_copy[:,1] -= 17  # 17 is the minimum temp[]
+        states_copy[:,0] -= 1   # Change 1-24 to 0-23
         # print("Disc", states, states_copy)
         return states_copy.astype(np.int)
 
     def discretize_actions(self, actions):
-        actions = (actions + 0.5) // (1/(self.n_actions - 1))
+        actions = (actions - self.min_action) // (1/(self.n_actions - 1))
         return actions.astype(np.int)
 
     def undiscretize_actions(self, actions):
-        a = -0.5 + (actions) / (self.n_actions - 1)
-        # if a[0] < -0.5 or a[0] > 0.5:
-        # print("ERROR: ", a, actions)
+        a = self.min_action + (actions) / (self.n_actions - 1)
         return a
 
-    def select_action(self, states, episode, n_episodes):
+    def select_action(self, states):
         states = self.discretize_states(states)
         actions = np.zeros(states.shape[0])
         for i, state in enumerate(states):
-            # print("Select Action", state)
-            actions[i] = np.argmax(self.Q[state[0], state[1], state[2], :])
-            if np.random.random() < self.epsilon * (1-episode/n_episodes):
+            actions[i] = np.argmax(self.Q[state[0], state[1], state[2], :][::-1])
+            if np.random.random() < self.epsilon: # * (1-episode/n_episodes + 0.01):
                 actions[i] = np.random.choice(np.arange(self.n_actions))
-        return np.expand_dims(self.undiscretize_actions(actions), axis=0)
+        # print(actions)
+        return np.array([np.expand_dims(self.undiscretize_actions(actions), axis=0)])
 
-    def add_to_batch(self, states, actions, rewards, next_states, dones, episode, n_episodes):
+    def add_to_batch(self, states, actions, reward, next_states, dones):
         states = self.discretize_states(states[:])
+        next_states = self.discretize_states(next_states[:])
         actions = self.discretize_actions(actions)
         for i in range(states.shape[0]):
             # print("ATB", states[i])
             self.Q[states[i,0], states[i,1], states[i,2], actions[i]] += \
-                (self.alpha * (1-episode/n_episodes)) * (rewards[i] + \
-                                self.gamma * np.max(self.Q[states[i,0], states[i,1], states[i,2], :]) - \
+                self.alpha * (reward + \
+                                self.gamma * np.max(self.Q[next_states[i,0], next_states[i,1], next_states[i,2], :]) - \
                                 self.Q[states[i,0], states[i,1], states[i,2], actions[i]])
