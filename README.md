@@ -10,7 +10,7 @@ CityLearn allows the easy implementation of reinforcement learning agents in a m
 - [building_attributes.json](/data/building_attributes.json): json file containing the attributes of the buildings and which users can modify.
 - [citylearn.py](/citylearn.py): Contains the ```CityLearn``` environment and the functions ```building_loader()``` and ```autosize()```
 - [energy_models.py](/energy_models.py): Contains the classes ```Building```, ```HeatPump``` and ```EnergyStorage```, which are called by the ```CityLearn``` class
-- [agent.py](/agent.py): Implementation of the Deep Deterministic Policy Gradient ([DDPG](https://arxiv.org/abs/1509.02971)) RL algorithm. This file must be modified with any other RL implementation, which can then be run in the [main.ipynb](/main.ipynb) file.
+- [agent.py](/agent.py): Implementation of the TD3 algorithm ([TD3](https://arxiv.org/abs/1802.09477)) RL algorithm. This file must be modified with any other RL implementation, which can then be run in the [main.ipynb](/main.ipynb) jupyter lab file or the [main.py](/main.py) file.
 - [reward_function.py](/reward_function.py): Contains the reward function that wraps and modifies the rewards obtained from ```CityLearn```. This function can be modified by the user in order to minimize the cost function of ```CityLearn```.
 - [example_rbc.ipynb](/example_rbc.ipynb): jupyter lab file. Example of the implementation of a manually optimized Rule-based controller (RBC) that can be used for comparison
 ### Classes
@@ -20,11 +20,28 @@ CityLearn allows the easy implementation of reinforcement learning agents in a m
     - ElectricHeater
     - EnergyStorage
 ![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/citylearn_diagram.jpg)
+
+### CityLearn
+This class of type OpenAI Gym Environment contains all the buildings and their subclasses.
+- CityLearn specific methods
+  - ```get_state_action_spaces()```: returns state-action spaces for all the buildings
+  - ```next_hour()```: advances simulation to the next time-step
+  - ```get_building_information()```: returns attributes of the buildings that can be used by the RL agents (i.e. to implement building-specific RL agents based on their attributes, or control buildings with correlated demand profiles by the same agent)
+  - ```get_baseline_cost()```: returns the costs of a Rule-based controller (RBC), which is used to divide the final cost by it.
+  - ```cost()```: returns the normlized cost of the enviornment after it has been simulated. cost < 1 when the controller's performance is better than the RBC.
+- Methods inherited from OpenAI Gym
+  - ```step()```: advances simulation to the next time-step and takes an action based on the current state
+  - ```_get_ob()```: returns all the states
+  - ```_terminal()```: returns True if the simulation has ended
+  - ```seed()```: specifies a random seed
+
 ### Building
 The heating and cooling demands of the buildings are obtained from [EnergyPlus](https://energyplus.net/). The file [building_attributes.json](/data/building_attributes.json) contains the attributes of each building, which can be modified. We do not advise to modify the attributes Building->HeatPump->nominal_power and Building->ElectricHeater->nominal_power from their default value "autosize", as they guarantee that the DHW and cooling demand are always satisfied.
 - Methods
-  - ```state_space()``` and ```action_space()``` set the state-action space of each building
+  - ```set_state_space()``` and ```set_action_space()``` set the state-action space of each building
   - ```set_storage_heating()``` and ```set_storage_cooling()``` set the state of charge of the ```EnergyStorage``` device to the specified value and within the physical constraints of the system. Returns the total electricity consumption of the building at that time-step.
+  - ```get_non_shiftable_load()```, ```get_solar_power()```, ```get_dhw_electric_demand()``` and ```get_cooling_electric_demand()``` get the different types of electricity demand and generation.
+  
 ### Heat pump
 Its efficiency is given by the coefficient of performance (COP), which is calculated as a function of the outdoor air temperature and of the following parameters:
 -```eta_tech```: technical efficiency of the heat pump
@@ -64,7 +81,7 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
 ```env.cost()``` is the cost function of the environment, which the RL controller must minimize. There are multiple cost functions available, which are all defined as a function of the total non-negative net electricity consumption of the whole neighborhood:
 - ```ramping```: sum(|e(t)-e(t-1)|), where e is the net non-negative electricity consumption every time-step.
 - ```1-load_factor```: the load factor is the average net electricity load divided by the maximum electricity load.
-- ```peak_to_valley```: average difference between consequtive electricity peaks and valleys
+- ```average_daily_peak```: average daily peak net demand.
 - ```peak_demand```: maximum peak electricity demand
 - ```net_electricity_consumption```: total amount of electricity consumed
 - ```quadratic```: sum(e^2), where e is the net non-negative electricity consumption every time-step.
