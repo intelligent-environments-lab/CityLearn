@@ -94,8 +94,8 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
   - A good control policy for cooling is trivial, and consists on storing cooling energy during the night (when the cooling demand of the building is low and the COP of the heat pump is higher), and releasing the stored cooling energy into the building during the day (high demand for cooling and low COP). 
 ### Multiple buildings
   - If controlled independently of each other and without coordination or sharing any information, the buildings will tend to consume more electricity simultaneously, which may not be optimal if the objective is peak reduction and load flattening. 
-### Challenge
-Coordinate multiple RL agents or a single centralized agent to control all the buildings. The agents may share certain information with each other. The objective is to reduce the cost function by smoothening, reducing, and flattening the total net demand for electricity of the whole district.
+### [Challenge](https://sites.google.com/view/citylearnchallenge)
+Coordinate multiple RL agents or a single centralized agent to control all the buildings. The agents may share certain information with each other. The objective is to reduce the cost function by smoothening, reducing, and flattening the total net demand for electricity of the whole district. Check out our [CityLearn Challenge](https://sites.google.com/view/citylearnchallenge)
 ## Cite CityLearn
 - [Vázquez-Canteli, J.R., Kämpf, J., Henze, G., and Nagy, Z., "CityLearn v1.0: An OpenAI Gym Environment for Demand Response with Deep Reinforcement Learning", Proceedings of the 6th ACM International Conference, ACM New York p. 356-357, New York, 2019](https://dl.acm.org/citation.cfm?id=3360998)
 ## Publications
