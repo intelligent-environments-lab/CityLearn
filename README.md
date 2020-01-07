@@ -75,8 +75,9 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
 - ```dhw_storage_soc```: state of the charge (SOC) of the domestic hot water (DHW) storage device. From 0 (no energy stored) to 1 (at full capacity).
 
 ### Possible actions
-- ```cooling_storage```: increase (+) or decrease (-) of the amount of cooling energy stored in the cooling storage device. Goes from -1.0 to 1.0 (attempts to decrease/increase the cooling energy stored in the storage device by an amount equivalent to the action times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into the building. Therefore, the ```cooling_storage_soc``` will not decrease by the same amount as the action taken if the demand for cooling energy in the building is lower than the action times the maximum capacity of the cooling storage device.
-- ```dhw_storage```: increase (+) or decrease (-) of the amount of DHW stored in the DHW storage device. Goes from -1.0 to 1.0 (attempts to decrease/increase the DHW stored in the storage device by an amount equivalent to action times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into the building. Therefore, the ```dhw_storage_soc``` may not decrease by the same amount as the action taken if the demand for DHW in the building is lower than the action times the maximum capacity of the DHW storage device.
+- ```cooling_storage```: increase (action > 0) or decrease (action < 0) of the amount of cooling energy stored in the cooling storage device. -1.0 <= action <= 1.0 (attempts to decrease or increase the cooling energy stored in the storage device by an amount equal to the action times the storage device's maximum capacity). In order to decrease the energy stored in the device (action < 0), the energy must be released into the building. Therefore, the state of charge will not decrease proportionally to the action taken if the demand for cooling of the building is lower than the action times the maximum capacity of the cooling storage device.
+- ```dhw_storage```: increase (action > 0) or decrease (action < 0) of the amount of DHW stored in the DHW storage device. -1.0 <= action <= 1.0 (attempts to decrease or increase the DHW stored in the storage device by an amount equivalent to action times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into the building. Therefore, the state of charge will not decrease proportionally to the action taken if the demand for DHW of the building is lower than the action times the maximum capacity of the DHW storage device.
+The mathematics of this control logic can be seen in the methods ```set_storage_heating(action)``` and ```set_storage_cooling(action)``` of the class Building in the file [energy_models.py](/energy_models.py).
 ### Reward function
 - ```r```: the reward returned by CityLearn is the electricity consumption of every building for a given hour. The function ```reward_function``` can be used to convert ```r``` into the final reward that the RL agent will receive. ```reward_function.py``` contains the function ```reward_function```, which should be modified in a way that can allows the agent to minimize the selected cost function of the environment.
 ### Cost function
@@ -86,7 +87,7 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
 - ```average_daily_peak```: average daily peak net demand.
 - ```peak_demand```: maximum peak electricity demand
 - ```net_electricity_consumption```: total amount of electricity consumed
-- ```quadratic```: sum(e^2), where e is the net non-negative electricity consumption every time-step.
+- ```quadratic```: sum(e^2), where e is the net non-negative electricity consumption every time-step. (Not used in The CityLearn Challenge).
 
 ## Additional functions
 - ```building_loader(demand_file, weather_file, buildings)``` receives a dictionary with all the building instances and their respectives IDs, and loads them with the data of heating and cooling loads from the simulations.
@@ -100,7 +101,7 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
 Coordinate multiple RL agents or a single centralized agent to control all the buildings. The agents may share certain information with each other. The objective is to reduce the cost function by smoothening, reducing, and flattening the total net demand for electricity of the whole district. Check out our [CityLearn Challenge](https://sites.google.com/view/citylearnchallenge)
 ## Cite CityLearn
 - [Vázquez-Canteli, J.R., Kämpf, J., Henze, G., and Nagy, Z., "CityLearn v1.0: An OpenAI Gym Environment for Demand Response with Deep Reinforcement Learning", Proceedings of the 6th ACM International Conference, ACM New York p. 356-357, New York, 2019](https://dl.acm.org/citation.cfm?id=3360998)
-## Publications
+## Related Publications
 - [Vázquez-Canteli, J.R., and Nagy, Z., “Reinforcement Learning for Demand Response: A Review of algorithms and modeling techniques”, Applied Energy 235, 1072-1089, 2019.](https://www.sciencedirect.com/science/article/abs/pii/S0306261918317082)
 - [Vázquez-Canteli, J.R., Ulyanin, S., Kämpf J., and Nagy, Z., “Fusing TensorFlow with building energy simulation for intelligent energy management in smart cities”, Sustainable Cities and Society, 2018.](https://www.sciencedirect.com/science/article/abs/pii/S2210670718314380)
 - [Vázquez-Canteli J.R., Kämpf J., and Nagy, Z., “Balancing comfort and energy consumption of a heat pump using batch reinforcement learning with fitted Q-iteration”, CISBAT, Lausanne, 2017](https://www.sciencedirect.com/science/article/pii/S1876610217332629)
