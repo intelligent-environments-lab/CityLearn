@@ -36,7 +36,8 @@ This class of type OpenAI Gym Environment contains all the buildings and their s
   - ```seed()```: specifies a random seed
 
 ### Building
-The heating and cooling demands of the buildings are obtained from [EnergyPlus](https://energyplus.net/). The file [building_attributes.json](/data/building_attributes.json) contains the attributes of each building, which can be modified. We do not advise to modify the attributes Building->HeatPump->nominal_power and Building->ElectricHeater->nominal_power from their default value "autosize", as they guarantee that the DHW and cooling demand are always satisfied.
+The DHW and cooling demands of the buildings have been pre-computed and obtained from EnergyPlus. The DHW and cooling supply systems are sized such that the DHW and cooling demands are always satisfied. CityLearn automatically sets constraints to the actions from the controllers to guarantee that the DHW and cooling demands are satisfied, and that the building does not receive from the storage units more energy than it needs. 
+The file building_attributes.json contains the attributes of each building, which can be modified. We do not advise to modify the attributes Building -> HeatPump -> nominal_power and Building -> ElectricHeater -> nominal_power from their default value "autosize", as they guarantee that the DHW and cooling demand are always satisfied.
 - Methods
   - ```set_state_space()``` and ```set_action_space()``` set the state-action space of each building
   - ```set_storage_heating()``` and ```set_storage_cooling()``` set the state of charge of the ```EnergyStorage``` device to the specified value and within the physical constraints of the system. Returns the total electricity consumption of the building at that time-step.
