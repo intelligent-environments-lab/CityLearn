@@ -5,7 +5,6 @@ import torch.nn.functional as F
 import numpy as np
 import random
 import copy
-np.random.seed(1)
 
 class Buffer:
     def __init__(self):
@@ -81,8 +80,8 @@ class Critic(nn.Module):
         q1 = self.l3(q1)
         return q1
     
-class TD3_Agents:
-    def __init__(self, observation_spaces = None, action_spaces = None):
+class RL_Agents:
+    def __init__(self, building_info, observation_spaces = None, action_spaces = None):
         
         #Hyper-parameters
         self.discount = 0.992 #Discount factor
@@ -104,6 +103,7 @@ class TD3_Agents:
         # Parameters
         self.device = "cpu"
         self.time_step = 0
+        self.building_info = building_info # Can be used to create different RL agents based on basic building attributes or climate zones
         self.observation_spaces = observation_spaces
         self.action_spaces = action_spaces
         self.n_buildings = len(observation_spaces)
@@ -144,6 +144,8 @@ class TD3_Agents:
         return actions
     
     def add_to_buffer(self, states, actions, rewards, next_states, dones):
+        # Information contained in the building_info variable can be used to choose the number of buffers and what information goes to each buffer
+        
         dones = [dones for _ in range(self.n_buildings)]
         
         for i, (s, a, r, s_next, done) in enumerate(zip(states, actions, rewards, next_states, dones)):
@@ -218,3 +220,31 @@ class TD3_Agents:
                             target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
         self.time_step += 1
                             
+            
+class RBC_Agent:
+    def __init__(self, actions_spaces):
+        self.actions_spaces = actions_spaces
+        self.reset_action_tracker()
+        
+    def reset_action_tracker(self):
+        self.action_tracker = []
+        
+    def select_action(self, states):
+        hour_day = states[0][2]
+        
+        # Daytime: release stored energy
+        a = [[0.0 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
+        if hour_day >= 9 and hour_day <= 21:
+            a = [[-0.08 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
+        
+        # Early nightime: store DHW and/or cooling energy
+        if (hour_day >= 1 and hour_day <= 8) or (hour_day >= 22 and hour_day <= 24):
+            a = []
+            for i in range(len(self.actions_spaces)):
+                if len(self.actions_spaces[i].sample()) == 2:
+                    a.append([0.091, 0.091])
+                else:
+                    a.append([0.091])
+
+        self.action_tracker.append(a)
+        return np.array(a)
