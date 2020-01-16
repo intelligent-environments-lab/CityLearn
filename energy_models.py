@@ -112,10 +112,10 @@ class Building:
         return self.sim_results['solar_gen'][self.time_step]
     
     def get_dhw_electric_demand(self):
-        return self.dhw_heating_device.electrical_consumption_heating[-1]
+        return self.dhw_heating_device._electrical_consumption_heating
         
     def get_cooling_electric_demand(self):
-        return self.cooling_device.electrical_consumption_cooling[-1]
+        return self.cooling_device._electrical_consumption_cooling
     
     def reset(self):
         if self.dhw_storage is not None:
@@ -234,9 +234,9 @@ class HeatPump:
         """
         
         self.cooling_supply.append(cooling_supply)
-        _elec_consumption_cooling = cooling_supply/self.cop_cooling
-        self.electrical_consumption_cooling.append(_elec_consumption_cooling)
-        return _elec_consumption_cooling
+        self._elec_consumption_cooling = cooling_supply/self.cop_cooling
+        self.electrical_consumption_cooling.append(self._elec_consumption_cooling)
+        return self._elec_consumption_cooling
             
     def get_electric_consumption_cooling(self, cooling_supply = 0):
         """
@@ -262,9 +262,9 @@ class HeatPump:
         """
         
         self.heat_supply.append(heat_supply)
-        _elec_consumption_heating = heat_supply/self.cop_heating
-        self.electrical_consumption_heating.append(_elec_consumption_heating)
-        return _elec_consumption_heating
+        self._elec_consumption_heating = heat_supply/self.cop_heating
+        self.electrical_consumption_heating.append(self._elec_consumption_heating)
+        return self._elec_consumption_heating
     
     def get_electric_consumption_heating(self, heat_supply = 0):
         """
@@ -288,6 +288,8 @@ class HeatPump:
         self.cop_cooling = None
         self.cop_heating_list = []
         self.cop_cooling_list = []
+        self._electrical_consumption_cooling = 0
+        self._electrical_consumption_heating = 0
         self.electrical_consumption_cooling = []
         self.electrical_consumption_heating = []
         self.heat_supply = []
@@ -308,6 +310,7 @@ class ElectricHeater:
         #Variables
         self.max_heating = None
         self.electrical_consumption_heating = []
+        self._electrical_consumption_heating = 0
         self.heat_supply = []
     
     def get_max_heating_power(self, max_electric_power = None, t_source_heating = None, t_target_heating = None):
@@ -334,13 +337,13 @@ class ElectricHeater:
             heat_supply (float): Amount of heating energy that the electric heater is going to supply
             
         Returns:
-            _elec_consumption_heating (float): electricity consumption for heating
+            _electrical_consumption_heating (float): electricity consumption for heating
         """
         
         self.heat_supply.append(heat_supply)
-        _elec_consumption_heating = heat_supply/self.efficiency
-        self.electrical_consumption_heating.append(_elec_consumption_heating)
-        return _elec_consumption_heating
+        self._electrical_consumption_heating = heat_supply/self.efficiency
+        self.electrical_consumption_heating.append(self._electrical_consumption_heating)
+        return self._electrical_consumption_heating
     
     def get_electric_consumption_heating(self, heat_supply = 0):
         """
@@ -348,11 +351,11 @@ class ElectricHeater:
             heat_supply (float): Amount of heating energy that the electric heater is going to supply
             
         Returns:
-            _elec_consumption_heating (float): electricity consumption for heating
+            _electrical_consumption_heating (float): electricity consumption for heating
         """
         
-        _elec_consumption_heating = heat_supply/self.efficiency
-        return _elec_consumption_heating
+        _electrical_consumption_heating = heat_supply/self.efficiency
+        return _electrical_consumption_heating
     
     def reset(self):
         self.max_heating = None
