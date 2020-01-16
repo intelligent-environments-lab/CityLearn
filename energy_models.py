@@ -112,10 +112,10 @@ class Building:
         return self.sim_results['solar_gen'][self.time_step]
     
     def get_dhw_electric_demand(self):
-        return self.dhw_heating_device.get_electric_consumption_heating(heat_supply = self.sim_results['dhw_demand'][self.time_step])
+        return self.dhw_heating_device.electrical_consumption_heating[-1]
         
     def get_cooling_electric_demand(self):
-        return self.cooling_device.get_electric_consumption_cooling(cooling_supply = self.sim_results['cooling_demand'][self.time_step])
+        return self.cooling_device.electrical_consumption_cooling[-1]
     
     def reset(self):
         if self.dhw_storage is not None:
@@ -128,8 +128,8 @@ class Building:
             self.dhw_heating_device.reset()
         if self.cooling_device is not None:
             self.cooling_device.reset()
-        self.electricity_consumption_heating = [self.set_storage_heating(0)]
-        self.electricity_consumption_cooling = [self.set_storage_cooling(0)]               
+        self.electricity_consumption_heating = []
+        self.electricity_consumption_cooling = []             
 
 class HeatPump:
     def __init__(self, nominal_power = None, eta_tech = None, t_target_heating = None, t_target_cooling = None):
