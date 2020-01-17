@@ -327,13 +327,13 @@ class HeatPump:
             cooling_supply (float): Total amount of cooling energy that the heat pump is going to supply
             
         Returns:
-            _elec_consumption_cooling (float): electricity consumption for cooling
+            _electrical_consumption_cooling (float): electricity consumption for cooling
         """
         
         self.cooling_supply.append(cooling_supply)
-        self._elec_consumption_cooling = cooling_supply/self._cop_cooling
-        self.electrical_consumption_cooling.append(self._elec_consumption_cooling)
-        return self._elec_consumption_cooling
+        self._electrical_consumption_cooling = cooling_supply/self._cop_cooling
+        self.electrical_consumption_cooling.append(self._electrical_consumption_cooling)
+        return self._electrical_consumption_cooling
             
     def get_electric_consumption_cooling(self, cooling_supply = 0):
         """
@@ -342,7 +342,7 @@ class HeatPump:
             cooling_supply (float): Amount of cooling energy
             
         Returns:
-            _elec_consumption_cooling (float): electricity consumption for that amount of cooling
+            _electrical_consumption_cooling (float): electricity consumption for that amount of cooling
         """
         
         _elec_consumption_cooling = cooling_supply/self._cop_cooling
@@ -359,9 +359,9 @@ class HeatPump:
         """
         
         self.heat_supply.append(heat_supply)
-        self._elec_consumption_heating = heat_supply/self._cop_heating
-        self.electrical_consumption_heating.append(self._elec_consumption_heating)
-        return self._elec_consumption_heating
+        self._electrical_consumption_heating = heat_supply/self._cop_heating
+        self.electrical_consumption_heating.append(self._electrical_consumption_heating)
+        return self._electrical_consumption_heating
     
     def get_electric_consumption_heating(self, heat_supply = 0):
         """
