@@ -25,15 +25,15 @@ CityLearn allows the easy implementation of reinforcement learning agents in a m
 ### CityLearn
 This class of type OpenAI Gym Environment contains all the buildings and their subclasses.
 - CityLearn attributes
- - net_electric_consumption
- - net_electric_consumption_no_storage
- - net_electric_consumption_no_pv_no_storage
- - electric_consumption_dhw_storage
- - electric_consumption_cooling_storage
- - electric_consumption_dhw
- - electric_consumption_cooling
- - electric_consumption_appliances
- - electric_generation
+  - net_electric_consumption
+  - net_electric_consumption_no_storage
+  - net_electric_consumption_no_pv_no_storage
+  - electric_consumption_dhw_storage
+  - electric_consumption_cooling_storage
+  - electric_consumption_dhw
+  - electric_consumption_cooling
+  - electric_consumption_appliances
+  - electric_generation
 - CityLearn specific methods
   - ```get_state_action_spaces()```: returns state-action spaces for all the buildings
   - ```next_hour()```: advances simulation to the next time-step
