@@ -38,7 +38,7 @@ class RBC_Agent:
         return np.array(a)
 
 def auto_size(buildings):
-    for building in buildings:
+    for building in buildings.values():
         
         # Autosize guarantees that the DHW device is large enough to always satisfy the maximum DHW demand
         if building.dhw_heating_device.nominal_power == 'autosize':
@@ -81,7 +81,7 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
     with open(building_attributes) as json_file:
         data = json.load(json_file)
 
-    buildings, observation_spaces, action_spaces = [],[],[]
+    buildings, observation_spaces, action_spaces = {},[],[]
     for uid, attributes in zip(data, data.values()):
         if uid in building_ids:
             heat_pump = HeatPump(nominal_power = attributes['Heat_Pump']['nominal_power'], 
@@ -173,7 +173,7 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
             
             observation_spaces.append(building.observation_space)
             action_spaces.append(building.action_space)
-            buildings.append(building)
+            buildings[uid] = building
         
     auto_size(buildings)
 
@@ -197,38 +197,39 @@ class CityLearn(gym.Env):
         
         self.simulation_period = simulation_period
         self.uid = None
-        self.n_buildings = len(self.buildings)
+        self.n_buildings = len([i for i in self.buildings])
         self.reset()
         
     def get_state_action_spaces(self):
         return self.observation_spaces, self.action_spaces
-        
+            
     def next_hour(self):
         self.time_step = next(self.hour)
-        for building in self.buildings:
+        for building in self.buildings.values():
             building.time_step = self.time_step
             
     def get_building_information(self):
         
         # Annual DHW demand, Annual Cooling Demand, Annual Electricity Demand
         building_info = {}
-        for building in self.buildings:
-            building_info[building.buildingId] = {}
-            building_info[building.buildingId]['building_type'] = building.building_type
-            building_info[building.buildingId]['climate_zone'] = building.climate_zone
-            building_info[building.buildingId]['solar_power_capacity (kW)'] = building.solar_power_capacity
-            building_info[building.buildingId]['Annual_DHW_demand (kWh)'] = building.sim_results['dhw_demand'].sum()
-            building_info[building.buildingId]['Annual_cooling_demand (kWh)'] = building.sim_results['cooling_demand'].sum()
-            building_info[building.buildingId]['Annual_nonshiftable_electrical_demand (kWh)'] = building.sim_results['non_shiftable_load'].sum()
+        for uid, building in self.buildings.items():
+            building_info[uid] = {}
+            building_info[uid]['building_type'] = building.building_type
+            building_info[uid]['climate_zone'] = building.climate_zone
+            building_info[uid]['solar_power_capacity (kW)'] = building.solar_power_capacity
+            building_info[uid]['Annual_DHW_demand (kWh)'] = building.sim_results['dhw_demand'].sum()
+            building_info[uid]['Annual_cooling_demand (kWh)'] = building.sim_results['cooling_demand'].sum()
+            building_info[uid]['Annual_nonshiftable_electrical_demand (kWh)'] = building.sim_results['non_shiftable_load'].sum()
             
-            building_info[building.buildingId]['Correlations_DHW'] = {}
-            building_info[building.buildingId]['Correlations_cooling_demand'] = {}
-            building_info[building.buildingId]['Correlations_non_shiftable_load'] = {}
-            for building_corr in self.buildings:
-                if building_corr != building:
-                    building_info[building.buildingId]['Correlations_DHW'][building_corr.buildingId] = building.sim_results['dhw_demand'].corr(building_corr.sim_results['dhw_demand'])
-                    building_info[building.buildingId]['Correlations_cooling_demand'][building_corr.buildingId] = building.sim_results['cooling_demand'].corr(building_corr.sim_results['cooling_demand'])
-                    building_info[building.buildingId]['Correlations_non_shiftable_load'][building_corr.buildingId] = building.sim_results['non_shiftable_load'].corr(building_corr.sim_results['non_shiftable_load'])
+            building_info[uid]['Correlations_DHW'] = {}
+            building_info[uid]['Correlations_cooling_demand'] = {}
+            building_info[uid]['Correlations_non_shiftable_load'] = {}
+            
+            for uid_corr, building_corr in self.buildings.items():
+                if uid_corr != uid:
+                    building_info[uid]['Correlations_DHW'][uid_corr] = building.sim_results['dhw_demand'].corr(building_corr.sim_results['dhw_demand'])
+                    building_info[uid]['Correlations_cooling_demand'][uid_corr] = building.sim_results['cooling_demand'].corr(building_corr.sim_results['cooling_demand'])
+                    building_info[uid]['Correlations_non_shiftable_load'][uid_corr] = building.sim_results['non_shiftable_load'].corr(building_corr.sim_results['non_shiftable_load'])
                     
         return building_info
         
@@ -245,8 +246,8 @@ class CityLearn(gym.Env):
         elec_consumption_cooling_building = 0
         elec_consumption_appliances = 0
         elec_generation = 0
-        for a, building in zip(actions,self.buildings):
-            uid = building.buildingId
+        for a, (uid, building) in zip(actions, self.buildings.items()):
+
             assert sum(list(self.buildings_states_actions[uid]['actions'].values())) == len(a), "The number of input actions for building "+str(uid)+" must match the number of actions defined in the list of building attributes."
             
             building_electric_demand = 0
@@ -255,17 +256,17 @@ class CityLearn(gym.Env):
                 
                 # Cooling
                 building_electric_demand += building.set_storage_cooling(a[0])
-                elec_consumption_cooling_storage += building.electricity_consumption_cooling_storage
+                elec_consumption_cooling_storage += building._electric_consumption_cooling_storage
                 if self.buildings_states_actions[uid]['actions']['dhw_storage']:
                     
                     # DHW
                     building_electric_demand += building.set_storage_heating(a[1])
-                    elec_consumption_dhw_storage += building.electricity_consumption_dhw_storage
+                    elec_consumption_dhw_storage += building._electric_consumption_dhw_storage
             else:
                 
                 # DHW
                 building_electric_demand += building.set_storage_heating(a[0])
-                elec_consumption_dhw_storage += building.electricity_consumption_dhw_storage
+                elec_consumption_dhw_storage += building._electric_consumption_dhw_storage
 
             # Electrical appliances
             building_electric_demand += building.get_non_shiftable_load()
@@ -286,8 +287,7 @@ class CityLearn(gym.Env):
             
         self.next_hour()
             
-        for a, building in zip(actions,self.buildings):
-            uid = building.buildingId
+        for a, (uid, building) in zip(actions, self.buildings.items()):
             
             # Possible states: type of day, hour of day, daylight savings status, outdoor temperature, outdoor Relative Humidity, diffuse solar radiation, direct solar radiation, average indoor temperature, average unmet temperature setpoint difference, average indoor relative humidity, state of charge of cooling device, state of charge of DHW device.
             s = []
@@ -302,41 +302,40 @@ class CityLearn(gym.Env):
         
             self.state.append(np.array(s))
             
-        self.net_electric_consumption = np.append(self.net_electric_consumption,electric_demand)
-        self.electric_consumption_dhw_storage = np.append(self.electric_consumption_dhw_storage,elec_consumption_dhw_storage)
-        self.electric_consumption_cooling_storage = np.append(self.electric_consumption_cooling_storage,elec_consumption_cooling_storage)
-        self.electric_consumption_dhw = np.append(self.electric_consumption_dhw,elec_consumption_dhw_building)
-        self.electric_consumption_cooling = np.append(self.electric_consumption_cooling,elec_consumption_cooling_building)
-        self.electric_consumption_appliances = np.append(self.electric_consumption_appliances,elec_consumption_appliances)
-        self.electric_generation = np.append(self.electric_generation,elec_generation)
-        self.net_electric_consumption_no_storage = np.append(self.net_electric_consumption_no_storage,electric_demand-elec_consumption_cooling_storage-elec_consumption_dhw_storage)
-        self.net_electric_consumption_no_pv_no_storage = np.append(self.net_electric_consumption_no_pv_no_storage,electric_demand + elec_generation - elec_consumption_cooling_storage - elec_consumption_dhw_storage)
+        self.net_electric_consumption.append(electric_demand)
+        self.electric_consumption_dhw_storage.append(elec_consumption_dhw_storage)
+        self.electric_consumption_cooling_storage.append(elec_consumption_cooling_storage)
+        self.electric_consumption_dhw.append(elec_consumption_dhw_building)
+        self.electric_consumption_cooling.append(elec_consumption_cooling_building)
+        self.electric_consumption_appliances.append(elec_consumption_appliances)
+        self.electric_generation.append(elec_generation)
+        self.net_electric_consumption_no_storage.append(electric_demand-elec_consumption_cooling_storage-elec_consumption_dhw_storage)
+        self.net_electric_consumption_no_pv_no_storage.append(electric_demand + elec_generation - elec_consumption_cooling_storage - elec_consumption_dhw_storage)
 
         terminal = self._terminal()
         return (self._get_ob(), rewards, terminal, {})
     
+    def reset_baseline_cost(self):
+        self.cost_rbc = None
+        
     def reset(self):
         
         #Initialization of variables
         self.hour = iter(np.array(range(self.simulation_period[0], self.simulation_period[1] + 1)))
         self.next_hour()
             
-        self.net_electric_consumption = np.array([])
-        self.net_electric_consumption_no_storage = np.array([])
-        self.net_electric_consumption_no_pv_no_storage = np.array([])
-        self.electric_consumption_dhw_storage = np.array([])
-        self.electric_consumption_cooling_storage = np.array([])
-        self.electric_consumption_dhw = np.array([])
-        self.electric_consumption_cooling = np.array([])
-        self.electric_consumption_appliances = np.array([])
-        self.electric_generation = np.array([])
-        
-        
-        self.cost_rbc = None
+        self.net_electric_consumption = []
+        self.net_electric_consumption_no_storage = []
+        self.net_electric_consumption_no_pv_no_storage = []
+        self.electric_consumption_dhw_storage = []
+        self.electric_consumption_cooling_storage = []
+        self.electric_consumption_dhw = []
+        self.electric_consumption_cooling = []
+        self.electric_consumption_appliances = []
+        self.electric_generation = []
         
         self.state = []
-        for building in self.buildings:
-            uid = building.buildingId
+        for uid, building in self.buildings.items():
             s = []
             for state_name, value in zip(self.buildings_states_actions[uid]['states'], self.buildings_states_actions[uid]['states'].values()):
                 if value == True:
@@ -356,7 +355,22 @@ class CityLearn(gym.Env):
         return np.array([s for s in [s_var for s_var in self.state]])
     
     def _terminal(self):
-        return bool(self.time_step >= self.simulation_period[1])
+        is_terminal = bool(self.time_step >= self.simulation_period[1])
+        if is_terminal:
+            for building in self.buildings.values():
+                building.terminate()
+                
+            self.net_electric_consumption = np.array(self.net_electric_consumption)
+            self.net_electric_consumption_no_storage = np.array(self.net_electric_consumption_no_storage)
+            self.net_electric_consumption_no_pv_no_storage = np.array(self.net_electric_consumption_no_pv_no_storage)
+            self.electric_consumption_dhw_storage = np.array(self.electric_consumption_dhw_storage)
+            self.electric_consumption_cooling_storage = np.array(self.electric_consumption_cooling_storage)
+            self.electric_consumption_dhw = np.array(self.electric_consumption_dhw)
+            self.electric_consumption_cooling = np.array(self.electric_consumption_cooling)
+            self.electric_consumption_appliances = np.array(self.electric_consumption_appliances)
+            self.electric_generation = np.array(self.electric_generation)
+            
+        return is_terminal
     
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -375,7 +389,7 @@ class CityLearn(gym.Env):
             state = env_rbc.reset()
             done = False
             while not done:
-                action = agent_rbc.select_action([env_rbc.buildings[0].sim_results['hour'][env_rbc.buildings[0].time_step]])
+                action = agent_rbc.select_action([list(env_rbc.buildings.values())[0].sim_results['hour'][env_rbc.time_step]])
                 next_state, rewards, done, _ = env_rbc.step(action)
                 state = next_state
             self.cost_rbc = env_rbc.get_baseline_cost()

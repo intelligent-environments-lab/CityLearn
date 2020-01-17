@@ -4,8 +4,9 @@ be modified by the participants of The CityLearn Challenge.
 CityLearn returns the energy consumption of each building as a reward. 
 This reward_function takes all the electrical demands of all the buildings and turns them into one or multiple rewards for the agent(s)
 
-The current code computes a virtual electricity price proportional to the total demand for electricity in the neighborhood, and multiplies every
-reward by that price. Then it returns the new rewards, which should be used by the agent.
+The current code computes a virtual (made-up) electricity price proportional to the total demand for electricity in the neighborhood, and multiplies every
+reward by that price. Then it returns the new rewards, which should be used by the agent. Participants of the CityLearn Challenge are encouraged to completely modify this function
+in order to minimize the 5 proposed metrics.
 """
 
 def reward_function(rewards):
