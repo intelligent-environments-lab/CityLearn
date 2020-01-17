@@ -24,16 +24,16 @@ CityLearn allows the easy implementation of reinforcement learning agents in a m
 
 ### CityLearn
 This class of type OpenAI Gym Environment contains all the buildings and their subclasses.
-- CityLearn attributes
-  - net_electric_consumption
-  - net_electric_consumption_no_storage
-  - net_electric_consumption_no_pv_no_storage
-  - electric_consumption_dhw_storage
-  - electric_consumption_cooling_storage
-  - electric_consumption_dhw
-  - electric_consumption_cooling
-  - electric_consumption_appliances
-  - electric_generation
+- CityLearn attributes (all in kWh)
+  - ```net_electric_consumption```: district net electricity consumption
+  - ```net_electric_consumption_no_storage```: district net electricity consumption if there were no cooling and DHW storage
+  - ```net_electric_consumption_no_pv_no_storage```: district net electricity consumption if there were no cooling, DHW storage and PV generation
+  - ```electric_consumption_dhw_storage```: electricity consumed in the district to increase DHW energy storage (when > 0) and electricity that the decrease in DHW energy storage saves from consuming in the district (when < 0).
+  - ```electric_consumption_cooling_storage```: electricity consumed in the district to increase cooling energy storage (when > 0) and electricity that the decrease in cooling energy storage saves from consuming in the district (when < 0).
+  - ```electric_consumption_dhw```: electricity consumed to satisfy the DHW demand of the district
+  - ```electric_consumption_cooling```: electricity consumed to satisfy the cooling demand of the district
+  - ```electric_consumption_appliances```: non-shiftable electricity consumed by appliances
+  - ```electric_generation```: electricity generated in the district 
 - CityLearn specific methods
   - ```get_state_action_spaces()```: returns state-action spaces for all the buildings
   - ```next_hour()```: advances simulation to the next time-step
