@@ -11,6 +11,7 @@ CityLearn requires the installation of the following Python libraries:
 - Gym 0.14.0
 - PyTorch 1.1.0
 - Json 2.0.9
+
 CityLearn may still work with some earlier versions of these libraries, but we have tested it with those.
 
 ## Files
