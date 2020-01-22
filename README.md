@@ -89,6 +89,7 @@ The file building_attributes.json contains the attributes of each building, whic
 Its efficiency is given by the coefficient of performance (COP), which is calculated as a function of the outdoor air temperature and of the following parameters:
 
 -```eta_tech```: technical efficiency of the heat pump
+
 -```T_target```: target temperature. Conceptually, it is  equal to the logarithmic mean of the temperature of the supply water of the storage device and the temperature of the water returning from the building. Here it is assumed to be constant and defined by the user in the [building_attributes.json](/data/building_attributes.json) file.  For cooling, values between 7C and 10C are reasonable.
 Any amount of cooling demand of the building that isn't satisfied by the ```EnergyStorage``` device is automatically supplied by the ```HeatPump``` directly to the ```Building```, guaranteeing that the cooling demand is always satisfied. The ```HeatPump``` is more efficient (has a higher COP) if the outdoor air temperature is lower, and less efficient (lower COP) when the outdoor temperature is higher (typically during the day time). On the other hand, the electricity demand is typically higher during the daytime and lower at night. ```cooling_energy_generated = COP*electricity_consumed, COP > 1```
 - Attributes
@@ -113,13 +114,26 @@ Storage devices allow heat pumps to store energy that can be later released into
 ## Environment variables
 The file [buildings_state_action_space.json](/buildings_state_action_space.json) contains all the states and action variables that the buildings can possibly return:
 ### Possible states
+- ```month```: 1 (January) through 12 (December)
 - ```day```: type of day as provided by EnergyPlus (from 1 to 8). 1 (Sunday), 2 (Monday), ..., 7 (Saturday), 8 (Holiday)
 - ```hour```: hour of day (from 1 to 24).
 - ```daylight_savings_status```: indicates if the building is under daylight savings period (0 to 1). 0 indicates that the building has not changed its electricity consumption profiles due to daylight savings, while 1 indicates the period in which the building may have been affected.
 - ```t_out```: outdoor temperature in Celcius degrees.
+- ```t_out_pred_6h```: outdoor temperature predicted 6h ahead (accuracy: +- )
+- ```t_out_pred_12h```: outdoor temperature predicted 12h ahead (accuracy: +- )
+- ```t_out_pred_24h```: outdoor temperature predicted 24h ahead (accuracy: +- )
 - ```rh_out```: outdoor relative humidity in %.
+- ```rh_out_pred_6h```: outdoor relative humidity predicted 6h ahead (accuracy: +- )
+- ```rh_out_pred_12h```: outdoor relative humidity predicted 12h ahead (accuracy: +- )
+- ```rh_out_pred_24h```: outdoor relative humidity predicted 24h ahead (accuracy: +- )
 - ```diffuse_solar_rad```: diffuse solar radiation in W/m^2.
+- ```diffuse_solar_rad_pred_6h```: diffuse solar radiation predicted 6h ahead (accuracy: +- )
+- ```diffuse_solar_rad_pred_12h```: diffuse solar radiation predicted 12h ahead (accuracy: +- )
+- ```diffuse_solar_rad_pred_24h```: diffuse solar radiation predicted 24h ahead (accuracy: +- )
 - ```direct_solar_rad```: direct solar radiation in W/m^2.
+- ```direct_solar_rad_pred_6h```: direct solar radiation predicted 6h ahead (accuracy: +- )
+- ```direct_solar_rad_pred_12h```: direct solar radiation predicted 12h ahead (accuracy: +- )
+- ```direct_solar_rad_pred_24h```: direct solar radiation predicted 24h ahead (accuracy: +- )
 - ```t_in```: indoor temperature in Celcius degrees.
 - ```avg_unmet_setpoint```: average difference between the indoor temperatures and the cooling temperature setpoints in the different zones of the building in Celcius degrees. sum((t_in - t_setpoint).clip(min=0) * zone_volumes)/total_volume
 - ```rh_in```: indoor relative humidity in %.
