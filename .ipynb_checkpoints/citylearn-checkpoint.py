@@ -46,25 +46,17 @@ def auto_size(buildings):
             # If the DHW device is a HeatPump
             if isinstance(building.dhw_heating_device, HeatPump):
                 
-                # Calculating COPs of the heat pumps for every hour
-                building.dhw_heating_device.cop_heating = building.dhw_heating_device.eta_tech*(building.dhw_heating_device.t_target_heating  + 273.15)/(building.dhw_heating_device.t_target_heating - (building.sim_results['t_out']))
-                building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating < 0] = 20.0
-                building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating > 20] = 20.0
-                
                 #We assume that the heat pump is always large enough to meet the highest heating or cooling demand of the building
-                building.dhw_heating_device.nominal_power = max(building.sim_results['dhw_demand']/building.dhw_heating_device.cop_heating)
+                building.dhw_heating_device.nominal_power = np.array(building.sim_results['dhw_demand']/building.dhw_heating_device.cop_heating).max()
                 
             # If the device is an electric heater
             elif isinstance(building.dhw_heating_device, ElectricHeater):
-                building.dhw_heating_device.nominal_power = max(building.sim_results['dhw_demand']/building.dhw_heating_device.efficiency)
+                building.dhw_heating_device.nominal_power = (np.array(building.sim_results['dhw_demand'])/building.dhw_heating_device.efficiency).max()
         
         # Autosize guarantees that the cooling device device is large enough to always satisfy the maximum DHW demand
         if building.cooling_device.nominal_power == 'autosize':
-            building.cooling_device.cop_cooling = building.cooling_device.eta_tech*(building.cooling_device.t_target_cooling + 273.15)/(building.sim_results['t_out'] - building.cooling_device.t_target_cooling)
-            building.cooling_device.cop_cooling[building.cooling_device.cop_cooling < 0] = 20.0
-            building.cooling_device.cop_cooling[building.cooling_device.cop_cooling > 20] = 20.0
 
-            building.cooling_device.nominal_power = max(building.sim_results['cooling_demand']/building.cooling_device.cop_cooling)
+            building.cooling_device.nominal_power = (np.array(building.sim_results['cooling_demand'])/building.cooling_device.cop_cooling).max()
         
         # Defining the capacity of the storage devices as a number of times the maximum demand
         building.dhw_storage.capacity = max(building.sim_results['dhw_demand'])*building.dhw_storage.capacity
@@ -105,41 +97,41 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
             with open(simulation_data) as csv_file:
                 data = pd.read_csv(csv_file)
 
-            building.sim_results['cooling_demand'] = data['Cooling Load [kWh]']
-            building.sim_results['dhw_demand'] = data['DHW Heating [kWh]']
-            building.sim_results['non_shiftable_load'] = data['Equipment Electric Power [kWh]']
-            building.sim_results['month'] = data['Month']
-            building.sim_results['day'] = data['Day Type']
-            building.sim_results['hour'] = data['Hour']
-            building.sim_results['daylight_savings_status'] = data['Daylight Savings Status']
-            building.sim_results['t_in'] = data['Indoor Temperature [C]']
-            building.sim_results['avg_unmet_setpoint'] = data['Average Unmet Cooling Setpoint Difference [C]']
-            building.sim_results['rh_in'] = data['Indoor Relative Humidity [%]']
+            building.sim_results['cooling_demand'] = list(data['Cooling Load [kWh]'])
+            building.sim_results['dhw_demand'] = list(data['DHW Heating [kWh]'])
+            building.sim_results['non_shiftable_load'] = list(data['Equipment Electric Power [kWh]'])
+            building.sim_results['month'] = list(data['Month'])
+            building.sim_results['day'] = list(data['Day Type'])
+            building.sim_results['hour'] = list(data['Hour'])
+            building.sim_results['daylight_savings_status'] = list(data['Daylight Savings Status'])
+            building.sim_results['t_in'] = list(data['Indoor Temperature [C]'])
+            building.sim_results['avg_unmet_setpoint'] = list(data['Average Unmet Cooling Setpoint Difference [C]'])
+            building.sim_results['rh_in'] = list(data['Indoor Relative Humidity [%]'])
             
             with open(weather_file) as csv_file:
                 weather_data = pd.read_csv(csv_file)
                 
-            building.sim_results['t_out'] = weather_data['Outdoor Drybulb Temperature [C]']
-            building.sim_results['rh_out'] = weather_data['Outdoor Relative Humidity [%]']
-            building.sim_results['diffuse_solar_rad'] = weather_data['Diffuse Solar Radiation [W/m2]']
-            building.sim_results['direct_solar_rad'] = weather_data['Direct Solar Radiation [W/m2]']
+            building.sim_results['t_out'] = list(weather_data['Outdoor Drybulb Temperature [C]'])
+            building.sim_results['rh_out'] = list(weather_data['Outdoor Relative Humidity [%]'])
+            building.sim_results['diffuse_solar_rad'] = list(weather_data['Diffuse Solar Radiation [W/m2]'])
+            building.sim_results['direct_solar_rad'] = list(weather_data['Direct Solar Radiation [W/m2]'])
             
             # Reading weather forecasts
-            building.sim_results['t_out_pred_6h'] = weather_data['6h Prediction Outdoor Drybulb Temperature [C]']
-            building.sim_results['t_out_pred_12h'] = weather_data['12h Prediction Outdoor Drybulb Temperature [C]']
-            building.sim_results['t_out_pred_24h'] = weather_data['24h Prediction Outdoor Drybulb Temperature [C]']
+            building.sim_results['t_out_pred_6h'] = list(weather_data['6h Prediction Outdoor Drybulb Temperature [C]'])
+            building.sim_results['t_out_pred_12h'] = list(weather_data['12h Prediction Outdoor Drybulb Temperature [C]'])
+            building.sim_results['t_out_pred_24h'] = list(weather_data['24h Prediction Outdoor Drybulb Temperature [C]'])
             
-            building.sim_results['rh_out_pred_6h'] = weather_data['6h Prediction Outdoor Relative Humidity [%]']
-            building.sim_results['rh_out_pred_12h'] = weather_data['12h Prediction Outdoor Relative Humidity [%]']
-            building.sim_results['rh_out_pred_24h'] = weather_data['24h Prediction Outdoor Relative Humidity [%]']
+            building.sim_results['rh_out_pred_6h'] = list(weather_data['6h Prediction Outdoor Relative Humidity [%]'])
+            building.sim_results['rh_out_pred_12h'] = list(weather_data['12h Prediction Outdoor Relative Humidity [%]'])
+            building.sim_results['rh_out_pred_24h'] = list(weather_data['24h Prediction Outdoor Relative Humidity [%]'])
             
-            building.sim_results['diffuse_solar_rad_pred_6h'] = weather_data['6h Prediction Diffuse Solar Radiation [W/m2]']
-            building.sim_results['diffuse_solar_rad_pred_12h'] = weather_data['12h Prediction Diffuse Solar Radiation [W/m2]']
-            building.sim_results['diffuse_solar_rad_pred_24h'] = weather_data['24h Prediction Diffuse Solar Radiation [W/m2]']
+            building.sim_results['diffuse_solar_rad_pred_6h'] = list(weather_data['6h Prediction Diffuse Solar Radiation [W/m2]'])
+            building.sim_results['diffuse_solar_rad_pred_12h'] = list(weather_data['12h Prediction Diffuse Solar Radiation [W/m2]'])
+            building.sim_results['diffuse_solar_rad_pred_24h'] = list(weather_data['24h Prediction Diffuse Solar Radiation [W/m2]'])
             
-            building.sim_results['direct_solar_rad_pred_6h'] = weather_data['6h Prediction Direct Solar Radiation [W/m2]']
-            building.sim_results['direct_solar_rad_pred_12h'] = weather_data['12h Prediction Direct Solar Radiation [W/m2]']
-            building.sim_results['direct_solar_rad_pred_24h'] = weather_data['24h Prediction Direct Solar Radiation [W/m2]']
+            building.sim_results['direct_solar_rad_pred_6h'] = list(weather_data['6h Prediction Direct Solar Radiation [W/m2]'])
+            building.sim_results['direct_solar_rad_pred_12h'] = list(weather_data['12h Prediction Direct Solar Radiation [W/m2]'])
+            building.sim_results['direct_solar_rad_pred_24h'] = list(weather_data['24h Prediction Direct Solar Radiation [W/m2]'])
             
             # Reading the building attributes
             building.building_type = attributes['Building_Type']
@@ -149,15 +141,15 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
             with open(solar_profile) as csv_file:
                 data = pd.read_csv(csv_file)
 
-            building.sim_results['solar_gen'] = attributes['Solar_Power_Installed(kW)']*data['Hourly Data: AC inverter power (W)']/1000
+            building.sim_results['solar_gen'] = list(attributes['Solar_Power_Installed(kW)']*data['Hourly Data: AC inverter power (W)']/1000)
             
             # Finding the max and min possible values of all the states, which can then be used by the RL agent to scale the states and train any function approximators more effectively
             s_low, s_high = [], []
             for state_name, value in zip(buildings_states_actions[uid]['states'], buildings_states_actions[uid]['states'].values()):
                 if value == True:
                     if state_name != 'cooling_storage_soc' and state_name != 'dhw_storage_soc':
-                        s_low.append(building.sim_results[state_name].min())
-                        s_high.append(building.sim_results[state_name].max())
+                        s_low.append(min(building.sim_results[state_name]))
+                        s_high.append(max(building.sim_results[state_name]))
                     else:
                         s_low.append(0.0)
                         s_high.append(1.0)
@@ -174,13 +166,29 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
             observation_spaces.append(building.observation_space)
             action_spaces.append(building.action_space)
             buildings[uid] = building
+            
+    for building in buildings.values():
+
+        # If the DHW device is a HeatPump
+        if isinstance(building.dhw_heating_device, HeatPump):
+                
+            # Calculating COPs of the heat pumps for every hour
+            building.dhw_heating_device.cop_heating = building.dhw_heating_device.eta_tech*(building.dhw_heating_device.t_target_heating + 273.15)/(building.dhw_heating_device.t_target_heating - weather_data['Outdoor Drybulb Temperature [C]'])
+            building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating < 0] = 20.0
+            building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating > 20] = 20.0
+            building.dhw_heating_device.cop_heating = building.dhw_heating_device.cop_heating.to_numpy()
+
+        building.cooling_device.cop_cooling = building.cooling_device.eta_tech*(building.cooling_device.t_target_cooling + 273.15)/(weather_data['Outdoor Drybulb Temperature [C]'] - building.cooling_device.t_target_cooling)
+        building.cooling_device.cop_cooling[building.cooling_device.cop_cooling < 0] = 20.0
+        building.cooling_device.cop_cooling[building.cooling_device.cop_cooling > 20] = 20.0
+        building.cooling_device.cop_cooling = building.cooling_device.cop_cooling.to_numpy()
         
     auto_size(buildings)
 
     return buildings, observation_spaces, action_spaces
 
 class CityLearn(gym.Env):  
-    def __init__(self, data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = None, simulation_period = (0,8759), cost_function = ['quadratic']):
+    def __init__(self, data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = None, simulation_period = (0,8759), cost_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']):
         with open(buildings_states_actions) as json_file:
             self.buildings_states_actions = json.load(json_file)
         
@@ -210,16 +218,17 @@ class CityLearn(gym.Env):
             
     def get_building_information(self):
         
+        np.seterr(divide='ignore', invalid='ignore')
         # Annual DHW demand, Annual Cooling Demand, Annual Electricity Demand
         building_info = {}
         for uid, building in self.buildings.items():
             building_info[uid] = {}
             building_info[uid]['building_type'] = building.building_type
             building_info[uid]['climate_zone'] = building.climate_zone
-            building_info[uid]['solar_power_capacity (kW)'] = building.solar_power_capacity
-            building_info[uid]['Annual_DHW_demand (kWh)'] = building.sim_results['dhw_demand'].sum()
-            building_info[uid]['Annual_cooling_demand (kWh)'] = building.sim_results['cooling_demand'].sum()
-            building_info[uid]['Annual_nonshiftable_electrical_demand (kWh)'] = building.sim_results['non_shiftable_load'].sum()
+            building_info[uid]['solar_power_capacity (kW)'] = round(building.solar_power_capacity, 3)
+            building_info[uid]['Annual_DHW_demand (kWh)'] = round(sum(building.sim_results['dhw_demand']), 3)
+            building_info[uid]['Annual_cooling_demand (kWh)'] = round(sum(building.sim_results['cooling_demand']), 3)
+            building_info[uid]['Annual_nonshiftable_electrical_demand (kWh)'] = round(sum(building.sim_results['non_shiftable_load']), 3)
             
             building_info[uid]['Correlations_DHW'] = {}
             building_info[uid]['Correlations_cooling_demand'] = {}
@@ -227,10 +236,10 @@ class CityLearn(gym.Env):
             
             for uid_corr, building_corr in self.buildings.items():
                 if uid_corr != uid:
-                    building_info[uid]['Correlations_DHW'][uid_corr] = building.sim_results['dhw_demand'].corr(building_corr.sim_results['dhw_demand'])
-                    building_info[uid]['Correlations_cooling_demand'][uid_corr] = building.sim_results['cooling_demand'].corr(building_corr.sim_results['cooling_demand'])
-                    building_info[uid]['Correlations_non_shiftable_load'][uid_corr] = building.sim_results['non_shiftable_load'].corr(building_corr.sim_results['non_shiftable_load'])
-                    
+                    building_info[uid]['Correlations_DHW'][uid_corr] = round((np.corrcoef(np.array(building.sim_results['dhw_demand']), np.array(building_corr.sim_results['dhw_demand'])))[0][1], 3)
+                    building_info[uid]['Correlations_cooling_demand'][uid_corr] = round((np.corrcoef(np.array(building.sim_results['cooling_demand']), np.array(building_corr.sim_results['cooling_demand'])))[0][1], 3)
+                    building_info[uid]['Correlations_non_shiftable_load'][uid_corr] = round((np.corrcoef(np.array(building.sim_results['non_shiftable_load']), np.array(building_corr.sim_results['non_shiftable_load'])))[0][1], 3)
+        
         return building_info
         
     def step(self, actions):
@@ -242,43 +251,50 @@ class CityLearn(gym.Env):
         electric_demand = 0
         elec_consumption_dhw_storage = 0
         elec_consumption_cooling_storage = 0
-        elec_consumption_dhw_building = 0
-        elec_consumption_cooling_building = 0
+        elec_consumption_dhw_total = 0
+        elec_consumption_cooling_total = 0
         elec_consumption_appliances = 0
         elec_generation = 0
         for a, (uid, building) in zip(actions, self.buildings.items()):
 
-            assert sum(list(self.buildings_states_actions[uid]['actions'].values())) == len(a), "The number of input actions for building "+str(uid)+" must match the number of actions defined in the list of building attributes."
+            assert sum(self.buildings_states_actions[uid]['actions'].values()) == len(a), "The number of input actions for building "+str(uid)+" must match the number of actions defined in the list of building attributes."
             
             building_electric_demand = 0
 
             if self.buildings_states_actions[uid]['actions']['cooling_storage']:
-                
                 # Cooling
-                building_electric_demand += building.set_storage_cooling(a[0])
+                _electric_demand_cooling = building.set_storage_cooling(a[0])
                 elec_consumption_cooling_storage += building._electric_consumption_cooling_storage
-                if self.buildings_states_actions[uid]['actions']['dhw_storage']:
-                    
-                    # DHW
-                    building_electric_demand += building.set_storage_heating(a[1])
-                    elec_consumption_dhw_storage += building._electric_consumption_dhw_storage
-            else:
                 
+                if self.buildings_states_actions[uid]['actions']['dhw_storage']:
+                    # DHW
+                    _electric_demand_dhw = building.set_storage_heating(a[1])
+                    elec_consumption_dhw_storage += building._electric_consumption_dhw_storage
+                    
+                else:
+                    _electric_demand_dhw = 0
+                    
+            else:
+                _electric_demand_cooling = 0
                 # DHW
-                building_electric_demand += building.set_storage_heating(a[0])
+                _electric_demand_dhw = building.set_storage_heating(a[0])
                 elec_consumption_dhw_storage += building._electric_consumption_dhw_storage
+                
+            # Total heating and cooling electrical loads
+            elec_consumption_cooling_total += _electric_demand_cooling
+            elec_consumption_dhw_total += _electric_demand_dhw
 
             # Electrical appliances
-            building_electric_demand += building.get_non_shiftable_load()
+            _non_shiftable_load = building.get_non_shiftable_load()
+            elec_consumption_appliances += _non_shiftable_load
             
             # Solar generation
-            building_electric_demand -= building.get_solar_power()
+            _solar_generation = building.get_solar_power()
+            elec_generation += _solar_generation
             
-            elec_consumption_cooling_building += building.get_cooling_electric_demand()
-            elec_consumption_dhw_building += building.get_dhw_electric_demand() 
-            elec_consumption_appliances += building.get_non_shiftable_load()
-            elec_generation += building.get_solar_power()
-                                    
+            # Adding loads from appliances and subtracting solar generation to the net electrical load of each building
+            building_electric_demand += _electric_demand_cooling + _electric_demand_dhw + _non_shiftable_load - _solar_generation
+                              
             # Electricity consumed by every building
             rewards.append(-building_electric_demand)    
             
@@ -296,17 +312,17 @@ class CityLearn(gym.Env):
                     if state_name != 'cooling_storage_soc' and state_name != 'dhw_storage_soc':
                         s.append(building.sim_results[state_name][self.time_step])
                     elif state_name == 'cooling_storage_soc':
-                        s.append(building.cooling_storage.soc/building.cooling_storage.capacity)
+                        s.append(building.cooling_storage._soc/building.cooling_storage.capacity)
                     elif state_name == 'dhw_storage_soc':
-                        s.append(building.dhw_storage.soc/building.dhw_storage.capacity)
+                        s.append(building.dhw_storage._soc/building.dhw_storage.capacity)
         
             self.state.append(np.array(s))
             
         self.net_electric_consumption.append(electric_demand)
         self.electric_consumption_dhw_storage.append(elec_consumption_dhw_storage)
         self.electric_consumption_cooling_storage.append(elec_consumption_cooling_storage)
-        self.electric_consumption_dhw.append(elec_consumption_dhw_building)
-        self.electric_consumption_cooling.append(elec_consumption_cooling_building)
+        self.electric_consumption_dhw.append(elec_consumption_dhw_total)
+        self.electric_consumption_cooling.append(elec_consumption_cooling_total)
         self.electric_consumption_appliances.append(elec_consumption_appliances)
         self.electric_generation.append(elec_generation)
         self.net_electric_consumption_no_storage.append(electric_demand-elec_consumption_cooling_storage-elec_consumption_dhw_storage)
@@ -352,7 +368,7 @@ class CityLearn(gym.Env):
         return self._get_ob()
     
     def _get_ob(self):
-        return np.array([s for s in [s_var for s_var in self.state]])
+        return np.array(self.state)
     
     def _terminal(self):
         is_terminal = bool(self.time_step >= self.simulation_period[1])
