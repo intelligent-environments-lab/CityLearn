@@ -119,21 +119,21 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
 - ```hour```: hour of day (from 1 to 24).
 - ```daylight_savings_status```: indicates if the building is under daylight savings period (0 to 1). 0 indicates that the building has not changed its electricity consumption profiles due to daylight savings, while 1 indicates the period in which the building may have been affected.
 - ```t_out```: outdoor temperature in Celcius degrees.
-- ```t_out_pred_6h```: outdoor temperature predicted 6h ahead (accuracy: +- )
-- ```t_out_pred_12h```: outdoor temperature predicted 12h ahead (accuracy: +- )
-- ```t_out_pred_24h```: outdoor temperature predicted 24h ahead (accuracy: +- )
+- ```t_out_pred_6h```: outdoor temperature predicted 6h ahead (accuracy: +-0.3C)
+- ```t_out_pred_12h```: outdoor temperature predicted 12h ahead (accuracy: +-0.65C)
+- ```t_out_pred_24h```: outdoor temperature predicted 24h ahead (accuracy: +-1.35C)
 - ```rh_out```: outdoor relative humidity in %.
-- ```rh_out_pred_6h```: outdoor relative humidity predicted 6h ahead (accuracy: +- )
-- ```rh_out_pred_12h```: outdoor relative humidity predicted 12h ahead (accuracy: +- )
-- ```rh_out_pred_24h```: outdoor relative humidity predicted 24h ahead (accuracy: +- )
+- ```rh_out_pred_6h```: outdoor relative humidity predicted 6h ahead (accuracy: +-2.5%)
+- ```rh_out_pred_12h```: outdoor relative humidity predicted 12h ahead (accuracy: +-5%)
+- ```rh_out_pred_24h```: outdoor relative humidity predicted 24h ahead (accuracy: +-10%)
 - ```diffuse_solar_rad```: diffuse solar radiation in W/m^2.
-- ```diffuse_solar_rad_pred_6h```: diffuse solar radiation predicted 6h ahead (accuracy: +- )
-- ```diffuse_solar_rad_pred_12h```: diffuse solar radiation predicted 12h ahead (accuracy: +- )
-- ```diffuse_solar_rad_pred_24h```: diffuse solar radiation predicted 24h ahead (accuracy: +- )
+- ```diffuse_solar_rad_pred_6h```: diffuse solar radiation predicted 6h ahead (accuracy: +-2.5%)
+- ```diffuse_solar_rad_pred_12h```: diffuse solar radiation predicted 12h ahead (accuracy: +-5%)
+- ```diffuse_solar_rad_pred_24h```: diffuse solar radiation predicted 24h ahead (accuracy: +-10%)
 - ```direct_solar_rad```: direct solar radiation in W/m^2.
-- ```direct_solar_rad_pred_6h```: direct solar radiation predicted 6h ahead (accuracy: +- )
-- ```direct_solar_rad_pred_12h```: direct solar radiation predicted 12h ahead (accuracy: +- )
-- ```direct_solar_rad_pred_24h```: direct solar radiation predicted 24h ahead (accuracy: +- )
+- ```direct_solar_rad_pred_6h```: direct solar radiation predicted 6h ahead (accuracy: +-2.5%)
+- ```direct_solar_rad_pred_12h```: direct solar radiation predicted 12h ahead (accuracy: +-5%)
+- ```direct_solar_rad_pred_24h```: direct solar radiation predicted 24h ahead (accuracy: +-10%)
 - ```t_in```: indoor temperature in Celcius degrees.
 - ```avg_unmet_setpoint```: average difference between the indoor temperatures and the cooling temperature setpoints in the different zones of the building in Celcius degrees. sum((t_in - t_setpoint).clip(min=0) * zone_volumes)/total_volume
 - ```rh_in```: indoor relative humidity in %.
