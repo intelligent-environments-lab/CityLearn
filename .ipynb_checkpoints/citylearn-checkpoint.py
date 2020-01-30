@@ -157,7 +157,7 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
             a_low, a_high = [], []         
             for state_name, value in zip(buildings_states_actions[uid]['actions'], buildings_states_actions[uid]['actions'].values()):
                 if value == True:
-                    a_low.append(0.0)
+                    a_low.append(-1.0)
                     a_high.append(1.0)
 
             building.set_state_space(np.array(s_high), np.array(s_low))

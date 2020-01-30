@@ -44,8 +44,8 @@ class Building:
         """
         Args:
             action (float): Amount of heating energy stored (added) in that time-step as a ratio of the maximum capacity of the energy storage device. 
-            1 =< action < 0 : Energy Storage Unit releases energy into the building and its State of Charge decreases
-            0 < action <= -1 : Energy Storage Unit receives energy from the energy supply device and its State of Charge increases
+            -1 =< action < 0 : Energy Storage Unit releases energy into the building and its State of Charge decreases
+            0 < action <= 1 : Energy Storage Unit receives energy from the energy supply device and its State of Charge increases
             The actions are always subject to the constraints of the power capacity of the heating supply unit, the DHW demand of the
             building (which limits the maximum amount of DHW that the energy storage can provide to the building), and the state of charge of the
             energy storage unit itself
