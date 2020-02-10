@@ -230,7 +230,7 @@ class RBC_Agent:
         self.action_tracker = []
         
     def select_action(self, states):
-        hour_day = states[0][2]
+        hour_day = states[0][0]
         
         # Daytime: release stored energy
         a = [[0.0 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]

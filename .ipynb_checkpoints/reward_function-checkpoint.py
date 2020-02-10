@@ -9,15 +9,29 @@ reward by that price. Then it returns the new rewards, which should be used by t
 in order to minimize the 5 proposed metrics.
 """
 
-def reward_function(rewards):
+# Reward function for the multi-agent (decentralized) agents
+def reward_function_ma(electricity_demand):
     total_energy_demand = 0
-    for r in rewards:
-        total_energy_demand += -r
+    for e in electricity_demand:
+        total_energy_demand += -e
         
-    price = total_energy_demand*0.01
+    price = max(total_energy_demand*0.01, 0)
     
-    for i in range(len(rewards)):
-        rewards[i] = price*rewards[i]
+    for i in range(len(electricity_demand)):
+        electricity_demand[i] = min(price*electricity_demand[i], 0)
     
-    return rewards
+    return electricity_demand
+
+# Reward function for the single-agent (centralized) agent
+def reward_function_sa(electricity_demand):
+    total_energy_demand = 0
+    for e in electricity_demand:
+        total_energy_demand += -e
+        
+    price = max(total_energy_demand*0.01, 0)
+    
+    for i in range(len(electricity_demand)):
+        electricity_demand[i] = min(price*electricity_demand[i], 0)
+    
+    return sum(electricity_demand)
 
