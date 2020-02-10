@@ -36,7 +36,7 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
 ### CityLearn
 This class of type OpenAI Gym Environment contains all the buildings and their subclasses.
-- CityLearn input attributes data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = None, simulation_period, cost_function, central_agent, verbose
+- CityLearn input attributes
   - ```data_path```: path indicating where the data is
   - ```building_attributes```: name of the file containing the charactieristics of the energy supply and storage systems of the buildings
   - ```weather_file```: name of the file containing the weather variables
