@@ -10,6 +10,7 @@ CityLearn requires the installation of the following Python libraries:
 - Numpy 1.16.4 or older
 - Gym 0.14.0
 - PyTorch 1.1.0
+- TensorFlow 1.14.0
 - Json 2.0.9
 
 CityLearn may still work with some earlier versions of these libraries, but we have tested it with those.
@@ -22,8 +23,9 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 - [citylearn.py](/citylearn.py): Contains the ```CityLearn``` environment and the functions ```building_loader()``` and ```autosize()```
 - [energy_models.py](/energy_models.py): Contains the classes ```Building```, ```HeatPump``` and ```EnergyStorage```, which are called by the ```CityLearn``` class.
 - [agent.py](/agent.py): Implementation of the TD3 algorithm ([TD3](https://arxiv.org/abs/1802.09477)) RL algorithm. This file must be modified with any other RL implementation, which can then be run in the [main.ipynb](/main.ipynb) jupyter lab file or the [main.py](/main.py) file.
-- [reward_function.py](/reward_function.py): Contains the reward function that wraps and modifies the rewards obtained from ```CityLearn```. This function can be modified by the user in order to minimize the cost function of ```CityLearn```.
+- [reward_function.py](/reward_function.py): Contains the reward functions that wraps and modifies the rewards obtained from ```CityLearn```. This function can be modified by the user in order to minimize the cost function of ```CityLearn```. There are two reward functions, one works for multi-agent systems (decentralized RL agents), and the other works for single-agent systems (centralized RL agent). Setting the attribute central_agent=True in CityLearn will make the environment return the output from sa_reward_function, while central_agent=False (default mode) will make the environment return the output from ma_reward_function.
 - [example_rbc.ipynb](/example_rbc.ipynb): jupyter lab file. Example of the implementation of a manually optimized Rule-based controller (RBC) that can be used for comparison
+- [example_central_agent.ipynb](/example_central_agent.ipynb): jupyter lab file. Example of the implementation of a SAC centralized RL algorithm from Open AI stable baselines, for 1 and 9 buildings.
 ### Classes
 - CityLearn
   - Building
@@ -34,7 +36,18 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
 ### CityLearn
 This class of type OpenAI Gym Environment contains all the buildings and their subclasses.
-- CityLearn attributes (all in kWh)
+- CityLearn input attributes data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = None, simulation_period, cost_function, central_agent, verbose
+  - ```data_path```: path indicating where the data is
+  - ```building_attributes```: name of the file containing the charactieristics of the energy supply and storage systems of the buildings
+  - ```weather_file```: name of the file containing the weather variables
+  - ```solar_profile```: name of the file containing the solar generation profile (generation per kW of installed power)
+  - ```building_ids```: list with the building IDs of the buildings to be simulated
+  - ```buildings_states_actions```: name of the file containing the states and actions to be returned or taken by the environment
+  - ```simulation_period```: hourly time period to be simnulated. (0, 8759) by default: one year.
+  - ```cost_function```: list with the cost functions to be minimized.
+  - ```central_agent```: allows using CityLearn in central agent mode or in decentralized agents mode. If True, CityLearn returns a list of observations, a single reward, and takes a list of actions. If False, CityLearn will allow the easy implementation of decentralized RL agents by returning a list of lists (as many as the number of building) of states, a list of rewards (one reward for each building), and will take a list of lists of actions (one for every building).
+  - ```verbose```: set to 0 if you don't want CityLearn to print out the cumulated reward of each episode and set it to 1 if you do
+- Internal attributes (all in kWh)
   - ```net_electric_consumption```: district net electricity consumption
   - ```net_electric_consumption_no_storage```: district net electricity consumption if there were no cooling and DHW storage
   - ```net_electric_consumption_no_pv_no_storage```: district net electricity consumption if there were no cooling, DHW storage and PV generation
