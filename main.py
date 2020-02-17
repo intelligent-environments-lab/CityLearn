@@ -1,6 +1,5 @@
 from citylearn import  CityLearn
 from pathlib import Path
-from reward_function import reward_function
 from agent import RL_Agents
 import numpy as np
 
@@ -25,7 +24,7 @@ building_info = env.get_building_information()
 agents = RL_Agents(building_info, observations_spaces, actions_spaces)
 
 # Select many episodes for training. In the final run we will set this value to 1 (the buildings run for one year)
-episodes = 300
+episodes = 10
 
 k, c = 0, 0
 cost, cum_reward = {}, {}
@@ -42,7 +41,6 @@ for e in range(episodes):
             
         action = agents.select_action(state)
         next_state, reward, done, _ = env.step(action)
-        reward = reward_function(reward) #See comments in reward_function.py
         agents.add_to_buffer(state, action, reward, next_state, done)
         state = next_state
         
