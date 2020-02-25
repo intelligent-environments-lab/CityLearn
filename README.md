@@ -193,7 +193,7 @@ For a decentralized multi-agent controller  (if CityLearn class attribtue ```cen
 ### Multiple buildings
   - If controlled independently of each other and without coordination or sharing any information, the buildings will tend to consume more electricity simultaneously, which may not be optimal if the objective is peak reduction and load flattening. 
 ### [Challenge](https://sites.google.com/view/citylearnchallenge)
-Coordinate multiple RL agents or a single centralized agent to control all the buildings. The agents may share certain information with each other. The objective is to reduce the cost function by smoothening, reducing, and flattening the total net demand for electricity of the whole district. Check out our [CityLearn Challenge](https://sites.google.com/view/citylearnchallenge)
+Coordinate multiple RL agents or a single centralized agent to control all the buildings. The agents may share certain information with each other. The objective is to reduce the cost function by smoothing, reducing, and flattening the total net demand for electricity in the whole district. Electric heaters supplies the heating energy for the DHW system (no air heating), and air-to-water heat pumps provide cooling energy for the building. Check out our [CityLearn Challenge](https://sites.google.com/view/citylearnchallenge)
 ## Cite CityLearn
 - [Vázquez-Canteli, J.R., Kämpf, J., Henze, G., and Nagy, Z., "CityLearn v1.0: An OpenAI Gym Environment for Demand Response with Deep Reinforcement Learning", Proceedings of the 6th ACM International Conference, ACM New York p. 356-357, New York, 2019](https://dl.acm.org/citation.cfm?id=3360998)
 ## Related Publications
