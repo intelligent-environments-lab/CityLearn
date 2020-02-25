@@ -167,8 +167,10 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
 The mathematical formulation of the effects of the actions can be found in the methods ```set_storage_heating(action)``` and ```set_storage_cooling(action)``` of the class Building in the file [energy_models.py](/energy_models.py).
 ### Reward function
 The reward function must be defined by the user by changing one of the two functions in the file [reward_function.py](/reward_function.py).
+
 For a central single-agent:
 - ```reward_function_sa```: it takes the total net electricity consumption of each building (< 0 if generation is higher than demand) at a given time and returns a single reward for the central agent.
+
 For a decentralized multi-agent controller:
 - ```reward_function_ma```: it takes the total net electricity consumption of each building (< 0 if generation is higher than demand) at a given time and returns a list with as many rewards as the number of agents.
 
