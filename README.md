@@ -100,7 +100,7 @@ The file building_attributes.json contains the attributes of each building, whic
 
 - Methods
   - ```set_state_space()``` and ```set_action_space()``` set the state-action space of each building
-  - ```set_storage_heating()``` and ```set_storage_cooling()``` set the state of charge of the ```EnergyStorage``` device to the specified value and within the physical constraints of the system. Returns the total electricity consumption of the building at that time-step.
+  - ```set_storage_heating()``` and ```set_storage_cooling()``` set the state of charge of the ```EnergyStorage``` device to the specified value and within the physical constraints of the system. Returns the total electricity consumption of the building for heating and cooling respectively at that time-step.
   - ```get_non_shiftable_load()```, ```get_solar_power()```, ```get_dhw_electric_demand()``` and ```get_cooling_electric_demand()``` get the different types of electricity demand and generation.
   
 ### Heat pump
@@ -113,8 +113,8 @@ Any amount of cooling demand of the building that isn't satisfied by the ```Ener
 - Attributes
   - ```cop_heating```: coefficient of performance for heating supply
   - ```cop_cooling```:  coefficient of performance for cooling supply
-  - ```electrical_consumption_cooling```: electricity consumed for heating supply (kWh)
-  - ```electrical_consumption_heating```: electricity consumed for cooling supply (kWh)
+  - ```electrical_consumption_cooling```: electricity consumed for cooling supply (kWh)
+  - ```electrical_consumption_heating```: electricity consumed for heating supply (kWh)
   - ```heat_supply```: heating supply (kWh)
   - ```cooling_supply```: cooling supply (kWh)
 - Methods
