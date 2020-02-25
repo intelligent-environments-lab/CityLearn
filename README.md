@@ -168,11 +168,12 @@ The mathematical formulation of the effects of the actions can be found in the m
 ### Reward function
 The reward function must be defined by the user by changing one of the two functions in the file [reward_function.py](/reward_function.py).
 
-For a central single-agent:
+For a central single-agent (if CityLearn class attribtue ```central_agent = True```):
 - ```reward_function_sa```: it takes the total net electricity consumption of each building (< 0 if generation is higher than demand) at a given time and returns a single reward for the central agent.
 
-For a decentralized multi-agent controller:
+For a decentralized multi-agent controller  (if CityLearn class attribtue ```central_agent = False```):
 - ```reward_function_ma```: it takes the total net electricity consumption of each building (< 0 if generation is higher than demand) at a given time and returns a list with as many rewards as the number of agents.
+
 
 ### Cost function
 ```env.cost()``` is the cost function of the environment, which the RL controller must minimize. There are multiple cost functions available, which are all defined as a function of the total non-negative net electricity consumption of the whole neighborhood:
