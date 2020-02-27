@@ -196,6 +196,7 @@ For a decentralized multi-agent controller  (if CityLearn class attribtue ```cen
 Coordinate multiple RL agents or a single centralized agent to control all the buildings. The agents may share certain information with each other. The objective is to reduce the cost function by smoothing, reducing, and flattening the total net demand for electricity in the whole district. Electric heaters supplies the heating energy for the DHW system (no air heating), and air-to-water heat pumps provide cooling energy for the building. Check out our [CityLearn Challenge](https://sites.google.com/view/citylearnchallenge)
 ## Cite CityLearn
 - [Vázquez-Canteli, J.R., Kämpf, J., Henze, G., and Nagy, Z., "CityLearn v1.0: An OpenAI Gym Environment for Demand Response with Deep Reinforcement Learning", Proceedings of the 6th ACM International Conference, ACM New York p. 356-357, New York, 2019](https://dl.acm.org/citation.cfm?id=3360998)
+
 ## Related Publications
 - [Vázquez-Canteli, J.R., and Nagy, Z., “Reinforcement Learning for Demand Response: A Review of algorithms and modeling techniques”, Applied Energy 235, 1072-1089, 2019.](https://www.sciencedirect.com/science/article/abs/pii/S0306261918317082)
 - [Vázquez-Canteli, J.R., Ulyanin, S., Kämpf J., and Nagy, Z., “Fusing TensorFlow with building energy simulation for intelligent energy management in smart cities”, Sustainable Cities and Society, 2018.](https://www.sciencedirect.com/science/article/abs/pii/S2210670718314380)
@@ -204,6 +205,40 @@ Coordinate multiple RL agents or a single centralized agent to control all the b
 - Email: citylearn@utexas.edu
 - [José R. Vázquez-Canteli](https://www.researchgate.net/profile/Jose_Vazquez-Canteli2), PhD Candidate at The University of Texas at Austin, Department of Civil, Architectural, and Environmental Engineering. [Intelligent Environments Laboratory (IEL)](https://nagy.caee.utexas.edu/). 
 - [Dr. Zoltan Nagy](https://nagy.caee.utexas.edu/team/prof-zoltan-nagy-phd/), Assistant Professor at The University of Texas at Austin, Department of Civil, Architectural, and Environmental Engineering.
+
+## Asked questions for The CityLearn Challenge
+**After running the agents, the average_daily_peak cost is higher than the the peak_demand cost. How is this possible? The annual peak demand should always be higher than the avergae daily peak.
+
+All the costs are normalized by the costs a rule-based controller would have. Therefore, the different costs are normalized by different values and that is why the average_daily_peak cost may be higher than the peak_demand cost. To see the factors by which they are being normalized, you can run env.cost_rbc after the environment has run through at least one episode.
+
+**It seems that the building heating_by_device is supplied by electric heater exclusively and cooling_by_device  by heat pump exclusively. So it is correct to assume that the heat pump does not provide heating at all?
+
+In the models provided for the challenge, the heat pump only provides cooling, and the DHW is only provided by the electric heater. Not all buildings have DHW demand and the electric heater supplying it, but all the buildings do have a heat pump supplying cooling energy.
+
+**Do we have limits on storage SOC (Minimum & maximum amount of thermal energy at any given time step)? From cooling_storage_soc it seems that it can be 0 or 1 (full capacity).
+
+Yeah, it can be 0 (empty) and 1 (full capacity), or any value in between at any time-steps. The cooling or DHW demands of the building and the power of the energy supply devices also limit the additional energy that can be stored or released on any of theses storage devices at any given time-step.
+
+**Can we use future hour heating, cooling electrical appliances energy / electricity demand as ‘predictions’ for the current time step action selection_ provided in each building file? Such that one of the state for determine if to supply heating by device would be “future demand for heating”? I don’t see them in the possible states…
+
+We provide as states those variables that we could easily obtained in a real-world implementation. You can only use as states those variables we have provided as such, in the file buildings_state_action_space.json. However, instead of using the predicted values of generation, cooling or heating, you can use other variables as states that are good predictors of those variables. For example, the solar irradiation is a good predictor of the solar generation, the outdoor temperature (and the relative humidity to some extent) are also good predictors of the demand for cooling, and the current electricity consumption from non-shiftable loads may also be a decent predictor of the electricity consumption in the next hour. 
+It's also worth mentioning that within your controller you can do any feature engineering you want using these observed variables that CityLearn returns. You need to use these observed variables from the  buildings_state_action_space.json only, but you can process them as you wish within your controller.
+
+**Is electric_generation the net solar_gen?
+
+Yes, it is the solar generation.
+
+**Does electric_ consumption_dhw(t) + electrical_consumption_dhw_storage(t) = electrical_consumption_heating(t)? 
+electric_consumption_dhw = sum of electrical_consumption_heating across all buildings. It already includes any additional heating energy consumed by the DHW storage (if you are increasing its SOC), or any reduction in the heating demand if you are decreasing the SOC of the DHW storage device.
+
+The variable electrical_consumption_dhw_storage is the increase or reduction in the electrical demand for heating resulting from increasing or decreasing the SOC
+
+**How do I represent the action selection whether the use solar_gen at this time step or use electricity from grid (for either electric_consumption_appliances or electricity for heat pumps and electric heaters) to reflect the change in state of electricity prices and solar power availability (solar_gen which is related with solar radiation prediction)? I understand that the solar generation will also happen but the agent can decide not to use the electricity generation at this time step when the electricity pricing is cheap but use it later when the electricity price is higher…
+
+There are no actual electricity prices that need to be used. The default reward functions provided with the environment come with some virtual electricity prices that are proportional to the overall net electrical demand in the district. This creates a reward function that depends on the squared value of the electrical consumption: price = constant * net_electric_consumption, reward = price * net_electric_consumption = constant * net_electric_consumption^2. 
+This default reward function should incentivize the agent(s) to flatten the curve of net electrical demand. However, you don't need to use this reward function (feel free to modify it if you think of a better reward function), there are no actual electricity prices, and the objective of the challenge is to do load-shaping a minimize the 5 metrics provided in the cost function: ramping, 1-load_factor (one minus load factor), the average daily peak of net electricity consumption, the maximum peak demand of that year, and the non-negative net electricity consumption.
+The control actions are simply the storage or release of energy from the storage devices, and the overall objective is to make the net electrical demand of the district as flat, smooth and low as possible in order to minimize the aforementioned 5 cost metrics. The electricity generation and demand from appliances is already determined and going to happen regardless of the actions you take.
+
 ## License
 The MIT License (MIT) Copyright (c) 2019, José Ramón Vázquez-Canteli
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
