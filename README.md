@@ -225,10 +225,12 @@ We provide as states those variables that we could easily obtained in a real-wor
 It's also worth mentioning that within your controller you can do any feature engineering you want using these observed variables that CityLearn returns. You need to use these observed variables from the  buildings_state_action_space.json only, but you can process them as you wish within your controller.
 
 - Is electric_generation the net solar_gen?
+
 Yes, it is the solar generation.
 
 - Does electric_ consumption_dhw(t) + electrical_consumption_dhw_storage(t) = electrical_consumption_heating(t)? 
 electric_consumption_dhw = sum of electrical_consumption_heating across all buildings. It already includes any additional heating energy consumed by the DHW storage (if you are increasing its SOC), or any reduction in the heating demand if you are decreasing the SOC of the DHW storage device.
+
 The variable electrical_consumption_dhw_storage is the increase or reduction in the electrical demand for heating resulting from increasing or decreasing the SOC
 
 - How do I represent the action selection whether the use solar_gen at this time step or use electricity from grid (for either electric_consumption_appliances or electricity for heat pumps and electric heaters) to reflect the change in state of electricity prices and solar power availability (solar_gen which is related with solar radiation prediction)? I understand that the solar generation will also happen but the agent can decide not to use the electricity generation at this time step when the electricity pricing is cheap but use it later when the electricity price is higher…
