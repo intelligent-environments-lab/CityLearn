@@ -27,13 +27,13 @@ class train_params():
     NUM_AGENTS = 4                          # Number of distributed agents to run simultaneously
      
     V_MIN = -250000.0
-    V_MAX = -100000.0
+    V_MAX = -10000.0
         
     # Training parameters
-    BATCH_SIZE = 256
-    NUM_STEPS_TRAIN = 10000       # Number of steps to train for
+    BATCH_SIZE = 2048
+    NUM_STEPS_TRAIN = 40000       # Number of steps to train for
     MAX_EP_LENGTH = 8759          # Maximum number of steps per episode
-    REPLAY_MEM_SIZE = 1000000       # Soft maximum capacity of replay memory
+    REPLAY_MEM_SIZE = 20000       # Soft maximum capacity of replay memory
     REPLAY_MEM_REMOVE_STEP = 200    # Check replay memory every REPLAY_MEM_REMOVE_STEP training steps and remove samples over REPLAY_MEM_SIZE capacity
     PRIORITY_ALPHA = 0.6            # Controls the randomness vs prioritisation of the prioritised sampling (0.0 = Uniform sampling, 1.0 = Greedy prioritisation)
     PRIORITY_BETA_START = 0.4       # Starting value of beta - controls to what degree IS weights influence the gradient updates to correct for the bias introduced by priority sampling (0 - no correction, 1 - full correction)
@@ -43,7 +43,7 @@ class train_params():
     NOISE_DECAY = 0.9999            # Decay noise throughout training by scaling by noise_decay**training_step
     DISCOUNT_RATE = 0.99            # Discount rate (gamma) for future rewards
     N_STEP_RETURNS = 5              # Number of future steps to collect experiences for N-step returns
-    UPDATE_AGENT_EP = 10            # Agent gets latest parameters from learner every update_agent_ep episodes
+    UPDATE_AGENT_EP = 2            # Agent gets latest parameters from learner every update_agent_ep episodes
         
     # Network parameters
     CRITIC_LEARNING_RATE = 0.0001
@@ -59,9 +59,22 @@ class train_params():
     # Files/Directories
     SAVE_CKPT_STEP = 8760                  # Save checkpoint every save_ckpt_step training steps
     CKPT_DIR = './ckpts'          # Directory for saving/loading checkpoints
-    CKPT_FILE = None                        # Checkpoint file to load and resume training from (if None, train from scratch)
+    CKPT_FILE = 'citylearn.ckpt-17520'                        # Checkpoint file to load and resume training from (if None, train from scratch)
     LOG_DIR = './logs/train'      # Directory for saving Tensorboard logs (if None, do not save logs)
 
+class test_params:
+   
+    # Environment parameters
+    RANDOM_SEED = 999999                                    # Random seed for reproducability
+    
+    # Testing parameters
+    MAX_EP_LENGTH = 8759                                   # Maximum number of steps per episode
+    
+    # Files/directories
+    CKPT_DIR = './ckpts'                             # Directory for saving/loading checkpoints
+    CKPT_FILE = None                                        # Checkpoint file to load and test (if None, load latest ckpt)
+    RESULTS_DIR = './test_results'                          # Directory for saving txt file of results (if None, do not save results)
+    LOG_DIR = './logs/test'                          # Directory for saving Tensorboard logs (if None, do not save logs)
 
 class play_params:
    
@@ -69,12 +82,11 @@ class play_params:
     RANDOM_SEED = 999999                                    # Random seed for reproducability
     
     # Play parameters
-    NUM_EPS_PLAY = 1                                        # Number of episodes to play for
     MAX_EP_LENGTH = 8759                                  # Maximum number of steps per episode
     
     # Files/directories
     CKPT_DIR = './ckpts'                             # Directory for saving/loading checkpoints
-    CKPT_FILE = None#'citylearn.ckpt-998640'                         # Checkpoint file to load and run (if None, load latest ckpt)
+    CKPT_FILE = None#'citylearn.ckpt-87600'                         # Checkpoint file to load and run (if None, load latest ckpt)
 
 
 '''
@@ -365,7 +377,7 @@ class Agent:
         
         # Create summary op to save episode reward to Tensorboard log
         self.ep_reward_var = tf.Variable(0.0, trainable=False, name=('ep_reward_agent_%02d'%self.n_agent))
-        tf.summary.scalar("Episode Reward", self.ep_reward_var)
+        tf.summary.scalar("Episode_Reward", self.ep_reward_var)
         self.summary_op = tf.summary.merge_all()
         
         # Initialise reward var - this will not be initialised with the other network variables as these are copied over from the learner
@@ -470,6 +482,55 @@ class Agent:
             
         return ckpt
     
+    def test(self):   
+        # Test a saved ckpt of actor network and save results to file (optional)
+        
+        # Create Tensorboard summaries to save episode rewards
+        if test_params.LOG_DIR is not None:
+            self.build_summaries(test_params.LOG_DIR)
+
+        state = self.env.reset()
+        ep_reward = 0
+        step = 0
+        ep_done = False
+            
+        while not ep_done:
+            action = self.sess.run(self.actor_net.output, {self.state_ph:np.expand_dims(state, 0)})[0]     # Add batch dimension to single state input, and remove batch dimension from single action output
+            state, reward, terminal, _ = self.env.step(action)
+
+            ep_reward += reward
+            step += 1
+                 
+            # Episode can finish either by reaching terminal state or max episode steps
+            if terminal or step == test_params.MAX_EP_LENGTH:  
+                rewards = ep_reward
+                ep_done = True   
+                
+        sys.stdout.write('\x1b[2K\rTesting complete \t Episode reward = {:.2f} \n\n'.format(rewards))
+        sys.stdout.write('\x1b[2K\rRamping = {:f} \n'.format(self.env.cost()["ramping"]))
+        sys.stdout.write('\x1b[2K\r1-load_factor = {:f} \n'.format(self.env.cost()["1-load_factor"]))
+        sys.stdout.write('\x1b[2K\raverage_daily_peak = {:f} \n'.format(self.env.cost()["average_daily_peak"]))
+        sys.stdout.write('\x1b[2K\rpeak_demand = {:f} \n'.format(self.env.cost()["peak_demand"]))
+        sys.stdout.write('\x1b[2K\rnet_electricity_consumption = {:f} \n'.format(self.env.cost()["net_electricity_consumption"]))
+        sys.stdout.write('\x1b[2K\rtotal = {:f} \n'.format(self.env.cost()["total"]))
+        sys.stdout.flush()  
+        
+        # Log average episode reward for Tensorboard visualisation
+        if test_params.LOG_DIR is not None:
+            summary_str = self.sess.run(self.summary_op, {self.ep_reward_var: rewards})
+            self.summary_writer.add_summary(summary_str, self.train_ep)
+         
+        # Write results to file        
+        if test_params.RESULTS_DIR is not None:
+            if not os.path.exists(test_params.RESULTS_DIR):
+                os.makedirs(test_params.RESULTS_DIR)
+            output_file = open(test_params.RESULTS_DIR + '/citylearn' + '.txt' , 'a')
+            output_file.write('Training Episode {}: \t Episode reward = {:.2f} \n\n'.format(self.train_ep, rewards))
+            output_file.flush()
+            sys.stdout.write('Results saved to file \n\n')
+            sys.stdout.flush()      
+        
+        self.env.close()
 '''
 ## Prioritised Experience Replay (PER) Memory ##
 # Adapted from: https://github.com/openai/baselines/blob/master/baselines/deepq/replay_buffer.py

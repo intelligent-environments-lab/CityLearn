@@ -86,7 +86,7 @@ plt.plot(env.net_electric_consumption_no_storage[interval])
 plt.plot(env.net_electric_consumption[interval], '--')
 plt.xlabel('time (hours)')
 plt.ylabel('kW')
-plt.legend(['Electricity demand without storage or generation (kW)', 'Electricity demand with PV generation and without storage(kW)', 'Electricity demand with PV generation and using SAC for storage(kW)'])
+plt.legend(['Electricity demand without storage or generation (kW)', 'Electricity demand with PV generation and without storage(kW)', 'Electricity demand with PV generation and using D4PG for storage(kW)'])
 
 # In[ ]:
 
@@ -98,7 +98,7 @@ plt.plot(env.net_electric_consumption_no_storage[interval])
 plt.plot(env.net_electric_consumption[interval], '--')
 plt.xlabel('time (hours)')
 plt.ylabel('kW')
-plt.legend(['Electricity demand without storage or generation (kW)', 'Electricity demand with PV generation and without storage(kW)', 'Electricity demand with PV generation and using SAC for storage(kW)'])
+plt.legend(['Electricity demand without storage or generation (kW)', 'Electricity demand with PV generation and without storage(kW)', 'Electricity demand with PV generation and using D4PG for storage(kW)'])
 
 # In[ ]:
 
@@ -120,11 +120,26 @@ run_results['Time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.tim
 run_results['Climate'] = climate_zone
 run_results['Building'] = building_ids
 run_results['Building_Attributes'] = json.load(open(building_attributes))
+if env.central_agent == True:
+    run_results['Reward_Function'] = 'reward_function_sa'
+else:
+    run_results['Reward_Function'] = 'reward_function_ma'
+run_results['Central_Agent'] = env.central_agent
 run_results['Model'] = agent.ckpt
 run_results['Train_Episodes'] = train_params.NUM_STEPS_TRAIN
-run_results['Cost'] = cost
+run_results['Ramping'] = cost[0]['ramping']
+run_results['1-Load_Factor'] = cost[0]['1-load_factor']
+run_results['Average_Daily_Peak'] = cost[0]['average_daily_peak']
+run_results['Peak_Demand'] = cost[0]['peak_demand']
+run_results['Net_Electricity_Consumption'] = cost[0]['net_electricity_consumption']
+run_results['Total'] = cost[0]['total']
+run_results['Reward'] = np.sum(rewards)
+
+print("Reward: %02f \n\n" % np.sum(rewards))
 	
-field_names = ['Time','Climate','Building','Building_Attributes','Model','Train_Episodes','Cost']
+field_names = ['Time','Climate','Building','Building_Attributes','Reward_Function','Central_Agent','Model',
+               'Train_Episodes','Ramping','1-Load_Factor','Average_Daily_Peak','Peak_Demand',
+               'Net_Electricity_Consumption','Total','Reward']
 
 append_dict_as_row('test_results.csv', run_results, field_names)
 
