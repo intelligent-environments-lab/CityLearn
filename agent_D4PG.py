@@ -30,10 +30,10 @@ class train_params():
     V_MAX = -10000.0
         
     # Training parameters
-    BATCH_SIZE = 2048
-    NUM_STEPS_TRAIN = 40000       # Number of steps to train for
+    BATCH_SIZE = 256
+    NUM_STEPS_TRAIN = 10000       # Number of steps to train for
     MAX_EP_LENGTH = 8759          # Maximum number of steps per episode
-    REPLAY_MEM_SIZE = 20000       # Soft maximum capacity of replay memory
+    REPLAY_MEM_SIZE = 10000       # Soft maximum capacity of replay memory
     REPLAY_MEM_REMOVE_STEP = 200    # Check replay memory every REPLAY_MEM_REMOVE_STEP training steps and remove samples over REPLAY_MEM_SIZE capacity
     PRIORITY_ALPHA = 0.6            # Controls the randomness vs prioritisation of the prioritised sampling (0.0 = Uniform sampling, 1.0 = Greedy prioritisation)
     PRIORITY_BETA_START = 0.4       # Starting value of beta - controls to what degree IS weights influence the gradient updates to correct for the bias introduced by priority sampling (0 - no correction, 1 - full correction)
@@ -41,7 +41,7 @@ class train_params():
     PRIORITY_EPSILON = 0.00001      # Small value to be added to updated priorities to ensure no sample has a probability of 0 of being chosen
     NOISE_SCALE = 0.3               # Scaling to apply to Gaussian noise
     NOISE_DECAY = 0.9999            # Decay noise throughout training by scaling by noise_decay**training_step
-    DISCOUNT_RATE = 0.99            # Discount rate (gamma) for future rewards
+    DISCOUNT_RATE = 0.9999            # Discount rate (gamma) for future rewards
     N_STEP_RETURNS = 5              # Number of future steps to collect experiences for N-step returns
     UPDATE_AGENT_EP = 2            # Agent gets latest parameters from learner every update_agent_ep episodes
         
@@ -53,13 +53,13 @@ class train_params():
     DENSE2_SIZE = 300               # Size of second hidden layer in networks
     FINAL_LAYER_INIT = 0.003        # Initialise networks' final layer weights in range +/-final_layer_init
     NUM_ATOMS = 51                  # Number of atoms in output layer of distributional critic
-    TAU = 0.001                     # Parameter for soft target network updates
-    USE_BATCH_NORM = False          # Whether or not to use batch normalisation in the networks
+    TAU = 0.1                     # Parameter for soft target network updates
+    USE_BATCH_NORM = True          # Whether or not to use batch normalisation in the networks
         
     # Files/Directories
     SAVE_CKPT_STEP = 8760                  # Save checkpoint every save_ckpt_step training steps
     CKPT_DIR = './ckpts'          # Directory for saving/loading checkpoints
-    CKPT_FILE = 'citylearn.ckpt-17520'                        # Checkpoint file to load and resume training from (if None, train from scratch)
+    CKPT_FILE = None#'citylearn.ckpt-17520'                        # Checkpoint file to load and resume training from (if None, train from scratch)
     LOG_DIR = './logs/train'      # Directory for saving Tensorboard logs (if None, do not save logs)
 
 class test_params:
@@ -86,7 +86,7 @@ class play_params:
     
     # Files/directories
     CKPT_DIR = './ckpts'                             # Directory for saving/loading checkpoints
-    CKPT_FILE = None#'citylearn.ckpt-87600'                         # Checkpoint file to load and run (if None, load latest ckpt)
+    CKPT_FILE = None#'citylearn.ckpt-26280'                         # Checkpoint file to load and run (if None, load latest ckpt)
 
 
 '''
@@ -128,7 +128,7 @@ class Learner:
         
         # Create policy (actor) network + target network
         if train_params.USE_BATCH_NORM:
-            self.actor_net = Actor_BN(self.state_ph, self.STATE_DIMS, self.ACTION_DIMS, train_params.ACTION_BOUND_LOW, train_params.ACTION_BOUND_HIGH, train_params.DENSE1_SIZE, train_params.DENSE2_SIZE, train_params.FINAL_LAYER_INIT, is_training=True, scope='learner_actor_main')
+            self.actor_net = Actor_BN(self.state_ph, self.STATE_DIMS, self.ACTION_DIMS, self.ACTION_BOUND_LOW, self.ACTION_BOUND_HIGH, train_params.DENSE1_SIZE, train_params.DENSE2_SIZE, train_params.FINAL_LAYER_INIT, is_training=True, scope='learner_actor_main')
             self.actor_target_net = Actor_BN(self.state_ph, self.STATE_DIMS, self.ACTION_DIMS, self.ACTION_BOUND_LOW, self.ACTION_BOUND_HIGH, train_params.DENSE1_SIZE, train_params.DENSE2_SIZE, train_params.FINAL_LAYER_INIT, is_training=True, scope='learner_actor_target')
         else:
             self.actor_net = Actor(self.state_ph, self.STATE_DIMS, self.ACTION_DIMS, self.ACTION_BOUND_LOW, self.ACTION_BOUND_HIGH, train_params.DENSE1_SIZE, train_params.DENSE2_SIZE, train_params.FINAL_LAYER_INIT, scope='learner_actor_main')
@@ -292,7 +292,7 @@ class RBC_Agent:
 # Agent class - the agent explores the environment, collecting experiences and adding them to the PER buffer. 
 Can also be used to test/run a trained network in the environment.
 '''
-class Agent:
+class RL_Agents:
     def __init__(self, sess, env, seed, training, ckpt_dir = None, ckpt_file = None, n_agent=0):
         print("Initialising agent %02d... \n" % n_agent)
 
@@ -312,6 +312,7 @@ class Agent:
         self.sess = sess        
         self.n_agent = n_agent
         self.env = env
+        self.reset_action_tracker()
         
         self.observations_spaces, self.actions_spaces = env.get_state_action_spaces()
         self.STATE_DIMS = self.observations_spaces[0].shape
@@ -357,7 +358,10 @@ class Agent:
             ckpt_split = ckpt.split('-')
             self.train_ep = ckpt_split[-1]
             self.ckpt = ckpt
-                        
+            
+    def reset_action_tracker(self):
+        self.action_tracker = []
+                    
     def build_update_op(self, learner_policy_params):
         # Update agent's policy network params from learner
         update_op = []
@@ -413,7 +417,6 @@ class Agent:
             
             while not ep_done:
                 num_steps += 1
-                #print(num_steps)
                 ## Take action and store experience
                 action = self.sess.run(self.actor_net.output, {self.state_ph:np.expand_dims(state, 0)})[0]     # Add batch dimension to single state input, and remove batch dimension from single action output
                 action += (gaussian_noise() * train_params.NOISE_DECAY**num_eps)
@@ -465,6 +468,15 @@ class Agent:
         
         self.env.close()
     
+    def select_action(self, states):
+        #expl_noise = max(self.expl_noise_final, self.expl_noise_init * (1 - self.time_step * self.expl_noise_decay_rate))
+        
+        action = self.sess.run(self.actor_net.output, {self.state_ph:np.expand_dims(states, 0)})[0]
+        
+        self.action_tracker.append(action)
+        
+        return action
+    
     def load_ckpt(self, ckpt_dir, ckpt_file):
         # Load ckpt given by ckpt_file, or else load latest ckpt in ckpt_dir
         loader = tf.train.Saver()    
@@ -496,6 +508,7 @@ class Agent:
             
         while not ep_done:
             action = self.sess.run(self.actor_net.output, {self.state_ph:np.expand_dims(state, 0)})[0]     # Add batch dimension to single state input, and remove batch dimension from single action output
+            print(action)
             state, reward, terminal, _ = self.env.step(action)
 
             ep_reward += reward

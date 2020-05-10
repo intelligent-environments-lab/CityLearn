@@ -3,7 +3,7 @@
 
 # In[1]:
 
-from agent_D4PG import train_params, Agent, Learner, GaussianNoiseGenerator, PrioritizedReplayBuffer
+from agent_D4PG import train_params, RL_Agents, Learner, GaussianNoiseGenerator, PrioritizedReplayBuffer
 import numpy as np
 import random
 from pathlib import Path
@@ -27,7 +27,7 @@ building_state_actions = 'buildings_state_action_space.json'
 #building_ids = ["Building_1","Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
 building_ids = ["Building_1"]
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
-env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True)
+env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 1)
 
 # Contain the lower and upper bounds of the states and actions, to be provided to the agent to normalize the variables between 0 and 1.
 # Can be obtained using observations_spaces[i].low or .high
@@ -79,7 +79,7 @@ threads.append(threading.Thread(target=learner.run))
 
 for n_agent in range(train_params.NUM_AGENTS):
     # Initialise agent and build network
-    agent = Agent(sess, env, train_params.RANDOM_SEED, True, n_agent = n_agent)
+    agent = RL_Agents(sess, env, train_params.RANDOM_SEED, True, n_agent = n_agent)
     # Build op to periodically update agent network params from learner network
     agent.build_update_op(learner_policy_params)
     # Create Tensorboard summaries to save episode rewards
