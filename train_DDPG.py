@@ -27,6 +27,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import time
 import json
+import os
 from csv import DictWriter
 
 
@@ -121,6 +122,10 @@ The agent training process involves the following:
 # Measure the time taken for training
 start_timer = time.time()
 
+# Store the weights and scores in a new directory
+parent_dir = "alg/ddpg{}/".format(time.strftime("%Y%m%d-%H%M%S")) # apprends the timedate
+os.makedirs(parent_dir, exist_ok=True)
+
 # loop from num_episodes
 for i_episode in range(1, num_episodes+1):
 
@@ -173,13 +178,13 @@ for i_episode in range(1, num_episodes+1):
 		# Save trained  Actor and Critic network weights for each agent
 		for building in range(0,num_agents):
 			an_filename = "ddpgActor{0}_Model.pth".format(building)
-			torch.save(agent.actor_local[building].state_dict(), an_filename)
+			torch.save(agent.actor_local[building].state_dict(), parent_dir + an_filename)
 			cn_filename = "ddpgCritic{0}_Model.pth".format(building)
-			torch.save(agent.critic_local[building].state_dict(), cn_filename)
+			torch.save(agent.critic_local[building].state_dict(), parent_dir + cn_filename)
 		
 		# Save the recorded Scores data
 		scores_filename = "ddpgAgent_Scores_new.csv"
-		np.savetxt(scores_filename, episode_scores, delimiter=",")
+		np.savetxt(parent_dir + scores_filename, episode_scores, delimiter=",")
 		break
 
 """
@@ -224,7 +229,7 @@ output_filtered = output.loc['2017-12-30':'2017-12-31']
 fig, ax = plt.subplots(nrows = 3, figsize=(20,12), sharex = True)
 output_filtered['Electricity demand without storage or generation (kW)'].plot(ax = ax[0], color='blue', label='Electricity demand without storage or generation (kW)', x_compat=True)
 output_filtered['Electricity demand with PV generation and without storage(kW)'].plot(ax = ax[0], color='orange', label='Electricity demand with PV generation and without storage(kW)')
-output_filtered['Electricity demand with PV generation and using DDPG for storage(kW)'].plot(ax = ax[0], color = 'green', ls = '--', label='Electricity demand with PV generation and using D4PG for storage(kW)')
+output_filtered['Electricity demand with PV generation and using DDPG for storage(kW)'].plot(ax = ax[0], color = 'green', ls = '--', label='Electricity demand with PV generation and using DDPG for storage(kW)')
 ax[0].set_title('(a) - Electricity Demand')
 ax[0].set(ylabel="Demand [kW]")
 ax[0].legend(loc="upper right")
@@ -257,7 +262,7 @@ ax[0].tick_params(direction='out', length=6, width=2, colors='black', top=0, rig
 plt.setp( ax[0].xaxis.get_minorticklabels(), rotation=0, ha="center" )
 plt.setp( ax[0].xaxis.get_majorticklabels(), rotation=0, ha="center" )
 # Export Figure
-plt.savefig(r"train.jpg", bbox_inches='tight', dpi = 300)
+plt.savefig(parent_dir + r"train.jpg", bbox_inches='tight', dpi = 300)
 plt.close()
 
 # SET UP RESULTS TABLE
@@ -285,6 +290,7 @@ else:
 	run_results['Reward_Function'] = 'reward_function_ma'
 run_results['Central_Agent'] = env.central_agent
 run_results['Model'] = ''
+run_results['Algorithm'] = 'DDPG'
 run_results['Train_Episodes'] = num_episodes
 run_results['Ramping'] = env.cost()['ramping']
 run_results['1-Load_Factor'] = env.cost()['1-load_factor']
@@ -295,7 +301,7 @@ run_results['Total'] = env.cost()['total']
 run_results['Reward'] = episode_scores[-1]
 	
 field_names = ['Time','Time_Training','Time_Training_per_Step','Climate','Building','Building_Attributes',
-			'Reward_Function','Central_Agent','Model',
+			'Reward_Function','Central_Agent','Model', 'Algorithm',
 			'Train_Episodes','Ramping','1-Load_Factor','Average_Daily_Peak','Peak_Demand',
 			'Net_Electricity_Consumption','Total','Reward']
 
