@@ -5,10 +5,10 @@
 # specify the gpu queue
 
 #SBATCH --partition=gpu
-# Request 2 gpus
+# Request 2 gpu
 #SBATCH --gres=gpu:2
 # specify number of tasks/cores per node required
-#SBATCH --ntasks-per-node=35
+#SBATCH --ntasks-per-node=1
 
 # set to email at start,end and failed jobs
 #SBATCH --mail-type=ALL
