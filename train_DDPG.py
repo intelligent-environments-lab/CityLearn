@@ -291,6 +291,7 @@ else:
 run_results['Central_Agent'] = env.central_agent
 run_results['Model'] = ''
 run_results['Algorithm'] = 'DDPG'
+run_results['Directory'] = parent_dir
 run_results['Train_Episodes'] = num_episodes
 run_results['Ramping'] = env.cost()['ramping']
 run_results['1-Load_Factor'] = env.cost()['1-load_factor']
@@ -301,7 +302,7 @@ run_results['Total'] = env.cost()['total']
 run_results['Reward'] = episode_scores[-1]
 	
 field_names = ['Time','Time_Training','Time_Training_per_Step','Climate','Building','Building_Attributes',
-			'Reward_Function','Central_Agent','Model', 'Algorithm',
+			'Reward_Function','Central_Agent','Model', 'Algorithm', 'Directory',
 			'Train_Episodes','Ramping','1-Load_Factor','Average_Daily_Peak','Peak_Demand',
 			'Net_Electricity_Consumption','Total','Reward']
 

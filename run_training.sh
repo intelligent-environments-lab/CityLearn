@@ -1,24 +1,23 @@
 #!/bin/bash -l
-#SBATCH --job-name=hello
+#SBATCH --job-name=DDPG_train
 # speficity number of nodes 
 #SBATCH -N 1
 # specify the gpu queue
 
-#SBATCH --partition=csgpu
+#SBATCH --partition=gpu
 # Request 2 gpus
 #SBATCH --gres=gpu:2
 # specify number of tasks/cores per node required
 #SBATCH --ntasks-per-node=35
 
-# specify the walltime e.g 20 mins
-#SBATCH -t 00:20:00
-
 # set to email at start,end and failed jobs
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=kacper.twardowski@ucdconnect.ie
+#SBATCH --mail-user=myemailaddress@ucd.ie
 
-# run CityLearn dir
-cd rl/CityLearn
+# Load Anaconda as a Module
+module load anaconda
 
 # command to use
-time python train_DDPG.py
+cd rl/CityLearn
+conda activate citylearn
+time mpiexec python train_DDPG.py
