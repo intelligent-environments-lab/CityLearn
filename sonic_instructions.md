@@ -24,9 +24,9 @@
 3. Use `ESC :wq ENTER` to save the file in vim
 4. Use command: `chmod a+x setup_cl.sh`
 5. Use command: `./setup_cl.sh`
-6. Use command: `cp rl/CityLearn/run_train.sh .`
-7. Use command: `chmod a+x run_train.sh`
-8. (Optional) Modify the job parameters in `run_train.sh` using vim
+6. Use command: `cp rl/CityLearn/run_training.sh .`
+7. Use command: `chmod a+x run_training.sh`
+8. (Optional) Modify the job parameters in `run_training.sh` using vim
 
 ## Run
 
