@@ -11,11 +11,11 @@
 2. Use command: `vim setup_cl.sh` and copy paste the following code:
 
  ```bash
- #!/bin/bash
+ #!/bin/bash -l
  mkdir rl
  cd rl
  git clone https://github.com/anjukan/CityLearn
- cd rl/CityLearn
+ cd CityLearn
  module load anaconda
  conda env create -f environment.yml
  conda init bash
