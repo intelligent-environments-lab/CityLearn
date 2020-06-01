@@ -214,13 +214,13 @@ output['Electricity demand with PV generation and using DDPG for storage(kW)'] =
 output['Cooling Demand (kWh)'] = env.buildings[building_number].cooling_demand_building[-8759:]
 output['Energy Storage State of Charge - SOC (kWh)'] = env.buildings[building_number].cooling_storage_soc[-8759:]
 output['Heat Pump Total Cooling Supply (kW)'] = env.buildings[building_number].cooling_device_to_building[-8759:] + env.buildings[building_number].cooling_device_to_storage[-8759:]
-output['Controller Action - Increase or Decrease of SOC (kW)'] = [k[0][0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+output['Cooling Controller Action - Increase or Decrease of SOC (kW)'] = [k[0][0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
 # DHW
 output['DHW Demand (kWh)'] = env.buildings[building_number].dhw_demand_building[-8759:]
 #output['Energy Balance of DHW Tank (kWh)'] = -env.buildings[building_number].dhw_storage.energy_balance[-8759:]
 output['Energy Balance of DHW Tank (kWh)'] = env.buildings[building_number].dhw_storage_soc[-8759:]
 output['DHW Heater Total Heating Supply (kWh)'] = env.buildings[building_number].dhw_heating_device.heat_supply[-8759:]
-output['Controller Action - Increase or Decrease of SOC (kW)'] = [k[0][1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+output['DHW Controller Action - Increase or Decrease of SOC (kW)'] = [k[0][1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
 output['DHW Heater Electricity Consumption (kWh)'] = env.buildings[building_number].electric_consumption_dhw[-8759:]
 
 output_filtered = output.loc['2017-12-30':'2017-12-31']
@@ -240,14 +240,14 @@ ax[0].xaxis.set_minor_formatter(dates.DateFormatter('%H'))
 output_filtered['Cooling Demand (kWh)'].plot(ax = ax[1], color='blue', label='Cooling Demand (kWh)', x_compat=True)
 output_filtered['Energy Storage State of Charge - SOC (kWh)'].plot(ax = ax[1], color='orange', label='Energy Storage State of Charge - SOC (kWh)')
 output_filtered['Heat Pump Total Cooling Supply (kW)'].plot(ax = ax[1], color = 'green', label='Heat Pump Total Cooling Supply (kW)')
-output_filtered['Controller Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[1], color = 'red', label='Controller Action - Increase or Decrease of SOC (kW)')
+output_filtered['Cooling Controller Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[1], color = 'red', label='Controller Action - Increase or Decrease of SOC (kW)')
 ax[1].set_title('(b) - Cooling Storage Utilisation')
 ax[1].set(ylabel="Power [kW]")
 ax[1].legend(loc="upper right")
 output_filtered['DHW Demand (kWh)'].plot(ax = ax[2], color='blue', label='DHW Demand (kWh)', x_compat=True)
 output_filtered['Energy Balance of DHW Tank (kWh)'].plot(ax = ax[2], color='orange', label='Energy Balance of DHW Tank (kWh)')
 output_filtered['DHW Heater Total Heating Supply (kWh)'].plot(ax = ax[2], color = 'green', label='DHW Heater Total Heating Supply (kWh)')
-output_filtered['Controller Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[2], color = 'red', label='Controller Action - Increase or Decrease of SOC (kW)')
+output_filtered['DHW Controller Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[2], color = 'red', label='Controller Action - Increase or Decrease of SOC (kW)')
 output_filtered['DHW Heater Electricity Consumption (kWh)'].plot(ax = ax[2], color = 'purple', ls = '--', label='DHW Heater Electricity Consumption (kWh)')
 ax[2].set_title('(c) - DWH Storage Utilisation')
 ax[2].set(ylabel="Power [kW]")
