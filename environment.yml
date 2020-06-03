@@ -57,12 +57,15 @@ dependencies:
     - gym==0.17.2
     - h5py==2.10.0
     - idna==2.9
+    - joblib==0.15.1
     - keras-preprocessing==1.1.2
     - kiwisolver==1.2.0
     - markdown==3.2.2
     - matplotlib==3.2.1
+    - mpi4py==3.0.3
     - numpy==1.18.4
     - oauthlib==3.1.0
+    - opencv-python==4.2.0.34
     - opt-einsum==3.2.1
     - pandas==1.0.3
     - protobuf==3.12.1
@@ -77,7 +80,9 @@ dependencies:
     - rsa==4.0
     - scipy==1.4.1
     - six==1.15.0
-    - tensorboard==2.2.1
+    - stable-baselines==2.10.0
+    - stable-baselines3==0.6.0
+    - tensorboard==2.2.2
     - tensorboard-plugin-wit==1.6.0.post3
     - tensorflow==2.2.0
     - tensorflow-estimator==2.2.0
