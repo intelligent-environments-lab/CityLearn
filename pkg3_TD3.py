@@ -39,8 +39,8 @@ building_attributes = data_path / 'building_attributes.json'
 weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
-# building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-building_ids = ['Building_1', 'Building_2']
+building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
+# building_ids = ['Building_1', 'Building_2']
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions,
                 cost_function = objective_function, central_agent = True, verbose = 1)
@@ -68,15 +68,27 @@ for action in actions_spaces:
 
 # Make VecEnv + Wrap in Monitor
 env = Monitor(env, filename=log_dir)
-callback = SaveOnBestTrainingRewardCallback(check_freq=check_interval*interval, log_dir=log_dir)
+callbackBest = SaveOnBestTrainingRewardCallback(check_freq=check_interval*interval, log_dir=log_dir)
 
+# Add callbacks to the callback list
+callbackList = []
+useBestCallback = True
+
+if useBestCallback:
+    callbackList.append(callbackBest)
+
+# Algo setup
 param_noise = None
 action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions))
 
-model = TD3(MlpPolicy_TD3, env, verbose=0, action_noise=action_noise, learning_starts=interval, tensorboard_log=parent_dir+"tensorboard/")
+policy_kwargs = dict(
+    # net_arch=[128,128]
+)
+
+model = TD3(policy=MlpPolicy_TD3, policy_kwargs=policy_kwargs, env=env, verbose=0, action_noise=action_noise, learning_starts=interval, tensorboard_log=parent_dir+"tensorboard/")
 print()
 
-model.learn(total_timesteps=interval*icount, log_interval=log_interval, tb_log_name="TD3_{}".format(time.strftime("%Y%m%d")), callback=callback)
+model.learn(total_timesteps=interval*icount, log_interval=log_interval, tb_log_name="TD3_{}".format(time.strftime("%Y%m%d")), callback=callbackList)
 
 obs = env.reset()
 dones = False
@@ -88,6 +100,10 @@ while dones==False:
 
 env.close()
 
+print("\nFinal rewards:")
+pp.pprint(env.cost())
+
 # Plot the reward graph
-plot_results([log_dir], interval*icount, results_plotter.X_TIMESTEPS, "TD3 CityLearn")
-plt.savefig(log_dir+"/rewards.pdf")
+if useBestCallback:
+    plot_results([log_dir], interval*icount, results_plotter.X_TIMESTEPS, "TD3 CityLearn")
+    plt.savefig(log_dir+"/rewards.pdf")
