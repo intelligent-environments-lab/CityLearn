@@ -41,4 +41,7 @@ while dones==False:
     action, _states = model.predict(obs)
     obs, rewards, dones, info = env.step(action)
     counter.append(rewards)
+
+env.close()
+
 pp.pprint(env.cost())

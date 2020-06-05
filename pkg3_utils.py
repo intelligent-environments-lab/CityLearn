@@ -170,3 +170,19 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
             print()
 
         return True
+
+# Callback class for additional logging to Tensorboard
+# Ref: https://stable-baselines3.readthedocs.io/en/master/guide/tensorboard.html
+class TensorboardCallback(BaseCallback):
+    """
+    Custom callback for plotting additional values in tensorboard.
+    """
+
+    def __init__(self, verbose=0):
+        super(TensorboardCallback, self).__init__(verbose)
+
+    def _on_step(self) -> bool:
+        # Log scalar value (here a random variable)
+        value = np.random.random()
+        self.logger.record('random_value', value)
+        return True

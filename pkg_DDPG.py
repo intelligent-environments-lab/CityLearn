@@ -32,8 +32,9 @@ class SaveOnBestTrainingRewardCallback2_10(BaseCallback):
       It must contains the file created by the ``Monitor`` wrapper.
     :param verbose: (int)
     """
-    def __init__(self, check_freq: int, log_dir: str, verbose=1):
+    def __init__(self, check_freq: int, save_freq: int, log_dir: str, verbose=1, interval=8760):
         super(SaveOnBestTrainingRewardCallback2_10, self).__init__(verbose)
+        self.save_freq = save_freq
         self.check_freq = check_freq
         self.log_dir = log_dir
         self.save_path = os.path.join(log_dir, 'best_model')
@@ -43,8 +44,13 @@ class SaveOnBestTrainingRewardCallback2_10(BaseCallback):
         # Create folder if needed
         if self.save_path is not None:
             os.makedirs(self.save_path, exist_ok=True)
+            os.makedirs(self.log_dir+"/checkpoints")
 
     def _on_step(self) -> bool:
+
+        if self.n_calls % interval == 0:
+            pp.pprint( self.model.get_env() )
+
         if self.n_calls % self.check_freq == 0:
 
             # Retrieve training reward
@@ -66,7 +72,17 @@ class SaveOnBestTrainingRewardCallback2_10(BaseCallback):
 
             print()
 
+        if self.n_calls % self.save_freq == 0:
+            path = log_dir+'/checkpoints/chk_{}'.format(int(self.n_calls/interval))
+            if self.verbose > 0:
+                print("Saving checkpoint to {}".format(path))
+            self.model.save(path)
+
+            print()
+
         return True
+
+
 
 # Central agent controlling the buildings using the OpenAI Stable Baselines
 climate_zone = 1
@@ -93,6 +109,7 @@ interval = 8760
 icount = int(sys.argv[1]) if sys.argv is not None else 10
 log_interval = 1
 check_interval = 1
+save_interval = 1
 
 # the noise objects for DDPG
 _, actions_spaces = env.get_state_action_spaces()
@@ -103,7 +120,7 @@ for action in actions_spaces:
 
 # Make VecEnv + Wrap in Monitor
 env = Monitor(env, filename=log_dir)
-callbackBest = SaveOnBestTrainingRewardCallback2_10(check_freq=check_interval*interval, log_dir=log_dir)
+callbackBest = SaveOnBestTrainingRewardCallback2_10(check_freq=check_interval*interval, log_dir=log_dir, save_freq=interval*save_interval)
 
 # Add callbacks to the callback list
 callbackList = []
@@ -120,7 +137,7 @@ policy_kwargs = dict(
     layers=[128,128]
 )
 
-model = DDPG(policy=MlpPolicy, policy_kwargs=policy_kwargs, env=env, batch_size=1024, buffer_size=5e5, verbose=0, param_noise=param_noise, action_noise=action_noise, tensorboard_log=parent_dir+"tensorboard/", n_cpu_tf_sess=multiprocessing.cpu_count())
+model = DDPG(policy=MlpPolicy, policy_kwargs=policy_kwargs, env=env, batch_size=1024, buffer_size=int(5e5), verbose=0, param_noise=param_noise, action_noise=action_noise, tensorboard_log=parent_dir+"tensorboard/", n_cpu_tf_sess=multiprocessing.cpu_count())
 
 model.learn(total_timesteps=interval*icount, log_interval=interval, tb_log_name="DDPG_{}".format(time.strftime("%Y%m%d")), callback=callbackList)
 
@@ -134,7 +151,7 @@ while dones==False:
 
 env.close()
 
-print("\nFinal rewards:")
+print("\nFinal costs:")
 pp.pprint(env.cost())
 
 # Plot the reward graph
