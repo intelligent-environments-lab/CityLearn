@@ -87,7 +87,7 @@ Initialises an Agent and Critic for each building. Can also be used to test/run 
 '''
 class Agent():
     
-    def __init__(self, building_info, state_size, action_size, random_seed):
+    def __init__(self, building_info, state_size, action_size, random_seed, load_dir=None):
         """Initialize an Agent object.
         
         Params
@@ -133,6 +133,13 @@ class Agent():
             self.memory[i] = ReplayBuffer(BUFFER_SIZE, BATCH_SIZE, random_seed)
 
         self.reset_action_tracker()
+
+        # Checkpoint Load function
+        if load_dir is not None:
+            print('\033[92m' + "\nLoading a checkpoint from {}\n".format(load_dir) + '\033[0m')
+            for i, _ in enumerate(zip(state_size, action_size)):
+                self.actor_local[i].load_state_dict(torch.load(load_dir + "/ddpgActor{}_Model.pth".format(i)))
+                self.critic_local[i].load_state_dict(torch.load(load_dir + "/ddpgCritic{}_Model.pth".format(i)))
 
     def reset_action_tracker(self):
         self.action_tracker = []

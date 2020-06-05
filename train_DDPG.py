@@ -31,6 +31,7 @@ import time
 import json
 import os
 import pprint as pp
+import getopt, sys
 from csv import DictWriter
 
 import warnings
@@ -73,6 +74,25 @@ num_episodes=1
 episode_scores = []
 scores_average_window = 5
 checkpoint_interval = 8760
+chk_load_dir = None
+
+# Ref: https://stackabuse.com/command-line-arguments-in-python/
+# Get full command-line arguments
+full_cmd_arguments = sys.argv
+argument_list = full_cmd_arguments[1:]
+short_options = "e:c:"
+long_options = ["episodes=","checkpoints="]
+arguments, values = [], []
+try:
+	arguments, values = getopt.getopt(argument_list, short_options, long_options)
+	for c, v in arguments:
+		if c in ("-e", "--episdoes"):
+			num_episodes = v
+		elif c in ("-c", "--checkpoints"):
+			chk_load_dir = v
+except getopt.error as err:
+	print (str(err))
+	sys.exit(2)
 
 """
 #############################################
@@ -107,7 +127,7 @@ seed (int): random seed for initializing training point (default = 0)
 The invididual agents are defined within the Agent call for each building
 """
 
-agent = Agent(building_info, state_size=observations_spaces, action_size=actions_spaces, random_seed=0)
+agent = Agent(building_info, state_size=observations_spaces, action_size=actions_spaces, random_seed=0, load_dir=chk_load_dir)
 
 """
 ###################################
@@ -269,3 +289,6 @@ graph_building(building_number=building_number, env=env, agent=agent, parent_dir
 
 tabulate_table(env=env, timer=timer, algo="DDPG", climate_zone=climate_zone, building_ids=building_ids,
 	building_attributes=building_attributes, parent_dir=final_dir, num_episodes=num_episodes, episode_scores=episode_scores)
+
+
+# %%
