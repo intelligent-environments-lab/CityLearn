@@ -15,9 +15,8 @@ from stable_baselines.common.evaluation import evaluate_policy
 from citylearn import  CityLearn
 import matplotlib.pyplot as plt
 from pathlib import Path
-import time
+import time, os, sys, multiprocessing
 import pprint as pp
-import os, sys
 from stable_baselines.bench.monitor import Monitor, load_results
 from stable_baselines.results_plotter import plot_results, ts2xy
 
@@ -48,22 +47,24 @@ class SaveOnBestTrainingRewardCallback2_10(BaseCallback):
     def _on_step(self) -> bool:
         if self.n_calls % self.check_freq == 0:
 
-          # Retrieve training reward
-          x, y = ts2xy(load_results(self.log_dir), 'timesteps')
-          if len(x) > 0:
-              # Mean training reward over the last 100 episodes
-              mean_reward = np.mean(y[-100:])
-              if self.verbose > 0:
-                print("Num timesteps: {}".format(self.num_timesteps))
-                print("Best mean reward: {:.2f} - Last mean reward per episode: {:.2f}".format(self.best_mean_reward, mean_reward))
+            # Retrieve training reward
+            x, y = ts2xy(load_results(self.log_dir), 'timesteps')
+            if len(x) > 0:
+                # Mean training reward over the last 100 episodes
+                mean_reward = np.mean(y[-100:])
+                if self.verbose > 0:
+                    print("Num timesteps: {}".format(self.num_timesteps))
+                    print("Best mean reward: {:.2f} - Last mean reward per episode: {:.2f}".format(self.best_mean_reward, mean_reward))
 
-              # New best model, you could save the agent here
-              if mean_reward > self.best_mean_reward:
-                  self.best_mean_reward = mean_reward
-                  # Example for saving best model
-                  if self.verbose > 0:
-                    print("Saving new best model to {}".format(self.save_path))
-                  self.model.save(self.save_path)
+                # New best model, you could save the agent here
+                if mean_reward > self.best_mean_reward:
+                    self.best_mean_reward = mean_reward
+                    # Example for saving best model
+                    if self.verbose > 0:
+                        print("Saving new best model to {}".format(self.save_path))
+                    self.model.save(self.save_path)
+
+            print()
 
         return True
 
@@ -116,10 +117,10 @@ param_noise = None
 action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions))
 
 policy_kwargs = dict(
-    # net_arch=[128,128]
+    layers=[128,128]
 )
 
-model = DDPG(policy=MlpPolicy, policy_kwargs=policy_kwargs, env=env, verbose=0, param_noise=param_noise, action_noise=action_noise, tensorboard_log=parent_dir+"tensorboard/")
+model = DDPG(policy=MlpPolicy, policy_kwargs=policy_kwargs, env=env, batch_size=1024, buffer_size=5e5, verbose=0, param_noise=param_noise, action_noise=action_noise, tensorboard_log=parent_dir+"tensorboard/", n_cpu_tf_sess=multiprocessing.cpu_count())
 
 model.learn(total_timesteps=interval*icount, log_interval=interval, tb_log_name="DDPG_{}".format(time.strftime("%Y%m%d")), callback=callbackList)
 
