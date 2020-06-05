@@ -33,6 +33,9 @@ import os
 import pprint as pp
 from csv import DictWriter
 
+import warnings
+warnings.simplefilter("ignore", UserWarning) # Ignore casting to float32 warnings
+
 
 # In[2]:
 
@@ -69,6 +72,7 @@ STEP 1: Set the Training Parameters
 num_episodes=1
 episode_scores = []
 scores_average_window = 5
+checkpoint_interval = 8760
 
 """
 #############################################
@@ -131,8 +135,11 @@ os.makedirs(parent_dir, exist_ok=True)
 
 # Summary Writer setup
 # Writer will output to ./runs/ directory by default
-writer = SummaryWriter(log_dir=parent_dir+"/tensorboard/")
-print("Saving TB to {}".format(parent_dir+"/tensorboard/"))
+writer = SummaryWriter(log_dir=parent_dir+"tensorboard/")
+print("Saving TB to {}".format(parent_dir+"tensorboard/"))
+
+# Crate the final dir
+final_dir = parent_dir + "final/"
 
 # loop from num_episodes
 for i_episode in range(1, num_episodes+1):
@@ -192,7 +199,18 @@ for i_episode in range(1, num_episodes+1):
 
 			# Action choices
 			writer.add_histogram("Action Tracker", np.array(agent.action_tracker), iteration_step)
-		
+
+
+		# Save trained Actor and Critic network weights for each agent periodically 
+		if iteration_step % checkpoint_interval == 0:
+			os.makedirs(parent_dir+"chk/step_{}".format(iteration_step), exist_ok=True)
+			for building in range(0,num_agents):
+				an_filename = "/ddpgActor{0}_Model.pth".format(building)
+				torch.save(agent.actor_local[building].state_dict(), parent_dir + "chk/step_{}".format(iteration_step) + an_filename)
+				cn_filename = "/ddpgCritic{0}_Model.pth".format(building)
+				torch.save(agent.critic_local[building].state_dict(), parent_dir + "chk/step_{}".format(iteration_step) + cn_filename)
+			print("Saving a checkpoint to {}".format(parent_dir + "chk/step_{}".format(iteration_step)))
+
 		# If any agent indicates that the episode is done, 
 		# then exit episode loop, to begin new episode
 		if np.any(done):
@@ -213,18 +231,20 @@ for i_episode in range(1, num_episodes+1):
 	# Check to see if the training is completed
 	# If yes, save the network weights and scores and end training.
 	if i_episode > num_episodes - 1:
+		os.makedirs(final_dir, exist_ok=True)
+
 		print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}\n'.format(i_episode, average_score))
 		
 		# Save trained  Actor and Critic network weights for each agent
 		for building in range(0,num_agents):
 			an_filename = "ddpgActor{0}_Model.pth".format(building)
-			torch.save(agent.actor_local[building].state_dict(), parent_dir + an_filename)
+			torch.save(agent.actor_local[building].state_dict(), final_dir + an_filename)
 			cn_filename = "ddpgCritic{0}_Model.pth".format(building)
-			torch.save(agent.critic_local[building].state_dict(), parent_dir + cn_filename)
+			torch.save(agent.critic_local[building].state_dict(), final_dir + cn_filename)
 		
 		# Save the recorded Scores data
 		scores_filename = "ddpgAgent_Scores_new.csv"
-		np.savetxt(parent_dir + scores_filename, episode_scores, delimiter=",")
+		np.savetxt(final_dir + scores_filename, episode_scores, delimiter=",")
 		break
 
 """
@@ -243,9 +263,9 @@ STEP 6: POSTPROCESSING
 # Building to plot results for
 building_number = 'Building_1'
 
-graph_building(building_number=building_number, env=env, agent=agent, parent_dir=parent_dir)
+graph_building(building_number=building_number, env=env, agent=agent, parent_dir=final_dir)
 
 # SET UP RESULTS TABLE
 
 tabulate_table(env=env, timer=timer, algo="DDPG", climate_zone=climate_zone, building_ids=building_ids,
-	building_attributes=building_attributes, parent_dir=parent_dir, num_episodes=num_episodes, episode_scores=episode_scores)
+	building_attributes=building_attributes, parent_dir=final_dir, num_episodes=num_episodes, episode_scores=episode_scores)
