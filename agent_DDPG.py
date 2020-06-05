@@ -110,6 +110,9 @@ class Agent():
         self.actor_local, self.critic_local, self.actor_target, self.critic_target, self.actor_optimizer, self.critic_optimizer =  {}, {}, {}, {}, {}, {}
         self.noise = {}
         self.memory = {}
+
+        self.critic_loss = 0
+        self.actor_loss = 0
         
         # For each building, set up a actor and critic network
         for i, (o, a) in enumerate(zip(state_size, action_size)):
@@ -185,6 +188,7 @@ class Agent():
         action_bounds_high = np.zeros((2,len(self.building_info)))
         #print(acts)
         for building in range(0,len(self.building_info)):
+            break
             # Limit actions based on physical constraints (e.g. if SoC is 0)
             # DWH Storage Limits
             if states[building][-1] == 0:
@@ -237,6 +241,7 @@ class Agent():
         # Compute critic loss
         Q_expected = self.critic_local[building](states, actions)
         critic_loss = F.mse_loss(Q_expected, Q_targets)
+        self.critic_loss = critic_loss
         # Minimize the loss
         self.critic_optimizer[building].zero_grad()
         critic_loss.backward()
@@ -247,6 +252,7 @@ class Agent():
         # Compute actor loss
         actions_pred = self.actor_local[building](states)
         actor_loss = -self.critic_local[building](states, actions_pred).mean()
+        self.actor_loss = actor_loss
         # Minimize the loss
         self.actor_optimizer[building].zero_grad()
         actor_loss.backward()
