@@ -219,8 +219,8 @@ for i_episode in range(1, num_episodes+1):
 
 			# Action choices
 			at = np.array(agent.action_tracker)
-			cooling = at[:,0,:]
-			dhw = at[:,1,:]
+			cooling = at[:,:,0]
+			dhw = at[:,:,1]
 			writer.add_histogram("Action/Cooling", cooling, iteration_step)
 			writer.add_histogram("Action/DHW", dhw, iteration_step)
 			writer.add_histogram("Action/Tracker", np.array(agent.action_tracker), iteration_step)
