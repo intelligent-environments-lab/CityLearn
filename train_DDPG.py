@@ -48,9 +48,9 @@ weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
 #building_ids = ["Building_1","Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-building_ids = ["Building_1","Building_2"]
+building_ids = ["Building_1"]
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
-env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = False, verbose = 1)
+env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = False, verbose = 0)
 
 # Contain the lower and upper bounds of the states and actions, to be provided to the agent to normalize the variables between 0 and 1.
 # Can be obtained using observations_spaces[i].low or .high
@@ -70,7 +70,7 @@ STEP 1: Set the Training Parameters
         episode_scores (float): list to record the scores obtained from each episode
         scores_average_window (int): the window size employed for calculating the average score (e.g. 100)
 """
-num_episodes=1
+num_episodes=100
 episode_scores = []
 scores_average_window = 5
 checkpoint_interval = 8760
@@ -209,7 +209,7 @@ for i_episode in range(1, num_episodes+1):
 				agent_scores_dict["Agent {}".format(agent_idx)] = agentS
 				agent_idx += 1
 			# Agent scores
-			writer.add_scalars("Scores/Agents", agent_scores_dict, iteration_step)
+			#writer.add_scalars("Scores/Agents", agent_scores_dict, iteration_step)
 
 			# Plot losses for critic and actor
 			if agent.critic_loss is not None:
@@ -255,6 +255,16 @@ for i_episode in range(1, num_episodes+1):
 		iteration_step += 1
 	
 	timer = time.time() - start_timer
+	
+	print(env.cost())
+	writer.add_scalar("Scores/ramping", env.cost()['ramping'], iteration_step)
+	writer.add_scalar("Scores/1-load_factor", env.cost()['1-load_factor'], iteration_step)
+	writer.add_scalar("Scores/average_daily_peak", env.cost()['average_daily_peak'], iteration_step)
+	writer.add_scalar("Scores/peak_demand", env.cost()['peak_demand'], iteration_step)
+	writer.add_scalar("Scores/net_electricity_consumption", env.cost()['net_electricity_consumption'], iteration_step)
+	writer.add_scalar("Scores/total", env.cost()['total'], iteration_step)
+	
+	writer.flush()
 	
 	# Add episode score to Scores and
 	# Calculate mean score over averaging window 
