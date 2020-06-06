@@ -87,7 +87,7 @@ try:
 	arguments, values = getopt.getopt(argument_list, short_options, long_options)
 	for c, v in arguments:
 		if c in ("-e", "--episdoes"):
-			num_episodes = v
+			num_episodes = int(v)
 		elif c in ("-c", "--checkpoints"):
 			chk_load_dir = v
 except getopt.error as err:
@@ -161,6 +161,8 @@ print("Saving TB to {}".format(parent_dir+"tensorboard/"))
 # Crate the final dir
 final_dir = parent_dir + "final/"
 
+iteration_step = 0
+iteration_interval = 100
 # loop from num_episodes
 for i_episode in range(1, num_episodes+1):
 
@@ -175,8 +177,6 @@ for i_episode in range(1, num_episodes+1):
 	# Based on the resultant environmental state (next_state) and reward received update the Agents Actor and Critic networks
 	# If environment episode is done, exit loop.
 	# Otherwise repeat until done == true 
-	iteration_step = 0
-	iteration_interval = 100
 	while True:
 
 		# determine actions for the agents from current sate, using noise for exploration
@@ -218,8 +218,24 @@ for i_episode in range(1, num_episodes+1):
 				writer.add_scalar("Losses/Actor Loss", agent.actor_loss, iteration_step)
 
 			# Action choices
-			writer.add_histogram("Action Tracker", np.array(agent.action_tracker), iteration_step)
+			at = np.array(agent.action_tracker)
+			cooling = at[:,0,:]
+			dhw = at[:,1,:]
+			writer.add_histogram("Action/Cooling", cooling, iteration_step)
+			writer.add_histogram("Action/DHW", dhw, iteration_step)
+			writer.add_histogram("Action/Tracker", np.array(agent.action_tracker), iteration_step)
 
+			# Weights
+			for building in range(0,num_agents):
+				# Actor
+				writer.add_histogram("Weights/Actor/fc1",agent.actor_local[building].fc1.weight.data, iteration_step)
+				writer.add_histogram("Weights/Actor/fc2",agent.actor_local[building].fc2.weight.data, iteration_step)
+				writer.add_histogram("Weights/Actor/fc3",agent.actor_local[building].fc3.weight.data, iteration_step)
+
+				# Critic
+				writer.add_histogram("Weights/Critic/fc1",agent.critic_local[building].fc1.weight.data, iteration_step)
+				writer.add_histogram("Weights/Critic/fc2",agent.critic_local[building].fc2.weight.data, iteration_step)
+				writer.add_histogram("Weights/Critic/fc3",agent.critic_local[building].fc3.weight.data, iteration_step)
 
 		# Save trained Actor and Critic network weights for each agent periodically 
 		if iteration_step % checkpoint_interval == 0:
