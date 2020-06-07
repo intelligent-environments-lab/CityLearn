@@ -57,12 +57,12 @@ DDPG PARAMETERS
 
 # DDPG PARAMETERS
 BUFFER_SIZE = int(5e5)
-BATCH_SIZE = 128
+BATCH_SIZE = 1024
 GAMMA = 0.99
 
 # NETWORK PARAMETERS
 LR_ACTOR = 1e-4
-LR_CRITIC = 1e-4
+LR_CRITIC = 1e-3
 WEIGHT_DECAY = 0
 TAU = 5e-2
 FC1_UNITS = 256
@@ -428,3 +428,31 @@ class OUNoise:
         dx = self.theta * (self.mu - x) + self.sigma * np.random.standard_normal(self.size)
         self.state = x + dx
         return self.state
+
+class RBC_Agent:
+    def __init__(self, actions_spaces):
+        self.actions_spaces = actions_spaces
+        self.reset_action_tracker()
+        
+    def reset_action_tracker(self):
+        self.action_tracker = []
+        
+    def select_action(self, states):
+        hour_day = states[0][0]
+        
+        # Daytime: release stored energy
+        a = [[0.0 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
+        if hour_day >= 9 and hour_day <= 21:
+            a = [[-0.08 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
+        
+        # Early nightime: store DHW and/or cooling energy
+        if (hour_day >= 1 and hour_day <= 8) or (hour_day >= 22 and hour_day <= 24):
+            a = []
+            for i in range(len(self.actions_spaces)):
+                if len(self.actions_spaces[i].sample()) == 2:
+                    a.append([0.091, 0.091])
+                else:
+                    a.append([0.091])
+
+        self.action_tracker.append(a)
+        return np.array(a)

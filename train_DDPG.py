@@ -14,6 +14,7 @@ Project for CityLearn Competition
 # In[1]:
 # Import Packages
 from agent_DDPG import Agent
+from agent_DDPG import RBC_Agent
 import numpy as np
 from pathlib import Path
 
@@ -24,15 +25,9 @@ from citylearn import  CityLearn
 from algo_utils import graph_building, tabulate_table
 
 # Extra packages for postprocessing
-import matplotlib.dates as dates
-import pandas as pd
-import matplotlib.pyplot as plt
 import time
-import json
 import os
-import pprint as pp
 import getopt, sys
-from csv import DictWriter
 
 import warnings
 warnings.simplefilter("ignore", UserWarning) # Ignore casting to float32 warnings
@@ -69,12 +64,20 @@ STEP 1: Set the Training Parameters
         num_episodes (int): maximum number of training episodes
         episode_scores (float): list to record the scores obtained from each episode
         scores_average_window (int): the window size employed for calculating the average score (e.g. 100)
+        checkpoint_interval (int): Interval of the number of steps to save a checkpoint of the agents
+        iteration_interval (int): Interval of the number of steps to save logging parameters (e.g. loss)
 """
-num_episodes=100
+num_episodes=10
 episode_scores = []
 scores_average_window = 5
 checkpoint_interval = 8760
+iteration_interval = 100
 chk_load_dir = None
+
+# REWARD SHAPING CONSTANTS
+peak_constant = 60
+ramping_constant = 0.02
+consumption_constant = 0.2
 
 # Ref: https://stackabuse.com/command-line-arguments-in-python/
 # Get full command-line arguments
@@ -115,8 +118,28 @@ print('\nNumber of Agents: ', num_agents)
 print('\nSize of State: ', observations_spaces)
 
 """
+#############################################
+STEP 3: Run the RBC Controller to extract baseline costs
+
+"""
+
+# Instantiating the control agent(s)
+agent = RBC_Agent(actions_spaces)
+
+state = env.reset()
+done = False
+rewards_list = []
+while not done:
+	action = agent.select_action(state)
+	next_state, reward, done, _ = env.step(action)
+	state = next_state
+	rewards_list.append(reward)
+cost_rbc = env.get_baseline_cost()
+print(cost_rbc)
+
+"""
 ###################################
-STEP 3: Create DDPG Agents from the Agent Class in ddpg_agent.py
+STEP 4: Create DDPG Agents from the Agent Class in ddpg_agent.py
 A DDPG agent initialized with the following parameters.
 ======
 building_info: Dictionary with building information as described above
@@ -131,7 +154,7 @@ agent = Agent(building_info, state_size=observations_spaces, action_size=actions
 
 """
 ###################################
-STEP 4: Run the DDPG Training Sequence
+STEP 5: Run the DDPG Training Sequence
 The DDPG Training Process involves the agent learning from repeated episodes of behaviour 
 to map states to actions the maximize rewards received via environmental interaction.
 
@@ -162,7 +185,7 @@ print("Saving TB to {}".format(parent_dir+"tensorboard/"))
 final_dir = parent_dir + "final/"
 
 iteration_step = 0
-iteration_interval = 100
+
 # loop from num_episodes
 for i_episode in range(1, num_episodes+1):
 
@@ -185,6 +208,13 @@ for i_episode in range(1, num_episodes+1):
 		# send the actions to the agents in the environment and receive resultant environment information
 		next_states, reward, done, _ = env.step(action)
 
+		# Calculate ramping rate
+		consumption_last_time = reward
+		ramping = [abs(x - y) for x, y in zip(reward, consumption_last_time)]
+		
+		# Apply Shaped Reward Function
+		reward = [peak_constant*(x/cost_rbc['peak_demand']) - y * ramping_constant + consumption_constant*x for x, y in zip(reward, ramping)]
+		
 		#Send (S, A, R, S') info to the training agent for replay buffer (memory) and network updates
 		agent.step(states, action, reward, next_states, done)
 		
@@ -295,7 +325,7 @@ for i_episode in range(1, num_episodes+1):
 
 """
 ###################################
-STEP 5: Everything is Finished -> Close the Environment.
+STEP 6: Everything is Finished -> Close the Environment.
 """
 
 env.close()
@@ -303,7 +333,7 @@ writer.close()
 
 """
 ###################################
-STEP 6: POSTPROCESSING
+STEP 7: POSTPROCESSING
 """
 
 # Building to plot results for
