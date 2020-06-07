@@ -56,7 +56,7 @@ DDPG PARAMETERS
 """
 
 # DDPG PARAMETERS
-BUFFER_SIZE = int(5e5)
+BUFFER_SIZE = int(5e4)
 BATCH_SIZE = 1024
 GAMMA = 0.99
 
@@ -162,6 +162,8 @@ class Agent():
         for building in range(0,len(rewards)):
             self.memory[building].add(states, actions[building], rewards[building], next_states, dones)
         
+
+    def rollout(self, rewards):
         # Learn, if enough samples are available in memory
         for building in range(0,len(rewards)):
             if len(self.memory[building]) > BATCH_SIZE:

@@ -67,16 +67,17 @@ STEP 1: Set the Training Parameters
         checkpoint_interval (int): Interval of the number of steps to save a checkpoint of the agents
         iteration_interval (int): Interval of the number of steps to save logging parameters (e.g. loss)
 """
-num_episodes=10
+num_episodes=500
 episode_scores = []
 scores_average_window = 5
 checkpoint_interval = 8760
 iteration_interval = 100
+rollout_interval = 50
 chk_load_dir = None
 
 # REWARD SHAPING CONSTANTS
 peak_constant = 60
-ramping_constant = 0.02
+ramping_constant = 0.002
 consumption_constant = 0.2
 
 # Ref: https://stackabuse.com/command-line-arguments-in-python/
@@ -217,6 +218,10 @@ for i_episode in range(1, num_episodes+1):
 		
 		#Send (S, A, R, S') info to the training agent for replay buffer (memory) and network updates
 		agent.step(states, action, reward, next_states, done)
+		
+		# Learn every rollout number of steps (if enough samples have been collected)
+		if iteration_step % rollout_interval ==0:
+			agent.rollout(reward)
 		
 		# set new states to current states for determining next actions
 		states = next_states
