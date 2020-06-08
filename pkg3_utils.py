@@ -181,8 +181,12 @@ class TensorboardCallback(BaseCallback):
     def __init__(self, verbose=0):
         super(TensorboardCallback, self).__init__(verbose)
 
-    def _on_step(self) -> bool:
-        # Log scalar value (here a random variable)
-        value = np.random.random()
-        self.logger.record('random_value', value)
+    def _on_step(self):
+
+        if self.n_calls % 8760 == 0:
+            print("Logging episode rewards")
+            self.logger.record("Rewards", self.model.env.env_method("get_episode_rewards"))
+            
+            # self.logger.record("Costs", self.model.env.env_method("cost"))
+
         return True
