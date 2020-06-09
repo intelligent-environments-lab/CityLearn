@@ -18,7 +18,7 @@ import pprint as pp
 import sys, multiprocessing, os, time
 from stable_baselines.results_plotter import ts2xy
 from stable_baselines.bench.monitor import Monitor, load_results
-from torch.utils.tensorboard import writer
+# from torch.utils.tensorboard import writer
 from algo_utils import tabulate_table
 
 
@@ -145,8 +145,8 @@ model.learn(total_timesteps=interval*icount, log_interval=interval, tb_log_name=
 
 # Summary Writer setup
 # Writer will output to ./runs/ directory by default
-writer = writer.SummaryWriter(log_dir=parent_dir+"tensorboard/_1")
-print("Saving TB to {}".format(parent_dir+"tensorboard/_1"))
+# writer = writer.SummaryWriter(log_dir=parent_dir+"tensorboard/_1")
+# print("Saving TB to {}".format(parent_dir+"tensorboard/_1"))
 
 iteration_step = 0
 obs = env.reset()
@@ -161,14 +161,14 @@ while dones==False:
 
     # Logging
     if iteration_step % interval == 0:
-
+        pass
 		# Building reward
-        writer.add_scalar("Reward/Buildings", rewards, iteration_step)
+        # writer.add_scalar("Reward/Buildings", rewards, iteration_step)
 
     iteration_step += 1
 
 # Costs
-writer.add_scalars("Scores", env.cost(), iteration_step)
+# writer.add_scalars("Scores", env.cost(), iteration_step)
 
 env.close()
 
