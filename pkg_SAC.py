@@ -11,6 +11,7 @@ import gym
 from stable_baselines.sac.policies import MlpPolicy as MlpPolicy_SAC
 from stable_baselines import SAC
 from stable_baselines.common.callbacks import BaseCallback
+from stable_baselines.common.schedules import LinearSchedule
 from citylearn import  CityLearn
 from pathlib import Path
 import pprint as pp
@@ -136,7 +137,7 @@ useBestCallback = True
 if useBestCallback:
     callbackList.append(callbackBest)
 
-model = SAC(MlpPolicy_SAC, env, verbose=1, learning_rate=0.005, gamma=0.99, tau=3e-4, batch_size=2048, train_freq=25,
+model = SAC(MlpPolicy_SAC, env, verbose=1, learning_rate=LinearSchedule(interval*icount, 0.001, 0.01).value, gamma=0.99, tau=3e-4, batch_size=2048, train_freq=25,
     target_update_interval=25, policy_kwargs=policy_kwargs, learning_starts=interval-1, n_cpu_tf_sess=multiprocessing.cpu_count(), tensorboard_log=parent_dir+"tensorboard/")
 print()
 
@@ -159,7 +160,7 @@ while dones==False:
     counter.append(rewards)
 
     # Logging
-    if iteration_step % interval:
+    if iteration_step % interval == 0:
 
 		# Building reward
         writer.add_scalar("Reward/Buildings", rewards, iteration_step)
