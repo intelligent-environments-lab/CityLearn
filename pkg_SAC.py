@@ -14,11 +14,11 @@ from stable_baselines.common.callbacks import BaseCallback
 from citylearn import  CityLearn
 from pathlib import Path
 import pprint as pp
-import sys, multiprocessing
-import os
+import sys, multiprocessing, os, time
 from stable_baselines.results_plotter import ts2xy
 from stable_baselines.bench.monitor import Monitor, load_results
 from torch.utils.tensorboard import writer
+from algo_utils import tabulate_table
 
 
 # Callback class for saving the best reward episode, FOR SB 2.10
@@ -106,6 +106,9 @@ os.makedirs(parent_dir, exist_ok=True)
 log_dir = parent_dir+"monitor"
 os.makedirs(log_dir, exist_ok=True)
 
+# Create the final dir
+final_dir = parent_dir+"final/"
+
 # Set the interval and their count
 interval = 8760
 icount = int(sys.argv[1]) if len(sys.argv) > 1 else 10
@@ -133,7 +136,7 @@ useBestCallback = True
 if useBestCallback:
     callbackList.append(callbackBest)
 
-model = SAC(LnMlpPolicy_SAC, env, verbose=1, learning_rate=0.005, gamma=0.99, tau=3e-4, batch_size=2048, train_freq=25,
+model = SAC(MlpPolicy_SAC, env, verbose=1, learning_rate=0.005, gamma=0.99, tau=3e-4, batch_size=2048, train_freq=25,
     target_update_interval=25, policy_kwargs=policy_kwargs, learning_starts=interval-1, n_cpu_tf_sess=multiprocessing.cpu_count(), tensorboard_log=parent_dir+"tensorboard/")
 print()
 
@@ -158,7 +161,6 @@ while dones==False:
     # Logging
     if iteration_step % interval:
 
-        print(rewards)
 		# Building reward
         writer.add_scalar("Reward/Buildings", rewards, iteration_step)
 
