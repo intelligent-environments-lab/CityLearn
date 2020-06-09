@@ -56,13 +56,13 @@ os.makedirs(log_dir, exist_ok=True)
 
 # Set the interval and their count
 interval = 8760
-icount = int(sys.argv[1]) if sys.argv is not None else 10
+icount = int(sys.argv[1]) if len(sys.argv) > 1 else 10
 log_interval = 1
 check_interval = 1
 
 # Policy kwargs
 policy_kwargs = dict(
-
+    net_arch=[128,128]
 )
 
 # Make VecEnv + Wrap in Monitor
@@ -81,7 +81,8 @@ if useBestCallback:
 if useTensorboardCallback:
     callbackList.append(callbackTB)
 
-model = SAC(MlpPolicy_SAC, env, verbose=1, policy_kwargs=policy_kwargs, learning_rate=0.001, gamma=0.99, batch_size=1024, learning_starts=interval-1, tensorboard_log=parent_dir+"tensorboard/")
+model = SAC(MlpPolicy_SAC, env, verbose=1, learning_rate=0.005, gamma=0.99, tau=3e-4, batch_size=2048, train_freq=25,
+    target_update_interval=25, policy_kwargs=policy_kwargs, learning_starts=interval-1, tensorboard_log=parent_dir+"tensorboard/")
 print()
 
 model.learn(total_timesteps=interval*icount, log_interval=log_interval, tb_log_name="", callback=callbackList)
