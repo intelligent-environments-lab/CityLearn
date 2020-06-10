@@ -64,13 +64,19 @@ def graph_building(building_number, env, agent, parent_dir):
     output['Cooling Demand (kWh)'] = env.buildings[building_number].cooling_demand_building[-8759:]
     output['Energy Storage State of Charge - SOC (kWh)'] = env.buildings[building_number].cooling_storage_soc[-8759:]
     output['Heat Pump Total Cooling Supply (kW)'] = env.buildings[building_number].cooling_device_to_building[-8759:] + env.buildings[building_number].cooling_device_to_storage[-8759:]
-    output['Controller Action - Increase or Decrease of SOC (kW)'] = [k[0][0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+    if env.central_agent == False:
+        output['Controller Action - Increase or Decrease of SOC (kW)'] = [k[0][0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+    else:
+        output['Controller Action - Increase or Decrease of SOC (kW)'] = [k[0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
     # DHW
     output['DHW Demand (kWh)'] = env.buildings[building_number].dhw_demand_building[-8759:]
     #output['Energy Balance of DHW Tank (kWh)'] = -env.buildings[building_number].dhw_storage.energy_balance[-8759:]
     output['Energy Balance of DHW Tank (kWh)'] = env.buildings[building_number].dhw_storage_soc[-8759:]
     output['DHW Heater Total Heating Supply (kWh)'] = env.buildings[building_number].dhw_heating_device.heat_supply[-8759:]
-    output['Controller Action - Increase or Decrease of SOC (kW)'] = [k[0][1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+    if env.central_agent == False:
+        output['Controller Action - Increase or Decrease of SOC (kW)'] = [k[0][1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+    else:
+        output['Controller Action - Increase or Decrease of SOC (kW)'] = [k[1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
     output['DHW Heater Electricity Consumption (kWh)'] = env.buildings[building_number].electric_consumption_dhw[-8759:]
 
     output_filtered = output.loc['2017-12-30':'2017-12-31']
