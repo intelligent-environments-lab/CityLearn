@@ -69,7 +69,7 @@ class SAC(object):
         self.replay_size = 500000
         self.batch_size = 1024
         self.automatic_entropy_tuning = False
-        self.target_update_interval = 10
+        self.target_update_interval = 1
         self.hidden_size = 256
 
         self.policy_type = args.policy

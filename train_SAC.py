@@ -45,6 +45,8 @@ parser.add_argument('--num_episodes', type=int, default=200, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
 parser.add_argument('--start_steps', type=int, default=8760, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
+parser.add_argument('--update_interval', type=int, default=8760, metavar='N',
+                    help='Update network parameters every n steps')
 parser.add_argument('--checkpoint_interval', type=int, default=10, metavar='N',
                     help='Saves a checkpoint with actor/critic weights every n episodes')
 args = parser.parse_args()
@@ -158,14 +160,15 @@ for i_episode in itertools.count(1):
             action = agent.select_action(state)
 
         if len(agent.memory) > agent.batch_size:
-            # Update parameters of all the networks
-            critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(total_numsteps)
+            if total_numsteps % args.update_interval == 0:
+                # Update parameters of all the networks
+                critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(total_numsteps)
 
-            writer.add_scalar('loss/critic_1', critic_1_loss,total_numsteps)
-            writer.add_scalar('loss/critic_2', critic_2_loss, total_numsteps)
-            writer.add_scalar('loss/policy', policy_loss, total_numsteps)
-            writer.add_scalar('loss/entropy_loss', ent_loss, total_numsteps)
-            writer.add_scalar('entropy_temprature/alpha', alpha, total_numsteps)
+                writer.add_scalar('loss/critic_1', critic_1_loss,total_numsteps)
+                writer.add_scalar('loss/critic_2', critic_2_loss, total_numsteps)
+                writer.add_scalar('loss/policy', policy_loss, total_numsteps)
+                writer.add_scalar('loss/entropy_loss', ent_loss, total_numsteps)
+                writer.add_scalar('entropy_temprature/alpha', alpha, total_numsteps)
 
         next_state, reward, done, _ = env.step(action) # Step
         episode_steps += 1
