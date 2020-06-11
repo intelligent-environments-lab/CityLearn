@@ -60,15 +60,19 @@ Initialises an Agent and Critic for each building. Can also be used to test/run 
 ======
 '''
 class SAC(object):
-    def __init__(self, num_inputs, action_space, args):
+    def __init__(self, env, num_inputs, action_space, args):
 
-        self.lr = 0.003
+        self.env = env
+
+        self.lr = 0.1
         self.gamma = 0.99
-        self.tau = 0.0003
+        self.tau = 0.003
         self.alpha = 0.2
-        self.replay_size = 500000
+        self.replay_size = 2000000
+        self.autoregressive_size = 1
+        num_inputs = num_inputs + self.autoregressive_size
         self.batch_size = 1024
-        self.automatic_entropy_tuning = False
+        self.automatic_entropy_tuning = True
         self.target_update_interval = 1
         self.hidden_size = 256
 
@@ -84,8 +88,11 @@ class SAC(object):
 
         self.reset_action_tracker()
 
-        # Memory
+        # Replay Memory
         self.memory = ReplayMemory(self.replay_size)
+
+        # Memory of Power Consumption
+        self.autoregressive_memory = AutoRegressiveMemory(self.autoregressive_size)
 
         if self.policy_type == "Gaussian":
             # Target Entropy = −dim(A) (e.g. , -6 for HalfCheetah-v2) as given in the paper
@@ -107,6 +114,7 @@ class SAC(object):
         self.action_tracker = []
 
     def select_action(self, state, evaluate=False):
+        state = np.append(state,self.autoregressive_memory.buffer[-1])
         state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
         if evaluate is False:
             action, _, _ = self.policy.sample(state)
@@ -126,8 +134,12 @@ class SAC(object):
             next_states (Array): Array of updates states for each building after actions
             dones (Boolean): Whether episode is done (terminated) or not
         """
+        # Append autoregressive terms
+        states = np.append(states,self.autoregressive_memory.buffer[-1])
+        next_states = np.append(next_states,self.env.net_electric_consumption[-1])
         # Save experience / reward
         self.memory.push(states, actions, rewards, next_states, dones)
+        self.autoregressive_memory.push(self.env.net_electric_consumption[-1])
 
     def update_parameters(self, updates):
         # Sample a batch from memory
@@ -389,6 +401,16 @@ class ReplayMemory:
         batch = random.sample(self.buffer, batch_size)
         state, action, reward, next_state, done = map(np.stack, zip(*batch))
         return state, action, reward, next_state, done
+
+    def __len__(self):
+        return len(self.buffer)
+
+class AutoRegressiveMemory:
+    def __init__(self, capacity):
+        self.buffer = [0]
+
+    def push(self, previous_consumption):
+        self.buffer.append(previous_consumption)
 
     def __len__(self):
         return len(self.buffer)

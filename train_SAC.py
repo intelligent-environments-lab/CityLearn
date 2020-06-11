@@ -41,7 +41,7 @@ parser.add_argument('--alpha', type=float, default=0.2, metavar='G',
                             term against the reward (default: 0.2)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--num_episodes', type=int, default=200, metavar='N',
+parser.add_argument('--num_episodes', type=int, default=100, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
 parser.add_argument('--start_steps', type=int, default=8760, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
@@ -118,7 +118,7 @@ To be completed
 """
 
 # Agent
-agent = SAC(env.observation_space.shape[0], env.action_space, args)
+agent = SAC(env, env.observation_space.shape[0], env.action_space, args)
 
 """
 ###################################
@@ -159,6 +159,13 @@ for i_episode in itertools.count(1):
             # Sample action from policy
             action = agent.select_action(state)
 
+        # Action choices
+        cooling = action[0]
+        dhw = action[1]
+        writer.add_histogram("Action/Cooling", cooling, total_numsteps)
+        writer.add_histogram("Action/DHW", dhw, total_numsteps)
+        writer.add_histogram("Action/Tracker", np.array(agent.action_tracker), total_numsteps)
+
         if len(agent.memory) > agent.batch_size:
             if total_numsteps % args.update_interval == 0:
                 # Update parameters of all the networks
@@ -169,8 +176,9 @@ for i_episode in itertools.count(1):
                 writer.add_scalar('loss/policy', policy_loss, total_numsteps)
                 writer.add_scalar('loss/entropy_loss', ent_loss, total_numsteps)
                 writer.add_scalar('entropy_temprature/alpha', alpha, total_numsteps)
-
+        
         next_state, reward, done, _ = env.step(action) # Step
+
         episode_steps += 1
         total_numsteps += 1
         episode_reward += reward
@@ -183,6 +191,8 @@ for i_episode in itertools.count(1):
         agent.append(state, action, reward, next_state, done) 
 
         state = next_state
+        #if total_numsteps == 2:
+        #    sys.exit()
 
     writer.add_scalar('Reward/Buildings', episode_reward, total_numsteps)
 	
