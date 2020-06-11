@@ -64,7 +64,7 @@ class SAC(object):
 
         self.env = env
 
-        self.lr = 0.001
+        self.lr = 0.002
         self.gamma = 0.99
         self.tau = 0.003
         self.alpha = 0.2
@@ -76,7 +76,9 @@ class SAC(object):
         self.target_update_interval = 1
         self.hidden_size = 256
 
-        self.ramping_factor = 0.25
+        self.ramping_factor = 0.5
+        self.action_factor = 50
+        self.peak_factor = 0.5
 
         self.policy_type = args.policy
 
@@ -116,7 +118,8 @@ class SAC(object):
         self.action_tracker = []
 
     def select_action(self, state, evaluate=False):
-        state = np.append(state,self.autoregressive_memory.buffer[-1])
+        for j in range(0,self.autoregressive_size):
+            state = np.append(state, self.autoregressive_memory.buffer[-j-1])
         state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
         if evaluate is False:
             action, _, _ = self.policy.sample(state)
@@ -137,13 +140,22 @@ class SAC(object):
             dones (Boolean): Whether episode is done (terminated) or not
         """
         # Append autoregressive terms
-        states = np.append(states,self.autoregressive_memory.buffer[-1])
+        for j in range(0,self.autoregressive_size):
+            states = np.append(states, self.autoregressive_memory.buffer[-j-1])
+        for j in range(0,self.autoregressive_size-1):
+            next_states = np.append(next_states, self.autoregressive_memory.buffer[-j-1])
         next_states = np.append(next_states,self.env.net_electric_consumption[-1])
+        
+        # Calculate Ramping component of reward function
         ramping = abs(self.env.net_electric_consumption[-1] - self.autoregressive_memory.buffer[-1])
         #print(ramping)
+        
+        # Calculate Similar action component of reward function (if all agents are doing the same thing penalize)
+        same_action = abs(self.action_factor*actions.mean())
+        
         #print(rewards)
-        # Postprocess rewards to penalise ramping
-        rewards = rewards - self.ramping_factor*ramping
+        # Postprocess rewards to penalise ramping and similar actions
+        rewards = rewards - self.ramping_factor*ramping - self.action_factor*same_action
         # Save experience / reward
         self.memory.push(states, actions, rewards, next_states, dones)
         self.autoregressive_memory.push(self.env.net_electric_consumption[-1])
@@ -416,7 +428,7 @@ class ReplayMemory:
 
 class AutoRegressiveMemory:
     def __init__(self, capacity):
-        self.buffer = [0]
+        self.buffer = [0] * capacity
 
     def push(self, previous_consumption):
         self.buffer.append(previous_consumption)

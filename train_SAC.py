@@ -196,7 +196,7 @@ for i_episode in itertools.count(1):
         episode_reward += reward
 
         state = next_state
-        #if total_numsteps == 2:
+        #if total_numsteps == 10:
         #    sys.exit()
 
     writer.add_scalar('Reward/Buildings', episode_reward, total_numsteps)
