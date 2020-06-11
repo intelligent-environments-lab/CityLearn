@@ -20,9 +20,12 @@ from agent_SAC import SAC
 from torch.utils.tensorboard import SummaryWriter
 from citylearn import  CityLearn
 from pathlib import Path
-import os, time
+import os, time, warnings
 
 from algo_utils import graph_building, tabulate_table
+
+# Ignore the casting to float32 warnings
+warnings.simplefilter("ignore", UserWarning)
 
 """
 ###################################
@@ -104,6 +107,7 @@ os.makedirs(final_dir, exist_ok=True)
 
 #Tensorboard
 writer = SummaryWriter(log_dir=parent_dir+'tensorboard/')
+print("Logging to {}\n".format(parent_dir+'tensorboard/'))
 
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
@@ -150,6 +154,9 @@ for i_episode in itertools.count(1):
     done = False
     state = env.reset()
 
+    # Start logging after the first timestep to avoid a sudden jump in the graph
+    log_step = 0 if i_episode != 1 else 1
+
     while not done:
         if args.start_steps > total_numsteps:
             # Sample action from policy
@@ -162,9 +169,11 @@ for i_episode in itertools.count(1):
         # Action choices
         cooling = action[0]
         dhw = action[1]
-        writer.add_histogram("Action/Cooling", cooling, total_numsteps)
-        writer.add_histogram("Action/DHW", dhw, total_numsteps)
-        writer.add_histogram("Action/Tracker", np.array(agent.action_tracker), total_numsteps)
+
+        if episode_steps == log_step:
+            writer.add_histogram("Action/Cooling", cooling, total_numsteps)
+            writer.add_histogram("Action/DHW", dhw, total_numsteps)
+            writer.add_histogram("Action/Tracker", np.array(agent.action_tracker), total_numsteps)
 
         if len(agent.memory) > agent.batch_size:
             if total_numsteps % args.update_interval == 0:
