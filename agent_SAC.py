@@ -64,17 +64,19 @@ class SAC(object):
 
         self.env = env
 
-        self.lr = 0.1
+        self.lr = 0.001
         self.gamma = 0.99
         self.tau = 0.003
         self.alpha = 0.2
-        self.replay_size = 2000000
+        self.replay_size = 1000000
         self.autoregressive_size = 1
         num_inputs = num_inputs + self.autoregressive_size
         self.batch_size = 1024
-        self.automatic_entropy_tuning = True
+        self.automatic_entropy_tuning = False
         self.target_update_interval = 1
         self.hidden_size = 256
+
+        self.ramping_factor = 0.25
 
         self.policy_type = args.policy
 
@@ -137,9 +139,16 @@ class SAC(object):
         # Append autoregressive terms
         states = np.append(states,self.autoregressive_memory.buffer[-1])
         next_states = np.append(next_states,self.env.net_electric_consumption[-1])
+        ramping = abs(self.env.net_electric_consumption[-1] - self.autoregressive_memory.buffer[-1])
+        #print(ramping)
+        #print(rewards)
+        # Postprocess rewards to penalise ramping
+        rewards = rewards - self.ramping_factor*ramping
         # Save experience / reward
         self.memory.push(states, actions, rewards, next_states, dones)
         self.autoregressive_memory.push(self.env.net_electric_consumption[-1])
+
+        return rewards
 
     def update_parameters(self, updates):
         # Sample a batch from memory

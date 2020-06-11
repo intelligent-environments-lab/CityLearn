@@ -44,7 +44,7 @@ parser.add_argument('--alpha', type=float, default=0.2, metavar='G',
                             term against the reward (default: 0.2)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--num_episodes', type=int, default=100, metavar='N',
+parser.add_argument('--num_episodes', type=int, default=200, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
 parser.add_argument('--start_steps', type=int, default=8760, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
@@ -188,16 +188,12 @@ for i_episode in itertools.count(1):
         
         next_state, reward, done, _ = env.step(action) # Step
 
+        # Append transition to memory
+        reward = agent.append(state, action, reward, next_state, done) 
+
         episode_steps += 1
         total_numsteps += 1
         episode_reward += reward
-
-        # Ignore the "done" signal if it comes from hitting the time horizon.
-        # (https://github.com/openai/spinningup/blob/master/spinup/algos/sac/sac.py)
-        #mask = 1 if episode_steps == 8760 else float(not done)
-
-        # Append transition to memory
-        agent.append(state, action, reward, next_state, done) 
 
         state = next_state
         #if total_numsteps == 2:
