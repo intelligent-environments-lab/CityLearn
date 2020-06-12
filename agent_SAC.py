@@ -60,7 +60,7 @@ Initialises an Agent and Critic for each building. Can also be used to test/run 
 ======
 '''
 class SAC(object):
-    def __init__(self, env, num_inputs, action_space, args):
+    def __init__(self, env, num_inputs, action_space, args, constrain_state_space=False):
 
         self.env = env
 
@@ -98,6 +98,9 @@ class SAC(object):
         # Memory of Power Consumption
         self.autoregressive_memory = AutoRegressiveMemory(self.autoregressive_size)
 
+        # Should the state space be constrained to avoid extreme values
+        self.constrain_state_space = constrain_state_space
+
         # Size of state space
         self.obs_size = [box.shape[0] for box in self.env.get_state_action_spaces()[0]]
 
@@ -124,6 +127,9 @@ class SAC(object):
         self.action_tracker = []
 
     def select_action(self, state, evaluate=False):
+
+        # print("\n\n\n\n")
+
         for j in range(0,self.autoregressive_size):
             state = np.append(state, self.autoregressive_memory.buffer[-j-1])
         state_copy = state
@@ -132,41 +138,54 @@ class SAC(object):
             action, _, _ = self.policy.sample(state)
         else:
             _, _, action = self.policy.sample(state)
-        self.action_tracker.append(action.detach().cpu().numpy()[0])
-
+        
         action = action.detach().cpu().numpy()[0]
 
-        # Constrain state space
-        ba_idx = 0 # building action index
-        bs_idx = 1 # building state index
-        for building in range(0,len(self.act_size)):
-            bs_end_idx = bs_idx + self.obs_size[building] - 1
-            
-            # Boundry constraint flags, -1 for 0, 1 for 1, 0 for anything in between
-            soc_flags = [0 for actsiz in range(self.act_size[building])]
+        if self.constrain_state_space == True:
+            # Constrain state space
+            ba_idx = 0 # building action index
+            bs_idx = 1 # building state index
+            for building in range(0,len(self.act_size)):
+                bs_end_idx = bs_idx + self.obs_size[building] - 1
+                # print("\nBuilding {}".format(building+1))
+                # Boundry constraint flags, -1 for 0, 1 for 1, 0 for anything in between
+                soc_flags = [0 for actsiz in range(self.act_size[building])]
+                # print("States:")
+                # Find constraints and set flags
+                for idx, b_idx in enumerate(range(bs_end_idx-self.act_size[building],bs_end_idx)):
+                    
+                    
+                    # print(state_copy[b_idx])
 
-            # Find constraints and set flags
-            for idx, b_idx in enumerate(range(bs_end_idx-self.act_size[building],bs_end_idx)):
-                
-                # Enable the SOC flag on extreme values
-                if state_copy[b_idx] == 0:
-                    soc_flags[idx] = -1
-                elif state_copy[b_idx] == 1:
-                    soc_flags[idx] = 1
+                    # Enable the SOC flag on extreme values
+                    if state_copy[b_idx] < 0.05:
+                        soc_flags[idx] = -1
+                    elif state_copy[b_idx] > 0.95:
+                        soc_flags[idx] = 1
 
-            # Set constraints from flags
-            for idx, flag in enumerate(soc_flags):
-                
-                # SOC is trying to go below 0
-                if flag == -1:
-                    action[ba_idx+idx] = 0
+                # Set constraints from flags
+                for idx, flag in enumerate(soc_flags):
+                    
+                    # print("Action: {}".format(action[ba_idx+idx]))
 
-                # SOC is trying to go above 1
-                elif flag == 1:
-                    action[ba_idx+idx] = 0
+                    # SOC is trying to go below 0
+                    if flag == -1:
+                        if action[ba_idx+idx] < 0:
+                            # print("Activated flag {} == -1".format(idx))
+                            # action[ba_idx+idx] = np.random.normal(0,0.1,1)
+                            action[ba_idx+idx] = 0
 
-            ba_idx += self.act_size[building]
-            bs_idx = bs_end_idx
+                    # SOC is trying to go above 1
+                    elif flag == 1:
+                        if action[ba_idx+idx] > 0:
+                            # print("Activated flag {} == 1".format(idx))
+                            # action[ba_idx+idx] = -np.random.normal(0,0.1,1)
+                            action[ba_idx+idx] = 0
+
+                ba_idx += self.act_size[building]
+                bs_idx = bs_end_idx
+
+        self.action_tracker.append(action)
 
         return action
 

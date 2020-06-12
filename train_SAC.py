@@ -122,7 +122,7 @@ To be completed
 """
 
 # Agent
-agent = SAC(env, env.observation_space.shape[0], env.action_space, args)
+agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_state_space=True)
 
 """
 ###################################
