@@ -40,7 +40,7 @@ SAC PARAMETERS
         gamma (float): discount factor
         alpha (float): Temperature parameter α determines the relative importance of the entropy\
         term against the reward (default: 0.2)
-        automatic_entropy_tuning (boolean): Automaically adjust α
+        automatic_entropy_tuning (boolean): Automatically adjust α
         target_update_interval (int): Value target update per no. of updates per step
         lr (float): learning rate
         tau (float): target smoothing coefficient(τ) for soft update
@@ -98,6 +98,12 @@ class SAC(object):
         # Memory of Power Consumption
         self.autoregressive_memory = AutoRegressiveMemory(self.autoregressive_size)
 
+        # Size of state space
+        self.obs_size = [box.shape[0] for box in self.env.get_state_action_spaces()[0]]
+
+        # Size of action space
+        self.act_size = [2 if id not in ["Building_3","Building_4"] else 1 for id in self.env.building_ids]
+
         if self.policy_type == "Gaussian":
             # Target Entropy = −dim(A) (e.g. , -6 for HalfCheetah-v2) as given in the paper
             if self.automatic_entropy_tuning is True:
@@ -120,13 +126,49 @@ class SAC(object):
     def select_action(self, state, evaluate=False):
         for j in range(0,self.autoregressive_size):
             state = np.append(state, self.autoregressive_memory.buffer[-j-1])
+        state_copy = state
         state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
         if evaluate is False:
             action, _, _ = self.policy.sample(state)
         else:
             _, _, action = self.policy.sample(state)
         self.action_tracker.append(action.detach().cpu().numpy()[0])
-        return action.detach().cpu().numpy()[0]
+
+        action = action.detach().cpu().numpy()[0]
+
+        # Constrain state space
+        ba_idx = 0 # building action index
+        bs_idx = 1 # building state index
+        for building in range(0,len(self.act_size)):
+            bs_end_idx = bs_idx + self.obs_size[building] - 1
+            
+            # Boundry constraint flags, -1 for 0, 1 for 1, 0 for anything in between
+            soc_flags = [0 for actsiz in range(self.act_size[building])]
+
+            # Find constraints and set flags
+            for idx, b_idx in enumerate(range(bs_end_idx-self.act_size[building],bs_end_idx)):
+                
+                # Enable the SOC flag on extreme values
+                if state_copy[b_idx] == 0:
+                    soc_flags[idx] = -1
+                elif state_copy[b_idx] == 1:
+                    soc_flags[idx] = 1
+
+            # Set constraints from flags
+            for idx, flag in enumerate(soc_flags):
+                
+                # SOC is trying to go below 0
+                if flag == -1:
+                    action[ba_idx+idx] = 0
+
+                # SOC is trying to go above 1
+                elif flag == 1:
+                    action[ba_idx+idx] = 0
+
+            ba_idx += self.act_size[building]
+            bs_idx = bs_end_idx
+
+        return action
 
     def append(self, states, actions, rewards, next_states, dones):
         """Save experience in replay memory, and use random sample from buffer to learn.
