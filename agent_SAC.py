@@ -64,21 +64,21 @@ class SAC(object):
 
         self.env = env
 
-        self.lr = 0.002
+        self.lr = 0.005
         self.gamma = 0.99
         self.tau = 0.003
         self.alpha = 0.2
-        self.replay_size = 1000000
+        self.replay_size = 2000000
         self.autoregressive_size = 1
         num_inputs = num_inputs + self.autoregressive_size
-        self.batch_size = 1024
+        self.batch_size = 4096
         self.automatic_entropy_tuning = False
         self.target_update_interval = 1
         self.hidden_size = 256
 
-        self.ramping_factor = 0.8
+        self.ramping_factor = 0.5
         self.action_factor = 0
-        self.peak_factor = 0.2
+        self.peak_factor = 0.5
 
         self.policy_type = args.policy
 
@@ -147,15 +147,15 @@ class SAC(object):
             bs_idx = 1 # building state index
             for building in range(0,len(self.act_size)):
                 bs_end_idx = bs_idx + self.obs_size[building] - 1
-                # print("\nBuilding {}".format(building+1))
+                #print("\nBuilding {}".format(building+1))
                 # Boundry constraint flags, -1 for 0, 1 for 1, 0 for anything in between
                 soc_flags = [0 for actsiz in range(self.act_size[building])]
-                # print("States:")
+                #print("States:")
                 # Find constraints and set flags
                 for idx, b_idx in enumerate(range(bs_end_idx-self.act_size[building],bs_end_idx)):
                     
                     
-                    # print(state_copy[b_idx])
+                    #print(state_copy[b_idx])
 
                     # Enable the SOC flag on extreme values
                     if state_copy[b_idx] < 0.05:
@@ -166,7 +166,7 @@ class SAC(object):
                 # Set constraints from flags
                 for idx, flag in enumerate(soc_flags):
                     
-                    # print("Action: {}".format(action[ba_idx+idx]))
+                    #print("Action: {}".format(action[ba_idx+idx]))
 
                     # SOC is trying to go below 0
                     if flag == -1:
@@ -181,7 +181,7 @@ class SAC(object):
                             # print("Activated flag {} == 1".format(idx))
                             # action[ba_idx+idx] = -np.random.normal(0,0.1,1)
                             action[ba_idx+idx] = 0
-
+                    #print(action[ba_idx+idx])
                 ba_idx += self.act_size[building]
                 bs_idx = bs_end_idx
 
@@ -217,14 +217,14 @@ class SAC(object):
         same_action = abs(self.action_factor*actions.mean())
 
         # Reward bonus if agent charges during the night
-        if (1 <= states[0] < 8) and actions.mean() > 0.1:
-            night_charging_boost = 500
+        if (1 <= states[0] < 8) and actions.mean() > 0:
+            night_charging_boost = 100
         else:
             night_charging_boost = 0
         
         #print(rewards)
         # Postprocess rewards to penalise ramping and similar actions
-        rewards = rewards - self.ramping_factor*ramping - self.action_factor*same_action
+        rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.action_factor*same_action + night_charging_boost
         # Save experience / reward
         self.memory.push(states, actions, rewards, next_states, dones)
         self.autoregressive_memory.push(HVAC_load)
