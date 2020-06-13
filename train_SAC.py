@@ -6,7 +6,8 @@ Implementation of Soft Actor Critic (SAC) network
 using PyTorch.
 See https://arxiv.org/pdf/1801.01290.pdf for algorithm details.
 
-@author: Anjukan Kathirgamanathan 2020 (k.anjukan@gmail.com) 
+@author: Anjukan Kathirgamanathan 2020 (k.anjukan@gmail.com) and Kacper
+Twardowski (kanexer@gmail.com) 
 
 Project for CityLearn Competition
 """
@@ -48,7 +49,7 @@ parser.add_argument('--num_episodes', type=int, default=100, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
 parser.add_argument('--start_steps', type=int, default=8760, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
-parser.add_argument('--update_interval', type=int, default=8760, metavar='N',
+parser.add_argument('--update_interval', type=int, default=168, metavar='N',
                     help='Update network parameters every n steps')
 parser.add_argument('--checkpoint_interval', type=int, default=10, metavar='N',
                     help='Saves a checkpoint with actor/critic weights every n episodes')
@@ -105,10 +106,11 @@ os.makedirs(parent_dir, exist_ok=True)
 final_dir = parent_dir+"final/"
 os.makedirs(final_dir, exist_ok=True)
 
-#Tensorboard
+# Tensorboard writer object
 writer = SummaryWriter(log_dir=parent_dir+'tensorboard/')
 print("Logging to {}\n".format(parent_dir+'tensorboard/'))
 
+# Set seeds (TO DO: CHECK PERFORMANCE SAME FOR TWO RUNS WITH SAME SEED)
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 env.seed(args.seed)
@@ -122,7 +124,7 @@ To be completed
 """
 
 # Agent
-agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_state_space=True)
+agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=True)
 
 """
 ###################################
@@ -149,59 +151,63 @@ updates = 0
 start_timer = time.time()
 
 for i_episode in itertools.count(1):
+    # Initialise episode rewards
     episode_reward = 0
+    episode_peak_reward = 0
+    episode_ramping_reward = 0
+    episode_night_reward = 0
     episode_steps = 0
     done = False
     state = env.reset()
 
-    # Start logging after the first timestep to avoid a sudden jump in the graph
-    log_step = 0 if i_episode != 1 else 1
-
+    # For every step
     while not done:
+        # If learning hasn't started yet, sample random action
         if args.start_steps > total_numsteps:
-            # Sample action from policy
+            # 
             action = env.action_space.sample()
             agent.action_tracker.append(action)
+        # Else sample action from policy
         else:
-            # Sample action from policy
             action = agent.select_action(state)
 
-        # Action choices
-        cooling = action[0]
-        dhw = action[1]
-
-        if episode_steps == log_step:
-            writer.add_histogram("Action/Cooling", cooling, total_numsteps)
-            writer.add_histogram("Action/DHW", dhw, total_numsteps)
-            writer.add_histogram("Action/Tracker", np.array(agent.action_tracker), total_numsteps)
-
         if len(agent.memory) > agent.batch_size:
+            # Update parameters of all the networks
             if total_numsteps % args.update_interval == 0:
-                # Update parameters of all the networks
+                
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(total_numsteps)
 
+                # Tensorboard log policy metrics
                 writer.add_scalar('loss/critic_1', critic_1_loss,total_numsteps)
                 writer.add_scalar('loss/critic_2', critic_2_loss, total_numsteps)
                 writer.add_scalar('loss/policy', policy_loss, total_numsteps)
                 writer.add_scalar('loss/entropy_loss', ent_loss, total_numsteps)
                 writer.add_scalar('entropy_temprature/alpha', alpha, total_numsteps)
         
-        next_state, reward, done, _ = env.step(action) # Step
+        # Step
+        next_state, reward, done, _ = env.step(action) 
 
         # Append transition to memory
-        reward = agent.append(state, action, reward, next_state, done) 
+        reward, r_peak, r_ramping, r_night = agent.append(state, action, reward, next_state, done) 
 
         episode_steps += 1
         total_numsteps += 1
         episode_reward += reward
+        episode_peak_reward += r_peak
+        episode_ramping_reward += r_ramping
+        episode_night_reward += r_night
 
         state = next_state
-        #if total_numsteps == 10:
+        #if total_numsteps == 24:
         #    sys.exit()
-
-    writer.add_scalar('Reward/Buildings', episode_reward, total_numsteps)
+    
+    # Tensorboard log reward values
+    writer.add_scalar('Reward/Total', episode_reward, total_numsteps)
+    writer.add_scalar('Reward/Peak', episode_peak_reward, total_numsteps)
+    writer.add_scalar('Reward/Ramping', episode_ramping_reward, total_numsteps)
+    writer.add_scalar('Reward/Night_Charging', episode_night_reward, total_numsteps)
 	
-    #print(env.cost())
+    # Tensorboard log citylearn cost function
     writer.add_scalar("Scores/ramping", env.cost()['ramping'], total_numsteps)
     writer.add_scalar("Scores/1-load_factor", env.cost()['1-load_factor'], total_numsteps)
     writer.add_scalar("Scores/average_daily_peak", env.cost()['average_daily_peak'], total_numsteps)
@@ -209,12 +215,21 @@ for i_episode in itertools.count(1):
     writer.add_scalar("Scores/net_electricity_consumption", env.cost()['net_electricity_consumption'], total_numsteps)
     writer.add_scalar("Scores/total", env.cost()['total'], total_numsteps)
 
+    # Log how much storage is utilised by calculating abs sum of actions (CHECK IF WORKS WITH MULTIPLE BUILDINGS!!!)
+    episode_actions = np.array(agent.action_tracker[-8759:])
+    cooling = sum(abs(episode_actions[:,0]))
+    dhw = sum(abs(episode_actions[:,1]))
+    writer.add_scalar("Action/Cooling", cooling, total_numsteps)
+    writer.add_scalar("Action/DHW", dhw, total_numsteps)
+    writer.add_histogram("Action/Tracker", np.array(agent.action_tracker), total_numsteps)
+            
     print("Episode: {}, total numsteps: {}, total cost: {}, reward: {}".format(i_episode, total_numsteps, round(env.cost()['total'],5), round(episode_reward, 2)))
 
-    # Save trained Actor and Critic network weights for each agent periodically 
+    # Save trained Actor and Critic network periodically as a checkpoint 
     if i_episode % args.checkpoint_interval == 0:
         agent.save_model(parent_dir)
 
+    # If training episodes completed
     if i_episode > args.num_episodes - 1:
         break
 
@@ -224,7 +239,7 @@ timer = time.time() - start_timer
 
 """
 ###################################
-STEP 7: POSTPROCESSING
+STEP 5: POSTPROCESSING
 """
 
 # Building to plot results for
@@ -233,5 +248,6 @@ building_number = 'Building_1'
 # Graph district energy consumption and agent behaviour
 graph_building(building_number=building_number, env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
 
+# Tabulate run parameters in training log
 tabulate_table(env=env, timer=timer, algo="SAC", climate_zone=climate_zone, building_ids=building_ids, 
                building_attributes=building_attributes, parent_dir=final_dir, num_episodes=i_episode, episode_scores=[episode_reward])

@@ -6,7 +6,8 @@ Implementation of Soft Actor Critic (SAC) network
 using PyTorch.
 See https://arxiv.org/pdf/1801.01290.pdf for algorithm details.
 
-@author: Anjukan Kathirgamanathan 2020 (k.anjukan@gmail.com) 
+@author: Anjukan Kathirgamanathan 2020 (k.anjukan@gmail.com) and Kacper
+Twardowski (kanexer@gmail.com) 
 
 Project for CityLearn Competition. 
 
@@ -30,24 +31,6 @@ import math
 import random
 import numpy as np
 
-"""
-###################################
-HYPERPARAMETERS
-======
-SAC PARAMETERS
-        replay_size (int): replay buffer size
-        batch_size (int): minibatch size
-        gamma (float): discount factor
-        alpha (float): Temperature parameter α determines the relative importance of the entropy\
-        term against the reward (default: 0.2)
-        automatic_entropy_tuning (boolean): Automatically adjust α
-        target_update_interval (int): Value target update per no. of updates per step
-        lr (float): learning rate
-        tau (float): target smoothing coefficient(τ) for soft update
-        hidden_size (int): Size of the hidden layer in networks
-
-"""
-
 # NEED TO ADD COMMENTING FOR THESE PARAMS
 LOG_SIG_MAX = 2
 LOG_SIG_MIN = -20
@@ -60,28 +43,49 @@ Initialises an Agent and Critic for each building. Can also be used to test/run 
 ======
 '''
 class SAC(object):
-    def __init__(self, env, num_inputs, action_space, args, constrain_state_space=False):
+    def __init__(self, env, num_inputs, action_space, args, constrain_action_space=False):
 
         self.env = env
 
+        """
+        ###################################
+        HYPERPARAMETERS
+        ======
+        SAC PARAMETERS
+            replay_size (int): replay buffer size
+            batch_size (int): minibatch size
+            gamma (float): discount factor
+            alpha (float): Temperature parameter α determines the relative importance of the entropy\
+            term against the reward (default: 0.2)
+            automatic_entropy_tuning (boolean): Automatically adjust α
+            target_update_interval (int): Value target update per no. of updates per step
+            lr (float): learning rate
+            tau (float): target smoothing coefficient(τ) for soft update
+            hidden_size (int): Size of the hidden layer in networks
+
+        """
         self.lr = 0.005
         self.gamma = 0.99
         self.tau = 0.003
         self.alpha = 0.2
         self.replay_size = 2000000
-        self.autoregressive_size = 1
-        num_inputs = num_inputs + self.autoregressive_size
         self.batch_size = 4096
         self.automatic_entropy_tuning = False
         self.target_update_interval = 1
         self.hidden_size = 256
+        
+        # Number of regressive terms to include of HVAC cooling load
+        self.autoregressive_size = 1
+        num_inputs = num_inputs + self.autoregressive_size
 
-        self.ramping_factor = 0.5
+        # Reward shaping weights
+        self.ramping_factor = 1
         self.action_factor = 0
-        self.peak_factor = 0.5
+        self.peak_factor = 1
 
         self.policy_type = args.policy
 
+        # Use CUDA if available
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.critic = QNetwork(num_inputs, action_space.shape[0], self.hidden_size).to(device=self.device)
@@ -98,8 +102,8 @@ class SAC(object):
         # Memory of Power Consumption
         self.autoregressive_memory = AutoRegressiveMemory(self.autoregressive_size)
 
-        # Should the state space be constrained to avoid extreme values
-        self.constrain_state_space = constrain_state_space
+        # Should the action space be constrained to avoid infeasible actions
+        self.constrain_action_space = constrain_action_space
 
         # Size of state space
         self.obs_size = [box.shape[0] for box in self.env.get_state_action_spaces()[0]]
@@ -108,7 +112,6 @@ class SAC(object):
         self.act_size = [2 if id not in ["Building_3","Building_4"] else 1 for id in self.env.building_ids]
 
         if self.policy_type == "Gaussian":
-            # Target Entropy = −dim(A) (e.g. , -6 for HalfCheetah-v2) as given in the paper
             if self.automatic_entropy_tuning is True:
                 self.target_entropy = -torch.prod(torch.Tensor(action_space.shape).to(self.device)).item()
                 self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
@@ -128,12 +131,12 @@ class SAC(object):
 
     def select_action(self, state, evaluate=False):
 
-        # print("\n\n\n\n")
-
+        # Create modified state space with autoregressive terms
         for j in range(0,self.autoregressive_size):
             state = np.append(state, self.autoregressive_memory.buffer[-j-1])
         state_copy = state
         state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
+        
         if evaluate is False:
             action, _, _ = self.policy.sample(state)
         else:
@@ -141,19 +144,18 @@ class SAC(object):
         
         action = action.detach().cpu().numpy()[0]
 
-        if self.constrain_state_space == True:
-            # Constrain state space
+        # Constrain action space to feasible values only if set to True
+        if self.constrain_action_space == True:
             ba_idx = 0 # building action index
             bs_idx = 1 # building state index
             for building in range(0,len(self.act_size)):
                 bs_end_idx = bs_idx + self.obs_size[building] - 1
                 #print("\nBuilding {}".format(building+1))
-                # Boundry constraint flags, -1 for 0, 1 for 1, 0 for anything in between
+                # Boundary constraint flags, -1 for 0, 1 for 1, 0 for anything in between
                 soc_flags = [0 for actsiz in range(self.act_size[building])]
                 #print("States:")
                 # Find constraints and set flags
                 for idx, b_idx in enumerate(range(bs_end_idx-self.act_size[building],bs_end_idx)):
-                    
                     
                     #print(state_copy[b_idx])
 
@@ -200,9 +202,11 @@ class SAC(object):
             next_states (Array): Array of updates states for each building after actions
             dones (Boolean): Whether episode is done (terminated) or not
         """
-        # Append autoregressive terms
+        
+        # Calculate HVAC load for cooling (sum of cooling + dhw)
         HVAC_load = self.env.electric_consumption_cooling[-1] + self.env.electric_consumption_dhw[-1]
-
+        
+        # Append autoregressive terms of HVAC load
         for j in range(0,self.autoregressive_size):
             states = np.append(states, self.autoregressive_memory.buffer[-j-1])
         for j in range(0,self.autoregressive_size-1):
@@ -211,26 +215,33 @@ class SAC(object):
         
         # Calculate Ramping component of reward function
         ramping = abs(HVAC_load - self.autoregressive_memory.buffer[-1])
-        #print(ramping)
         
         # Calculate Similar action component of reward function (if all agents are doing the same thing penalize)
         same_action = abs(self.action_factor*actions.mean())
 
         # Reward bonus if agent charges during the night
         if (1 <= states[0] < 8) and actions.mean() > 0:
-            night_charging_boost = 100
+            night_charging_boost = 10
         else:
             night_charging_boost = 0
         
-        #print(rewards)
-        # Postprocess rewards to penalise ramping and similar actions
-        rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.action_factor*same_action + night_charging_boost
+        # Apply reward shaping function
+        #print("\nPeak reward {}".format(self.peak_factor*rewards))
+        #print("\nRamp reward {}".format(-self.ramping_factor*ramping))
+        #print("\nNight Boost reward {}".format(night_charging_boost))
+        total_rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.action_factor*same_action + night_charging_boost
+        #print("\Total reward {}".format(rewards))
+        
         # Save experience / reward
         self.memory.push(states, actions, rewards, next_states, dones)
+        
+        # Add HVAC load to autoregressive memory
         self.autoregressive_memory.push(HVAC_load)
 
-        return rewards
+        # Return shaped reward values
+        return total_rewards, self.peak_factor*rewards, -self.ramping_factor*ramping, night_charging_boost
 
+    # Update policy parameters
     def update_parameters(self, updates):
         # Sample a batch from memory
         state_batch, action_batch, reward_batch, next_state_batch, mask_batch = self.memory.sample(batch_size=self.batch_size)
@@ -392,7 +403,8 @@ class GaussianPolicy(nn.Module):
         mean, log_std = self.forward(state)
         std = log_std.exp()
         normal = Normal(mean, std)
-        x_t = normal.rsample()  # for reparameterization trick (mean + std * N(0,1))
+        # for reparameterization trick (mean + std * N(0,1))
+        x_t = normal.rsample()  
         y_t = torch.tanh(x_t)
         action = y_t * self.action_scale + self.action_bias
         log_prob = normal.log_prob(x_t)
