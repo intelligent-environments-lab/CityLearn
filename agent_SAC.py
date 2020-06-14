@@ -64,12 +64,12 @@ class SAC(object):
             hidden_size (int): Size of the hidden layer in networks
 
         """
-        self.lr = 0.005
+        self.lr = 0.0001
         self.gamma = 0.99
         self.tau = 0.003
         self.alpha = 0.2
         self.replay_size = 2000000
-        self.batch_size = 4096
+        self.batch_size = 1024
         self.automatic_entropy_tuning = False
         self.target_update_interval = 1
         self.hidden_size = 256
@@ -79,8 +79,9 @@ class SAC(object):
         num_inputs = num_inputs + self.autoregressive_size
 
         # Reward shaping weights
-        self.ramping_factor = 1
+        self.ramping_factor = 0
         self.action_factor = 0
+        self.smooth_factor = 100
         self.peak_factor = 1
 
         self.policy_type = args.policy
@@ -101,6 +102,9 @@ class SAC(object):
 
         # Memory of Power Consumption
         self.autoregressive_memory = AutoRegressiveMemory(self.autoregressive_size)
+        
+        # Memory of Power Consumption
+        self.autoregressive_action_memory = AutoRegressiveMemory(1)
 
         # Should the action space be constrained to avoid infeasible actions
         self.constrain_action_space = constrain_action_space
@@ -218,10 +222,13 @@ class SAC(object):
         
         # Calculate Similar action component of reward function (if all agents are doing the same thing penalize)
         same_action = abs(self.action_factor*actions.mean())
+        
+        # Smooth action reward function
+        smooth_action = abs(actions - self.autoregressive_action_memory.buffer[-1]).sum()
 
         # Reward bonus if agent charges during the night
         if (1 <= states[0] < 8) and actions.mean() > 0:
-            night_charging_boost = 10
+            night_charging_boost = 0
         else:
             night_charging_boost = 0
         
@@ -229,7 +236,8 @@ class SAC(object):
         #print("\nPeak reward {}".format(self.peak_factor*rewards))
         #print("\nRamp reward {}".format(-self.ramping_factor*ramping))
         #print("\nNight Boost reward {}".format(night_charging_boost))
-        total_rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.action_factor*same_action + night_charging_boost
+        #print("\nSmooth Action reward {}".format(-self.smooth_factor*smooth_action))
+        total_rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.action_factor*same_action - self.smooth_factor*smooth_action + night_charging_boost
         #print("\Total reward {}".format(rewards))
         
         # Save experience / reward
@@ -237,9 +245,12 @@ class SAC(object):
         
         # Add HVAC load to autoregressive memory
         self.autoregressive_memory.push(HVAC_load)
+        
+        # Add action to autoregressive memory
+        self.autoregressive_action_memory.push(actions)
 
         # Return shaped reward values
-        return total_rewards, self.peak_factor*rewards, -self.ramping_factor*ramping, night_charging_boost
+        return total_rewards, self.peak_factor*rewards, -self.ramping_factor*ramping, night_charging_boost, -self.smooth_factor*smooth_action
 
     # Update policy parameters
     def update_parameters(self, updates):

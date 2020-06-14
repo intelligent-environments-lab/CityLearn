@@ -45,7 +45,7 @@ parser.add_argument('--alpha', type=float, default=0.2, metavar='G',
                             term against the reward (default: 0.2)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--num_episodes', type=int, default=200, metavar='N',
+parser.add_argument('--num_episodes', type=int, default=100, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
 parser.add_argument('--start_steps', type=int, default=8760*5, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
@@ -64,7 +64,7 @@ weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
 #building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-building_ids = ['Building_2']
+building_ids = ['Building_3']
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 0)
 
@@ -156,6 +156,7 @@ for i_episode in itertools.count(1):
     episode_peak_reward = 0
     episode_ramping_reward = 0
     episode_night_reward = 0
+    episode_smooth_reward = 0
     episode_steps = 0
     done = False
     state = env.reset()
@@ -188,7 +189,7 @@ for i_episode in itertools.count(1):
         next_state, reward, done, _ = env.step(action) 
 
         # Append transition to memory
-        reward, r_peak, r_ramping, r_night = agent.append(state, action, reward, next_state, done) 
+        reward, r_peak, r_ramping, r_night, r_smooth = agent.append(state, action, reward, next_state, done) 
 
         episode_steps += 1
         total_numsteps += 1
@@ -196,6 +197,7 @@ for i_episode in itertools.count(1):
         episode_peak_reward += r_peak
         episode_ramping_reward += r_ramping
         episode_night_reward += r_night
+        episode_smooth_reward += r_smooth
 
         state = next_state
         #if total_numsteps == 24:
@@ -206,6 +208,7 @@ for i_episode in itertools.count(1):
     writer.add_scalar('Reward/Peak', episode_peak_reward, total_numsteps)
     writer.add_scalar('Reward/Ramping', episode_ramping_reward, total_numsteps)
     writer.add_scalar('Reward/Night_Charging', episode_night_reward, total_numsteps)
+    writer.add_scalar('Reward/Smooth_Actions', episode_smooth_reward, total_numsteps)
 	
     # Tensorboard log citylearn cost function
     writer.add_scalar("Scores/ramping", env.cost()['ramping'], total_numsteps)
@@ -218,9 +221,10 @@ for i_episode in itertools.count(1):
     # Log how much storage is utilised by calculating abs sum of actions (CHECK IF WORKS WITH MULTIPLE BUILDINGS!!!)
     episode_actions = np.array(agent.action_tracker[-8759:])
     cooling = sum(abs(episode_actions[:,0]))
-    dhw = sum(abs(episode_actions[:,1]))
     writer.add_scalar("Action/Cooling", cooling, total_numsteps)
-    writer.add_scalar("Action/DHW", dhw, total_numsteps)
+    if agent.act_size[0] == 2:
+        dhw = sum(abs(episode_actions[:,1]))
+        writer.add_scalar("Action/DHW", dhw, total_numsteps)
     writer.add_histogram("Action/Tracker", np.array(agent.action_tracker), total_numsteps)
             
     print("Episode: {}, total numsteps: {}, total cost: {}, reward: {}".format(i_episode, total_numsteps, round(env.cost()['total'],5), round(episode_reward, 2)))
