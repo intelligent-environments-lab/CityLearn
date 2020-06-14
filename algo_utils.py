@@ -16,7 +16,7 @@ def append_dict_as_row(file_name, dict_of_elem, field_names):
 		# Add dictionary as wor in the csv
 		dict_writer.writerow(dict_of_elem)
 
-def tabulate_table(env, timer, algo, climate_zone, building_ids, building_attributes, parent_dir, num_episodes, episode_scores):
+def tabulate_table(env, timer, algo, agent, climate_zone, building_ids, building_attributes, parent_dir, num_episodes, episode_scores):
     run_results = {}
     ## TABULATE KEY VALIDATION RESULTS---------------------------------------------
     run_results['Time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
@@ -41,11 +41,19 @@ def tabulate_table(env, timer, algo, climate_zone, building_ids, building_attrib
     run_results['Net_Electricity_Consumption'] = env.cost()['net_electricity_consumption']
     run_results['Total'] = env.cost()['total']
     run_results['Reward'] = episode_scores[-1]
+    run_results['Learning_Rate'] = agent.lr
+    run_results['Gamma'] = agent.gamma
+    run_results['Tau'] = agent.tau
+    run_results['Replay_Size'] = agent.replay_size
+    run_results['Batch_Size'] = agent.batch_size
+    run_results['Neural_Size'] = agent.hidden_size
+    run_results['Alpha'] = agent.alpha
         
     field_names = ['Time','Time_Training','Time_Training_per_Step','Climate','Building','Building_Attributes',
                 'Reward_Function','Central_Agent','Model', 'Algorithm', 'Directory',
                 'Train_Episodes','Ramping','1-Load_Factor','Average_Daily_Peak','Peak_Demand',
-                'Net_Electricity_Consumption','Total','Reward']
+                'Net_Electricity_Consumption','Total','Reward','Learning_Rate','Gamma','Tau',
+                'Replay_Size','Batch_Size','Neural_Size','Alpha']
 
     append_dict_as_row('test_results.csv', run_results, field_names)
 

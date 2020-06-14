@@ -45,9 +45,9 @@ parser.add_argument('--alpha', type=float, default=0.2, metavar='G',
                             term against the reward (default: 0.2)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--num_episodes', type=int, default=100, metavar='N',
+parser.add_argument('--num_episodes', type=int, default=200, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
-parser.add_argument('--start_steps', type=int, default=8760, metavar='N',
+parser.add_argument('--start_steps', type=int, default=8760*5, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
 parser.add_argument('--update_interval', type=int, default=168, metavar='N',
                     help='Update network parameters every n steps')
@@ -64,7 +64,7 @@ weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
 #building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-building_ids = ['Building_1']
+building_ids = ['Building_2']
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 0)
 
@@ -243,11 +243,11 @@ STEP 5: POSTPROCESSING
 """
 
 # Building to plot results for
-building_number = 'Building_1'
+building_number = 'Building_2'
 
 # Graph district energy consumption and agent behaviour
 graph_building(building_number=building_number, env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
 
 # Tabulate run parameters in training log
-tabulate_table(env=env, timer=timer, algo="SAC", climate_zone=climate_zone, building_ids=building_ids, 
+tabulate_table(env=env, timer=timer, algo="SAC", agent = agent, climate_zone=climate_zone, building_ids=building_ids, 
                building_attributes=building_attributes, parent_dir=final_dir, num_episodes=i_episode, episode_scores=[episode_reward])
