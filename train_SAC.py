@@ -22,6 +22,8 @@ from torch.utils.tensorboard import SummaryWriter
 from citylearn import  CityLearn
 from pathlib import Path
 import os, time, warnings
+from PIL import Image
+from torchvision.transforms import ToTensor
 
 from algo_utils import graph_building, tabulate_table
 
@@ -63,8 +65,9 @@ building_attributes = data_path / 'building_attributes.json'
 weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
-#building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-building_ids = ['Building_3']
+building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
+# building_ids = ['Building_1']
+# building_ids = ["Building_3","Building_4"]
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 0)
 
@@ -124,7 +127,7 @@ To be completed
 """
 
 # Agent
-agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=True)
+agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=True and env.central_agent)
 
 """
 ###################################
@@ -247,10 +250,20 @@ STEP 5: POSTPROCESSING
 """
 
 # Building to plot results for
-building_number = 'Building_2'
+building_number = building_ids[0]
 
-# Graph district energy consumption and agent behaviour
-graph_building(building_number=building_number, env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
+for building in building_ids:
+    # Graph district energy consumption and agent behaviour
+    graph_building(building_number=building, env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
+
+    # Add these graphs to the tensorboard
+    divide_lambda = lambda x: int(x/4)
+    train_graph = Image.open(parent_dir+"final/"+r"train"+"{}.jpg".format(building[-1]))
+    train_graph = train_graph.resize(tuple(map(divide_lambda,train_graph.size)))
+    action_graph = Image.open(parent_dir+"final/"+r"actions"+"{}.jpg".format(building[-1]))
+    action_graph = action_graph.resize(tuple(map(divide_lambda,action_graph.size)))
+    writer.add_image("Graph for {}/Train".format(building), ToTensor()(train_graph))
+    writer.add_image("Graph for {}/Actions".format(building), ToTensor()(action_graph))
 
 # Tabulate run parameters in training log
 tabulate_table(env=env, timer=timer, algo="SAC", agent = agent, climate_zone=climate_zone, building_ids=building_ids, 

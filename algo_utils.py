@@ -76,7 +76,7 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
         output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[0][0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
     else:
         output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
-    if building_number is not 'Building_3' and building_number is not 'Building_4':
+    if building_number != 'Building_3' and building_number != 'Building_4':
         # DHW
         output['DHW Demand (kWh)'] = env.buildings[building_number].dhw_demand_building[-8759:]
         #output['Energy Balance of DHW Tank (kWh)'] = -env.buildings[building_number].dhw_storage.energy_balance[-8759:]
@@ -91,7 +91,7 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
     output_filtered = output.loc[start_date:end_date]
 
     # Create plot showing electricity demand profile with RL agent, cooling storage behaviour and DHW storage behaviour
-    fig, ax = plt.subplots(nrows = 3, figsize=(20,12), sharex = True)
+    fig, ax = plt.subplots(nrows = 3, figsize=(20,12), sharex = True) if building_number != 'Building_3' and building_number != 'Building_4' else plt.subplots(nrows = 2, figsize=(20,8), sharex = True)
     output_filtered['Electricity demand without storage or generation (kW)'].plot(ax = ax[0], color='blue', label='Electricity demand without storage or generation (kW)', x_compat=True)
     output_filtered['Electricity demand with PV generation and without storage(kW)'].plot(ax = ax[0], color='orange', label='Electricity demand with PV generation and without storage(kW)')
     output_filtered['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)].plot(ax = ax[0], color = 'green', ls = '--', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo))
@@ -121,37 +121,61 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
     # Set minor grid lines
     ax[0].xaxis.grid(False) # Just x
     ax[0].yaxis.grid(False) # Just x
-    for j in range(3):
-        for xmin in ax[j].xaxis.get_minorticklocs():
-            ax[j].axvline(x=xmin, ls='-', color = 'lightgrey')
+    if building_number != 'Building_3' and building_number != 'Building_4':
+        for j in range(3):
+            for xmin in ax[j].xaxis.get_minorticklocs():
+                ax[j].axvline(x=xmin, ls='-', color = 'lightgrey')
+    else:
+        for j in range(2):
+            for xmin in ax[j].xaxis.get_minorticklocs():
+                ax[j].axvline(x=xmin, ls='-', color = 'lightgrey')
     ax[0].tick_params(direction='out', length=6, width=2, colors='black', top=0, right=0)
     plt.setp( ax[0].xaxis.get_minorticklabels(), rotation=0, ha="center" )
     plt.setp( ax[0].xaxis.get_majorticklabels(), rotation=0, ha="center" )
     # Export Figure
-    plt.savefig(parent_dir + r"train.jpg", bbox_inches='tight', dpi = 300)
+    plt.savefig(parent_dir + r"train" + "{}.jpg".format(building_number[-1]), bbox_inches='tight', dpi = 300)
     plt.close()
     
     # Plot action history over training - currently just last episode is plotted
-    fig, ax = plt.subplots(nrows = 2, figsize=(20,12), sharex = True)
-    output['Cooling Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[0], color='blue', label='Cooling Demand (kWh)')
-    ax[0].set_title('(a) - Cooling Storage Utilisation')
-    ax[0].set(ylabel="Power [kW]")
-    ax[0].legend(loc="upper right")
+    fig, ax = plt.subplots(nrows = 2, figsize=(20,12), sharex = True) if building_number != 'Building_3' and building_number != 'Building_4' else plt.subplots(nrows = 1, figsize=(20,6), sharex = True)
+    if building_number != 'Building_3' and building_number != 'Building_4':
+        output['Cooling Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[0], color='blue', label='Cooling Demand (kWh)')
+        ax[0].set_title('(a) - Cooling Storage Utilisation')
+        ax[0].set(ylabel="Power [kW]")
+        ax[0].legend(loc="upper right")
+    else:
+        output['Cooling Action - Increase or Decrease of SOC (kW)'].plot(ax = ax, color='blue', label='Cooling Demand (kWh)')
+        ax.set_title('(a) - Cooling Storage Utilisation')
+        ax.set(ylabel="Power [kW]")
+        ax.legend(loc="upper right")
     if building_number != 'Building_3' and building_number != 'Building_4':
         output['DHW Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[1], color='blue', label='DHW Demand (kWh)')
         ax[1].set_title('(b) - DWH Storage Utilisation')
         ax[1].set(ylabel="Power [kW]")
         ax[1].legend(loc="upper right")
     # Set minor grid lines
-    ax[0].xaxis.grid(False) # Just x
-    ax[0].yaxis.grid(False) # Just x
-    for j in range(2):
-        for xmin in ax[j].xaxis.get_minorticklocs():
-            ax[j].axvline(x=xmin, ls='-', color = 'lightgrey')
-    ax[0].tick_params(direction='out', length=6, width=2, colors='black', top=0, right=0)
-    plt.setp( ax[0].xaxis.get_minorticklabels(), rotation=0, ha="center" )
-    plt.setp( ax[0].xaxis.get_majorticklabels(), rotation=0, ha="center" )
+    if building_number != 'Building_3' and building_number != 'Building_4':
+        ax[0].xaxis.grid(False) # Just x
+        ax[0].yaxis.grid(False) # Just x
+    else:
+        ax.xaxis.grid(False) # Just x
+        ax.yaxis.grid(False) # Just x
+    if building_number != 'Building_3' and building_number != 'Building_4':
+        for j in range(2):
+            for xmin in ax[j].xaxis.get_minorticklocs():
+                ax[j].axvline(x=xmin, ls='-', color = 'lightgrey')
+    else:
+        for xmin in ax.xaxis.get_minorticklocs():
+            ax.axvline(x=xmin, ls='-', color = 'lightgrey')
+    if building_number != 'Building_3' and building_number != 'Building_4':       
+        ax[0].tick_params(direction='out', length=6, width=2, colors='black', top=0, right=0)
+        plt.setp( ax[0].xaxis.get_minorticklabels(), rotation=0, ha="center" )
+        plt.setp( ax[0].xaxis.get_majorticklabels(), rotation=0, ha="center" )
+    else:
+        ax.tick_params(direction='out', length=6, width=2, colors='black', top=0, right=0)
+        plt.setp( ax.xaxis.get_minorticklabels(), rotation=0, ha="center" )
+        plt.setp( ax.xaxis.get_majorticklabels(), rotation=0, ha="center" )
     # Export Figure
-    plt.savefig(parent_dir + r"actions.jpg", bbox_inches='tight', dpi = 300)
+    plt.savefig(parent_dir + r"actions" + "{}.jpg".format(building_number[-1]), bbox_inches='tight', dpi = 300)
     plt.close()
     
