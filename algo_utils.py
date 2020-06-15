@@ -59,7 +59,7 @@ def tabulate_table(env, timer, algo, agent, climate_zone, building_ids, building
 
 # GRAPH RESULTS METHODS
 
-def graph_building(building_number, env, agent, parent_dir, start_date, end_date):
+def graph_building(building_number, env, agent, parent_dir, start_date, end_date, algo='SAC'):
     # Convert output to dataframes for easy plotting
     time_periods = pd.date_range('2017-01-01 T01:00', '2017-12-31 T23:00', freq='1H')
     output = pd.DataFrame(index = time_periods)
@@ -67,7 +67,7 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
     # Extract building behaviour
     output['Electricity demand without storage or generation (kW)'] = env.net_electric_consumption_no_pv_no_storage[-8759:]
     output['Electricity demand with PV generation and without storage(kW)'] = env.net_electric_consumption_no_storage[-8759:]
-    output['Electricity demand with PV generation and using DDPG for storage(kW)'] = env.net_electric_consumption[-8759:]
+    output['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)] = env.net_electric_consumption[-8759:]
     # Cooling Storage
     output['Cooling Demand (kWh)'] = env.buildings[building_number].cooling_demand_building[-8759:]
     output['Energy Storage State of Charge - SOC (kWh)'] = env.buildings[building_number].cooling_storage_soc[-8759:]
@@ -76,16 +76,17 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
         output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[0][0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
     else:
         output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
-    # DHW
-    output['DHW Demand (kWh)'] = env.buildings[building_number].dhw_demand_building[-8759:]
-    #output['Energy Balance of DHW Tank (kWh)'] = -env.buildings[building_number].dhw_storage.energy_balance[-8759:]
-    output['Energy Balance of DHW Tank (kWh)'] = env.buildings[building_number].dhw_storage_soc[-8759:]
-    output['DHW Heater Total Heating Supply (kWh)'] = env.buildings[building_number].dhw_heating_device.heat_supply[-8759:]
-    if env.central_agent == False:
-        output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[0][1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
-    else:
-        output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
-    output['DHW Heater Electricity Consumption (kWh)'] = env.buildings[building_number].electric_consumption_dhw[-8759:]
+    if building_number is not 'Building_3' and building_number is not 'Building_4':
+        # DHW
+        output['DHW Demand (kWh)'] = env.buildings[building_number].dhw_demand_building[-8759:]
+        #output['Energy Balance of DHW Tank (kWh)'] = -env.buildings[building_number].dhw_storage.energy_balance[-8759:]
+        output['Energy Balance of DHW Tank (kWh)'] = env.buildings[building_number].dhw_storage_soc[-8759:]
+        output['DHW Heater Total Heating Supply (kWh)'] = env.buildings[building_number].dhw_heating_device.heat_supply[-8759:]
+        if env.central_agent == False:
+            output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[0][1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+        else:
+            output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+        output['DHW Heater Electricity Consumption (kWh)'] = env.buildings[building_number].electric_consumption_dhw[-8759:]
 
     output_filtered = output.loc[start_date:end_date]
 
@@ -93,7 +94,7 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
     fig, ax = plt.subplots(nrows = 3, figsize=(20,12), sharex = True)
     output_filtered['Electricity demand without storage or generation (kW)'].plot(ax = ax[0], color='blue', label='Electricity demand without storage or generation (kW)', x_compat=True)
     output_filtered['Electricity demand with PV generation and without storage(kW)'].plot(ax = ax[0], color='orange', label='Electricity demand with PV generation and without storage(kW)')
-    output_filtered['Electricity demand with PV generation and using DDPG for storage(kW)'].plot(ax = ax[0], color = 'green', ls = '--', label='Electricity demand with PV generation and using DDPG for storage(kW)')
+    output_filtered['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)].plot(ax = ax[0], color = 'green', ls = '--', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo))
     ax[0].set_title('(a) - Electricity Demand')
     ax[0].set(ylabel="Demand [kW]")
     ax[0].legend(loc="upper right")
@@ -108,14 +109,15 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
     ax[1].set_title('(b) - Cooling Storage Utilisation')
     ax[1].set(ylabel="Power [kW]")
     ax[1].legend(loc="upper right")
-    output_filtered['DHW Demand (kWh)'].plot(ax = ax[2], color='blue', label='DHW Demand (kWh)', x_compat=True)
-    output_filtered['Energy Balance of DHW Tank (kWh)'].plot(ax = ax[2], color='orange', label='Energy Balance of DHW Tank (kWh)')
-    output_filtered['DHW Heater Total Heating Supply (kWh)'].plot(ax = ax[2], color = 'green', label='DHW Heater Total Heating Supply (kWh)')
-    output_filtered['DHW Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[2], color = 'red', label='Controller Action - Increase or Decrease of SOC (kW)')
-    output_filtered['DHW Heater Electricity Consumption (kWh)'].plot(ax = ax[2], color = 'purple', ls = '--', label='DHW Heater Electricity Consumption (kWh)')
-    ax[2].set_title('(c) - DWH Storage Utilisation')
-    ax[2].set(ylabel="Power [kW]")
-    ax[2].legend(loc="upper right")
+    if building_number != 'Building_3' and building_number != 'Building_4':
+        output_filtered['DHW Demand (kWh)'].plot(ax = ax[2], color='blue', label='DHW Demand (kWh)', x_compat=True)
+        output_filtered['Energy Balance of DHW Tank (kWh)'].plot(ax = ax[2], color='orange', label='Energy Balance of DHW Tank (kWh)')
+        output_filtered['DHW Heater Total Heating Supply (kWh)'].plot(ax = ax[2], color = 'green', label='DHW Heater Total Heating Supply (kWh)')
+        output_filtered['DHW Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[2], color = 'red', label='Controller Action - Increase or Decrease of SOC (kW)')
+        output_filtered['DHW Heater Electricity Consumption (kWh)'].plot(ax = ax[2], color = 'purple', ls = '--', label='DHW Heater Electricity Consumption (kWh)')
+        ax[2].set_title('(c) - DWH Storage Utilisation')
+        ax[2].set(ylabel="Power [kW]")
+        ax[2].legend(loc="upper right")
     # Set minor grid lines
     ax[0].xaxis.grid(False) # Just x
     ax[0].yaxis.grid(False) # Just x
@@ -135,10 +137,11 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
     ax[0].set_title('(a) - Cooling Storage Utilisation')
     ax[0].set(ylabel="Power [kW]")
     ax[0].legend(loc="upper right")
-    output['DHW Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[1], color='blue', label='DHW Demand (kWh)')
-    ax[1].set_title('(b) - DWH Storage Utilisation')
-    ax[1].set(ylabel="Power [kW]")
-    ax[1].legend(loc="upper right")
+    if building_number != 'Building_3' and building_number != 'Building_4':
+        output['DHW Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[1], color='blue', label='DHW Demand (kWh)')
+        ax[1].set_title('(b) - DWH Storage Utilisation')
+        ax[1].set(ylabel="Power [kW]")
+        ax[1].legend(loc="upper right")
     # Set minor grid lines
     ax[0].xaxis.grid(False) # Just x
     ax[0].yaxis.grid(False) # Just x
