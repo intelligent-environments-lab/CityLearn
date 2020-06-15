@@ -64,7 +64,7 @@ class SAC(object):
             hidden_size (int): Size of the hidden layer in networks
 
         """
-        self.lr = 0.0001
+        self.lr = 0.001
         self.gamma = 0.99
         self.tau = 0.003
         self.alpha = 0.2
@@ -179,14 +179,14 @@ class SAC(object):
                         if action[ba_idx+idx] < 0:
                             # print("Activated flag {} == -1".format(idx))
                             # action[ba_idx+idx] = np.random.normal(0,0.1,1)
-                            action[ba_idx+idx] = 0
+                            action[ba_idx+idx] = -1
 
                     # SOC is trying to go above 1
                     elif flag == 1:
                         if action[ba_idx+idx] > 0:
                             # print("Activated flag {} == 1".format(idx))
                             # action[ba_idx+idx] = -np.random.normal(0,0.1,1)
-                            action[ba_idx+idx] = 0
+                            action[ba_idx+idx] = 1
                     #print(action[ba_idx+idx])
                 ba_idx += self.act_size[building]
                 bs_idx = bs_end_idx
