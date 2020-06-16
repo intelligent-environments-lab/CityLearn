@@ -179,14 +179,14 @@ class SAC(object):
                         if action[ba_idx+idx] < 0:
                             # print("Activated flag {} == -1".format(idx))
                             # action[ba_idx+idx] = np.random.normal(0,0.1,1)
-                            action[ba_idx+idx] = -1
+                            action[ba_idx+idx] = 0
 
                     # SOC is trying to go above 1
                     elif flag == 1:
                         if action[ba_idx+idx] > 0:
                             # print("Activated flag {} == 1".format(idx))
                             # action[ba_idx+idx] = -np.random.normal(0,0.1,1)
-                            action[ba_idx+idx] = 1
+                            action[ba_idx+idx] = 0
                     #print(action[ba_idx+idx])
                 ba_idx += self.act_size[building]
                 bs_idx = bs_end_idx
@@ -237,7 +237,8 @@ class SAC(object):
         #print("\nRamp reward {}".format(-self.ramping_factor*ramping))
         #print("\nNight Boost reward {}".format(night_charging_boost))
         #print("\nSmooth Action reward {}".format(-self.smooth_factor*smooth_action))
-        total_rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.action_factor*same_action - self.smooth_factor*smooth_action + night_charging_boost
+        # total_rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.action_factor*same_action - self.smooth_factor*smooth_action + night_charging_boost
+        total_rewards = rewards - self.ramping_factor*ramping
         #print("\Total reward {}".format(rewards))
         
         # Save experience / reward

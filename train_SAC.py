@@ -17,6 +17,7 @@ import argparse
 import numpy as np
 import itertools
 import torch
+from agent import RBC_Agent
 from agent_SAC import SAC
 from torch.utils.tensorboard import SummaryWriter
 from citylearn import  CityLearn
@@ -70,10 +71,12 @@ building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5"
 # building_ids = ["Building_3","Building_4"]
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 0)
+RBC_env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = False, verbose = 0)
 
 # Contain the lower and upper bounds of the states and actions, to be provided to the agent to normalize the variables between 0 and 1.
 # Can be obtained using observations_spaces[i].low or .high
 observations_spaces, actions_spaces = env.get_state_action_spaces()
+observations_spacesRBC, actions_spacesRBC = RBC_env.get_state_action_spaces()
 
 # Provides information on Building type, Climate Zone, Annual DHW demand, Annual Cooling Demand, Annual Electricity Demand, Solar Capacity, and correllations among buildings
 building_info = env.get_building_information()
@@ -117,6 +120,22 @@ print("Logging to {}\n".format(parent_dir+'tensorboard/'))
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 env.seed(args.seed)
+
+# Get the Rule Base Controller baseline actions
+agent = RBC_Agent(actions_spacesRBC)
+state = RBC_env.reset()
+state_list = []
+action_list = []
+doneRBC = False
+while not doneRBC:
+    action = agent.select_action(state)
+    action_list.append(action)
+    state_list.append(state)
+    next_stateRBC, rewardsRBC, doneRBC, _ = RBC_env.step(action)
+    state = next_stateRBC
+RBC_action_base = np.array(action_list)
+RBC_state_base = np.array(state_list)
+RBC_24h_peak = [day.max() for day in np.append(RBC_env.net_electric_consumption,0).reshape(-1, 24)]
 
 """
 ###################################
@@ -191,8 +210,15 @@ for i_episode in itertools.count(1):
         # Step
         next_state, reward, done, _ = env.step(action) 
 
+        # Net Energy Consumption
+        this_netRBC = RBC_env.net_electric_consumption[episode_steps]
+        this_netSAC = env.net_electric_consumption[episode_steps]
+        reward = this_netRBC * (1 - this_netSAC/RBC_24h_peak[episode_steps%24])
+
         # Append transition to memory
         reward, r_peak, r_ramping, r_night, r_smooth = agent.append(state, action, reward, next_state, done) 
+
+        # writer.add_scalars('RBC vs SAC/Net Energy Consumption', {'RBC':this_netRBC, 'SAC':this_netSAC}, total_numsteps)
 
         episode_steps += 1
         total_numsteps += 1
@@ -205,7 +231,7 @@ for i_episode in itertools.count(1):
         state = next_state
         #if total_numsteps == 24:
         #    sys.exit()
-    
+
     # Tensorboard log reward values
     writer.add_scalar('Reward/Total', episode_reward, total_numsteps)
     writer.add_scalar('Reward/Peak', episode_peak_reward, total_numsteps)
