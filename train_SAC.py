@@ -65,9 +65,9 @@ building_attributes = data_path / 'building_attributes.json'
 weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
-#building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-building_ids = ['Building_3']
-#building_ids = ["Building_3","Building_4"]
+# building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
+building_ids = ['Building_1']
+# building_ids = ["Building_3","Building_4"]
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 0)
 RBC_env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = False, verbose = 0)
@@ -145,7 +145,7 @@ To be completed
 """
 
 # Agent
-agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=True and env.central_agent)
+agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=False and env.central_agent)
 
 """
 ###################################
@@ -171,6 +171,10 @@ updates = 0
 # Measure the time taken for training
 start_timer = time.time()
 
+reward_list = [1]
+last_env_cost = 2
+this_env_cost = 1.5
+
 for i_episode in itertools.count(1):
     # Initialise episode rewards
     episode_reward = 0
@@ -181,6 +185,8 @@ for i_episode in itertools.count(1):
     episode_steps = 0
     done = False
     state = env.reset()
+    # reward_list = [i**0.9 for i in reward_list] if this_env_cost < last_env_cost else [i**1.1 for i in reward_list]
+    maxReward = max(reward_list)
 
     # For every step
     while not done:
@@ -212,10 +218,16 @@ for i_episode in itertools.count(1):
         # Net Energy Consumption
         this_netRBC = RBC_env.net_electric_consumption[episode_steps]
         this_netSAC = env.net_electric_consumption[episode_steps]
-        reward = this_netRBC * (1 - this_netSAC/RBC_24h_peak[episode_steps%24])
+        reward = (this_netRBC * (1 - this_netSAC/RBC_24h_peak[episode_steps%24]))
+        # print(reward)
+
+        reward_list.append(reward)
+        # normalised_reward = (reward / maxReward) * (1 + (last_env_cost - this_env_cost))
+        normalised_reward = (reward / maxReward)
+        # normalised_reward = 1 if this_env_cost < last_env_cost else -1
 
         # Append transition to memory
-        reward, r_peak, r_ramping, r_night, r_smooth = agent.append(state, action, reward, next_state, done) 
+        reward, r_peak, r_ramping, r_night, r_smooth = agent.append(state, action, normalised_reward, next_state, done) 
 
         # writer.add_scalars('RBC vs SAC/Net Energy Consumption', {'RBC':this_netRBC, 'SAC':this_netSAC}, total_numsteps)
 
@@ -230,6 +242,9 @@ for i_episode in itertools.count(1):
         state = next_state
         #if total_numsteps == 24:
         #    sys.exit()
+
+    last_env_cost = this_env_cost
+    this_env_cost = env.cost()['total']
 
     # Tensorboard log reward values
     writer.add_scalar('Reward/Total', episode_reward, total_numsteps)

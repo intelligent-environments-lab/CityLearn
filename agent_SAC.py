@@ -64,15 +64,15 @@ class SAC(object):
             hidden_size (int): Size of the hidden layer in networks
 
         """
-        self.lr = 0.0005
+        self.lr = 0.001
         self.gamma = 0.99
         self.tau = 0.003
         self.alpha = 0.2
         self.replay_size = 2000000
-        self.batch_size = 1024
+        self.batch_size = 2048
         self.automatic_entropy_tuning = False
         self.target_update_interval = 1
-        self.hidden_size = 256
+        self.hidden_size = 512
         
         # Number of regressive terms to include of HVAC cooling load
         self.autoregressive_size = 1
@@ -254,6 +254,8 @@ class SAC(object):
         total_rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.smooth_factor*smooth_action
         #print("\Total reward {}".format(rewards))
         
+        total_rewards = rewards
+
         # Save experience / reward
         self.memory.push(states, actions, total_rewards, next_states, dones)
         
