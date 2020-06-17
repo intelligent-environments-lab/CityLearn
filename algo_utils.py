@@ -59,6 +59,7 @@ def tabulate_table(env, timer, algo, agent, climate_zone, building_ids, building
 
 # GRAPH RESULTS METHODS
 
+# Graphing for District Behaviour
 def graph_total(env, agent, parent_dir, start_date, end_date, algo='SAC'):
     # Convert output to dataframes for easy plotting
     time_periods = pd.date_range('2017-01-01 T01:00', '2017-12-31 T23:00', freq='1H')
@@ -95,16 +96,11 @@ def graph_total(env, agent, parent_dir, start_date, end_date, algo='SAC'):
     plt.savefig(parent_dir + r"district.jpg", bbox_inches='tight', dpi = 300)
     plt.close()
 
-
-def graph_building(building_number, env, agent, parent_dir, start_date, end_date, algo='SAC'):
+# Graphing for Individual Buildings
+def graph_building(building_number, env, agent, parent_dir, start_date, end_date, action_index, algo='SAC'):
     # Convert output to dataframes for easy plotting
     time_periods = pd.date_range('2017-01-01 T01:00', '2017-12-31 T23:00', freq='1H')
     output = pd.DataFrame(index = time_periods)
-
-    # If central agent, find which action index corresponds to this building for cooling
-    cooling_action_index = 0
-    for building in range(0,int(building_number[-1])-1):
-        cooling_action_index = cooling_action_index + agent.act_size[building]
 
     # Extract building behaviour
     output['Electricity demand for building {} without storage or generation (kW)'.format(building_number)] = env.buildings[building_number].net_electric_consumption_no_pv_no_storage[-8759:]
@@ -118,7 +114,7 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
         # THIS IS WRONG - CURRENTLY IT ONLY PLOTS THE ACTIONS OF BUILDING 1!!!! TO FIX
         output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[0][0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
     else:
-        output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[cooling_action_index]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+        output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[action_index]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
     if building_number != 'Building_3' and building_number != 'Building_4':
         # DHW
         output['DHW Demand (kWh)'] = env.buildings[building_number].dhw_demand_building[-8759:]
@@ -128,7 +124,7 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
         if env.central_agent == False:
             output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[0][1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
         else:
-            output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[cooling_action_index+1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+            output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[action_index+1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
         output['DHW Heater Electricity Consumption (kWh)'] = env.buildings[building_number].electric_consumption_dhw[-8759:]
 
     output_filtered = output.loc[start_date:end_date]

@@ -17,8 +17,7 @@ import argparse
 import numpy as np
 import itertools
 import torch
-from agent import RBC_Agent
-from agent_SAC import SAC
+from agent_SAC import SAC, RBC_Agent
 from torch.utils.tensorboard import SummaryWriter
 from citylearn import  CityLearn
 from pathlib import Path
@@ -66,9 +65,9 @@ building_attributes = data_path / 'building_attributes.json'
 weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
-building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-#building_ids = ['Building_3']
-# building_ids = ["Building_3","Building_4"]
+#building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
+building_ids = ['Building_3']
+#building_ids = ["Building_3","Building_4"]
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 0)
 RBC_env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = False, verbose = 0)
@@ -278,6 +277,7 @@ STEP 5: POSTPROCESSING
 # Building to plot results for
 building_number = building_ids[0]
 
+# Plot District level power consumption
 graph_total(env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
 
 divide_lambda = lambda x: int(x/4)
@@ -285,9 +285,13 @@ district_graph = Image.open(parent_dir+"final/"+r"district.jpg")
 district_graph = district_graph.resize(tuple(map(divide_lambda,district_graph.size)))
 writer.add_image("Graph for District", ToTensor()(district_graph))
 
+action_index = 0
+i = 0
+
+# Plot individual building power consumption and agent actions
 for building in building_ids:
     # Graph district energy consumption and agent behaviour
-    graph_building(building_number=building, env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
+    graph_building(building_number=building, env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10', action_index = action_index)
 
     # Add these graphs to the tensorboard
     train_graph = Image.open(parent_dir+"final/"+r"train"+"{}.jpg".format(building[-1]))
@@ -296,6 +300,9 @@ for building in building_ids:
     action_graph = action_graph.resize(tuple(map(divide_lambda,action_graph.size)))
     writer.add_image("Graph for {}/Train".format(building), ToTensor()(train_graph))
     writer.add_image("Graph for {}/Actions".format(building), ToTensor()(action_graph))
+    
+    action_index = action_index + agent.act_size[i]
+    i = i + 1
 
 # Tabulate run parameters in training log
 tabulate_table(env=env, timer=timer, algo="SAC", agent = agent, climate_zone=climate_zone, building_ids=building_ids, 

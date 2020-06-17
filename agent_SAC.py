@@ -64,7 +64,7 @@ class SAC(object):
             hidden_size (int): Size of the hidden layer in networks
 
         """
-        self.lr = 0.001
+        self.lr = 0.0005
         self.gamma = 0.99
         self.tau = 0.003
         self.alpha = 0.2
@@ -114,6 +114,14 @@ class SAC(object):
 
         # Size of action space
         self.act_size = [2 if id not in ["Building_3","Building_4"] else 1 for id in self.env.building_ids]
+        
+        # Which buildings are being simulated
+        self.building = []
+        for building in ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]:
+            if building in env.building_ids:
+                self.building.append(1) 
+            else:
+                self.building.append(0)
 
         if self.policy_type == "Gaussian":
             if self.automatic_entropy_tuning is True:
@@ -528,3 +536,31 @@ class AutoRegressiveMemory:
 
     def __len__(self):
         return len(self.buffer)
+
+class RBC_Agent:
+    def __init__(self, actions_spaces):
+        self.actions_spaces = actions_spaces
+        self.reset_action_tracker()
+        
+    def reset_action_tracker(self):
+        self.action_tracker = []
+        
+    def select_action(self, states):
+        hour_day = states[0][0]
+        
+        # Daytime: release stored energy
+        a = [[0.0 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
+        if hour_day >= 9 and hour_day <= 21:
+            a = [[-0.08 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
+        
+        # Early nightime: store DHW and/or cooling energy
+        if (hour_day >= 1 and hour_day <= 8) or (hour_day >= 22 and hour_day <= 24):
+            a = []
+            for i in range(len(self.actions_spaces)):
+                if len(self.actions_spaces[i].sample()) == 2:
+                    a.append([0.091, 0.091])
+                else:
+                    a.append([0.091])
+
+        self.action_tracker.append(a)
+        return np.array(a)
