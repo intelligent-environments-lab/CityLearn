@@ -79,7 +79,7 @@ class SAC(object):
         num_inputs = num_inputs + self.autoregressive_size
 
         # Reward shaping weights
-        self.ramping_factor = 0
+        self.ramping_factor = 0.5
         self.action_factor = 0
         self.smooth_factor = 0
         self.peak_factor = 1
@@ -96,6 +96,8 @@ class SAC(object):
         hard_update(self.critic_target, self.critic)
 
         self.reset_action_tracker()
+
+        self.reset_reward_tracker()
 
         # Replay Memory
         self.memory = ReplayMemory(self.replay_size)
@@ -140,6 +142,9 @@ class SAC(object):
 
     def reset_action_tracker(self):
         self.action_tracker = []
+
+    def reset_reward_tracker(self):
+        self.reward_tracker = []
 
     def select_action(self, state, evaluate=False):
 
@@ -250,13 +255,15 @@ class SAC(object):
         #print("\Total reward {}".format(rewards))
         
         # Save experience / reward
-        self.memory.push(states, actions, rewards, next_states, dones)
+        self.memory.push(states, actions, total_rewards, next_states, dones)
         
         # Add HVAC load to autoregressive memory
         self.autoregressive_memory.push(HVAC_load)
         
         # Add action to autoregressive memory
         self.autoregressive_action_memory.push(actions)
+
+        self.reward_tracker.append(total_rewards)
 
         # Return shaped reward values
         return total_rewards, self.peak_factor*rewards, -self.ramping_factor*ramping, night_charging_boost, -self.smooth_factor*smooth_action

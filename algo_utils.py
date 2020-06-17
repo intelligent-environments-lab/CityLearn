@@ -70,28 +70,34 @@ def graph_total(env, agent, parent_dir, start_date, end_date, algo='SAC'):
     output['Electricity demand with PV generation and without storage(kW)'] = env.net_electric_consumption_no_storage[-8759:]
     output['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)] = env.net_electric_consumption[-8759:]
 
+    output['Total Reward in Step'] = agent.reward_tracker[-8759:]
+
     output_filtered = output.loc[start_date:end_date]
 
     # Create plot showing electricity demand profile with RL agent, cooling storage behaviour and DHW storage behaviour
-    fig, ax = plt.subplots(nrows = 1, ncols = 1, figsize=(20,12), squeeze = False)
-    output_filtered['Electricity demand without storage or generation (kW)'].plot(ax = ax[0,0], color='blue', label='Electricity demand without storage or generation (kW)')
-    output_filtered['Electricity demand with PV generation and without storage(kW)'].plot(ax = ax[0,0], color='orange', label='Electricity demand with PV generation and without storage(kW)')
-    output_filtered['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)].plot(ax = ax[0,0], color = 'green', ls = '--', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo))
-    ax[0,0].set_title('District Electricity Demand')
-    ax[0,0].set(ylabel="Demand [kW]")
-    ax[0,0].legend(loc="upper right")
-    ax[0,0].xaxis.set_major_locator(dates.DayLocator())
-    ax[0,0].xaxis.set_major_formatter(dates.DateFormatter('\n%d/%m'))
-    #ax[0,0].xaxis.set_minor_locator(dates.HourLocator(interval=6))
-    #ax[0,0].xaxis.set_minor_formatter(dates.DateFormatter('%H'))
+    fig, ax = plt.subplots(nrows = 2, figsize=(20,12), sharex = True)
+    output_filtered['Electricity demand without storage or generation (kW)'].plot(ax = ax[0], color='blue', label='Electricity demand without storage or generation (kW)', x_compat=True)
+    output_filtered['Electricity demand with PV generation and without storage(kW)'].plot(ax = ax[0], color='orange', label='Electricity demand with PV generation and without storage(kW)')
+    output_filtered['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)].plot(ax = ax[0], color = 'green', ls = '--', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo))
+    ax[0].set_title('(a) - District Electricity Demand')
+    ax[0].set(ylabel="Demand [kW]")
+    ax[0].legend(loc="upper right")
+    ax[0].xaxis.set_major_locator(dates.DayLocator())
+    ax[0].xaxis.set_major_formatter(dates.DateFormatter('\n%d/%m'))
+    ax[0].xaxis.set_minor_locator(dates.HourLocator(interval=6))
+    ax[0].xaxis.set_minor_formatter(dates.DateFormatter('%H'))
+    output_filtered['Total Reward in Step'].plot(ax = ax[1], color='blue', label='Total Reward', x_compat=True)
+    ax[1].set_title('(b) - Total Reward')
+    ax[1].legend(loc="upper right")
     # Set minor grid lines
-    ax[0,0].xaxis.grid(False) # Just x
-    ax[0,0].yaxis.grid(False) # Just x
-    for xmin in ax[0,0].xaxis.get_minorticklocs():
-        ax[0,0].axvline(x=xmin, ls='-', color = 'lightgrey')
-    #ax[0,0].tick_params(direction='out', length=6, width=2, colors='black', top=0, right=0)
-    #plt.setp( ax[0,0].xaxis.get_minorticklabels(), rotation=0, ha="center" )
-    plt.setp( ax[0,0].xaxis.get_majorticklabels(), rotation=0, ha="center" )
+    ax[0].xaxis.grid(False) # Just x
+    ax[0].yaxis.grid(False) # Just x
+    for j in range(2):
+        for xmin in ax[j].xaxis.get_minorticklocs():
+            ax[j].axvline(x=xmin, ls='-', color = 'lightgrey')
+    ax[0].tick_params(direction='out', length=6, width=2, colors='black', top=0, right=0)
+    plt.setp( ax[0].xaxis.get_minorticklabels(), rotation=0, ha="center" )
+    plt.setp( ax[0].xaxis.get_majorticklabels(), rotation=0, ha="center" )
     # Export Figure
     plt.savefig(parent_dir + r"district.jpg", bbox_inches='tight', dpi = 300)
     plt.close()
