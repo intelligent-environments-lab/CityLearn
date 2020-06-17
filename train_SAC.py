@@ -26,7 +26,7 @@ import os, time, warnings
 from PIL import Image
 from torchvision.transforms import ToTensor
 
-from algo_utils import graph_building, tabulate_table
+from algo_utils import graph_total, graph_building, tabulate_table
 
 # Ignore the casting to float32 warnings
 warnings.simplefilter("ignore", UserWarning)
@@ -50,7 +50,7 @@ parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
 parser.add_argument('--num_episodes', type=int, default=100, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
-parser.add_argument('--start_steps', type=int, default=8760*5, metavar='N',
+parser.add_argument('--start_steps', type=int, default=8760*0, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
 parser.add_argument('--update_interval', type=int, default=168, metavar='N',
                     help='Update network parameters every n steps')
@@ -67,7 +67,7 @@ weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
 building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-# building_ids = ['Building_1']
+#building_ids = ['Building_3']
 # building_ids = ["Building_3","Building_4"]
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 0)
@@ -278,12 +278,18 @@ STEP 5: POSTPROCESSING
 # Building to plot results for
 building_number = building_ids[0]
 
+graph_total(env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
+
+divide_lambda = lambda x: int(x/4)
+district_graph = Image.open(parent_dir+"final/"+r"district.jpg")
+district_graph = district_graph.resize(tuple(map(divide_lambda,district_graph.size)))
+writer.add_image("Graph for District", ToTensor()(district_graph))
+
 for building in building_ids:
     # Graph district energy consumption and agent behaviour
     graph_building(building_number=building, env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
 
     # Add these graphs to the tensorboard
-    divide_lambda = lambda x: int(x/4)
     train_graph = Image.open(parent_dir+"final/"+r"train"+"{}.jpg".format(building[-1]))
     train_graph = train_graph.resize(tuple(map(divide_lambda,train_graph.size)))
     action_graph = Image.open(parent_dir+"final/"+r"actions"+"{}.jpg".format(building[-1]))

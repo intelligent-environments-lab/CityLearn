@@ -81,7 +81,7 @@ class SAC(object):
         # Reward shaping weights
         self.ramping_factor = 0
         self.action_factor = 0
-        self.smooth_factor = 100
+        self.smooth_factor = 0
         self.peak_factor = 1
 
         self.policy_type = args.policy
@@ -238,7 +238,7 @@ class SAC(object):
         #print("\nNight Boost reward {}".format(night_charging_boost))
         #print("\nSmooth Action reward {}".format(-self.smooth_factor*smooth_action))
         # total_rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.action_factor*same_action - self.smooth_factor*smooth_action + night_charging_boost
-        total_rewards = rewards - self.ramping_factor*ramping
+        total_rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.smooth_factor*smooth_action
         #print("\Total reward {}".format(rewards))
         
         # Save experience / reward
