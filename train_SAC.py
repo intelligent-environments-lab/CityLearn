@@ -65,8 +65,8 @@ building_attributes = data_path / 'building_attributes.json'
 weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
-# building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-building_ids = ['Building_1']
+building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
+# building_ids = ['Building_1']
 # building_ids = ["Building_3","Building_4"]
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 0)
@@ -145,7 +145,7 @@ To be completed
 """
 
 # Agent
-agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=False and env.central_agent)
+agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=True and env.central_agent)
 
 """
 ###################################

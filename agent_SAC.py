@@ -116,7 +116,19 @@ class SAC(object):
 
         # Size of action space
         self.act_size = [2 if id not in ["Building_3","Building_4"] else 1 for id in self.env.building_ids]
-        
+
+        # Num shared actions
+        s_appended = []
+        for uid, building in env.buildings.items():
+            for state_name, value in env.buildings_states_actions[uid]['states'].items():
+                if value == True:
+                    if state_name not in s_appended:
+                        if state_name in ['t_in', 'avg_unmet_setpoint', 'rh_in', 'non_shiftable_load', 'solar_gen']:
+                            pass
+                        elif state_name != 'cooling_storage_soc' and state_name != 'dhw_storage_soc':
+                            s_appended.append(state_name)
+        self.shared_act = len(s_appended)
+
         # Which buildings are being simulated
         self.building = []
         for building in ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]:
@@ -164,22 +176,26 @@ class SAC(object):
         # Constrain action space to feasible values only if set to True
         if self.constrain_action_space == True:
             ba_idx = 0 # building action index
-            bs_idx = 1 # building state index
+            bs_idx = self.shared_act # building state index
             for building in range(0,len(self.act_size)):
-                bs_end_idx = bs_idx + self.obs_size[building] - 1
-                #print("\nBuilding {}".format(building+1))
+                bs_end_idx = bs_idx + self.obs_size[building] - self.shared_act
+                # print("\nBuilding {}".format(building+1))
                 # Boundary constraint flags, -1 for 0, 1 for 1, 0 for anything in between
                 soc_flags = [0 for actsiz in range(self.act_size[building])]
                 #print("States:")
                 # Find constraints and set flags
                 for idx, b_idx in enumerate(range(bs_end_idx-self.act_size[building],bs_end_idx)):
                     
-                    #print(state_copy[b_idx])
+                    # print("Act size {}".format(self.act_size[building]))
+                    # print("Act: {}".format(state_copy[b_idx]))
+                    # print("Idx: {}".format(b_idx))
 
                     # Enable the SOC flag on extreme values
                     if state_copy[b_idx] < 0.05:
+                        # print(" -1: {}".format(state_copy[b_idx]))
                         soc_flags[idx] = -1
                     elif state_copy[b_idx] > 0.95:
+                        # print(" 1: {}".format(state_copy[b_idx]))
                         soc_flags[idx] = 1
 
                 # Set constraints from flags
