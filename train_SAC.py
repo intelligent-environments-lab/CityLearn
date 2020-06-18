@@ -49,7 +49,7 @@ parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
 parser.add_argument('--num_episodes', type=int, default=100, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
-parser.add_argument('--start_steps', type=int, default=8760*0, metavar='N',
+parser.add_argument('--start_steps', type=int, default=8760*1, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
 parser.add_argument('--update_interval', type=int, default=168, metavar='N',
                     help='Update network parameters every n steps')
@@ -171,10 +171,6 @@ updates = 0
 # Measure the time taken for training
 start_timer = time.time()
 
-reward_list = [1]
-last_env_cost = 2
-this_env_cost = 1.5
-
 for i_episode in itertools.count(1):
     # Initialise episode rewards
     episode_reward = 0
@@ -185,8 +181,6 @@ for i_episode in itertools.count(1):
     episode_steps = 0
     done = False
     state = env.reset()
-    # reward_list = [i**0.9 for i in reward_list] if this_env_cost < last_env_cost else [i**1.1 for i in reward_list]
-    maxReward = max(reward_list)
 
     # For every step
     while not done:
@@ -221,13 +215,8 @@ for i_episode in itertools.count(1):
         reward = (this_netRBC * (1 - this_netSAC/RBC_24h_peak[episode_steps%24]))
         # print(reward)
 
-        reward_list.append(reward)
-        # normalised_reward = (reward / maxReward) * (1 + (last_env_cost - this_env_cost))
-        normalised_reward = (reward / maxReward)
-        # normalised_reward = 1 if this_env_cost < last_env_cost else -1
-
         # Append transition to memory
-        reward, r_peak, r_ramping, r_night, r_smooth = agent.append(state, action, normalised_reward, next_state, done) 
+        reward, r_peak, r_ramping, r_night, r_smooth = agent.append(state, action, reward, next_state, done) 
 
         # writer.add_scalars('RBC vs SAC/Net Energy Consumption', {'RBC':this_netRBC, 'SAC':this_netSAC}, total_numsteps)
 
@@ -242,9 +231,6 @@ for i_episode in itertools.count(1):
         state = next_state
         #if total_numsteps == 24:
         #    sys.exit()
-
-    last_env_cost = this_env_cost
-    this_env_cost = env.cost()['total']
 
     # Tensorboard log reward values
     writer.add_scalar('Reward/Total', episode_reward, total_numsteps)
