@@ -43,7 +43,7 @@ Initialises an Agent and Critic for each building. Can also be used to test/run 
 ======
 '''
 class SAC(object):
-    def __init__(self, env, num_inputs, action_space, args, constrain_action_space=False):
+    def __init__(self, env, num_inputs, action_space, args, constrain_action_space=False, smooth_action_space = False):
 
         self.env = env
 
@@ -110,6 +110,11 @@ class SAC(object):
 
         # Should the action space be constrained to avoid infeasible actions
         self.constrain_action_space = constrain_action_space
+
+        # Should the action space be constrained to restricted range from previous actions
+        self.smooth_action_space = smooth_action_space
+        # How much actions are allowed to change from one timestamp to the next
+        self.rho = 0.1
 
         # Size of state space
         self.obs_size = [box.shape[0] for box in self.env.get_state_action_spaces()[0]]
@@ -220,6 +225,14 @@ class SAC(object):
                 ba_idx += self.act_size[building]
                 bs_idx = bs_end_idx
 
+        # constrain action space to be restricted range only if set to True
+        if self.smooth_action_space == True:
+
+            if len(self.action_tracker) < 1:
+                action = np.clip(action, 0 - self.rho, 0 + self.rho)
+            else:
+                action = np.clip(action, self.action_tracker[-1] - self.rho, self.action_tracker[-1] + self.rho)
+
         self.action_tracker.append(action)
 
         return action
@@ -271,7 +284,7 @@ class SAC(object):
         total_rewards = self.peak_factor*rewards - self.smooth_factor*smooth_action + night_charging_boost + day_charging_pen
 
         # Scale and clip rewards 
-        norm_rewards = np.clip(total_rewards/10, -1, 1)
+        norm_rewards = np.clip(total_rewards/10, -10, 10)
 
         # Save experience / reward
         self.memory.push(states, actions, norm_rewards, next_states, dones)
