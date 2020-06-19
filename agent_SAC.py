@@ -275,7 +275,7 @@ class SAC(object):
             night_charging_boost = 0
 
         # Reward punishment if agent charges during the peak day
-        if (8 <= states[0] < 20) and actions.mean() > 0:
+        if (12 <= states[0] < 20) and actions.mean() > 0:
             day_charging_pen = -1000
         else:
             day_charging_pen = 0
@@ -284,7 +284,10 @@ class SAC(object):
         total_rewards = self.peak_factor*rewards - self.smooth_factor*smooth_action + night_charging_boost + day_charging_pen
 
         # Scale and clip rewards 
-        norm_rewards = np.clip(total_rewards/100, -1, 1)
+        if total_rewards > 0:
+            norm_rewards = np.clip(total_rewards/100, -1, 1)
+        else:
+            norm_rewards = np.clip(total_rewards/1000, -1, 1)
 
         # Save experience / reward
         self.memory.push(states, actions, norm_rewards, next_states, dones)

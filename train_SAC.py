@@ -284,7 +284,10 @@ graph_total(env=env, RBC_env = RBC_env, agent=agent, parent_dir=final_dir, start
 divide_lambda = lambda x: int(x/4)
 district_graph = Image.open(parent_dir+"final/"+r"district.jpg")
 district_graph = district_graph.resize(tuple(map(divide_lambda,district_graph.size)))
-writer.add_image("Graph for District", ToTensor()(district_graph))
+writer.add_image("Graph for District/Elec_Consumption", ToTensor()(district_graph))
+district_RBC_comp_graph = Image.open(parent_dir+"final/"+r"district_RBC_comp_daily_peak.jpg")
+district_RBC_comp_graph = district_graph.resize(tuple(map(divide_lambda,district_graph.size)))
+writer.add_image("Graph for District/Daily_Peak", ToTensor()(district_RBC_comp_graph))
 
 action_index = 0
 i = 0
@@ -292,7 +295,7 @@ i = 0
 # Plot individual building power consumption and agent actions
 for building in building_ids:
     # Graph district energy consumption and agent behaviour
-    graph_building(building_number=building, env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10', action_index = action_index)
+    graph_building(building_number=building, env=env, RBC_env = RBC_env, agent=agent, parent_dir=final_dir, start_date = '2017-09-01', end_date = '2017-09-10', action_index = action_index)
 
     # Add these graphs to the tensorboard
     train_graph = Image.open(parent_dir+"final/"+r"train"+"{}.jpg".format(building[-1]))

@@ -166,7 +166,7 @@ def graph_total(env, RBC_env, agent, parent_dir, start_date, end_date, algo='SAC
     plt.close()
 
 # Graphing for Individual Buildings
-def graph_building(building_number, env, agent, parent_dir, start_date, end_date, action_index, algo='SAC'):
+def graph_building(building_number, env, RBC_env, agent, parent_dir, start_date, end_date, action_index, algo='SAC'):
     # Convert output to dataframes for easy plotting
     time_periods = pd.date_range('2017-01-01 T01:00', '2017-12-31 T23:00', freq='1H')
     output = pd.DataFrame(index = time_periods)
@@ -175,6 +175,7 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
     output['Electricity demand for building {} without storage or generation (kW)'.format(building_number)] = env.buildings[building_number].net_electric_consumption_no_pv_no_storage[-8759:]
     output['Electricity demand for building {} with PV generation and without storage(kW)'.format(building_number)] = env.buildings[building_number].net_electric_consumption_no_storage[-8759:]
     output['Electricity demand for building {} with PV generation and using {} for storage(kW)'.format(building_number, algo)] = env.buildings[building_number].net_electric_consumption[-8759:]
+    output['Electricity demand for building {} with PV generation and using RBC for storage(kW)'.format(building_number)] = RBC_env.buildings[building_number].net_electric_consumption[-8759:]
     # Cooling Storage
     output['Cooling Demand (kWh)'] = env.buildings[building_number].cooling_demand_building[-8759:]
     output['Energy Storage State of Charge - SOC (kWh)'] = env.buildings[building_number].cooling_storage_soc[-8759:]
@@ -200,9 +201,10 @@ def graph_building(building_number, env, agent, parent_dir, start_date, end_date
 
     # Create plot showing electricity demand profile with RL agent, cooling storage behaviour and DHW storage behaviour
     fig, ax = plt.subplots(nrows = 3, figsize=(20,12), sharex = True) if building_number != 'Building_3' and building_number != 'Building_4' else plt.subplots(nrows = 2, figsize=(20,8), sharex = True)
-    output_filtered['Electricity demand for building {} without storage or generation (kW)'.format(building_number)].plot(ax = ax[0], color='blue', label='Electricity demand without storage or generation (kW)', x_compat=True)
-    output_filtered['Electricity demand for building {} with PV generation and without storage(kW)'.format(building_number)].plot(ax = ax[0], color='orange', label='Electricity demand with PV generation and without storage(kW)')
-    output_filtered['Electricity demand for building {} with PV generation and using {} for storage(kW)'.format(building_number, algo)].plot(ax = ax[0], color = 'green', ls = '--', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo))
+    output_filtered['Electricity demand for building {} without storage or generation (kW)'.format(building_number)].plot(ax = ax[0], color='blue', ls = '--', label='Electricity demand without storage or generation (kW)', x_compat=True)
+    output_filtered['Electricity demand for building {} with PV generation and without storage(kW)'.format(building_number)].plot(ax = ax[0], color='orange', ls = '--', label='Electricity demand with PV generation and without storage(kW)')
+    output_filtered['Electricity demand for building {} with PV generation and using {} for storage(kW)'.format(building_number, algo)].plot(ax = ax[0], color = 'green', ls = '-', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo))
+    output_filtered['Electricity demand for building {} with PV generation and using RBC for storage(kW)'.format(building_number)].plot(ax = ax[0], color = 'black', ls = '-', label='Electricity demand with PV generation and using RBC for storage(kW)')
     ax[0].set_title('(a) - {} Electricity Demand'.format(building_number))
     ax[0].set(ylabel="Demand [kW]")
     ax[0].legend(loc="upper right")
