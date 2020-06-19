@@ -60,25 +60,88 @@ def tabulate_table(env, timer, algo, agent, climate_zone, building_ids, building
 # GRAPH RESULTS METHODS
 
 # Graphing for District Behaviour
-def graph_total(env, agent, parent_dir, start_date, end_date, algo='SAC'):
+def graph_total(env, RBC_env, agent, parent_dir, start_date, end_date, algo='SAC'):
     # Convert output to dataframes for easy plotting
     time_periods = pd.date_range('2017-01-01 T01:00', '2017-12-31 T23:00', freq='1H')
     output = pd.DataFrame(index = time_periods)
+
+    time_periods_daily = pd.date_range('2017-01-01 T01:00', '2017-12-31 T23:00', freq='1D')
+    output_daily = pd.DataFrame(index = time_periods_daily)
 
     # Extract building behaviour
     output['Electricity demand without storage or generation (kW)'] = env.net_electric_consumption_no_pv_no_storage[-8759:]
     output['Electricity demand with PV generation and without storage(kW)'] = env.net_electric_consumption_no_storage[-8759:]
     output['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)] = env.net_electric_consumption[-8759:]
+    output['Electricity demand with PV generation and using RBC for storage(kW)'] = RBC_env.net_electric_consumption[-8759:]
+    # Comparison of RBC and RL
+    # Comparison of Total Consumption
+    output['Electricity demand - {} / RBC'.format(algo)] = env.net_electric_consumption[-8759:] / RBC_env.net_electric_consumption[-8759:]
+    # Comparison of Peak Daily Consumption
+    output_daily['Daily Peak Electricity demand using {} for storage'.format(algo)] = [env.net_electric_consumption[i:i+24].max() for i in range(0, len(env.net_electric_consumption), 24)]
+    output_daily['Daily Peak Electricity demand using RBC for storage'] = [RBC_env.net_electric_consumption[i:i+24].max() for i in range(0, len(RBC_env.net_electric_consumption), 24)]
+    output_daily['RL/RBC Daily Peak Factor'] = output_daily['Daily Peak Electricity demand using {} for storage'.format(algo)] / output_daily['Daily Peak Electricity demand using RBC for storage']
 
+    # Reward achieved in each step
     output['Total Reward in Step'] = agent.reward_tracker[-8759:]
 
     output_filtered = output.loc[start_date:end_date]
 
     # Create plot showing electricity demand profile with RL agent, cooling storage behaviour and DHW storage behaviour
     fig, ax = plt.subplots(nrows = 2, figsize=(20,12), sharex = True)
-    output_filtered['Electricity demand without storage or generation (kW)'].plot(ax = ax[0], color='blue', label='Electricity demand without storage or generation (kW)', x_compat=True)
-    output_filtered['Electricity demand with PV generation and without storage(kW)'].plot(ax = ax[0], color='orange', label='Electricity demand with PV generation and without storage(kW)')
-    output_filtered['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)].plot(ax = ax[0], color = 'green', ls = '--', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo))
+    output['Electricity demand without storage or generation (kW)'].plot(ax = ax[0], color='blue', ls = '--', label='Electricity demand without storage or generation (kW)', linewidth=1, x_compat=True)
+    output['Electricity demand with PV generation and without storage(kW)'].plot(ax = ax[0], color='orange', ls = '--', label='Electricity demand with PV generation and without storage(kW)', linewidth=1)
+    output['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)].plot(ax = ax[0], color = 'green', ls = '-', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo), linewidth=2)
+    output['Electricity demand with PV generation and using RBC for storage(kW)'].plot(ax = ax[0], color = 'black', ls = '-', label='Electricity demand with PV generation and using RBC for storage(kW)', linewidth=2)
+    ax[0].set_title('(a) - District Electricity Demand')
+    ax[0].set(ylabel="Demand [kW]")
+    ax[0].legend(loc="upper right")
+    ax[0].xaxis.set_major_locator(dates.DayLocator())
+    ax[0].xaxis.set_major_formatter(dates.DateFormatter('\n%d/%m'))
+    #ax[0].xaxis.set_minor_locator(dates.HourLocator(interval=6))
+    #ax[0].xaxis.set_minor_formatter(dates.DateFormatter('%H'))
+    output['Electricity demand - {} / RBC'.format(algo)].plot(ax = ax[1], color='blue', label='Net Elec Consumption - RL / RBC', x_compat=True)
+    ax[1].set_title('(b) - Comparison of RL and RBC for District Total Consumption')
+    ax[1].legend(loc="upper right")
+    # Set minor grid lines
+    ax[0].xaxis.grid(False) # Just x
+    ax[0].yaxis.grid(False) # Just x
+    # Export Figure
+    plt.savefig(parent_dir + r"district_RBC_comp.jpg", bbox_inches='tight', dpi = 300)
+    plt.close()
+
+    # Create plot showing electricity demand profile with RL agent, cooling storage behaviour and DHW storage behaviour
+    fig, ax = plt.subplots(nrows = 2, figsize=(20,12), sharex = True)
+    output_daily['Daily Peak Electricity demand using {} for storage'.format(algo)].plot(ax = ax[0], color='green', ls = '-', label='RL Daily Peak (kW)', linewidth=1, x_compat=True)
+    output_daily['Daily Peak Electricity demand using RBC for storage'].plot(ax = ax[0], color='black', ls = '-', label='RBC Daily Peak (kW)', linewidth=1)
+    ax[0].set_title('(a) - District Daily Peak')
+    ax[0].set(ylabel="Demand [kW]")
+    ax[0].legend(loc="upper right")
+    ax[0].xaxis.set_major_locator(dates.DayLocator())
+    ax[0].xaxis.set_major_formatter(dates.DateFormatter('\n%d/%m'))
+    #ax[0].xaxis.set_minor_locator(dates.HourLocator(interval=6))
+    #ax[0].xaxis.set_minor_formatter(dates.DateFormatter('%H'))
+    output_daily['RL/RBC Daily Peak Factor'].plot(ax = ax[1], color='blue', label='Daily Peak - RL / RBC', x_compat=True)
+    ax[1].set_title('(b) - Comparison of RL and RBC for District Daily Peak')
+    ax[1].legend(loc="upper right")
+    # Set minor grid lines
+    ax[0].xaxis.grid(False) # Just x
+    ax[0].yaxis.grid(False) # Just x
+    #for j in range(2):
+    #    for xmin in ax[j].xaxis.get_minorticklocs():
+    #        ax[j].axvline(x=xmin, ls='-', color = 'lightgrey')
+    #ax[0].tick_params(direction='out', length=6, width=2, colors='black', top=0, right=0)
+    #plt.setp( ax[0].xaxis.get_minorticklabels(), rotation=0, ha="center" )
+    #plt.setp( ax[0].xaxis.get_majorticklabels(), rotation=0, ha="center" )
+    # Export Figure
+    plt.savefig(parent_dir + r"district_RBC_comp_daily_peak.jpg", bbox_inches='tight', dpi = 300)
+    plt.close()
+
+    # Create plot comparing RL elec consumption / RBC elec consumption
+    fig, ax = plt.subplots(nrows = 2, figsize=(20,12), sharex = True)
+    output_filtered['Electricity demand without storage or generation (kW)'].plot(ax = ax[0], color='blue', ls = '--', label='Electricity demand without storage or generation (kW)', linewidth=1, x_compat=True)
+    output_filtered['Electricity demand with PV generation and without storage(kW)'].plot(ax = ax[0], color='orange', ls = '--', label='Electricity demand with PV generation and without storage(kW)', linewidth=1)
+    output_filtered['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)].plot(ax = ax[0], color = 'green', ls = '-', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo), linewidth=2)
+    output_filtered['Electricity demand with PV generation and using RBC for storage(kW)'].plot(ax = ax[0], color = 'black', ls = '-', label='Electricity demand with PV generation and using RBC for storage(kW)', linewidth=2)
     ax[0].set_title('(a) - District Electricity Demand')
     ax[0].set(ylabel="Demand [kW]")
     ax[0].legend(loc="upper right")

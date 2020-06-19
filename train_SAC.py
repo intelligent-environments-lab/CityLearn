@@ -279,7 +279,7 @@ STEP 5: POSTPROCESSING
 building_number = building_ids[0]
 
 # Plot District level power consumption
-graph_total(env=env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
+graph_total(env=env, RBC_env = RBC_env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
 
 divide_lambda = lambda x: int(x/4)
 district_graph = Image.open(parent_dir+"final/"+r"district.jpg")
