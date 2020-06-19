@@ -75,7 +75,7 @@ class SAC(object):
         self.hidden_size = 256
         
         # Number of regressive terms to include of HVAC cooling load
-        self.autoregressive_size = 1
+        self.autoregressive_size = 0
         num_inputs = num_inputs + self.autoregressive_size
 
         # Reward shaping weights
@@ -244,10 +244,10 @@ class SAC(object):
             states = np.append(states, self.autoregressive_memory.buffer[-j-1])
         for j in range(0,self.autoregressive_size-1):
             next_states = np.append(next_states, self.autoregressive_memory.buffer[-j-1])
-        next_states = np.append(next_states,HVAC_load)
+        #next_states = np.append(next_states,HVAC_load)
         
         # Calculate Ramping component of reward function
-        ramping = abs(HVAC_load - self.autoregressive_memory.buffer[-1])
+        #ramping = abs(HVAC_load - self.autoregressive_memory.buffer[-1])
         
         # Calculate Similar action component of reward function (if all agents are doing the same thing penalize)
         same_action = abs(self.action_factor*actions.mean())
@@ -256,16 +256,22 @@ class SAC(object):
         smooth_action = abs(actions).sum()
 
         # Reward bonus if agent charges during the night
-        if (1 <= states[0] < 8) and actions.mean() > 0:
-            night_charging_boost = 0
+        if (1 <= states[0] < 8) and actions.mean() > 0.1:
+            night_charging_boost = 1000
         else:
             night_charging_boost = 0
+
+        # Reward punishment if agent charges during the peak day
+        if (8 <= states[0] < 20) and actions.mean() > 0:
+            day_charging_pen = -1000
+        else:
+            day_charging_pen = 0
         
         # Apply reward shaping function
-        total_rewards = self.peak_factor*rewards - self.ramping_factor*ramping - self.smooth_factor*smooth_action
+        total_rewards = self.peak_factor*rewards - self.smooth_factor*smooth_action + night_charging_boost + day_charging_pen
 
         # Scale and clip rewards 
-        norm_reward = np.clip(total_rewards/100, -1, 1)
+        norm_rewards = np.clip(total_rewards/10, -1, 1)
 
         # Save experience / reward
         self.memory.push(states, actions, norm_rewards, next_states, dones)
@@ -279,7 +285,7 @@ class SAC(object):
         self.reward_tracker.append(norm_rewards)
 
         # Return shaped reward values
-        return norm_rewards, self.peak_factor*rewards, -self.ramping_factor*ramping, night_charging_boost, -self.smooth_factor*smooth_action
+        return norm_rewards, self.peak_factor*rewards, -self.ramping_factor, night_charging_boost, -self.smooth_factor*smooth_action
 
     # Update policy parameters
     def update_parameters(self, updates):
