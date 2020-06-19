@@ -65,7 +65,7 @@ class SAC(object):
 
         """
         self.lr = 0.001
-        self.gamma = 0.99
+        self.gamma = 0.9
         self.tau = 0.003
         self.alpha = 0.2
         self.replay_size = 2000000
@@ -114,7 +114,7 @@ class SAC(object):
         # Should the action space be constrained to restricted range from previous actions
         self.smooth_action_space = smooth_action_space
         # How much actions are allowed to change from one timestamp to the next
-        self.rho = 0.1
+        self.rho = 0.01
 
         # Size of state space
         self.obs_size = [box.shape[0] for box in self.env.get_state_action_spaces()[0]]
@@ -284,7 +284,7 @@ class SAC(object):
         total_rewards = self.peak_factor*rewards - self.smooth_factor*smooth_action + night_charging_boost + day_charging_pen
 
         # Scale and clip rewards 
-        norm_rewards = np.clip(total_rewards/10, -10, 10)
+        norm_rewards = np.clip(total_rewards/100, -1, 1)
 
         # Save experience / reward
         self.memory.push(states, actions, norm_rewards, next_states, dones)
