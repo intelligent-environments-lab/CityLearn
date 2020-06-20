@@ -114,7 +114,7 @@ class SAC(object):
         # Should the action space be constrained to restricted range from previous actions
         self.smooth_action_space = smooth_action_space
         # How much actions are allowed to change from one timestamp to the next
-        self.rho = 0.015
+        self.rho = 0.03
 
         # Size of state space
         self.obs_size = [box.shape[0] for box in self.env.get_state_action_spaces()[0]]
@@ -271,6 +271,8 @@ class SAC(object):
         # Reward bonus if agent charges during the night
         if (1 <= states[2] < 12 or 22 <= states[2] <= 24) and actions.mean() > 0.1:
             night_charging_boost = 1000
+        elif (1 <= states[2] < 8 or 22 <= states[2] <= 24) and actions.mean() < 0:
+            night_charging_boost = -1000
         else:
             night_charging_boost = 0
 
