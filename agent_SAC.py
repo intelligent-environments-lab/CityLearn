@@ -64,7 +64,7 @@ class SAC(object):
             hidden_size (int): Size of the hidden layer in networks
 
         """
-        self.lr = 0.001
+        self.lr = 0.0005
         self.gamma = 0.9
         self.tau = 0.003
         self.alpha = 0.2
@@ -114,7 +114,7 @@ class SAC(object):
         # Should the action space be constrained to restricted range from previous actions
         self.smooth_action_space = smooth_action_space
         # How much actions are allowed to change from one timestamp to the next
-        self.rho = 0.01
+        self.rho = 0.015
 
         # Size of state space
         self.obs_size = [box.shape[0] for box in self.env.get_state_action_spaces()[0]]
@@ -196,10 +196,10 @@ class SAC(object):
                     # print("Idx: {}".format(b_idx))
 
                     # Enable the SOC flag on extreme values
-                    if state_copy[b_idx] < 0.05:
+                    if state_copy[b_idx] < 0.01:
                         # print(" -1: {}".format(state_copy[b_idx]))
                         soc_flags[idx] = -1
-                    elif state_copy[b_idx] > 0.95:
+                    elif state_copy[b_idx] > 0.99:
                         # print(" 1: {}".format(state_copy[b_idx]))
                         soc_flags[idx] = 1
 
@@ -269,13 +269,13 @@ class SAC(object):
         smooth_action = abs(actions).sum()
 
         # Reward bonus if agent charges during the night
-        if (1 <= states[0] < 8) and actions.mean() > 0.1:
+        if (1 <= states[2] < 12 or 22 <= states[2] <= 24) and actions.mean() > 0.1:
             night_charging_boost = 1000
         else:
             night_charging_boost = 0
 
         # Reward punishment if agent charges during the peak day
-        if (12 <= states[0] < 20) and actions.mean() > 0:
+        if (12 <= states[2] < 20) and actions.mean() > 0:
             day_charging_pen = -1000
         else:
             day_charging_pen = 0
