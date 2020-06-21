@@ -43,7 +43,7 @@ Initialises an Agent and Critic for each building. Can also be used to test/run 
 ======
 '''
 class SAC(object):
-    def __init__(self, env, num_inputs, action_space, args, constrain_action_space=False, smooth_action_space = False, evaluate = False):
+    def __init__(self, env, num_inputs, action_space, args, constrain_action_space=False, smooth_action_space = False, evaluate = False, continue_training = True):
 
         self.env = env
 
@@ -69,6 +69,8 @@ class SAC(object):
 
         """
         self.evaluate = evaluate
+        self.continue_training = continue_training
+        self.load_path = 'alg/sac_20200621-025506'
 
         self.lr = 0.0005
         self.gamma = 0.9
@@ -122,7 +124,7 @@ class SAC(object):
         # Should the action space be constrained to restricted range from previous actions
         self.smooth_action_space = smooth_action_space
         # How much actions are allowed to change from one timestamp to the next
-        self.rho = 0.05
+        self.rho = 0.04
 
         # Size of state space
         self.obs_size = [box.shape[0] for box in self.env.get_state_action_spaces()[0]]
@@ -164,6 +166,10 @@ class SAC(object):
             self.automatic_entropy_tuning = False
             self.policy = DeterministicPolicy(num_inputs, action_space.shape[0], self.hidden_size, action_space).to(self.device)
             self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)
+
+        # Load the policy and critic if evaluating
+        if self.continue_training == True:
+            self.load_model(self.load_path+"/monitor/checkpoints/sac_actor", self.load_path+"/monitor/checkpoints/sac_critic")
 
     def reset_action_tracker(self):
         self.action_tracker = []

@@ -40,9 +40,9 @@ STEP 1: Set the Training Parameters
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--num_episodes', type=int, default=500, metavar='N',
+parser.add_argument('--num_episodes', type=int, default=100, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
-parser.add_argument('--start_steps', type=int, default=8760*10, metavar='N',
+parser.add_argument('--start_steps', type=int, default=8760*1, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
 parser.add_argument('--checkpoint_interval', type=int, default=10, metavar='N',
                     help='Saves a checkpoint with actor/critic weights every n episodes')
@@ -57,8 +57,6 @@ weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
 building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-# building_ids = ['Building_1']
-# building_ids = ["Building_3","Building_4"]
 objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 0)
 RBC_env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = False, verbose = 0)
@@ -136,7 +134,7 @@ To be completed
 """
 
 # Agent
-agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=True and env.central_agent, smooth_action_space = True, evaluate = False)
+agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=True and env.central_agent, smooth_action_space = True, evaluate = False, continue_training = True)
 
 """
 ###################################
