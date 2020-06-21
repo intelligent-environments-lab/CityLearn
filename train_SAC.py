@@ -38,21 +38,12 @@ STEP 1: Set the Training Parameters
 """
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
-parser.add_argument('--policy', default="Gaussian",
-                    help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
-parser.add_argument('--eval', type=bool, default=True,
-                    help='Evaluates a policy a policy every 10 episode (default: True)')
-parser.add_argument('--alpha', type=float, default=0.2, metavar='G',
-                    help='Temperature parameter α determines the relative importance of the entropy\
-                            term against the reward (default: 0.2)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--num_episodes', type=int, default=200, metavar='N',
+parser.add_argument('--num_episodes', type=int, default=500, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
 parser.add_argument('--start_steps', type=int, default=8760*10, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
-parser.add_argument('--update_interval', type=int, default=168, metavar='N',
-                    help='Update network parameters every n steps')
 parser.add_argument('--checkpoint_interval', type=int, default=10, metavar='N',
                     help='Saves a checkpoint with actor/critic weights every n episodes')
 args = parser.parse_args()
@@ -145,7 +136,7 @@ To be completed
 """
 
 # Agent
-agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=True and env.central_agent, smooth_action_space = True)
+agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=True and env.central_agent, smooth_action_space = True, evaluate = False)
 
 """
 ###################################
@@ -167,6 +158,8 @@ The agent training process involves the following:
 # Training Loop
 total_numsteps = 0
 updates = 0
+
+best_reward = 0.95
 
 # Measure the time taken for training
 start_timer = time.time()
@@ -195,7 +188,7 @@ for i_episode in itertools.count(1):
 
         if len(agent.memory) > agent.batch_size:
             # Update parameters of all the networks
-            if total_numsteps % args.update_interval == 0:
+            if total_numsteps % agent.update_interval == 0:
                 
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(total_numsteps)
 
@@ -216,7 +209,7 @@ for i_episode in itertools.count(1):
         # print(reward)
 
         # Append transition to memory
-        reward, r_peak, r_day, r_night, r_smooth = agent.append(state, action, reward, next_state, done) 
+        reward, r_peak, r_day, r_night, r_smooth = agent.add_to_buffer(state, action, reward, next_state, done) 
 
         # writer.add_scalars('RBC vs SAC/Net Energy Consumption', {'RBC':this_netRBC, 'SAC':this_netSAC}, total_numsteps)
 
@@ -258,9 +251,12 @@ for i_episode in itertools.count(1):
             
     print("Episode: {}, total numsteps: {}, total cost: {}, reward: {}".format(i_episode, total_numsteps, round(env.cost()['total'],5), round(episode_reward, 2)))
 
-    # Save trained Actor and Critic network periodically as a checkpoint 
+    # Save trained Actor and Critic network periodically as a checkpoint if it's the best model achieved
     if i_episode % args.checkpoint_interval == 0:
-        agent.save_model(parent_dir)
+        if env.cost()['total'] < best_reward:
+            best_reward = env.cost()['total']
+            print("Saving new best model to {}".format(parent_dir))
+            agent.save_model(parent_dir)
 
     # If training episodes completed
     if i_episode > args.num_episodes - 1:

@@ -43,7 +43,7 @@ Initialises an Agent and Critic for each building. Can also be used to test/run 
 ======
 '''
 class SAC(object):
-    def __init__(self, env, num_inputs, action_space, args, constrain_action_space=False, smooth_action_space = False):
+    def __init__(self, env, num_inputs, action_space, args, constrain_action_space=False, smooth_action_space = False, evaluate = False):
 
         self.env = env
 
@@ -63,7 +63,13 @@ class SAC(object):
             tau (float): target smoothing coefficient(τ) for soft update
             hidden_size (int): Size of the hidden layer in networks
 
+            policy (Boolean): 'Policy Type: Gaussian | Deterministic (default: Gaussian)'
+
+            update_interval (int): 'Update network parameters every n steps'
+
         """
+        self.evaluate = evaluate
+
         self.lr = 0.0005
         self.gamma = 0.9
         self.tau = 0.003
@@ -84,7 +90,9 @@ class SAC(object):
         self.smooth_factor = 0
         self.peak_factor = 1
 
-        self.policy_type = args.policy
+        self.policy_type = "Gaussian"
+
+        self.update_interval = 168
 
         # Use CUDA if available
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -163,7 +171,7 @@ class SAC(object):
     def reset_reward_tracker(self):
         self.reward_tracker = []
 
-    def select_action(self, state, evaluate=False):
+    def select_action(self, state):
 
         # Create modified state space with autoregressive terms
         for j in range(0,self.autoregressive_size):
@@ -171,7 +179,7 @@ class SAC(object):
         state_copy = state
         state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
         
-        if evaluate is False:
+        if self.evaluate is False:
             action, _, _ = self.policy.sample(state)
         else:
             _, _, action = self.policy.sample(state)
@@ -237,7 +245,7 @@ class SAC(object):
 
         return action
 
-    def append(self, states, actions, rewards, next_states, dones):
+    def add_to_buffer(self, states, actions, rewards, next_states, dones):
         """Save experience in replay memory, and use random sample from buffer to learn.
         
         Params
