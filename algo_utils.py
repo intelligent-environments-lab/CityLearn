@@ -84,6 +84,10 @@ def graph_total(env, RBC_env, agent, parent_dir, start_date, end_date, algo='SAC
     # Reward achieved in each step
     output['Total Reward in Step'] = agent.reward_tracker[-8759:]
 
+    # Mean action in each step
+    output['Mean Actions in Step'] = [np.mean(agent.action_tracker[i]) for i in range(len(agent.action_tracker[-8759:]))]
+   
+
     output_filtered = output.loc[start_date:end_date]
 
     # Create plot showing electricity demand profile with RL agent, cooling storage behaviour and DHW storage behaviour
@@ -137,7 +141,7 @@ def graph_total(env, RBC_env, agent, parent_dir, start_date, end_date, algo='SAC
     plt.close()
 
     # Create plot comparing RL elec consumption / RBC elec consumption
-    fig, ax = plt.subplots(nrows = 2, figsize=(20,12), sharex = True)
+    fig, ax = plt.subplots(nrows = 3, figsize=(20,12), sharex = True)
     output_filtered['Electricity demand without storage or generation (kW)'].plot(ax = ax[0], color='blue', ls = '--', label='Electricity demand without storage or generation (kW)', linewidth=1, x_compat=True)
     output_filtered['Electricity demand with PV generation and without storage(kW)'].plot(ax = ax[0], color='orange', ls = '--', label='Electricity demand with PV generation and without storage(kW)', linewidth=1)
     output_filtered['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)].plot(ax = ax[0], color = 'green', ls = '-', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo), linewidth=2)
@@ -152,10 +156,13 @@ def graph_total(env, RBC_env, agent, parent_dir, start_date, end_date, algo='SAC
     output_filtered['Total Reward in Step'].plot(ax = ax[1], color='blue', label='Total Reward', x_compat=True)
     ax[1].set_title('(b) - Total Reward')
     ax[1].legend(loc="upper right")
+    output_filtered['Mean Actions in Step'].plot(ax = ax[2], color='red', label='Mean Action', x_compat=True)
+    ax[2].set_title('(c) - Mean Action')
+    ax[2].legend(loc="upper right")
     # Set minor grid lines
     ax[0].xaxis.grid(False) # Just x
     ax[0].yaxis.grid(False) # Just x
-    for j in range(2):
+    for j in range(3):
         for xmin in ax[j].xaxis.get_minorticklocs():
             ax[j].axvline(x=xmin, ls='-', color = 'lightgrey')
     ax[0].tick_params(direction='out', length=6, width=2, colors='black', top=0, right=0)

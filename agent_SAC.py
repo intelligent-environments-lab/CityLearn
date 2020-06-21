@@ -114,7 +114,7 @@ class SAC(object):
         # Should the action space be constrained to restricted range from previous actions
         self.smooth_action_space = smooth_action_space
         # How much actions are allowed to change from one timestamp to the next
-        self.rho = 0.03
+        self.rho = 0.05
 
         # Size of state space
         self.obs_size = [box.shape[0] for box in self.env.get_state_action_spaces()[0]]
@@ -259,12 +259,6 @@ class SAC(object):
             next_states = np.append(next_states, self.autoregressive_memory.buffer[-j-1])
         #next_states = np.append(next_states,HVAC_load)
         
-        # Calculate Ramping component of reward function
-        #ramping = abs(HVAC_load - self.autoregressive_memory.buffer[-1])
-        
-        # Calculate Similar action component of reward function (if all agents are doing the same thing penalize)
-        same_action = abs(self.action_factor*actions.mean())
-        
         # Smooth action reward function
         smooth_action = abs(actions).sum()
 
@@ -276,14 +270,14 @@ class SAC(object):
         else:
             night_charging_boost = 0
 
-        # Reward punishment if agent charges during the peak day
+        # Punishment if agent charges during the peak day
         if (12 <= states[2] < 20) and actions.mean() > 0:
             day_charging_pen = -1000
         else:
             day_charging_pen = 0
         
         # Apply reward shaping function
-        total_rewards = self.peak_factor*rewards - self.smooth_factor*smooth_action + night_charging_boost + day_charging_pen
+        total_rewards = self.peak_factor*rewards + night_charging_boost + day_charging_pen
 
         # Scale and clip rewards 
         if total_rewards > 0:
@@ -303,7 +297,7 @@ class SAC(object):
         self.reward_tracker.append(norm_rewards)
 
         # Return shaped reward values
-        return norm_rewards, self.peak_factor*rewards, -self.ramping_factor, night_charging_boost, -self.smooth_factor*smooth_action
+        return norm_rewards, self.peak_factor*rewards, day_charging_pen, night_charging_boost, -self.smooth_factor*smooth_action
 
     # Update policy parameters
     def update_parameters(self, updates):
@@ -590,7 +584,7 @@ class RBC_Agent:
         self.action_tracker = []
         
     def select_action(self, states):
-        hour_day = states[0][0]
+        hour_day = states[0]
         
         # Daytime: release stored energy
         a = [[0.0 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]

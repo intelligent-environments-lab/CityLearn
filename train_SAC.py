@@ -47,9 +47,9 @@ parser.add_argument('--alpha', type=float, default=0.2, metavar='G',
                             term against the reward (default: 0.2)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--num_episodes', type=int, default=100, metavar='N',
+parser.add_argument('--num_episodes', type=int, default=200, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
-parser.add_argument('--start_steps', type=int, default=8760*1, metavar='N',
+parser.add_argument('--start_steps', type=int, default=8760*10, metavar='N',
                     help='Steps sampling random actions (default: 8760)')
 parser.add_argument('--update_interval', type=int, default=168, metavar='N',
                     help='Update network parameters every n steps')
@@ -127,7 +127,7 @@ state_list = []
 action_list = []
 doneRBC = False
 while not doneRBC:
-    action = agent.select_action(state)
+    action = agent.select_action([list(RBC_env.buildings.values())[0].sim_results['hour'][RBC_env.time_step]])
     action_list.append(action)
     state_list.append(state)
     next_stateRBC, rewardsRBC, doneRBC, _ = RBC_env.step(action)
@@ -175,7 +175,7 @@ for i_episode in itertools.count(1):
     # Initialise episode rewards
     episode_reward = 0
     episode_peak_reward = 0
-    episode_ramping_reward = 0
+    episode_day_reward = 0
     episode_night_reward = 0
     episode_smooth_reward = 0
     episode_steps = 0
@@ -210,13 +210,13 @@ for i_episode in itertools.count(1):
         next_state, reward, done, _ = env.step(action) 
 
         # Net Energy Consumption
-        this_netRBC = RBC_env.net_electric_consumption[episode_steps]
-        this_netSAC = env.net_electric_consumption[episode_steps]
-        reward = (this_netRBC * (1 - this_netSAC/RBC_24h_peak[episode_steps%24]))
+        #this_netRBC = env.net_electric_consumption_no_storage[episode_steps]
+        #this_netSAC = env.net_electric_consumption[episode_steps]
+        #reward = (this_netRBC * (1 - this_netSAC/RBC_24h_peak[episode_steps%24]))
         # print(reward)
 
         # Append transition to memory
-        reward, r_peak, r_ramping, r_night, r_smooth = agent.append(state, action, reward, next_state, done) 
+        reward, r_peak, r_day, r_night, r_smooth = agent.append(state, action, reward, next_state, done) 
 
         # writer.add_scalars('RBC vs SAC/Net Energy Consumption', {'RBC':this_netRBC, 'SAC':this_netSAC}, total_numsteps)
 
@@ -224,7 +224,7 @@ for i_episode in itertools.count(1):
         total_numsteps += 1
         episode_reward += reward
         episode_peak_reward += r_peak
-        episode_ramping_reward += r_ramping
+        episode_day_reward += r_day
         episode_night_reward += r_night
         episode_smooth_reward += r_smooth
 
@@ -235,7 +235,7 @@ for i_episode in itertools.count(1):
     # Tensorboard log reward values
     writer.add_scalar('Reward/Total', episode_reward, total_numsteps)
     writer.add_scalar('Reward/Peak', episode_peak_reward, total_numsteps)
-    writer.add_scalar('Reward/Ramping', episode_ramping_reward, total_numsteps)
+    writer.add_scalar('Reward/Day_Charging', episode_day_reward, total_numsteps)
     writer.add_scalar('Reward/Night_Charging', episode_night_reward, total_numsteps)
     writer.add_scalar('Reward/Smooth_Actions', episode_smooth_reward, total_numsteps)
 	
@@ -279,7 +279,7 @@ STEP 5: POSTPROCESSING
 building_number = building_ids[0]
 
 # Plot District level power consumption
-graph_total(env=env, RBC_env = RBC_env, agent=agent, parent_dir=final_dir, start_date = '2017-05-01', end_date = '2017-05-10')
+graph_total(env=env, RBC_env = RBC_env, agent=agent, parent_dir=final_dir, start_date = '2017-09-01', end_date = '2017-09-10')
 
 divide_lambda = lambda x: int(x/4)
 district_graph = Image.open(parent_dir+"final/"+r"district.jpg")

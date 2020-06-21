@@ -28,7 +28,7 @@ def reward_function_sa(electricity_demand):
     for e in electricity_demand:
         total_energy_demand += -e
         
-    price = max(total_energy_demand*0.01, 0)
+    price = max(total_energy_demand*0.005, 0)
     
     for i in range(len(electricity_demand)):
         electricity_demand[i] = min(price*electricity_demand[i], 0)
