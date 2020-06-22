@@ -5,7 +5,7 @@
 
 import matplotlib.pyplot as plt
 
-from agent import SAC, RBC_Agent
+from agent import RL_Agents, RBC_Agent
 import numpy as np
 from csv import DictWriter
 import json
@@ -23,7 +23,7 @@ from algo_utils import graph_total, graph_building, tabulate_table
 # In[2]:
 
 # Load environment
-climate_zone = 1
+climate_zone = 4
 data_path = Path("data/Climate_Zone_"+str(climate_zone))
 building_attributes = data_path / 'building_attributes.json'
 weather_file = data_path / 'weather_data.csv'
@@ -44,7 +44,8 @@ building_info = env.get_building_information()
 # In[ ]:
 
 # Initialise agent
-agents = SAC(env, env.observation_space.shape[0], env.action_space, constrain_action_space=True and env.central_agent, smooth_action_space = True, evaluate = True)
+#agents = SAC(env, env.observation_space.shape[0], env.action_space)
+agents = RL_Agents(building_info, observations_spaces, actions_spaces, env)
 
 # Play a saved ckpt of actor network in the environment
 
@@ -64,9 +65,6 @@ for e in range(episodes):
     done = False
             
     while not done:
-                
-        if k%(8760)==0:
-            print('hour: '+str(k)+' of '+str(8760*episodes))
         
         # Add batch dimension to single state input, and remove batch dimension from single action output
         action = agents.select_action(state)

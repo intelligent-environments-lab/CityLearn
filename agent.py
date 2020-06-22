@@ -30,6 +30,7 @@ from torch.optim import Adam
 import math
 import random
 import numpy as np
+import json
 
 # NEED TO ADD COMMENTING FOR THESE PARAMS
 LOG_SIG_MAX = 2
@@ -42,33 +43,41 @@ epsilon = 1e-6
 Initialises an Agent and Critic for each building. Can also be used to test/run a trained network in the environment.
 ======
 '''
-class SAC(object):
-    def __init__(self, env, num_inputs, action_space, constrain_action_space=False, smooth_action_space = False, evaluate = False):
+class RL_Agents(object):
+    def __init__(self, building_info, observations_spaces, actions_spaces, env):
 
         """
         ###################################
         HYPERPARAMETERS
         ======
         SAC PARAMETERS
-            replay_size (int): replay buffer size
-            batch_size (int): minibatch size
+            evaluate (Boolean): Whether the agent is being run in training mode or evaluation mode
+            load_path (string): If evaluating an agent or continuing training, where to load the checkpoint
+
+            lr (float): learning rate
             gamma (float): discount factor
+            tau (float): target smoothing coefficient(τ) for soft update
             alpha (float): Temperature parameter α determines the relative importance of the entropy\
             term against the reward (default: 0.2)
+            replay_size (int): replay buffer size
+            batch_size (int): minibatch size
             automatic_entropy_tuning (boolean): Automatically adjust α
             target_update_interval (int): Value target update per no. of updates per step
-            lr (float): learning rate
-            tau (float): target smoothing coefficient(τ) for soft update
             hidden_size (int): Size of the hidden layer in networks
-
             policy (Boolean): 'Policy Type: Gaussian | Deterministic (default: Gaussian)'
-
             update_interval (int): 'Update network parameters every n steps'
 
+        GENERAL PARAMETERS
+            constrain_action_space (Boolean): Should the action space be constrained to avoid infeasible actions
+            smooth_action_space (Boolean): Should the action space be constrained to restriced range from previous actions
+            rho (float): How much the actions are allowed to change from one timestep to the next
+
+        REWARD SHAPING PARAMETERS
+            peak_factor (float): Weighting for peak electricity price compared to other reward function terms
         """
-        self.env = env
-        self.evaluate = evaluate
-        self.load_path = 'alg/sac_20200621-025506'
+
+        self.evaluate = True
+        self.load_path = 'alg'
 
         self.lr = 0.0001
         self.gamma = 0.9
@@ -79,28 +88,33 @@ class SAC(object):
         self.automatic_entropy_tuning = False
         self.target_update_interval = 1
         self.hidden_size = 256
-        
-        # Number of regressive terms to include of HVAC cooling load
-        self.autoregressive_size = 0
-        num_inputs = num_inputs + self.autoregressive_size
+        self.policy_type = "Gaussian"
+        self.update_interval = 168
+
+        self.constrain_action_space = True
+        self.smooth_action_space = True
+        self.rho = 0.03
 
         # Reward shaping weights
-        self.ramping_factor = 0
-        self.action_factor = 0
-        self.smooth_factor = 0
         self.peak_factor = 1
-
-        self.policy_type = "Gaussian"
-
-        self.update_interval = 168
 
         # Use CUDA if available
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.critic = QNetwork(num_inputs, action_space.shape[0], self.hidden_size).to(device=self.device)
+        with open('buildings_state_action_space.json') as json_file:
+            self.buildings_states_actions = json.load(json_file)
+
+        # Get number of inputs (reduced state space)
+        num_inputs = env.observation_space.shape[0]
+
+        # Get number of actions
+        self.num_actions = [box.shape[0] for box in actions_spaces]
+
+        # Setup critic network
+        self.critic = QNetwork(num_inputs, sum(self.num_actions), self.hidden_size).to(device=self.device)
         self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)
 
-        self.critic_target = QNetwork(num_inputs, action_space.shape[0], self.hidden_size).to(self.device)
+        self.critic_target = QNetwork(num_inputs, sum(self.num_actions), self.hidden_size).to(self.device)
         hard_update(self.critic_target, self.critic)
 
         self.reset_action_tracker()
@@ -110,33 +124,16 @@ class SAC(object):
         # Replay Memory
         self.memory = ReplayMemory(self.replay_size)
 
-        # Memory of Power Consumption
-        self.autoregressive_memory = AutoRegressiveMemory(self.autoregressive_size)
-        
-        # Memory of Power Consumption
-        self.autoregressive_action_memory = AutoRegressiveMemory(1)
-
-        # Should the action space be constrained to avoid infeasible actions
-        self.constrain_action_space = constrain_action_space
-
-        # Should the action space be constrained to restricted range from previous actions
-        self.smooth_action_space = smooth_action_space
-        # How much actions are allowed to change from one timestamp to the next
-        self.rho = 0.03
-
         # Size of state space
-        self.obs_size = [box.shape[0] for box in self.env.get_state_action_spaces()[0]]
-
-        # Size of action space
-        self.act_size = [2 if id not in ["Building_3","Building_4"] else 1 for id in self.env.building_ids]
+        self.obs_size = [box.shape[0] for box in observations_spaces]
 
         # Internal agent representation of timestep
         self.total_numsteps = 0
 
         # Num shared actions
         s_appended = []
-        for uid, building in env.buildings.items():
-            for state_name, value in env.buildings_states_actions[uid]['states'].items():
+        for building in building_info:
+            for state_name, value in self.buildings_states_actions[building]['states'].items():
                 if value == True:
                     if state_name not in s_appended:
                         if state_name in ['t_in', 'avg_unmet_setpoint', 'rh_in', 'non_shiftable_load', 'solar_gen']:
@@ -148,29 +145,29 @@ class SAC(object):
         # Which buildings are being simulated
         self.building = []
         for building in ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]:
-            if building in env.building_ids:
+            if building in building_info:
                 self.building.append(1) 
             else:
                 self.building.append(0)
 
+        # Setup Policy (either Gaussian or Deterministic)
         if self.policy_type == "Gaussian":
             if self.automatic_entropy_tuning is True:
-                self.target_entropy = -torch.prod(torch.Tensor(action_space.shape).to(self.device)).item()
+                self.target_entropy = -torch.prod(torch.Tensor((sum(self.num_actions),)).to(self.device)).item()
                 self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
                 self.alpha_optim = Adam([self.log_alpha], lr=self.lr)
 
-            self.policy = GaussianPolicy(num_inputs, action_space.shape[0], self.hidden_size, action_space).to(self.device)
+            self.policy = GaussianPolicy(num_inputs, sum(self.num_actions), self.hidden_size, env.action_space).to(self.device)
             self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)
-
         else:
             self.alpha = 0
             self.automatic_entropy_tuning = False
-            self.policy = DeterministicPolicy(num_inputs, action_space.shape[0], self.hidden_size, action_space).to(self.device)
+            self.policy = DeterministicPolicy(num_inputs, sum(self.num_actions), self.hidden_size, env.action_space).to(self.device)
             self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)
         
         # Load the policy and critic if evaluating
         if self.evaluate == True:
-            self.load_model(self.load_path+"/monitor/checkpoints/sac_actor", self.load_path+"/monitor/checkpoints/sac_critic")
+            self.load_model(self.load_path+"/sac_actor", self.load_path+"/sac_critic")
 
     def reset_action_tracker(self):
         self.action_tracker = []
@@ -180,9 +177,6 @@ class SAC(object):
 
     def select_action(self, state):
 
-        # Create modified state space with autoregressive terms
-        for j in range(0,self.autoregressive_size):
-            state = np.append(state, self.autoregressive_memory.buffer[-j-1])
         state_copy = state
         state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
         
@@ -197,19 +191,13 @@ class SAC(object):
         if self.constrain_action_space == True:
             ba_idx = 0 # building action index
             bs_idx = self.shared_act # building state index
-            for building in range(0,len(self.act_size)):
+            for building in range(0,len(self.num_actions)):
                 bs_end_idx = bs_idx + self.obs_size[building] - self.shared_act
-                # print("\nBuilding {}".format(building+1))
                 # Boundary constraint flags, -1 for 0, 1 for 1, 0 for anything in between
-                soc_flags = [0 for actsiz in range(self.act_size[building])]
-                #print("States:")
+                soc_flags = [0 for actsiz in range(self.num_actions[building])]
                 # Find constraints and set flags
-                for idx, b_idx in enumerate(range(bs_end_idx-self.act_size[building],bs_end_idx)):
+                for idx, b_idx in enumerate(range(bs_end_idx-self.num_actions[building],bs_end_idx)):
                     
-                    # print("Act size {}".format(self.act_size[building]))
-                    # print("Act: {}".format(state_copy[b_idx]))
-                    # print("Idx: {}".format(b_idx))
-
                     # Enable the SOC flag on extreme values
                     if state_copy[b_idx] < 0.01:
                         # print(" -1: {}".format(state_copy[b_idx]))
@@ -221,23 +209,16 @@ class SAC(object):
                 # Set constraints from flags
                 for idx, flag in enumerate(soc_flags):
                     
-                    #print("Action: {}".format(action[ba_idx+idx]))
-
                     # SOC is trying to go below 0
                     if flag == -1:
                         if action[ba_idx+idx] < 0:
-                            # print("Activated flag {} == -1".format(idx))
-                            # action[ba_idx+idx] = np.random.normal(0,0.1,1)
                             action[ba_idx+idx] = 0
 
                     # SOC is trying to go above 1
                     elif flag == 1:
                         if action[ba_idx+idx] > 0:
-                            # print("Activated flag {} == 1".format(idx))
-                            # action[ba_idx+idx] = -np.random.normal(0,0.1,1)
                             action[ba_idx+idx] = 0
-                    #print(action[ba_idx+idx])
-                ba_idx += self.act_size[building]
+                ba_idx += self.num_actions[building]
                 bs_idx = bs_end_idx
 
         # constrain action space to be restricted range only if set to True
@@ -269,19 +250,6 @@ class SAC(object):
             next_states (Array): Array of updates states for each building after actions
             dones (Boolean): Whether episode is done (terminated) or not
         """
-        
-        # Calculate HVAC load for cooling (sum of cooling + dhw)
-        HVAC_load = self.env.electric_consumption_cooling[-1] + self.env.electric_consumption_dhw[-1]
-        
-        # Append autoregressive terms of HVAC load
-        for j in range(0,self.autoregressive_size):
-            states = np.append(states, self.autoregressive_memory.buffer[-j-1])
-        for j in range(0,self.autoregressive_size-1):
-            next_states = np.append(next_states, self.autoregressive_memory.buffer[-j-1])
-        #next_states = np.append(next_states,HVAC_load)
-        
-        # Smooth action reward function
-        smooth_action = abs(actions).sum()
 
         # Reward bonus if agent charges during the night
         if (1 <= states[2] < 12 or 22 <= states[2] <= 24) and actions.mean() > 0.1:
@@ -308,13 +276,6 @@ class SAC(object):
 
         # Save experience / reward
         self.memory.push(states, actions, norm_rewards, next_states, dones)
-        
-        # Add HVAC load to autoregressive memory
-        self.autoregressive_memory.push(HVAC_load)
-        
-        # Add action to autoregressive memory
-        self.autoregressive_action_memory.push(actions)
-
         self.reward_tracker.append(norm_rewards)
 
         # Increment timesteps
@@ -364,11 +325,8 @@ class SAC(object):
             self.alpha_optim.step()
 
             self.alpha = self.log_alpha.exp()
-            alpha_tlogs = self.alpha.clone() # For TensorboardX logs
         else:
             alpha_loss = torch.tensor(0.).to(self.device)
-            alpha_tlogs = torch.tensor(self.alpha) # For TensorboardX logs
-
 
         if updates % self.target_update_interval == 0:
             soft_update(self.critic_target, self.critic, self.tau)
@@ -381,7 +339,7 @@ class SAC(object):
 
         actor_path = path+"/monitor/checkpoints/sac_actor"
         critic_path = path+"/monitor/checkpoints/sac_critic"
-        #print('Saving models to {} and {}'.format(actor_path, critic_path))
+        print('Saving models to {} and {}'.format(actor_path, critic_path))
         torch.save(self.policy.state_dict(), actor_path)
         torch.save(self.critic.state_dict(), critic_path)
 
