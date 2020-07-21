@@ -527,7 +527,7 @@ class CityLearn(gym.Env):
             self.electric_consumption_cooling = np.array(self.electric_consumption_cooling)
             self.electric_consumption_appliances = np.array(self.electric_consumption_appliances)
             self.electric_generation = np.array(self.electric_generation)
-            self.loss.append([i for i in self.get_baseline_cost().values()])
+            self.loss.append([i for i in self.get_no_storage_cost().values()])
             
             if self.verbose == 1:
                 print('Cumulated reward: '+str(self.cumulated_reward_episode))
@@ -541,20 +541,20 @@ class CityLearn(gym.Env):
     def cost(self):
         
         # Running the reference rule-based controller to find the baseline cost
-        if self.cost_rbc is None:
-            env_rbc = CityLearn(self.data_path, self.building_attributes, self.weather_file, self.solar_profile, self.building_ids, buildings_states_actions = self.buildings_states_actions_filename, simulation_period = self.simulation_period, cost_function = self.cost_function, central_agent = False)
-            _, actions_spaces = env_rbc.get_state_action_spaces()
+        # if self.cost_rbc is None:
+        #     env_rbc = CityLearn(self.data_path, self.building_attributes, self.weather_file, self.solar_profile, self.building_ids, buildings_states_actions = self.buildings_states_actions_filename, simulation_period = self.simulation_period, cost_function = self.cost_function, central_agent = False)
+        #     _, actions_spaces = env_rbc.get_state_action_spaces()
 
-            #Instantiatiing the control agent(s)
-            agent_rbc = RBC_Agent(actions_spaces)
+        #     #Instantiatiing the control agent(s)
+        #     agent_rbc = RBC_Agent(actions_spaces)
 
-            state = env_rbc.reset()
-            done = False
-            while not done:
-                action = agent_rbc.select_action([list(env_rbc.buildings.values())[0].sim_results['hour'][env_rbc.time_step]])
-                next_state, rewards, done, _ = env_rbc.step(action)
-                state = next_state
-            self.cost_rbc = env_rbc.get_baseline_cost()
+        #     state = env_rbc.reset()
+        #     done = False
+        #     while not done:
+        #         action = agent_rbc.select_action([list(env_rbc.buildings.values())[0].sim_results['hour'][env_rbc.time_step]])
+        #         next_state, rewards, done, _ = env_rbc.step(action)
+        #         state = next_state
+        self.cost_rbc = self.get_no_storage_cost()
         
         # Compute the costs normalized by the baseline costs
         cost = {}
@@ -606,5 +606,29 @@ class CityLearn(gym.Env):
             
         if 'quadratic' in self.cost_function:
             cost['quadratic'] = (self.net_electric_consumption.clip(min=0)**2).sum()
+            
+        return cost
+
+    def get_no_storage_cost(self):
+        
+        # Computes the costs for no storage case, which are used to normalized the actual costs.
+        cost = {}
+        if 'ramping' in self.cost_function:
+            cost['ramping'] = np.abs((self.net_electric_consumption_no_storage - np.roll(self.net_electric_consumption_no_storage,1))[1:]).sum()
+            
+        if '1-load_factor' in self.cost_function:
+            cost['1-load_factor'] = np.mean([1 - np.mean(self.net_electric_consumption_no_storage[i:i+int(8760/12)])/ np.max(self.net_electric_consumption_no_storage[i:i+int(8760/12)]) for i in range(0, len(self.net_electric_consumption_no_storage), int(8760/12))])
+           
+        if 'average_daily_peak' in self.cost_function:
+            cost['average_daily_peak'] = np.mean([self.net_electric_consumption_no_storage[i:i+24].max() for i in range(0, len(self.net_electric_consumption_no_storage), 24)])
+            
+        if 'peak_demand' in self.cost_function:
+            cost['peak_demand'] = self.net_electric_consumption_no_storage.max()
+            
+        if 'net_electricity_consumption' in self.cost_function:
+            cost['net_electricity_consumption'] = self.net_electric_consumption_no_storage.clip(min=0).sum()
+            
+        if 'quadratic' in self.cost_function:
+            cost['quadratic'] = (self.net_electric_consumption_no_storage.clip(min=0)**2).sum()
             
         return cost

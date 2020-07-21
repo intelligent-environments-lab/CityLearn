@@ -70,16 +70,19 @@ class SAC(object):
         """
         self.evaluate = evaluate
         self.continue_training = continue_training
-        self.load_path = 'alg/sac_20200621-025506'
+        self.load_path = 'alg/'
+        rand_seed = 101
+        random.seed(rand_seed)
+        torch.manual_seed(rand_seed)
 
-        self.lr = 0.0005
-        self.gamma = 0.9
+        self.lr = 0.0001
+        self.gamma = 0.9 # check discount rate of 0.99
         self.tau = 0.003
         self.alpha = 0.2
         self.replay_size = 2000000
-        self.batch_size = 1024
+        self.batch_size = 2048
         self.automatic_entropy_tuning = False
-        self.target_update_interval = 1
+        self.target_update_interval = 1 
         self.hidden_size = 256
         
         # Number of regressive terms to include of HVAC cooling load
@@ -169,7 +172,27 @@ class SAC(object):
 
         # Load the policy and critic if evaluating
         if self.continue_training == True:
-            self.load_model(self.load_path+"/monitor/checkpoints/sac_actor", self.load_path+"/monitor/checkpoints/sac_critic")
+            self.load_model(self.load_path+"sac_actor", self.load_path+"sac_critic")
+
+        # Reward parameters
+        self.rbeta = 0.00003
+        self.rrho = 0.1
+
+        self.sw1 = 1.2
+        self.sw2 = 0.5
+        self.sw3 = 1.5
+
+        self.sw4 = 0.5
+        self.sw5 = 1
+
+        self.sw6 = -1/2
+        self.sw7 = 1
+
+        self.day_list = [0]*24
+
+        # Action history list
+        self.action_list = [[0]*action_space.shape[0],[0]*action_space.shape[0]]
+        self.action_ratios = [7/10, 2.5/10, 0.5/10]
 
     def reset_action_tracker(self):
         self.action_tracker = []
@@ -239,13 +262,22 @@ class SAC(object):
                 ba_idx += self.act_size[building]
                 bs_idx = bs_end_idx
 
-        # constrain action space to be restricted range only if set to True
-        if self.smooth_action_space == True:
+        # # constrain action space to be restricted range only if set to True
+        # if self.smooth_action_space == True:
 
-            if len(self.action_tracker) < 1:
-                action = np.clip(action, 0 - self.rho, 0 + self.rho)
-            else:
-                action = np.clip(action, self.action_tracker[-1] - self.rho, self.action_tracker[-1] + self.rho)
+        #     if len(self.action_tracker) < 1:
+        #         action = np.clip(action, 0 - self.rho, 0 + self.rho)
+        #     else:
+        #         action = np.clip(action, self.action_tracker[-1] - self.rho, self.action_tracker[-1] + self.rho)
+
+        # Delayed action smoothing
+        delayed_action = (action*self.action_ratios[0]
+            + np.array(self.action_list[1])*self.action_ratios[1]
+            + np.array(self.action_list[0])*self.action_ratios[2])
+
+        self.action_list[0] = self.action_list[1]
+        self.action_list[1] = delayed_action
+        action = delayed_action
 
         self.action_tracker.append(action)
 
@@ -263,47 +295,94 @@ class SAC(object):
             dones (Boolean): Whether episode is done (terminated) or not
         """
         
-        # Calculate HVAC load for cooling (sum of cooling + dhw)
-        HVAC_load = self.env.electric_consumption_cooling[-1] + self.env.electric_consumption_dhw[-1]
+        # # Calculate HVAC load for cooling (sum of cooling + dhw)
+        # HVAC_load = self.env.electric_consumption_cooling[-1] + self.env.electric_consumption_dhw[-1]
         
-        # Append autoregressive terms of HVAC load
-        for j in range(0,self.autoregressive_size):
-            states = np.append(states, self.autoregressive_memory.buffer[-j-1])
-        for j in range(0,self.autoregressive_size-1):
-            next_states = np.append(next_states, self.autoregressive_memory.buffer[-j-1])
-        #next_states = np.append(next_states,HVAC_load)
+        # # Append autoregressive terms of HVAC load
+        # for j in range(0,self.autoregressive_size):
+        #     states = np.append(states, self.autoregressive_memory.buffer[-j-1])
+        # for j in range(0,self.autoregressive_size-1):
+        #     next_states = np.append(next_states, self.autoregressive_memory.buffer[-j-1])
+        # #next_states = np.append(next_states,HVAC_load)
         
-        # Smooth action reward function
-        smooth_action = abs(actions).sum()
+        # # One Agent to Rule Them All rewards func
+        # total = self.env.net_electric_consumption[-1]
+        # reduce_peak = -self.rbeta * total**2
+        # reduce_total = -self.rrho * (0.001 if 14 < states[2] < 22 else 0.1) * total
+        # rewards = reduce_peak + reduce_total
 
+        # Smooth action reward function
+        # smooth_action = abs(actions).sum()
+        rewards = np.clip(rewards/5, -1, 1)
+        penal = sum([1 if not 0.001 > x > -0.001 else -10 for x in actions])
+        # rewards /= 5
+        # print(rewards)
         # Reward bonus if agent charges during the night
         if (1 <= states[2] < 12 or 22 <= states[2] <= 24) and actions.mean() > 0.1:
-            night_charging_boost = 1000
+            night_charging_boost = 1
         elif (1 <= states[2] < 8 or 22 <= states[2] <= 24) and actions.mean() < 0:
-            night_charging_boost = -1000
+            night_charging_boost = -1
         else:
             night_charging_boost = 0
 
         # Punishment if agent charges during the peak day
         if (12 <= states[2] < 20) and actions.mean() > 0:
-            day_charging_pen = -1000
+            day_charging_pen = -1
         else:
             day_charging_pen = 0
         
+        hr_pen = night_charging_boost + day_charging_pen
+
+        # print("No storage:", self.env.net_electric_consumption_no_storage[-1], "With SAC:", self.env.net_electric_consumption[-1], "Ratio:", self.env.net_electric_consumption_no_storage[-1]/self.env.net_electric_consumption[-1])
+        # print(rewards)
         # Apply reward shaping function
-        total_rewards = self.peak_factor*rewards + night_charging_boost + day_charging_pen
+    
+        # print((np.array(self.action_list[-1])/np.array(self.action_list[-2]))[0])
 
-        # Scale and clip rewards 
-        if total_rewards > 0:
-            norm_rewards = np.clip(total_rewards/100, -1, 1)
+        # action_ratio = (np.array(self.action_list[-1])/np.array(self.action_list[-2]))[0]
+        # action_ratio = np.nan_to_num(action_ratio)
+
+        # Disincentivise do nothing action
+        # ttt = np.mean(np.abs(np.array(actions))) * const + (rewards * CONST1)
+        # total_rewards = np.mean(np.abs(np.array(actions))) * self.sw4 + (rewards * self.sw5)
+        
+        hr_index = int(states[2]) - 1
+        if hr_index == 0:
+            max_peak = max(self.day_list)
+            self.day_list = [0]*24
+            self.day_list[hr_index] = self.env.net_electric_consumption[-1]
         else:
-            norm_rewards = np.clip(total_rewards/1000, -1, 1)
+            self.day_list[hr_index] = self.env.net_electric_consumption[-1]
+            max_peak = max(self.day_list)
 
+        # total_rewards = (penal * self.sw4) + (rewards * self.sw5)
+        # print(max_peak/10)
+
+        # Remove the 'rewards' term (get rid of the net electricity consumption)
+        total_rewards = (penal * self.sw4) + (rewards * self.sw5) + (max_peak/50 * self.sw6) + (hr_pen * self.sw7)
+
+        # action_ratio = 0 if np.array(self.action_list[-2])[0] < 0.0001 else np.array(self.action_list[-1])[0] / np.array(self.action_list[-2])[0]
+
+        # improve_term = self.sw1 * (self.env.net_electric_consumption_no_storage[-1]/self.env.net_electric_consumption[-1])
+        # action_term = self.sw2 * (action_ratio + (1 if actions[0] > 1.1 or actions[0] < -0.9 else -1))
+        # reward_term = self.sw3 * rewards
+
+        # total_rewards = self.peak_factor*rewards + night_charging_boost + day_charging_pen
+        # total_rewards = improve_term + action_term + reward_term
+        # print(total_rewards)
+
+        # # Scale and clip rewards 
+        # if total_rewards > 0:
+        #     norm_rewards = np.clip(total_rewards/100, -1, 1)
+        # else:
+        #     norm_rewards = np.clip(total_rewards/1000, -1, 1)
+        # norm_rewards = rewards
+        norm_rewards = total_rewards
         # Save experience / reward
         self.memory.push(states, actions, norm_rewards, next_states, dones)
         
-        # Add HVAC load to autoregressive memory
-        self.autoregressive_memory.push(HVAC_load)
+        # # Add HVAC load to autoregressive memory
+        # self.autoregressive_memory.push(HVAC_load)
         
         # Add action to autoregressive memory
         self.autoregressive_action_memory.push(actions)
@@ -311,6 +390,11 @@ class SAC(object):
         self.reward_tracker.append(norm_rewards)
 
         # Return shaped reward values
+        smooth_action = 0
+        # norm_rewards = 1
+        # rewards = 0
+        day_charging_pen = 0
+        night_charging_boost = 0
         return norm_rewards, self.peak_factor*rewards, day_charging_pen, night_charging_boost, -self.smooth_factor*smooth_action
 
     # Update policy parameters

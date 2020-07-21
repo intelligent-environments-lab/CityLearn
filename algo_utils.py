@@ -34,7 +34,7 @@ def tabulate_table(env, timer, algo, agent, climate_zone, building_ids, building
     run_results['Algorithm'] = algo
     run_results['Directory'] = parent_dir
     run_results['Train_Episodes'] = num_episodes
-    run_results['Ramping'] = env.cost()['ramping']
+    # run_results['Ramping'] = env.cost()['ramping']
     run_results['1-Load_Factor'] = env.cost()['1-load_factor']
     run_results['Average_Daily_Peak'] = env.cost()['average_daily_peak']
     run_results['Peak_Demand'] = env.cost()['peak_demand']

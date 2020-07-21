@@ -26,6 +26,7 @@ from PIL import Image
 from torchvision.transforms import ToTensor
 
 from algo_utils import graph_total, graph_building, tabulate_table
+from autoencoder import Autoencoder
 
 # Ignore the casting to float32 warnings
 warnings.simplefilter("ignore", UserWarning)
@@ -38,7 +39,7 @@ STEP 1: Set the Training Parameters
 """
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
-parser.add_argument('--seed', type=int, default=123456, metavar='N',
+parser.add_argument('--seed', type=int, default=101, metavar='N',
                     help='random seed (default: 123456)')
 parser.add_argument('--num_episodes', type=int, default=100, metavar='N',
                     help='Number of episodes to train for (default: 1000000)')
@@ -48,6 +49,10 @@ parser.add_argument('--checkpoint_interval', type=int, default=10, metavar='N',
                     help='Saves a checkpoint with actor/critic weights every n episodes')
 args = parser.parse_args()
 
+# Autoencoder parameters
+NEW_STATE_SIZE = 4
+AE_EPOCHS = 5000
+
 # Environment
 # Central agent controlling the buildings using the OpenAI Stable Baselines
 climate_zone = 1
@@ -56,8 +61,9 @@ building_attributes = data_path / 'building_attributes.json'
 weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
-building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
+building_ids = ['Building_1']
+# building_ids = ['Building_1',"Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
+objective_function = ['1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True, verbose = 0)
 RBC_env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = False, verbose = 0)
 
@@ -134,7 +140,25 @@ To be completed
 """
 
 # Agent
-agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=True and env.central_agent, smooth_action_space = True, evaluate = False, continue_training = True)
+agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=False and env.central_agent, smooth_action_space = False, evaluate = False, continue_training = False)
+
+# # Sample a year of random actions to feed into the AE
+# device = ('cuda' if torch.cuda.is_available() else 'cpu')
+# encoder = Autoencoder(in_shape=env.observation_space.shape[0], enc_shape=NEW_STATE_SIZE).double().to(device)
+# action_list_AE = []
+# state_list_AE = []
+# state_AE = env.reset()
+# done_AE = False
+# while not done_AE:
+#     action_AE = env.action_space.sample()
+#     action_list_AE.append(action_AE)
+#     state_list_AE.append(state_AE)
+#     state_AE, reward_AE, done_AE, _ = env.step(action_AE)
+# state_array_AE = np.array(state_list_AE)
+# state_scaled_AE = encoder.scaler.fit_transform(state_array_AE)
+# state_tensor_AE = torch.from_numpy(state_scaled_AE).to(device)
+# encoder.train_model(AE_EPOCHS, state_tensor_AE)
+# agent = SAC(env, NEW_STATE_SIZE, env.action_space, args, constrain_action_space=False and env.central_agent, smooth_action_space = True, evaluate = False, continue_training=False)
 
 """
 ###################################
@@ -157,7 +181,7 @@ The agent training process involves the following:
 total_numsteps = 0
 updates = 0
 
-best_reward = 0.95
+best_reward = 1.0
 
 # Measure the time taken for training
 start_timer = time.time()
@@ -172,6 +196,7 @@ for i_episode in itertools.count(1):
     episode_steps = 0
     done = False
     state = env.reset()
+    # state = encoder.encode_min(state)
 
     # For every step
     while not done:
@@ -198,13 +223,8 @@ for i_episode in itertools.count(1):
                 writer.add_scalar('entropy_temprature/alpha', alpha, total_numsteps)
         
         # Step
-        next_state, reward, done, _ = env.step(action) 
-
-        # Net Energy Consumption
-        #this_netRBC = env.net_electric_consumption_no_storage[episode_steps]
-        #this_netSAC = env.net_electric_consumption[episode_steps]
-        #reward = (this_netRBC * (1 - this_netSAC/RBC_24h_peak[episode_steps%24]))
-        # print(reward)
+        next_state, reward, done, _ = env.step(action)
+        # next_state = encoder.encode_min(next_state)
 
         # Append transition to memory
         reward, r_peak, r_day, r_night, r_smooth = agent.add_to_buffer(state, action, reward, next_state, done) 
@@ -231,7 +251,7 @@ for i_episode in itertools.count(1):
     writer.add_scalar('Reward/Smooth_Actions', episode_smooth_reward, total_numsteps)
 	
     # Tensorboard log citylearn cost function
-    writer.add_scalar("Scores/ramping", env.cost()['ramping'], total_numsteps)
+    # writer.add_scalar("Scores/ramping", env.cost()['ramping'], total_numsteps)
     writer.add_scalar("Scores/1-load_factor", env.cost()['1-load_factor'], total_numsteps)
     writer.add_scalar("Scores/average_daily_peak", env.cost()['average_daily_peak'], total_numsteps)
     writer.add_scalar("Scores/peak_demand", env.cost()['peak_demand'], total_numsteps)
