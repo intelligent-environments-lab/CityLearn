@@ -49,10 +49,6 @@ parser.add_argument('--checkpoint_interval', type=int, default=10, metavar='N',
                     help='Saves a checkpoint with actor/critic weights every n episodes')
 args = parser.parse_args()
 
-# Autoencoder parameters
-NEW_STATE_SIZE = 4
-AE_EPOCHS = 5000
-
 # Environment
 # Central agent controlling the buildings using the OpenAI Stable Baselines
 climate_zone = 1
@@ -142,24 +138,6 @@ To be completed
 # Agent
 agent = SAC(env, env.observation_space.shape[0], env.action_space, args, constrain_action_space=False and env.central_agent, smooth_action_space = False, evaluate = False, continue_training = False)
 
-# # Sample a year of random actions to feed into the AE
-# device = ('cuda' if torch.cuda.is_available() else 'cpu')
-# encoder = Autoencoder(in_shape=env.observation_space.shape[0], enc_shape=NEW_STATE_SIZE).double().to(device)
-# action_list_AE = []
-# state_list_AE = []
-# state_AE = env.reset()
-# done_AE = False
-# while not done_AE:
-#     action_AE = env.action_space.sample()
-#     action_list_AE.append(action_AE)
-#     state_list_AE.append(state_AE)
-#     state_AE, reward_AE, done_AE, _ = env.step(action_AE)
-# state_array_AE = np.array(state_list_AE)
-# state_scaled_AE = encoder.scaler.fit_transform(state_array_AE)
-# state_tensor_AE = torch.from_numpy(state_scaled_AE).to(device)
-# encoder.train_model(AE_EPOCHS, state_tensor_AE)
-# agent = SAC(env, NEW_STATE_SIZE, env.action_space, args, constrain_action_space=False and env.central_agent, smooth_action_space = True, evaluate = False, continue_training=False)
-
 """
 ###################################
 STEP 4: Run the SAC Training Sequence
@@ -189,10 +167,10 @@ start_timer = time.time()
 for i_episode in itertools.count(1):
     # Initialise episode rewards
     episode_reward = 0
-    episode_peak_reward = 0
-    episode_day_reward = 0
+    episode_flat_reward = 0
+    episode_high_reward = 0
+    episode_max_reward = 0
     episode_night_reward = 0
-    episode_smooth_reward = 0
     episode_steps = 0
     done = False
     state = env.reset()
@@ -227,28 +205,29 @@ for i_episode in itertools.count(1):
         # next_state = encoder.encode_min(next_state)
 
         # Append transition to memory
-        reward, r_peak, r_day, r_night, r_smooth = agent.add_to_buffer(state, action, reward, next_state, done) 
+        total_reward, flat_reward, penal, max_peak, hr_pen = agent.add_to_buffer(state, action, reward, next_state, done) 
 
         # writer.add_scalars('RBC vs SAC/Net Energy Consumption', {'RBC':this_netRBC, 'SAC':this_netSAC}, total_numsteps)
 
         episode_steps += 1
         total_numsteps += 1
-        episode_reward += reward
-        episode_peak_reward += r_peak
-        episode_day_reward += r_day
-        episode_night_reward += r_night
-        episode_smooth_reward += r_smooth
+        episode_reward += total_reward
+        episode_flat_reward += flat_reward
+        episode_high_reward += penal
+        episode_max_reward += max_peak
+        episode_night_reward += hr_pen
 
         state = next_state
         #if total_numsteps == 24:
         #    sys.exit()
 
     # Tensorboard log reward values
-    writer.add_scalar('Reward/Total', episode_reward, total_numsteps)
-    writer.add_scalar('Reward/Peak', episode_peak_reward, total_numsteps)
-    writer.add_scalar('Reward/Day_Charging', episode_day_reward, total_numsteps)
-    writer.add_scalar('Reward/Night_Charging', episode_night_reward, total_numsteps)
-    writer.add_scalar('Reward/Smooth_Actions', episode_smooth_reward, total_numsteps)
+    writer.add_scalars('Rewards',
+       {'Total':episode_reward,
+        'Flat':episode_flat_reward,
+        'High':episode_high_reward,
+        'Max':episode_max_reward,
+        'Night':episode_night_reward}, total_numsteps)
 	
     # Tensorboard log citylearn cost function
     # writer.add_scalar("Scores/ramping", env.cost()['ramping'], total_numsteps)

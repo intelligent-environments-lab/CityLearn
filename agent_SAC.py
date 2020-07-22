@@ -186,7 +186,7 @@ class SAC(object):
         self.sw5 = 1
 
         self.sw6 = -1/2
-        self.sw7 = 1
+        self.sw7 = 2
 
         self.day_list = [0]*24
 
@@ -228,10 +228,6 @@ class SAC(object):
                 # Find constraints and set flags
                 for idx, b_idx in enumerate(range(bs_end_idx-self.act_size[building],bs_end_idx)):
                     
-                    # print("Act size {}".format(self.act_size[building]))
-                    # print("Act: {}".format(state_copy[b_idx]))
-                    # print("Idx: {}".format(b_idx))
-
                     # Enable the SOC flag on extreme values
                     if state_copy[b_idx] < 0.01:
                         # print(" -1: {}".format(state_copy[b_idx]))
@@ -248,15 +244,11 @@ class SAC(object):
                     # SOC is trying to go below 0
                     if flag == -1:
                         if action[ba_idx+idx] < 0:
-                            # print("Activated flag {} == -1".format(idx))
-                            # action[ba_idx+idx] = np.random.normal(0,0.1,1)
                             action[ba_idx+idx] = 0
 
                     # SOC is trying to go above 1
                     elif flag == 1:
                         if action[ba_idx+idx] > 0:
-                            # print("Activated flag {} == 1".format(idx))
-                            # action[ba_idx+idx] = -np.random.normal(0,0.1,1)
                             action[ba_idx+idx] = 0
                     #print(action[ba_idx+idx])
                 ba_idx += self.act_size[building]
@@ -270,14 +262,14 @@ class SAC(object):
         #     else:
         #         action = np.clip(action, self.action_tracker[-1] - self.rho, self.action_tracker[-1] + self.rho)
 
-        # Delayed action smoothing
-        delayed_action = (action*self.action_ratios[0]
-            + np.array(self.action_list[1])*self.action_ratios[1]
-            + np.array(self.action_list[0])*self.action_ratios[2])
+        # # Delayed action smoothing
+        # delayed_action = (action*self.action_ratios[0]
+        #     + np.array(self.action_list[1])*self.action_ratios[1]
+        #     + np.array(self.action_list[0])*self.action_ratios[2])
 
-        self.action_list[0] = self.action_list[1]
-        self.action_list[1] = delayed_action
-        action = delayed_action
+        # self.action_list[0] = self.action_list[1]
+        # self.action_list[1] = delayed_action
+        # action = delayed_action
 
         self.action_tracker.append(action)
 
@@ -390,12 +382,8 @@ class SAC(object):
         self.reward_tracker.append(norm_rewards)
 
         # Return shaped reward values
-        smooth_action = 0
-        # norm_rewards = 1
-        # rewards = 0
-        day_charging_pen = 0
-        night_charging_boost = 0
-        return norm_rewards, self.peak_factor*rewards, day_charging_pen, night_charging_boost, -self.smooth_factor*smooth_action
+        return total_rewards, (rewards * self.sw5), (penal * self.sw4), (max_peak/50 * self.sw6), (hr_pen * self.sw7)
+        # return norm_rewards, self.peak_factor*rewards, day_charging_pen, night_charging_boost, -self.smooth_factor*smooth_action
 
     # Update policy parameters
     def update_parameters(self, updates):
