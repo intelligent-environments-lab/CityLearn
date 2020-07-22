@@ -262,14 +262,14 @@ class SAC(object):
         #     else:
         #         action = np.clip(action, self.action_tracker[-1] - self.rho, self.action_tracker[-1] + self.rho)
 
-        # # Delayed action smoothing
-        # delayed_action = (action*self.action_ratios[0]
-        #     + np.array(self.action_list[1])*self.action_ratios[1]
-        #     + np.array(self.action_list[0])*self.action_ratios[2])
+        # Delayed action smoothing
+        delayed_action = (action*self.action_ratios[0]
+            + np.array(self.action_list[1])*self.action_ratios[1]
+            + np.array(self.action_list[0])*self.action_ratios[2])
 
-        # self.action_list[0] = self.action_list[1]
-        # self.action_list[1] = delayed_action
-        # action = delayed_action
+        self.action_list[0] = self.action_list[1]
+        self.action_list[1] = delayed_action
+        action = delayed_action
 
         self.action_tracker.append(action)
 
