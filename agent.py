@@ -44,7 +44,7 @@ Initialises an Agent and Critic for each building. Can also be used to test/run 
 ======
 '''
 class RL_Agents(object):
-    def __init__(self, building_info, observations_spaces, actions_spaces, env):
+    def __init__(self, building_info, observations_spaces, actions_spaces, env, rand_seed):
 
         """
         ###################################
@@ -68,32 +68,43 @@ class RL_Agents(object):
             update_interval (int): 'Update network parameters every n steps'
 
         GENERAL PARAMETERS
-            constrain_action_space (Boolean): Should the action space be constrained to avoid infeasible actions
-            smooth_action_space (Boolean): Should the action space be constrained to restriced range from previous actions
             rho (float): How much the actions are allowed to change from one timestep to the next
 
         REWARD SHAPING PARAMETERS
             peak_factor (float): Weighting for peak electricity price compared to other reward function terms
+            sw1 (float): Weighting for near 0 actions penalisation
+            sw2 (float): Weighting for the clipped rewards
+            sw3 (float): Weighting for the daily peak component
+            sw4 (float): Weighting for the night charging boost / day charging penalisation term
         """
 
         self.evaluate = True
         self.load_path = 'alg'
+        random.seed(rand_seed)
+        torch.manual_seed(rand_seed)
 
-        self.lr = 0.0001
+        self.lr = 0.0000001
         self.gamma = 0.9
         self.tau = 0.003
         self.alpha = 0.2
         self.replay_size = 2000000
-        self.batch_size = 64
+        self.batch_size = 2048
         self.automatic_entropy_tuning = False
         self.target_update_interval = 1
         self.hidden_size = 256
         self.policy_type = "Gaussian"
         self.update_interval = 168
 
-        self.constrain_action_space = True
-        self.smooth_action_space = True
-        self.rho = 0.03
+        self.rho = 0.04
+
+        # Reward weights
+        self.sw1 = 0.5
+        self.sw2 = 1
+
+        self.sw3 = -1/2
+        self.sw4 = 2
+
+        self.day_list = [0]*24
 
         # Reward shaping weights
         self.peak_factor = 1
@@ -109,6 +120,10 @@ class RL_Agents(object):
 
         # Get number of actions
         self.num_actions = [box.shape[0] for box in actions_spaces]
+
+        # Action history list
+        self.action_list = [[0]*self.num_actions[0],[0]*self.num_actions[0]]
+        self.action_ratios = [7/10, 2.5/10, 0.5/10]
 
         # Setup critic network
         self.critic = QNetwork(num_inputs, sum(self.num_actions), self.hidden_size).to(device=self.device)
@@ -187,47 +202,13 @@ class RL_Agents(object):
         
         action = action.detach().cpu().numpy()[0]
 
-        # Constrain action space to feasible values only if set to True
-        if self.constrain_action_space == True:
-            ba_idx = 0 # building action index
-            bs_idx = self.shared_act # building state index
-            for building in range(0,len(self.num_actions)):
-                bs_end_idx = bs_idx + self.obs_size[building] - self.shared_act
-                # Boundary constraint flags, -1 for 0, 1 for 1, 0 for anything in between
-                soc_flags = [0 for actsiz in range(self.num_actions[building])]
-                # Find constraints and set flags
-                for idx, b_idx in enumerate(range(bs_end_idx-self.num_actions[building],bs_end_idx)):
-                    
-                    # Enable the SOC flag on extreme values
-                    if state_copy[b_idx] < 0.01:
-                        # print(" -1: {}".format(state_copy[b_idx]))
-                        soc_flags[idx] = -1
-                    elif state_copy[b_idx] > 0.99:
-                        # print(" 1: {}".format(state_copy[b_idx]))
-                        soc_flags[idx] = 1
+        delayed_action = (action*self.action_ratios[0]
+            + np.array(self.action_list[1])*self.action_ratios[1]
+            + np.array(self.action_list[0])*self.action_ratios[2])
 
-                # Set constraints from flags
-                for idx, flag in enumerate(soc_flags):
-                    
-                    # SOC is trying to go below 0
-                    if flag == -1:
-                        if action[ba_idx+idx] < 0:
-                            action[ba_idx+idx] = 0
-
-                    # SOC is trying to go above 1
-                    elif flag == 1:
-                        if action[ba_idx+idx] > 0:
-                            action[ba_idx+idx] = 0
-                ba_idx += self.num_actions[building]
-                bs_idx = bs_end_idx
-
-        # constrain action space to be restricted range only if set to True
-        if self.smooth_action_space == True:
-
-            if len(self.action_tracker) < 1:
-                action = np.clip(action, 0 - self.rho, 0 + self.rho)
-            else:
-                action = np.clip(action, self.action_tracker[-1] - self.rho, self.action_tracker[-1] + self.rho)
+        self.action_list[0] = self.action_list[1]
+        self.action_list[1] = delayed_action
+        action = delayed_action
 
         self.action_tracker.append(action)
 
@@ -239,7 +220,7 @@ class RL_Agents(object):
 
         return action
 
-    def add_to_buffer(self, states, actions, rewards, next_states, dones):
+    def add_to_buffer(self, states, actions, rewards, next_states, dones, total):
         """Save experience in replay memory, and use random sample from buffer to learn.
         
         Params
@@ -251,32 +232,40 @@ class RL_Agents(object):
             dones (Boolean): Whether episode is done (terminated) or not
         """
 
-        # Reward bonus if agent charges during the night
+        # Combined reward function
+        rewards = np.clip(rewards/5, -1, 1)
+
+        penal = sum([1 if not 0.001 > x > -0.001 else -10 for x in actions])
+
         if (1 <= states[2] < 12 or 22 <= states[2] <= 24) and actions.mean() > 0.1:
-            night_charging_boost = 1000
+            night_charging_boost = 1
         elif (1 <= states[2] < 8 or 22 <= states[2] <= 24) and actions.mean() < 0:
-            night_charging_boost = -1000
+            night_charging_boost = -1
         else:
             night_charging_boost = 0
 
         # Punishment if agent charges during the peak day
         if (12 <= states[2] < 20) and actions.mean() > 0:
-            day_charging_pen = -1000
+            day_charging_pen = -1
         else:
             day_charging_pen = 0
-        
-        # Apply reward shaping function
-        total_rewards = self.peak_factor*rewards + night_charging_boost + day_charging_pen
 
-        # Scale and clip rewards 
-        if total_rewards > 0:
-            norm_rewards = np.clip(total_rewards/100, -1, 1)
+        hr_index = int(states[2]) - 1
+        if hr_index == 0:
+            max_peak = max(self.day_list)
+            self.day_list = [0]*24
+            self.day_list[hr_index] = total
         else:
-            norm_rewards = np.clip(total_rewards/1000, -1, 1)
+            self.day_list[hr_index] = total
+            max_peak = max(self.day_list)
+        
+        hr_pen = night_charging_boost + day_charging_pen
+        
+        total_rewards = (penal * self.sw1) + (rewards * self.sw2) + (max_peak/50 * self.sw3) + (hr_pen * self.sw4)
 
         # Save experience / reward
-        self.memory.push(states, actions, norm_rewards, next_states, dones)
-        self.reward_tracker.append(norm_rewards)
+        self.memory.push(states, actions, total_rewards, next_states, dones)
+        self.reward_tracker.append(total_rewards)
 
         # Increment timesteps
         self.total_numsteps += 1

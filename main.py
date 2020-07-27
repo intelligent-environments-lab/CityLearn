@@ -11,6 +11,7 @@ from csv import DictWriter
 import json
 from pathlib import Path
 import time
+import warnings
 
 from citylearn import  CityLearn
 
@@ -19,6 +20,9 @@ import matplotlib.dates as dates
 import pandas as pd
 
 from algo_utils import graph_total, graph_building, tabulate_table
+
+# Ignore the casting to float32 warnings
+warnings.simplefilter("ignore", UserWarning)
     
 # In[2]:
 
@@ -29,8 +33,9 @@ building_attributes = data_path / 'building_attributes.json'
 weather_file = data_path / 'weather_data.csv'
 solar_profile = data_path / 'solar_generation_1kW.csv'
 building_state_actions = 'buildings_state_action_space.json'
-building_ids = ["Building_1","Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
-objective_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
+building_ids = ["Building_3"]
+# building_ids = ["Building_1","Building_2","Building_3","Building_4","Building_5","Building_6","Building_7","Building_8","Building_9"]
+objective_function = ['1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption']
 env = CityLearn(data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = building_state_actions, cost_function = objective_function, central_agent = True)
 
 # Contain the lower and upper bounds of the states and actions, to be provided to the agent to normalize the variables between 0 and 1.
@@ -43,9 +48,13 @@ building_info = env.get_building_information()
 
 # In[ ]:
 
+# Set seeds (TO DO: CHECK PERFORMANCE SAME FOR TWO RUNS WITH SAME SEED)
+seed = 101
+np.random.seed(seed)
+env.seed(seed)
+
 # Initialise agent
-#agents = SAC(env, env.observation_space.shape[0], env.action_space)
-agents = RL_Agents(building_info, observations_spaces, actions_spaces, env)
+agents = RL_Agents(building_info, observations_spaces, actions_spaces, env, seed)
 
 # Play a saved ckpt of actor network in the environment
 
@@ -69,16 +78,16 @@ for e in range(episodes):
         # Add batch dimension to single state input, and remove batch dimension from single action output
         action = agents.select_action(state)
         next_state, reward, done, _ = env.step(action)
-        agents.add_to_buffer(state, action, reward, next_state, done)
+        agents.add_to_buffer(state, action, reward, next_state, done, env.net_electric_consumption[-1])
         state = next_state
-        cum_reward[e] += reward
-        rewards.append(reward)
+        cum_reward[e] += agents.reward_tracker[-1]
+        rewards.append(agents.reward_tracker[-1])
         k+=1
             
     cost[e] = env.cost()
             
     if c%1==0:
-        print(cost[e])
+        print(f"Episode {e} |", "Cost:", cost[e]['total'], "Reward:", cum_reward[e], '\n')
     c+=1
                     
 env.close() 
