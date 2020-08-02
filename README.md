@@ -240,7 +240,7 @@ This default reward function should incentivize the agent(s) to flatten the curv
 The control actions are simply the storage or release of energy from the storage devices, and the overall objective is to make the net electrical demand of the district as flat, smooth and low as possible in order to minimize the aforementioned 5 cost metrics. The electricity generation and demand from appliances is already determined and going to happen regardless of the actions you take.
 
 ## License
-The MIT License (MIT) Copyright (c) 2019, José Ramón Vázquez-Canteli
+The MIT License (MIT) Copyright (c) 2019, The University of Texas at Austin
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
