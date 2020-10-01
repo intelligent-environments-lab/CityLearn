@@ -2,7 +2,7 @@ from gym import spaces
 import numpy as np
 
 class Building:  
-    def __init__(self, buildingId, dhw_storage = None, cooling_storage = None, electrical_storage = None, dhw_heating_device = None, cooling_device = None):
+    def __init__(self, buildingId, dhw_storage = None, cooling_storage = None, electrical_storage = None, dhw_heating_device = None, cooling_device = None, save_memory = True):
         """
         Args:
             buildingId (int)
@@ -28,9 +28,45 @@ class Building:
         self.action_space = None
         self.time_step = 0
         self.sim_results = {}
+        self.save_memory = save_memory
         
-        self.reset()
+        if self.dhw_storage is not None:
+            self.dhw_storage.reset()
+        if self.cooling_storage is not None:
+            self.cooling_storage.reset()
+        if self.electrical_storage is not None:
+            self.electrical_storage.reset()
+        if self.dhw_heating_device is not None:
+            self.dhw_heating_device.reset()
+        if self.cooling_device is not None:
+            self.cooling_device.reset()
+            
+        self._electric_consumption_cooling_storage = 0.0
+        self._electric_consumption_dhw_storage = 0.0
+        
+        self.cooling_demand_building = []
+        self.dhw_demand_building = []
+        self.electric_consumption_appliances = []
+        self.electric_generation = []
+           
+        self.electric_consumption_cooling = []
+        self.electric_consumption_cooling_storage = []
+        self.electric_consumption_dhw = []
+        self.electric_consumption_dhw_storage = []
+        
+        self.net_electric_consumption = []
+        self.net_electric_consumption_no_storage = []
+        self.net_electric_consumption_no_pv_no_storage = []
+        
+        self.cooling_device_to_building = []
+        self.cooling_storage_to_building = []
+        self.cooling_device_to_storage = []
+        self.cooling_storage_soc = []
 
+        self.dhw_heating_device_to_building = []
+        self.dhw_storage_to_building = []
+        self.dhw_heating_device_to_storage = []
+        self.dhw_storage_soc = []
         
     def set_state_space(self, high_state, low_state):
         # Setting the state space and the lower and upper bounds of each state-variable
@@ -58,21 +94,25 @@ class Building:
         
         # The storage device is charged (action > 0) or discharged (action < 0) taking into account the max power available and that the storage device cannot be discharged by an amount of energy greater than the energy demand of the building. 
         heating_energy_balance = self.dhw_storage.charge(max(-self.sim_results['dhw_demand'][self.time_step], min(heat_power_avail, action*self.dhw_storage.capacity)))
-        self.dhw_heating_device_to_storage.append(max(0, heating_energy_balance))
-        self.dhw_storage_to_building.append(-min(0, heating_energy_balance))
-        self.dhw_heating_device_to_building.append(self.sim_results['dhw_demand'][self.time_step] + min(0, heating_energy_balance))
-        self.dhw_storage_soc.append(self.dhw_storage._soc)
+        
+        if self.save_memory == False:
+            self.dhw_heating_device_to_storage.append(max(0, heating_energy_balance))
+            self.dhw_storage_to_building.append(-min(0, heating_energy_balance))
+            self.dhw_heating_device_to_building.append(self.sim_results['dhw_demand'][self.time_step] + min(0, heating_energy_balance))
+            self.dhw_storage_soc.append(self.dhw_storage._soc)
         
         # The energy that the energy supply device must provide is the sum of the energy balance of the storage unit (how much net energy it will lose or get) plus the energy supplied to the building. A constraint is added to guarantee it's always positive.
         heating_energy_balance = max(0, heating_energy_balance + self.sim_results['dhw_demand'][self.time_step])
         
         # Electricity consumed by the energy supply unit
         elec_demand_heating = self.dhw_heating_device.set_total_electric_consumption_heating(heat_supply = heating_energy_balance)
-        self.electric_consumption_dhw.append(elec_demand_heating)
         
         # Electricity consumption used (if +) or saved (if -) due to the change in the state of charge of the energy storage device 
         self._electric_consumption_dhw_storage = elec_demand_heating - self.dhw_heating_device.get_electric_consumption_heating(heat_supply = self.sim_results['dhw_demand'][self.time_step])
-        self.electric_consumption_dhw_storage.append(self._electric_consumption_dhw_storage)
+        
+        if self.save_memory == False:
+            self.electric_consumption_dhw.append(elec_demand_heating)
+            self.electric_consumption_dhw_storage.append(self._electric_consumption_dhw_storage)
         
         self.dhw_heating_device.time_step += 1
         
@@ -96,22 +136,26 @@ class Building:
         
         # The storage device is charged (action > 0) or discharged (action < 0) taking into account the max power available and that the storage device cannot be discharged by an amount of energy greater than the energy demand of the building.
         cooling_energy_balance = self.cooling_storage.charge(max(-self.sim_results['cooling_demand'][self.time_step], min(cooling_power_avail, action*self.cooling_storage.capacity))) 
-        self.cooling_device_to_storage.append(max(0, cooling_energy_balance))
-        self.cooling_storage_to_building.append(-min(0, cooling_energy_balance))
-        self.cooling_device_to_building.append(self.sim_results['cooling_demand'][self.time_step] + min(0, cooling_energy_balance))
-        self.cooling_storage_soc.append(self.cooling_storage._soc)
+        
+        if self.save_memory == False:
+            self.cooling_device_to_storage.append(max(0, cooling_energy_balance))
+            self.cooling_storage_to_building.append(-min(0, cooling_energy_balance))
+            self.cooling_device_to_building.append(self.sim_results['cooling_demand'][self.time_step] + min(0, cooling_energy_balance))
+            self.cooling_storage_soc.append(self.cooling_storage._soc)
         
         # The energy that the energy supply device must provide is the sum of the energy balance of the storage unit (how much net energy it will lose or get) plus the energy supplied to the building. A constraint is added to guarantee it's always positive.
         cooling_energy_balance = max(0, cooling_energy_balance + self.sim_results['cooling_demand'][self.time_step])
         
         # Electricity consumed by the energy supply unit
         elec_demand_cooling = self.cooling_device.set_total_electric_consumption_cooling(cooling_supply = cooling_energy_balance)
-        self.electric_consumption_cooling.append(elec_demand_cooling)
         
         # Electricity consumption used (if +) or saved (if -) due to the change in the state of charge of the energy storage device 
         self._electric_consumption_cooling_storage = elec_demand_cooling - self.cooling_device.get_electric_consumption_cooling(cooling_supply = self.sim_results['cooling_demand'][self.time_step])
-        self.electric_consumption_cooling_storage.append(self._electric_consumption_cooling_storage)
-   
+        
+        if self.save_memory == False:
+            self.electric_consumption_cooling.append(np.float32(elec_demand_cooling))
+            self.electric_consumption_cooling_storage.append(np.float32(self._electric_consumption_cooling_storage))
+            
         self.cooling_device.time_step += 1
 
         return elec_demand_cooling
@@ -130,6 +174,9 @@ class Building:
         return self.cooling_device._electrical_consumption_cooling
     
     def reset(self):
+        
+        self.current_net_electricity_demand = self.sim_results['non_shiftable_load'][self.time_step] - self.sim_results['solar_gen'][self.time_step]
+        
         if self.dhw_storage is not None:
             self.dhw_storage.reset()
         if self.cooling_storage is not None:
@@ -138,8 +185,10 @@ class Building:
             self.electrical_storage.reset()
         if self.dhw_heating_device is not None:
             self.dhw_heating_device.reset()
+            self.current_net_electricity_demand += self.dhw_heating_device.get_electric_consumption_heating(self.sim_results['dhw_demand'][self.time_step]) 
         if self.cooling_device is not None:
             self.cooling_device.reset()
+            self.current_net_electricity_demand += self.cooling_device.get_electric_consumption_cooling(self.sim_results['cooling_demand'][self.time_step])
             
         self._electric_consumption_cooling_storage = 0.0
         self._electric_consumption_dhw_storage = 0.0
@@ -181,54 +230,56 @@ class Building:
         if self.cooling_device is not None:
             self.cooling_device.terminate()
             
-        self.cooling_demand_building = np.array(self.sim_results['cooling_demand'][:self.time_step])
-        self.dhw_demand_building = np.array(self.sim_results['dhw_demand'][:self.time_step])
-        self.electric_consumption_appliances = np.array(self.sim_results['non_shiftable_load'][:self.time_step])
-        self.electric_generation = np.array(self.sim_results['solar_gen'][:self.time_step])
-        
-        elec_consumption_dhw = 0
-        elec_consumption_dhw_storage = 0
-        if self.dhw_heating_device.time_step == self.time_step and self.dhw_heating_device is not None:
-            elec_consumption_dhw = np.array(self.electric_consumption_dhw)
-            elec_consumption_dhw_storage = np.array(self.electric_consumption_dhw_storage)
+        if self.save_memory == False:
             
-        elec_consumption_cooling = 0
-        elec_consumption_cooling_storage = 0
-        if self.cooling_device.time_step == self.time_step and self.cooling_device is not None:
-            elec_consumption_cooling = np.array(self.electric_consumption_cooling)
-            elec_consumption_cooling_storage = np.array(self.electric_consumption_cooling_storage)
+            self.cooling_demand_building = np.array(self.sim_results['cooling_demand'][:self.time_step])
+            self.dhw_demand_building = np.array(self.sim_results['dhw_demand'][:self.time_step])
+            self.electric_consumption_appliances = np.array(self.sim_results['non_shiftable_load'][:self.time_step])
+            self.electric_generation = np.array(self.sim_results['solar_gen'][:self.time_step])
             
-        self.net_electric_consumption = np.array(self.electric_consumption_appliances) + elec_consumption_cooling + elec_consumption_dhw - np.array(self.electric_generation) 
-        self.net_electric_consumption_no_storage = np.array(self.electric_consumption_appliances) + (elec_consumption_cooling - elec_consumption_cooling_storage) + (elec_consumption_dhw - elec_consumption_dhw_storage) - np.array(self.electric_generation)
-        self.net_electric_consumption_no_pv_no_storage = np.array(self.net_electric_consumption_no_storage) + np.array(self.electric_generation)
+            elec_consumption_dhw = 0
+            elec_consumption_dhw_storage = 0
+            if self.dhw_heating_device.time_step == self.time_step and self.dhw_heating_device is not None:
+                elec_consumption_dhw = np.array(self.electric_consumption_dhw)
+                elec_consumption_dhw_storage = np.array(self.electric_consumption_dhw_storage)
+                
+            elec_consumption_cooling = 0
+            elec_consumption_cooling_storage = 0
+            if self.cooling_device.time_step == self.time_step and self.cooling_device is not None:
+                elec_consumption_cooling = np.array(self.electric_consumption_cooling)
+                elec_consumption_cooling_storage = np.array(self.electric_consumption_cooling_storage)
+                
+            self.net_electric_consumption = np.array(self.electric_consumption_appliances) + elec_consumption_cooling + elec_consumption_dhw - np.array(self.electric_generation) 
+            self.net_electric_consumption_no_storage = np.array(self.electric_consumption_appliances) + (elec_consumption_cooling - elec_consumption_cooling_storage) + (elec_consumption_dhw - elec_consumption_dhw_storage) - np.array(self.electric_generation)
+            self.net_electric_consumption_no_pv_no_storage = np.array(self.net_electric_consumption_no_storage) + np.array(self.electric_generation)
+                
+            self.cooling_demand_building = np.array(self.cooling_demand_building)
+            self.dhw_demand_building = np.array(self.dhw_demand_building)
+            self.electric_consumption_appliances = np.array(self.electric_consumption_appliances)
+            self.electric_generation = np.array(self.electric_generation)
+               
+            self.electric_consumption_cooling = np.array(self.electric_consumption_cooling)
+            self.electric_consumption_cooling_storage = np.array(self.electric_consumption_cooling_storage)
+            self.electric_consumption_dhw = np.array(self.electric_consumption_dhw)
+            self.electric_consumption_dhw_storage = np.array(self.electric_consumption_dhw_storage)
             
-        self.cooling_demand_building = np.array(self.cooling_demand_building)
-        self.dhw_demand_building = np.array(self.dhw_demand_building)
-        self.electric_consumption_appliances = np.array(self.electric_consumption_appliances)
-        self.electric_generation = np.array(self.electric_generation)
-           
-        self.electric_consumption_cooling = np.array(self.electric_consumption_cooling)
-        self.electric_consumption_cooling_storage = np.array(self.electric_consumption_cooling_storage)
-        self.electric_consumption_dhw = np.array(self.electric_consumption_dhw)
-        self.electric_consumption_dhw_storage = np.array(self.electric_consumption_dhw_storage)
-        
-        self.net_electric_consumption = np.array(self.net_electric_consumption)
-        self.net_electric_consumption_no_storage = np.array(self.net_electric_consumption_no_storage)
-        self.net_electric_consumption_no_pv_no_storage = np.array(self.net_electric_consumption_no_pv_no_storage)
-        
-        self.cooling_device_to_building = np.array(self.cooling_device_to_building)
-        self.cooling_storage_to_building = np.array(self.cooling_storage_to_building)
-        self.cooling_device_to_storage = np.array(self.cooling_device_to_storage)
-        self.cooling_storage_soc = np.array(self.cooling_storage_soc)
-
-        self.dhw_heating_device_to_building = np.array(self.dhw_heating_device_to_building)
-        self.dhw_storage_to_building = np.array(self.dhw_storage_to_building)
-        self.dhw_heating_device_to_storage = np.array(self.dhw_heating_device_to_storage)
-        self.dhw_storage_soc = np.array(self.dhw_storage_soc)
+            self.net_electric_consumption = np.array(self.net_electric_consumption)
+            self.net_electric_consumption_no_storage = np.array(self.net_electric_consumption_no_storage)
+            self.net_electric_consumption_no_pv_no_storage = np.array(self.net_electric_consumption_no_pv_no_storage)
+            
+            self.cooling_device_to_building = np.array(self.cooling_device_to_building)
+            self.cooling_storage_to_building = np.array(self.cooling_storage_to_building)
+            self.cooling_device_to_storage = np.array(self.cooling_device_to_storage)
+            self.cooling_storage_soc = np.array(self.cooling_storage_soc)
+    
+            self.dhw_heating_device_to_building = np.array(self.dhw_heating_device_to_building)
+            self.dhw_storage_to_building = np.array(self.dhw_storage_to_building)
+            self.dhw_heating_device_to_storage = np.array(self.dhw_heating_device_to_storage)
+            self.dhw_storage_soc = np.array(self.dhw_storage_soc)
         
 
 class HeatPump:
-    def __init__(self, nominal_power = None, eta_tech = None, t_target_heating = None, t_target_cooling = None):
+    def __init__(self, nominal_power = None, eta_tech = None, t_target_heating = None, t_target_cooling = None, save_memory = True):
         """
         Args:
             nominal_power (float): Maximum amount of electric power that the heat pump can consume from the power grid (given by the nominal power of the compressor)
@@ -256,6 +307,7 @@ class HeatPump:
         self.heat_supply = []
         self.cooling_supply = []
         self.time_step = 0
+        self.save_memory = save_memory
                    
     def get_max_cooling_power(self, max_electric_power = None):
         """
@@ -286,6 +338,7 @@ class HeatPump:
             self.max_heating = self.nominal_power*self.cop_cooling[self.time_step]
         else:
             self.max_heating = min(max_electric_power, self.nominal_power)*self.cop_cooling[self.time_step]
+            
         return self.max_heating
     
     def set_total_electric_consumption_cooling(self, cooling_supply = 0):
@@ -300,7 +353,10 @@ class HeatPump:
         
         self.cooling_supply.append(cooling_supply)
         self._electrical_consumption_cooling = cooling_supply/self.cop_cooling[self.time_step]
-        self.electrical_consumption_cooling.append(self._electrical_consumption_cooling)
+        
+        if self.save_memory == False:
+            self.electrical_consumption_cooling.append(np.float32(self._electrical_consumption_cooling))
+            
         return self._electrical_consumption_cooling
             
     def get_electric_consumption_cooling(self, cooling_supply = 0):
@@ -328,7 +384,10 @@ class HeatPump:
         
         self.heat_supply.append(heat_supply)
         self._electrical_consumption_heating = heat_supply/self.cop_heating[self.time_step]
-        self.electrical_consumption_heating.append(self._electrical_consumption_heating)
+        
+        if self.save_memory == False:
+            self.electrical_consumption_heating.append(np.float32(self._electrical_consumption_heating))
+            
         return self._electrical_consumption_heating
     
     def get_electric_consumption_heating(self, heat_supply = 0):
@@ -360,15 +419,16 @@ class HeatPump:
         self.time_step = 0
         
     def terminate(self):
-        self.cop_heating = self.cop_heating[:self.time_step]
-        self.cop_cooling = self.cop_cooling[:self.time_step]
-        self.electrical_consumption_cooling = np.array(self.electrical_consumption_cooling)
-        self.electrical_consumption_heating = np.array(self.electrical_consumption_heating)
-        self.heat_supply = np.array(self.heat_supply)
-        self.cooling_supply = np.array(self.cooling_supply)
+        if self.save_memory == False:
+            self.cop_heating = self.cop_heating[:self.time_step]
+            self.cop_cooling = self.cop_cooling[:self.time_step]
+            self.electrical_consumption_cooling = np.array(self.electrical_consumption_cooling)
+            self.electrical_consumption_heating = np.array(self.electrical_consumption_heating)
+            self.heat_supply = np.array(self.heat_supply)
+            self.cooling_supply = np.array(self.cooling_supply)
 
 class ElectricHeater:
-    def __init__(self, nominal_power = None, efficiency = None):
+    def __init__(self, nominal_power = None, efficiency = None, save_memory = True):
         """
         Args:
             nominal_power (float): Maximum amount of electric power that the electric heater can consume from the power grid
@@ -385,11 +445,13 @@ class ElectricHeater:
         self._electrical_consumption_heating = 0
         self.heat_supply = []
         self.time_step = 0
+        self.save_memory = save_memory
         
     def terminate(self):
-        self.electrical_consumption_heating = np.array(self.electrical_consumption_heating)
-        self.heat_supply = np.array(self.heat_supply)
-    
+        if self.save_memory == False:
+            self.electrical_consumption_heating = np.array(self.electrical_consumption_heating)
+            self.heat_supply = np.array(self.heat_supply)
+        
     def get_max_heating_power(self, max_electric_power = None, t_source_heating = None, t_target_heating = None):
         """Method that calculates the maximum heating power available
         Args:
@@ -419,7 +481,10 @@ class ElectricHeater:
         
         self.heat_supply.append(heat_supply)
         self._electrical_consumption_heating = heat_supply/self.efficiency
-        self.electrical_consumption_heating.append(self._electrical_consumption_heating)
+        
+        if self.save_memory == False:
+            self.electrical_consumption_heating.append(np.float32(self._electrical_consumption_heating))
+            
         return self._electrical_consumption_heating
     
     def get_electric_consumption_heating(self, heat_supply = 0):
@@ -440,7 +505,7 @@ class ElectricHeater:
         self.heat_supply = []
     
 class EnergyStorage:
-    def __init__(self, capacity = None, max_power_output = None, max_power_charging = None, efficiency = 1, loss_coeff = 0):
+    def __init__(self, capacity = None, max_power_output = None, max_power_charging = None, efficiency = 1, loss_coeff = 0, save_memory = True):
         """
         Generic energy storage class. It can be used as a chilled water storage tank or a DHW storage tank
         Args:
@@ -460,10 +525,12 @@ class EnergyStorage:
         self._soc = 0 # State of Charge
         self.energy_balance = []
         self._energy_balance = 0
+        self.save_memory = save_memory
         
     def terminate(self):
-        self.energy_balance = np.array(self.energy_balance)
-        self.soc =  np.array(self.soc)
+        if self.save_memory == False:
+            self.energy_balance = np.array(self.energy_balance)
+            self.soc =  np.array(self.soc)
         
     def charge(self, energy):
         """Method that controls both the energy CHARGE and DISCHARGE of the energy storage device
@@ -503,8 +570,10 @@ class EnergyStorage:
         else:
             self._energy_balance = (self._soc - soc_init)*self.efficiency
         
-        self.energy_balance.append(self._energy_balance)
-        self.soc.append(self._soc)
+        if self.save_memory == False:
+            self.energy_balance.append(np.float32(self._energy_balance))
+            self.soc.append(np.float32(self._soc))
+            
         return self._energy_balance
     
     def reset(self):
