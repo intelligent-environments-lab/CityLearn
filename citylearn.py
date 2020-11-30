@@ -231,7 +231,7 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
     return buildings, observation_spaces, action_spaces, observation_space_central_agent, action_space_central_agent
 
 class CityLearn(gym.Env):  
-    def __init__(self, data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = None, simulation_period = (0,8759), cost_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption'], central_agent = False, verbose = 0):
+    def __init__(self, data_path, building_attributes, weather_file, solar_profile, building_ids, buildings_states_actions = None, simulation_period = (0,8759), cost_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption'], central_agent = False, normalise = False, verbose = 0):
         with open(buildings_states_actions) as json_file:
             self.buildings_states_actions = json.load(json_file)
         
@@ -246,6 +246,7 @@ class CityLearn(gym.Env):
         self.central_agent = central_agent
         self.loss = []
         self.verbose = verbose
+        self.normalise = normalise
         
         self.buildings, self.observation_spaces, self.action_spaces, self.observation_space, self.action_space = building_loader(data_path, building_attributes, weather_file, solar_profile, building_ids, self.buildings_states_actions)
         
@@ -509,7 +510,12 @@ class CityLearn(gym.Env):
         return self._get_ob()
     
     def _get_ob(self):            
-        return self.state
+        if self.normalise == True:
+#            for state in self.state:
+#                
+            return [(state - self.observation_spaces[state].low) / (self.observation_spaces[state].high - self.observation_spaces[state].low) for state in range(self.n_buildings)]
+        else:
+            return self.state
     
     def _terminal(self):
         is_terminal = bool(self.time_step >= self.simulation_period[1])

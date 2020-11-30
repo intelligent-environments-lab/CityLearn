@@ -34,7 +34,7 @@ def tabulate_table(env, timer, algo, agent, climate_zone, building_ids, building
     run_results['Algorithm'] = algo
     run_results['Directory'] = parent_dir
     run_results['Train_Episodes'] = num_episodes
-    # run_results['Ramping'] = env.cost()['ramping']
+    run_results['Ramping'] = env.cost()['ramping']
     run_results['1-Load_Factor'] = env.cost()['1-load_factor']
     run_results['Average_Daily_Peak'] = env.cost()['average_daily_peak']
     run_results['Peak_Demand'] = env.cost()['peak_demand']
@@ -62,31 +62,32 @@ def tabulate_table(env, timer, algo, agent, climate_zone, building_ids, building
 # Graphing for District Behaviour
 def graph_total(env, RBC_env, agent, parent_dir, start_date, end_date, algo='SAC'):
     # Convert output to dataframes for easy plotting
-    time_periods = pd.date_range('2017-01-01 T01:00', '2017-12-31 T23:00', freq='1H')
+    time_periods = pd.date_range('2017-06-01 T01:00', '2017-09-01 T00:00', freq='1H')
     output = pd.DataFrame(index = time_periods)
 
-    time_periods_daily = pd.date_range('2017-01-01 T01:00', '2017-12-31 T23:00', freq='1D')
+    time_periods_daily = pd.date_range('2017-06-01 T01:00', '2017-09-01 T00:00', freq='1D')
     output_daily = pd.DataFrame(index = time_periods_daily)
 
     # Extract building behaviour
-    output['Electricity demand without storage or generation (kW)'] = env.net_electric_consumption_no_pv_no_storage[-8759:]
-    output['Electricity demand with PV generation and without storage(kW)'] = env.net_electric_consumption_no_storage[-8759:]
-    output['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)] = env.net_electric_consumption[-8759:]
-    output['Electricity demand with PV generation and using RBC for storage(kW)'] = RBC_env.net_electric_consumption[-8759:]
+    output['Electricity demand without storage or generation (kW)'] = env.net_electric_consumption_no_pv_no_storage[-(env.simulation_period[1]-env.simulation_period[0]):]
+    output['Electricity demand with PV generation and without storage(kW)'] = env.net_electric_consumption_no_storage[-(env.simulation_period[1]-env.simulation_period[0]):]
+    output['Electricity demand with PV generation and using {} for storage(kW)'.format(algo)] = env.net_electric_consumption[-(env.simulation_period[1]-env.simulation_period[0]):]
+    output['Electricity demand with PV generation and using RBC for storage(kW)'] = RBC_env.net_electric_consumption[-(env.simulation_period[1]-env.simulation_period[0]):]
     # Comparison of RBC and RL
     # Comparison of Total Consumption
-    output['Electricity demand - {} / RBC'.format(algo)] = env.net_electric_consumption[-8759:] / RBC_env.net_electric_consumption[-8759:]
+    output['Electricity demand - {} / RBC'.format(algo)] = env.net_electric_consumption[-(env.simulation_period[1]-env.simulation_period[0]):] / RBC_env.net_electric_consumption[-(env.simulation_period[1]-env.simulation_period[0]):]
     # Comparison of Peak Daily Consumption
     output_daily['Daily Peak Electricity demand using {} for storage'.format(algo)] = [env.net_electric_consumption[i:i+24].max() for i in range(0, len(env.net_electric_consumption), 24)]
     output_daily['Daily Peak Electricity demand using RBC for storage'] = [RBC_env.net_electric_consumption[i:i+24].max() for i in range(0, len(RBC_env.net_electric_consumption), 24)]
     output_daily['RL/RBC Daily Peak Factor'] = output_daily['Daily Peak Electricity demand using {} for storage'.format(algo)] / output_daily['Daily Peak Electricity demand using RBC for storage']
 
-    # Reward achieved in each step
-    output['Total Reward in Step'] = agent.reward_tracker[-8759:]
-
-    # Mean action in each step
-    output['Mean Actions in Step'] = [np.mean(agent.action_tracker[i]) for i in range(len(agent.action_tracker[-8759:]))]
-   
+    # Reward achieved in each step and mean action in each step
+    if env.central_agent == True:
+        output['Total Reward in Step'] = agent.reward_tracker[-(env.simulation_period[1]-env.simulation_period[0]):]
+        output['Mean Actions in Step'] = [np.mean(agent.action_tracker[i]) for i in range(len(agent.action_tracker[-(env.simulation_period[1]-env.simulation_period[0]):]))]
+    else:
+        output['Total Reward in Step'] = list(map(sum, agent.reward_tracker[-(env.simulation_period[1]-env.simulation_period[0]):]))
+        output['Mean Actions in Step'] = [np.mean([el[0] for el in sublist]) for sublist in agent.action_tracker[-(env.simulation_period[1]-env.simulation_period[0]):]]
 
     output_filtered = output.loc[start_date:end_date]
 
@@ -175,34 +176,33 @@ def graph_total(env, RBC_env, agent, parent_dir, start_date, end_date, algo='SAC
 # Graphing for Individual Buildings
 def graph_building(building_number, env, RBC_env, agent, parent_dir, start_date, end_date, action_index, algo='SAC'):
     # Convert output to dataframes for easy plotting
-    time_periods = pd.date_range('2017-01-01 T01:00', '2017-12-31 T23:00', freq='1H')
+    time_periods = pd.date_range('2017-06-01 T01:00', '2017-09-01 T00:00', freq='1H')
     output = pd.DataFrame(index = time_periods)
 
     # Extract building behaviour
-    output['Electricity demand for building {} without storage or generation (kW)'.format(building_number)] = env.buildings[building_number].net_electric_consumption_no_pv_no_storage[-8759:]
-    output['Electricity demand for building {} with PV generation and without storage(kW)'.format(building_number)] = env.buildings[building_number].net_electric_consumption_no_storage[-8759:]
-    output['Electricity demand for building {} with PV generation and using {} for storage(kW)'.format(building_number, algo)] = env.buildings[building_number].net_electric_consumption[-8759:]
-    # output['Electricity demand for building {} with PV generation and using RBC for storage(kW)'.format(building_number)] = RBC_env.buildings[building_number].net_electric_consumption[-8759:]
+    output['Electricity demand for building {} without storage or generation (kW)'.format(building_number)] = env.buildings[building_number].net_electric_consumption_no_pv_no_storage[-(env.simulation_period[1]-env.simulation_period[0]):]
+    output['Electricity demand for building {} with PV generation and without storage(kW)'.format(building_number)] = env.buildings[building_number].net_electric_consumption_no_storage[-(env.simulation_period[1]-env.simulation_period[0]):]
+    output['Electricity demand for building {} with PV generation and using {} for storage(kW)'.format(building_number, algo)] = env.buildings[building_number].net_electric_consumption[-(env.simulation_period[1]-env.simulation_period[0]):]
+    output['Electricity demand for building {} with PV generation and using RBC for storage(kW)'.format(building_number)] = RBC_env.buildings[building_number].net_electric_consumption[-(env.simulation_period[1]-env.simulation_period[0]):]
     # Cooling Storage
-    output['Cooling Demand (kWh)'] = env.buildings[building_number].cooling_demand_building[-8759:]
-    output['Energy Storage State of Charge - SOC (kWh)'] = env.buildings[building_number].cooling_storage_soc[-8759:]
-    output['Heat Pump Total Cooling Supply (kW)'] = env.buildings[building_number].cooling_device_to_building[-8759:] + env.buildings[building_number].cooling_device_to_storage[-8759:]
+    output['Cooling Demand (kWh)'] = env.buildings[building_number].cooling_demand_building[-(env.simulation_period[1]-env.simulation_period[0]):]
+    output['Energy Storage State of Charge - SOC (kWh)'] = env.buildings[building_number].cooling_storage_soc[-(env.simulation_period[1]-env.simulation_period[0]):]
+    output['Heat Pump Total Cooling Supply (kW)'] = env.buildings[building_number].cooling_device_to_building[-(env.simulation_period[1]-env.simulation_period[0]):] + env.buildings[building_number].cooling_device_to_storage[-(env.simulation_period[1]-env.simulation_period[0]):]
     if env.central_agent == False:
-        # THIS IS WRONG - CURRENTLY IT ONLY PLOTS THE ACTIONS OF BUILDING 1!!!! TO FIX
-        output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[0][0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+        output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[int(building_number[-1])-1][0]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-(env.simulation_period[1]-env.simulation_period[0]):])]]
     else:
-        output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[action_index]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+        output['Cooling Action - Increase or Decrease of SOC (kW)'] = [k[action_index]*env.buildings[building_number].cooling_storage.capacity for k in [j for j in np.array(agent.action_tracker[-(env.simulation_period[1]-env.simulation_period[0]):])]]
     if building_number != 'Building_3' and building_number != 'Building_4':
         # DHW
-        output['DHW Demand (kWh)'] = env.buildings[building_number].dhw_demand_building[-8759:]
+        output['DHW Demand (kWh)'] = env.buildings[building_number].dhw_demand_building[-(env.simulation_period[1]-env.simulation_period[0]):]
         #output['Energy Balance of DHW Tank (kWh)'] = -env.buildings[building_number].dhw_storage.energy_balance[-8759:]
-        output['Energy Balance of DHW Tank (kWh)'] = env.buildings[building_number].dhw_storage_soc[-8759:]
-        output['DHW Heater Total Heating Supply (kWh)'] = env.buildings[building_number].dhw_heating_device.heat_supply[-8759:]
+        output['Energy Balance of DHW Tank (kWh)'] = env.buildings[building_number].dhw_storage_soc[-(env.simulation_period[1]-env.simulation_period[0]):]
+        output['DHW Heater Total Heating Supply (kWh)'] = env.buildings[building_number].dhw_heating_device.heat_supply[-(env.simulation_period[1]-env.simulation_period[0]):]
         if env.central_agent == False:
-            output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[0][1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
+            output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[int(building_number[-1])-1][1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-(env.simulation_period[1]-env.simulation_period[0]):])]]
         else:
-            output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[action_index+1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-8759:])]]
-        output['DHW Heater Electricity Consumption (kWh)'] = env.buildings[building_number].electric_consumption_dhw[-8759:]
+            output['DHW Action - Increase or Decrease of SOC (kW)'] = [k[action_index+1]*env.buildings[building_number].dhw_storage.capacity for k in [j for j in np.array(agent.action_tracker[-(env.simulation_period[1]-env.simulation_period[0]):])]]
+        output['DHW Heater Electricity Consumption (kWh)'] = env.buildings[building_number].electric_consumption_dhw[-(env.simulation_period[1]-env.simulation_period[0]):]
 
     output_filtered = output.loc[start_date:end_date]
 
@@ -211,16 +211,16 @@ def graph_building(building_number, env, RBC_env, agent, parent_dir, start_date,
     output_filtered['Electricity demand for building {} without storage or generation (kW)'.format(building_number)].plot(ax = ax[0], color='blue', ls = '--', label='Electricity demand without storage or generation (kW)', x_compat=True)
     output_filtered['Electricity demand for building {} with PV generation and without storage(kW)'.format(building_number)].plot(ax = ax[0], color='orange', ls = '--', label='Electricity demand with PV generation and without storage(kW)')
     output_filtered['Electricity demand for building {} with PV generation and using {} for storage(kW)'.format(building_number, algo)].plot(ax = ax[0], color = 'green', ls = '-', label='Electricity demand with PV generation and using {} for storage(kW)'.format(algo))
-    # output_filtered['Electricity demand for building {} with PV generation and using RBC for storage(kW)'.format(building_number)].plot(ax = ax[0], color = 'black', ls = '-', label='Electricity demand with PV generation and using RBC for storage(kW)')
+    output_filtered['Electricity demand for building {} with PV generation and using RBC for storage(kW)'.format(building_number)].plot(ax = ax[0], color = 'black', ls = '-', label='Electricity demand with PV generation and using RBC for storage(kW)')
     ax[0].set_title('(a) - {} Electricity Demand'.format(building_number))
     ax[0].set(ylabel="Demand [kW]")
     ax[0].legend(loc="upper right")
     ax[0].xaxis.set_major_locator(dates.DayLocator())
     ax[0].xaxis.set_major_formatter(dates.DateFormatter('\n%d/%m'))
     ax[0].xaxis.set_minor_locator(dates.HourLocator(interval=6))
-    ax[0].xaxis.set_minor_formatter(dates.DateFormatter('%H'))
     output_filtered['Cooling Demand (kWh)'].plot(ax = ax[1], color='blue', label='Cooling Demand (kWh)', x_compat=True)
     output_filtered['Energy Storage State of Charge - SOC (kWh)'].plot(ax = ax[1], color='orange', label='Energy Storage State of Charge - SOC (kWh)')
+    ax[0].xaxis.set_minor_formatter(dates.DateFormatter('%H'))
     output_filtered['Heat Pump Total Cooling Supply (kW)'].plot(ax = ax[1], color = 'green', label='Heat Pump Total Cooling Supply (kW)')
     output_filtered['Cooling Action - Increase or Decrease of SOC (kW)'].plot(ax = ax[1], color = 'red', label='Controller Action - Increase or Decrease of SOC (kW)')
     ax[1].set_title('(b) - {} Cooling Storage Utilisation'.format(building_number))
