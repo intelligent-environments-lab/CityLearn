@@ -1,0 +1,11 @@
+env: citylearn
+
+env_args:
+    seed: 0
+
+test_nepisode: 1
+test_interval: 50000
+log_interval: 10000
+runner_log_interval: 10000
+learner_log_interval: 10000
+t_max: 1000000
