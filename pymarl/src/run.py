@@ -206,7 +206,7 @@ def run_sequential(args, logger):
 
         if (runner.t_env - last_log_T) >= args.log_interval:
             logger.log_stat("episode", episode, runner.t_env)
-            logger.log_stat("cost", episode, runner.env.env.cost())
+            logger.log_stat("cost", runner.env.costs['total'][-1], runner.t_env, to_sacred=True)
             logger.print_recent_stats()
             last_log_T = runner.t_env
 

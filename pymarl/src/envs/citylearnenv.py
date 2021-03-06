@@ -27,7 +27,6 @@ class CityLearnEnv(object):
                               'peak_demand','net_electricity_consumption',
                               'quadratic']
         self.n_agents = len(building_id)
-        self.n_actions = 25
 
         # Contain the lower and upper bounds of the states and actions, to be
         # provided to the agent to normalize the variables between 0 and 1.
@@ -54,21 +53,27 @@ class CityLearnEnv(object):
             high = act_sp.high
             x = len(low) # TODO this should be map instead
             self.actions_spaces_low[i][:x] = low
-            self.actions_spaces_high[i][:x] = low
+            self.actions_spaces_high[i][:x] = high
             self.actions_mask[i][:x] = 1
 
         self.action_maps = [
         ]
         act_sp = self.actions_spaces
-        for x in [-0.2,-0.1,0.,0.1,0.2]:
-            for y in [-0.2,-0.1,0.,0.1,0.2]:
-                self.action_maps.append(np.array([x,y]))
+        act_list = [-0.8, -0.5, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.5, 0.8]
+        self.act_list = act_list
+        self.n_actions = (len(act_list))**2
+        for x in act_list:
+            for y in act_list:
+                self.action_maps.append(np.array([x, y]))
 
         # Provides information on Building type, Climate Zone, Annual DHW demand,
         # Annual Cooling Demand, Annual Electricity Demand, Solar Capacity, and
         # correllations among buildings
         self.building_info = self.env.get_building_information()
         self.episode_limit = 8759
+        self.n_episode = 0
+
+        self.costs = {}
 
         state = self.env.reset()
         self.state = self._normalize_state(state)
@@ -77,7 +82,7 @@ class CityLearnEnv(object):
         """ Returns reward, terminated, info """
         actions = self._convert_to_continuous_actions(actions)
         state, reward, done, _ = self.env.step(actions)
-        reward = sum(reward) / 10000
+        reward = sum(reward) / 100000
         self.state = self._normalize_state(state)
         self.t += 1
         return reward, done, {'episode_limit': self.episode_limit}
@@ -132,7 +137,7 @@ class CityLearnEnv(object):
         return avails
 
     def get_avail_agent_actions(self, agent_id):
-        avail = [1] * 25
+        avail = [1] * (len(self.act_list)**2)
         act_space = self.actions_spaces
         counter = 0
         for x in self.action_maps:
@@ -153,8 +158,16 @@ class CityLearnEnv(object):
     def reset(self):
         """ Returns initial observations and states"""
         self.t = 0
+        if self.n_episode > 0:
+            cost = self.env.cost()
+            for k, v in cost.items():
+                if k not in self.costs:
+                    self.costs[k] = [v]
+                else:
+                    self.costs[k].append(v)
         state = self.env.reset()
         self.state = self._normalize_state(state)
+        self.n_episode += 1
         return self.get_obs(), self.get_state()
 
     def render(self):

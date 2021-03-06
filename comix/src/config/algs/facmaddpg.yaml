@@ -1,0 +1,61 @@
+action_range: ~
+action_selector: ~
+agent: mlp
+agent_output_type: ~
+batch_size_run: 1
+batch_size: 100
+buffer_size: 1000000
+buffer_warmup: 1000
+discretize_actions: False
+double_q: False
+epsilon_decay_mode: ~
+epsilon_start: ~
+epsilon_finish: ~
+epsilon_anneal_time: ~
+exploration_mode: "gaussian"
+start_steps: 0 # Number of steps for uniform-random action selection, before running real policy. Helps exploration.
+act_noise: 0.1 # Stddev for Gaussian exploration noise added to policy at training time.
+ou_theta: 0.15
+ou_sigma: 0.2
+ou_noise_scale: 0.3
+final_ou_noise_scale: 0.
+gamma: 0.99
+grad_norm_clip: 10
+learner: "facmaddpg_learner"
+learn_interval: 1
+lr: 0.001
+critic_lr: 0.001
+mac: cqmix_mac
+mixer: "qmix"
+mixing_embed_dim: 64
+skip_connections: False
+gated: False
+hypernet_layers: 2
+hypernet_embed: 64
+hyper_initialization_nonzeros: 0
+naf_hidden_dim: ~
+name: "facmaddpg"
+n_runners: ~
+n_train: 1
+optimizer: adam # D
+optimizer_epsilon: 0.01 # D
+ou_stop_episode: 100 # training noise goes to zero after this episode
+rnn_hidden_dim: 400
+run_mode: ~
+runner: "parallel"
+runner_scope: 'transition'
+target_update_interval: ~
+recurrent_critic: False
+target_update_mode: "soft"
+target_update_tau: 0.001
+test_greedy: ~
+test_interval: 4000
+test_nepisode: 10
+testing_on: True
+t_max: 500000
+save_model: False
+save_model_interval: 10000
+verbose: False
+weight_decay: True
+weight_decay_factor: 0.0001
+agent_return_logits: False

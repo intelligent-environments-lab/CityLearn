@@ -446,7 +446,7 @@ class CityLearn(gym.Env):
                             s.append(building.dhw_storage._soc/building.dhw_storage.capacity)
 
                 self.state.append(np.array(s))
-            self.state = np.array(self.state)
+            self.state = np.array(self.state, dtype=object)
             rewards = self.reward_function.get_rewards(self.buildings_net_electricity_demand)
             self.cumulated_reward_episode += sum(rewards)
             
@@ -524,7 +524,7 @@ class CityLearn(gym.Env):
 
                 self.state.append(np.array(s, dtype=np.float32))
                 
-            self.state = np.array(self.state)
+            self.state = np.array(self.state, dtype=object)
             
         return self._get_ob()
     
