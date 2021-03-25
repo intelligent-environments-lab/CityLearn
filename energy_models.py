@@ -8,7 +8,7 @@ class Building:
             buildingId (int)
             dhw_storage (EnergyStorage)
             cooling_storage (EnergyStorage)
-            electrical_storage (EnergyStorage)
+            electrical_storage (Battery)
             dhw_heating_device (ElectricHeater or HeatPump)
             cooling_device (HeatPump)
         """
@@ -68,6 +68,9 @@ class Building:
         self.dhw_heating_device_to_storage = []
         self.dhw_storage_soc = []
         
+        self.electrical_storage_electric_consumption = []
+        self.electrical_storage_soc = []
+        
     def set_state_space(self, high_state, low_state):
         # Setting the state space and the lower and upper bounds of each state-variable
         self.observation_space = spaces.Box(low=low_state, high=high_state, dtype=np.float32)
@@ -75,6 +78,30 @@ class Building:
     def set_action_space(self, max_action, min_action):
         # Setting the action space and the lower and upper bounds of each action-variable
         self.action_space = spaces.Box(low=min_action, high=max_action, dtype=np.float32)
+        
+    def set_storage_electrical(self, action):
+        """
+        Args:
+            action (float): Amount of heating energy stored (added) in that time-step as a ratio of the maximum capacity of the energy storage device. 
+            -1 =< action < 0 : Energy Storage Unit releases energy into the building and its State of Charge decreases
+            0 < action <= 1 : Energy Storage Unit receives energy from the energy supply device and its State of Charge increases
+            The actions are always subject to the constraints of the power capacity of the heating supply unit, the DHW demand of the
+            building (which limits the maximum amount of DHW that the energy storage can provide to the building), and the state of charge of the
+            energy storage unit itself
+        Return:
+            elec_demand_heating (float): electricity consumption needed for space heating and heating storage
+        """
+
+        electrical_energy_balance = self.electrical_storage.charge(action*self.electrical_storage.capacity)
+        
+        if self.save_memory == False:
+            self.electrical_storage_electric_consumption.append(electrical_energy_balance)
+            self.electrical_storage_soc.append(self.electrical_storage._soc)
+        
+        self.electrical_storage.time_step += 1
+        
+        return electrical_energy_balance
+    
 
     def set_storage_heating(self, action):
         """
@@ -217,6 +244,9 @@ class Building:
         self.dhw_heating_device_to_storage = []
         self.dhw_storage_soc = []
         
+        self.electrical_storage_electric_consumption = []
+        self.electrical_storage_soc = []
+        
     def terminate(self):
         
         if self.dhw_storage is not None:
@@ -276,6 +306,9 @@ class Building:
             self.dhw_storage_to_building = np.array(self.dhw_storage_to_building)
             self.dhw_heating_device_to_storage = np.array(self.dhw_heating_device_to_storage)
             self.dhw_storage_soc = np.array(self.dhw_storage_soc)
+            
+            self.electrical_storage_electric_consumption = np.array(self.electrical_storage_electric_consumption)
+            self.electrical_storage_soc = np.array(self.electrical_storage_soc)
         
 
 class HeatPump:
@@ -505,7 +538,7 @@ class ElectricHeater:
         self.heat_supply = []
     
 class EnergyStorage:
-    def __init__(self, capacity = None, max_power_output = None, max_power_charging = None, efficiency = 1, loss_coeff = 0, save_memory = True):
+    def __init__(self, capacity = None, max_power_output = None, max_power_charging = None, efficiency = 1, loss_coef = 0, save_memory = True):
         """
         Generic energy storage class. It can be used as a chilled water storage tank or a DHW storage tank
         Args:
@@ -513,14 +546,14 @@ class EnergyStorage:
             max_power_output (float): Maximum amount of power that the storage unit can output (kW)
             max_power_charging (float): Maximum amount of power that the storage unit can use to charge (kW)
             efficiency (float): Efficiency factor of charging and discharging the storage unit (from 0 to 1)
-            loss_coeff (float): Loss coefficient used to calculate the amount of energy lost every hour (from 0 to 1)
+            loss_coef (float): Loss coefficient used to calculate the amount of energy lost every hour (from 0 to 1)
         """
             
         self.capacity = capacity
         self.max_power_output = max_power_output
         self.max_power_charging = max_power_charging
-        self.efficiency = efficiency
-        self.loss_coeff = loss_coeff
+        self.efficiency = efficiency**0.5
+        self.loss_coef = loss_coef
         self.soc = []
         self._soc = 0 # State of Charge
         self.energy_balance = []
@@ -543,7 +576,7 @@ class EnergyStorage:
         """
         
         #The initial State Of Charge (SOC) is the previous SOC minus the energy losses
-        soc_init = self._soc*(1-self.loss_coeff)
+        soc_init = self._soc*(1-self.loss_coef)
         
         #Charging    
         if energy >= 0:
@@ -569,6 +602,133 @@ class EnergyStorage:
         #Discharging
         else:
             self._energy_balance = (self._soc - soc_init)*self.efficiency
+        
+        if self.save_memory == False:
+            self.energy_balance.append(np.float32(self._energy_balance))
+            self.soc.append(np.float32(self._soc))
+            
+        return self._energy_balance
+    
+    def reset(self):
+        self.soc = []
+        self._soc = 0 #State of charge
+        self.energy_balance = [] #Positive for energy entering the storage
+        self._energy_balance = 0
+        self.time_step = 0
+        
+
+class Battery:
+    def __init__(self, capacity, nominal_power = None, capacity_loss_coef = None, power_efficiency_curve = None, capacity_power_curve = None, efficiency = None, loss_coef = 0, save_memory = True):
+        """
+        Generic energy storage class. It can be used as a chilled water storage tank or a DHW storage tank
+        Args:
+            capacity (float): Maximum amount of energy that the storage unit is able to store (kWh)
+            max_power_charging (float): Maximum amount of power that the storage unit can use to charge (kW)
+            efficiency (float): Efficiency factor of charging and discharging the storage unit (from 0 to 1)
+            loss_coef (float): Loss coefficient used to calculate the amount of energy lost every hour (from 0 to 1)
+            power_efficiency_curve (float): Charging/Discharging efficiency as a function of the power released or consumed
+            capacity_power_curve (float): Max. power of the battery as a function of its current state of charge
+            capacity_loss_coef (float): Battery degradation. Storage capacity lost in each charge and discharge cycle (as a fraction of the total capacity)
+        """
+            
+        self.capacity = capacity
+        self.c0 = capacity
+        self.nominal_power = nominal_power
+        self.capacity_loss_coef = capacity_loss_coef
+        
+        if power_efficiency_curve is not None:
+            self.power_efficiency_curve = np.array(power_efficiency_curve).T
+        else:
+            self.power_efficiency_curve = power_efficiency_curve
+            
+        if capacity_power_curve is not None:
+            self.capacity_power_curve = np.array(capacity_power_curve).T
+        else:
+            self.capacity_power_curve = capacity_power_curve
+            
+        self.efficiency = efficiency**0.5
+        self.loss_coef = loss_coef
+        self.max_power = None
+        self._eff = []
+        self._energy = []
+        self._max_power = []
+        self.soc = []
+        self._soc = 0 # State of Charge
+        self.energy_balance = []
+        self._energy_balance = 0
+        self.save_memory = save_memory
+        
+    def terminate(self):
+        if self.save_memory == False:
+            self.energy_balance = np.array(self.energy_balance)
+            self.soc =  np.array(self.soc)
+        
+    def charge(self, energy):
+        """Method that controls both the energy CHARGE and DISCHARGE of the energy storage device
+        energy < 0 -> Discharge
+        energy > 0 -> Charge
+        Args:
+            energy (float): Amount of energy stored in that time-step (Wh)
+        Return:
+            energy_balance (float): 
+        """
+        
+        #The initial State Of Charge (SOC) is the previous SOC minus the energy losses
+        soc_init = self._soc*(1-self.loss_coef)
+        if self.capacity_power_curve is not None:
+            soc_normalized = soc_init/self.capacity
+            # Calculating the maximum power rate at which the battery can be charged or discharged
+            idx = max(0, np.argmax(soc_normalized <= self.capacity_power_curve[0]) - 1)
+            
+            self.max_power = self.nominal_power*(self.capacity_power_curve[1][idx] + (self.capacity_power_curve[1][idx+1] - self.capacity_power_curve[1][idx]) * (soc_normalized - self.capacity_power_curve[0][idx])/(self.capacity_power_curve[0][idx+1] - self.capacity_power_curve[0][idx]))
+        
+        else:
+            self.max_power = self.nominal_power
+          
+        #Charging    
+        if energy >= 0:
+            if self.nominal_power is not None:
+                
+                energy =  min(energy, self.max_power)
+                if self.power_efficiency_curve is not None:
+                    # Calculating the maximum power rate at which the battery can be charged or discharged
+                    energy_normalized = np.abs(energy)/self.nominal_power
+                    idx = max(0, np.argmax(energy_normalized <= self.power_efficiency_curve[0]) - 1)
+                    self.efficiency = self.power_efficiency_curve[1][idx] + (energy_normalized - self.power_efficiency_curve[0][idx])*(self.power_efficiency_curve[1][idx + 1] - self.power_efficiency_curve[1][idx])/(self.power_efficiency_curve[0][idx + 1] - self.power_efficiency_curve[0][idx])
+                    self.efficiency = self.efficiency**0.5
+                 
+            self._soc = soc_init + energy*self.efficiency
+            
+        #Discharging
+        else:
+            if self.nominal_power is not None:
+                energy = max(-self.max_power, energy)
+                
+            if self.power_efficiency_curve is not None:
+                
+                # Calculating the maximum power rate at which the battery can be charged or discharged
+                energy_normalized = np.abs(energy)/self.nominal_power
+                idx = max(0, np.argmax(energy_normalized <= self.power_efficiency_curve[0]) - 1)
+                self.efficiency = self.power_efficiency_curve[1][idx] + (energy_normalized - self.power_efficiency_curve[0][idx])*(self.power_efficiency_curve[1][idx + 1] - self.power_efficiency_curve[1][idx])/(self.power_efficiency_curve[0][idx + 1] - self.power_efficiency_curve[0][idx])
+                self.efficiency = self.efficiency**0.5
+                    
+            self._soc = max(0, soc_init + energy/self.efficiency)
+            
+        if self.capacity is not None:
+            self._soc = min(self._soc, self.capacity)
+          
+        # Calculating the energy balance with its external environment (amount of energy taken from or relseased to the environment)
+        
+        #Charging    
+        if energy >= 0:
+            self._energy_balance = (self._soc - soc_init)/self.efficiency
+            
+        #Discharging
+        else:
+            self._energy_balance = (self._soc - soc_init)*self.efficiency
+            
+        # Calculating the degradation of the battery: new max. capacity of the battery after charge/discharge       
+        self.capacity -= self.capacity_loss_coef*self.c0*np.abs(self._energy_balance)/(2*self.capacity)
         
         if self.save_memory == False:
             self.energy_balance.append(np.float32(self._energy_balance))
