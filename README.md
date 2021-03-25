@@ -37,7 +37,7 @@ CityLearn may still work with some earlier versions of these libraries, but we h
     - HeatPump
     - ElectricHeater
     - EnergyStorage
-![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/citylearn_diagram.jpg)
+![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/citylearn_diagram.png)
 
 ### CityLearn
 This class of type OpenAI Gym Environment contains all the buildings and their subclasses.
