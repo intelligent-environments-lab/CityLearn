@@ -202,7 +202,7 @@ The battery class allows the building to store electricity and release it at an 
   - ```soc```: state of charge (kWh)
   - ```energy_balance```: energy coming in (if positive) or out (if negative) of the energy storage device (kWh)
 - Methods
-charge() increases (+) or decreases (-) of the amount of energy stored. The input is the amount of energy as a ratio of the total capacity of the storage device (can vary from -1 to 1). Outputs the energy balance of the storage device.
+- charge() increases (+) or decreases (-) of the amount of energy stored. The input is the amount of energy as a ratio of the total capacity of the storage device (can vary from -1 to 1). Outputs the energy balance of the storage device.
 ## Environment variables
 The file [buildings_state_action_space.json](/buildings_state_action_space.json) contains all the states and action variables that the buildings can possibly return:
 ### Possible states
