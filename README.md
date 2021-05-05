@@ -22,7 +22,9 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
 ## Files
 ├── main.py
+
 ├── main.ipynb
+
 ├── citylearn.py
 ├── energy_models.py
 ├── agent.py
