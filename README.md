@@ -21,63 +21,63 @@ To run the file example_central_agent.ipynb, you will need:
 CityLearn may still work with some earlier versions of these libraries, but we have tested it with those.
 
 ## Files
-main.py
+    main.py
 
-main.ipynb
+    main.ipynb
 
-citylearn.py
+    citylearn.py
 
-energy_models.py
+    energy_models.py
 
-agent.py
+    agent.py
 
-buildings_states_actions_space.json
+    buildings_states_actions_space.json
 
-reward_function.py
+    reward_function.py
 
-**agents**
+    **agents**
 
-├── marlisa.py
+        ├── marlisa.py
 
-├── rbc.py
+        ├── rbc.py
 
-└── sac.py
+        └── sac.py
+
+    **common**
+
+        ├── preprocessing.py
+
+        └── rl.py
     
-**common**
+    **data**
 
-├── preprocessing.py
+    └── Climate_Zone_5
 
-└── rl.py
-    
-**data**
+        ├── building_attributes.json
 
-└── Climate_Zone_5
+        ├── carbon_intensity.csv
 
-   ├── building_attributes.json
+        ├── solar_generation_1kW.csv
 
-   ├── carbon_intensity.csv
+        ├── weather_data.csv
 
-   ├── solar_generation_1kW.csv
+        └── Building_i.csv
 
-   ├── weather_data.csv
+    **examples**
 
-   └── Building_i.csv
+        ├── example_rbc.ipynb
 
-**examples**
+        ├── example_sac.ipynb
 
-├── example_rbc.ipynb
+        └── example_marlisa.ipynb
 
-├── example_sac.ipynb
+    **submission_files**
 
-└── example_marlisa.ipynb
+        ├── agent.py
 
-**submission_files**
+        ├── buildings_states_actions_space.json
 
-├── agent.py
-
-├── buildings_states_actions_space.json
-
-└── reward_function.py
+        └── reward_function.py
 
 - [main.ipynb](/main.ipynb): jupyter lab file. Example of the implementation of decentralized multi-agent reinforcement learning agents ([MARLISA](https://www.researchgate.net/publication/344502330_MARLISA_Multi-Agent_Reinforcement_Learning_with_Iterative_Sequential_Action_Selection_for_Load_Shaping_of_Grid-Interactive_Connected_Buildings)), which is based on the single-agent RL algorithm [SAC](https://arxiv.org/abs/1812.05905). The agents are implemented for a district with 9 different buildings in ```CityLearn```
 - [main.py](/main.py): Copy of [main.ipynb](/main.ipynb) as a python file.
