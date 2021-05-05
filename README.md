@@ -35,7 +35,7 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
     reward_function.py
 
-    **agents**
+    agents
 
         ├── marlisa.py
 
@@ -43,13 +43,13 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
         └── sac.py
 
-    **common**
+    common
 
         ├── preprocessing.py
 
         └── rl.py
     
-    **data**
+    data
 
     └── Climate_Zone_5
 
@@ -63,7 +63,7 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
         └── Building_i.csv
 
-    **examples**
+    examples
 
         ├── example_rbc.ipynb
 
@@ -71,7 +71,7 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
         └── example_marlisa.ipynb
 
-    **submission_files**
+    submission_files
 
         ├── agent.py
 
