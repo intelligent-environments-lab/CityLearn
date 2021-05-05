@@ -14,10 +14,6 @@ CityLearn requires the installation of the following Python libraries:
 In order to run the main files with the sample agent provided you will need:
 - PyTorch 1.1.0
 
-To run the file example_central_agent.ipynb, you will need:
-- TensorFlow 1.14.0
-- stable-baselines
-
 CityLearn may still work with some earlier versions of these libraries, but we have tested it with those.
 
 ## Files
