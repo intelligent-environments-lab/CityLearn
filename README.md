@@ -248,17 +248,8 @@ Note that the action of the user-implemented controller can be bounded between -
 
 The mathematical formulation of the effects of the actions can be found in the methods ```set_storage_electrical(action)```, ```set_storage_heating(action)``` and ```set_storage_cooling(action)``` of the class Building in the file [energy_models.py](/energy_models.py).
 ### Reward function
-The reward function must be defined by the user by changing one of the two functions in the file [reward_function.py](/reward_function.py).
-
-For a central single-agent (if CityLearn class attribtue ```central_agent = True```):
-- ```reward_function_sa```: it takes the total net electricity consumption of each building (< 0 if generation is higher than demand) at a given time and returns a single reward for the central agent.
-
-For a decentralized multi-agent controller  (if CityLearn class attribtue ```central_agent = False```):
-- ```reward_function_ma```: it takes the total net electricity consumption of each building (< 0 if generation is higher than demand) at a given time and returns a list with as many rewards as the number of agents.
-
-By modifying these functions the user changes the reward that the CityLearn environment returns every time the method .step(a) is called.
-
-When you run a simulation in CityLearn, it will return a set of performance metrics and scores once the simulation is over:
+The reward function must be defined by the users by changing the class ```reward_function_ma``` in the file [reward_function.py](/reward_function.py).
+```reward_function_ma```: it is a multi-agent reward function that takes the total net electricity consumption of each building (< 0 if generation is higher than demand), and the carbon intensity at a given time and returns a list with as many rewards as the number of agents. It can also be initialized with some information about the number of buildings and some information about them as provided by the variable building_info
 
 ### Performance metrics
 ```env.cost()``` is returns the performance metrics of the environment, which the RL controller must minimize. There are multiple metrics available, which are all defined as a function of the total non-negative net electricity consumption of the whole neighborhood:
