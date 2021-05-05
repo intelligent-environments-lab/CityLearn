@@ -21,6 +21,36 @@ To run the file example_central_agent.ipynb, you will need:
 CityLearn may still work with some earlier versions of these libraries, but we have tested it with those.
 
 ## Files
+├── main.py
+├── main.ipynb
+├── citylearn.py
+├── energy_models.py
+├── agent.py
+├── buildings_states_actions_space.json
+├──  reward_function.py
+├── agents
+    ├── marlisa.py
+    ├── rbc.py
+    └── sac.py
+├── common
+    ├── preprocessing.py
+    └── rl.py
+├── data
+    └── Climate_Zone_5
+        ├── building_attributes.json
+        ├── carbon_intensity.csv
+        ├── solar_generation_1kW.csv
+        ├── weather_data.csv
+        └── Building_i.csv
+    ├── examples
+        ├── example_rbc.ipynb
+        ├── example_sac.ipynb
+        └── example_marlisa.ipynb
+    └── submission_files
+        ├── agent.py
+        ├── buildings_states_actions_space.json
+        └── reward_function.py
+
 - [main.ipynb](/main.ipynb): jupyter lab file. Example of the implementation of decentralized multi-agent reinforcement learning agents ([MARLISA](https://www.researchgate.net/publication/344502330_MARLISA_Multi-Agent_Reinforcement_Learning_with_Iterative_Sequential_Action_Selection_for_Load_Shaping_of_Grid-Interactive_Connected_Buildings)), which is based on the single-agent RL algorithm [SAC](https://arxiv.org/abs/1812.05905). The agents are implemented for a district with 9 different buildings in ```CityLearn```
 - [main.py](/main.py): Copy of [main.ipynb](/main.ipynb) as a python file.
 - [buildings_state_action_space.json](/buildings_state_action_space.json): json file containing the possible states and actions for every building, from which users can choose.
@@ -180,16 +210,26 @@ For a decentralized multi-agent controller  (if CityLearn class attribtue ```cen
 
 By modifying these functions the user changes the reward that the CityLearn environment returns every time the method .step(a) is called.
 
+When you run a simulation in CityLearn, it will return a set of performance metrics and scores once the simulation is over:
+
 ### Performance metrics
 ```env.cost()``` is returns the performance metrics of the environment, which the RL controller must minimize. There are multiple metrics available, which are all defined as a function of the total non-negative net electricity consumption of the whole neighborhood:
-- ```ramping```: sum(|e(t)-e(t-1)|), where e is the net non-negative electricity consumption every time-step.
-- ```1-load_factor```: the load factor is the average net electricity load divided by the maximum electricity load.
-- ```average_daily_peak```: average daily peak net demand.
-- ```peak_demand```: maximum peak electricity demand
-- ```net_electricity_consumption```: total amount of electricity consumed
-- ```quadratic```: sum(e^2), where e is the net non-negative electricity consumption every time-step. (Not used in The CityLearn Challenge).
+1- ```ramping```: sum(|e(t)-e(t-1)|), where e is the net non-negative electricity consumption every time-step.
+2- ```1-load_factor```: the load factor is the average net electricity load divided by the maximum electricity load.
+3- ```average_daily_peak```: average daily peak net demand.
+4- ```peak_demand```: maximum peak electricity demand.
+5- ```net_electricity_consumption```: total amount of electricity consumed.
+6- ```carbon_emissions```: total amount of carbon emissions.
+7- ```quadratic```: sum(e^2), where e is the net non-negative electricity consumption every time-step. (Not used in The CityLearn Challenge).
 
 All these metrics are divided by the metrics of a reference rule-based controller (RBC). Therefore, any metric > 1 is worse than that of the RBC, and < 1 means that the controller is minimizing that metric better than the RBC. Since the metrics are normalized using the RBC results, it is possible to have results in which for example ```average_daily_peak``` > ```peak_demand```. This just means that the RL controller minimized the total peak demand more than it minimized the average daily peak demand with respect to the RBC.
+
+### Scores
+- Total - Average of the metrics 1, 2, 3, 4, 5, and 6 for the full simulated period (4 years)
+- Total Last Year - Average of the metrics 1, 2, 3, 4, 5, and 6 for the last year of the simulation
+- Coordination Score - Average of the metrics 1, 2, 3, and 4 for the full simulated period (4 years)
+- Coordination Score Last Year - Average of the metrics 1, 2, 3, and 4 for the last year of the simulation.
+- Carbon Emissions - Metric 6
 
 ## Additional functions
 - ```building_loader(demand_file, weather_file, buildings)``` receives a dictionary with all the building instances and their respectives IDs, and loads them with the data of heating and cooling loads from the simulations.
@@ -205,6 +245,7 @@ Coordinate multiple RL agents or a single centralized agent to control all the b
 - [Vázquez-Canteli, J.R., Kämpf, J., Henze, G., and Nagy, Z., "CityLearn v1.0: An OpenAI Gym Environment for Demand Response with Deep Reinforcement Learning", Proceedings of the 6th ACM International Conference, ACM New York p. 356-357, New York, 2019](https://dl.acm.org/citation.cfm?id=3360998)
 
 ## Related Publications
+- [Vázquez-Canteli, J.R., Dey, S., Henze, G., and Nagy, Z.,  "CityLearn: Standardizing Research in Multi-Agent Reinforcement Learning for Demand Response and Urban Energy Management", 2020.](https://arxiv.org/abs/2012.10504)
 - [Vázquez-Canteli, J.R., G. Henze, and Nagy, Z., “MARLISA: Multi-Agent Reinforcement Learning with Iterative Sequential Action Selection for Load Shaping of Grid-Interactive Connected Buildings”, BuildSys, 2020](https://www.researchgate.net/publication/344502330_MARLISA_Multi-Agent_Reinforcement_Learning_with_Iterative_Sequential_Action_Selection_for_Load_Shaping_of_Grid-Interactive_Connected_Buildings)
 - [Vázquez-Canteli, J.R., and Nagy, Z., “Reinforcement Learning for Demand Response: A Review of algorithms and modeling techniques”, Applied Energy 235, 1072-1089, 2019.](https://www.sciencedirect.com/science/article/abs/pii/S0306261918317082)
 ## Contact
