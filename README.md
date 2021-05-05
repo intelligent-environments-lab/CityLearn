@@ -26,31 +26,59 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 ├── main.ipynb
 
 ├── citylearn.py
+
 ├── energy_models.py
+
 ├── agent.py
+
 ├── buildings_states_actions_space.json
+
 ├──  reward_function.py
+
 ├── agents
+
     ├── marlisa.py
+    
     ├── rbc.py
+    
     └── sac.py
+    
 ├── common
+
     ├── preprocessing.py
+    
     └── rl.py
+    
+    
 ├── data
+
     └── Climate_Zone_5
+    
         ├── building_attributes.json
+        
         ├── carbon_intensity.csv
+        
         ├── solar_generation_1kW.csv
+        
         ├── weather_data.csv
+        
         └── Building_i.csv
+        
     ├── examples
+    
         ├── example_rbc.ipynb
+        
+        
         ├── example_sac.ipynb
+        
         └── example_marlisa.ipynb
+        
     └── submission_files
+    
         ├── agent.py
+        
         ├── buildings_states_actions_space.json
+        
         └── reward_function.py
 
 - [main.ipynb](/main.ipynb): jupyter lab file. Example of the implementation of decentralized multi-agent reinforcement learning agents ([MARLISA](https://www.researchgate.net/publication/344502330_MARLISA_Multi-Agent_Reinforcement_Learning_with_Iterative_Sequential_Action_Selection_for_Load_Shaping_of_Grid-Interactive_Connected_Buildings)), which is based on the single-agent RL algorithm [SAC](https://arxiv.org/abs/1812.05905). The agents are implemented for a district with 9 different buildings in ```CityLearn```
