@@ -234,6 +234,7 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
 - ```cooling_storage_soc```: state of the charge (SOC) of the cooling storage device. From 0 (no energy stored) to 1 (at full capacity).
 - ```dhw_storage_soc```: state of the charge (SOC) of the domestic hot water (DHW) storage device. From 0 (no energy stored) to 1 (at full capacity).
 - ```net_electricity_consumption```: net electricity consumption of the building (including all energy systems) in the current time step.
+- ```carbon_intensity```:: current carbon intensity of the power grid.
 
 ### Possible actions
 C determines the capacity of the storage device and is defined as a multiple of the maximum thermal energy consumption by the building.
@@ -241,6 +242,9 @@ C determines the capacity of the storage device and is defined as a multiple of 
 - ```dhw_storage```: increase (action > 0) or decrease (action < 0) of the amount of DHW stored in the DHW storage device. -1/C <= action <= 1/C (attempts to decrease or increase the DHW stored in the storage device by an amount equivalent to action times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into the building. Therefore, the state of charge will not decrease proportionally to the action taken if the demand for DHW of the building is lower than the action times the maximum capacity of the DHW storage device.
 
 Note that the action of the user-implemented controller can be bounded between -1/C and 1/C because the capacity of the storage unit, C, is defined as a multiple of the maximum thermal energy consumption by the building. For instance, if C_cooling = 3 and the peak cooling energy consumption of the building during the simulation is 20 kWh, then the storage unit will have a total capacity of 60 kWh.
+
+- ```electrical_storage```: increase (action > 0) or decrease (action < 0) of the amount of electricity stored in the battery. -1.0 <= action <= 1.0 (attempts to decrease or increase the electricity stored in the battery by an amount equivalent to action times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into whole micro-grid.
+
 
 The mathematical formulation of the effects of the actions can be found in the methods ```set_storage_heating(action)``` and ```set_storage_cooling(action)``` of the class Building in the file [energy_models.py](/energy_models.py).
 ### Reward function
