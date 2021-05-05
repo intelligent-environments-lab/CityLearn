@@ -82,7 +82,7 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 - [main.ipynb](/main.ipynb): jupyter lab file. File that will be executed to evaluate the submission of the challenge.
 - [main.py](/main.py): Copy of main.ipynb as a .py  file.
 - [buildings_state_action_space.json](/buildings_state_action_space.json): json file containing the possible states and actions for every building, from which users can choose.
-- [building_attributes.json](/building_attributes.json): json file containing the attributes of the buildings and which users can modify.
+- [building_attributes.json](/data/Climate_Zone_5/building_attributes.json): json file containing the attributes of the buildings and which users can modify.
 - [citylearn.py](/citylearn.py): Contains the CityLearn environment and the functions building_loader() and autosize()
 - [energy_models.py](/energy_models.py): Contains the classes Building, HeatPump, EnergyStorage, and Battery which are called by the CityLearn class.
 - [agent.py](/agent.py): File that contains the agent class that will learn to control the different energy systems.
