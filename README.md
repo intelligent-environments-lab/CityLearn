@@ -189,6 +189,20 @@ Storage devices allow heat pumps to store energy that can be later released into
 
 - Methods
   - ```charge()``` increases (+) or decreases (-) of the amount of energy stored. The input is the amount of energy as a ratio of the total capacity of the storage device (can vary from -1 to 1). Outputs the energy balance of the storage device.
+### Battery
+The battery class allows the building to store electricity and release it at an appropriate time to supply the electrical demand of the building or the whole district's power grid.
+- Attributes
+  - ```capacity```: maximum amount of electrical energy that the battery can store (kWh)
+  - ```nominal_power```: maximum power input or output (kW)
+  - ```capacity_loss_coef```: rate at which the capacity of the battery decreases after each charge-discharge cycle
+  - ```power_efficiency_curve```: battery efficiency as a function of the power input or output
+  - ```capacity_power_curve```: battery maximum power as a function of the current state of charge of the battery
+  - ```efficiency```: battery efficiency
+  - ```loss_coef```: standby hourly losses (this value is often 0 or really close to 0).
+  - ```soc```: state of charge (kWh)
+  - ```energy_balance```: energy coming in (if positive) or out (if negative) of the energy storage device (kWh)
+- Methods
+charge() increases (+) or decreases (-) of the amount of energy stored. The input is the amount of energy as a ratio of the total capacity of the storage device (can vary from -1 to 1). Outputs the energy balance of the storage device.
 ## Environment variables
 The file [buildings_state_action_space.json](/buildings_state_action_space.json) contains all the states and action variables that the buildings can possibly return:
 ### Possible states
