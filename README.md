@@ -246,7 +246,7 @@ Note that the action of the user-implemented controller can be bounded between -
 - ```electrical_storage```: increase (action > 0) or decrease (action < 0) of the amount of electricity stored in the battery. -1.0 <= action <= 1.0 (attempts to decrease or increase the electricity stored in the battery by an amount equivalent to action times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into whole micro-grid.
 
 
-The mathematical formulation of the effects of the actions can be found in the methods ```set_storage_heating(action)``` and ```set_storage_cooling(action)``` of the class Building in the file [energy_models.py](/energy_models.py).
+The mathematical formulation of the effects of the actions can be found in the methods ```set_storage_electrical(action)```, ```set_storage_heating(action)``` and ```set_storage_cooling(action)``` of the class Building in the file [energy_models.py](/energy_models.py).
 ### Reward function
 The reward function must be defined by the user by changing one of the two functions in the file [reward_function.py](/reward_function.py).
 
