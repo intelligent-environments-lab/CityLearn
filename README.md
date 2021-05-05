@@ -51,17 +51,17 @@ CityLearn may still work with some earlier versions of these libraries, but we h
     
     data
 
-    └── Climate_Zone_5
+        └── Climate_Zone_5
 
-        ├── building_attributes.json
+            ├── building_attributes.json
 
-        ├── carbon_intensity.csv
+            ├── carbon_intensity.csv
 
-        ├── solar_generation_1kW.csv
+            ├── solar_generation_1kW.csv
 
-        ├── weather_data.csv
+            ├── weather_data.csv
 
-        └── Building_i.csv
+            └── Building_i.csv
 
     examples
 
