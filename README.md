@@ -234,7 +234,7 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
 - ```cooling_storage_soc```: state of the charge (SOC) of the cooling storage device. From 0 (no energy stored) to 1 (at full capacity).
 - ```dhw_storage_soc```: state of the charge (SOC) of the domestic hot water (DHW) storage device. From 0 (no energy stored) to 1 (at full capacity).
 - ```net_electricity_consumption```: net electricity consumption of the building (including all energy systems) in the current time step.
-- ```carbon_intensity```:: current carbon intensity of the power grid.
+- ```carbon_intensity```: current carbon intensity of the power grid.
 
 ### Possible actions
 C determines the capacity of the storage device and is defined as a multiple of the maximum thermal energy consumption by the building.
@@ -278,9 +278,10 @@ All these metrics are divided by the metrics of a reference rule-based controlle
   - A good control policy for cooling is trivial, and consists on storing cooling energy during the night (when the cooling demand of the building is low and the COP of the heat pump is higher), and releasing the stored cooling energy into the building during the day (high demand for cooling and low COP). 
 ### Multiple buildings
   - If controlled independently of each other and without coordination or sharing any information, the buildings will tend to consume more electricity simultaneously, which may not be optimal if the objective is peak reduction and load flattening. 
-### [Challenge](https://sites.google.com/view/citylearnchallenge)
-Coordinate multiple RL agents or a single centralized agent to control all the buildings. The agents may share certain information with each other. The objective is to reduce the cost function by smoothing, reducing, and flattening the total net demand for electricity in the whole district. Electric heaters supplies the heating energy for the DHW system (no air heating), and air-to-water heat pumps provide cooling energy for the building. Check out our [CityLearn Challenge](https://sites.google.com/view/citylearnchallenge)
+### [Challenge](www.citylearn.net)
+Coordinate multiple RL agents or a single centralized agent to control all the buildings. The agents may share certain information with each other. The objective is to reduce the cost function by smoothing, reducing, and flattening the total net demand for electricity in the whole district. Electric heaters supplies the heating energy for the DHW system (no air heating), air-to-water heat pumps provide cooling energy for the building, and batteries allow storing electricity. Check out our [CityLearn Challenge](www.citylearn.net)
 ## Cite CityLearn
+- [Vázquez-Canteli, J.R., Dey, S., Henze, G., and Nagy, Z.,  "CityLearn: Standardizing Research in Multi-Agent Reinforcement Learning for Demand Response and Urban Energy Management", 2020.](https://arxiv.org/abs/2012.10504)
 - [Vázquez-Canteli, J.R., Kämpf, J., Henze, G., and Nagy, Z., "CityLearn v1.0: An OpenAI Gym Environment for Demand Response with Deep Reinforcement Learning", Proceedings of the 6th ACM International Conference, ACM New York p. 356-357, New York, 2019](https://dl.acm.org/citation.cfm?id=3360998)
 
 ## Related Publications
@@ -292,7 +293,7 @@ Coordinate multiple RL agents or a single centralized agent to control all the b
 - [José R. Vázquez-Canteli](https://www.researchgate.net/profile/Jose_Vazquez-Canteli2), PhD Candidate at The University of Texas at Austin, Department of Civil, Architectural, and Environmental Engineering. [Intelligent Environments Laboratory (IEL)](https://nagy.caee.utexas.edu/). 
 - [Dr. Zoltan Nagy](https://nagy.caee.utexas.edu/team/prof-zoltan-nagy-phd/), Assistant Professor at The University of Texas at Austin, Department of Civil, Architectural, and Environmental Engineering.
 
-## Asked questions for The CityLearn Challenge
+## Asked questions for The CityLearn Challenge 2020
 - After running the agents, the average_daily_peak cost is higher than the the peak_demand cost. How is this possible? The annual peak demand should always be higher than the avergae daily peak.
 
 All the costs are normalized by the costs a rule-based controller would have. Therefore, the different costs are normalized by different values and that is why the average_daily_peak cost may be higher than the peak_demand cost. To see the factors by which they are being normalized, you can run env.cost_rbc after the environment has run through at least one episode.
