@@ -10,7 +10,7 @@ This incentivizes not just reducing the net electricity consumption, but also fl
 import numpy as np
 
 # Reward function for the multi-agent (decentralized) agents
-class reward_function_ma:
+class reward_function_ma_old:
     def __init__(self, n_agents, building_info):
         self.n_agents = n_agents
         self.building_info = building_info
@@ -30,7 +30,22 @@ class reward_function_ma:
         # reward_ = np.array(electricity_demand)**3.0
         # reward_[reward_>0] = 0
         # return list(reward_)
-    
+
+# Reward function for the multi-agent (decentralized) agents
+class reward_function_ma:
+    def __init__(self, n_agents, building_info):
+        self.n_agents = n_agents
+        self.building_info = building_info
+
+    # Electricity_demand contains negative values when the building consumes more electricity than it generates
+    def get_rewards(self, electricity_demand):  
+        #reward_ = -np.power(np.clip(np.array(electricity_demand), a_min=0, a_max=None), 1.5).sum()
+        a = np.array(electricity_demand).mean()
+        if a > 0:
+            reward_ = 0
+        else:
+            reward_ = 0.001 * -1 * np.power(np.abs(a), 1.5)
+        return [reward_ for _ in range(self.n_agents)]
       
 # Reward function for the single-agent (centralized) agent
 def reward_function_sa(electricity_demand):

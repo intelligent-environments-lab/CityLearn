@@ -83,7 +83,8 @@ class CityLearnEnv(MultiAgentEnv):
         original_actions = [actions[i][self.actions_mask[i]] \
                 for i in range(self.n_agents)]
         state, reward, done, _ = self.env.step(original_actions)
-        reward = sum(reward) / 100000
+        reward = sum(reward) + 0.9
+        #print(reward)
         self.state = self._normalize_state(state)
         self.t += 1
         info = {}
@@ -92,8 +93,9 @@ class CityLearnEnv(MultiAgentEnv):
                 info["episode_limit"] = False   # the next state will be masked out
             else:
                 info["episode_limit"] = True    # the next state will not be masked out
-                if "total" in self.costs:
-                    info["cost"] = self.costs["total"][-1]
+                #if "total" in self.costs:
+                #    info["cost"] = self.costs["total"][-1]
+                info["cost"] = self.env.cost()["total"]
         return reward, done, info
 
     def _normalize_state(self, state):
@@ -141,13 +143,13 @@ class CityLearnEnv(MultiAgentEnv):
     def reset(self):
         """ Returns initial observations and states"""
         self.t = 0
-        if self.n_episode > 0:
-            cost = self.env.cost()
-            for k, v in cost.items():
-                if k not in self.costs:
-                    self.costs[k] = [v]
-                else:
-                    self.costs[k].append(v)
+        #if self.n_episode > 0:
+        #    cost = self.env.cost()
+        #    for k, v in cost.items():
+        #        if k not in self.costs:
+        #            self.costs[k] = [v]
+        #        else:
+        #            self.costs[k].append(v)
         state = self.env.reset()
         self.state = self._normalize_state(state)
         self.n_episode += 1
