@@ -35,7 +35,7 @@ n_runners: ~
 n_train: 1
 optimizer: adam # D
 optimizer_epsilon: 0.0001 # D
-ou_stop_episode: 10 # training noise goes to zero after this episode
+ou_stop_episode: 1 # training noise goes to zero after this episode
 rnn_hidden_dim: 256
 run_mode: ~
 runner: "parallel"
@@ -45,8 +45,8 @@ recurrent_critic: False
 target_update_mode: "soft"
 target_update_tau: 0.005
 test_greedy: ~
-test_interval: 10000
-test_nepisode: 3
+test_interval: 4000
+test_nepisode: 1
 testing_on: True
 t_max: 500000
 save_model: False
@@ -58,12 +58,3 @@ env_args:
   state_last_action: False # critic adds last action internally
 agent_return_logits: False
 q_embed_dim: 1
-
-
-
-
-
-
-
-
-

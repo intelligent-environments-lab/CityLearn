@@ -3,8 +3,8 @@ action_selector: ~
 agent: mlp
 agent_output_type: ~
 batch_size_run: 1
-batch_size: 100
-buffer_size: 1000000
+batch_size: 256
+buffer_size: 100000
 buffer_warmup: 1000
 discretize_actions: False
 double_q: False
@@ -23,8 +23,8 @@ gamma: 0.99
 grad_norm_clip: 10
 learner: "facmaddpg_learner"
 learn_interval: 1
-lr: 0.001
-critic_lr: 0.001
+lr: 0.0003
+critic_lr: 0.0003
 mac: cqmix_mac
 mixer: "qmix"
 mixing_embed_dim: 64
@@ -39,18 +39,18 @@ n_runners: ~
 n_train: 1
 optimizer: adam # D
 optimizer_epsilon: 0.01 # D
-ou_stop_episode: 100 # training noise goes to zero after this episode
-rnn_hidden_dim: 400
+ou_stop_episode: 1 # training noise goes to zero after this episode
+rnn_hidden_dim: 256
 run_mode: ~
 runner: "parallel"
 runner_scope: 'transition'
 target_update_interval: ~
 recurrent_critic: False
 target_update_mode: "soft"
-target_update_tau: 0.001
+target_update_tau: 0.005
 test_greedy: ~
 test_interval: 4000
-test_nepisode: 10
+test_nepisode: 1
 testing_on: True
 t_max: 500000
 save_model: False
