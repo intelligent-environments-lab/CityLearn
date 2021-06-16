@@ -10,7 +10,7 @@ This incentivizes not just reducing the net electricity consumption, but also fl
 import numpy as np
 
 # Reward function for the multi-agent (decentralized) agents
-class reward_function_ma_old:
+class reward_function_ma:
     def __init__(self, n_agents, building_info):
         self.n_agents = n_agents
         self.building_info = building_info
@@ -32,7 +32,7 @@ class reward_function_ma_old:
         # return list(reward_)
 
 # Reward function for the multi-agent (decentralized) agents
-class reward_function_ma:
+class reward_function_new:
     def __init__(self, n_agents, building_info):
         self.n_agents = n_agents
         self.building_info = building_info
