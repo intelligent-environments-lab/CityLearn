@@ -35,21 +35,32 @@ agent = RBC_Agent(env.action_space)
 env.reset()
 done = False
 R = 0
+R_list = []
 while not done:
     action = agent.select_action([list(env.env.buildings.values())[0].sim_results['hour'][env.env.time_step]])
     reward, done, _ = env.step(action)
     R += reward
+    R_list.append(reward)
 print(R)
 print(env.env.get_baseline_cost())
+R_list = np.array(R_list)
+print(R_list.mean(), R_list.std())
 
 env = CityLearnEnv(None, env_args={"seed":1})
 env.reset()
 done = False
 R = 0
+R_list = []
 while not done:
-    r, done, info = env.step([act.sample() for act in env.action_space])
+    action = [act.sample() for act in env.action_space]
+    r, done, info = env.step(action)
+
     #r, done, info = env.step(agent.select_action(env.get_obs()))
     R += r
+    R_list.append(reward)
+
 print(R)
 print(info)
 print(env.env.cost())
+R_list = np.array(R_list)
+print(R_list.mean(), R_list.std())

@@ -5,7 +5,7 @@ import pandas as pd
 import json
 from gym import spaces
 from .energy_models import HeatPump, ElectricHeater, EnergyStorage, Building
-from .reward_function import reward_function_sa, reward_function_ma
+from .reward_function import reward_function_ma
 from pathlib import Path
 gym.logger.set_level(40)
 
