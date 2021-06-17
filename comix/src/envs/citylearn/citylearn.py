@@ -600,10 +600,7 @@ class CityLearn(gym.Env):
             
         # Peak demand of the district for the whole year period.
         if 'peak_demand' in self.cost_function:
-            try:
-                cost['peak_demand'] = self.net_electric_consumption.max()/self.cost_rbc['peak_demand']
-            except:
-                import pdb; pdb.set_trace()
+            cost['peak_demand'] = self.net_electric_consumption.max()/self.cost_rbc['peak_demand']
             
         # Positive net electricity consumption for the whole district. It is clipped at a min. value of 0 because the objective is to minimize the energy consumed in the district, not to profit from the excess generation. (Island operation is therefore incentivized)
         if 'net_electricity_consumption' in self.cost_function:

@@ -47,20 +47,23 @@ R_list = np.array(R_list)
 print(R_list.mean(), R_list.std())
 
 env = CityLearnEnv(None, env_args={"seed":1})
-env.reset()
 done = False
 R = 0
 R_list = []
-while not done:
-    action = [act.sample() for act in env.action_space]
-    r, done, info = env.step(action)
 
-    #r, done, info = env.step(agent.select_action(env.get_obs()))
-    R += r
-    R_list.append(reward)
+for _ in range(10):
+    env.reset()
+    done = False
+    while not done:
+        action = [act.sample() for act in env.action_space]
+        r, done, info = env.step(action)
+        #r, done, info = env.step(agent.select_action(env.get_obs()))
+        R += r
+        R_list.append(r)
 
 print(R)
 print(info)
 print(env.env.cost())
+
 R_list = np.array(R_list)
 print(R_list.mean(), R_list.std())
