@@ -32,7 +32,7 @@ n_runners: ~
 n_train: 1
 optimizer: adam
 optimizer_epsilon: 0.01
-ou_stop_episode: 1 # training noise goes to zero after this episode
+ou_stop_episode: 3 # training noise goes to zero after this episode
 rnn_hidden_dim: ~
 run_mode: ~
 runner: "parallel"
@@ -48,5 +48,5 @@ t_max: 500000
 save_model: False
 save_model_interval: 10000
 verbose: False
-weight_decay: True
+weight_decay: False
 weight_decay_factor: 0.0001
