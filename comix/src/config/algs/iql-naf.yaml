@@ -14,7 +14,7 @@ epsilon_finish: ~
 epsilon_anneal_time: ~
 exploration_mode: "gaussian"
 start_steps: 1000 # Number of steps for uniform-random action selection, before running real policy. Helps exploration.
-act_noise: 0.01 # Stddev for Gaussian exploration noise added to policy at training time.
+act_noise: 0.05 # Stddev for Gaussian exploration noise added to policy at training time.
 ou_theta: 0.15 # D
 ou_sigma: 0.2 # D
 ou_noise_scale: 0.3
@@ -23,7 +23,7 @@ gamma: 0.99
 grad_norm_clip: 10
 learner: "cq_learner"
 learn_interval: 1
-lr: 0.001
+lr: 0.0001
 mac: cqmix_mac
 mixer: None
 naf_hidden_dim: 256
