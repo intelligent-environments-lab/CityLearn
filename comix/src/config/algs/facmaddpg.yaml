@@ -20,7 +20,7 @@ ou_sigma: 0.2
 ou_noise_scale: 0.3
 final_ou_noise_scale: 0.
 gamma: 0.99
-grad_norm_clip: 10
+grad_norm_clip: 100.
 learner: "facmaddpg_learner"
 learn_interval: 1
 lr: 0.0001
@@ -38,7 +38,7 @@ name: "facmaddpg"
 n_runners: ~
 n_train: 1
 optimizer: adam # D
-optimizer_epsilon: 0.01 # D
+optimizer_epsilon: 0.00001
 ou_stop_episode: 3 # training noise goes to zero after this episode
 rnn_hidden_dim: 256
 run_mode: ~
