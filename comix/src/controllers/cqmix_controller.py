@@ -19,6 +19,9 @@ class CQMixMAC(BasicMAC):
 
         # Now do appropriate exploration
         exploration_mode = getattr(self.args, "exploration_mode", "gaussian")
+        t_max = getattr(self.args, "t_max")
+        noise_max = getattr(self.args, "act_noise", 0.1)
+
         if not test_mode:
             if exploration_mode == "ornstein_uhlenbeck":
                 x = getattr(self, "ou_noise_state", chosen_actions.clone().zero_())
@@ -33,10 +36,12 @@ class CQMixMAC(BasicMAC):
                 chosen_actions = chosen_actions + ou_noise
             elif exploration_mode == "gaussian":
                 start_steps = getattr(self.args, "start_steps", 0)
-                act_noise = getattr(self.args, "act_noise", 0.1)
+                #act_noise = getattr(self.args, "act_noise", 0.1)
                 if t_env >= start_steps:
-                    x = chosen_actions.clone().zero_()
-                    chosen_actions += act_noise * x.clone().normal_()
+                    #x = chosen_actions.clone().zero_()
+                    #chosen_actions += act_noise * x.clone().normal_()
+                    scale = (1. - min(t_env / t_max, 0.99)) * noise_max
+                    chosen_actions += th.randn_like(chosen_actions) * scale
                 else:
                     if self.args.env_args["scenario"] in ["Humanoid-v2", "HumanoidStandup-v2"]:
                         chosen_actions = th.from_numpy(np.array([self.args.action_spaces[0].sample() for i in range(self.n_agents)])).unsqueeze(0).float().to(device=ep_batch.device)

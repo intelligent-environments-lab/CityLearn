@@ -13,7 +13,7 @@ epsilon_start: ~
 epsilon_finish: ~
 epsilon_anneal_time: ~
 exploration_mode: "gaussian"
-start_steps: 1000 # Number of steps for uniform-random action selection, before running real policy. Helps exploration.
+start_steps: 10000 # Number of steps for uniform-random action selection, before running real policy. Helps exploration.
 act_noise: 0.1 # Stddev for Gaussian exploration noise added to policy at training time.
 ou_theta: 0.15 # D
 ou_sigma: 0.2 # D
@@ -26,12 +26,12 @@ learn_interval: 1
 lr: 0.001
 mac: cqmix_mac
 mixer: "vdn"
-naf_hidden_dim: 256
+naf_hidden_dim: 400
 name: "covdn-naf"
 n_runners: ~
 n_train: 1
 optimizer: adam
-optimizer_epsilon: 0.00001
+optimizer_epsilon: 0.01
 ou_stop_episode: 3 # training noise goes to zero after this episode
 rnn_hidden_dim: ~
 run_mode: ~
@@ -39,14 +39,14 @@ runner: "parallel"
 runner_scope: 'transition'
 target_update_interval: ~
 target_update_mode: "soft"
-target_update_tau: 0.005
+target_update_tau: 0.001
 test_greedy: ~
-test_interval: 4000
-test_nepisode: 1
+test_interval: 10000
+test_nepisode: 10
 testing_on: True
 t_max: 500000
 save_model: False
-save_model_interval: 10000
+save_model_interval: 100000
 verbose: False
 weight_decay: False
 weight_decay_factor: 0.0001

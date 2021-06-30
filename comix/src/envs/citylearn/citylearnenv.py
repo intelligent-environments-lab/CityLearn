@@ -152,10 +152,12 @@ class CityLearnEnv(MultiAgentEnv):
 
         self.encoder = {}
         self.encoder_mask = {}
+        self.encoder_nums = {}
 
         self.max_state_dim = 0
         for i, uid in enumerate(building_ids):
             self.encoder[uid] = []
+            self.encoder_nums[uid] = []
             self.encoder_mask[uid] = []
 
             state_n = 0
@@ -163,34 +165,42 @@ class CityLearnEnv(MultiAgentEnv):
             for s_name, s in self.buildings_states_actions[uid]['states'].items():
                 if not s:
                     self.encoder[uid].append(0)
+                    self.encoder_nums[uid].append([pos])
                     if s_name in ["month", "hour"]:
                         pos += 2
                     elif s_name == "day":
                         pos += 8
+                    elif s_name == "net_electricity_comsumption":
+                        pos += 1
                     else:
                         pos += 1
                 elif s_name in ["month", "hour"]:
                     self.encoder[uid].append(periodic_normalization(self.original_observation_space[i].high[state_n]))
                     self.encoder_mask[uid].extend([pos, pos+1])
                     pos += 2
+                    self.encoder_nums[uid].append([pos, pos+1])
                     state_n += 1
                 elif s_name == "day":
                     self.encoder[uid].append(onehot_encoding([1,2,3,4,5,6,7,8]))
                     self.encoder_mask[uid].extend([pos, pos+1, pos+2, pos+3, pos+4, pos+5, pos+6, pos+7])
                     pos += 8
+                    self.encoder_nums[uid].append([pos, pos+1, pos+2, pos+3, pos+4, pos+5, pos+6, pos+7])
                     state_n += 1
                 elif s_name == "daylight_savings_status":
                     self.encoder[uid].append(onehot_encoding([0,1]))
-                    self.encoder_mask[uid].append(pos)
-                    pos += 1
+                    self.encoder_mask[uid].append([pos, pos+1])
+                    self.encoder_nums[uid].append([pos, pos+1])
+                    pos += 2
                     state_n += 1
                 elif s_name == "net_electricity_consumption":
                     self.encoder[uid].append(remove_feature())
+                    self.encoder_nums[uid].append([pos])
                     pos += 1
                     state_n += 1
                 else:
                     self.encoder[uid].append(normalize(self.original_observation_space[i].low[state_n], self.original_observation_space[i].high[state_n]))
                     self.encoder_mask[uid].append(pos)
+                    self.encoder_nums[uid].append([pos])
                     pos += 1
                     state_n += 1  
 
@@ -201,24 +211,30 @@ class CityLearnEnv(MultiAgentEnv):
                 for k in range(12,20):
                     if self.encoder[uid][k] != 0:
                         self.encoder[uid][k] = -1
-                        if k in self.encoder_mask[uid]:
-                            self.encoder_mask[uid].remove(k)
+                        for kk in self.encoder_nums[uid][k]:
+                            if kk in self.encoder_mask[uid]:
+                                self.encoder_mask[uid].remove(kk)
                 if self.encoder[uid][24] != 0:
                     self.encoder[uid][24] = -1
-                    if 24 in self.encoder_mask[uid]:
-                        self.encoder_mask[uid].remove(24)
+                    for kk in self.encoder_nums[uid][24]:
+                        if kk in self.encoder_mask[uid]:
+                            self.encoder_mask[uid].remove(kk)
+
             if self.building_info[uid]['Annual_DHW_demand (kWh)'] == 0 and self.encoder[uid][26] != 0:
                 self.encoder[uid][26] = -1
-                if 26 in self.encoder_mask[uid]:
-                    self.encoder_mask[uid].remove(26)
+                for kk in self.encoder_nums[uid][26]:
+                    if kk in self.encoder_mask[uid]:
+                        self.encoder_mask[uid].remove(kk)
             if self.building_info[uid]['Annual_cooling_demand (kWh)'] == 0 and self.encoder[uid][25] != 0:
                 self.encoder[uid][25] = -1
-                if 25 in self.encoder_mask[uid]:
-                    self.encoder_mask[uid].remove(25)
+                for kk in self.encoder_nums[uid][25]:
+                    if kk in self.encoder_mask[uid]:
+                        self.encoder_mask[uid].remove(kk)
             if self.building_info[uid]['Annual_nonshiftable_electrical_demand (kWh)'] == 0 and self.encoder[uid][23] != 0:
                 self.encoder[uid][23] = -1
-                if 23 in self.encoder_mask[uid]:
-                    self.encoder_mask[uid].remove(23)
+                for kk in self.encoder_nums[uid][23]:
+                    if kk in self.encoder_mask[uid]:
+                        self.encoder_mask[uid].remove(kk)
 
             self.encoder[uid] = self.encoder[uid][self.encoder[uid]!=0]
             self.encoder[uid][self.encoder[uid]==-1] = remove_feature()
@@ -237,6 +253,7 @@ class CityLearnEnv(MultiAgentEnv):
                 if isinstance(sp, periodic_normalization):
                     n_sp = 2
                 elif isinstance(sp, remove_feature):
+                    j2 += 1
                     continue
                 elif isinstance(sp, onehot_encoding):
                     n_sp = 8
@@ -252,11 +269,13 @@ class CityLearnEnv(MultiAgentEnv):
                                         for a in range(self.n_agents)])
 
         state = self.env.reset()
-        self.states = self.convert_state(state)
+        self.state = self.convert_state(state)
 
-    def convert_state(self, state):
+    def convert_state(self, raw_states):
         states = []
-        for i, uid, state in enumerate(zip(self.building_ids, states)):
+        for i in range(self.n_agents):
+            uid = self.building_ids[i]
+            state = raw_states[i]
             state_ = np.array([j for j in np.hstack(self.encoder[uid]*state) if j != None])
             empty = np.zeros(self.max_state_dim)
             empty[self.encoder_mask[uid]] = state_.copy()
@@ -271,7 +290,7 @@ class CityLearnEnv(MultiAgentEnv):
                 for i in range(self.n_agents)]
 
         state, reward, done, _ = self.env.step(original_actions)
-        self.states = self.convert_state(state)
+        self.state = self.convert_state(state)
 
         reward = (sum(reward)+500000) / 1000000
 
@@ -279,7 +298,7 @@ class CityLearnEnv(MultiAgentEnv):
         info = {}
         if done:
             info['episode_limit'] = False
-            info['cost'] = self.env.cost()
+            info['cost'] = self.env.cost()["total"]
         return reward, done, info
 
     def get_obs(self):
@@ -293,14 +312,14 @@ class CityLearnEnv(MultiAgentEnv):
 
     def get_obs_size(self):
         """ Returns the shape of the observation """
-        return self.max_state_dim
+        return int(self.max_state_dim)
 
     def get_state(self):
         return np.array(self.state).reshape(-1)
 
     def get_state_size(self):
         """ Returns the shape of the state"""
-        return sum([len(x) for x in self.state])
+        return int(np.array(self.state).reshape(-1).shape[0])
 
     def get_avail_actions(self): # all actions are always available
         return np.ones(shape=(self.n_agents, self.n_actions,))

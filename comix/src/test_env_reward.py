@@ -51,6 +51,8 @@ done = False
 R = 0
 R_list = []
 
+x = env.get_env_info()
+
 for _ in range(10):
     env.reset()
     done = False
