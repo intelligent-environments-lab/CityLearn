@@ -20,7 +20,7 @@ ou_sigma: 0.2
 ou_noise_scale: 0.3
 final_ou_noise_scale: 0.
 gamma: 0.99
-grad_norm_clip: 1.
+grad_norm_clip: 100.
 learner: "facmaddpg_learner"
 learn_interval: 1
 lr: 0.001
