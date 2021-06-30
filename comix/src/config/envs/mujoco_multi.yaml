@@ -1,0 +1,7 @@
+env: "mujoco_multi"
+
+env_args:
+  scenario: "HalfCheetah-v2"
+  env_version: 2
+  agent_conf: "2x3"
+  episode_limit: 1000

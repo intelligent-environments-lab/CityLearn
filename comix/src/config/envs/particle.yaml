@@ -1,0 +1,10 @@
+env: "particle"
+
+env_args:
+  benchmark: False
+  scenario: "simple_tag_coop"
+  episode_limit: 25
+  state_mode: "all"
+  agent_view_radius: 1.5
+  score_function: "min"
+  partial_obs: True
