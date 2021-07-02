@@ -19,7 +19,7 @@ class CQLearner:
         self.last_target_update_episode = 0
 
         self.mixer = None
-        if args.mixer is not None and self.args.n_agents > 1: # if just 1 agent do not mix anything
+        if args.mixer is not None and args.mixer is not "None" and self.args.n_agents > 1: # if just 1 agent do not mix anything
             if args.mixer == "vdn":
                 self.mixer = VDNMixer()
             elif args.mixer == 'vdn-s':
