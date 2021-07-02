@@ -19,6 +19,7 @@ class CQMixMAC(BasicMAC):
 
         # Now do appropriate exploration
         exploration_mode = getattr(self.args, "exploration_mode", "gaussian")
+        t_max = getattr(self.args, "t_max")
         if not test_mode:
             if exploration_mode == "ornstein_uhlenbeck":
                 x = getattr(self, "ou_noise_state", chosen_actions.clone().zero_())
@@ -34,6 +35,7 @@ class CQMixMAC(BasicMAC):
             elif exploration_mode == "gaussian":
                 start_steps = getattr(self.args, "start_steps", 0)
                 act_noise = getattr(self.args, "act_noise", 0.1)
+                act_noise = (1-min(t_env/t_max, 0.9)) * act_noise
                 if t_env >= start_steps:
                     x = chosen_actions.clone().zero_()
                     chosen_actions += act_noise * x.clone().normal_()
