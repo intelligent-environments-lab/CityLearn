@@ -286,13 +286,13 @@ class CityLearnEnv(MultiAgentEnv):
 
     def step(self, actions):
         """ Returns reward, terminated, info """
-        original_actions = [actions[i][self.action_mask[i]] \
+        original_actions = [actions[i][self.action_mask[i]]*0.5 \ # 0.5 for scaling
                 for i in range(self.n_agents)]
 
         state, reward, done, _ = self.env.step(original_actions)
         self.state = self.convert_state(state)
 
-        reward = (sum(reward)+500000) / 1000000
+        reward = (sum(reward)+500000) / 1000000.
 
         self.t += 1
         info = {}

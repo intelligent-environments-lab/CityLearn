@@ -6,10 +6,10 @@ mac: "basic_mac" # Basic controller
 env: "pred_prey" # Environment name
 env_args: {} # Arguments for the environment
 batch_size_run: 1 # Number of environments to run in parallel
-test_nepisode: 1 # Number of episodes to test for
-test_interval: 1000 # Test after {} timesteps have passed
+test_nepisode: 20 # Number of episodes to test for
+test_interval: 2000 # Test after {} timesteps have passed
 test_greedy: True # Use greedy evaluation (if False, will set epsilon floor to 0
-log_interval: 10000 # Log summary of stats after every {} timesteps
+log_interval: 2000 # Log summary of stats after every {} timesteps
 runner_log_interval: 2000 # Log runner stats (not test stats) every {} timesteps
 learner_log_interval: 2000 # Log training stats every {} timesteps
 t_max: 10000 # Stop running after this many timesteps

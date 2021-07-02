@@ -14,7 +14,7 @@ class Particle(MultiAgentEnv):
 
         # load scenario from script
         self.episode_limit = self.args.episode_limit
-        self.scenario = scenarios.load(self.args.scenario_name + ".py").Scenario()
+        self.scenario = scenarios.load(self.args.scenario + ".py").Scenario()
         if not self.args.partial_obs:
             self.world = self.scenario.make_world()
         else:
@@ -120,7 +120,7 @@ class Particle(MultiAgentEnv):
         if all([isinstance(act_space, spaces.Discrete) for act_space in self.env.action_space]):
             return max([x.n for x in self.env.action_space])
         elif all([isinstance(act_space, spaces.Box) for act_space in self.env.action_space]):
-            if self.args.scenario_name == "simple_speaker_listener":
+            if self.args.scenario == "simple_speaker_listener":
                 return self.env.action_space[0].shape[0] + self.env.action_space[1].shape[0]
             else:
                 return max([x.shape[0] for x in self.env.action_space])
