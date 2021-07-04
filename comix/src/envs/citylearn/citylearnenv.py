@@ -89,7 +89,8 @@ class CityLearnEnv(MultiAgentEnv):
         climate_zone = 5
         parent = Path(__file__).parent.absolute()
         data_path = Path(os.path.join(parent, f"data/Climate_Zone_{climate_zone}"))
-        building_ids = ['Building_1', 'Building_2']
+        #building_ids = ['Building_1', 'Building_2']
+        building_ids = ["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]]
 
         buildings_states_actions_file = os.path.join(parent, 'buildings_state_action_space.json')
 
