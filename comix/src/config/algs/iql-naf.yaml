@@ -20,13 +20,13 @@ ou_sigma: 0.2 # D
 ou_noise_scale: 0.3
 final_ou_noise_scale: 0.
 gamma: 0.99
-grad_norm_clip: 10
+grad_norm_clip: 1000.
 learner: "cq_learner"
 learn_interval: 1
 lr: 0.001
 mac: cqmix_mac
 mixer: None
-naf_hidden_dim: 1000
+naf_hidden_dim: 512
 name: "comix-naf"
 n_runners: ~
 n_train: 1
