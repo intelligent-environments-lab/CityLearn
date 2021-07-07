@@ -10,6 +10,7 @@ class MLPAgent(nn.Module):
         self.fc1 = nn.Linear(input_shape, args.rnn_hidden_dim)
         self.fc2 = nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim)
         self.fc3 = nn.Linear(args.rnn_hidden_dim, args.n_actions)
+        self.fc3.weight.data.uniform_(-0.001, 0.001)
 
         self.agent_return_logits = getattr(self.args, "agent_return_logits", False)
 

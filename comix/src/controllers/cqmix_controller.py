@@ -20,6 +20,12 @@ class CQMixMAC(BasicMAC):
         # Now do appropriate exploration
         exploration_mode = getattr(self.args, "exploration_mode", "gaussian")
         t_max = getattr(self.args, "t_max")
+        start_steps = getattr(self.args, "start_steps", 0)
+        act_noise = getattr(self.args, "act_noise", 0.1)
+        n_train_batch = getattr(self.args, "batch_size_run", 1)
+
+        delta = -np.log(act_noise) / (t_max - start_steps)
+
         if not test_mode:
             if exploration_mode == "ornstein_uhlenbeck":
                 x = getattr(self, "ou_noise_state", chosen_actions.clone().zero_())
@@ -33,17 +39,19 @@ class CQMixMAC(BasicMAC):
                 ou_noise = self.ou_noise_state * noise_scale
                 chosen_actions = chosen_actions + ou_noise
             elif exploration_mode == "gaussian":
-                start_steps = getattr(self.args, "start_steps", 0)
-                act_noise = getattr(self.args, "act_noise", 0.1)
-                act_noise = (1-min(t_env/t_max, 0.5)) * act_noise
                 if t_env >= start_steps:
+                    #act_noise = min(0.5, max(act_noise, np.exp(-(t_env - start_steps) * delta)))
                     x = chosen_actions.clone().zero_()
                     chosen_actions += act_noise * x.clone().normal_()
                 else:
-                    if self.args.env_args["scenario"] in ["Humanoid-v2", "HumanoidStandup-v2"]:
-                        chosen_actions = th.from_numpy(np.array([self.args.action_spaces[0].sample() for i in range(self.n_agents)])).unsqueeze(0).float().to(device=ep_batch.device)
-                    else:
-                        chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float().to(device=ep_batch.device)
+                    action_list = []
+                    for ii in range(n_train_batch):
+                        if self.args.env_args["scenario"] in ["Humanoid-v2", "HumanoidStandup-v2"]:
+                            chosen_actions = th.from_numpy(np.array([self.args.action_spaces[0].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
+                        else:
+                            chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
+                        action_list.append(chosen_actions)
+                    chosen_actions = th.cat(action_list, 0).to(device=ep_batch.device)
 
         # now clamp actions to permissible action range (necessary after exploration)
         if all([isinstance(act_space, spaces.Box) for act_space in self.args.action_spaces]):

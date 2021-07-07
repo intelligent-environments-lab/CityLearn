@@ -13,14 +13,17 @@ class CEMAgent(nn.Module):
 
         self.fc1 = nn.Linear(num_inputs, hidden_size)
         self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.fc3 = nn.Linear(hidden_size, 1)
+        self.fc3 = nn.Linear(hidden_size, hidden_size)
+        self.fc4 = nn.Linear(hidden_size, 1)
+        self.fc4.weight.data.uniform_(-0.01, 0.01)
 
     def forward(self, inputs, actions):
         if actions is not None:
             inputs = th.cat([inputs, actions.contiguous().view(-1, actions.shape[-1])], dim=-1)
         x = F.relu(self.fc1(inputs))
         x = F.relu(self.fc2(x))
-        q = self.fc3(x)
+        x = F.relu(self.fc3(x))
+        q = self.fc4(x)
         return {"Q": q}
 
 
