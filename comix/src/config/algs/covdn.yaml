@@ -2,7 +2,7 @@ action_range: ~
 action_selector: ~
 agent: cem
 agent_output_type: "q"
-batch_size_run: 1
+batch_size_run: 8
 batch_size: 256
 buffer_size: 1000000
 buffer_warmup: 1000
@@ -14,7 +14,7 @@ epsilon_finish: ~
 epsilon_anneal_time: ~
 exploration_mode: "gaussian"
 start_steps: 10000 # Number of steps for uniform-random action selection, before running real policy. Helps exploration.
-act_noise: 0.2 # Stddev for Gaussian exploration noise added to policy at training time.
+act_noise: 0.1 # Stddev for Gaussian exploration noise added to policy at training time.
 ou_theta: 0.15
 ou_sigma: 0.2
 ou_noise_scale: 0.3
@@ -39,7 +39,7 @@ runner: "parallel"
 runner_scope: 'transition'
 target_update_interval: ~
 target_update_mode: "soft"
-target_update_tau: 0.001
+target_update_tau: 0.01
 test_greedy: ~
 test_interval: 10000
 test_nepisode: 10

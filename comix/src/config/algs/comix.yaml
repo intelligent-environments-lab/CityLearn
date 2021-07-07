@@ -54,5 +54,5 @@ t_max: 500000
 save_model: False
 save_model_interval: 50000
 verbose: False
-weight_decay: False
+weight_decay: True
 weight_decay_factor: 0.0001

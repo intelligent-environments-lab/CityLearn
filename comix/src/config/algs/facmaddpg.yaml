@@ -2,7 +2,7 @@ action_range: ~
 action_selector: ~
 agent: mlp
 agent_output_type: ~
-batch_size_run: 1
+batch_size_run: 8
 batch_size: 256
 buffer_size: 1000000
 buffer_warmup: 1000
@@ -47,7 +47,7 @@ runner_scope: 'transition'
 target_update_interval: ~
 recurrent_critic: False
 target_update_mode: "soft"
-target_update_tau: 0.001
+target_update_tau: 0.01
 test_greedy: ~
 test_interval: 10000
 test_nepisode: 10
