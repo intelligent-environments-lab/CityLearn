@@ -22,8 +22,8 @@ class CQMixMAC(BasicMAC):
         t_max = getattr(self.args, "t_max")
         start_steps = getattr(self.args, "start_steps", 0)
         #act_noise = getattr(self.args, "act_noise", 0.1)
-        start_noise = 0.2
-        end_noise = 0.1
+        start_noise = 0.5
+        end_noise = 0.05
         n_train_batch = getattr(self.args, "batch_size_run", 1)
 
         #delta = (end_noise - start_noise) / (t_max - start_steps)

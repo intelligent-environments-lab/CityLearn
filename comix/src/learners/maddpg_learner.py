@@ -79,7 +79,7 @@ class MADDPGLearner:
 
         # Optimise agents
         self.agent_optimiser.zero_grad()
-        pg_loss.backward()
+        (5.*pg_loss).backward()
         agent_grad_norm = th.nn.utils.clip_grad_norm_(self.agent_params, self.args.grad_norm_clip)
         self.agent_optimiser.step()
 

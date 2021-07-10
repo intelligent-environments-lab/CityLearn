@@ -3,6 +3,7 @@ from functools import partial
 from components.episode_buffer import EpisodeBatch
 import numpy as np
 import copy
+import pickle
 
 
 class EpisodeRunner:
@@ -36,7 +37,28 @@ class EpisodeRunner:
         return self.env.get_env_info()
 
     def save_replay(self):
-        self.env.save_replay()
+        #self.env.save_replay()
+        filename = f"./saved_envs/{self.args.name}"
+
+        env = self.env.env
+
+        res = []
+        sim_period = (0, 8760*4 - 1)
+        ne1 = env.net_electric_consumption_no_pv_no_storage
+        ne2 = env.net_electric_consumption_no_storage
+        ne3 = env.net_electric_consumption
+        #interval = (range(24*30*6 + 8760*3,24*30*6 + 8760*3 + 24*4))
+        #for building_number in [f'Building_{x}' for x in range(1, 6)]:
+        #    s1 = env.buildings[building_number].cooling_demand_building[interval])
+        #    s2 = env.buildings[building_number].cooling_storage_to_building[interval] - env.buildings[building_number].cooling_device_to_storage[interval])
+        #    s3 = env.buildings[building_number].cooling_device.cooling_supply[interval])
+        #    s4 = env.electric_consumption_cooling[interval])
+        #    s5 = env.buildings[building_number].cooling_device.cop_cooling[interval]*100,'--')
+        #    s6 = env.buildings[building_number].cooling_storage.soc[interval],'--')
+
+        with open(filename, 'wb') as f:
+            np.savez(f, ne1=ne1, ne2=ne2, ne3=ne3)
+        f.close()
 
     def close_env(self):
         self.env.close()
@@ -51,7 +73,6 @@ class EpisodeRunner:
 
         terminated = False
         episode_return = 0
-        self.mac.init_hidden(batch_size=self.batch_size)
 
         while not terminated:
 
@@ -74,7 +95,7 @@ class EpisodeRunner:
                     reward = reward[0]
                 episode_return += reward
             else:
-                reward, terminated, env_info = self.env.step(actions[0].cpu())
+                reward, terminated, env_info = self.env.step(actions[0].cpu().numpy())
                 episode_return += reward
 
             post_transition_data = {

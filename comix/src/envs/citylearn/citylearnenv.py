@@ -91,7 +91,7 @@ class CityLearnEnv(MultiAgentEnv):
         parent = Path(__file__).parent.absolute()
         data_path = Path(os.path.join(parent, f"data/Climate_Zone_{climate_zone}"))
         #building_ids = ['Building_1', 'Building_2']
-        building_ids = ["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]]
+        building_ids = ["Building_"+str(i) for i in [1,2,3,4,5]]
 
         buildings_states_actions_file = os.path.join(parent, 'buildings_state_action_space.json')
 
@@ -102,7 +102,7 @@ class CityLearnEnv(MultiAgentEnv):
                   'carbon_intensity':'carbon_intensity.csv',
                   'building_ids': building_ids,
                   'buildings_states_actions':buildings_states_actions_file,
-                  'simulation_period': (0, 8760-1),
+                  'simulation_period': (0, 8760*4-1),
                   'cost_function': [
                         'ramping',
                         '1-load_factor',
@@ -149,7 +149,7 @@ class CityLearnEnv(MultiAgentEnv):
         # correllations among buildings
         self.building_info = self.env.get_building_information() # temporarily not used
 
-        self.episode_limit = 8759
+        self.episode_limit = 8760*4-1
         self.n_episode = 0
 
         self.encoder = {}
@@ -325,7 +325,8 @@ class CityLearnEnv(MultiAgentEnv):
         info = {}
         if done:
             info['episode_limit'] = False
-            info['cost'] = self.env.cost()["total"]
+            a, _ = self.env.cost()
+            info['cost'] = a["total"]
         return reward, done, info
 
     def get_obs(self):
