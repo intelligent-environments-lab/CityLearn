@@ -33,17 +33,16 @@ class periodic_normalization:
     def __init__(self, x_max):
         self.x_max = x_max
     def __mul__(self, x):
-        #x = 2 * np.pi * x / self.x_max
-        #x_sin = np.sin(x)
-        #x_cos = np.cos(x)
-        #return np.array([(x_sin+1)/2.0, (x_cos+1)/2.0])
-        return np.array([x, x])
+        x = 2 * np.pi * x / self.x_max
+        x_sin = np.sin(x)
+        x_cos = np.cos(x)
+        return np.array([(x_sin+1)/2.0, (x_cos+1)/2.0])
     def __rmul__(self, x):
-        #x = 2 * np.pi * x / self.x_max
-        #x_sin = np.sin(x)
-        #x_cos = np.cos(x)
-        #return np.array([(x_sin+1)/2.0, (x_cos+1)/2.0])
-        return np.array([x, x])
+        x = 2 * np.pi * x / self.x_max
+        x_sin = np.sin(x)
+        x_cos = np.cos(x)
+        return np.array([(x_sin+1)/2.0, (x_cos+1)/2.0])
+        #return np.array([x, x])
 
 class onehot_encoding:
     def __init__(self, classes):
@@ -307,11 +306,8 @@ class CityLearnEnv(MultiAgentEnv):
             state = raw_states[i]
             state_ = np.array([j for j in np.hstack(self.encoder[uid]*state) if j != None])
             empty = np.zeros(self.max_state_dim)
-            try:
-                empty[self.encoder_mask[uid]] = state_.copy()
-                empty[-self.n_agents:] = self.agent_embedding[i]
-            except:
-                import pdb; pdb.set_trace()
+            empty[self.encoder_mask[uid]] = state_.copy()
+            empty[-self.n_agents:] = self.agent_embedding[i]
             states.append(empty)
         states = np.array(states)
         return states

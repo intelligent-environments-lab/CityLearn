@@ -21,10 +21,13 @@ class CQMixMAC(BasicMAC):
         exploration_mode = getattr(self.args, "exploration_mode", "gaussian")
         t_max = getattr(self.args, "t_max")
         start_steps = getattr(self.args, "start_steps", 0)
-        act_noise = getattr(self.args, "act_noise", 0.1)
+        #act_noise = getattr(self.args, "act_noise", 0.1)
+        start_noise = 0.2
+        end_noise = 0.1
         n_train_batch = getattr(self.args, "batch_size_run", 1)
 
-        delta = -np.log(act_noise) / (t_max - start_steps)
+        #delta = (end_noise - start_noise) / (t_max - start_steps)
+        delta = (np.log(end_noise) - np.log(start_noise)) / (t_max - start_steps)
 
         if not test_mode:
             if exploration_mode == "ornstein_uhlenbeck":
@@ -40,9 +43,9 @@ class CQMixMAC(BasicMAC):
                 chosen_actions = chosen_actions + ou_noise
             elif exploration_mode == "gaussian":
                 if t_env >= start_steps:
-                    #act_noise = min(0.5, max(act_noise, np.exp(-(t_env - start_steps) * delta)))
-                    x = chosen_actions.clone().zero_()
-                    chosen_actions += act_noise * x.clone().normal_()
+                    act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
+                    act_noise = min(max(act_noise, end_noise), start_noise)
+                    chosen_actions += act_noise * th.randn_like(chosen_actions)
                 else:
                     action_list = []
                     for ii in range(n_train_batch):

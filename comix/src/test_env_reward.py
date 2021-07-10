@@ -42,6 +42,7 @@ for obs_name, selected in list(actions_.values())[0]['states'].items():
         break
     assert indx_hour < len(list(actions_.values())[0]['states'].items()) - 1, "Please, select hour as a state for Building_1 to run the RBC"
 
+"""
 env = CityLearnEnv(None, env_args={"seed":1})
 #agent = RBC(env.original_action_space)
 agent = RBC(env.action_space)
@@ -66,34 +67,15 @@ while not done:
 print("RBC...")
 print(R)
 print(info["cost"])
-#a = env.env.cost()
-#print(a["total"])
-"""
-state = env.env.reset()
-done = False
-rewards_list = []
-while not done:
-    hour_state = np.array([[state[0][indx_hour]]])
-    action = agent.select_action(hour_state)
-    #print(action)
-    next_state, rewards, done, _ = env.env.step(action)
-    state = next_state
-    rewards_list.append(rewards)
-cost_rbc = env.env.cost()
-print(cost_rbc)
 """
 
-"""
 env = CityLearnEnv(env_args={"seed":1})
-done = False
 R = 0
 R_list = []
-
-x = env.get_env_info()
-
 env.reset()
 done = False
 while not done:
+    #action = [np.zeros_like(act.sample()) for act in env.action_space]
     action = [act.sample() for act in env.action_space]
     r, done, info = env.step(action)
     #r, done, info = env.step(agent.select_action(env.get_obs()))
@@ -104,4 +86,3 @@ print("Random...")
 print(R)
 print(info["cost"])
 print("env cost", env.env.cost())
-"""

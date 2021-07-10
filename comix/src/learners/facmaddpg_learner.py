@@ -106,7 +106,7 @@ class FacMADDPGLearner:
 
         # Optimise the agents
         self.agent_optimiser.zero_grad()
-        th.autograd.set_detect_anomaly(True) # DBG
+        #th.autograd.set_detect_anomaly(True) # DBG
         pg_loss.backward()
         agent_grad_norm = th.nn.utils.clip_grad_norm_(self.agent_params, self.args.grad_norm_clip)
         self.agent_optimiser.step()
