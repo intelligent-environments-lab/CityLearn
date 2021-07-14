@@ -57,7 +57,7 @@ class EpisodeRunner:
         #    s6 = env.buildings[building_number].cooling_storage.soc[interval],'--')
 
         with open(filename, 'wb') as f:
-            np.savez(f, ne1=ne1, ne2=ne2, ne3=ne3)
+            np.savez(f, ne1=ne1, ne2=ne2, ne3=ne3, cost=self.env.cost)
         f.close()
 
     def close_env(self):
