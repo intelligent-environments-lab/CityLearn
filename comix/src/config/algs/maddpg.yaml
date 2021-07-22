@@ -2,10 +2,10 @@ action_range: ~
 action_selector: ~
 agent: mlp
 agent_output_type: ~
-batch_size_run: 8
+batch_size_run: 1
 batch_size: 256
-buffer_size: 1000000
-buffer_warmup: 1000
+buffer_size: 10000
+buffer_warmup: 0
 discretize_actions: False
 double_q: False
 epsilon_decay_mode: ~
@@ -23,8 +23,8 @@ gamma: 0.99
 grad_norm_clip: 1.
 learner: "maddpg_learner"
 learn_interval: 1
-lr: 0.001
-critic_lr: 0.001
+lr: 0.0003
+critic_lr: 0.0003
 td_lambda: 0.8
 critic_train_reps: 1
 q_nstep: 0  # 0 corresponds to default Q, 1 is r + gamma*Q, etc
@@ -45,12 +45,12 @@ recurrent_critic: False
 target_update_mode: "soft"
 target_update_tau: 0.01
 test_greedy: ~
-test_interval: 10000
-test_nepisode: 10
+test_interval: 8760
+test_nepisode: 3
 testing_on: True
 t_max: 500000
 save_model: True
-save_model_interval: 10000
+save_model_interval: 8760
 verbose: False
 weight_decay: False
 weight_decay_factor: 0.0001

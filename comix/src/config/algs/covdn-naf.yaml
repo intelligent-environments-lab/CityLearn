@@ -2,10 +2,10 @@ action_range: ~
 action_selector: ~
 agent: naf
 agent_output_type: "q"
-batch_size_run: 8
+batch_size_run: 1
 batch_size: 256
-buffer_size: 1000000
-buffer_warmup: 1000
+buffer_size: 10000
+buffer_warmup: 0
 critic_lr: ~
 double_q: False
 epsilon_decay_mode: ~
@@ -23,7 +23,7 @@ gamma: 0.99
 grad_norm_clip: 1.
 learner: "cq_learner"
 learn_interval: 1
-lr: 0.001 # D
+lr: 0.0003 # D
 mac: cqmix_mac
 mixer: "vdn"
 naf_hidden_dim: 400
@@ -39,14 +39,14 @@ runner: "parallel"
 runner_scope: 'transition'
 target_update_interval: ~
 target_update_mode: "soft"
-target_update_tau: 0.01
+target_update_tau: 0.005
 test_greedy: ~
-test_interval: 10000
-test_nepisode: 10
+test_interval: 8760
+test_nepisode: 3
 testing_on: True
 t_max: 500000
 save_model: True
-save_model_interval: 50000
+save_model_interval: 8760
 verbose: False
 weight_decay: False
 weight_decay_factor: 0.0001

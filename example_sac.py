@@ -23,9 +23,9 @@ params = {'data_path':Path("data/Climate_Zone_"+str(climate_zone)),
         'weather_file':'weather_data.csv', 
         'solar_profile':'solar_generation_1kW.csv', 
         'carbon_intensity':'carbon_intensity.csv',
-        'building_ids':["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]],
+        'building_ids':["Building_"+str(i) for i in [1,2]],
         'buildings_states_actions':'buildings_state_action_space.json', 
-        'simulation_period': (0, 8760*4-1), 
+        'simulation_period': (0, 8760-1), 
         'cost_function': ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption','carbon_emissions'], 
         'central_agent': False,
         'save_memory': False }
@@ -41,7 +41,7 @@ building_info = env.get_building_information()
 # In[13]:
 
 
-params_agent = {'building_ids':["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]],
+params_agent = {'building_ids':["Building_"+str(i) for i in [1,2]],
                  'buildings_states_actions':'buildings_state_action_space.json', 
                  'building_info':building_info,
                  'observation_spaces':observations_spaces, 
@@ -50,20 +50,28 @@ params_agent = {'building_ids':["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]]
 # Instantiating the control agent(s)
 agents = Agent(**params_agent)
 
-state = env.reset()
-done = False
+for i in range(12):
+    state = env.reset()
+    done = False
 
-action, coordination_vars = agents.select_action(state)    
-while not done:
-    next_state, reward, done, _ = env.step(action)
-    action_next, coordination_vars_next = agents.select_action(next_state)
-    agents.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
-    coordination_vars = coordination_vars_next
-    state = next_state
-    action = action_next
+    action, coordination_vars = agents.select_action(state)    
+    R = 0
+    while not done:
+        next_state, reward, done, _ = env.step(action)
+        action_next, coordination_vars_next = agents.select_action(next_state)
+        agents.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
+        coordination_vars = coordination_vars_next
+        state = next_state
+        action = action_next
+        R += sum(reward)
+    print(f"episode {i+1} reward {R}")
+    a = env.cost()
+    #import pdb; pdb.set_trace()
+    #print(env.cost())
+    print(a)
+    print()
 
-env.cost()
-
+"""
 
 # In[16]:
 
@@ -139,4 +147,4 @@ plt.legend(['Cooling Storage Device SoC',
 
 
 
-
+"""

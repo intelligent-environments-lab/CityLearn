@@ -12,7 +12,7 @@ params = {'data_path':Path("data/Climate_Zone_"+str(climate_zone)),
         'weather_file':'weather_data.csv', 
         'solar_profile':'solar_generation_1kW.csv', 
         'carbon_intensity':'carbon_intensity.csv',
-        'building_ids':["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]],
+        'building_ids':["Building_"+str(i) for i in [1,2,3,4,5]],
         'buildings_states_actions':'buildings_state_action_space.json', 
         'simulation_period': (0, 8760*4-1), 
         'cost_function': ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption','carbon_emissions'], 
@@ -26,7 +26,7 @@ observations_spaces, actions_spaces = env.get_state_action_spaces()
 # Provides information on Building type, Climate Zone, Annual DHW demand, Annual Cooling Demand, Annual Electricity Demand, Solar Capacity, and correllations among buildings
 building_info = env.get_building_information()
 
-params_agent = {'building_ids':["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]],
+params_agent = {'building_ids':["Building_"+str(i) for i in [1,2,3,4,5]],
                  'buildings_states_actions':'buildings_state_action_space.json', 
                  'building_info':building_info,
                  'observation_spaces':observations_spaces, 
