@@ -43,8 +43,9 @@ class CQMixMAC(BasicMAC):
                 chosen_actions = chosen_actions + ou_noise
             elif exploration_mode == "gaussian":
                 if t_env >= start_steps:
-                    act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
-                    act_noise = min(max(act_noise, end_noise), start_noise)
+                    #act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
+                    #act_noise = min(max(act_noise, end_noise), start_noise)
+                    act_noise = 0.1
                     chosen_actions += act_noise * th.randn_like(chosen_actions)
                 else:
                     action_list = []
@@ -54,6 +55,7 @@ class CQMixMAC(BasicMAC):
                         else:
                             chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
                         action_list.append(chosen_actions)
+
                     chosen_actions = th.cat(action_list, 0).to(device=ep_batch.device)
 
         # now clamp actions to permissible action range (necessary after exploration)

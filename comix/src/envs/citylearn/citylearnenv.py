@@ -102,7 +102,7 @@ class CityLearnEnv(MultiAgentEnv):
                   'carbon_intensity':'carbon_intensity.csv',
                   'building_ids': building_ids,
                   'buildings_states_actions':buildings_states_actions_file,
-                  'simulation_period': (0, 8760*4-1),
+                  'simulation_period': (0, 8760-1),
                   'cost_function': [
                         'ramping',
                         '1-load_factor',
@@ -149,7 +149,7 @@ class CityLearnEnv(MultiAgentEnv):
         # correllations among buildings
         self.building_info = self.env.get_building_information() # temporarily not used
 
-        self.episode_limit = 8760*4-1
+        self.episode_limit = 8760
         self.n_episode = 0
 
         self.encoder = {}
@@ -268,6 +268,7 @@ class CityLearnEnv(MultiAgentEnv):
             self.encoder[uid][self.encoder[uid]==-1] = remove_feature()
             self.encoder_mask[uid] = np.array(self.encoder_mask[uid]).astype(np.int)
             self.max_state_dim = max(self.max_state_dim, max(self.encoder_mask[uid])+1)
+
         
         self.max_state_dim += self.n_agents # append the agent encoding
         self.building_ids = building_ids
@@ -298,6 +299,7 @@ class CityLearnEnv(MultiAgentEnv):
 
         self.raw_state = self.env.reset()
         self.state = self.convert_state(self.raw_state)
+        self.reward_scale = 5.
         self.cost = {}
 
     def convert_state(self, raw_states):
@@ -320,7 +322,7 @@ class CityLearnEnv(MultiAgentEnv):
         self.raw_state, reward, done, _ = self.env.step(original_actions)
         self.state = self.convert_state(self.raw_state)
 
-        reward = (sum(reward)+500000) / 1000000.
+        reward = (sum(reward)+500000) / 1000000. * self.reward_scale
 
         self.t += 1
         info = {}

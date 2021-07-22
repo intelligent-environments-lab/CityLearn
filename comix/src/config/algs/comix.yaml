@@ -52,7 +52,7 @@ test_nepisode: 3
 testing_on: True
 t_max: 500000
 save_model: True
-save_model_interval: 50000
+save_model_interval: 8760
 verbose: False
 weight_decay: False
 weight_decay_factor: 0.0001
