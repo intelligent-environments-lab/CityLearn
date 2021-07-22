@@ -42,7 +42,6 @@ class periodic_normalization:
         x_sin = np.sin(x)
         x_cos = np.cos(x)
         return np.array([(x_sin+1)/2.0, (x_cos+1)/2.0])
-        #return np.array([x, x])
 
 class onehot_encoding:
     def __init__(self, classes):
@@ -315,14 +314,14 @@ class CityLearnEnv(MultiAgentEnv):
         states = np.array(states)
         return states
 
-    def step(self, actions):
+    def step(self, actions, is_rbc=False):
         """ Returns reward, terminated, info """
         original_actions = [actions[i][self.action_mask[i]]*0.5 for i in range(self.n_agents)]
 
         self.raw_state, reward, done, _ = self.env.step(original_actions)
         self.state = self.convert_state(self.raw_state)
 
-        reward = (sum(reward)+500000) / 1000000. * self.reward_scale
+        reward = (sum(reward)+406855.22887861874) / 865463.870915775 * self.reward_scale
 
         self.t += 1
         info = {}

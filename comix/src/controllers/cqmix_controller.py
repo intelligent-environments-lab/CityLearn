@@ -27,7 +27,7 @@ class CQMixMAC(BasicMAC):
         n_train_batch = getattr(self.args, "batch_size_run", 1)
 
         #delta = (end_noise - start_noise) / (t_max - start_steps)
-        delta = (np.log(end_noise) - np.log(start_noise)) / (t_max - start_steps)
+        #delta = (np.log(end_noise) - np.log(start_noise)) / (t_max - start_steps)
 
         if not test_mode:
             if exploration_mode == "ornstein_uhlenbeck":
@@ -53,9 +53,41 @@ class CQMixMAC(BasicMAC):
                         if self.args.env_args["scenario"] in ["Humanoid-v2", "HumanoidStandup-v2"]:
                             chosen_actions = th.from_numpy(np.array([self.args.action_spaces[0].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
                         else:
-                            chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
-                        action_list.append(chosen_actions)
+                            #chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
+                            x = ep_batch[bs]["state"]
+                            x = x.reshape(x.shape[0], self.n_agents, -1)
+                            acts = []
+                            indx_hour = 11
+                            for i in range(self.n_agents):
+                                multiplier = 0.8
+                                a = x[ii,i,indx_hour].item()
+                                b = x[ii,i,indx_hour-1].item()
+                                cos = np.array(a)*2-1
+                                sin = np.array(b)*2-1
+                                hour_state = np.arctan2(sin, cos) * 24 / (2*np.pi)
+                                hour_state = round(hour_state)
+                                if hour_state <= 0.01:
+                                    hour_state = hour_state + 24
+                                hour_day = hour_state
+                                a_dim = 3
+                                act = [0.0 for _ in range(a_dim)]
+                                if hour_day >= 7 and hour_day <= 11:
+                                    act = [-0.05 * multiplier for _ in range(a_dim)]
+                                elif hour_day >= 12 and hour_day <= 15:
+                                    act = [-0.05 * multiplier for _ in range(a_dim)]
+                                elif hour_day >= 16 and hour_day <= 18:
+                                    act = [-0.11 * multiplier for _ in range(a_dim)]
+                                elif hour_day >= 19 and hour_day <= 22:
+                                    act = [-0.06 * multiplier for _ in range(a_dim)]
 
+                                # Early nightime: store DHW and/or cooling energy
+                                if hour_day >= 23 and hour_day <= 24:
+                                    act = [0.085 * multiplier for _ in range(a_dim)]
+                                elif hour_day >= 1 and hour_day <= 6:
+                                    act = [0.1383 * multiplier for _ in range(a_dim)]
+                                acts.append(act)
+                            chosen_actions = th.from_numpy(np.array(acts)).unsqueeze(0).float()
+                        action_list.append(chosen_actions)
                     chosen_actions = th.cat(action_list, 0).to(device=ep_batch.device)
 
         # now clamp actions to permissible action range (necessary after exploration)
@@ -128,9 +160,9 @@ class CQMixMAC(BasicMAC):
 
         ftype = th.FloatTensor if not next(self.agent.parameters()).is_cuda else th.cuda.FloatTensor
         mu = ftype(ep_batch[bs].batch_size, self.n_agents, self.args.n_actions).zero_()
-        std = ftype(ep_batch[bs].batch_size, self.n_agents, self.args.n_actions).zero_() + 1.0
+        std = ftype(ep_batch[bs].batch_size, self.n_agents, self.args.n_actions).zero_() + 1.
         its = 0
-        maxits = 2
+        maxits = 5
         agent_inputs = self._build_inputs(ep_batch[bs], t)
 
         while its < maxits:

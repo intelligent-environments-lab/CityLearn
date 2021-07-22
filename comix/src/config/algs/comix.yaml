@@ -47,7 +47,7 @@ target_update_interval: ~
 target_update_mode: "soft"
 target_update_tau: 0.005
 test_greedy: ~
-test_interval: 8760
+test_interval: 8000
 test_nepisode: 3
 testing_on: True
 t_max: 500000

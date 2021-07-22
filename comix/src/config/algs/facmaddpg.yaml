@@ -23,8 +23,8 @@ gamma: 0.99
 grad_norm_clip: 100.
 learner: "facmaddpg_learner"
 learn_interval: 1
-lr: 0.001
-critic_lr: 0.001
+lr: 0.0003
+critic_lr: 0.0003
 mac: cqmix_mac
 mixer: "qmix"
 mixing_embed_dim: 128
@@ -38,7 +38,7 @@ name: "facmaddpg"
 n_runners: ~
 n_train: 1
 optimizer: adam # D
-optimizer_epsilon: 0.01 # D
+optimizer_epsilon: 0.00000001 # D
 ou_stop_episode: 100 # training noise goes to zero after this episode
 rnn_hidden_dim: 400
 run_mode: ~

@@ -13,11 +13,11 @@ class CEMAgent(nn.Module):
 
         self.net = nn.Sequential(
             nn.Linear(num_inputs, hidden_size),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Linear(hidden_size, 1))
 
     def forward(self, inputs, actions):

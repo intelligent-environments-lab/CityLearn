@@ -14,17 +14,26 @@ class FacMADDPGCritic(nn.Module):
         self.hidden_states = None
 
         # Set up network layers
-        self.fc1 = nn.Linear(self.input_shape, args.rnn_hidden_dim)
-        self.fc2 = nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim)
-        self.fc3 = nn.Linear(args.rnn_hidden_dim, getattr(self.args, "q_embed_dim", 1))
+        #self.fc1 = nn.Linear(self.input_shape, args.rnn_hidden_dim)
+        #self.fc2 = nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim)
+        #self.fc3 = nn.Linear(args.rnn_hidden_dim, getattr(self.args, "q_embed_dim", 1))
+        self.net = nn.Sequential(
+                nn.Linear(self.input_shape, args.rnn_hidden_dim),
+                nn.ReLU(),
+                nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
+                nn.ReLU(),
+                nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
+                nn.ReLU(),
+                nn.Linear(args.rnn_hidden_dim, 1))
 
     def forward(self, inputs, actions, hidden_state=None):
         if actions is not None:
             inputs = th.cat([inputs.view(-1, self.input_shape - self.n_actions),
                              actions.contiguous().view(-1, self.n_actions)], dim=-1)
-        x = F.relu(self.fc1(inputs))
-        x = F.relu(self.fc2(x))
-        q = self.fc3(x)
+        #x = F.relu(self.fc1(inputs))
+        #x = F.relu(self.fc2(x))
+        #q = self.fc3(x)
+        q = self.net(inputs)
         return q, hidden_state
 
     def _get_input_shape(self, scheme):
