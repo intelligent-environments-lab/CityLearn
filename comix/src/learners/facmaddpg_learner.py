@@ -90,7 +90,7 @@ class FacMADDPGLearner:
         # Optimise the critic
         self.critic_optimiser.zero_grad()
         loss.backward()
-        critic_grad_norm = th.nn.utils.clip_grad_norm_(self.critic_params, self.args.grad_norm_clip)
+        critic_grad_norm = th.nn.utils.clip_grad_norm_(self.critic_params, 1.)
         self.critic_optimiser.step()
 
         # Train the actor
@@ -102,7 +102,7 @@ class FacMADDPGLearner:
         if self.mixer is not None:
             q = self.mixer(q, batch["state"][:, :-1])
 
-        pg_loss = -q.mean() + (pi**2).mean() * 1e-3
+        pg_loss = -q.mean() + (pi**2).mean() * 1e-2
 
         # Optimise the agents
         self.agent_optimiser.zero_grad()
