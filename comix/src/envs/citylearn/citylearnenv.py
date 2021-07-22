@@ -328,7 +328,7 @@ class CityLearnEnv(MultiAgentEnv):
         info = {}
         if done:
             info['episode_limit'] = False
-            a, _ = self.env.cost()
+            a  = self.env.cost()
             self.cost = a
             info['cost'] = a["total"]
         return reward, done, info
