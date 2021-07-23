@@ -46,6 +46,7 @@ env = CityLearnEnv(None, env_args={"seed":1})
 
 #import pdb; pdb.set_trace()
 
+"""
 if False:
     #agent = RBC(env.original_action_space)
     agent = RBC(env.action_space)
@@ -123,10 +124,11 @@ else:
 
 env = CityLearnEnv(env_args={"seed":1})
 R = 0
-R_list = []
+#R_list = []
 env.reset()
 done = False
 states = []
+RR = []
 while not done:
     #action = [np.zeros_like(act.sample()) for act in env.action_space]
     action = [act.sample() for act in env.action_space]
@@ -134,22 +136,27 @@ while not done:
     #r, done, info = env.step(agent.select_action(env.get_obs()))
     states.append(env.state.copy())
     R += r
-    R_list.append(env.raw_reward)
+    #R_list.append(env.raw_reward)
+    RR.append(r)
 
 states = np.stack(states)
 std = states.std(0)
 states = states.mean(0)
 print(states)
 print("="*100)
-print(std)
+#print(std)
 print("Random...")
 print(R)
 
-Rs = np.array(R_list)
-print(Rs.mean(0))
-print(Rs.std(0))
+#Rs = np.array(R_list)
+#print(Rs.mean(0))
+#print(Rs.std(0))
+print("="*100)
+RR = np.array(RR)
+print("mean ", RR.mean())
+print("std ", RR.std())
+print("="*100)
 #Rs = np.array(R_list)
 #print(Rs.mean(), Rs.std())
 #print(info["cost"])
 #print("env cost", env.env.cost())
-"""

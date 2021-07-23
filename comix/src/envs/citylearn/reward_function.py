@@ -24,14 +24,20 @@ class reward_function_ma:
         using_marlisa = False
         # Use this reward function when running the MARLISA example with information_sharing = True. The reward sent to each agent will have an individual and a collective component.
         if using_marlisa:
-            return list(np.sign(electricity_demand)*0.01*(np.array(np.abs(electricity_demand))**2 * max(0, total_electricity_demand)))
+            ret = list(np.sign(electricity_demand)*0.01*(np.array(np.abs(electricity_demand))**2 * max(0, total_electricity_demand)))
         
         else:
             
             # Use this reward when running the SAC example. It assumes that the building-agents act independently of each other, without sharing information through the reward.
-            reward_ = np.array(electricity_demand)**3.0
-            reward_[reward_>0] = 0
-            return list(reward_)
+            #reward_ = np.array(electricity_demand)**3.0
+            #reward_[reward_>0] = 0
+            #ret = list(reward_)
+            reward_ = -electricity_demand.sum()
+            reward_ = max(0, reward_)
+            ret = reward_ ** 2 * 0.01
+            n = electricity_demand.shape[0]
+            ret = [ret/n for _ in range(n)]
+        return ret
     
       
         

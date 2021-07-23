@@ -19,8 +19,8 @@ class MADDPGCritic(nn.Module):
         self.net = nn.Sequential(
                 nn.Linear(self.input_shape, args.rnn_hidden_dim),
                 nn.ReLU(),
-                #nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
-                #nn.ReLU(),
+                nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
+                nn.ReLU(),
                 nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
                 nn.ReLU(),
                 nn.Linear(args.rnn_hidden_dim, 1))

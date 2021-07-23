@@ -46,7 +46,7 @@ class CQMixMAC(BasicMAC):
                 if t_env >= start_steps:
                     #act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
                     #act_noise = min(max(act_noise, end_noise), start_noise)
-                    act_noise = 0.05
+                    act_noise = 0.1
                     #if "maddpg" not in name:
                     #    act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
                     #    act_noise = min(max(act_noise, end_noise), start_noise)
