@@ -46,7 +46,7 @@ class CQMixMAC(BasicMAC):
                 if t_env >= start_steps:
                     #act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
                     #act_noise = min(max(act_noise, end_noise), start_noise)
-                    act_noise = 0.1
+                    act_noise = 0.0
                     #if "maddpg" not in name:
                     #    act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
                     #    act_noise = min(max(act_noise, end_noise), start_noise)
@@ -55,15 +55,16 @@ class CQMixMAC(BasicMAC):
                     chosen_actions += act_noise * th.randn_like(chosen_actions)
                 else:
                     action_list = []
+                    x = ep_batch[bs]["state"]
+                    x = x.reshape(x.shape[0], x.shape[1], self.n_agents, -1)
+                    x = x[:,t_ep,:,:]
+                    indx_hour = 11
                     for ii in range(n_train_batch):
                         if self.args.env_args["scenario"] in ["Humanoid-v2", "HumanoidStandup-v2"]:
                             chosen_actions = th.from_numpy(np.array([self.args.action_spaces[0].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
                         else:
                             #chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
-                            x = ep_batch[bs]["state"]
-                            x = x.reshape(x.shape[0], self.n_agents, -1)
                             acts = []
-                            indx_hour = 11
                             for i in range(self.n_agents):
                                 multiplier = 0.8
                                 a = x[ii,i,indx_hour].item()
@@ -166,9 +167,9 @@ class CQMixMAC(BasicMAC):
 
         ftype = th.FloatTensor if not next(self.agent.parameters()).is_cuda else th.cuda.FloatTensor
         mu = ftype(ep_batch[bs].batch_size, self.n_agents, self.args.n_actions).zero_()
-        std = ftype(ep_batch[bs].batch_size, self.n_agents, self.args.n_actions).zero_() + 1.
+        std = ftype(ep_batch[bs].batch_size, self.n_agents, self.args.n_actions).zero_() + 0.5
         its = 0
-        maxits = 3
+        maxits = 2
         agent_inputs = self._build_inputs(ep_batch[bs], t)
 
         while its < maxits:

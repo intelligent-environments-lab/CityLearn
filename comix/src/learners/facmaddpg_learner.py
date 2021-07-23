@@ -102,7 +102,7 @@ class FacMADDPGLearner:
         if self.mixer is not None:
             q = self.mixer(q, batch["state"][:, :-1])
 
-        pg_loss = -q.mean() + (pi**2).mean()
+        pg_loss = -q.mean() + (pi**2).mean() * 1e-3
 
         # Optimise the agents
         self.agent_optimiser.zero_grad()

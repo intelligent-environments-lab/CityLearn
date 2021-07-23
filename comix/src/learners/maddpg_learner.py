@@ -75,7 +75,7 @@ class MADDPGLearner:
         q = q.view(batch.batch_size, -1, 1)
 
         # Compute the actor loss
-        pg_loss = -q.mean() + (pi**2).mean()
+        pg_loss = -q.mean() + (pi**2).mean() * 1e-3
 
         # Optimise agents
         self.agent_optimiser.zero_grad()
