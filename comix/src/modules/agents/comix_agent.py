@@ -15,8 +15,8 @@ class CEMAgent(nn.Module):
             nn.Linear(num_inputs, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
-            nn.ReLU(),
-            nn.Linear(hidden_size, hidden_size),
+            #nn.ReLU(),
+            #nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, 1))
 
@@ -38,7 +38,7 @@ class NAFAgent(nn.Module):
 
         self.linear1 = nn.Linear(num_inputs, hidden_size)
         self.linear2 = nn.Linear(hidden_size, hidden_size)
-        self.linear3 = nn.Linear(hidden_size, hidden_size)
+        #self.linear3 = nn.Linear(hidden_size, hidden_size)
 
         self.V = nn.Linear(hidden_size, 1)
         self.V.weight.data.mul_(0.1)
@@ -63,9 +63,9 @@ class NAFAgent(nn.Module):
     def forward(self, inputs, actions=None):
         x, u = inputs, actions  # need to get to format bs*a, v
 
-        x = th.tanh(self.linear1(x))
-        x = th.tanh(self.linear2(x))
-        x = th.tanh(self.linear3(x))
+        x = F.relu(self.linear1(x))
+        x = F.relu(self.linear2(x))
+        #x = F.relu(self.linear3(x))
 
         V = self.V(x)
         mu = th.tanh(self.mu(x))

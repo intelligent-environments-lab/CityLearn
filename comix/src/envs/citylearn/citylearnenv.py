@@ -330,7 +330,7 @@ class CityLearnEnv(MultiAgentEnv):
         self.state = self.convert_state(self.raw_state)
 
         #reward = (sum(reward)+406855.22887861874) / 865463.870915775 * self.reward_scale
-        reward = (self.raw_reward - self.reward_mean) / (self.reward_std) * self.reward_scale
+        reward = (self.raw_reward - self.reward_mean) / (self.reward_std * 10.) * self.reward_scale
         reward = reward.sum()
 
         self.t += 1
