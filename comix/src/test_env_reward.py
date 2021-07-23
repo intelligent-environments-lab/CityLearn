@@ -42,11 +42,9 @@ for obs_name, selected in list(actions_.values())[0]['states'].items():
         break
     assert indx_hour < len(list(actions_.values())[0]['states'].items()) - 1, "Please, select hour as a state for Building_1 to run the RBC"
 
+"""
 env = CityLearnEnv(None, env_args={"seed":1})
 
-#import pdb; pdb.set_trace()
-
-"""
 if False:
     #agent = RBC(env.original_action_space)
     agent = RBC(env.action_space)
@@ -81,22 +79,18 @@ else:
     agent = RBC(env.action_space)
     env.reset()
     done = False
-    R = 0
-    R_list = []
     indx_hour = 11
-    hour_list = []
-    RR = []
+    R_raw = []
+    R = []
     while not done:
         state = env.state.copy()
-        #hour_state = np.array([[state[0][indx_hour]]])
-        #hour_state1 = np.arccos(np.array([[state[0][indx_hour]]])*2-1) * 24 / (2*np.pi)
         cos = np.array([[state[0][indx_hour]]])*2-1
         sin = np.array([[state[0][indx_hour-1]]])*2-1
         hour_state = np.arctan2(sin, cos) * 24 / (2*np.pi)
         hour_state[0][0] = round(hour_state[0][0])
         if hour_state <= 0.01:
             hour_state = hour_state + 24
-        hour_list.append(hour_state[0][0])
+        #hour_list.append(hour_state[0][0])
         #raw_state = env.raw_state.copy()
         #if np.abs(raw_state[0][2] - hour_state[0][0]) > 0.01:
         #    import pdb; pdb.set_trace()
@@ -104,59 +98,36 @@ else:
         #print(hour_state)
         action = agent.select_action(hour_state)
         reward, done, info = env.step(action)
-        rr = env.raw_reward
-        RR.append(rr)
-        R += reward
-        R_list.append(reward)
+        R_raw.append(sum(env.raw_reward))
+        R.append(reward)
 
-    print(hour_list[:100])
-    print("RBC...")
-    print(R)
-    print(info["cost"])
-    RR = np.array(RR)
-    print(RR.mean(0))
-    print(RR.std(0))
-    R_list = np.array(R_list)
-    print(R_list.mean())
-    print(R_list.std())
+    print("RBC "+"="*100)
+    print("cost ", info["cost"])
+    R_raw = np.array(R_raw)
+    print(R_raw.mean())
+    print(R_raw.std())
+
+    R = np.array(R)
+    print(R.mean(), R.std())
 """
     
 
 env = CityLearnEnv(env_args={"seed":1})
-R = 0
-#R_list = []
 env.reset()
 done = False
-states = []
-RR = []
+R_raw = []
+R = []
 while not done:
-    #action = [np.zeros_like(act.sample()) for act in env.action_space]
     action = [act.sample() for act in env.action_space]
     r, done, info = env.step(action)
-    #r, done, info = env.step(agent.select_action(env.get_obs()))
-    states.append(env.state.copy())
-    R += r
-    #R_list.append(env.raw_reward)
-    RR.append(r)
+    R_raw.append(sum(env.raw_reward))
+    R.append(r)
 
-states = np.stack(states)
-std = states.std(0)
-states = states.mean(0)
-print(states)
-print("="*100)
-#print(std)
-print("Random...")
-print(R)
+print("Random "+"="*100)
+print("cost", info["cost"])
+R_raw = np.array(R_raw)
+print(R_raw.mean())
+print(R_raw.std())
 
-#Rs = np.array(R_list)
-#print(Rs.mean(0))
-#print(Rs.std(0))
-print("="*100)
-RR = np.array(RR)
-print("mean ", RR.mean())
-print("std ", RR.std())
-print("="*100)
-#Rs = np.array(R_list)
-#print(Rs.mean(), Rs.std())
-#print(info["cost"])
-#print("env cost", env.env.cost())
+R= np.array(R)
+print(R.mean(), R.std())
