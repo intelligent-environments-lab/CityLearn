@@ -224,7 +224,11 @@ class ParallelRunner:
         cur_stats["action_norms"] = np.mean(action_norms) + cur_stats.get("action_norms", 0)
         cur_stats["action_means"] = np.mean(action_means) + cur_stats.get("action_means", 0)
 
+        if test_mode:
+            print("before", self.test_returns)
         cur_returns.extend(episode_returns)
+        if test_mode:
+            print("after", self.test_returns)
 
         n_test_runs = max(1, self.args.test_nepisode // self.batch_size) * self.batch_size
         if test_mode and (len(self.test_returns) == n_test_runs):

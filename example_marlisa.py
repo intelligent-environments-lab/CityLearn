@@ -70,9 +70,11 @@ agents = MARLISA(**params_agent)
 
 # We will use 1 episode if we intend to simulate a real-time RL controller (like in the CityLearn Challenge)
 # In climate zone 5, 1 episode contains 5 years of data, or 8760*5 time-steps.
-n_episodes = 12
+n_episodes = 20
 start = time.time()
 
+rewards = []
+costs = []
 for e in range(n_episodes): 
     state = env.reset()
     done = False
@@ -80,8 +82,10 @@ for e in range(n_episodes):
     j = 0
     is_evaluating = False
     action, coordination_vars = agents.select_action(state, deterministic=is_evaluating)    
+    R = 0
     while not done:
         next_state, reward, done, _ = env.step(action)
+        R += sum(reward)
         action_next, coordination_vars_next = agents.select_action(next_state, deterministic=is_evaluating)
         agents.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
         coordination_vars = coordination_vars_next
@@ -89,19 +93,23 @@ for e in range(n_episodes):
         action = action_next
         is_evaluating = (j > 3*8760)
 
-    print('Loss -',env.cost(), 'Simulation time (min) -',(time.time()-start)/60.0)
+    rewards.append(R)
+    a = env.cost()
+    costs.append(a["total"])
+    print('Loss -', a, 'Simulation time (min) -',(time.time()-start)/60.0)
 
 
 # In[4]:
 
 
-a = env.cost()
-print(a)
 filename = f"comix/saved_envs/marlisa"
 ne1 = env.net_electric_consumption_no_pv_no_storage
 ne2 = env.net_electric_consumption_no_storage
 ne3 = env.net_electric_consumption
 
+rewards = np.array(rewards)
+costs = np.array(costs)
 with open(filename, 'wb') as f:
-    np.savez(f, ne1=ne1, ne2=ne2, ne3=ne3, cost=a)
+    np.savez(f, ne1=ne1, ne2=ne2, ne3=ne3, rewards=rewards, cost=costs)
 f.close()
+

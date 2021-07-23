@@ -23,7 +23,7 @@ gamma: 0.99
 grad_norm_clip: 10.
 learner: "cq_learner"
 learn_interval: 1
-lr: 0.0004
+lr: 0.0003
 mac: cqmix_mac
 mixer: "qmix"
 mixing_embed_dim: 128

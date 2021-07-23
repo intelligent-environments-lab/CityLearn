@@ -1,8 +1,7 @@
 currdir=$(dirname "$0")
 
-names=("comix" "covdn-naf" "iql-cem" "maddpg")
-####names=("comix")
-gpus=(1 2 3 5 7)
+names=("comix-naf" "covdn" "facmaddpg")
+gpus=(1 2 3)
 
 for i in "${!names[@]}"
 do

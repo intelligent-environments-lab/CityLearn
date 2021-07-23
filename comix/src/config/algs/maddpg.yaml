@@ -52,7 +52,7 @@ t_max: 500000
 save_model: True
 save_model_interval: 8760
 verbose: False
-weight_decay: False
+weight_decay: True
 weight_decay_factor: 0.0001
 env_args:
   state_last_action: False # critic adds last action internally

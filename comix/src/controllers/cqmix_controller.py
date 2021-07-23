@@ -22,12 +22,13 @@ class CQMixMAC(BasicMAC):
         t_max = getattr(self.args, "t_max")
         start_steps = getattr(self.args, "start_steps", 0)
         #act_noise = getattr(self.args, "act_noise", 0.1)
-        start_noise = 0.5
+        name = getattr(self.args, "name")
+        start_noise = 0.2
         end_noise = 0.05
         n_train_batch = getattr(self.args, "batch_size_run", 1)
 
         #delta = (end_noise - start_noise) / (t_max - start_steps)
-        #delta = (np.log(end_noise) - np.log(start_noise)) / (t_max - start_steps)
+        delta = (np.log(end_noise) - np.log(start_noise)) / (t_max - start_steps)
 
         if not test_mode:
             if exploration_mode == "ornstein_uhlenbeck":
@@ -43,9 +44,13 @@ class CQMixMAC(BasicMAC):
                 chosen_actions = chosen_actions + ou_noise
             elif exploration_mode == "gaussian":
                 if t_env >= start_steps:
-                    #act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
-                    #act_noise = min(max(act_noise, end_noise), start_noise)
-                    act_noise = 0.1
+                    act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
+                    act_noise = min(max(act_noise, end_noise), start_noise)
+                    #if "maddpg" not in name:
+                    #    act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
+                    #    act_noise = min(max(act_noise, end_noise), start_noise)
+                    #else:
+                    #    act_noise = 0.05
                     chosen_actions += act_noise * th.randn_like(chosen_actions)
                 else:
                     action_list = []
@@ -162,7 +167,7 @@ class CQMixMAC(BasicMAC):
         mu = ftype(ep_batch[bs].batch_size, self.n_agents, self.args.n_actions).zero_()
         std = ftype(ep_batch[bs].batch_size, self.n_agents, self.args.n_actions).zero_() + 1.
         its = 0
-        maxits = 5
+        maxits = 3
         agent_inputs = self._build_inputs(ep_batch[bs], t)
 
         while its < maxits:

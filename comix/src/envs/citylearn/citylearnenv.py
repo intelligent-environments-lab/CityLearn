@@ -298,7 +298,14 @@ class CityLearnEnv(MultiAgentEnv):
 
         self.raw_state = self.env.reset()
         self.state = self.convert_state(self.raw_state)
-        self.reward_scale = 5.
+        self.reward_scale = 1.
+        #self.reward_mean = np.array([-18769.723, -3844.941, -416.71783, -79.21062, -6447.8984])
+        #self.reward_mean = np.array([-94940.03,-9421.65,-31706.078,-9510.859,-7362.1187])
+        self.reward_mean = np.array([-269298.78,-35577.92,-55560.234,-30695.479,-17631.754])
+
+        #self.reward_std = np.array([6610.860947499999, 1064.20811546875, 72.58118065429687, 21.890087209472657, 1692.7904396874999])
+        #self.reward_std = np.array([218599.28,13936.585,77913.11,32169.803,8669.043])
+        self.reward_std = np.array([722675.94, 70323.414, 156566.1 ,  117784.15, 31840.941])
         self.cost = {}
 
     def convert_state(self, raw_states):
@@ -319,9 +326,12 @@ class CityLearnEnv(MultiAgentEnv):
         original_actions = [actions[i][self.action_mask[i]]*0.5 for i in range(self.n_agents)]
 
         self.raw_state, reward, done, _ = self.env.step(original_actions)
+        self.raw_reward = np.array(reward)
         self.state = self.convert_state(self.raw_state)
 
-        reward = (sum(reward)+406855.22887861874) / 865463.870915775 * self.reward_scale
+        #reward = (sum(reward)+406855.22887861874) / 865463.870915775 * self.reward_scale
+        reward = (self.raw_reward - self.reward_mean) / (self.reward_std) * self.reward_scale
+        reward = reward.sum()
 
         self.t += 1
         info = {}
