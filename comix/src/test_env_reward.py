@@ -107,20 +107,24 @@ if k == 0:
             R_vec.append(env.raw_reward)
             R.append(reward)
             Rtot += reward
+            print(reward)
 
         print("RBC "+"="*100)
         print("reward", Rtot)
         print("cost ", info["cost"])
+
         R_raw = np.array(R_raw)
         print(R_raw.mean())
         print(R_raw.std())
 
         R = np.array(R)
         print(R.mean(), R.std())
-        print("=====")
-        R_vec = np.array(R_vec)
-        print(R_vec.mean(0))
-        print(R_vec.std(0))
+        print(R)
+        import pdb; pdb.set_trace()
+        #print("=====")
+        #R_vec = np.array(R_vec)
+        #print(R_vec.mean(0))
+        #print(R_vec.std(0))
 else: 
     env = CityLearnEnv(env_args={"seed":1})
     env.reset()

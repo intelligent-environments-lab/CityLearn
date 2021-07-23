@@ -23,8 +23,8 @@ class CQMixMAC(BasicMAC):
         start_steps = getattr(self.args, "start_steps", 0)
         #act_noise = getattr(self.args, "act_noise", 0.1)
         name = getattr(self.args, "name")
-        start_noise = 0.1
-        end_noise = 0.1
+        start_noise = 0.2
+        end_noise = 0.05
         n_train_batch = getattr(self.args, "batch_size_run", 1)
 
         #delta = (end_noise - start_noise) / (t_max - start_steps)
@@ -44,9 +44,9 @@ class CQMixMAC(BasicMAC):
                 chosen_actions = chosen_actions + ou_noise
             elif exploration_mode == "gaussian":
                 if t_env >= start_steps:
-                    #act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
-                    #act_noise = min(max(act_noise, end_noise), start_noise)
-                    act_noise = 0.0
+                    act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
+                    act_noise = min(max(act_noise, end_noise), start_noise)
+                    #act_noise = 0.0
                     #if "maddpg" not in name:
                     #    act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
                     #    act_noise = min(max(act_noise, end_noise), start_noise)

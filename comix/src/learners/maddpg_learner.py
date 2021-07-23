@@ -2,6 +2,7 @@ import copy
 from components.episode_buffer import EpisodeBatch
 from modules.critics.maddpg import MADDPGCritic
 import torch as th
+import torch.nn.functional as F
 from torch.optim import RMSprop, Adam
 
 
@@ -62,7 +63,8 @@ class MADDPGLearner:
 
         td_error = (q_taken.view(-1, 1) - targets.detach())
         masked_td_error = td_error
-        loss = (masked_td_error ** 2).mean()
+        #loss = (masked_td_error ** 2).mean()
+        loss = F.smooth_l1_loss(q_taken.view(-1, 1), targets.detach())
 
         self.critic_optimiser.zero_grad()
         loss.backward()

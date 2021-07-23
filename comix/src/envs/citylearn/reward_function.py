@@ -21,7 +21,7 @@ class reward_function_ma:
             
         electricity_demand = np.array(electricity_demand)
         
-        using_marlisa = False
+        using_marlisa = True
         # Use this reward function when running the MARLISA example with information_sharing = True. The reward sent to each agent will have an individual and a collective component.
         if using_marlisa:
             ret = list(np.sign(electricity_demand)*0.01*(np.array(np.abs(electricity_demand))**2 * max(0, total_electricity_demand)))

@@ -4,6 +4,7 @@ from modules.mixers.vdn import VDNMixer
 from modules.mixers.vdnstate import VDNState
 from modules.mixers.qmix import QMixer
 import torch as th
+import torch.nn.functional as F
 from torch.optim import RMSprop, Adam
 
 
@@ -52,6 +53,7 @@ class CQLearner:
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
         # Get the relevant quantities
         rewards = batch["reward"][:, 0].unsqueeze(-1)
+        #print("rew ", rewards.mean().item(), rewards.std().item())
         terminated = batch["terminated"][:, 0].float().unsqueeze(-1)
         mask = 1 - terminated
 
@@ -81,17 +83,19 @@ class CQLearner:
                                                         terminated.expand_as(target_max_qvals)) * target_max_qvals
 
         # Td-error
-        td_error = (chosen_action_qvals - targets.detach())
+        #td_error = (chosen_action_qvals - targets.detach())
 
         # Normal L2 loss, take mean over actual data
         assert self.args.runner_scope == "transition", "Runner scope HAS to be transition!"
-        loss = (td_error ** 2).mean()
+        #loss = (td_error ** 2).mean()
+        loss = F.smooth_l1_loss(chosen_action_qvals, targets.detach())
 
         # Optimise
         self.optimiser.zero_grad()
         loss.backward()
         grad_norm = th.nn.utils.clip_grad_norm_(self.params, self.args.grad_norm_clip)
         self.optimiser.step()
+        #print("loss ", loss.item(), grad_norm.item())
 
         if getattr(self.args, "target_update_mode", "hard") == "hard":
             if (episode_num - self.last_target_update_episode) / self.args.target_update_interval >= 1.0:

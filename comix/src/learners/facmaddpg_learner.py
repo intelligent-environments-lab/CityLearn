@@ -2,6 +2,7 @@ import copy
 from components.episode_buffer import EpisodeBatch
 from modules.critics.facmaddpg import FacMADDPGCritic
 import torch as th
+import torch.nn.functional as F
 from torch.optim import RMSprop, Adam
 from modules.mixers.vdn import VDNMixer
 from modules.mixers.vdnstate import VDNState
@@ -85,7 +86,8 @@ class FacMADDPGLearner:
         targets = rewards.expand_as(target_vals) + self.args.gamma * (1 - terminated.expand_as(target_vals)) * target_vals
         td_error = (q_taken - targets.detach())
         masked_td_error = td_error
-        loss = (masked_td_error ** 2).mean()
+        #loss = (masked_td_error ** 2).mean()
+        loss = F.smooth_l1_loss(q_taken, targets.detach())
 
         # Optimise the critic
         self.critic_optimiser.zero_grad()
