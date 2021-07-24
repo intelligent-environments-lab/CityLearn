@@ -447,7 +447,7 @@ class MARLISA:
     
                         q_target = reward + (1 - done) * self.discount * target_q_values
                         self.q_tracker[uid].append(q_target.mean())
-    
+
                     # Update Soft Q-Networks
                     q1_pred = self.soft_q_net1[uid](state, action)
                     q2_pred = self.soft_q_net2[uid](state, action)
@@ -477,6 +477,7 @@ class MARLISA:
                     self.policy_optimizer[uid].zero_grad()
                     policy_loss.backward()
                     self.policy_optimizer[uid].step()
+                    #print(q1_loss.item(), q2_loss.item(), policy_loss.item())
     
     
                     # Optimize the temperature parameter alpha, used for exploration through entropy maximization

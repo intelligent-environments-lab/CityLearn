@@ -14,11 +14,15 @@ class CEMAgent(nn.Module):
         self.net = nn.Sequential(
             nn.Linear(num_inputs, hidden_size),
             nn.ReLU(),
+            nn.LayerNorm(hidden_size),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
+            nn.LayerNorm(hidden_size),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
             nn.Linear(hidden_size, 1))
+        self.net[-1].weight.data.uniform_(-3e-3, 3e-3)
+        self.net[-1].bias.data.uniform_(-3e-3, 3e-3)
 
     def forward(self, inputs, actions):
         if actions is not None:
@@ -36,9 +40,12 @@ class NAFAgent(nn.Module):
         num_inputs = input_shape
         num_outputs = args.n_actions
 
-        self.linear1 = nn.Linear(num_inputs, hidden_size)
-        self.linear2 = nn.Linear(hidden_size, hidden_size)
-        self.linear3 = nn.Linear(hidden_size, hidden_size)
+        self.net = nn.Sequential(
+            nn.Linear(num_inputs, hidden_size),
+            nn.ReLU(),
+            nn.LayerNorm(hidden_size),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU())
 
         self.V = nn.Linear(hidden_size, 1)
         self.V.weight.data.mul_(0.1)
@@ -63,9 +70,7 @@ class NAFAgent(nn.Module):
     def forward(self, inputs, actions=None):
         x, u = inputs, actions  # need to get to format bs*a, v
 
-        x = F.relu(self.linear1(x))
-        x = F.relu(self.linear2(x))
-        x = F.relu(self.linear3(x))
+        x = self.net(x)
 
         V = self.V(x)
         mu = th.tanh(self.mu(x))

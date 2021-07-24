@@ -19,11 +19,15 @@ class MADDPGCritic(nn.Module):
         self.net = nn.Sequential(
                 nn.Linear(self.input_shape, args.rnn_hidden_dim),
                 nn.ReLU(),
+                nn.LayerNorm(args.rnn_hidden_dim),
                 nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
                 nn.ReLU(),
+                nn.LayerNorm(args.rnn_hidden_dim),
                 nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
                 nn.ReLU(),
                 nn.Linear(args.rnn_hidden_dim, 1))
+        self.net[-1].weight.data.uniform_(-3e-3, 3e-3)
+        self.net[-1].bias.data.uniform_(-3e-3, 3e-3)
 
     def forward(self, inputs, actions, hidden_state=None):
         if actions is not None:
