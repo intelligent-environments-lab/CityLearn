@@ -89,7 +89,6 @@ class CityLearnEnv(MultiAgentEnv):
         climate_zone = 5
         parent = Path(__file__).parent.absolute()
         data_path = Path(os.path.join(parent, f"data/Climate_Zone_{climate_zone}"))
-        #building_ids = ['Building_1', 'Building_2']
         building_ids = ["Building_"+str(i) for i in [1,2,3,4,5]]
 
         buildings_states_actions_file = os.path.join(parent, 'buildings_state_action_space.json')
@@ -298,9 +297,7 @@ class CityLearnEnv(MultiAgentEnv):
 
         self.raw_state = self.env.reset()
         self.state = self.convert_state(self.raw_state)
-        self.reward_scale = 0.1
-        self.reward_mean = np.array([-2300, -444, -1090, -464, -334])
-        self.reward_std = np.array([5000, 767, 2617, 1409, 402])
+        self.reward_scale = 5.0
         self.cost = {}
 
     def convert_state(self, raw_states):
@@ -324,10 +321,8 @@ class CityLearnEnv(MultiAgentEnv):
         self.raw_reward = np.array(reward)
         self.state = self.convert_state(self.raw_state)
 
-        ##reward = (sum(reward)+406855.22887861874) / 865463.870915775 * self.reward_scale
-        #reward = (self.raw_reward - self.reward_mean) / self.reward_std * self.reward_scale
         reward = sum(reward)
-        reward = (reward + 9795.92689751755) / 21012.34707732126 * self.reward_scale
+        reward = (reward + 15771496.333904345) / 36453185.69337366 * self.reward_scale
 
         self.t += 1
         info = {}
