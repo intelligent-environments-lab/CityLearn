@@ -58,7 +58,6 @@ for i in range(12):
     norm = 0
     while not done:
         next_state, reward, done, _ = env.step(action)
-        import pdb; pdb.set_trace()
         action_next, coordination_vars_next = agents.select_action(next_state)
         agents.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
         coordination_vars = coordination_vars_next

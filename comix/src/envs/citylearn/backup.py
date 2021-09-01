@@ -89,7 +89,8 @@ class CityLearnEnv(MultiAgentEnv):
         climate_zone = 5
         parent = Path(__file__).parent.absolute()
         data_path = Path(os.path.join(parent, f"data/Climate_Zone_{climate_zone}"))
-        building_ids = ["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]]
+        #building_ids = ['Building_1', 'Building_2']
+        building_ids = ["Building_"+str(i) for i in [1,2]]
 
         buildings_states_actions_file = os.path.join(parent, 'buildings_state_action_space.json')
 
@@ -125,7 +126,6 @@ class CityLearnEnv(MultiAgentEnv):
         self.env = CityLearn(**params)
         self.original_observation_space, self.original_action_space= \
                 self.env.get_state_action_spaces() # the action space are not consistent in shape
-        self.original_observation_space = {uid : o_space for uid, o_space in zip(building_ids, self.original_observation_space)}
 
         self.n_actions = max([len(a.high) for a in self.original_action_space])
 
@@ -148,83 +148,170 @@ class CityLearnEnv(MultiAgentEnv):
         # Provides information on Building type, Climate Zone, Annual DHW demand,
         # Annual Cooling Demand, Annual Electricity Demand, Solar Capacity, and
         # correllations among buildings
-        building_info = self.env.get_building_information() # temporarily not used
+        self.building_info = self.env.get_building_information() # temporarily not used
 
         self.episode_limit = 8760
         self.n_episode = 0
 
         self.encoder = {}
+        self.encoder_names = {}
+        self.encoder_mask = {}
+        self.encoder_nums = {}
+
         self.max_state_dim = 0
-        self.state_dims = {}
-        for uid in building_ids:
+        for i, uid in enumerate(building_ids):
+            self.encoder_names[uid] = []
             self.encoder[uid] = []
+            self.encoder_nums[uid] = []
+            self.encoder_mask[uid] = []
+
             state_n = 0
+            pos = 0
             for s_name, s in self.buildings_states_actions[uid]['states'].items():
                 if not s:
+                    self.encoder_names[uid].append(s_name+"0")
                     self.encoder[uid].append(0)
-                elif s_name in ["month", "hour"]:
-                    self.encoder[uid].append(periodic_normalization(self.original_observation_space[uid].high[state_n]))
+                    self.encoder_nums[uid].append([])
+                    if s_name in ["month", "hour"]:
+                        pos += 2
+                    elif s_name == "day":
+                        pos += 8
+                    elif s_name == "net_electricity_comsumption":
+                        pos += 1
+                    else:
+                        pos += 1
+                if s_name in ["month", "hour"]:
+                    self.encoder_names[uid].append(s_name+"1")
+                    self.encoder[uid].append(periodic_normalization(self.original_observation_space[i].high[state_n]))
+                    self.encoder_mask[uid].extend([pos, pos+1])
+                    self.encoder_nums[uid].append([pos, pos+1])
+                    pos += 2
                     state_n += 1
                 elif s_name == "day":
+                    self.encoder_names[uid].append(s_name+"1")
                     self.encoder[uid].append(onehot_encoding([1,2,3,4,5,6,7,8]))
+                    self.encoder_mask[uid].extend([pos, pos+1, pos+2, pos+3, pos+4, pos+5, pos+6, pos+7])
+                    self.encoder_nums[uid].append([pos, pos+1, pos+2, pos+3, pos+4, pos+5, pos+6, pos+7])
+                    pos += 8
                     state_n += 1
                 elif s_name == "daylight_savings_status":
+                    self.encoder_names[uid].append(s_name+"1")
                     self.encoder[uid].append(onehot_encoding([0,1]))
+                    self.encoder_mask[uid].extend([pos, pos+1])
+                    self.encoder_nums[uid].append([pos, pos+1])
+                    pos += 2
                     state_n += 1
                 elif s_name == "net_electricity_consumption":
+                    self.encoder_names[uid].append(s_name+"1")
                     self.encoder[uid].append(remove_feature())
+                    #self.encoder_mask[uid].append(pos)
+                    #self.encoder_nums[uid].append([pos])
+                    self.encoder_nums[uid].append([])
+                    pos += 1
                     state_n += 1
                 else:
-                    self.encoder[uid].append(normalize(self.original_observation_space[uid].low[state_n], self.original_observation_space[uid].high[state_n]))
+                    self.encoder_names[uid].append(s_name+"1")
+                    try:
+                        self.encoder[uid].append(normalize(self.original_observation_space[i].low[state_n], self.original_observation_space[i].high[state_n]))
+                    except:
+                        import pdb; pdb.set_trace()
+                    self.encoder_mask[uid].append(pos)
+                    self.encoder_nums[uid].append([pos])
+                    pos += 1
                     state_n += 1  
 
             self.encoder[uid] = np.array(self.encoder[uid])
+            self.encoder_names[uid] = np.array(self.encoder_names[uid])
 
             # If there is no solar PV installed, remove solar radiation variables 
-            if building_info[uid]['solar_power_capacity (kW)'] == 0:
+            if self.building_info[uid]['solar_power_capacity (kW)'] == 0:
                 for k in range(12,20):
                     if self.encoder[uid][k] != 0:
                         self.encoder[uid][k] = -1
+                        self.encoder_names[uid][k] = "none"
+                        for kk in self.encoder_nums[uid][k]:
+                            if kk in self.encoder_mask[uid]:
+                                self.encoder_mask[uid].remove(kk)
                 if self.encoder[uid][24] != 0:
                     self.encoder[uid][24] = -1
-            if building_info[uid]['Annual_DHW_demand (kWh)'] == 0 and self.encoder[uid][26] != 0:
-                self.encoder[uid][26] = -1
-            if building_info[uid]['Annual_cooling_demand (kWh)'] == 0 and self.encoder[uid][25] != 0:
-                self.encoder[uid][25] = -1
-            if building_info[uid]['Annual_nonshiftable_electrical_demand (kWh)'] == 0 and self.encoder[uid][23] != 0:
-                self.encoder[uid][23] = -1
+                    self.encoder_names[uid][24] = "none"
+                    for kk in self.encoder_nums[uid][24]:
+                        if kk in self.encoder_mask[uid]:
+                            self.encoder_mask[uid].remove(kk)
 
+            if self.building_info[uid]['Annual_DHW_demand (kWh)'] == 0 and self.encoder[uid][26] != 0:
+                self.encoder[uid][26] = -1
+                self.encoder_names[uid][26] = "none"
+                for kk in self.encoder_nums[uid][26]:
+                    if kk in self.encoder_mask[uid]:
+                        self.encoder_mask[uid].remove(kk)
+            if self.building_info[uid]['Annual_cooling_demand (kWh)'] == 0 and self.encoder[uid][25] != 0:
+                self.encoder[uid][25] = -1
+                self.encoder_names[uid][25] = "none"
+                for kk in self.encoder_nums[uid][25]:
+                    if kk in self.encoder_mask[uid]:
+                        self.encoder_mask[uid].remove(kk)
+            if self.building_info[uid]['Annual_nonshiftable_electrical_demand (kWh)'] == 0 and self.encoder[uid][23] != 0:
+                self.encoder[uid][23] = -1
+                self.encoder_names[uid][23] = "none"
+                for kk in self.encoder_nums[uid][23]:
+                    if kk in self.encoder_mask[uid]:
+                        self.encoder_mask[uid].remove(kk)
+
+            #if uid == "Building_3" or uid == "Building_2":
+            #    print("="*5)
+            #    print(uid)
+            #    print('uid ', self.encoder[uid])
+            #    print('names ', self.encoder_names[uid])
+            #    print('mask ', self.encoder_mask[uid])
+
+            self.encoder_names[uid] = self.encoder_names[uid][self.encoder[uid]!=0]
             self.encoder[uid] = self.encoder[uid][self.encoder[uid]!=0]
+            self.encoder_names[uid][self.encoder[uid]==-1] = "removed"
+
             self.encoder[uid][self.encoder[uid]==-1] = remove_feature()
-            state_dim = len([j for j in np.hstack(self.encoder[uid]*np.ones(len(self.original_observation_space[uid].low))) if j != None])
-            self.max_state_dim = max(self.max_state_dim, state_dim)
-            self.state_dims[uid] = state_dim
+            self.encoder_mask[uid] = np.array(self.encoder_mask[uid]).astype(np.int)
+            self.max_state_dim = max(self.max_state_dim, max(self.encoder_mask[uid])+1)
+
         
+        #self.max_state_dim += self.n_agents # append the agent encoding
         self.building_ids = building_ids
 
-        #obs_space_low = np.zeros((self.n_agents, self.max_state_dim))
-        #obs_space_high = np.zeros((self.n_agents, self.max_state_dim))
+        obs_space_low = np.zeros((self.n_agents, self.max_state_dim))
+        obs_space_high = np.zeros((self.n_agents, self.max_state_dim))
 
-        #for i, uid in enumerate(building_ids):
-        #    obs_space_low[i][:self.state_dims[uid]] = self.original_observation_space[uid].low
-        #    obs_space_high[i][:self.state_dims[uid]] = self.original_observation_space[uid].high
-        #self.observation_space = tuple([Box(obs_space_low[a], obs_space_high[a])
-        #                                for a in range(self.n_agents)])
+        for i, uid in enumerate(building_ids):
+            j1 = 0; j2 = 0
+            for sp in self.encoder[uid]:
+                if isinstance(sp, periodic_normalization):
+                    n_sp = 2
+                elif isinstance(sp, remove_feature):
+                    j2 += 1
+                    continue
+                elif isinstance(sp, onehot_encoding):
+                    n_sp = 8
+                else:
+                    n_sp = 1
+                obs_space_low[i, j1:j1+n_sp] = self.original_observation_space[i].low[j2]
+                obs_space_high[i, j1:j1+n_sp] = self.original_observation_space[i].high[j2]
+                j1 += n_sp
+                j2 += 1
+            #obs_space_high[i, -self.n_agents:] = 1.
+
+        self.observation_space = tuple([Box(obs_space_low[a], obs_space_high[a])
+                                        for a in range(self.n_agents)])
 
         self.raw_state = self.env.reset()
-        #self.mean_state = np.array([
-        #    0.4972806, 0.49876409, 0.14248202, 0.13974198, 0.13974198, 0.13974198,
-        #    0.13700194, 0.1342619, 0.13974198, 0.02728622, 0.49998523, 0.49994486])
-        #self.std_state = np.array([
-        #    0.35282571, 0.35426698, 0.34954384, 0.34671914, 0.34671914, 0.34671914,
-        #    0.3438494,  0.34093349, 0.34671914, 0.16291618, 0.35357087, 0.35353591])
-        state_info_path = Path(os.path.join(parent, "state_info"))
-        f = open(state_info_path, "rb")
-        state_info = np.load(f)
-        self.state_mean = state_info["mean"]
-        self.state_std = state_info["std"] + 1e-5
+        self.mean_state = np.array([
+            0.4972806, 0.49876409, 0.14248202, 0.13974198, 0.13974198, 0.13974198,
+            0.13700194, 0.1342619, 0.13974198, 0.02728622, 0.49998523, 0.49994486])
+        self.std_state = np.array([
+            0.35282571, 0.35426698, 0.34954384, 0.34671914, 0.34671914, 0.34671914,
+            0.3438494,  0.34093349, 0.34671914, 0.16291618, 0.35357087, 0.35353591])
         self.state = self.convert_state(self.raw_state)
-        self.reward_scale = 5.
+        self.reward_scale = 1.
+        self.reward_mean = np.array([-2300, -444, -1090, -464, -334])
+        self.reward_std = np.array([5000, 767, 2617, 1409, 402])
         self.cost = {}
 
     def convert_state(self, raw_states):
@@ -235,13 +322,11 @@ class CityLearnEnv(MultiAgentEnv):
             state = raw_states[i]
             state_ = np.array([j for j in np.hstack(self.encoder[uid]*state) if j != None])
             empty = np.zeros(self.max_state_dim)
-            empty[:self.state_dims[uid]] = state_.copy()
-            #empty[self.encoder_mask[uid]] = state_.copy()
+            empty[self.encoder_mask[uid]] = state_.copy()
             #print(empty.shape)
             #empty[:-self.n_agents] = (empty[:-self.n_agents] - self.mean_state) / (self.std_state+1e-5)
             #print(empty)
             #empty[-self.n_agents:] = self.agent_embedding[i]
-            empty = (empty - self.state_mean[i]) / self.state_std[i]
             states.append(empty)
         states = np.array(states)
         return states
@@ -255,8 +340,7 @@ class CityLearnEnv(MultiAgentEnv):
         self.state = self.convert_state(self.raw_state)
 
         #reward = (sum(reward) + 408953.76985795604) / 836962.2343548932 * 5.
-        # reward = (sum(reward) +45.581716939567066) / 55.06383729000771 * 5.
-        reward = (sum(reward) + 3900) / 10000
+        reward = (sum(reward) +45.581716939567066) / 55.06383729000771 * 5.
 
         self.t += 1
         info = {}
@@ -264,7 +348,7 @@ class CityLearnEnv(MultiAgentEnv):
             info['episode_limit'] = False
             a  = self.env.cost()
             self.cost = a
-            info['cost'] = a["total"]
+            info['cost'] = a["consump"]
         return reward, done, info
 
     def get_obs(self):

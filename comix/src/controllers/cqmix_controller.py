@@ -24,11 +24,11 @@ class CQMixMAC(BasicMAC):
         #act_noise = getattr(self.args, "act_noise", 0.1)
         name = getattr(self.args, "name")
         start_noise = 0.2
-        end_noise = 0.05
+        end_noise = 0.1
         n_train_batch = getattr(self.args, "batch_size_run", 1)
 
-        #delta = (end_noise - start_noise) / (t_max - start_steps)
-        delta = (np.log(end_noise) - np.log(start_noise)) / (t_max - start_steps)
+        delta = (end_noise - start_noise) / (t_max - start_steps)
+        #delta = (np.log(end_noise) - np.log(start_noise)) / (t_max - start_steps)
 
         if not test_mode:
             if exploration_mode == "ornstein_uhlenbeck":
@@ -44,14 +44,8 @@ class CQMixMAC(BasicMAC):
                 chosen_actions = chosen_actions + ou_noise
             elif exploration_mode == "gaussian":
                 if t_env >= start_steps:
-                    act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
-                    act_noise = min(max(act_noise, end_noise), start_noise)
-                    #act_noise = 0.0
-                    #if "maddpg" not in name:
-                    #    act_noise = np.exp(np.log(start_noise) + delta * (t_env - start_steps))
-                    #    act_noise = min(max(act_noise, end_noise), start_noise)
-                    #else:
-                    #    act_noise = 0.05
+                    act_noise = min(max((t_env - start_steps) * delta + start_noise, start_noise), end_noise)
+                    #print(t_env)
                     chosen_actions += act_noise * th.randn_like(chosen_actions)
                 else:
                     action_list = []
@@ -63,37 +57,37 @@ class CQMixMAC(BasicMAC):
                         if self.args.env_args["scenario"] in ["Humanoid-v2", "HumanoidStandup-v2"]:
                             chosen_actions = th.from_numpy(np.array([self.args.action_spaces[0].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
                         else:
-                            #chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
-                            acts = []
-                            for i in range(self.n_agents):
-                                multiplier = 0.8
-                                a = x[ii,i,indx_hour].item()
-                                b = x[ii,i,indx_hour-1].item()
-                                cos = np.array(a)*2-1
-                                sin = np.array(b)*2-1
-                                hour_state = np.arctan2(sin, cos) * 24 / (2*np.pi)
-                                hour_state = round(hour_state)
-                                if hour_state <= 0.01:
-                                    hour_state = hour_state + 24
-                                hour_day = hour_state
-                                a_dim = 3
-                                act = [0.0 for _ in range(a_dim)]
-                                if hour_day >= 7 and hour_day <= 11:
-                                    act = [-0.05 * multiplier for _ in range(a_dim)]
-                                elif hour_day >= 12 and hour_day <= 15:
-                                    act = [-0.05 * multiplier for _ in range(a_dim)]
-                                elif hour_day >= 16 and hour_day <= 18:
-                                    act = [-0.11 * multiplier for _ in range(a_dim)]
-                                elif hour_day >= 19 and hour_day <= 22:
-                                    act = [-0.06 * multiplier for _ in range(a_dim)]
+                            chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample()*0.5 for i in range(self.n_agents)])).unsqueeze(0).float()
+                            #acts = []
+                            #for i in range(self.n_agents):
+                            #    multiplier = 0.8
+                            #    a = x[ii,i,indx_hour].item()
+                            #    b = x[ii,i,indx_hour-1].item()
+                            #    cos = np.array(a)*2-1
+                            #    sin = np.array(b)*2-1
+                            #    hour_state = np.arctan2(sin, cos) * 24 / (2*np.pi)
+                            #    hour_state = round(hour_state)
+                            #    if hour_state <= 0.01:
+                            #        hour_state = hour_state + 24
+                            #    hour_day = hour_state
+                            #    a_dim = 3
+                            #    act = [0.0 for _ in range(a_dim)]
+                            #    if hour_day >= 7 and hour_day <= 11:
+                            #        act = [-0.05 * multiplier for _ in range(a_dim)]
+                            #    elif hour_day >= 12 and hour_day <= 15:
+                            #        act = [-0.05 * multiplier for _ in range(a_dim)]
+                            #    elif hour_day >= 16 and hour_day <= 18:
+                            #        act = [-0.11 * multiplier for _ in range(a_dim)]
+                            #    elif hour_day >= 19 and hour_day <= 22:
+                            #        act = [-0.06 * multiplier for _ in range(a_dim)]
 
-                                # Early nightime: store DHW and/or cooling energy
-                                if hour_day >= 23 and hour_day <= 24:
-                                    act = [0.085 * multiplier for _ in range(a_dim)]
-                                elif hour_day >= 1 and hour_day <= 6:
-                                    act = [0.1383 * multiplier for _ in range(a_dim)]
-                                acts.append(act)
-                            chosen_actions = th.from_numpy(np.array(acts)).unsqueeze(0).float()
+                            #    # Early nightime: store DHW and/or cooling energy
+                            #    if hour_day >= 23 and hour_day <= 24:
+                            #        act = [0.085 * multiplier for _ in range(a_dim)]
+                            #    elif hour_day >= 1 and hour_day <= 6:
+                            #        act = [0.1383 * multiplier for _ in range(a_dim)]
+                            #    acts.append(act)
+                            #chosen_actions = th.from_numpy(np.array(acts)).unsqueeze(0).float()
                         action_list.append(chosen_actions)
                     chosen_actions = th.cat(action_list, 0).to(device=ep_batch.device)
 
@@ -178,6 +172,7 @@ class CQMixMAC(BasicMAC):
             actions_prime = th.tanh(actions)
             ret = self.agent(agent_inputs.unsqueeze(0).expand(N, *agent_inputs.shape).contiguous().view(-1, agent_inputs.shape[-1]),
                              actions=actions_prime.view(-1, actions_prime.shape[-1]))
+            #ret = self.agent(agent_inputs.unsqueeze(0).expand(N, *agent_inputs.shape).contiguous(), actions=actions_prime)
             out = ret["Q"].view(N, -1, 1)
             topk, topk_idxs = th.topk(out, Ne, dim=0)
             mu = th.mean(actions.gather(0, topk_idxs.repeat(1, 1, self.args.n_actions).long()), dim=0)

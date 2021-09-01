@@ -477,7 +477,6 @@ class CityLearn(gym.Env):
 
                 # Adding loads from appliances and subtracting solar generation to the net electrical load of each building
                 building_electric_demand = round(_electric_demand_electrical_storage + _electric_demand_cooling + _electric_demand_dhw + _non_shiftable_load - _solar_generation, 4)
-
                 # Electricity consumed by every building
                 building.current_net_electricity_demand = building_electric_demand
                 self.buildings_net_electricity_demand.append(-building_electric_demand)    
@@ -681,6 +680,10 @@ class CityLearn(gym.Env):
         
         # Compute the costs normalized by the baseline costs
         cost, cost_last_yr, c_score, c_score_last_yr = {}, {}, [], []
+        if 'consump' in self.cost_function:
+            cost['consump'] = self.net_electric_consumption.sum() / self.cost_rbc['consump']
+            c_score.append(cost['consump'])
+
         if 'ramping' in self.cost_function:
             cost['ramping'] = np.abs((self.net_electric_consumption - np.roll(self.net_electric_consumption,1))[1:]).sum()/self.cost_rbc['ramping']
             c_score.append(cost['ramping'])
@@ -756,6 +759,10 @@ class CityLearn(gym.Env):
         
         # Computes the costs for the Rule-based controller, which are used to normalized the actual costs.
         cost, cost_last_yr = {}, {}
+
+        if 'consump' in self.cost_function:
+            cost['consump'] = self.net_electric_consumption.sum()
+
         if 'ramping' in self.cost_function:
             cost['ramping'] = np.abs((self.net_electric_consumption - np.roll(self.net_electric_consumption,1))[1:]).sum()
             

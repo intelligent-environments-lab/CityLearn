@@ -13,19 +13,20 @@ class MADDPGCritic(nn.Module):
         self.output_type = "q"
 
         # Set up network layers
-        #self.fc1 = nn.Linear(self.input_shape, args.rnn_hidden_dim)
-        #self.fc2 = nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim)
-        #self.fc3 = nn.Linear(args.rnn_hidden_dim, 1)
+        #self.net = nn.ModuleList()
+        #for i in range(self.n_agents):
+        #    self.net.append(
         self.net = nn.Sequential(
-                nn.Linear(self.input_shape, args.rnn_hidden_dim),
-                nn.ReLU(),
-                nn.LayerNorm(args.rnn_hidden_dim),
-                nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
-                nn.ReLU(),
-                nn.LayerNorm(args.rnn_hidden_dim),
-                nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
-                nn.ReLU(),
-                nn.Linear(args.rnn_hidden_dim, 1))
+                    nn.Linear(self.input_shape, args.rnn_hidden_dim),
+                    nn.ReLU(),
+                    nn.LayerNorm(args.rnn_hidden_dim),
+                    nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
+                    nn.ReLU(),
+                    nn.LayerNorm(args.rnn_hidden_dim),
+                    nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim),
+                    nn.ReLU(),
+                    nn.Linear(args.rnn_hidden_dim, 1)
+                )
         self.net[-1].weight.data.uniform_(-3e-3, 3e-3)
         self.net[-1].bias.data.uniform_(-3e-3, 3e-3)
 
@@ -33,6 +34,7 @@ class MADDPGCritic(nn.Module):
         if actions is not None:
             inputs = th.cat([inputs.view(-1, self.input_shape - self.n_actions * self.n_agents),
                              actions.contiguous().view(-1, self.n_actions * self.n_agents)], dim=-1)
+        #import pdb; pdb.set_trace()
         #x = F.relu(self.fc1(inputs))
         #x = F.relu(self.fc2(x))
         #q = self.fc3(x)
