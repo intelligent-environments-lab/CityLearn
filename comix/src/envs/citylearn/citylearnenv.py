@@ -224,7 +224,7 @@ class CityLearnEnv(MultiAgentEnv):
         self.state_mean = state_info["mean"]
         self.state_std = state_info["std"] + 1e-5
         self.state = self.convert_state(self.raw_state)
-        self.reward_scale = 5.
+        self.reward_scale = 5.0
         self.cost = {}
 
     def convert_state(self, raw_states):

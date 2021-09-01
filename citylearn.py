@@ -507,7 +507,8 @@ class CityLearn(gym.Env):
                             elif state_name == 'dhw_storage_soc':
                                 s.append(building.dhw_storage._soc/building.dhw_storage.capacity)
             self.state = np.array(s)
-            rewards = reward_function_sa(self.buildings_net_electricity_demand)
+            #rewards = reward_function_sa(self.buildings_net_electricity_demand)
+            rewards = self.buildings_net_electricity_demand.copy()
             self.cumulated_reward_episode += rewards
             
         else:
@@ -531,9 +532,8 @@ class CityLearn(gym.Env):
                 self.state.append(np.array(s))
             self.state = np.array(self.state, dtype='object')
             
-            
-            
-            rewards = self.reward_function.get_rewards(self.buildings_net_electricity_demand, self.current_carbon_intensity)
+            #rewards = self.reward_function.get_rewards(self.buildings_net_electricity_demand, self.current_carbon_intensity)
+            rewards = self.buildings_net_electricity_demand.copy()
             self.cumulated_reward_episode += sum(rewards)
             
         # Control variables which are used to display the results and the behavior of the buildings at the district level.
