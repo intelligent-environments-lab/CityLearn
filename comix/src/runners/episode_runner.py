@@ -43,7 +43,7 @@ class EpisodeRunner:
         env = self.env.env
 
         res = []
-        sim_period = (0, 8760*4 - 1)
+        sim_period = (0, 8760-1)
         ne1 = env.net_electric_consumption_no_pv_no_storage
         ne2 = env.net_electric_consumption_no_storage
         ne3 = env.net_electric_consumption

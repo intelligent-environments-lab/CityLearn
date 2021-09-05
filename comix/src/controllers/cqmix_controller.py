@@ -23,8 +23,8 @@ class CQMixMAC(BasicMAC):
         start_steps = getattr(self.args, "start_steps", 0)
         #act_noise = getattr(self.args, "act_noise", 0.1)
         name = getattr(self.args, "name")
-        start_noise = 0.2
-        end_noise = 0.1
+        start_noise = 0.5
+        end_noise = 0.05
         n_train_batch = getattr(self.args, "batch_size_run", 1)
 
         delta = (end_noise - start_noise) / (t_max - start_steps)
@@ -45,6 +45,7 @@ class CQMixMAC(BasicMAC):
             elif exploration_mode == "gaussian":
                 if t_env >= start_steps:
                     act_noise = min(max((t_env - start_steps) * delta + start_noise, start_noise), end_noise)
+                    #act_noise = 0.1
                     #print(t_env)
                     chosen_actions += act_noise * th.randn_like(chosen_actions)
                 else:
@@ -57,7 +58,7 @@ class CQMixMAC(BasicMAC):
                         if self.args.env_args["scenario"] in ["Humanoid-v2", "HumanoidStandup-v2"]:
                             chosen_actions = th.from_numpy(np.array([self.args.action_spaces[0].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
                         else:
-                            chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample()*0.5 for i in range(self.n_agents)])).unsqueeze(0).float()
+                            chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
                             #acts = []
                             #for i in range(self.n_agents):
                             #    multiplier = 0.8

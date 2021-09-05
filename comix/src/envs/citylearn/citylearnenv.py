@@ -256,7 +256,9 @@ class CityLearnEnv(MultiAgentEnv):
 
         #reward = (sum(reward) + 408953.76985795604) / 836962.2343548932 * 5.
         # reward = (sum(reward) +45.581716939567066) / 55.06383729000771 * 5.
-        reward = (sum(reward) + 3900) / 10000
+        #reward = (sum(reward) + 3900) / 10000 * self.reward_scale
+        #reward = (sum(reward) + 692563.4677803706) / 79.06878271268074 * self.reward_scale
+        reward = (sum(reward) + 79.16493285713939) / 77.06709260862901 * self.reward_scale
 
         self.t += 1
         info = {}

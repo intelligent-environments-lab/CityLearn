@@ -96,8 +96,8 @@ else:
         Rtot += r
 
     state = np.stack(state)
-    print(state.mean(0))
-    print(state.std(0))
+    #print(state.mean(0))
+    #print(state.std(0))
     #f = open("state_info", "wb")
     #np.savez(f, mean=state.mean(0), std=state.std(0))
 
