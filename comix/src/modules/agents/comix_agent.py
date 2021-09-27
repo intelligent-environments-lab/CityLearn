@@ -60,11 +60,13 @@ class NAFAgent(nn.Module):
             self.net.append(
                 nn.Sequential(
                     nn.Linear(num_inputs, hidden_size),
-                    nn.ReLU(),
+                    nn.Tanh(),
                     nn.LayerNorm(hidden_size),
-                    nn.Linear(hidden_size, hidden_size)
-                )
-            )
+                    nn.Linear(hidden_size, hidden_size),
+                    nn.Tanh()))
+            #self.linear1.append(nn.Linear(num_inputs, hidden_size))
+            #self.linear2.append(nn.Linear(hidden_size, hidden_size))
+
             self.Vs.append(nn.Linear(hidden_size, 1))
             self.Vs[-1].weight.data.mul_(0.1)
             self.Vs[-1].bias.data.mul_(0.1)
@@ -81,6 +83,7 @@ class NAFAgent(nn.Module):
             num_outputs, num_outputs), diagonal=-1).unsqueeze(0))
         self.diag_mask = Variable(th.diag(th.diag(
             th.ones(num_outputs, num_outputs))).unsqueeze(0))
+
         if self.args.use_cuda:
             self.tril_mask = self.tril_mask.cuda()
             self.diag_mask = self.diag_mask.cuda()
@@ -97,7 +100,7 @@ class NAFAgent(nn.Module):
         for i in range(self.n_agents):
             xi = self.net[i](x[:,i:i+1])
             vi = self.Vs[i](xi)
-            mui = self.mus[i](xi)
+            mui = F.tanh(self.mus[i](xi))
             li = self.Ls[i](xi)
             V.append(vi)
             mu.append(mui)

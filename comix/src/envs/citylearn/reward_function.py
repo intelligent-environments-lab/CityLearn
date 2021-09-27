@@ -28,9 +28,10 @@ class reward_function_ma:
             return ret
         else:
             # Use this reward when running the SAC example. It assumes that the building-agents act independently of each other, without sharing information through the reward.
-            reward_ = np.array(electricity_demand)**2.0 * np.sign(electricity_demand) * 0.01
-            reward_[reward_>0] = 0
-            return list(reward_)
+            #reward_ = np.array(electricity_demand)**2.0 * np.sign(electricity_demand) * 0.01
+            #reward_[reward_>0] = 0
+            #return list(reward_)
+            return list(electricity_demand/10.)
             #r = electricity_demand.sum()
             ##r = min(0, np.sign(r) * r ** 2.0)
             #n = electricity_demand.shape[0]

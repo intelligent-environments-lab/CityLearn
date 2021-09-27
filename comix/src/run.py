@@ -39,7 +39,9 @@ def run(_run, _config, _log, pymongo_client):
 
     # configure tensorboard logger
     #unique_token = "{}__{}".format(args.name, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-    unique_token = "{}__{}".format(args.name, args.seed)
+    #unique_token = "{}__{}".format(args.name, args.seed)
+    print(args.env_args["reward_style"])
+    unique_token = "{}_reward{}_{}".format(args.name, args.env_args["reward_style"], args.seed)
     args.unique_token = unique_token
     if args.use_tensorboard:
         tb_logs_direc = os.path.join(dirname(dirname(abspath(__file__))), "results", "tb_logs")

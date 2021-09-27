@@ -45,6 +45,7 @@ class CQLearner:
         else:
             raise Exception("unknown optimizer {}".format(getattr(self.args, "optimizer", "rmsprop")))
 
+
         # a little wasteful to deepcopy (e.g. duplicates action selector), but should work for any MAC
         self.target_mac = copy.deepcopy(mac)
 

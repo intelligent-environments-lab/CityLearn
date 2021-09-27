@@ -2,3 +2,4 @@ env: "citylearn"
 env_args:                                                                        
     scenario: "citylearn"                                                          
     episode_limit: 8759
+    reward_style: "original"

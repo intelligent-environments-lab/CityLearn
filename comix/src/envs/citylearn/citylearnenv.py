@@ -86,6 +86,9 @@ class CityLearnEnv(MultiAgentEnv):
     def __init__(self, batch_size=None, **kwargs):
         super().__init__(batch_size, **kwargs)
         # Load environment
+        #reward_style = kwargs["args"].env_args["reward_style"]
+        #reward_style = "exp"
+        reward_style = "ramping_square"
         climate_zone = 5
         parent = Path(__file__).parent.absolute()
         data_path = Path(os.path.join(parent, f"data/Climate_Zone_{climate_zone}"))
@@ -130,7 +133,7 @@ class CityLearnEnv(MultiAgentEnv):
         self.n_actions = max([len(a.high) for a in self.original_action_space])
 
         self.action_space_low = np.zeros((self.n_agents, self.n_actions))
-        self.action_space_high = np.zeros((self.n_agents, self.n_actions))
+        self.action_space_high = np.zeros((self.n_agents, self.n_actions))+1e-4
         self.action_mask = np.zeros((self.n_agents, self.n_actions), dtype=bool)
 
         for i, act_sp in enumerate(self.original_action_space):
@@ -199,7 +202,7 @@ class CityLearnEnv(MultiAgentEnv):
             state_dim = len([j for j in np.hstack(self.encoder[uid]*np.ones(len(self.original_observation_space[uid].low))) if j != None])
             self.max_state_dim = max(self.max_state_dim, state_dim)
             self.state_dims[uid] = state_dim
-        
+
         self.building_ids = building_ids
 
         #obs_space_low = np.zeros((self.n_agents, self.max_state_dim))
@@ -222,8 +225,12 @@ class CityLearnEnv(MultiAgentEnv):
         f = open(state_info_path, "rb")
         state_info = np.load(f)
         self.state_mean = state_info["mean"]
-        self.state_std = state_info["std"] + 1e-5
+        self.state_std = state_info["std"] + 1e-4
         self.state = self.convert_state(self.raw_state)
+        self.prev_raw_reward = None
+        #self.reward_style = "original"
+        self.reward_style = reward_style
+
         self.reward_scale = 5.0
         self.cost = {}
 
@@ -241,6 +248,7 @@ class CityLearnEnv(MultiAgentEnv):
             #empty[:-self.n_agents] = (empty[:-self.n_agents] - self.mean_state) / (self.std_state+1e-5)
             #print(empty)
             #empty[-self.n_agents:] = self.agent_embedding[i]
+            #import pdb; pdb.set_trace()
             empty = (empty - self.state_mean[i]) / self.state_std[i]
             states.append(empty)
         states = np.array(states)
@@ -251,23 +259,53 @@ class CityLearnEnv(MultiAgentEnv):
         original_actions = [actions[i][self.action_mask[i]]*0.5 for i in range(self.n_agents)]
 
         self.raw_state, reward, done, _ = self.env.step(original_actions)
-        self.raw_reward = np.array(reward)
+        #self.raw_reward = np.array(reward)
+        
         self.state = self.convert_state(self.raw_state)
 
-        #reward = (sum(reward) + 408953.76985795604) / 836962.2343548932 * 5.
-        # reward = (sum(reward) +45.581716939567066) / 55.06383729000771 * 5.
-        #reward = (sum(reward) + 3900) / 10000 * self.reward_scale
-        #reward = (sum(reward) + 692563.4677803706) / 79.06878271268074 * self.reward_scale
-        reward = (sum(reward) + 79.16493285713939) / 77.06709260862901 * self.reward_scale
+        if self.reward_style == "original":
+            total_demand = -np.sum(reward)
+            #r = np.sign(self.raw_reward)*0.01 * self.raw_reward**2 * max(0, total_demand)
+            r = np.array(reward)**2.0 * np.sign(reward)
+            r[r>0] = 0.
+            self.raw_reward = r
+            ret_reward = (sum(r) + 79.16493285713939) / 77.06709260862901 * self.reward_scale
+        elif self.reward_style == "ramping_abs":
+            curr_reward = sum(reward)
+            if self.prev_raw_reward is None:
+                self.prev_raw_reward = curr_reward
+                r = 0
+            else:
+                r = -abs(sum(reward) - self.prev_raw_reward)
+                self.prev_raw_reward = sum(reward)
+            self.raw_reward = [r/9 for _ in range(9)]
+            ret_reward = (r + 4.583615412933) / 4.502002941114865 * self.reward_scale
+        elif self.reward_style == "ramping_square":
+            curr_reward = sum(reward)
+            if self.prev_raw_reward is None:
+                self.prev_raw_reward = curr_reward
+                r = 0
+            else:
+                r = -np.square(sum(reward) - self.prev_raw_reward)
+                self.prev_raw_reward = sum(reward)
+            self.raw_reward = [r/9 for _ in range(9)]
+            #ret_reward = (r + 6980.152460739742) / 10290.198601630478 * self.reward_scale
+            ret_reward = (r + 40.97709603137211) / 81.33182267900712 * self.reward_scale
+        elif self.reward_style == "exp":
+            r = np.exp(-np.array(reward)) * np.sign(reward)
+            r[r>0] = 0.
+            self.raw_reward = r
+            ret_reward = (sum(r) + 724157.1325069005) / 23612299.60454955 * self.reward_scale
 
         self.t += 1
         info = {}
         if done:
             info['episode_limit'] = False
+            self.prev_raw_reward = None
             a  = self.env.cost()
             self.cost = a
             info['cost'] = a["total"]
-        return reward, done, info
+        return ret_reward, done, info
 
     def get_obs(self):
         """ Returns all agent observations in a list """

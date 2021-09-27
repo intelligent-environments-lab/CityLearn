@@ -44,8 +44,8 @@ class CQMixMAC(BasicMAC):
                 chosen_actions = chosen_actions + ou_noise
             elif exploration_mode == "gaussian":
                 if t_env >= start_steps:
-                    act_noise = min(max((t_env - start_steps) * delta + start_noise, start_noise), end_noise)
-                    #act_noise = 0.1
+                    #act_noise = min(max((t_env - start_steps) * delta + start_noise, start_noise), end_noise)
+                    act_noise = 0.1
                     #print(t_env)
                     chosen_actions += act_noise * th.randn_like(chosen_actions)
                 else:
@@ -59,38 +59,39 @@ class CQMixMAC(BasicMAC):
                             chosen_actions = th.from_numpy(np.array([self.args.action_spaces[0].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
                         else:
                             chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
-                            #acts = []
-                            #for i in range(self.n_agents):
-                            #    multiplier = 0.8
-                            #    a = x[ii,i,indx_hour].item()
-                            #    b = x[ii,i,indx_hour-1].item()
-                            #    cos = np.array(a)*2-1
-                            #    sin = np.array(b)*2-1
-                            #    hour_state = np.arctan2(sin, cos) * 24 / (2*np.pi)
-                            #    hour_state = round(hour_state)
-                            #    if hour_state <= 0.01:
-                            #        hour_state = hour_state + 24
-                            #    hour_day = hour_state
-                            #    a_dim = 3
-                            #    act = [0.0 for _ in range(a_dim)]
-                            #    if hour_day >= 7 and hour_day <= 11:
-                            #        act = [-0.05 * multiplier for _ in range(a_dim)]
-                            #    elif hour_day >= 12 and hour_day <= 15:
-                            #        act = [-0.05 * multiplier for _ in range(a_dim)]
-                            #    elif hour_day >= 16 and hour_day <= 18:
-                            #        act = [-0.11 * multiplier for _ in range(a_dim)]
-                            #    elif hour_day >= 19 and hour_day <= 22:
-                            #        act = [-0.06 * multiplier for _ in range(a_dim)]
+                        #    acts = []
+                        #    for i in range(self.n_agents):
+                        #        multiplier = 0.8
+                        #        a = x[ii,i,indx_hour].item()
+                        #        b = x[ii,i,indx_hour-1].item()
+                        #        cos = np.array(a)*2-1
+                        #        sin = np.array(b)*2-1
+                        #        hour_state = np.arctan2(sin, cos) * 24 / (2*np.pi)
+                        #        hour_state = round(hour_state)
+                        #        if hour_state <= 0.01:
+                        #            hour_state = hour_state + 24
+                        #        hour_day = hour_state
+                        #        a_dim = 3
+                        #        act = [0.0 for _ in range(a_dim)]
+                        #        if hour_day >= 7 and hour_day <= 11:
+                        #            act = [-0.05 * multiplier for _ in range(a_dim)]
+                        #        elif hour_day >= 12 and hour_day <= 15:
+                        #            act = [-0.05 * multiplier for _ in range(a_dim)]
+                        #        elif hour_day >= 16 and hour_day <= 18:
+                        #            act = [-0.11 * multiplier for _ in range(a_dim)]
+                        #        elif hour_day >= 19 and hour_day <= 22:
+                        #            act = [-0.06 * multiplier for _ in range(a_dim)]
 
-                            #    # Early nightime: store DHW and/or cooling energy
-                            #    if hour_day >= 23 and hour_day <= 24:
-                            #        act = [0.085 * multiplier for _ in range(a_dim)]
-                            #    elif hour_day >= 1 and hour_day <= 6:
-                            #        act = [0.1383 * multiplier for _ in range(a_dim)]
-                            #    acts.append(act)
-                            #chosen_actions = th.from_numpy(np.array(acts)).unsqueeze(0).float()
+                        #        # Early nightime: store DHW and/or cooling energy
+                        #        if hour_day >= 23 and hour_day <= 24:
+                        #            act = [0.085 * multiplier for _ in range(a_dim)]
+                        #        elif hour_day >= 1 and hour_day <= 6:
+                        #            act = [0.1383 * multiplier for _ in range(a_dim)]
+                        #        acts.append(act)
+                        #    chosen_actions = th.from_numpy(np.array(acts)).unsqueeze(0).float()
                         action_list.append(chosen_actions)
                     chosen_actions = th.cat(action_list, 0).to(device=ep_batch.device)
+                    #chosen_actions += 0.1 * th.randn_like(chosen_actions)
 
         # now clamp actions to permissible action range (necessary after exploration)
         if all([isinstance(act_space, spaces.Box) for act_space in self.args.action_spaces]):
