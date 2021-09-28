@@ -87,8 +87,8 @@ class CityLearnEnv(MultiAgentEnv):
         super().__init__(batch_size, **kwargs)
         # Load environment
         #reward_style = kwargs["args"].env_args["reward_style"]
-        #reward_style = "exp"
-        reward_style = "ramping_square"
+        reward_style = "marlisa"
+        #reward_style = "ramping_square"
         climate_zone = 5
         parent = Path(__file__).parent.absolute()
         data_path = Path(os.path.join(parent, f"data/Climate_Zone_{climate_zone}"))
@@ -263,13 +263,14 @@ class CityLearnEnv(MultiAgentEnv):
         
         self.state = self.convert_state(self.raw_state)
 
-        if self.reward_style == "original":
+        if self.reward_style == "marlisa":
             total_demand = -np.sum(reward)
             #r = np.sign(self.raw_reward)*0.01 * self.raw_reward**2 * max(0, total_demand)
-            r = np.array(reward)**2.0 * np.sign(reward)
-            r[r>0] = 0.
+            r = list(np.sign(reward)*0.01*(np.array(np.abs(reward))**2 * max(0, total_demand)))
+            #r = np.array(reward)**2.0 * np.sign(reward)
+            #r[r>0] = 0.
             self.raw_reward = r
-            ret_reward = (sum(r) + 79.16493285713939) / 77.06709260862901 * self.reward_scale
+            ret_reward = (sum(r) +16462.464318099137) /28741.719506985035 * self.reward_scale
         elif self.reward_style == "ramping_abs":
             curr_reward = sum(reward)
             if self.prev_raw_reward is None:
@@ -288,14 +289,13 @@ class CityLearnEnv(MultiAgentEnv):
             else:
                 r = -np.square(sum(reward) - self.prev_raw_reward)
                 self.prev_raw_reward = sum(reward)
-            self.raw_reward = [r/9 for _ in range(9)]
+            self.raw_reward = [r/9. for _ in range(9)]
             #ret_reward = (r + 6980.152460739742) / 10290.198601630478 * self.reward_scale
-            ret_reward = (r + 40.97709603137211) / 81.33182267900712 * self.reward_scale
+            ret_reward = (r + 4353.150655559453) / 8343.696751543932 * self.reward_scale
         elif self.reward_style == "exp":
-            r = np.exp(-np.array(reward)) * np.sign(reward)
-            r[r>0] = 0.
+            r = np.exp(-np.array(reward)/10.) * np.sign(reward)
             self.raw_reward = r
-            ret_reward = (sum(r) + 724157.1325069005) / 23612299.60454955 * self.reward_scale
+            ret_reward = (sum(r) + 822048.6637090549) / 34309038.5337971 * self.reward_scale
 
         self.t += 1
         info = {}
@@ -344,6 +344,7 @@ class CityLearnEnv(MultiAgentEnv):
         state = self.env.reset()
         self.state = self.convert_state(state)
         self.n_episode += 1
+        self.prev_raw_reward = None
         pass
 
     def render(self):
