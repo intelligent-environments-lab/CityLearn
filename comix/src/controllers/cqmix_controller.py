@@ -58,7 +58,7 @@ class CQMixMAC(BasicMAC):
                         if self.args.env_args["scenario"] in ["Humanoid-v2", "HumanoidStandup-v2"]:
                             chosen_actions = th.from_numpy(np.array([self.args.action_spaces[0].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
                         else:
-                            chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
+                            chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample()*0.1 for i in range(self.n_agents)])).unsqueeze(0).float()
                         #    acts = []
                         #    for i in range(self.n_agents):
                         #        multiplier = 0.8

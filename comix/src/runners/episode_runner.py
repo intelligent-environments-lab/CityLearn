@@ -38,7 +38,8 @@ class EpisodeRunner:
 
     def save_replay(self):
         #self.env.save_replay()
-        filename = f"./saved_envs/{self.args.name}"
+        style = self.args.env_args['reward_style']
+        filename = f"./saved_envs/{self.args.name}_{style}_{self.args.seed}"
 
         env = self.env.env
 
