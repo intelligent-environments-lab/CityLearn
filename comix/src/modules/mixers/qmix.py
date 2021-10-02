@@ -47,6 +47,16 @@ class QMixer(nn.Module):
         if self.args.gated:
             self.gate = nn.Parameter(th.ones(size=(1,)) * 0.5)
 
+        for m in [self.hyper_w_1, self.hyper_w_final, self.hyper_b_1, self.V]:
+            if isinstance(m, nn.Linear):
+                m.weight.data = m.weight.data * 0.1
+                m.bias.data = m.bias.data * 0.1
+            else:
+                for p in m:
+                    if isinstance(p, nn.Linear):
+                        p.weight.data = p.weight.data * 0.1
+                        p.bias.data = p.bias.data * 0.1
+
     def forward(self, agent_qs, states):
         bs = agent_qs.size(0)
         states = states.reshape(-1, self.state_dim)

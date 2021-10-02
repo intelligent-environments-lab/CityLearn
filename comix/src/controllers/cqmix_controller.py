@@ -58,7 +58,7 @@ class CQMixMAC(BasicMAC):
                         if self.args.env_args["scenario"] in ["Humanoid-v2", "HumanoidStandup-v2"]:
                             chosen_actions = th.from_numpy(np.array([self.args.action_spaces[0].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
                         else:
-                            chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample()*0.5 for i in range(self.n_agents)])).unsqueeze(0).float()
+                            chosen_actions = th.from_numpy(np.array([self.args.action_spaces[i].sample() for i in range(self.n_agents)])).unsqueeze(0).float()
                         #    acts = []
                         #    for i in range(self.n_agents):
                         #        multiplier = 0.8
@@ -119,12 +119,15 @@ class CQMixMAC(BasicMAC):
         if select_actions:
             return ret
         agent_outs = ret["Q"]
+        #print("cq controller before ", agent_outs.max())
 
         if self.agent_output_type == "pi_logits":
             agent_outs = th.nn.functional.softmax(agent_outs, dim=-1)
             if not test_mode:
                 agent_outs = ((1 - self.action_selector.epsilon) * agent_outs
                               + th.ones_like(agent_outs) * self.action_selector.epsilon/agent_outs.size(-1))
+
+        #print("cq controller after ", agent_outs.max())
         return agent_outs.view(ep_batch.batch_size, self.n_agents, -1), actions
 
     def _build_inputs(self, batch, t):

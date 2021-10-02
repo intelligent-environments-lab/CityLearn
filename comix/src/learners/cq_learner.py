@@ -62,6 +62,7 @@ class CQLearner:
         chosen_action_qvals, _ = self.mac.forward(batch,
                                                   actions=batch["actions"][:, t:t + 1].detach(),
                                                   t=t)
+        #print("learner ", chosen_action_qvals.max())
 
         t = 1
         best_target_action = self.target_mac.select_actions(batch,
@@ -78,6 +79,8 @@ class CQLearner:
             target_max_qvals = target_max_qvals.squeeze(-2)
             rewards = rewards.squeeze(-2)
             terminated = terminated.squeeze(-2)
+
+        #print("learner mixer ", chosen_action_qvals.max())
 
         # Calculate 1-step Q-Learning targets
         targets = rewards.expand_as(target_max_qvals) + self.args.gamma * (1 -

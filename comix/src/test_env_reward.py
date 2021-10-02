@@ -70,12 +70,14 @@ if k == 0:
         R.append(reward)
         Rtot += reward
 
-    print("RBC "+"="*100)
-    R_raw = np.array(R_raw)
-    print("raw reward", R_raw.sum(), R_raw.mean(), R_raw.std())
     R = np.array(R)
-    print("reward", R.sum(), R.mean(), R.std())
+    print("RBC "+"="*100)
+    #R_raw = np.array(R_raw)
+    #print("raw reward", R_raw.sum(), R_raw.mean(), R_raw.std())
+    #R = np.array(R)
+    #print("reward", R.sum(), R.mean(), R.std())
     print("cost ", info["cost"])
+    print("rew ", R.max(), R.min(), R.mean(), R.std())
 elif k == 1:
     env = CityLearnEnv(env_args={"seed":1})
     env.reset()
@@ -96,9 +98,9 @@ elif k == 1:
         Rtot += r
 
     state = np.stack(state)
-    #print(state.mean(0))
-    #print(state.std(0))
-    #f = open("state_info", "wb")
+    print(state.mean(0))
+    print(state.std(0))
+    f = open("state_info", "wb")
     #np.savez(f, mean=state.mean(0), std=state.std(0))
 
     print("Random "+"="*100)
@@ -143,7 +145,7 @@ elif k == 2:
     #R_raw = []
     #R = []
     #R_vec = []
-    R1 = np.array(R)
+    R1 = np.array(R_raw)
     print("rbc reward", R1.sum(), R1.mean(), R1.std())
 
 

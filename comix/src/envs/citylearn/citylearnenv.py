@@ -86,9 +86,7 @@ class CityLearnEnv(MultiAgentEnv):
     def __init__(self, batch_size=None, **kwargs):
         super().__init__(batch_size, **kwargs)
         # Load environment
-        #reward_style = kwargs["args"].env_args["reward_style"]
-        reward_style = "marlisa"
-        #reward_style = "ramping_square"
+        reward_style = kwargs["args"].env_args["reward_style"]
         climate_zone = 5
         parent = Path(__file__).parent.absolute()
         data_path = Path(os.path.join(parent, f"data/Climate_Zone_{climate_zone}"))
@@ -215,12 +213,6 @@ class CityLearnEnv(MultiAgentEnv):
         #                                for a in range(self.n_agents)])
 
         self.raw_state = self.env.reset()
-        #self.mean_state = np.array([
-        #    0.4972806, 0.49876409, 0.14248202, 0.13974198, 0.13974198, 0.13974198,
-        #    0.13700194, 0.1342619, 0.13974198, 0.02728622, 0.49998523, 0.49994486])
-        #self.std_state = np.array([
-        #    0.35282571, 0.35426698, 0.34954384, 0.34671914, 0.34671914, 0.34671914,
-        #    0.3438494,  0.34093349, 0.34671914, 0.16291618, 0.35357087, 0.35353591])
         state_info_path = Path(os.path.join(parent, "state_info"))
         f = open(state_info_path, "rb")
         state_info = np.load(f)
@@ -228,7 +220,6 @@ class CityLearnEnv(MultiAgentEnv):
         self.state_std = state_info["std"] + 1e-4
         self.state = self.convert_state(self.raw_state)
         self.prev_raw_reward = None
-        #self.reward_style = "original"
         self.reward_style = reward_style
 
         self.reward_scale = 5.0
@@ -258,44 +249,39 @@ class CityLearnEnv(MultiAgentEnv):
         """ Returns reward, terminated, info """
         original_actions = [actions[i][self.action_mask[i]]*0.5 for i in range(self.n_agents)]
 
-        self.raw_state, reward, done, _ = self.env.step(original_actions)
-        #self.raw_reward = np.array(reward)
-        
+        self.raw_state, neg_demand, done, _ = self.env.step(original_actions)
+        total_neg_demand = np.sum(neg_demand)
         self.state = self.convert_state(self.raw_state)
 
         if self.reward_style == "marlisa":
-            total_demand = -np.sum(reward)
-            #r = np.sign(self.raw_reward)*0.01 * self.raw_reward**2 * max(0, total_demand)
-            r = list(np.sign(reward)*0.01*(np.array(np.abs(reward))**2 * max(0, total_demand)))
-            #r = np.array(reward)**2.0 * np.sign(reward)
-            #r[r>0] = 0.
+            r = list(np.sign(neg_demand)*0.01*(np.array(np.abs(neg_demand))**2 * max(0, -total_neg_demand)))
             self.raw_reward = r
-            ret_reward = (sum(r) +16462.464318099137) /28741.719506985035 * self.reward_scale
-        elif self.reward_style == "ramping_abs":
-            curr_reward = sum(reward)
-            if self.prev_raw_reward is None:
-                self.prev_raw_reward = curr_reward
-                r = 0
-            else:
-                r = -abs(sum(reward) - self.prev_raw_reward)
-                self.prev_raw_reward = sum(reward)
-            self.raw_reward = [r/9 for _ in range(9)]
-            ret_reward = (r + 4.583615412933) / 4.502002941114865 * self.reward_scale
+            ret_reward = (sum(r) + 16000.) / 28000. * self.reward_scale
         elif self.reward_style == "ramping_square":
-            curr_reward = sum(reward)
+            curr_reward = total_neg_demand
             if self.prev_raw_reward is None:
                 self.prev_raw_reward = curr_reward
                 r = 0
             else:
-                r = -np.square(sum(reward) - self.prev_raw_reward)
-                self.prev_raw_reward = sum(reward)
+                r = -np.square(curr_reward - self.prev_raw_reward)
+                self.prev_raw_reward = curr_reward
             self.raw_reward = [r/9. for _ in range(9)]
-            #ret_reward = (r + 6980.152460739742) / 10290.198601630478 * self.reward_scale
-            ret_reward = (r + 4353.150655559453) / 8343.696751543932 * self.reward_scale
+            ret_reward = (r + 4000.) / 8000. * self.reward_scale
         elif self.reward_style == "exp":
-            r = np.exp(-np.array(reward)/10.) * np.sign(reward)
-            self.raw_reward = r
-            ret_reward = (sum(r) + 822048.6637090549) / 34309038.5337971 * self.reward_scale
+            r = -np.exp(-total_neg_demand/50.)
+            self.raw_reward = [r/9. for _ in range(9)]
+            ret_reward = (r + 350) / 2000. * self.reward_scale
+        elif self.reward_style == "mixed":
+            curr_reward = total_neg_demand
+            if self.prev_raw_reward is None:
+                self.prev_raw_reward = curr_reward
+                r1 = 0
+            else:
+                r1 = -np.square(curr_reward - self.prev_raw_reward)
+                self.prev_raw_reward = curr_reward
+            r2 = -np.exp(-total_neg_demand/50.)
+            self.raw_reward = [(r1+r2)/9. for _ in range(9)]
+            ret_reward = ((r + 4000.) / 8000. + (r + 350) / 2000.) / 2. * self.reward_scale
 
         self.t += 1
         info = {}
