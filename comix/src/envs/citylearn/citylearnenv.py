@@ -281,7 +281,7 @@ class CityLearnEnv(MultiAgentEnv):
                 self.prev_raw_reward = curr_reward
             r2 = -np.exp(-total_neg_demand/50.)
             self.raw_reward = [(r1+r2)/9. for _ in range(9)]
-            ret_reward = ((r + 4000.) / 8000. + (r + 350) / 2000.) / 2. * self.reward_scale
+            ret_reward = ((r1 + 4000.) / 8000. + (r2 + 350) / 2000.) / 2. * self.reward_scale
 
         self.t += 1
         info = {}
