@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import json
+from copy import deepcopy
 
 def rbc_cost():
     # Select the climate zone and load environment
@@ -36,6 +37,16 @@ def rbc_cost():
     env.cost()
     env.close()
     return env.net_electric_consumption
+
+def get_cost(x):
+    x = x.reshape(-1)
+    cost = {}
+    cost['ramping'] = np.abs((x - np.roll(x,1))[1:]).sum()
+    cost['1-load_factor'] = np.mean([1-np.mean(x[i:i+int(8760/12)])/ np.max(x[i:i+int(8760/12)]) for i in range(0,len(x), int(8760/12))])
+    cost['average_daily_peak'] = np.mean([x[i:i+24].max() for i in range(0,len(x),24)])
+    cost['peak_demand'] = x.max()
+    cost['net_electricity_consumption'] = x.clip(min=0).sum()
+    return cost
 
 def plot(rew):
     methods = ["iql-cem", "covdn", "covdn-naf", "comix", "comix-naf", "maddpg", "facmaddpg"]
@@ -112,47 +123,69 @@ def plot(rew):
         keys = cost.keys()
 
     cc = rbc_cost()
-    results["net_electric_consumption"]["rbc"] = np.array([cc, cc, cc])
+    results["net_electric_consumption"]["rbc"] = np.array([cc])
 
     fs = 15
     lw = 5
 
     ### plot the season electric consumption
 
-    for season in seasons:
-        fig, ax = plt.subplots(1,1,figsize=(5, 5))
-        year = 1
-        rg = season_intervals[season]
-        interval = range((year-1)*8760 + rg[0], (year-1)*8760 + rg[1])
+    fig, ax = plt.subplots(1,1,figsize=(20, 5))
+    for i, method in enumerate(["rbc"] + methods):
+        y = results["net_electric_consumption"][method].reshape(-1)
+        ax.plot(np.arange(y.shape[0]), y, label=method, color=color_maps[method])
 
-        x = np.arange(24)
-        #y1 = results["net_electric_consumption_no_pv_no_storage"]["comix"][interval].reshape(-1,24).mean(0)
-        #y2 = results["net_electric_consumption_no_storage"]["comix"][interval].reshape(-1,24).mean(0)
+    #base = 0
+    #for i, method in enumerate(["rbc"]+methods):
+    #    y = results["net_electric_consumption"][method]
+    #    cost = get_cost(y)
+    #    if method == "rbc":
+    #        base = deepcopy(cost)
+    #    print(method, cost)
+    #    w = 0.1
+    #    x = i*0.1
+    #    ax.bar([x, x+4, x+8, x+12, x+16],
+    #        [cost['ramping']/base['ramping'], cost['1-load_factor']/base['1-load_factor'], cost['average_daily_peak']/base['average_daily_peak'], cost['peak_demand']/base['peak_demand'], cost['net_electricity_consumption']/base['net_electricity_consumption']],
+    #        width=w, label=method)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"imgs/{rew}_year.png", format='png', dpi=300)
+    plt.close()
+    return
+    #for season in seasons:
+    #    fig, ax = plt.subplots(1,1,figsize=(5, 5))
+    #    year = 1
+    #    rg = season_intervals[season]
+    #    interval = range((year-1)*8760 + rg[0], (year-1)*8760 + rg[1])
 
-        #ax.plot(x, y2, label="no_storage", color="tab:gray", linewidth=lw)
+    #    x = np.arange(24)
+    #    #y1 = results["net_electric_consumption_no_pv_no_storage"]["comix"][interval].reshape(-1,24).mean(0)
+    #    #y2 = results["net_electric_consumption_no_storage"]["comix"][interval].reshape(-1,24).mean(0)
 
-        for method in (["rbc"] + methods):
-            y = results["net_electric_consumption"][method][...,interval]
-            y = y.reshape(1, -1, 24).mean(1)
-            if method == 'rbc':
-                ax.plot(x, y.mean(0), label=MM[method], color=color_maps[method], linewidth=4.0)
-            else:
-                ax.plot(x, y.mean(0), label=MM[method], color=color_maps[method], linewidth=2.0)
-            #ax.fill_between(x, y.mean(0)-y.std(), y.mean(0)+y.std(), color=color_maps[method], alpha=0.1)
-            #ax.plot(x, y, label=method, color=color_maps[method], linewidth=lw)
+    #    #ax.plot(x, y2, label="no_storage", color="tab:gray", linewidth=lw)
 
-        #y = results["net_electric_consumption_no_pv_no_storage"]["comix"][...,interval]
-        #y = y.reshape(1, -1, 24).mean(1)
-        #ax.plot(x, y.mean(0), label=MM["no pv/storage"], color='gray', linewidth=4.0)
-     
-        ax.set_xlabel("Hour", fontsize=15)
-        ax.set_ylim(0, 500)
-        ax.grid()
-        ax.set_title(season.title(), fontsize=(fs+5))
-        ax.set_ylabel("Net Electric Consumption", fontsize=15)
-        plt.tight_layout()
-        plt.savefig(f"imgs/{rew}_{season}.png", format='png', dpi=300)
-        plt.close()
+    #    for method in (["rbc"] + methods):
+    #        y = results["net_electric_consumption"][method][...,interval]
+    #        y = y.reshape(1, -1, 24).mean(1)
+    #        if method == 'rbc':
+    #            ax.plot(x, y.mean(0), label=MM[method], color=color_maps[method], linewidth=4.0)
+    #        else:
+    #            ax.plot(x, y.mean(0), label=MM[method], color=color_maps[method], linewidth=2.0)
+    #        #ax.fill_between(x, y.mean(0)-y.std(), y.mean(0)+y.std(), color=color_maps[method], alpha=0.1)
+    #        #ax.plot(x, y, label=method, color=color_maps[method], linewidth=lw)
+
+    #    #y = results["net_electric_consumption_no_pv_no_storage"]["comix"][...,interval]
+    #    #y = y.reshape(1, -1, 24).mean(1)
+    #    #ax.plot(x, y.mean(0), label=MM["no pv/storage"], color='gray', linewidth=4.0)
+    # 
+    #    ax.set_xlabel("Hour", fontsize=15)
+    #    ax.set_ylim(0, 500)
+    #    ax.grid()
+    #    ax.set_title(season.title(), fontsize=(fs+5))
+    #    ax.set_ylabel("Net Electric Consumption", fontsize=15)
+    #    plt.tight_layout()
+    #    plt.savefig(f"imgs/{rew}_{season}.png", format='png', dpi=300)
+    #    plt.close()
 
     # Create a color palette
     plt.figure()
