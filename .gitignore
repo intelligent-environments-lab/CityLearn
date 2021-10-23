@@ -1,0 +1,8 @@
+__pycache__
+*.pyc
+.DS_Store
+.vscode/
+env
+
+# do not track all ORNL idf files sensitive files
+ornl/data/idf/cities/
