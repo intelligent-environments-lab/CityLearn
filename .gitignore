@@ -4,5 +4,12 @@ __pycache__
 .vscode/
 env
 
-# do not track all ORNL idf files sensitive files
+# do not track all ORNL city idf files
 ornl/data/idf/cities/
+
+# do not track all simulation output files
+ornl/data/simulation_output/*/*
+
+# output files to keep
+!ornl/data/simulation_output/*/*.idf
+!ornl/data/simulation_output/*/*.csv
