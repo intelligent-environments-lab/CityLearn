@@ -8,8 +8,9 @@ env
 ornl/data/idf/cities/
 
 # do not track all simulation output files
-ornl/data/simulation_output/*/*
+ornl/data/simulation_output/*/*/*
 
 # output files to keep
-!ornl/data/simulation_output/*/*.idf
-!ornl/data/simulation_output/*/*.csv
+!ornl/data/simulation_output/*/*/*.idf
+!ornl/data/simulation_output/*/*/*.csv
+!ornl/data/simulation_output/*/*/*.pdf

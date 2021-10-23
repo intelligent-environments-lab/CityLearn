@@ -2,6 +2,7 @@ import os
 import sqlite3
 from eppy.modeleditor import IDF
 from eppy.runner.run_functions import runIDFs
+import matplotlib.pyplot as plt
 import pandas as pd
 from utilities import read_json, make_directory
 
@@ -80,7 +81,7 @@ class ORNL:
         
         # create output directories
         for idf_filepath in idf_filepaths:
-            idf_directory = idf_filepath.split('/')[-1].split('.')[0]
+            idf_directory = '/'.join(idf_filepath.split('/')[-2:]).split('.')[0]
             idf_output_directories.append(os.path.join(output_directory,idf_directory))
             make_directory(idf_output_directories[-1])
 
@@ -105,6 +106,9 @@ class ORNL:
             db_filepath = idf_output_filepath.replace('.idf','.sql')
             data = self.citylearn_simulation_timeseries(db_filepath,query=query)
             data.to_csv(idf_output_filepath.replace('.idf','.csv'),index=False)
+            fig, axs = self.plot_citylearn_simulation_timeseries(data)
+            fig.suptitle('/'.join(idf_output_filepath.split('/')[-3:-1]),y=1.01)
+            plt.savefig(idf_output_filepath.replace('.idf','.pdf'),transparent=True,bbox_inches='tight')
 
     def __get_eplaunch_options(self,idf,**kwargs):
         idf_version = idf.idfobjects['version'][0].Version_Identifier.split('.')
@@ -136,6 +140,25 @@ class ORNL:
         # SQLite3 ignores square braces in column names so parentheses used as temporary fix. 
         data.columns = [c.replace('(','[').replace(')',']') for c in data.columns]
         return data
+
+    def plot_citylearn_simulation_timeseries(self,data):
+        columns = [
+            'Indoor Temperature [C]',
+            'Average Unmet Cooling Setpoint Difference [C]',
+            'Indoor Relative Humidity [%]',
+            'Equipment Electric Power [kWh]',
+            'DHW Heating [kWh]',
+            'Cooling Load [kWh]',
+        ]
+        fig, axs = plt.subplots(len(columns),1,figsize=(18,len(columns)*2.5))
+
+        for ax, column in zip(fig.axes, columns):
+            ax.plot(data[column])
+            ax.set_title(column)
+            ax.margins(0)
+
+        plt.tight_layout()
+        return fig, axs
 
     def preprocess(self,idf):
         building_type = idf.idfobjects['BUILDING'][0]['Name'].split(' created')[0][1:]
