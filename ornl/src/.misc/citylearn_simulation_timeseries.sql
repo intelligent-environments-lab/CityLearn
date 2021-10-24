@@ -79,7 +79,7 @@ WITH zone AS (
         SUM(CASE WHEN a.Name = 'Zone Thermostat Cooling Setpoint Temperature' THEN a.value END) AS "Average Unmet Cooling Setpoint Difference (C)",
         SUM(CASE WHEN a.Name = 'Zone Air Relative Humidity' THEN a.value END) AS "Indoor Relative Humidity (%)",
         SUM(CASE WHEN a.Name = 'Electric Equipment Electricity Energy' THEN (a.value/3600)/1000 END) AS "Equipment Electric Power (kWh)",
-        SUM(CASE WHEN a.Name = 'Zone Ideal Loads Zone Total Heating Energy' THEN (a.value/3600)/1000 END) AS "DHW Heating (kWh)",
+        SUM(CASE WHEN a.Name = 'Zone Ideal Loads Zone Total Heating Energy' THEN (a.value/3600)/1000 END) AS "Heating Load (kWh)",
         SUM(CASE WHEN a.Name = 'Zone Ideal Loads Zone Total Cooling Energy' THEN (a.value/3600)/1000 END) AS "Cooling Load (kWh)"
     FROM aggregate a
     GROUP BY
@@ -106,7 +106,7 @@ SELECT
     a."Average Unmet Cooling Setpoint Difference (C)",
     a."Indoor Relative Humidity (%)",
     a."Equipment Electric Power (kWh)",
-    a."DHW Heating (kWh)",
+    a."Heating Load (kWh)",
     a."Cooling Load (kWh)"
 FROM aggregate_pivot a
 INNER JOIN Time t ON t.TimeIndex = a.TimeIndex

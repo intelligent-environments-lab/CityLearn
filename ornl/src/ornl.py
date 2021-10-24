@@ -1,9 +1,11 @@
 import os
 import sqlite3
+from eppy import modeleditor
 from eppy.modeleditor import IDF
 from eppy.runner.run_functions import runIDFs
 import matplotlib.pyplot as plt
 import pandas as pd
+from load import BuildingAmericaDomesticHotWater
 from utilities import read_json, make_directory
 
 class ORNL:
@@ -73,7 +75,9 @@ class ORNL:
     def simulate(self,idf_filepaths,output_directory=None,cpu=2):
         idf_output_directories = []
         idf_output_filepaths = []
+        people_counts = {}
 
+        # ********** PREPROCESSING **********
         if output_directory is None:
             output_directory = '../data/simulation_output/'
         else:
@@ -89,9 +93,10 @@ class ORNL:
         for idf_filepath, idf_output_directory in zip(idf_filepaths, idf_output_directories):
             idf = self.preprocess(IDF(idf_filepath,self.epw_filepath))
             idf_output_filepaths.append(os.path.join(idf_output_directory,f'{idf_output_directory.split("/")[-1]}.idf'))
+            people_counts[idf_output_filepaths[-1]] = self.estimate_people_count(idf)
             idf.saveas(idf_output_filepaths[-1])
 
-        # run simulation
+        # ********** SIMULATION **********
         idfs = (IDF(idf_output_filepath,self.epw_filepath) for idf_output_filepath in idf_output_filepaths)
         runs = (
             (idf,self.__get_eplaunch_options(idf,output_directory=idf_output_directory)) 
@@ -99,12 +104,21 @@ class ORNL:
         )
         runIDFs(runs,cpu)
 
+        # ********** WRITE OUTPUT **********
+        # hot water demand
+        badhw = BuildingAmericaDomesticHotWater()
+        hot_water_demand = {
+            people_count:badhw.get_demand(people_count,self.epw_filepath)
+            for people_count in set(people_counts.values())
+        }
+
         # store citylearn simulation output
         query = ORNL.citylearn_simulation_timeseries_query()
-
+        
         for idf_output_filepath, idf_output_directory in zip(idf_output_filepaths, idf_output_directories):
             db_filepath = idf_output_filepath.replace('.idf','.sql')
             data = self.citylearn_simulation_timeseries(db_filepath,query=query)
+            data['DHW Heating [kWh]'] = hot_water_demand[people_counts[idf_output_filepath]]
             data.to_csv(idf_output_filepath.replace('.idf','.csv'),index=False)
             fig, axs = self.plot_citylearn_simulation_timeseries(data)
             fig.suptitle('/'.join(idf_output_filepath.split('/')[-3:-1]),y=1.01)
@@ -148,6 +162,7 @@ class ORNL:
             'Indoor Relative Humidity [%]',
             'Equipment Electric Power [kWh]',
             'DHW Heating [kWh]',
+            'Heating Load [kWh]',
             'Cooling Load [kWh]',
         ]
         fig, axs = plt.subplots(len(columns),1,figsize=(18,len(columns)*2.5))
@@ -159,6 +174,25 @@ class ORNL:
 
         plt.tight_layout()
         return fig, axs
+
+    def estimate_people_count(self,idf):
+        people_count = 0
+
+        for people_object in idf.idfobjects['People']:
+            occupancy_density = people_object.People_per_Zone_Floor_Area # people/m^2
+            zone_list_object = idf.getobject('ZONELIST',people_object.Zone_or_ZoneList_Name)
+            
+            for i in range(1,501):
+                zone_name = zone_list_object[f'Zone_{i}_Name']
+                
+                try:
+                    assert zone_name != ''
+                except AssertionError:
+                    break
+
+                people_count += modeleditor.zonearea_floor(idf,zone_name)*occupancy_density
+
+        return round(people_count,0)
 
     def preprocess(self,idf):
         building_type = idf.idfobjects['BUILDING'][0]['Name'].split(' created')[0][1:]
