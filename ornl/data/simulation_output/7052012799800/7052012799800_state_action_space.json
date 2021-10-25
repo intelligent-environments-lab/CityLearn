@@ -24,7 +24,7 @@
     "avg_unmet_setpoint": false,
     "rh_in": true,
     "non_shiftable_load": true,
-    "solar_gen": true,
+    "solar_gen": false,
     "cooling_storage_soc": true,
     "dhw_storage_soc": true,
     "electrical_storage_soc": true,

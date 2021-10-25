@@ -113,15 +113,15 @@ class BuildingAmericaDomesticHotWater:
         return t_mains
 
 class PVSizing:
-    def __init__(self,solar_generation_filepath,roof_area,demand,pv=None):
-        self.solar_generation_filepath = solar_generation_filepath
+    def __init__(self,roof_area,demand,climate_zone=2,pv=None):
+        self.climate_zone = climate_zone
         self.roof_area = roof_area
         self.demand = demand
         self.pv = pv
 
     @property
-    def solar_generation_filepath(self):
-        return self.__solar_generation_filepath
+    def climate_zone(self):
+        return self.__climate_zone
 
     @property
     def roof_area(self):
@@ -149,9 +149,9 @@ class PVSizing:
             'rating':0.250, # [kW]
         }
 
-    @solar_generation_filepath.setter
-    def solar_generation_filepath(self,solar_generation_filepath):
-        self.__solar_generation_filepath = solar_generation_filepath
+    @climate_zone.setter
+    def climate_zone(self,climate_zone):
+        self.__climate_zone = climate_zone
 
     @roof_area.setter
     def roof_area(self,roof_area):
@@ -170,10 +170,9 @@ class PVSizing:
 
     def size(self,method='peak_demand',peak_min_hour=0,peak_max_hour=24):
         methods = ['peak_demand','peak_count','annual_demand']
-        
         pv_count_limit = math.floor(self.roof_area/(self.pv['length']*self.pv['width']))
-        data = pd.read_csv(self.solar_generation_filepath)
-        data.columns = data.columns = ['year_hour','ac_inverter_power_per_kw']
+        data = pd.read_csv('.misc/solar_generation_1kW.csv')
+        data = data[data['climate_zone']==self.climate_zone].copy()
         data['timestamp'] = pd.date_range('2019-01-01 00:00:00','2019-12-31 23:00:00',freq='H')
         data['hour'] = data['timestamp'].dt.hour
         data['ac_inverter_power_per_kw'] /= 1000 # [W] -> [kW]

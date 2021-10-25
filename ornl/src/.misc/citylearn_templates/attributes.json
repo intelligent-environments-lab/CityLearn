@@ -1,8 +1,8 @@
 {
     "File_Name":"Building_1.csv",
     "File_Name_Solar_Profile": "solar_generation_1kW.csv",
-    "Building_Type": 1,
-    "Climate_Zone": 4,
+    "Building_Type": 5,
+    "Climate_Zone": 2,
     "Solar_Power_Installed(kW)":120,
     "Heat_Pump":{
         "nominal_power":"autosize",

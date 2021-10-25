@@ -6,7 +6,7 @@ from eppy.modeleditor import IDF
 from eppy.runner.run_functions import runIDFs
 import matplotlib.pyplot as plt
 import pandas as pd
-from load import BuildingAmericaDomesticHotWater
+from load import BuildingAmericaDomesticHotWater, PVSizing
 from utilities import make_directory, read_json, write_json
 
 class ORNLIDF:
@@ -125,7 +125,7 @@ class ORNLIDF:
     def simulate(self,**kwargs):    
         make_directory(self.output_directory)
 
-    def eplaunch_options(self,**kwargs):
+    def eplaunch_options(self):
         idf_version = self.idf.idfobjects['version'][0].Version_Identifier.split('.')
         idf_version.extend([0] * (3 - len(idf_version)))
         idf_version_str = '-'.join([str(item) for item in idf_version])
@@ -138,7 +138,6 @@ class ORNLIDF:
             'readvars':False,
             'expandobjects':True,
         }
-        options = {**options,**kwargs}
         return options
 
     def estimate_occupancy(self):
@@ -198,9 +197,9 @@ class CityLearnIDF(ORNLIDF):
     def simulate(self,**kwargs):
         super().simulate(**kwargs)
         self.preprocess()
-        self.idf.run(**self.eplaunch_options(**kwargs))
+        self.idf.run(**self.eplaunch_options())
         self.__update_timeseries()
-        self.__update_attributes()
+        self.__update_attributes(**kwargs)
         self.__update_state_action_space()
 
     def __update_timeseries(self):
@@ -217,13 +216,90 @@ class CityLearnIDF(ORNLIDF):
         timeseries['DHW Heating [kWh]'] = BuildingAmericaDomesticHotWater().get_demand(self.occupancy,self.epw_filepath)
         self.timeseries = timeseries
 
-    def __update_attributes(self):
+    def __update_attributes(self,**kwargs):
+        random.seed(self.random_state)
+        # metadata
         attributes = read_json('.misc/citylearn_templates/attributes.json')
+        attributes['File_Name'] = f'{self.id}.csv'
+        attributes['File_Name_Solar_Profile'] = kwargs.get('File_Name_Solar_Profile',attributes['File_Name_Solar_Profile'])
+        attributes['Building_Type'] = kwargs.get('building_type',attributes['Building_Type'])
+        attributes['Climate_Zone'] = kwargs.get('climate_zone',attributes['Climate_Zone'])
+        # PV installation
+        pv_sizing = PVSizing(self.__get_roof_area(),self.__get_demand(),climate_zone=attributes['Climate_Zone'],pv=kwargs.get('pv',None))
+        pv_count = min(pv_sizing.size(method='annual_demand'))
+        install_pv = random.choice([True,False])
+        attributes['Solar_Power_Installed(kW)'] = pv_count*pv_sizing.pv['rating'] if install_pv else 0
+        # heat pump
+        attributes['Heat_Pump']['nominal_power'] = attributes['Heat_Pump']['nominal_power']
+        attributes['Heat_Pump']['technical_efficiency'] = random.uniform(0.2,0.3)
+        attributes['Heat_Pump']['t_target_heating'] = random.randint(47,50)
+        attributes['Heat_Pump']['t_target_cooling'] = random.randint(7,10)
+        # electric water heater
+        attributes['Electric_Water_Heater']['nominal_power'] = attributes['Heat_Pump']['nominal_power']
+        attributes['Electric_Water_Heater']['efficiency'] = random.uniform(0.9,1.0)
+        # chilled water tank
+        attributes['Chilled_Water_Tank']['capacity'] = random.randint(1,2)
+        attributes['Chilled_Water_Tank']['loss_coefficient'] = random.uniform(0.002,0.01)
+        # domestic hot water tank
+        attributes['DHW_Tank']['capacity'] = random.randint(0,2)
+        attributes['DHW_Tank']['loss_coefficient'] = random.uniform(0.002,0.01)
+        # battery
+        attributes['Battery']['capacity'] = max(self.__get_demand()) # is this a good way to calculate it?
+        attributes['Battery']['efficiency'] = attributes['Battery']['efficiency']
+        attributes['Battery']['capacity_loss_coefficient'] = attributes['Battery']['capacity_loss_coefficient']
+        attributes['Battery']['loss_coefficient'] = attributes['Battery']['loss_coefficient']
+        attributes['Battery']['nominal_power'] = attributes['Battery']['capacity']/2
+        attributes['Battery']['power_efficiency_curve'] = attributes['Battery']['power_efficiency_curve']
+        attributes['Battery']['capacity_power_curve'] = attributes['Battery']['capacity_power_curve']
+
         self.attributes = attributes
 
     def __update_state_action_space(self):
+        random.seed(self.random_state)
         state_action_space = read_json('.misc/citylearn_templates/state_action_space.json')
+        # states
+        state_action_space['states']['month'] = True
+        state_action_space['states']['day'] = True
+        state_action_space['states']['hour'] = True
+        state_action_space['states']['daylight_savings_status'] = False
+        state_action_space['states']['t_out'] = True
+        state_action_space['states']['t_out_pred_6h'] = True
+        state_action_space['states']['t_out_pred_12h'] = True
+        state_action_space['states']['t_out_pred_24h'] = True
+        state_action_space['states']['rh_out'] = True
+        state_action_space['states']['rh_out_pred_6h'] = True
+        state_action_space['states']['rh_out_pred_12h'] = True
+        state_action_space['states']['rh_out_pred_24h'] = True
+        state_action_space['states']['diffuse_solar_rad'] = True
+        state_action_space['states']['diffuse_solar_rad_pred_6h'] = True
+        state_action_space['states']['diffuse_solar_rad_pred_12h'] = True
+        state_action_space['states']['diffuse_solar_rad_pred_24h'] = True
+        state_action_space['states']['direct_solar_rad'] = True
+        state_action_space['states']['direct_solar_rad_pred_6h'] = True
+        state_action_space['states']['direct_solar_rad_pred_12h'] = True
+        state_action_space['states']['direct_solar_rad_pred_24h'] = True
+        state_action_space['states']['t_in'] = True
+        state_action_space['states']['avg_unmet_setpoint'] = False
+        state_action_space['states']['rh_in'] = True
+        state_action_space['states']['non_shiftable_load'] = True
+        state_action_space['states']['solar_gen'] = True if self.attributes['Solar_Power_Installed(kW)'] > 0 else False
+        state_action_space['states']['cooling_storage_soc'] = True
+        state_action_space['states']['dhw_storage_soc'] = True
+        state_action_space['states']['electrical_storage_soc'] = True
+        state_action_space['states']['net_electricity_consumption'] = True
+        state_action_space['states']['carbon_intensity'] = True
+        # actions
+        state_action_space['actions']['cooling_storage'] = True if self.attributes['Chilled_Water_Tank']['capacity'] > 0 else False
+        state_action_space['actions']['dhw_storage'] = True if self.attributes['DHW_Tank']['capacity'] > 0 else False
+        state_action_space['actions']['electrical_storage'] = True if self.attributes['Battery']['capacity'] > 0 else False
+
         self.state_action_space = state_action_space
+
+    def __get_roof_area(self):
+        return sum([modeleditor.zonearea_roofceiling(self.idf,zone['Name'],) for zone in self.idf.idfobjects['ZONE']])
+
+    def __get_demand(self):
+        return self.timeseries[['Cooling Load [kWh]','DHW Heating [kWh]']].sum(axis=1).tolist()
 
     def __plot_timeseries(self):
         columns = ['Indoor Temperature [C]','Average Unmet Cooling Setpoint Difference [C]','Indoor Relative Humidity [%]',
@@ -401,5 +477,9 @@ if __name__ == '__main__':
     epw_filepath = '../data/weather/USA_TX_Austin-Camp.Mabry.722544_TMY3.epw'
     ddy_filepath = '../data/weather/USA_TX_Austin-Camp.Mabry.722544_TMY3.ddy'
     clidf = CityLearnIDF(idf_filepath,epw_filepath,ddy_filepath)
-    clidf.simulate()
+    simulation_kwargs = {
+        'building_type':5,
+        'climate_zone':2
+    }
+    clidf.simulate(**simulation_kwargs)
     clidf.save()
