@@ -1,27 +1,38 @@
 import os
 import sqlite3
+import random
 from eppy import modeleditor
 from eppy.modeleditor import IDF
 from eppy.runner.run_functions import runIDFs
 import matplotlib.pyplot as plt
 import pandas as pd
 from load import BuildingAmericaDomesticHotWater
-from utilities import read_json, make_directory
+from utilities import make_directory, read_json, write_json
 
-class ORNL:
-    def __init__(self,epw_filepath,ddy_filepath,idd_filepath=None,flowrate_per_person=None):
+class ORNLIDF:
+    __DEFAULT_OUTPUT_DIRECTORY = '../data/simulation_output/'
+
+    def __init__(self,idf_filepath,epw_filepath,ddy_filepath,idd_filepath=None,id=None,occupancy=None,output_directory=None,random_state=None):
         self.idd_filepath = idd_filepath
         self.epw_filepath = epw_filepath
+        self.idf_filepath = idf_filepath
         self.ddy_filepath = ddy_filepath
-        self.flowrate_per_person = flowrate_per_person
+        self.id = id
+        self.occupancy = occupancy
+        self.output_directory = output_directory
+        self.random_state = random_state
+
+    @property
+    def idf_filepath(self):
+        return self.__idf_filepath
+
+    @property
+    def idf(self):
+        return self.__idf
 
     @property
     def idd_filepath(self):
         return self.__idd_filepath
-
-    @property
-    def flowrate_per_person(self):
-        return self.__flowrate_per_person
     
     @property
     def epw_filepath(self):
@@ -31,22 +42,31 @@ class ORNL:
     def ddy_filepath(self):
         return self.__ddy_filepath
 
-    @staticmethod
-    def supported_building_types():
-        return list(ORNL.settings()['flowrate_per_person'].keys())
+    @property
+    def id(self):
+        return self.__id
 
-    @staticmethod
-    def settings():
-        return read_json('.misc/settings.json')
+    @property
+    def occupancy(self):
+        return self.__occupancy
 
-    @staticmethod
-    def citylearn_simulation_timeseries_query():
-        with open('.misc/citylearn_simulation_timeseries.sql','r') as f:
-            query = f.read()
-            query = query.replace(',)',')')
+    @property
+    def output_directory(self):
+        return self.__output_directory
         
-        return query
+    @property
+    def random_state(self):
+        return self.__random_state
 
+    @idf_filepath.setter
+    def idf_filepath(self,idf_filepath):
+        self.__idf_filepath = idf_filepath
+        self.__idf = IDF(idf_filepath,self.epw_filepath)
+
+    @idf.setter
+    def idf(self,idf):
+        self.__idf = idf
+        
     @idd_filepath.setter
     def idd_filepath(self,idd_filepath):
         if idd_filepath is None:
@@ -63,124 +83,70 @@ class ORNL:
     @ddy_filepath.setter
     def ddy_filepath(self,ddy_filepath):
         self.__ddy_filepath = ddy_filepath
-        self.__ddy_idf = IDF(self.ddy_filepath)
 
-    @flowrate_per_person.setter
-    def flowrate_per_person(self,flowrate_per_person):
-        if flowrate_per_person is None:
-            self.__idd_filepath = self.settings()['flowrate_per_person']
+    @id.setter
+    def id(self,id):
+        if id is None:
+            self.__id = self.idf_filepath.split('/')[-1].split('.')[0]
         else:
-            self.__flowrate_per_person = flowrate_per_person
+            self.__id = id
 
-    def simulate(self,idf_filepaths,output_directory=None,cpu=2):
-        idf_output_directories = []
-        idf_output_filepaths = []
-        people_counts = {}
+    @occupancy.setter
+    def occupancy(self,occupancy):
+        if occupancy is not None:
+            if occupancy >= 0:
+                self.__occupancy = occupancy
+            else:
+                raise ValueError('occupancy must be >= 0.')
+        else:
+            self.__occupancy = self.estimate_occupancy()
 
-        # ********** PREPROCESSING **********
+    @output_directory.setter
+    def output_directory(self,output_directory):
         if output_directory is None:
-            output_directory = '../data/simulation_output/'
+            self.__output_directory = os.path.join(ORNLIDF.__DEFAULT_OUTPUT_DIRECTORY,self.id)
         else:
-            pass
-        
-        # create output directories
-        for idf_filepath in idf_filepaths:
-            idf_directory = '/'.join(idf_filepath.split('/')[-2:]).split('.')[0]
-            idf_output_directories.append(os.path.join(output_directory,idf_directory))
-            make_directory(idf_output_directories[-1])
+            self.__output_directory = output_directory
 
-        # preprocess and store idf
-        for idf_filepath, idf_output_directory in zip(idf_filepaths, idf_output_directories):
-            idf = self.preprocess(IDF(idf_filepath,self.epw_filepath))
-            idf_output_filepaths.append(os.path.join(idf_output_directory,f'{idf_output_directory.split("/")[-1]}.idf'))
-            people_counts[idf_output_filepaths[-1]] = self.estimate_people_count(idf)
-            idf.saveas(idf_output_filepaths[-1])
+    @random_state.setter
+    def random_state(self,random_state):
+        if random_state is not None:
+            if random_state >= 0:
+                self.__random_state = random_state
+            else:
+                raise ValueError('random_state must be >= 0.')
+        else:
+            self.random_state = random.randint(0,100000000)
 
-        # ********** SIMULATION **********
-        idfs = (IDF(idf_output_filepath,self.epw_filepath) for idf_output_filepath in idf_output_filepaths)
-        runs = (
-            (idf,self.__get_eplaunch_options(idf,output_directory=idf_output_directory)) 
-            for idf, idf_output_directory in zip(idfs,idf_output_directories)
-        )
-        runIDFs(runs,cpu)
+    @staticmethod
+    def settings():
+        return read_json('.misc/settings.json')
 
-        # ********** WRITE OUTPUT **********
-        # hot water demand
-        badhw = BuildingAmericaDomesticHotWater()
-        hot_water_demand = {
-            people_count:badhw.get_demand(people_count,self.epw_filepath)
-            for people_count in set(people_counts.values())
-        }
+    def simulate(self,**kwargs):    
+        make_directory(self.output_directory)
 
-        # store citylearn simulation output
-        query = ORNL.citylearn_simulation_timeseries_query()
-        
-        for idf_output_filepath, idf_output_directory in zip(idf_output_filepaths, idf_output_directories):
-            db_filepath = idf_output_filepath.replace('.idf','.sql')
-            data = self.citylearn_simulation_timeseries(db_filepath,query=query)
-            data['DHW Heating [kWh]'] = hot_water_demand[people_counts[idf_output_filepath]]
-            data.to_csv(idf_output_filepath.replace('.idf','.csv'),index=False)
-            fig, axs = self.plot_citylearn_simulation_timeseries(data)
-            fig.suptitle('/'.join(idf_output_filepath.split('/')[-3:-1]),y=1.01)
-            plt.savefig(idf_output_filepath.replace('.idf','.pdf'),transparent=True,bbox_inches='tight')
-
-    def __get_eplaunch_options(self,idf,**kwargs):
-        idf_version = idf.idfobjects['version'][0].Version_Identifier.split('.')
+    def eplaunch_options(self,**kwargs):
+        idf_version = self.idf.idfobjects['version'][0].Version_Identifier.split('.')
         idf_version.extend([0] * (3 - len(idf_version)))
         idf_version_str = '-'.join([str(item) for item in idf_version])
-        filename = idf.idfname
 
         options = {
             'ep_version':idf_version_str,
-            'output_prefix':os.path.basename(filename).split('.')[0],
+            'output_prefix':self.id,
             'output_suffix':'C',
-            'output_directory':'',
+            'output_directory':self.output_directory,
             'readvars':False,
             'expandobjects':True,
         }
         options = {**options,**kwargs}
         return options
 
-    def citylearn_simulation_timeseries(self,db_filepath,query=None):
-        if query is None:
-            query = ORNL.citylearn_simulation_timeseries_query()
-        else:
-            pass
+    def estimate_occupancy(self):
+        occupancy = 0
 
-        con = sqlite3.connect(db_filepath)
-        data = pd.read_sql(query,con)
-        con.close()
-        # Parantheses in column names changed to square braces to match CityLearn format
-        # SQLite3 ignores square braces in column names so parentheses used as temporary fix. 
-        data.columns = [c.replace('(','[').replace(')',']') for c in data.columns]
-        return data
-
-    def plot_citylearn_simulation_timeseries(self,data):
-        columns = [
-            'Indoor Temperature [C]',
-            'Average Unmet Cooling Setpoint Difference [C]',
-            'Indoor Relative Humidity [%]',
-            'Equipment Electric Power [kWh]',
-            'DHW Heating [kWh]',
-            'Heating Load [kWh]',
-            'Cooling Load [kWh]',
-        ]
-        fig, axs = plt.subplots(len(columns),1,figsize=(18,len(columns)*2.5))
-
-        for ax, column in zip(fig.axes, columns):
-            ax.plot(data[column])
-            ax.set_title(column)
-            ax.margins(0)
-
-        plt.tight_layout()
-        return fig, axs
-
-    def estimate_people_count(self,idf):
-        people_count = 0
-
-        for people_object in idf.idfobjects['People']:
+        for people_object in self.idf.idfobjects['People']:
             occupancy_density = people_object.People_per_Zone_Floor_Area # people/m^2
-            zone_list_object = idf.getobject('ZONELIST',people_object.Zone_or_ZoneList_Name)
+            zone_list_object = self.idf.getobject('ZONELIST',people_object.Zone_or_ZoneList_Name)
             
             for i in range(1,501):
                 zone_name = zone_list_object[f'Zone_{i}_Name']
@@ -190,29 +156,120 @@ class ORNL:
                 except AssertionError:
                     break
 
-                people_count += modeleditor.zonearea_floor(idf,zone_name)*occupancy_density
+                occupancy += modeleditor.zonearea_floor(self.idf,zone_name)*occupancy_density
+        
+        occupancy = round(occupancy,0)
+        return occupancy
 
-        return round(people_count,0)
+    def preprocess(self):
+        raise NotImplementedError
 
-    def preprocess(self,idf):
+class CityLearnIDF(ORNLIDF):
+    def __init__(self,*args,timeseries=None,attributes=None,state_action_space=None,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.timeseries = timeseries
+        self.attributes = attributes
+        self.state_action_space = state_action_space
+
+    @property
+    def timeseries(self):
+        return self.__timeseries
+
+    @property
+    def attributes(self):
+        return self.__attributes
+
+    @property
+    def state_action_space(self):
+        return self.__state_action_space
+
+    @timeseries.setter
+    def timeseries(self,timeseries):
+        self.__timeseries = timeseries
+
+    @attributes.setter
+    def attributes(self,attributes):
+        self.__attributes = attributes
+
+    @state_action_space.setter
+    def state_action_space(self,state_action_space):
+        self.__state_action_space = state_action_space
+    
+    def simulate(self,**kwargs):
+        super().simulate(**kwargs)
+        self.preprocess()
+        self.idf.run(**self.eplaunch_options(**kwargs))
+        self.__update_timeseries()
+        self.__update_attributes()
+        self.__update_state_action_space()
+
+    def __update_timeseries(self):
+        with open('.misc/citylearn_simulation_timeseries.sql','r') as f:
+            query = f.read()
+            query = query.replace(',)',')')
+
+        con = sqlite3.connect(os.path.join(self.output_directory,f'{self.id}.sql'))
+        timeseries = pd.read_sql(query,con)
+        con.close()
+        # Parantheses in column names changed to square braces to match CityLearn format
+        # SQLite3 ignores square braces in column names so parentheses used as temporary fix. 
+        timeseries.columns = [c.replace('(','[').replace(')',']') for c in timeseries.columns]
+        timeseries['DHW Heating [kWh]'] = BuildingAmericaDomesticHotWater().get_demand(self.occupancy,self.epw_filepath)
+        self.timeseries = timeseries
+
+    def __update_attributes(self):
+        attributes = read_json('.misc/citylearn_templates/attributes.json')
+        self.attributes = attributes
+
+    def __update_state_action_space(self):
+        state_action_space = read_json('.misc/citylearn_templates/state_action_space.json')
+        self.state_action_space = state_action_space
+
+    def __plot_timeseries(self):
+        columns = ['Indoor Temperature [C]','Average Unmet Cooling Setpoint Difference [C]','Indoor Relative Humidity [%]',
+            'Equipment Electric Power [kWh]','DHW Heating [kWh]','Heating Load [kWh]','Cooling Load [kWh]',
+        ]
+        fig, axs = plt.subplots(len(columns),1,figsize=(18,len(columns)*2.5))
+
+        for ax, column in zip(fig.axes, columns):
+            ax.plot(self.timeseries[column])
+            ax.set_title(column)
+            ax.margins(0)
+
+        plt.tight_layout()
+        return fig, axs
+
+    def save(self):
+        self.idf.savecopy(os.path.join(self.output_directory,f'{self.id}.idf'))
+        self.timeseries.to_csv(os.path.join(self.output_directory,f'{self.id}_timeseries.csv'),index=False)
+        write_json(os.path.join(self.output_directory,f'{self.id}_attributes.json'),self.attributes)
+        write_json(os.path.join(self.output_directory,f'{self.id}_state_action_space.json'),self.state_action_space)
+        fig, axs = self.__plot_timeseries()
+        fig.suptitle(f'{self.id}',y=1.01)
+        plt.savefig(os.path.join(self.output_directory,f'{self.id}_timeseries_plot.pdf'),transparent=True,bbox_inches='tight')
+
+    def preprocess(self):
+        idf = self.idf
+        ddy_idf = IDF(self.ddy_filepath)
         building_type = idf.idfobjects['BUILDING'][0]['Name'].split(' created')[0][1:]
+        supported_building_types = list(ORNLIDF.settings()['flowrate_per_person'].keys())
 
-        try:
-            assert building_type in self.supported_building_types()
-        except AssertionError:
-            raise UnsupportedBuildingTypeError
+        if building_type not in supported_building_types:
+            raise UnsupportedBuildingTypeError(f'[Error] Unsupported building type. Valid building types are {ORNLIDF.supported_building_types()}.')
+        else:
+            pass
 
         # *********** update site location object ***********
         idf.idfobjects['Site:Location'] = []
 
-        for obj in self.__ddy_idf.idfobjects['Site:Location']:
+        for obj in ddy_idf.idfobjects['Site:Location']:
             idf.copyidfobject(obj)
 
         # *********** update design-day objects ***********
         idf.idfobjects['SizingPeriod:DesignDay'] = []
         design_day_suffixes = ['Ann Htg 99.6% Condns DB', 'Ann Clg .4% Condns DB=>MWB']
 
-        for obj in self.__ddy_idf.idfobjects['SizingPeriod:DesignDay']:
+        for obj in ddy_idf.idfobjects['SizingPeriod:DesignDay']:
             for suffix in design_day_suffixes:
                 if obj.Name.endswith(suffix):
                     idf.copyidfobject(obj)
@@ -285,7 +342,7 @@ class ORNL:
             obj.Schedule_Name = 'MidriseApartment Apartment Occ'
             obj.Design_Flow_Rate_Calculation_Method = 'Flow/Person'
             obj.Ventilation_Type = ''
-            obj.Flow_Rate_per_Person = ORNL.settings()['flowrate_per_person'][building_type]
+            obj.Flow_Rate_per_Person = ORNLIDF.settings()['flowrate_per_person'][building_type]
             # equipment list
             obj = idf.newidfobject('ZONEHVAC:EQUIPMENTLIST')
             obj.Name = f'{zone_name}  Equipment List'
@@ -327,25 +384,22 @@ class ORNL:
             obj = idf.newidfobject('Output:Variable')
             obj.Variable_Name = output_variable
 
-        return idf
+        self.idf = idf
 
 class Error(Exception):
     """Base class for other exceptions"""
 
 class UnsupportedBuildingTypeError(Error):
     """Raised when attempting to preprocess an unsupported building."""
-    
-    def __init__(self,message=f'[Error] Unsupported building type. Valid building types are {ORNL.supported_building_types()}.'):
-        super().__init__(message)
-        self.message = message
+    pass
 
 if __name__ == '__main__':
     selected_idfs = read_json('../data/idf/selected.json')
     idf_filepaths = [[os.path.join(f'../data/idf/cities/{city}/{idf_id}.idf') for idf_id in idf_ids] for city, idf_ids in selected_idfs.items()]
     idf_filepaths = [filepath for sublist in idf_filepaths for filepath in sublist]
-    idf_filepaths = idf_filepaths[0:1]
-    ornl = ORNL(
-        '../data/weather/USA_TX_Austin-Camp.Mabry.722544_TMY3.epw',
-        '../data/weather/USA_TX_Austin-Camp.Mabry.722544_TMY3.ddy'
-    )
-    ornl.simulate(idf_filepaths)
+    idf_filepath = idf_filepaths[0]
+    epw_filepath = '../data/weather/USA_TX_Austin-Camp.Mabry.722544_TMY3.epw'
+    ddy_filepath = '../data/weather/USA_TX_Austin-Camp.Mabry.722544_TMY3.ddy'
+    clidf = CityLearnIDF(idf_filepath,epw_filepath,ddy_filepath)
+    clidf.simulate()
+    clidf.save()

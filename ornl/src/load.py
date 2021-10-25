@@ -5,6 +5,7 @@ from scipy.constants import convert_temperature
 from scipy.optimize import fsolve
 
 class BuildingAmericaDomesticHotWater:
+    # Reference: https://www1.eere.energy.gov/buildings/publications/pdfs/building_america/house_simulation.pdf
     __DEFAULT_SETPOINT = convert_temperature(130,'Fahrenheit','Celsius')
     __WATER_DENSITY = 988.57 # [kg/m^3]
     __WATER_SPECIFIC_HEAT = 4.186 # [kJ/kg°C]
@@ -18,8 +19,6 @@ class BuildingAmericaDomesticHotWater:
 
     @property
     def end_use_definitions(self):
-        # Reference: https://www1.eere.energy.gov/buildings/publications/pdfs/building_america/house_simulation.pdf
-
         gal_to_m3 = lambda x: x*0.00378541 # [gal] -> [m^3]
         definitions = {
             'clothes_washer': {
@@ -99,8 +98,6 @@ class BuildingAmericaDomesticHotWater:
 
     @staticmethod
     def get_mains_temperature(epw_filepath):
-        # Reference: https://www1.eere.energy.gov/buildings/publications/pdfs/building_america/house_simulation.pdf
-
         df = pd.read_csv(epw_filepath,skiprows=8,header=None)
         df[6] = convert_temperature(df[6],'Celsius','Fahrenheit')
         t_amb_avg = df[6].mean()
