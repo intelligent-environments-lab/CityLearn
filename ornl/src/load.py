@@ -1,4 +1,5 @@
-from math import radians, sin
+import math
+import numpy as np
 import pandas as pd
 from scipy.constants import convert_temperature
 from scipy.optimize import fsolve
@@ -110,6 +111,110 @@ class BuildingAmericaDomesticHotWater:
         offset = 6 # [F]
         ratio = 0.4 + 0.1*(t_amb_avg - 44)
         lag = 35 - 1*(t_amb_avg - 44)
-        t_mains = lambda day: (t_amb_avg + offset) + ratio*(t_amb_max/2)*sin(radians(0.986*(day - 15 - lag) - 90))
+        t_mains = lambda day: (t_amb_avg + offset) + ratio*(t_amb_max/2)*math.sin(math.radians(0.986*(day - 15 - lag) - 90))
         t_mains = [convert_temperature(t_mains(i),'Fahrenheit','Celsius') for i in range(365)]
         return t_mains
+
+class PVSizing:
+    def __init__(self,solar_generation_filepath,roof_area,demand,pv=None):
+        self.solar_generation_filepath = solar_generation_filepath
+        self.roof_area = roof_area
+        self.demand = demand
+        self.pv = pv
+
+    @property
+    def solar_generation_filepath(self):
+        return self.__solar_generation_filepath
+
+    @property
+    def roof_area(self):
+        return self.__roof_area
+
+    @property
+    def demand(self):
+        return self.__demand
+
+    @property
+    def pv(self):
+        return self.__pv
+
+    @property
+    def default_PV(self):
+        '''
+        PV Reference:
+        SunPower® X-Series Residential Solar Panels X21-345,
+        https://us.sunpower.com/sites/default/files/media-library/data-sheets/ds-x21-series-335-345-residential-solar-panels.pdf
+        '''
+        return {
+            'width':1.046, # [m]
+            'length':1.558, # [m]
+            'efficiency':0.215,
+            'rating':0.250, # [kW]
+        }
+
+    @solar_generation_filepath.setter
+    def solar_generation_filepath(self,solar_generation_filepath):
+        self.__solar_generation_filepath = solar_generation_filepath
+
+    @roof_area.setter
+    def roof_area(self,roof_area):
+        self.__roof_area = roof_area
+
+    @demand.setter
+    def demand(self,demand):
+        self.__demand = demand
+
+    @pv.setter
+    def pv(self,pv):
+        if pv is None:
+            self.__pv = self.default_PV
+        else:
+            self.__pv = {**self.default_PV,**pv}
+
+    def size(self,method='peak_demand',peak_min_hour=0,peak_max_hour=24):
+        methods = ['peak_demand','peak_count','annual_demand']
+        
+        pv_count_limit = math.floor(self.roof_area/(self.pv['length']*self.pv['width']))
+        data = pd.read_csv(self.solar_generation_filepath)
+        data.columns = data.columns = ['year_hour','ac_inverter_power_per_kw']
+        data['timestamp'] = pd.date_range('2019-01-01 00:00:00','2019-12-31 23:00:00',freq='H')
+        data['hour'] = data['timestamp'].dt.hour
+        data['ac_inverter_power_per_kw'] /= 1000 # [W] -> [kW]
+        data['adjusted_rating'] = self.pv['rating']*data['ac_inverter_power_per_kw']
+        data['demand'] = self.demand
+        data['pv_count'] = np.ceil(data['demand']/data['adjusted_rating'])
+        data = data[(data['pv_count'] < np.inf)].copy()
+
+        if method == 'peak_demand':
+            pv_count = data[
+                (data['hour']>=peak_min_hour)
+                &(data['hour']<=peak_max_hour)
+            ].nlargest(1,'demand').iloc[0]['pv_count']
+
+        elif method == 'peak_count':
+            pv_count = data[
+                (data['hour']>=peak_min_hour)
+                &(data['hour']<=peak_max_hour)
+            ]['pv_count'].max()
+
+        elif method == 'annual_demand':
+            pv_count = math.ceil(data['demand'].sum()/data['adjusted_rating'].sum())
+
+        else:
+            raise ValueError(f'Invalid method. Valid methods are {methods}.')
+
+        return pv_count, pv_count_limit
+
+if __name__ == '__main__':
+    solar_generation_filepath = '../../data/Climate_Zone_1/solar_generation_1kW.csv'
+    building_data_filepath = '../data/simulation_output/TX_Austin/7052012799800/7052012799800.csv'
+    building_id = building_data_filepath.split('/')[-1].split('.')[0]
+    building_metadata_filepath = '../data/idf/cities/TX_Austin/summary.pkl'
+    demand = pd.read_csv(building_data_filepath)[['Cooling Load [kWh]','DHW Heating [kWh]']].sum(axis=1).tolist()
+    building_metadata = pd.read_pickle(building_metadata_filepath)
+    roof_area = building_metadata[building_metadata['id']==building_id].iloc[0]['total_zone_roof_area']
+    pv = PVSizing(solar_generation_filepath,roof_area,demand)
+
+    for method in ['peak_demand','peak_count','annual_demand']:
+        pv_count, pv_count_limit = pv.size(method=method,peak_min_hour=0,peak_max_hour=24)
+        print(f'count_limit: {pv_count_limit}, method: {method}, count: {pv_count}')
