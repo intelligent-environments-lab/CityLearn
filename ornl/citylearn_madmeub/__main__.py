@@ -8,7 +8,7 @@ from citylearn_madmeub.utilities import read_json, write_json
 
 def simulate(filepath=None):
     filepath = os.path.join(os.path.dirname(__file__),'../data/idf/selected.json') if filepath is None else filepath
-    selected_idfs = read_json(filepath)[0:2]
+    selected_idfs = read_json(filepath)[0:20]
     print('Simulating ...')
     
     for i, selected_idf in enumerate(selected_idfs):
@@ -19,7 +19,7 @@ def simulate(filepath=None):
         )
         selected_idf['id'] = __build_id(selected_idf)
         args = (selected_idf['idf_filepath'],selected_idf['climate_zone'],selected_idf['building_type'])
-        kwargs = {"id":selected_idf['id'],"random_state":int(selected_idf['id'].split('_')[-1])}
+        kwargs = {"id":selected_idf['id'],"random_state":int(selected_idf['id'].split('_')[-2])}
         clidf = CityLearnIDF(*args,**kwargs)
         clidf.preprocess()
         clidf.simulate()
@@ -36,7 +36,6 @@ def upload(filepath=None,root_citylearn_directory=None,root_output_directory=Non
     print('Uploading ...')
 
     for i, selected_idf in enumerate(selected_idfs):
-        print(f'{i+1}/{len(selected_idfs)} {selected_idf}')
         output_id = __build_id(selected_idf)
         output_directory = os.path.join(root_output_directory,output_id)
 
@@ -44,7 +43,8 @@ def upload(filepath=None,root_citylearn_directory=None,root_output_directory=Non
             assert os.path.isdir(output_directory)
         except AssertionError:
             continue
-
+        
+        print(f'{i+1}/{len(selected_idfs)} {selected_idf}')
         building_key = f'Building_{output_id}'
         timeseries_source_filepath = os.path.join(os.path.join(root_output_directory,output_id),f'{output_id}_timeseries.csv')
         timeseries_destination_filepath = os.path.join(root_citylearn_directory,f'data/Climate_Zone_{selected_idf["climate_zone"]}/{building_key}.csv')
@@ -67,7 +67,7 @@ def upload(filepath=None,root_citylearn_directory=None,root_output_directory=Non
         write_json(filepath,building_attributes)
 
 def __build_id(selected_idf):
-    return f'{selected_idf["climate_zone"]}_{"_".join(selected_idf["idf_filepath"].split("/")[-2:])}'[0:-4]
+    return f'madmeub_{"_".join(selected_idf["idf_filepath"][0:-4].split("/")[-2:])}_CZ{selected_idf["climate_zone"]}'
 
 def main():
     parser = argparse.ArgumentParser(prog='citylearn_madmeub',description='Add buildings from the Model America – data and models of every U.S. building dataset to the CityLearn environment.')
