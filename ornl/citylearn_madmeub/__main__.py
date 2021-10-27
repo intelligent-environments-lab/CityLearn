@@ -1,17 +1,18 @@
 import argparse
 import inspect
 import os
+from shutil import copy
 import sys
 from citylearn_madmeub.ornl import CityLearnIDF
-from citylearn_madmeub.utilities import read_json
+from citylearn_madmeub.utilities import read_json, write_json
 
 def simulate(filepath=None):
-    if filepath is None:
-        filepath = os.path.join(os.path.dirname(__file__),'../data/idf/selected.json')
-    else:
-        pass
+    filepath = os.path.join(os.path.dirname(__file__),'../data/idf/selected.json') if filepath is None else filepath
+    selected_idfs = read_json(filepath)[0:2]
+    print('Simulating ...')
     
-    for selected_idf in read_json(filepath):
+    for i, selected_idf in enumerate(selected_idfs):
+        print(f'{i+1}/{len(selected_idfs)} {selected_idf}')
         selected_idf['idf_filepath'] = os.path.join(
             os.path.join(os.path.dirname(__file__),'../data/idf/counties/'),
             selected_idf['idf_filepath']
@@ -23,30 +24,47 @@ def simulate(filepath=None):
         clidf.preprocess()
         clidf.simulate()
         clidf.save()
-        break
 
 def upload(filepath=None,root_citylearn_directory=None,root_output_directory=None):
-    if filepath is None:
-        filepath = os.path.join(os.path.dirname(__file__),'../data/idf/selected.json')
-    else:
-        pass
+    filepath = os.path.join(os.path.dirname(__file__),'../data/idf/selected.json') if filepath is None else filepath
+    root_citylearn_directory = os.path.join(os.path.dirname(__file__),'../../') if root_citylearn_directory is None else root_citylearn_directory
+    root_output_directory = os.path.join(os.path.dirname(__file__),CityLearnIDF.settings()['root_output_directory']) if root_output_directory is None else root_output_directory
+    citylearn_building_state_action_space_filepath = os.path.join(root_citylearn_directory,'buildings_state_action_space.json')
+    citylearn_building_state_action_space = read_json(citylearn_building_state_action_space_filepath)
+    citylearn_building_attributes = {}
+    selected_idfs = read_json(filepath)
+    print('Uploading ...')
 
-    if root_citylearn_directory is None:
-        root_citylearn_directory = os.path.join(os.path.dirname(__file__),'../../')
-    else:
-        pass
-
-    if root_output_directory is None:
-        root_output_directory = os.path.join(os.path.dirname(__file__),CityLearnIDF.settings()['root_output_directory'])
-    else:
-        pass
-
-    for selected_idf in read_json(filepath):
+    for i, selected_idf in enumerate(selected_idfs):
+        print(f'{i+1}/{len(selected_idfs)} {selected_idf}')
         output_id = __build_id(selected_idf)
-        timeseries_source_filepath = os.path.join(os.path.join(root_output_directory,output_id),f'{output_id}_timeseries.csv')
-        attributes_source_filepath = os.path.join(os.path.join(root_output_directory,output_id),f'{output_id}_attributes.json')
-        state_action_space_source_filepath = os.path.join(os.path.join(root_output_directory,output_id),f'{output_id}_timeseries.json')
+        output_directory = os.path.join(root_output_directory,output_id)
 
+        try:
+            assert os.path.isdir(output_directory)
+        except AssertionError:
+            continue
+
+        building_key = f'Building_{output_id}'
+        timeseries_source_filepath = os.path.join(os.path.join(root_output_directory,output_id),f'{output_id}_timeseries.csv')
+        timeseries_destination_filepath = os.path.join(root_citylearn_directory,f'data/Climate_Zone_{selected_idf["climate_zone"]}/{building_key}.csv')
+        _ = copy(timeseries_source_filepath,timeseries_destination_filepath)
+        state_action_space_source_filepath = os.path.join(os.path.join(root_output_directory,output_id),f'{output_id}_state_action_space.json')
+        citylearn_building_state_action_space[building_key] = read_json(state_action_space_source_filepath)
+        attributes_source_filepath = os.path.join(os.path.join(root_output_directory,output_id),f'{output_id}_attributes.json')
+        attributes_destination_filepath = os.path.join(root_citylearn_directory,f'data/Climate_Zone_{selected_idf["climate_zone"]}/building_attributes.json')
+
+        if attributes_destination_filepath not in citylearn_building_attributes.keys():
+            citylearn_building_attributes[attributes_destination_filepath] = read_json(attributes_destination_filepath)
+        else:
+            pass
+         
+        citylearn_building_attributes[attributes_destination_filepath][building_key] = read_json(attributes_source_filepath)
+
+    write_json(citylearn_building_state_action_space_filepath,citylearn_building_state_action_space)
+    
+    for filepath, building_attributes in citylearn_building_attributes.items():
+        write_json(filepath,building_attributes)
 
 def __build_id(selected_idf):
     return f'{selected_idf["climate_zone"]}_{"_".join(selected_idf["idf_filepath"].split("/")[-2:])}'[0:-4]
@@ -61,7 +79,7 @@ def main():
     sp_simulate = subparsers.add_parser('simulate',description='Simulate selected IDFs.')
     sp_simulate.set_defaults(func=simulate)
 
-    # # upload
+    # upload
     sp_upload = subparsers.add_parser('upload',description='Upload simulation output to CityLearn environment.')
     sp_upload.set_defaults(func=upload)
     sp_upload.add_argument('-c','--root_citylearn_directory',type=str,default=None,dest='root_citylearn_directory',help='CityLearn repository root directory.')

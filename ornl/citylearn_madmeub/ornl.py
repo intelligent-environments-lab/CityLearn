@@ -166,6 +166,7 @@ class ORNLIDF:
             'output_directory':self.output_directory,
             'readvars':False,
             'expandobjects':True,
+            'verbose':'q',
         }
         return options
     
@@ -193,6 +194,11 @@ class ORNLIDF:
         raise NotImplementedError
 
 class CityLearnIDF(ORNLIDF):
+    __TIMESERIES_COLUMNS = [
+        'Month','Hour','Day Type','Daylight Savings Status','Indoor Temperature [C]','Average Unmet Cooling Setpoint Difference [C]',
+        'Indoor Relative Humidity [%]','Equipment Electric Power [kWh]','DHW Heating [kWh]','Cooling Load [kWh]'
+    ]
+
     def __init__(self,*args,timeseries=None,attributes=None,state_action_space=None,**kwargs):
         super().__init__(*args,**kwargs)
         self.timeseries = timeseries
@@ -241,7 +247,7 @@ class CityLearnIDF(ORNLIDF):
         # SQLite3 ignores square braces in column names so parentheses used as temporary fix. 
         timeseries.columns = [c.replace('(','[').replace(')',']') for c in timeseries.columns]
         timeseries['DHW Heating [kWh]'] = BuildingAmericaDomesticHotWater().get_demand(self.occupancy,self.epw_filepath)
-        self.timeseries = timeseries
+        self.timeseries = timeseries[CityLearnIDF.__TIMESERIES_COLUMNS].copy()
 
     def __update_attributes(self,**kwargs):
         random.seed(self.random_state)
@@ -329,14 +335,14 @@ class CityLearnIDF(ORNLIDF):
         return self.timeseries[['Cooling Load [kWh]','DHW Heating [kWh]']].sum(axis=1).tolist()
 
     def __plot_timeseries(self):
-        columns = ['Indoor Temperature [C]','Average Unmet Cooling Setpoint Difference [C]','Indoor Relative Humidity [%]',
-            'Equipment Electric Power [kWh]','DHW Heating [kWh]','Heating Load [kWh]','Cooling Load [kWh]',
-        ]
+        columns = CityLearnIDF.__TIMESERIES_COLUMNS
         fig, axs = plt.subplots(len(columns),1,figsize=(18,len(columns)*2.5))
 
         for ax, column in zip(fig.axes, columns):
-            ax.plot(self.timeseries[column])
+            ax.plot(self.timeseries[column],clip_on=False)
             ax.set_title(column)
+            ax.spines['right'].set_visible(False)
+            ax.spines['top'].set_visible(False)
             ax.margins(0)
 
         plt.tight_layout()

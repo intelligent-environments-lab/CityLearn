@@ -31,7 +31,7 @@ def read_json(filepath):
         json_file = json.load(f)
     return json_file
 
-def write_json(filepath=None,dictionary=None):
+def write_json(filepath,dictionary,**kwargs):
     """Writes dictionary to json file. Returns boolen value of operation success. 
     
     Parameters
@@ -46,12 +46,12 @@ def write_json(filepath=None,dictionary=None):
         if isinstance(obj,datetime):
             return obj.__str__()
             
-    
-    try:
-        with open(filepath,'w') as f:
-            json.dump(dictionary,f,ignore_nan=True,sort_keys=False,default=default,indent=2)
-    except Exception as e:
-        pass
+    with open(filepath,'w') as f:
+        kwargs = {
+            **{'ignore_nan':True,'sort_keys':False,'default':default,'indent':2},
+            **kwargs
+        }
+        json.dump(dictionary,f,**kwargs)
 
 def make_directory(directory):
     """Make nested directories.
