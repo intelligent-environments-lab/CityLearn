@@ -390,7 +390,6 @@ class CityLearnIDF(ORNLIDF):
             'COIL:HEATING:FUEL',
             'COILSYSTEM:COOLING:DX',
             'CONTROLLER:OUTDOORAIR',
-            'CONTROLLER:MECHANICALVENTILATION',
             'AIRLOOPHVAC:CONTROLLERLIST',
             'AIRLOOPHVAC',
             'AIRLOOPHVAC:OUTDOORAIRSYSTEM:EQUIPMENTLIST',
@@ -412,7 +411,12 @@ class CityLearnIDF(ORNLIDF):
             'SETPOINTMANAGER:MIXEDAIR',
             'CURVE:QUADRATIC',
             'CURVE:CUBIC',
-            'CURVE:BIQUADRATIC'
+            'CURVE:BIQUADRATIC',
+            'EnergyManagementSystem:Program',
+            'EnergyManagementSystem:Sensor',
+            'EnergyManagementSystem:ProgramCallingManager',
+            'nergyManagementSystem:GlobalVariable',
+            'EnergyManagementSystem:InternalVariable',
         ]
 
         for obj in objects:
@@ -439,9 +443,11 @@ class CityLearnIDF(ORNLIDF):
             obj.Zone_Supply_Air_Node_Name = f'{zone_name} Ideal Loads Supply Inlet'
             # ventilation object
             obj = idf.newidfobject('ZONEVENTILATION:DESIGNFLOWRATE')
-            obj.Name = f'{zone_name}  Ventilation per Person'
+            obj.Name = f'{zone_name} Ventilation per Person'
             obj.Zone_or_ZoneList_Name = f'{zone_name}'
-            obj.Schedule_Name = 'MidriseApartment Apartment Occ'
+            # get schedule name
+            obj.Schedule_Name = idf.idfobjects['CONTROLLER:MECHANICALVENTILATION'][0].Availability_Schedule_Name
+            idf.idfobjects['CONTROLLER:MECHANICALVENTILATION'] = []
             obj.Design_Flow_Rate_Calculation_Method = 'Flow/Person'
             obj.Ventilation_Type = ''
             obj.Flow_Rate_per_Person = ORNLIDF.settings()['flowrate_per_person'][str(int(self.building_type))]
