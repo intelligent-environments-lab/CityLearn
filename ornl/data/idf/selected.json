@@ -1,304 +1,1502 @@
-{
-  "TX_Austin": [
-    "7052012799800",
-    "7052012800846",
-    "7003000516537",
-    "7052012795956",
-    "7052012803579",
-    "7052012802838",
-    "7052012800370",
-    "7052012797354",
-    "7052012802541",
-    "7052012799010",
-    "7052012985210",
-    "7052012794817",
-    "7052012803358",
-    "7003000704722",
-    "7052012796673",
-    "7003000704728",
-    "7003000518245",
-    "7052012986310",
-    "7052012795706",
-    "7052012804265",
-    "7055013566492",
-    "7052012985785",
-    "7003000704999",
-    "7052012797564",
-    "7003000518399",
-    "7003000517542",
-    "7055013565807",
-    "7052012798185",
-    "7052012802407",
-    "7052012805021",
-    "7003000518451",
-    "7052012798901",
-    "7052012801244",
-    "7052012797747",
-    "7052012986048",
-    "7052012986954",
-    "7052012794411",
-    "7052012804840",
-    "7052012802570",
-    "7052012801510",
-    "7052012803852",
-    "7052012795995",
-    "7003000517172",
-    "7052012804732",
-    "7003000515685",
-    "7003000518181",
-    "7055013566928",
-    "7052012800200",
-    "7055013566695",
-    "7052012987754",
-    "7052012986521",
-    "7003000515265",
-    "7052012986096",
-    "7052012803079",
-    "7052012798261",
-    "7052012795487",
-    "7052012798006",
-    "7055013566458",
-    "7003000517193",
-    "7052012794004",
-    "7052012805291",
-    "7052012794890",
-    "7052012795329",
-    "7003000704841",
-    "7052012804573",
-    "7052012801680",
-    "7003000518114",
-    "7003000517734",
-    "7052012797863",
-    "7052012803480",
-    "7052012802940",
-    "7003000518706",
-    "7052012797282",
-    "7052012804797",
-    "7052012796946",
-    "7055013566542",
-    "7003000519147",
-    "7052012804691",
-    "7052012798254",
-    "7052012804489",
-    "7052012794361",
-    "7052012985826",
-    "7052012804686",
-    "7052012985310",
-    "7052012796839",
-    "7052012801580",
-    "7003000518123",
-    "7052012985592",
-    "7052012799795",
-    "7052012797770",
-    "7052012984966",
-    "7052012795431",
-    "7052012796911",
-    "7052012793756",
-    "7052012793943",
-    "7052012793856",
-    "7003000516284",
-    "7052012986117",
-    "7052012987448",
-    "7052012795986",
-    "7052012802531",
-    "7003000517424",
-    "7003000518055",
-    "7055013565660",
-    "7003000519362",
-    "7051012612939",
-    "7003000516477",
-    "7003000517732",
-    "7055013566281",
-    "7052012804491",
-    "7055013565796",
-    "7052012799979",
-    "7055013566497",
-    "7052012803951",
-    "7052012796524",
-    "7052012803878",
-    "7052012795252",
-    "7052012794699",
-    "7055013565675",
-    "7052012985396",
-    "7052012800817",
-    "7052012985079",
-    "7052012796512",
-    "7052012801757",
-    "7052012803043",
-    "7052012987528",
-    "7052012986968",
-    "7055013566310",
-    "7052012798999",
-    "7003000517808",
-    "7052012797982",
-    "7003000518878",
-    "7052012802853",
-    "7052012985301",
-    "7052012986651",
-    "7052012798318",
-    "7052012793984",
-    "7052012795463",
-    "7003000515752",
-    "7052012796336",
-    "7003000518943",
-    "7055013566502",
-    "7052012794859",
-    "7052012799429",
-    "7051012613439",
-    "7052012798249",
-    "7052012800997",
-    "7003000517169",
-    "7003000704983",
-    "7055013566251",
-    "7052012794829",
-    "7003000516680",
-    "7052012984905",
-    "7052012986785",
-    "7052012804300",
-    "7052012985790",
-    "7055013565703",
-    "7003000517550",
-    "7003000516102",
-    "7003000519134",
-    "7052012986805",
-    "7052012793914",
-    "7052012985919",
-    "7052012984974",
-    "7003000519011",
-    "7052012799972",
-    "7003000518121",
-    "7052012799388",
-    "7003000518898",
-    "7003000516419",
-    "7052012985893",
-    "7003000515953",
-    "7052012794104",
-    "7052012793783",
-    "7055013566892",
-    "7003000519114",
-    "7052012802635",
-    "7052012794584",
-    "7003000517123",
-    "7055013565674",
-    "7003000515981",
-    "7052012804608",
-    "7052012800983",
-    "7052012986357",
-    "7003000518469",
-    "7052012795984",
-    "7003000517448",
-    "7052012794869",
-    "7003000517493",
-    "7052012987165",
-    "7052012797266",
-    "7052012798801",
-    "7052012801294",
-    "7052012793635",
-    "7052012803323",
-    "7052012802281",
-    "7003000516500",
-    "7052012985597",
-    "7003000518456",
-    "7052012794254",
-    "7052012795990",
-    "7052012799025",
-    "7052012802365",
-    "7052012805344",
-    "7051012613418",
-    "7055013565477",
-    "7052012794364",
-    "7003000517033",
-    "7055013565583",
-    "7051012613152",
-    "7051012613243",
-    "7052012798543",
-    "7052012804155",
-    "7052012795707",
-    "7003000518944",
-    "7052012985599",
-    "7052012801494",
-    "7052012987679",
-    "7052012793455",
-    "7003000515660",
-    "7052012802396",
-    "7055013565730",
-    "7052012800530",
-    "7052012805332",
-    "7052012803489",
-    "7052012797595",
-    "7052012987213",
-    "7052012798983",
-    "7052012799907",
-    "7052012987466",
-    "7052012795710",
-    "7051012613028",
-    "7052012805048",
-    "7055013566018",
-    "7003000515635",
-    "7052012801982",
-    "7003000517691",
-    "7052012798327",
-    "7003000516698",
-    "7052012804610",
-    "7052012796639",
-    "7003000704594",
-    "7052012795377",
-    "7052012802712",
-    "7052012798854",
-    "7052012986029",
-    "7052012796843",
-    "7055013565513",
-    "7052012799040",
-    "7052012985405",
-    "7052012986770",
-    "7052012986367",
-    "7003000519422",
-    "7055013566813",
-    "7052012797567",
-    "7052012799898",
-    "7052012800666",
-    "7052012987278",
-    "7003000517754",
-    "7003000515289",
-    "7052012985546",
-    "7052012794029",
-    "7055013566270",
-    "7052012798292",
-    "7051012613202",
-    "7052012795355",
-    "7052012794916",
-    "7052012986879",
-    "7052012801683",
-    "7052012799587",
-    "7055013566697",
-    "7055013565522",
-    "7052012805300",
-    "7003000516249",
-    "7052012800313",
-    "7055013566373",
-    "7052012805290",
-    "7052012800791",
-    "7052012987586",
-    "7055013566640",
-    "7003000516718",
-    "7051012613332",
-    "7052012801605",
-    "7003000517242",
-    "7052012795962",
-    "7055013566343",
-    "7051012613142",
-    "7052012801630",
-    "7052012804079",
-    "7052012802876",
-    "7052012805071",
-    "7052012985846",
-    "7003000515238",
-    "7003000516482",
-    "7052012803108",
-    "7052012798029",
-    "7052012797625",
-    "7052012802272",
-    "7003000516793",
-    "7052012800690"
-  ]
-}
+[
+  {
+    "idf_filepath": "TX_Austin/7052012799800.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800846.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516537.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795956.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803579.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802838.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800370.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797354.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802541.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799010.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985210.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794817.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803358.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000704722.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012796673.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000704728.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518245.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986310.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795706.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804265.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566492.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985785.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000704999.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797564.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518399.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517542.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565807.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798185.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802407.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012805021.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518451.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798901.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801244.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797747.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986048.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986954.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794411.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804840.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802570.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801510.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803852.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795995.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517172.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804732.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000515685.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518181.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566928.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800200.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566695.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012987754.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986521.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000515265.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986096.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803079.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798261.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795487.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798006.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566458.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517193.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794004.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012805291.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794890.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795329.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000704841.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804573.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801680.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518114.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517734.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797863.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803480.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802940.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518706.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797282.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804797.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012796946.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566542.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000519147.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804691.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798254.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804489.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794361.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985826.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804686.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985310.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012796839.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801580.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518123.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985592.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799795.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797770.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012984966.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795431.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012796911.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012793756.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012793943.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012793856.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516284.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986117.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012987448.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795986.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802531.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517424.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518055.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565660.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000519362.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7051012612939.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516477.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517732.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566281.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804491.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565796.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799979.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566497.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803951.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012796524.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803878.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795252.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794699.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565675.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985396.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800817.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985079.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012796512.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801757.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803043.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012987528.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986968.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566310.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798999.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517808.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797982.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518878.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802853.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985301.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986651.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798318.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012793984.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795463.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000515752.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012796336.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518943.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566502.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794859.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799429.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7051012613439.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798249.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800997.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517169.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000704983.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566251.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794829.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516680.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012984905.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986785.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804300.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985790.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565703.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517550.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516102.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000519134.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986805.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012793914.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985919.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012984974.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000519011.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799972.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518121.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799388.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518898.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516419.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985893.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000515953.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794104.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012793783.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566892.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000519114.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802635.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794584.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517123.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565674.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000515981.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804608.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800983.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986357.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518469.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795984.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517448.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794869.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517493.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012987165.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797266.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798801.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801294.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012793635.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803323.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802281.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516500.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985597.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518456.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794254.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795990.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799025.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802365.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012805344.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7051012613418.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565477.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794364.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517033.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565583.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7051012613152.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7051012613243.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798543.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804155.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795707.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000518944.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985599.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801494.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012987679.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012793455.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000515660.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802396.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565730.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800530.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012805332.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803489.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797595.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012987213.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798983.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799907.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012987466.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795710.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7051012613028.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012805048.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566018.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000515635.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801982.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517691.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798327.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516698.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804610.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012796639.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000704594.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795377.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802712.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798854.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986029.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012796843.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565513.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799040.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985405.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986770.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986367.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000519422.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566813.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797567.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799898.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800666.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012987278.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517754.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000515289.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985546.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794029.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566270.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798292.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7051012613202.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795355.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012794916.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012986879.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801683.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012799587.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566697.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013565522.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012805300.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516249.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800313.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566373.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012805290.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800791.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012987586.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566640.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516718.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7051012613332.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801605.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000517242.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012795962.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7055013566343.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7051012613142.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012801630.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012804079.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802876.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012805071.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012985846.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000515238.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516482.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012803108.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012798029.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012797625.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012802272.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7003000516793.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  },
+  {
+    "idf_filepath": "TX_Austin/7052012800690.idf",
+    "building_type": 5,
+    "climate_zone": 2
+  }
+]

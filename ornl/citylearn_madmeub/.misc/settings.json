@@ -1,0 +1,23 @@
+{
+    "idd_filepath": "/Applications/EnergyPlus-9-4-0/PreProcess/IDFVersionUpdater/V9-4-0-Energy+.idd",
+    "root_output_directory": "../data/output/",
+    "flowrate_per_person": {
+        "5": 0.0169901079552
+    },
+    "weather": {
+        "epw": {
+            "1":"",
+            "2":"../data/weather/USA_TX_Austin-Camp.Mabry.722544_TMY3.epw",
+            "3":"",
+            "4":"",
+            "5":""
+        },
+        "ddy":{
+            "1":"",
+            "2":"../data/weather/USA_TX_Austin-Camp.Mabry.722544_TMY3.ddy",
+            "3":"",
+            "4":"",
+            "5":""
+        }
+    }
+}

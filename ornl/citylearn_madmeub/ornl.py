@@ -3,20 +3,19 @@ import sqlite3
 import random
 from eppy import modeleditor
 from eppy.modeleditor import IDF
-from eppy.runner.run_functions import runIDFs
 import matplotlib.pyplot as plt
 import pandas as pd
-from load import BuildingAmericaDomesticHotWater, PVSizing
-from utilities import make_directory, read_json, write_json
+from citylearn_madmeub.load import BuildingAmericaDomesticHotWater, PVSizing
+from citylearn_madmeub.utilities import make_directory, read_json, write_json
 
 class ORNLIDF:
-    __DEFAULT_OUTPUT_DIRECTORY = '../data/simulation_output/'
-
-    def __init__(self,idf_filepath,epw_filepath,ddy_filepath,idd_filepath=None,id=None,occupancy=None,output_directory=None,random_state=None):
+    def __init__(self,idf_filepath,climate_zone,building_type,epw_filepath=None,ddy_filepath=None,idd_filepath=None,id=None,occupancy=None,output_directory=None,random_state=None):
+        self.climate_zone = climate_zone
+        self.building_type = building_type
         self.idd_filepath = idd_filepath
         self.epw_filepath = epw_filepath
-        self.idf_filepath = idf_filepath
         self.ddy_filepath = ddy_filepath
+        self.idf_filepath = idf_filepath
         self.id = id
         self.occupancy = occupancy
         self.output_directory = output_directory
@@ -25,6 +24,14 @@ class ORNLIDF:
     @property
     def idf_filepath(self):
         return self.__idf_filepath
+
+    @property
+    def climate_zone(self):
+        return self.__climate_zone
+
+    @property
+    def building_type(self):
+        return self.__building_type
 
     @property
     def idf(self):
@@ -63,6 +70,21 @@ class ORNLIDF:
         self.__idf_filepath = idf_filepath
         self.__idf = IDF(idf_filepath,self.epw_filepath)
 
+    @climate_zone.setter
+    def climate_zone(self,climate_zone):
+        self.__climate_zone = climate_zone
+
+    @building_type.setter
+    def building_type(self,building_type):
+        supported_building_types = [5]
+        
+        if building_type in supported_building_types:
+            self.__building_type = building_type
+        else:
+            raise UnsupportedBuildingTypeError(
+                f'Unsupported building type. Valid building types are {supported_building_types}.'
+            )
+
     @idf.setter
     def idf(self,idf):
         self.__idf = idf
@@ -78,11 +100,19 @@ class ORNLIDF:
 
     @epw_filepath.setter
     def epw_filepath(self,epw_filepath):
-        self.__epw_filepath = epw_filepath
+        if epw_filepath is None:
+            epw_filepath = self.settings()['weather']['epw'][str(int(self.climate_zone))]
+            self.__epw_filepath = os.path.join(os.path.dirname(__file__),epw_filepath)
+        else:
+            self.__epw_filepath = epw_filepath
 
     @ddy_filepath.setter
     def ddy_filepath(self,ddy_filepath):
-        self.__ddy_filepath = ddy_filepath
+        if ddy_filepath is None:
+            ddy_filepath = self.settings()['weather']['ddy'][str(int(self.climate_zone))]
+            self.__ddy_filepath = os.path.join(os.path.dirname(__file__),ddy_filepath)
+        else:
+            self.__ddy_filepath = ddy_filepath
 
     @id.setter
     def id(self,id):
@@ -93,37 +123,36 @@ class ORNLIDF:
 
     @occupancy.setter
     def occupancy(self,occupancy):
-        if occupancy is not None:
+        if occupancy is None:
+            self.__occupancy = self.estimate_occupancy()
+        else:
             if occupancy >= 0:
                 self.__occupancy = occupancy
             else:
                 raise ValueError('occupancy must be >= 0.')
-        else:
-            self.__occupancy = self.estimate_occupancy()
-
+            
     @output_directory.setter
     def output_directory(self,output_directory):
         if output_directory is None:
-            self.__output_directory = os.path.join(ORNLIDF.__DEFAULT_OUTPUT_DIRECTORY,self.id)
+            output_directory = os.path.join(self.settings()['root_output_directory'],self.id)
+            self.__output_directory = os.path.join(os.path.dirname(__file__),output_directory)
         else:
             self.__output_directory = output_directory
 
     @random_state.setter
     def random_state(self,random_state):
-        if random_state is not None:
-            if random_state >= 0:
-                self.__random_state = random_state
-            else:
-                raise ValueError('random_state must be >= 0.')
-        else:
+        if random_state is None:
             self.random_state = random.randint(0,100000000)
+        else:
+            self.__random_state = random_state
 
     @staticmethod
     def settings():
-        return read_json('.misc/settings.json')
+        return read_json(os.path.join(os.path.dirname(__file__),'.misc/settings.json'))
 
     def simulate(self,**kwargs):    
         make_directory(self.output_directory)
+        self.idf.run(**self.eplaunch_options())
 
     def eplaunch_options(self):
         idf_version = self.idf.idfobjects['version'][0].Version_Identifier.split('.')
@@ -139,7 +168,7 @@ class ORNLIDF:
             'expandobjects':True,
         }
         return options
-
+    
     def estimate_occupancy(self):
         occupancy = 0
 
@@ -195,15 +224,13 @@ class CityLearnIDF(ORNLIDF):
         self.__state_action_space = state_action_space
     
     def simulate(self,**kwargs):
-        super().simulate(**kwargs)
-        self.preprocess()
-        self.idf.run(**self.eplaunch_options())
+        super().simulate()
         self.__update_timeseries()
         self.__update_attributes(**kwargs)
         self.__update_state_action_space()
 
     def __update_timeseries(self):
-        with open('.misc/citylearn_simulation_timeseries.sql','r') as f:
+        with open(os.path.join(os.path.dirname(__file__),'.misc/citylearn_simulation_timeseries.sql'),'r') as f:
             query = f.read()
             query = query.replace(',)',')')
 
@@ -219,13 +246,13 @@ class CityLearnIDF(ORNLIDF):
     def __update_attributes(self,**kwargs):
         random.seed(self.random_state)
         # metadata
-        attributes = read_json('.misc/citylearn_templates/attributes.json')
+        attributes = read_json(os.path.join(os.path.dirname(__file__),'.misc/citylearn_templates/attributes.json'))
         attributes['File_Name'] = f'{self.id}.csv'
-        attributes['File_Name_Solar_Profile'] = kwargs.get('File_Name_Solar_Profile',attributes['File_Name_Solar_Profile'])
-        attributes['Building_Type'] = kwargs.get('building_type',attributes['Building_Type'])
-        attributes['Climate_Zone'] = kwargs.get('climate_zone',attributes['Climate_Zone'])
+        attributes['File_Name_Solar_Profile'] = attributes['File_Name_Solar_Profile']
+        attributes['Building_Type'] = self.building_type
+        attributes['Climate_Zone'] = self.climate_zone
         # PV installation
-        pv_sizing = PVSizing(self.__get_roof_area(),self.__get_demand(),climate_zone=attributes['Climate_Zone'],pv=kwargs.get('pv',None))
+        pv_sizing = PVSizing(self.__get_roof_area(),self.__get_demand(),climate_zone=self.climate_zone,pv=kwargs.get('pv',None))
         pv_count = min(pv_sizing.size(method='annual_demand'))
         install_pv = random.choice([True,False])
         attributes['Solar_Power_Installed(kW)'] = pv_count*pv_sizing.pv['rating'] if install_pv else 0
@@ -256,7 +283,7 @@ class CityLearnIDF(ORNLIDF):
 
     def __update_state_action_space(self):
         random.seed(self.random_state)
-        state_action_space = read_json('.misc/citylearn_templates/state_action_space.json')
+        state_action_space = read_json(os.path.join(os.path.dirname(__file__),'.misc/citylearn_templates/state_action_space.json'))
         # states
         state_action_space['states']['month'] = True
         state_action_space['states']['day'] = True
@@ -327,13 +354,6 @@ class CityLearnIDF(ORNLIDF):
     def preprocess(self):
         idf = self.idf
         ddy_idf = IDF(self.ddy_filepath)
-        building_type = idf.idfobjects['BUILDING'][0]['Name'].split(' created')[0][1:]
-        supported_building_types = list(ORNLIDF.settings()['flowrate_per_person'].keys())
-
-        if building_type not in supported_building_types:
-            raise UnsupportedBuildingTypeError(f'[Error] Unsupported building type. Valid building types are {ORNLIDF.supported_building_types()}.')
-        else:
-            pass
 
         # *********** update site location object ***********
         idf.idfobjects['Site:Location'] = []
@@ -418,7 +438,7 @@ class CityLearnIDF(ORNLIDF):
             obj.Schedule_Name = 'MidriseApartment Apartment Occ'
             obj.Design_Flow_Rate_Calculation_Method = 'Flow/Person'
             obj.Ventilation_Type = ''
-            obj.Flow_Rate_per_Person = ORNLIDF.settings()['flowrate_per_person'][building_type]
+            obj.Flow_Rate_per_Person = ORNLIDF.settings()['flowrate_per_person'][str(int(self.building_type))]
             # equipment list
             obj = idf.newidfobject('ZONEHVAC:EQUIPMENTLIST')
             obj.Name = f'{zone_name}  Equipment List'
@@ -453,6 +473,7 @@ class CityLearnIDF(ORNLIDF):
             'Zone Air Temperature',
             'Zone Air Relative Humidity',
             'Zone Thermostat Cooling Setpoint Temperature',
+            'Zone Thermostat Heating Setpoint Temperature',
         ]
         idf.idfobjects['Output:Variable'] = []
 
@@ -468,18 +489,3 @@ class Error(Exception):
 class UnsupportedBuildingTypeError(Error):
     """Raised when attempting to preprocess an unsupported building."""
     pass
-
-if __name__ == '__main__':
-    selected_idfs = read_json('../data/idf/selected.json')
-    idf_filepaths = [[os.path.join(f'../data/idf/cities/{city}/{idf_id}.idf') for idf_id in idf_ids] for city, idf_ids in selected_idfs.items()]
-    idf_filepaths = [filepath for sublist in idf_filepaths for filepath in sublist]
-    idf_filepath = idf_filepaths[0]
-    epw_filepath = '../data/weather/USA_TX_Austin-Camp.Mabry.722544_TMY3.epw'
-    ddy_filepath = '../data/weather/USA_TX_Austin-Camp.Mabry.722544_TMY3.ddy'
-    clidf = CityLearnIDF(idf_filepath,epw_filepath,ddy_filepath)
-    simulation_kwargs = {
-        'building_type':5,
-        'climate_zone':2
-    }
-    clidf.simulate(**simulation_kwargs)
-    clidf.save()

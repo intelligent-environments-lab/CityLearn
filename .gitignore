@@ -14,4 +14,4 @@ ornl/data/output/*/*
 !ornl/data/output/*/*.idf
 !ornl/data/output/*/*.csv
 !ornl/data/output/*/*.pdf
-!ornl/data/simulation_output/*/*.json
+!ornl/data/output/*/*.json

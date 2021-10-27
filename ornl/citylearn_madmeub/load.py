@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import os
 import pandas as pd
 from scipy.constants import convert_temperature
 from scipy.optimize import fsolve
@@ -49,7 +50,7 @@ class BuildingAmericaDomesticHotWater:
 
     def get_demand(self,bedrooms,epw_filepath):
         end_use_definitions = self.end_use_definitions
-        demand_profile = pd.read_csv('.misc/building_america_domestic_hot_water.csv')
+        demand_profile = pd.read_csv(os.path.join(os.path.dirname(__file__),'.misc/building_america_domestic_hot_water.csv'))
         demand_profile['outlet_volume'] = demand_profile.apply(lambda x:
             x['daily_total_volume_fraction']*end_use_definitions[x['end_use']]['daily_water_use'](bedrooms),
             axis=1
@@ -171,7 +172,7 @@ class PVSizing:
     def size(self,method='peak_demand',peak_min_hour=0,peak_max_hour=24):
         methods = ['peak_demand','peak_count','annual_demand']
         pv_count_limit = math.floor(self.roof_area/(self.pv['length']*self.pv['width']))
-        data = pd.read_csv('.misc/solar_generation_1kW.csv')
+        data = pd.read_csv(os.path.join(os.path.dirname(__file__),'.misc/solar_generation_1kW.csv'))
         data = data[data['climate_zone']==self.climate_zone].copy()
         data['timestamp'] = pd.date_range('2019-01-01 00:00:00','2019-12-31 23:00:00',freq='H')
         data['hour'] = data['timestamp'].dt.hour
@@ -200,17 +201,3 @@ class PVSizing:
             raise ValueError(f'Invalid method. Valid methods are {methods}.')
 
         return pv_count, pv_count_limit
-
-if __name__ == '__main__':
-    solar_generation_filepath = '../../data/Climate_Zone_1/solar_generation_1kW.csv'
-    building_data_filepath = '../data/simulation_output/TX_Austin/7052012799800/7052012799800.csv'
-    building_id = building_data_filepath.split('/')[-1].split('.')[0]
-    building_metadata_filepath = '../data/idf/cities/TX_Austin/summary.pkl'
-    demand = pd.read_csv(building_data_filepath)[['Cooling Load [kWh]','DHW Heating [kWh]']].sum(axis=1).tolist()
-    building_metadata = pd.read_pickle(building_metadata_filepath)
-    roof_area = building_metadata[building_metadata['id']==building_id].iloc[0]['total_zone_roof_area']
-    pv = PVSizing(solar_generation_filepath,roof_area,demand)
-
-    for method in ['peak_demand','peak_count','annual_demand']:
-        pv_count, pv_count_limit = pv.size(method=method,peak_min_hour=0,peak_max_hour=24)
-        print(f'count_limit: {pv_count_limit}, method: {method}, count: {pv_count}')
