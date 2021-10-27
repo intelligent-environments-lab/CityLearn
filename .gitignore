@@ -11,7 +11,7 @@ ornl/data/idf/counties/
 ornl/data/output/*/*
 
 # output files to keep
-!ornl/data/output/*/*.idf
-!ornl/data/output/*/*.csv
-!ornl/data/output/*/*.pdf
-!ornl/data/output/*/*.json
+# !ornl/data/output/*/*.idf
+# !ornl/data/output/*/*.csv
+# !ornl/data/output/*/*.pdf
+# !ornl/data/output/*/*.json
