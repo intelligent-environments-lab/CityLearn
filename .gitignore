@@ -5,13 +5,13 @@ __pycache__
 env
 
 # do not track all ORNL city idf files
-ornl/data/idf/cities/
+ornl/data/idf/counties/
 
 # do not track all simulation output files
-ornl/data/simulation_output/*/*
+ornl/data/output/*/*
 
 # output files to keep
-!ornl/data/simulation_output/*/*.idf
-!ornl/data/simulation_output/*/*.csv
-!ornl/data/simulation_output/*/*.pdf
+!ornl/data/output/*/*.idf
+!ornl/data/output/*/*.csv
+!ornl/data/output/*/*.pdf
 !ornl/data/simulation_output/*/*.json
