@@ -271,7 +271,7 @@ class CityLearnIDF(ORNLIDF):
         attributes['Electric_Water_Heater']['nominal_power'] = attributes['Heat_Pump']['nominal_power']
         attributes['Electric_Water_Heater']['efficiency'] = random.uniform(0.9,1.0)
         # chilled water tank
-        attributes['Chilled_Water_Tank']['capacity'] = random.randint(1,2)
+        attributes['Chilled_Water_Tank']['capacity'] = random.randint(0,2)
         attributes['Chilled_Water_Tank']['loss_coefficient'] = random.uniform(0.002,0.01)
         # domestic hot water tank
         attributes['DHW_Tank']['capacity'] = random.randint(0,2)
