@@ -140,14 +140,13 @@ class PVSizing:
     def default_PV(self):
         '''
         PV Reference:
-        SunPower® X-Series Residential Solar Panels X21-345,
-        https://us.sunpower.com/sites/default/files/media-library/data-sheets/ds-x21-series-335-345-residential-solar-panels.pdf
+        Tesla Solar Panel,
+        https://www.tesla.com/solarpanels
         '''
         return {
-            'width':1.046, # [m]
-            'length':1.558, # [m]
-            'efficiency':0.215,
-            'rating':0.250, # [kW]
+            'width':1.03886, # [m]
+            'length':2.09296, # [m]
+            'rating':0.425, # [kW]
         }
 
     @climate_zone.setter
@@ -169,7 +168,7 @@ class PVSizing:
         else:
             self.__pv = {**self.default_PV,**pv}
 
-    def size(self,method='peak_demand',peak_min_hour=0,peak_max_hour=24):
+    def size(self,method='peak_demand',peak_min_hour=0,peak_max_hour=23):
         methods = ['peak_demand','peak_count','annual_demand']
         pv_count_limit = math.floor(self.roof_area/(self.pv['length']*self.pv['width']))
         data = pd.read_csv(os.path.join(os.path.dirname(__file__),'.misc/solar_generation_1kW.csv'))
@@ -201,3 +200,64 @@ class PVSizing:
             raise ValueError(f'Invalid method. Valid methods are {methods}.')
 
         return pv_count, pv_count_limit
+
+class BatterySizing:
+    def __init__(self,demand,battery=None):
+        self.demand = demand
+        self.battery = battery
+
+    @property
+    def demand(self):
+        return self.__demand
+
+    @property
+    def battery(self):
+        return self.__battery
+
+    @property
+    def default_battery(self):
+        '''
+        Battery Reference:
+        Tesla Powerwall,
+        https://www.tesla.com/sites/default/files/pdfs/powerwall/Powerwall%202_AC_Datasheet_en_northamerica.pdf
+        '''
+        return {
+            'capacity':13.5, # [kWh]
+            'nominal_power':5, # [kW]
+            'efficiency':0.9,
+        }
+
+    @demand.setter
+    def demand(self,demand):
+        self.__demand = demand
+
+    @battery.setter
+    def battery(self,battery):
+        if battery is None:
+            self.__battery = self.default_battery
+        else:
+            self.__battery = {**self.default_battery,**battery}
+
+    def size(self,method='daily_peak',min_hour=0,max_hour=23):
+        methods = ['daily_peak','daily_average']
+        data = pd.DataFrame({'demand':self.demand})
+        data['timestamp'] = pd.date_range('2019-01-01 00:00:00','2019-12-31 23:00:00',freq='H')
+        data['date'] = data['timestamp'].dt.date
+
+        if method == 'daily_peak':
+            demand = data[
+                (data['timestamp'].dt.hour>=min_hour)
+                &(data['timestamp'].dt.hour<=max_hour)
+            ].groupby('date')[['demand']].sum().max()
+        
+        elif method == 'daily_average':
+            demand = data[
+                (data['timestamp'].dt.hour>=min_hour)
+                &(data['timestamp'].dt.hour<=max_hour)
+            ].groupby('date')[['demand']].sum().mean()
+
+        else:
+            raise ValueError(f'Invalid method. Valid methods are {methods}.')
+
+        battery_count = math.ceil(demand/self.battery['capacity'])
+        return battery_count

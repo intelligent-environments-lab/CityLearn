@@ -5,7 +5,7 @@ from eppy import modeleditor
 from eppy.modeleditor import IDF
 import matplotlib.pyplot as plt
 import pandas as pd
-from citylearn_madmeub.load import BuildingAmericaDomesticHotWater, PVSizing
+from citylearn_madmeub.load import BatterySizing, BuildingAmericaDomesticHotWater, PVSizing
 from citylearn_madmeub.utilities import make_directory, read_json, write_json
 
 class ORNLIDF:
@@ -259,7 +259,8 @@ class CityLearnIDF(ORNLIDF):
         attributes['Climate_Zone'] = self.climate_zone
         # PV installation
         pv_sizing = PVSizing(self.__get_roof_area(),self.__get_demand(),climate_zone=self.climate_zone,pv=kwargs.get('pv',None))
-        pv_count = min(pv_sizing.size(method='annual_demand'))
+        pv_count = min(pv_sizing.size(method='annual_demand'))*random.uniform(0.25,1.0)
+        pv_count = round(pv_count,0)
         install_pv = random.choice([True,False])
         attributes['Solar_Power_Installed(kW)'] = pv_count*pv_sizing.pv['rating'] if install_pv else 0
         # heat pump
@@ -277,14 +278,17 @@ class CityLearnIDF(ORNLIDF):
         attributes['DHW_Tank']['capacity'] = random.randint(0,2)
         attributes['DHW_Tank']['loss_coefficient'] = random.uniform(0.002,0.01)
         # battery
-        attributes['Battery']['capacity'] = max(self.__get_demand()) # is this a good way to calculate it?
-        attributes['Battery']['efficiency'] = attributes['Battery']['efficiency']
+        battery_sizing = BatterySizing(self.__get_demand(),battery=kwargs.get('battery',None))
+        battery_count = battery_sizing.size(method=random.choice(['daily_peak','daily_average']))
+        battery_count = round(battery_count*random.uniform(0.25,1.0),0)
+        install_battery = random.choice([True,False])
+        attributes['Battery']['capacity'] = battery_count*battery_sizing.battery['capacity'] if install_battery else 0
+        attributes['Battery']['efficiency'] = battery_sizing.battery['efficiency']
         attributes['Battery']['capacity_loss_coefficient'] = attributes['Battery']['capacity_loss_coefficient']
         attributes['Battery']['loss_coefficient'] = attributes['Battery']['loss_coefficient']
-        attributes['Battery']['nominal_power'] = attributes['Battery']['capacity']/2
+        attributes['Battery']['nominal_power'] = battery_sizing.battery['nominal_power']
         attributes['Battery']['power_efficiency_curve'] = attributes['Battery']['power_efficiency_curve']
         attributes['Battery']['capacity_power_curve'] = attributes['Battery']['capacity_power_curve']
-
         self.attributes = attributes
 
     def __update_state_action_space(self):
