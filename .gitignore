@@ -9,6 +9,7 @@ ornl/data/idf/counties/
 
 # do not track all simulation output files
 ornl/data/output/*/*
+nrel
 
 # output files to keep
 # !ornl/data/output/*/*.idf
