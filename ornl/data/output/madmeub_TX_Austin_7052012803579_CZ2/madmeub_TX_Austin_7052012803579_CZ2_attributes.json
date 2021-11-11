@@ -1,0 +1,68 @@
+{
+  "File_Name": "madmeub_TX_Austin_7052012803579_CZ2.csv",
+  "File_Name_Solar_Profile": "solar_generation_1kW.csv",
+  "Building_Type": 5,
+  "Climate_Zone": 2,
+  "Solar_Power_Installed(kW)": 0,
+  "Heat_Pump": {
+    "nominal_power": "autosize",
+    "technical_efficiency": 0.279043248434894,
+    "t_target_heating": 50,
+    "t_target_cooling": 9
+  },
+  "Electric_Water_Heater": {
+    "nominal_power": "autosize",
+    "efficiency": 0.9130805452684022
+  },
+  "Chilled_Water_Tank": {
+    "capacity": 2,
+    "loss_coefficient": 0.003320170878017483
+  },
+  "DHW_Tank": {
+    "capacity": 1,
+    "loss_coefficient": 0.004068587247774186
+  },
+  "Battery": {
+    "capacity": 4.433257691117142,
+    "efficiency": 0.9,
+    "capacity_loss_coefficient": 1e-05,
+    "loss_coefficient": 0,
+    "nominal_power": 2.216628845558571,
+    "power_efficiency_curve": [
+      [
+        0,
+        0.83
+      ],
+      [
+        0.3,
+        0.83
+      ],
+      [
+        0.7,
+        0.9
+      ],
+      [
+        0.8,
+        0.9
+      ],
+      [
+        1,
+        0.85
+      ]
+    ],
+    "capacity_power_curve": [
+      [
+        0.0,
+        1
+      ],
+      [
+        0.8,
+        1
+      ],
+      [
+        1.0,
+        0.2
+      ]
+    ]
+  }
+}

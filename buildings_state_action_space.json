@@ -384,9 +384,9 @@
       "carbon_intensity": true
     },
     "actions": {
-      "cooling_storage": true,
-      "dhw_storage": false,
-      "electrical_storage": true
+      "cooling_storage": false,
+      "dhw_storage": true,
+      "electrical_storage": false
     }
   },
   "Building_madmeub_TX_Austin_7052012800846_CZ2": {
@@ -423,9 +423,9 @@
       "carbon_intensity": true
     },
     "actions": {
-      "cooling_storage": true,
-      "dhw_storage": false,
-      "electrical_storage": true
+      "cooling_storage": false,
+      "dhw_storage": true,
+      "electrical_storage": false
     }
   },
   "Building_madmeub_TX_Austin_7003000516537_CZ2": {

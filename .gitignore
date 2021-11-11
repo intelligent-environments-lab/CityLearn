@@ -1,18 +1,4 @@
 __pycache__
 *.pyc
 .DS_Store
-.vscode/
-env
-
-# do not track all ORNL city idf files
-ornl/data/idf/counties/
-
-# do not track all simulation output files
-ornl/data/output/*/*
-nrel
-
-# output files to keep
-# !ornl/data/output/*/*.idf
-# !ornl/data/output/*/*.csv
-# !ornl/data/output/*/*.pdf
-# !ornl/data/output/*/*.json
+.ipynb_checkpoints

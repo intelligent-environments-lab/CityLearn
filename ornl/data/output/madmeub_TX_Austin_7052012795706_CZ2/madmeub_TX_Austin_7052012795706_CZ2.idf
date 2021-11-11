@@ -1,0 +1,2394 @@
+!- Darwin Line endings 
+
+Version,
+    9.4;                      !- Version Identifier
+
+SimulationControl,
+    No,                       !- Do Zone Sizing Calculation
+    No,                       !- Do System Sizing Calculation
+    No,                       !- Do Plant Sizing Calculation
+    No,                       !- Run Simulation for Sizing Periods
+    Yes,                      !- Run Simulation for Weather File Run Periods
+    No,                       !- Do HVAC Sizing Simulation for Sizing Periods
+    1;                        !- Maximum Number of HVAC Sizing Simulation Passes
+
+Building,
+    -MidriseApartment-ASHRAE 169-2006-2A created: 2021-01-06 05:05:03 +0000,    !- Name
+    ,                         !- North Axis
+    City,                     !- Terrain
+    ,                         !- Loads Convergence Tolerance Value
+    ,                         !- Temperature Convergence Tolerance Value
+    ,                         !- Solar Distribution
+    ,                         !- Maximum Number of Warmup Days
+    ;                         !- Minimum Number of Warmup Days
+
+ShadowCalculation,
+    PolygonClipping,          !- Shading Calculation Method
+    Periodic,                 !- Shading Calculation Update Frequency Method
+    20,                       !- Shading Calculation Update Frequency
+    15000,                    !- Maximum Figures in Shadow Overlap Calculations
+    SutherlandHodgman,        !- Polygon Clipping Algorithm
+    512,                      !- Pixel Counting Resolution
+    SimpleSkyDiffuseModeling,    !- Sky Diffuse Modeling Algorithm
+    No,                       !- Output External Shading Calculation Results
+    No,                       !- Disable SelfShading Within Shading Zone Groups
+    No;                       !- Disable SelfShading From Shading Zone Groups to Other Zones
+
+SurfaceConvectionAlgorithm:Inside,
+    TARP;                     !- Algorithm
+
+SurfaceConvectionAlgorithm:Outside,
+    DOE-2;                    !- Algorithm
+
+HeatBalanceAlgorithm,
+    ConductionTransferFunction,    !- Algorithm
+    200;                      !- Surface Temperature Upper Limit
+
+Timestep,
+    1;                        !- Number of Timesteps per Hour
+
+Site:Location,
+    Camp Mabry_TX_USA Design_Conditions,    !- Name
+    30.32,                    !- Latitude
+    -97.77,                   !- Longitude
+    -6,                       !- Time Zone
+    198;                      !- Elevation
+
+SizingPeriod:DesignDay,
+    Camp Mabry Ann Htg 99.6% Condns DB,    !- Name
+    1,                        !- Month
+    21,                       !- Day of Month
+    WinterDesignDay,          !- Day Type
+    -3,                       !- Maximum DryBulb Temperature
+    0,                        !- Daily DryBulb Temperature Range
+    DefaultMultipliers,       !- DryBulb Temperature Range Modifier Type
+    ,                         !- DryBulb Temperature Range Modifier Day Schedule Name
+    Wetbulb,                  !- Humidity Condition Type
+    -3,                       !- Wetbulb or DewPoint at Maximum DryBulb
+    ,                         !- Humidity Condition Day Schedule Name
+    ,                         !- Humidity Ratio at Maximum DryBulb
+    ,                         !- Enthalpy at Maximum DryBulb
+    ,                         !- Daily WetBulb Temperature Range
+    98969,                    !- Barometric Pressure
+    4.5,                      !- Wind Speed
+    10,                       !- Wind Direction
+    No,                       !- Rain Indicator
+    No,                       !- Snow Indicator
+    No,                       !- Daylight Saving Time Indicator
+    ASHRAEClearSky,           !- Solar Model Indicator
+    ,                         !- Beam Solar Day Schedule Name
+    ,                         !- Diffuse Solar Day Schedule Name
+    ,                         !- ASHRAE Clear Sky Optical Depth for Beam Irradiance taub
+    ,                         !- ASHRAE Clear Sky Optical Depth for Diffuse Irradiance taud
+    0;                        !- Sky Clearness
+
+SizingPeriod:DesignDay,
+    Camp Mabry Ann Clg .4% Condns DB=>MWB,    !- Name
+    8,                        !- Month
+    21,                       !- Day of Month
+    SummerDesignDay,          !- Day Type
+    37.4,                     !- Maximum DryBulb Temperature
+    11.7,                     !- Daily DryBulb Temperature Range
+    DefaultMultipliers,       !- DryBulb Temperature Range Modifier Type
+    ,                         !- DryBulb Temperature Range Modifier Day Schedule Name
+    Wetbulb,                  !- Humidity Condition Type
+    23.6,                     !- Wetbulb or DewPoint at Maximum DryBulb
+    ,                         !- Humidity Condition Day Schedule Name
+    ,                         !- Humidity Ratio at Maximum DryBulb
+    ,                         !- Enthalpy at Maximum DryBulb
+    ,                         !- Daily WetBulb Temperature Range
+    98969,                    !- Barometric Pressure
+    3.7,                      !- Wind Speed
+    160,                      !- Wind Direction
+    No,                       !- Rain Indicator
+    No,                       !- Snow Indicator
+    No,                       !- Daylight Saving Time Indicator
+    ASHRAETau,                !- Solar Model Indicator
+    ,                         !- Beam Solar Day Schedule Name
+    ,                         !- Diffuse Solar Day Schedule Name
+    0.452,                    !- ASHRAE Clear Sky Optical Depth for Beam Irradiance taub
+    2.127;                    !- ASHRAE Clear Sky Optical Depth for Diffuse Irradiance taud
+
+RunPeriod,
+    Run Period 1,             !- Name
+    1,                        !- Begin Month
+    1,                        !- Begin Day of Month
+    2006,                     !- Begin Year
+    12,                       !- End Month
+    31,                       !- End Day of Month
+    2006,                     !- End Year
+    Sunday,                   !- Day of Week for Start Day
+    No,                       !- Use Weather File Holidays and Special Days
+    No,                       !- Use Weather File Daylight Saving Period
+    No,                       !- Apply Weekend Holiday Rule
+    Yes,                      !- Use Weather File Rain Indicators
+    Yes;                      !- Use Weather File Snow Indicators
+
+RunPeriodControl:DaylightSavingTime,
+    2nd Sunday in March,      !- Start Date
+    1st Sunday in November;    !- End Date
+
+Site:GroundTemperature:FCfactorMethod,
+    20.3,                     !- January Ground Temperature
+    17.1,                     !- February Ground Temperature
+    12.5,                     !- March Ground Temperature
+    10.5,                     !- April Ground Temperature
+    12.8,                     !- May Ground Temperature
+    16.2,                     !- June Ground Temperature
+    20.5,                     !- July Ground Temperature
+    24,                       !- August Ground Temperature
+    27,                       !- September Ground Temperature
+    28.3,                     !- October Ground Temperature
+    28.2,                     !- November Ground Temperature
+    26.4;                     !- December Ground Temperature
+
+Site:WaterMainsTemperature,
+    Correlation,              !- Calculation Method
+    ,                         !- Temperature Schedule Name
+    20.3166666666667,         !- Annual Average Outdoor Air Temperature
+    17.8;                     !- Maximum Difference In Monthly Average Outdoor Air Temperatures
+
+ScheduleTypeLimits,
+    Space 0 ZN Thermostat Schedule Type Limits,    !- Name
+    0,                        !- Lower Limit Value
+    4,                        !- Upper Limit Value
+    DISCRETE;                 !- Numeric Type
+
+ScheduleTypeLimits,
+    Temperature,              !- Name
+    ,                         !- Lower Limit Value
+    ,                         !- Upper Limit Value
+    Continuous,               !- Numeric Type
+    temperature;              !- Unit Type
+
+ScheduleTypeLimits,
+    ActivityLevel,            !- Name
+    0,                        !- Lower Limit Value
+    ,                         !- Upper Limit Value
+    Continuous,               !- Numeric Type
+    activitylevel;            !- Unit Type
+
+ScheduleTypeLimits,
+    Any Number;               !- Name
+
+ScheduleTypeLimits,
+    Fractional,               !- Name
+    0,                        !- Lower Limit Value
+    1,                        !- Upper Limit Value
+    Continuous;               !- Numeric Type
+
+ScheduleTypeLimits,
+    OnOff,                    !- Name
+    0,                        !- Lower Limit Value
+    1,                        !- Upper Limit Value
+    Discrete,                 !- Numeric Type
+    availability;             !- Unit Type
+
+ScheduleTypeLimits,
+    Velocity,                 !- Name
+    0,                        !- Lower Limit Value
+    ,                         !- Upper Limit Value
+    Continuous,               !- Numeric Type
+    velocity;                 !- Unit Type
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment HtgSetp Default,    !- Name
+    Temperature,              !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    21.1;                     !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment HtgSetp Summer Design Day,    !- Name
+    Temperature,              !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    21.1;                     !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment HtgSetp Winter Design Day,    !- Name
+    Temperature,              !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    21.1;                     !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment ClgSetp Default,    !- Name
+    Temperature,              !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    23.9;                     !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment ClgSetp Summer Design Day,    !- Name
+    Temperature,              !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    23.9;                     !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment ClgSetp Winter Design Day,    !- Name
+    Temperature,              !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    23.9;                     !- Value Until Time 1
+
+Schedule:Day:Interval,
+    Air Velocity Schedule Default,    !- Name
+    Velocity,                 !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    0.2;                      !- Value Until Time 1
+
+Schedule:Day:Interval,
+    ApartmentMidRise All On Default,    !- Name
+    ,                         !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    ApartmentMidRise All On Summer Design Day,    !- Name
+    ,                         !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    ApartmentMidRise All On Winter Design Day,    !- Name
+    ,                         !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    ApartmentMidRise COMPACT HVAC-ALWAYS 1 Default,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    ApartmentMidRise COMPACT HVAC-ALWAYS 1 Summer Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    ApartmentMidRise COMPACT HVAC-ALWAYS 1 Winter Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    ApartmentMidRise EQP_APT_SCH Default,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    01:00,                    !- Time 1
+    0.45,                     !- Value Until Time 1
+    02:00,                    !- Time 2
+    0.41,                     !- Value Until Time 2
+    03:00,                    !- Time 3
+    0.39,                     !- Value Until Time 3
+    05:00,                    !- Time 4
+    0.38,                     !- Value Until Time 4
+    06:00,                    !- Time 5
+    0.43,                     !- Value Until Time 5
+    07:00,                    !- Time 6
+    0.54,                     !- Value Until Time 6
+    08:00,                    !- Time 7
+    0.65,                     !- Value Until Time 7
+    09:00,                    !- Time 8
+    0.66,                     !- Value Until Time 8
+    10:00,                    !- Time 9
+    0.67,                     !- Value Until Time 9
+    11:00,                    !- Time 10
+    0.69,                     !- Value Until Time 10
+    12:00,                    !- Time 11
+    0.7,                      !- Value Until Time 11
+    13:00,                    !- Time 12
+    0.69,                     !- Value Until Time 12
+    14:00,                    !- Time 13
+    0.66,                     !- Value Until Time 13
+    15:00,                    !- Time 14
+    0.65,                     !- Value Until Time 14
+    16:00,                    !- Time 15
+    0.68,                     !- Value Until Time 15
+    17:00,                    !- Time 16
+    0.8,                      !- Value Until Time 16
+    19:00,                    !- Time 17
+    1,                        !- Value Until Time 17
+    20:00,                    !- Time 18
+    0.93,                     !- Value Until Time 18
+    21:00,                    !- Time 19
+    0.89,                     !- Value Until Time 19
+    22:00,                    !- Time 20
+    0.85,                     !- Value Until Time 20
+    23:00,                    !- Time 21
+    0.71,                     !- Value Until Time 21
+    24:00,                    !- Time 22
+    0.58;                     !- Value Until Time 22
+
+Schedule:Day:Interval,
+    ApartmentMidRise EQP_APT_SCH Summer Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    01:00,                    !- Time 1
+    0.45,                     !- Value Until Time 1
+    02:00,                    !- Time 2
+    0.41,                     !- Value Until Time 2
+    03:00,                    !- Time 3
+    0.39,                     !- Value Until Time 3
+    05:00,                    !- Time 4
+    0.38,                     !- Value Until Time 4
+    06:00,                    !- Time 5
+    0.43,                     !- Value Until Time 5
+    07:00,                    !- Time 6
+    0.54,                     !- Value Until Time 6
+    08:00,                    !- Time 7
+    0.65,                     !- Value Until Time 7
+    09:00,                    !- Time 8
+    0.66,                     !- Value Until Time 8
+    10:00,                    !- Time 9
+    0.67,                     !- Value Until Time 9
+    11:00,                    !- Time 10
+    0.69,                     !- Value Until Time 10
+    12:00,                    !- Time 11
+    0.7,                      !- Value Until Time 11
+    13:00,                    !- Time 12
+    0.69,                     !- Value Until Time 12
+    14:00,                    !- Time 13
+    0.66,                     !- Value Until Time 13
+    15:00,                    !- Time 14
+    0.65,                     !- Value Until Time 14
+    16:00,                    !- Time 15
+    0.68,                     !- Value Until Time 15
+    17:00,                    !- Time 16
+    0.8,                      !- Value Until Time 16
+    19:00,                    !- Time 17
+    1,                        !- Value Until Time 17
+    20:00,                    !- Time 18
+    0.93,                     !- Value Until Time 18
+    21:00,                    !- Time 19
+    0.89,                     !- Value Until Time 19
+    22:00,                    !- Time 20
+    0.85,                     !- Value Until Time 20
+    23:00,                    !- Time 21
+    0.71,                     !- Value Until Time 21
+    24:00,                    !- Time 22
+    0.58;                     !- Value Until Time 22
+
+Schedule:Day:Interval,
+    ApartmentMidRise EQP_APT_SCH Winter Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    01:00,                    !- Time 1
+    0.45,                     !- Value Until Time 1
+    02:00,                    !- Time 2
+    0.41,                     !- Value Until Time 2
+    03:00,                    !- Time 3
+    0.39,                     !- Value Until Time 3
+    05:00,                    !- Time 4
+    0.38,                     !- Value Until Time 4
+    06:00,                    !- Time 5
+    0.43,                     !- Value Until Time 5
+    07:00,                    !- Time 6
+    0.54,                     !- Value Until Time 6
+    08:00,                    !- Time 7
+    0.65,                     !- Value Until Time 7
+    09:00,                    !- Time 8
+    0.66,                     !- Value Until Time 8
+    10:00,                    !- Time 9
+    0.67,                     !- Value Until Time 9
+    11:00,                    !- Time 10
+    0.69,                     !- Value Until Time 10
+    12:00,                    !- Time 11
+    0.7,                      !- Value Until Time 11
+    13:00,                    !- Time 12
+    0.69,                     !- Value Until Time 12
+    14:00,                    !- Time 13
+    0.66,                     !- Value Until Time 13
+    15:00,                    !- Time 14
+    0.65,                     !- Value Until Time 14
+    16:00,                    !- Time 15
+    0.68,                     !- Value Until Time 15
+    17:00,                    !- Time 16
+    0.8,                      !- Value Until Time 16
+    19:00,                    !- Time 17
+    1,                        !- Value Until Time 17
+    20:00,                    !- Time 18
+    0.93,                     !- Value Until Time 18
+    21:00,                    !- Time 19
+    0.89,                     !- Value Until Time 19
+    22:00,                    !- Time 20
+    0.85,                     !- Value Until Time 20
+    23:00,                    !- Time 21
+    0.71,                     !- Value Until Time 21
+    24:00,                    !- Time 22
+    0.58;                     !- Value Until Time 22
+
+Schedule:Day:Interval,
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Summer Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Winter Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    Clothing Schedule Default Winter Clothes,    !- Name
+    Any Number,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    Clothing Schedule Summer Clothes,    !- Name
+    Any Number,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    0.5;                      !- Value Until Time 1
+
+Schedule:Day:Interval,
+    Economizer Max OA Fraction 70 pct Default,    !- Name
+    ,                         !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    0.7;                      !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Activity Default,    !- Name
+    ActivityLevel,            !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    120;                      !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Activity Summer Design Day,    !- Name
+    ActivityLevel,            !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    120;                      !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Activity Winter Design Day,    !- Name
+    ActivityLevel,            !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    120;                      !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment Light Default,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    04:00,                    !- Time 1
+    0.067,                    !- Value Until Time 1
+    05:00,                    !- Time 2
+    0.187,                    !- Value Until Time 2
+    06:00,                    !- Time 3
+    0.394,                    !- Value Until Time 3
+    07:00,                    !- Time 4
+    0.44,                     !- Value Until Time 4
+    08:00,                    !- Time 5
+    0.393,                    !- Value Until Time 5
+    09:00,                    !- Time 6
+    0.172,                    !- Value Until Time 6
+    15:00,                    !- Time 7
+    0.119,                    !- Value Until Time 7
+    16:00,                    !- Time 8
+    0.206,                    !- Value Until Time 8
+    17:00,                    !- Time 9
+    0.439,                    !- Value Until Time 9
+    18:00,                    !- Time 10
+    0.616,                    !- Value Until Time 10
+    19:00,                    !- Time 11
+    0.829,                    !- Value Until Time 11
+    20:00,                    !- Time 12
+    0.986,                    !- Value Until Time 12
+    21:00,                    !- Time 13
+    1,                        !- Value Until Time 13
+    22:00,                    !- Time 14
+    0.692,                    !- Value Until Time 14
+    23:00,                    !- Time 15
+    0.384,                    !- Value Until Time 15
+    24:00,                    !- Time 16
+    0.16;                     !- Value Until Time 16
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment Light Summer Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    04:00,                    !- Time 1
+    0.067,                    !- Value Until Time 1
+    05:00,                    !- Time 2
+    0.187,                    !- Value Until Time 2
+    06:00,                    !- Time 3
+    0.394,                    !- Value Until Time 3
+    07:00,                    !- Time 4
+    0.44,                     !- Value Until Time 4
+    08:00,                    !- Time 5
+    0.393,                    !- Value Until Time 5
+    09:00,                    !- Time 6
+    0.172,                    !- Value Until Time 6
+    15:00,                    !- Time 7
+    0.119,                    !- Value Until Time 7
+    16:00,                    !- Time 8
+    0.206,                    !- Value Until Time 8
+    17:00,                    !- Time 9
+    0.439,                    !- Value Until Time 9
+    18:00,                    !- Time 10
+    0.616,                    !- Value Until Time 10
+    19:00,                    !- Time 11
+    0.829,                    !- Value Until Time 11
+    20:00,                    !- Time 12
+    0.986,                    !- Value Until Time 12
+    21:00,                    !- Time 13
+    1,                        !- Value Until Time 13
+    22:00,                    !- Time 14
+    0.692,                    !- Value Until Time 14
+    23:00,                    !- Time 15
+    0.384,                    !- Value Until Time 15
+    24:00,                    !- Time 16
+    0.16;                     !- Value Until Time 16
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment Light Winter Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    04:00,                    !- Time 1
+    0.067,                    !- Value Until Time 1
+    05:00,                    !- Time 2
+    0.187,                    !- Value Until Time 2
+    06:00,                    !- Time 3
+    0.394,                    !- Value Until Time 3
+    07:00,                    !- Time 4
+    0.44,                     !- Value Until Time 4
+    08:00,                    !- Time 5
+    0.393,                    !- Value Until Time 5
+    09:00,                    !- Time 6
+    0.172,                    !- Value Until Time 6
+    15:00,                    !- Time 7
+    0.119,                    !- Value Until Time 7
+    16:00,                    !- Time 8
+    0.206,                    !- Value Until Time 8
+    17:00,                    !- Time 9
+    0.439,                    !- Value Until Time 9
+    18:00,                    !- Time 10
+    0.616,                    !- Value Until Time 10
+    19:00,                    !- Time 11
+    0.829,                    !- Value Until Time 11
+    20:00,                    !- Time 12
+    0.986,                    !- Value Until Time 12
+    21:00,                    !- Time 13
+    1,                        !- Value Until Time 13
+    22:00,                    !- Time 14
+    0.692,                    !- Value Until Time 14
+    23:00,                    !- Time 15
+    0.384,                    !- Value Until Time 15
+    24:00,                    !- Time 16
+    0.16;                     !- Value Until Time 16
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment Occ Default,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    07:00,                    !- Time 1
+    1,                        !- Value Until Time 1
+    08:00,                    !- Time 2
+    0.85,                     !- Value Until Time 2
+    09:00,                    !- Time 3
+    0.39,                     !- Value Until Time 3
+    16:00,                    !- Time 4
+    0.25,                     !- Value Until Time 4
+    17:00,                    !- Time 5
+    0.3,                      !- Value Until Time 5
+    18:00,                    !- Time 6
+    0.52,                     !- Value Until Time 6
+    21:00,                    !- Time 7
+    0.87,                     !- Value Until Time 7
+    24:00,                    !- Time 8
+    1;                        !- Value Until Time 8
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment Occ Summer Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    07:00,                    !- Time 1
+    1,                        !- Value Until Time 1
+    08:00,                    !- Time 2
+    0.85,                     !- Value Until Time 2
+    09:00,                    !- Time 3
+    0.39,                     !- Value Until Time 3
+    16:00,                    !- Time 4
+    0.25,                     !- Value Until Time 4
+    17:00,                    !- Time 5
+    0.3,                      !- Value Until Time 5
+    18:00,                    !- Time 6
+    0.52,                     !- Value Until Time 6
+    21:00,                    !- Time 7
+    0.87,                     !- Value Until Time 7
+    24:00,                    !- Time 8
+    1;                        !- Value Until Time 8
+
+Schedule:Day:Interval,
+    MidriseApartment Apartment Occ Winter Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    07:00,                    !- Time 1
+    1,                        !- Value Until Time 1
+    08:00,                    !- Time 2
+    0.85,                     !- Value Until Time 2
+    09:00,                    !- Time 3
+    0.39,                     !- Value Until Time 3
+    16:00,                    !- Time 4
+    0.25,                     !- Value Until Time 4
+    17:00,                    !- Time 5
+    0.3,                      !- Value Until Time 5
+    18:00,                    !- Time 6
+    0.52,                     !- Value Until Time 6
+    21:00,                    !- Time 7
+    0.87,                     !- Value Until Time 7
+    24:00,                    !- Time 8
+    1;                        !- Value Until Time 8
+
+Schedule:Day:Interval,
+    MidriseApartment Infil Default,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Infil Summer Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    MidriseApartment Infil Winter Design Day,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    1;                        !- Value Until Time 1
+
+Schedule:Day:Interval,
+    Work Efficiency Schedule Default,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    No,                       !- Interpolate to Timestep
+    24:00,                    !- Time 1
+    0;                        !- Value Until Time 1
+
+Schedule:Week:Daily,
+    MidriseApartment Apartment HtgSetp Week Rule - Jan1-Dec31,    !- Name
+    MidriseApartment Apartment HtgSetp Default,    !- Sunday ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Default,    !- Monday ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Default,    !- Tuesday ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Default,    !- Wednesday ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Default,    !- Thursday ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Default,    !- Friday ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Default,    !- Saturday ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Default,    !- Holiday ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Summer Design Day,    !- SummerDesignDay ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Winter Design Day,    !- WinterDesignDay ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Default,    !- CustomDay1 ScheduleDay Name
+    MidriseApartment Apartment HtgSetp Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    MidriseApartment Apartment ClgSetp Week Rule - Jan1-Dec31,    !- Name
+    MidriseApartment Apartment ClgSetp Default,    !- Sunday ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Default,    !- Monday ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Default,    !- Tuesday ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Default,    !- Wednesday ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Default,    !- Thursday ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Default,    !- Friday ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Default,    !- Saturday ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Default,    !- Holiday ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Summer Design Day,    !- SummerDesignDay ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Winter Design Day,    !- WinterDesignDay ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Default,    !- CustomDay1 ScheduleDay Name
+    MidriseApartment Apartment ClgSetp Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    Air Velocity Schedule Week Rule - Jan1-Dec31,    !- Name
+    Air Velocity Schedule Default,    !- Sunday ScheduleDay Name
+    Air Velocity Schedule Default,    !- Monday ScheduleDay Name
+    Air Velocity Schedule Default,    !- Tuesday ScheduleDay Name
+    Air Velocity Schedule Default,    !- Wednesday ScheduleDay Name
+    Air Velocity Schedule Default,    !- Thursday ScheduleDay Name
+    Air Velocity Schedule Default,    !- Friday ScheduleDay Name
+    Air Velocity Schedule Default,    !- Saturday ScheduleDay Name
+    Air Velocity Schedule Default,    !- Holiday ScheduleDay Name
+    Air Velocity Schedule Default,    !- SummerDesignDay ScheduleDay Name
+    Air Velocity Schedule Default,    !- WinterDesignDay ScheduleDay Name
+    Air Velocity Schedule Default,    !- CustomDay1 ScheduleDay Name
+    Air Velocity Schedule Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    ApartmentMidRise All On Week Rule - Jan1-Dec31,    !- Name
+    ApartmentMidRise All On Default,    !- Sunday ScheduleDay Name
+    ApartmentMidRise All On Default,    !- Monday ScheduleDay Name
+    ApartmentMidRise All On Default,    !- Tuesday ScheduleDay Name
+    ApartmentMidRise All On Default,    !- Wednesday ScheduleDay Name
+    ApartmentMidRise All On Default,    !- Thursday ScheduleDay Name
+    ApartmentMidRise All On Default,    !- Friday ScheduleDay Name
+    ApartmentMidRise All On Default,    !- Saturday ScheduleDay Name
+    ApartmentMidRise All On Default,    !- Holiday ScheduleDay Name
+    ApartmentMidRise All On Summer Design Day,    !- SummerDesignDay ScheduleDay Name
+    ApartmentMidRise All On Winter Design Day,    !- WinterDesignDay ScheduleDay Name
+    ApartmentMidRise All On Default,    !- CustomDay1 ScheduleDay Name
+    ApartmentMidRise All On Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    ApartmentMidRise EQP_APT_SCH Week Rule - Jan1-Dec31,    !- Name
+    ApartmentMidRise EQP_APT_SCH Default,    !- Sunday ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Default,    !- Monday ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Default,    !- Tuesday ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Default,    !- Wednesday ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Default,    !- Thursday ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Default,    !- Friday ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Default,    !- Saturday ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Default,    !- Holiday ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Summer Design Day,    !- SummerDesignDay ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Winter Design Day,    !- WinterDesignDay ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Default,    !- CustomDay1 ScheduleDay Name
+    ApartmentMidRise EQP_APT_SCH Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Week Rule - Jan1-Dec31,    !- Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default,    !- Sunday ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default,    !- Monday ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default,    !- Tuesday ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default,    !- Wednesday ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default,    !- Thursday ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default,    !- Friday ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default,    !- Saturday ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default,    !- Holiday ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Summer Design Day,    !- SummerDesignDay ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Winter Design Day,    !- WinterDesignDay ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default,    !- CustomDay1 ScheduleDay Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    Clothing Schedule Week Rule - Jan1-Dec31,    !- Name
+    Clothing Schedule Default Winter Clothes,    !- Sunday ScheduleDay Name
+    Clothing Schedule Default Winter Clothes,    !- Monday ScheduleDay Name
+    Clothing Schedule Default Winter Clothes,    !- Tuesday ScheduleDay Name
+    Clothing Schedule Default Winter Clothes,    !- Wednesday ScheduleDay Name
+    Clothing Schedule Default Winter Clothes,    !- Thursday ScheduleDay Name
+    Clothing Schedule Default Winter Clothes,    !- Friday ScheduleDay Name
+    Clothing Schedule Default Winter Clothes,    !- Saturday ScheduleDay Name
+    Clothing Schedule Default Winter Clothes,    !- Holiday ScheduleDay Name
+    Clothing Schedule Default Winter Clothes,    !- SummerDesignDay ScheduleDay Name
+    Clothing Schedule Default Winter Clothes,    !- WinterDesignDay ScheduleDay Name
+    Clothing Schedule Default Winter Clothes,    !- CustomDay1 ScheduleDay Name
+    Clothing Schedule Default Winter Clothes;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    MidriseApartment Activity Week Rule - Jan1-Dec31,    !- Name
+    MidriseApartment Activity Default,    !- Sunday ScheduleDay Name
+    MidriseApartment Activity Default,    !- Monday ScheduleDay Name
+    MidriseApartment Activity Default,    !- Tuesday ScheduleDay Name
+    MidriseApartment Activity Default,    !- Wednesday ScheduleDay Name
+    MidriseApartment Activity Default,    !- Thursday ScheduleDay Name
+    MidriseApartment Activity Default,    !- Friday ScheduleDay Name
+    MidriseApartment Activity Default,    !- Saturday ScheduleDay Name
+    MidriseApartment Activity Default,    !- Holiday ScheduleDay Name
+    MidriseApartment Activity Summer Design Day,    !- SummerDesignDay ScheduleDay Name
+    MidriseApartment Activity Winter Design Day,    !- WinterDesignDay ScheduleDay Name
+    MidriseApartment Activity Default,    !- CustomDay1 ScheduleDay Name
+    MidriseApartment Activity Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    MidriseApartment Apartment Light Week Rule - Jan1-Dec31,    !- Name
+    MidriseApartment Apartment Light Default,    !- Sunday ScheduleDay Name
+    MidriseApartment Apartment Light Default,    !- Monday ScheduleDay Name
+    MidriseApartment Apartment Light Default,    !- Tuesday ScheduleDay Name
+    MidriseApartment Apartment Light Default,    !- Wednesday ScheduleDay Name
+    MidriseApartment Apartment Light Default,    !- Thursday ScheduleDay Name
+    MidriseApartment Apartment Light Default,    !- Friday ScheduleDay Name
+    MidriseApartment Apartment Light Default,    !- Saturday ScheduleDay Name
+    MidriseApartment Apartment Light Default,    !- Holiday ScheduleDay Name
+    MidriseApartment Apartment Light Summer Design Day,    !- SummerDesignDay ScheduleDay Name
+    MidriseApartment Apartment Light Winter Design Day,    !- WinterDesignDay ScheduleDay Name
+    MidriseApartment Apartment Light Default,    !- CustomDay1 ScheduleDay Name
+    MidriseApartment Apartment Light Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    MidriseApartment Apartment Occ Week Rule - Jan1-Dec31,    !- Name
+    MidriseApartment Apartment Occ Default,    !- Sunday ScheduleDay Name
+    MidriseApartment Apartment Occ Default,    !- Monday ScheduleDay Name
+    MidriseApartment Apartment Occ Default,    !- Tuesday ScheduleDay Name
+    MidriseApartment Apartment Occ Default,    !- Wednesday ScheduleDay Name
+    MidriseApartment Apartment Occ Default,    !- Thursday ScheduleDay Name
+    MidriseApartment Apartment Occ Default,    !- Friday ScheduleDay Name
+    MidriseApartment Apartment Occ Default,    !- Saturday ScheduleDay Name
+    MidriseApartment Apartment Occ Default,    !- Holiday ScheduleDay Name
+    MidriseApartment Apartment Occ Summer Design Day,    !- SummerDesignDay ScheduleDay Name
+    MidriseApartment Apartment Occ Winter Design Day,    !- WinterDesignDay ScheduleDay Name
+    MidriseApartment Apartment Occ Default,    !- CustomDay1 ScheduleDay Name
+    MidriseApartment Apartment Occ Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    MidriseApartment Infil Week Rule - Jan1-Dec31,    !- Name
+    MidriseApartment Infil Default,    !- Sunday ScheduleDay Name
+    MidriseApartment Infil Default,    !- Monday ScheduleDay Name
+    MidriseApartment Infil Default,    !- Tuesday ScheduleDay Name
+    MidriseApartment Infil Default,    !- Wednesday ScheduleDay Name
+    MidriseApartment Infil Default,    !- Thursday ScheduleDay Name
+    MidriseApartment Infil Default,    !- Friday ScheduleDay Name
+    MidriseApartment Infil Default,    !- Saturday ScheduleDay Name
+    MidriseApartment Infil Default,    !- Holiday ScheduleDay Name
+    MidriseApartment Infil Summer Design Day,    !- SummerDesignDay ScheduleDay Name
+    MidriseApartment Infil Winter Design Day,    !- WinterDesignDay ScheduleDay Name
+    MidriseApartment Infil Default,    !- CustomDay1 ScheduleDay Name
+    MidriseApartment Infil Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Week:Daily,
+    Work Efficiency Schedule Week Rule - Jan1-Dec31,    !- Name
+    Work Efficiency Schedule Default,    !- Sunday ScheduleDay Name
+    Work Efficiency Schedule Default,    !- Monday ScheduleDay Name
+    Work Efficiency Schedule Default,    !- Tuesday ScheduleDay Name
+    Work Efficiency Schedule Default,    !- Wednesday ScheduleDay Name
+    Work Efficiency Schedule Default,    !- Thursday ScheduleDay Name
+    Work Efficiency Schedule Default,    !- Friday ScheduleDay Name
+    Work Efficiency Schedule Default,    !- Saturday ScheduleDay Name
+    Work Efficiency Schedule Default,    !- Holiday ScheduleDay Name
+    Work Efficiency Schedule Default,    !- SummerDesignDay ScheduleDay Name
+    Work Efficiency Schedule Default,    !- WinterDesignDay ScheduleDay Name
+    Work Efficiency Schedule Default,    !- CustomDay1 ScheduleDay Name
+    Work Efficiency Schedule Default;    !- CustomDay2 ScheduleDay Name
+
+Schedule:Year,
+    MidriseApartment Apartment HtgSetp,    !- Name
+    Temperature,              !- Schedule Type Limits Name
+    MidriseApartment Apartment HtgSetp Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    MidriseApartment Apartment ClgSetp,    !- Name
+    Temperature,              !- Schedule Type Limits Name
+    MidriseApartment Apartment ClgSetp Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    Air Velocity Schedule,    !- Name
+    Velocity,                 !- Schedule Type Limits Name
+    Air Velocity Schedule Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    ApartmentMidRise All On,    !- Name
+    ,                         !- Schedule Type Limits Name
+    ApartmentMidRise All On Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    ApartmentMidRise EQP_APT_SCH,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    ApartmentMidRise EQP_APT_SCH Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    Clothing Schedule,        !- Name
+    Any Number,               !- Schedule Type Limits Name
+    Clothing Schedule Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    MidriseApartment Activity,    !- Name
+    ActivityLevel,            !- Schedule Type Limits Name
+    MidriseApartment Activity Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    MidriseApartment Apartment Light,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    MidriseApartment Apartment Light Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    MidriseApartment Apartment Occ,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    MidriseApartment Apartment Occ Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    MidriseApartment Infil,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    MidriseApartment Infil Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Year,
+    Work Efficiency Schedule,    !- Name
+    Fractional,               !- Schedule Type Limits Name
+    Work Efficiency Schedule Week Rule - Jan1-Dec31,    !- ScheduleWeek Name 1
+    1,                        !- Start Month 1
+    1,                        !- Start Day 1
+    12,                       !- End Month 1
+    31;                       !- End Day 1
+
+Schedule:Compact,
+    Space 0 ZN Thermostat Schedule,    !- Name
+    Space 0 ZN Thermostat Schedule Type Limits,    !- Schedule Type Limits Name
+    Through: 12/31,           !- Field 1
+    For: AllDays,             !- Field 2
+    Until: 24:00,             !- Field 3
+    4;                        !- Field 4
+
+Schedule:Constant,
+    Always On Discrete,       !- Name
+    OnOff,                    !- Schedule Type Limits Name
+    1;                        !- Hourly Value
+
+Schedule:Constant,
+    Always Off Discrete,      !- Name
+    ,                         !- Schedule Type Limits Name
+    0;                        !- Hourly Value
+
+Schedule:Constant,
+    Always On Continuous,     !- Name
+    ,                         !- Schedule Type Limits Name
+    1;                        !- Hourly Value
+
+Material,
+    100mm Normalweight concrete floor,    !- Name
+    MediumSmooth,             !- Roughness
+    0.1016,                   !- Thickness
+    2.31,                     !- Conductivity
+    2322,                     !- Density
+    832,                      !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material,
+    25mm Stucco,              !- Name
+    Smooth,                   !- Roughness
+    0.0254,                   !- Thickness
+    0.719999999999999,        !- Conductivity
+    1855.99999999999,         !- Density
+    839.999999999997,         !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material,
+    4 in. Normalweight Concrete Floor,    !- Name
+    MediumRough,              !- Roughness
+    0.1016,                   !- Thickness
+    2.31,                     !- Conductivity
+    2321.99999999999,         !- Density
+    831.999999999997,         !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material,
+    5/8 in. Gypsum Board,     !- Name
+    MediumSmooth,             !- Roughness
+    0.0159,                   !- Thickness
+    0.159999999999999,        !- Conductivity
+    799.999999999999,         !- Density
+    1090,                     !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material,
+    6 in. Normalweight Concrete Floor,    !- Name
+    MediumRough,              !- Roughness
+    0.1524,                   !- Thickness
+    2.31,                     !- Conductivity
+    2321.99999999999,         !- Density
+    831.999999999997,         !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material,
+    8 in. Concrete Block Basement Wall,    !- Name
+    MediumRough,              !- Roughness
+    0.2032,                   !- Thickness
+    1.326,                    !- Conductivity
+    1841.99999999999,         !- Density
+    911.999999999999,         !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material,
+    F08 Metal surface,        !- Name
+    Smooth,                   !- Roughness
+    0.0008,                   !- Thickness
+    45.2800000000001,         !- Conductivity
+    7823.99999999999,         !- Density
+    500,                      !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material,
+    G01 13mm gypsum board,    !- Name
+    Smooth,                   !- Roughness
+    0.0127,                   !- Thickness
+    0.16,                     !- Conductivity
+    800,                      !- Density
+    1090,                     !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.5;                      !- Visible Absorptance
+
+Material,
+    G05 25mm wood,            !- Name
+    MediumSmooth,             !- Roughness
+    0.0254,                   !- Thickness
+    0.15,                     !- Conductivity
+    608,                      !- Density
+    1630,                     !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.5,                      !- Solar Absorptance
+    0.5;                      !- Visible Absorptance
+
+Material,
+    M10 200mm concrete block basement wall,    !- Name
+    MediumRough,              !- Roughness
+    0.2032,                   !- Thickness
+    1.326,                    !- Conductivity
+    1842,                     !- Density
+    912,                      !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material,
+    Metal Roof Surface,       !- Name
+    Smooth,                   !- Roughness
+    8.000000e-04,             !- Thickness
+    45.2799999999999,         !- Conductivity
+    7823.99999999999,         !- Density
+    499.999999999996,         !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material,
+    Roof Membrane,            !- Name
+    VeryRough,                !- Roughness
+    0.0095,                   !- Thickness
+    0.16,                     !- Conductivity
+    1121.29,                  !- Density
+    1460,                     !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material,
+    Std Wood 6inch,           !- Name
+    MediumSmooth,             !- Roughness
+    0.15,                     !- Thickness
+    0.12,                     !- Conductivity
+    540,                      !- Density
+    1210,                     !- Specific Heat
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material:NoMass,
+    CP02 CARPET PAD,          !- Name
+    VeryRough,                !- Roughness
+    0.21648,                  !- Thermal Resistance
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.8;                      !- Visible Absorptance
+
+Material:NoMass,
+    CP02 CARPET PAD 1,        !- Name
+    VeryRough,                !- Roughness
+    0.21648,                  !- Thermal Resistance
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.8;                      !- Visible Absorptance
+
+Material:NoMass,
+    Nonres_Floor_Insulation,    !- Name
+    MediumSmooth,             !- Roughness
+    2.88291975297193,         !- Thermal Resistance
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material:NoMass,
+    Typical Carpet Pad,       !- Name
+    Smooth,                   !- Roughness
+    0.216479986995276,        !- Thermal Resistance
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.8;                      !- Visible Absorptance
+
+Material:NoMass,
+    Typical Insulation,       !- Name
+    Smooth,                   !- Roughness
+    0.0282222222222221,       !- Thermal Resistance
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material:NoMass,
+    Typical Insulation R-2.17,    !- Name
+    Smooth,                   !- Roughness
+    0.381975016884895,        !- Thermal Resistance
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+Material:NoMass,
+    Typical Insulation R-8.88,    !- Name
+    Smooth,                   !- Roughness
+    1.56434322570634,         !- Thermal Resistance
+    0.9,                      !- Thermal Absorptance
+    0.7,                      !- Solar Absorptance
+    0.7;                      !- Visible Absorptance
+
+WindowMaterial:SimpleGlazingSystem,
+    U 1.22 SHGC 0.54 Simple Glazing SHGC 0.54,    !- Name
+    6.92748127615845,         !- UFactor
+    0.54,                     !- Solar Heat Gain Coefficient
+    0.38;                     !- Visible Transmittance
+
+WindowMaterial:SimpleGlazingSystem,
+    U 1.22 SHGC 0.54 Simple Glazing SHGC 0.54 1,    !- Name
+    6.92748127615845,         !- UFactor
+    0.54,                     !- Solar Heat Gain Coefficient
+    0.38;                     !- Visible Transmittance
+
+WindowMaterial:Glazing,
+    Clear 3mm,                !- Name
+    SpectralAverage,          !- Optical Data Type
+    ,                         !- Window Glass Spectral Data Set Name
+    3.000000e-03,             !- Thickness
+    0.837,                    !- Solar Transmittance at Normal Incidence
+    0.075,                    !- Front Side Solar Reflectance at Normal Incidence
+    0.075,                    !- Back Side Solar Reflectance at Normal Incidence
+    0.898,                    !- Visible Transmittance at Normal Incidence
+    0.081,                    !- Front Side Visible Reflectance at Normal Incidence
+    0.081,                    !- Back Side Visible Reflectance at Normal Incidence
+    0,                        !- Infrared Transmittance at Normal Incidence
+    0.84,                     !- Front Side Infrared Hemispherical Emissivity
+    0.84,                     !- Back Side Infrared Hemispherical Emissivity
+    0.9,                      !- Conductivity
+    1,                        !- Dirt Correction Factor for Solar and Visible Transmittance
+    No;                       !- Solar Diffusing
+
+WindowMaterial:Glazing,
+    REF A CLEAR LO 6MM,       !- Name
+    SpectralAverage,          !- Optical Data Type
+    ,                         !- Window Glass Spectral Data Set Name
+    6.000000e-03,             !- Thickness
+    0.066,                    !- Solar Transmittance at Normal Incidence
+    0.341,                    !- Front Side Solar Reflectance at Normal Incidence
+    0.493,                    !- Back Side Solar Reflectance at Normal Incidence
+    0.08,                     !- Visible Transmittance at Normal Incidence
+    0.41,                     !- Front Side Visible Reflectance at Normal Incidence
+    0.37,                     !- Back Side Visible Reflectance at Normal Incidence
+    0,                        !- Infrared Transmittance at Normal Incidence
+    0.84,                     !- Front Side Infrared Hemispherical Emissivity
+    0.4,                      !- Back Side Infrared Hemispherical Emissivity
+    0.9,                      !- Conductivity
+    1,                        !- Dirt Correction Factor for Solar and Visible Transmittance
+    No;                       !- Solar Diffusing
+
+Construction,
+    InteriorFurnishings,      !- Name
+    Std Wood 6inch;           !- Outside Layer
+
+Construction,
+    Typical IEAD Roof R-10.0,    !- Name
+    Roof Membrane,            !- Outside Layer
+    Typical Insulation R-8.88,    !- Layer 2
+    Metal Roof Surface;       !- Layer 3
+
+Construction,
+    Typical Insulated Basement Mass Wall,    !- Name
+    8 in. Concrete Block Basement Wall;    !- Outside Layer
+
+Construction,
+    Typical Insulated Carpeted 6in Slab Floor,    !- Name
+    6 in. Normalweight Concrete Floor,    !- Outside Layer
+    Typical Carpet Pad;       !- Layer 2
+
+Construction,
+    Typical Insulated Exterior Mass Floor,    !- Name
+    Typical Insulation R-2.17,    !- Outside Layer
+    4 in. Normalweight Concrete Floor,    !- Layer 2
+    Typical Carpet Pad;       !- Layer 3
+
+Construction,
+    Typical Insulated Metal Door,    !- Name
+    F08 Metal surface,        !- Outside Layer
+    Typical Insulation;       !- Layer 2
+
+Construction,
+    Typical Insulated Steel Framed Exterior Wall R-4.35,    !- Name
+    25mm Stucco,              !- Outside Layer
+    5/8 in. Gypsum Board,     !- Layer 2
+    Typical Insulation R-2.17,    !- Layer 3
+    5/8 in. Gypsum Board;     !- Layer 4
+
+Construction,
+    Typical Interior Ceiling,    !- Name
+    CP02 CARPET PAD,          !- Outside Layer
+    100mm Normalweight concrete floor;    !- Layer 2
+
+Construction,
+    Typical Interior Door,    !- Name
+    G05 25mm wood;            !- Outside Layer
+
+Construction,
+    Typical Interior Floor,    !- Name
+    100mm Normalweight concrete floor,    !- Outside Layer
+    CP02 CARPET PAD;          !- Layer 2
+
+Construction,
+    Typical Interior Partition,    !- Name
+    G05 25mm wood;            !- Outside Layer
+
+Construction,
+    Typical Interior Wall,    !- Name
+    G01 13mm gypsum board,    !- Outside Layer
+    G01 13mm gypsum board;    !- Layer 2
+
+Construction,
+    Typical Interior Window,    !- Name
+    Clear 3mm;                !- Outside Layer
+
+Construction,
+    Typical Overhead Door,    !- Name
+    Typical Insulation;       !- Outside Layer
+
+Construction,
+    U 0.88 SHGC 0.16 Sgl Ref-A-L Clr 6mm,    !- Name
+    REF A CLEAR LO 6MM;       !- Outside Layer
+
+Construction,
+    U 1.22 SHGC 0.54 Simple Glazing Window SHGC 0.54,    !- Name
+    U 1.22 SHGC 0.54 Simple Glazing SHGC 0.54;    !- Outside Layer
+
+Construction,
+    U 1.22 SHGC 0.54 Simple Glazing Window SHGC 0.54 1,    !- Name
+    U 1.22 SHGC 0.54 Simple Glazing SHGC 0.54 1;    !- Outside Layer
+
+Construction:FfactorGroundFloor,
+    Foundation F 126 Perim 4859 Area 14495,    !- Name
+    1.26343630645112,         !- FFactor
+    144.945566478233,         !- Area
+    48.5934463446419;         !- PerimeterExposed
+
+GlobalGeometryRules,
+    UpperLeftCorner,          !- Starting Vertex Position
+    Counterclockwise,         !- Vertex Entry Direction
+    Relative,                 !- Coordinate System
+    Relative,                 !- Daylighting Reference Point Coordinate System
+    Relative;                 !- Rectangular Surface Coordinate System
+
+Zone,
+    Space 0 ZN,               !- Name
+    0,                        !- Direction of Relative North
+    0,                        !- X Origin
+    0,                        !- Y Origin
+    0,                        !- Z Origin
+    ,                         !- Type
+    1,                        !- Multiplier
+    ,                         !- Ceiling Height
+    ,                         !- Volume
+    ,                         !- Floor Area
+    ,                         !- Zone Inside Convection Algorithm
+    ,                         !- Zone Outside Convection Algorithm
+    Yes;                      !- Part of Total Floor Area
+
+ZoneList,
+    Space Type 1,             !- Name
+    Space 0 ZN;               !- Zone 1 Name
+
+BuildingSurface:Detailed,
+    Surface 1,                !- Name
+    Floor,                    !- Surface Type
+    Foundation F 126 Perim 4859 Area 14495,    !- Construction Name
+    Space 0 ZN,               !- Zone Name
+    GroundFCfactorMethod,     !- Outside Boundary Condition
+    ,                         !- Outside Boundary Condition Object
+    NoSun,                    !- Sun Exposure
+    NoWind,                   !- Wind Exposure
+    ,                         !- View Factor to Ground
+    ,                         !- Number of Vertices
+    -8.36908554466546,        !- Vertex 1 Xcoordinate
+    -2.32780065610012,        !- Vertex 1 Ycoordinate
+    0,                        !- Vertex 1 Zcoordinate
+    -4.837617e-02,            !- Vertex 2 Xcoordinate
+    8.64612842326325,         !- Vertex 2 Ycoordinate
+    0,                        !- Vertex 2 Zcoordinate
+    8.36908206250627,         !- Vertex 3 Xcoordinate
+    2.32780692936925,         !- Vertex 3 Ycoordinate
+    0,                        !- Vertex 3 Zcoordinate
+    0.0483762455060813,       !- Vertex 4 Xcoordinate
+    -8.64612832065715,        !- Vertex 4 Ycoordinate
+    0;                        !- Vertex 4 Zcoordinate
+
+BuildingSurface:Detailed,
+    Surface 2,                !- Name
+    Wall,                     !- Surface Type
+    Typical Insulated Steel Framed Exterior Wall R-4.35,    !- Construction Name
+    Space 0 ZN,               !- Zone Name
+    Outdoors,                 !- Outside Boundary Condition
+    ,                         !- Outside Boundary Condition Object
+    SunExposed,               !- Sun Exposure
+    WindExposed,              !- Wind Exposure
+    ,                         !- View Factor to Ground
+    ,                         !- Number of Vertices
+    -4.837617e-02,            !- Vertex 1 Xcoordinate
+    8.64612842326325,         !- Vertex 1 Ycoordinate
+    0.916772500791527,        !- Vertex 1 Zcoordinate
+    -4.837617e-02,            !- Vertex 2 Xcoordinate
+    8.64612842326325,         !- Vertex 2 Ycoordinate
+    0,                        !- Vertex 2 Zcoordinate
+    -8.36908554466546,        !- Vertex 3 Xcoordinate
+    -2.32780065610012,        !- Vertex 3 Ycoordinate
+    0,                        !- Vertex 3 Zcoordinate
+    -8.36908554466546,        !- Vertex 4 Xcoordinate
+    -2.32780065610012,        !- Vertex 4 Ycoordinate
+    0.916772500791527;        !- Vertex 4 Zcoordinate
+
+BuildingSurface:Detailed,
+    Surface 3,                !- Name
+    Wall,                     !- Surface Type
+    Typical Insulated Steel Framed Exterior Wall R-4.35,    !- Construction Name
+    Space 0 ZN,               !- Zone Name
+    Outdoors,                 !- Outside Boundary Condition
+    ,                         !- Outside Boundary Condition Object
+    SunExposed,               !- Sun Exposure
+    WindExposed,              !- Wind Exposure
+    ,                         !- View Factor to Ground
+    ,                         !- Number of Vertices
+    8.36908206250627,         !- Vertex 1 Xcoordinate
+    2.32780692936925,         !- Vertex 1 Ycoordinate
+    0.916772500791527,        !- Vertex 1 Zcoordinate
+    8.36908206250627,         !- Vertex 2 Xcoordinate
+    2.32780692936925,         !- Vertex 2 Ycoordinate
+    0,                        !- Vertex 2 Zcoordinate
+    -4.837617e-02,            !- Vertex 3 Xcoordinate
+    8.64612842326325,         !- Vertex 3 Ycoordinate
+    0,                        !- Vertex 3 Zcoordinate
+    -4.837617e-02,            !- Vertex 4 Xcoordinate
+    8.64612842326325,         !- Vertex 4 Ycoordinate
+    0.916772500791527;        !- Vertex 4 Zcoordinate
+
+BuildingSurface:Detailed,
+    Surface 4,                !- Name
+    Wall,                     !- Surface Type
+    Typical Insulated Steel Framed Exterior Wall R-4.35,    !- Construction Name
+    Space 0 ZN,               !- Zone Name
+    Outdoors,                 !- Outside Boundary Condition
+    ,                         !- Outside Boundary Condition Object
+    SunExposed,               !- Sun Exposure
+    WindExposed,              !- Wind Exposure
+    ,                         !- View Factor to Ground
+    ,                         !- Number of Vertices
+    0.0483762455060813,       !- Vertex 1 Xcoordinate
+    -8.64612832065715,        !- Vertex 1 Ycoordinate
+    0.916772500791527,        !- Vertex 1 Zcoordinate
+    0.0483762455060813,       !- Vertex 2 Xcoordinate
+    -8.64612832065715,        !- Vertex 2 Ycoordinate
+    0,                        !- Vertex 2 Zcoordinate
+    8.36908206250627,         !- Vertex 3 Xcoordinate
+    2.32780692936925,         !- Vertex 3 Ycoordinate
+    0,                        !- Vertex 3 Zcoordinate
+    8.36908206250627,         !- Vertex 4 Xcoordinate
+    2.32780692936925,         !- Vertex 4 Ycoordinate
+    0.916772500791527;        !- Vertex 4 Zcoordinate
+
+BuildingSurface:Detailed,
+    Surface 5,                !- Name
+    Wall,                     !- Surface Type
+    Typical Insulated Steel Framed Exterior Wall R-4.35,    !- Construction Name
+    Space 0 ZN,               !- Zone Name
+    Outdoors,                 !- Outside Boundary Condition
+    ,                         !- Outside Boundary Condition Object
+    SunExposed,               !- Sun Exposure
+    WindExposed,              !- Wind Exposure
+    ,                         !- View Factor to Ground
+    ,                         !- Number of Vertices
+    -8.36908554466546,        !- Vertex 1 Xcoordinate
+    -2.32780065610012,        !- Vertex 1 Ycoordinate
+    0.916772500791527,        !- Vertex 1 Zcoordinate
+    -8.36908554466546,        !- Vertex 2 Xcoordinate
+    -2.32780065610012,        !- Vertex 2 Ycoordinate
+    0,                        !- Vertex 2 Zcoordinate
+    0.0483762455060813,       !- Vertex 3 Xcoordinate
+    -8.64612832065715,        !- Vertex 3 Ycoordinate
+    0,                        !- Vertex 3 Zcoordinate
+    0.0483762455060813,       !- Vertex 4 Xcoordinate
+    -8.64612832065715,        !- Vertex 4 Ycoordinate
+    0.916772500791527;        !- Vertex 4 Zcoordinate
+
+BuildingSurface:Detailed,
+    Surface 6,                !- Name
+    Roof,                     !- Surface Type
+    Typical IEAD Roof R-10.0,    !- Construction Name
+    Space 0 ZN,               !- Zone Name
+    Outdoors,                 !- Outside Boundary Condition
+    ,                         !- Outside Boundary Condition Object
+    SunExposed,               !- Sun Exposure
+    WindExposed,              !- Wind Exposure
+    ,                         !- View Factor to Ground
+    ,                         !- Number of Vertices
+    0.0483762455060813,       !- Vertex 1 Xcoordinate
+    -8.64612832065715,        !- Vertex 1 Ycoordinate
+    0.916772500791527,        !- Vertex 1 Zcoordinate
+    8.36908206250627,         !- Vertex 2 Xcoordinate
+    2.32780692936925,         !- Vertex 2 Ycoordinate
+    0.916772500791527,        !- Vertex 2 Zcoordinate
+    -4.837617e-02,            !- Vertex 3 Xcoordinate
+    8.64612842326325,         !- Vertex 3 Ycoordinate
+    0.916772500791527,        !- Vertex 3 Zcoordinate
+    -8.36908554466546,        !- Vertex 4 Xcoordinate
+    -2.32780065610012,        !- Vertex 4 Ycoordinate
+    0.916772500791527;        !- Vertex 4 Zcoordinate
+
+FenestrationSurface:Detailed,
+    Sub Surface 1,            !- Name
+    Window,                   !- Surface Type
+    U 1.22 SHGC 0.54 Simple Glazing Window SHGC 0.54,    !- Construction Name
+    Surface 2,                !- Building Surface Name
+    ,                         !- Outside Boundary Condition Object
+    ,                         !- View Factor to Ground
+    ,                         !- Frame and Divider Name
+    ,                         !- Multiplier
+    ,                         !- Number of Vertices
+    -6.372250e-02,            !- Vertex 1 Xcoordinate
+    8.62588861113967,         !- Vertex 1 Ycoordinate
+    0.890823341852508,        !- Vertex 1 Zcoordinate
+    -6.372250e-02,            !- Vertex 2 Xcoordinate
+    8.62588861113967,         !- Vertex 2 Ycoordinate
+    0.762,                    !- Vertex 2 Zcoordinate
+    -8.35373920942859,        !- Vertex 3 Xcoordinate
+    -2.30756084397654,        !- Vertex 3 Ycoordinate
+    0.762,                    !- Vertex 3 Zcoordinate
+    -8.35373920942859,        !- Vertex 4 Xcoordinate
+    -2.30756084397654,        !- Vertex 4 Ycoordinate
+    0.890823341852508;        !- Vertex 4 Zcoordinate
+
+FenestrationSurface:Detailed,
+    Sub Surface 2,            !- Name
+    Window,                   !- Surface Type
+    U 1.22 SHGC 0.54 Simple Glazing Window SHGC 0.54,    !- Construction Name
+    Surface 3,                !- Building Surface Name
+    ,                         !- Outside Boundary Condition Object
+    ,                         !- View Factor to Ground
+    ,                         !- Frame and Divider Name
+    ,                         !- Multiplier
+    ,                         !- Number of Vertices
+    8.34876811996171,         !- Vertex 1 Xcoordinate
+    2.34305500263429,         !- Vertex 1 Ycoordinate
+    0.890970642590553,        !- Vertex 1 Zcoordinate
+    8.34876811996171,         !- Vertex 2 Xcoordinate
+    2.34305500263429,         !- Vertex 2 Ycoordinate
+    0.762,                    !- Vertex 2 Zcoordinate
+    -0.028062225509105,       !- Vertex 3 Xcoordinate
+    8.6308803499982,          !- Vertex 3 Ycoordinate
+    0.762,                    !- Vertex 3 Zcoordinate
+    -0.028062225509105,       !- Vertex 4 Xcoordinate
+    8.6308803499982,          !- Vertex 4 Ycoordinate
+    0.890970642590553;        !- Vertex 4 Zcoordinate
+
+FenestrationSurface:Detailed,
+    Sub Surface 3,            !- Name
+    Window,                   !- Surface Type
+    U 1.22 SHGC 0.54 Simple Glazing Window SHGC 0.54,    !- Construction Name
+    Surface 4,                !- Building Surface Name
+    ,                         !- Outside Boundary Condition Object
+    ,                         !- View Factor to Ground
+    ,                         !- Frame and Divider Name
+    ,                         !- Multiplier
+    ,                         !- Number of Vertices
+    0.0637225710950924,       !- Vertex 1 Xcoordinate
+    -8.62588850121833,        !- Vertex 1 Ycoordinate
+    0.890823341756701,        !- Vertex 1 Zcoordinate
+    0.0637225710950924,       !- Vertex 2 Xcoordinate
+    -8.62588850121833,        !- Vertex 2 Ycoordinate
+    0.762,                    !- Vertex 2 Zcoordinate
+    8.35373573691726,         !- Vertex 3 Xcoordinate
+    2.30756710993043,         !- Vertex 3 Ycoordinate
+    0.762,                    !- Vertex 3 Zcoordinate
+    8.35373573691726,         !- Vertex 4 Xcoordinate
+    2.30756710993043,         !- Vertex 4 Ycoordinate
+    0.890823341756701;        !- Vertex 4 Zcoordinate
+
+FenestrationSurface:Detailed,
+    Sub Surface 4,            !- Name
+    Window,                   !- Surface Type
+    U 1.22 SHGC 0.54 Simple Glazing Window SHGC 0.54,    !- Construction Name
+    Surface 5,                !- Building Surface Name
+    ,                         !- Outside Boundary Condition Object
+    ,                         !- View Factor to Ground
+    ,                         !- Frame and Divider Name
+    ,                         !- Multiplier
+    ,                         !- Number of Vertices
+    -8.34877160617474,        !- Vertex 1 Xcoordinate
+    -2.34304873476581,        !- Vertex 1 Ycoordinate
+    0.890970642201207,        !- Vertex 1 Zcoordinate
+    -8.34877160617474,        !- Vertex 2 Xcoordinate
+    -2.34304873476581,        !- Vertex 2 Ycoordinate
+    0.762,                    !- Vertex 2 Zcoordinate
+    0.0280623070153609,       !- Vertex 3 Xcoordinate
+    -8.63088024199145,        !- Vertex 3 Ycoordinate
+    0.762,                    !- Vertex 3 Zcoordinate
+    0.0280623070153609,       !- Vertex 4 Xcoordinate
+    -8.63088024199145,        !- Vertex 4 Ycoordinate
+    0.890970642201207;        !- Vertex 4 Zcoordinate
+
+InternalMass,
+    Space 0 Mass,             !- Name
+    InteriorFurnishings,      !- Construction Name
+    Space 0 ZN,               !- Zone or ZoneList Name
+    289.891132956467;         !- Surface Area
+
+People,
+    Space Type 1 People,      !- Name
+    Space Type 1,             !- Zone or ZoneList Name
+    MidriseApartment Apartment Occ,    !- Number of People Schedule Name
+    People/Area,              !- Number of People Calculation Method
+    ,                         !- Number of People
+    0.017939858,              !- People per Zone Floor Area
+    ,                         !- Zone Floor Area per Person
+    0.3,                      !- Fraction Radiant
+    ,                         !- Sensible Heat Fraction
+    MidriseApartment Activity,    !- Activity Level Schedule Name
+    ,                         !- Carbon Dioxide Generation Rate
+    ,                         !- Enable ASHRAE 55 Comfort Warnings
+    ,                         !- Mean Radiant Temperature Calculation Type
+    ,                         !- Surface NameAngle Factor List Name
+    Work Efficiency Schedule,    !- Work Efficiency Schedule Name
+    ,                         !- Clothing Insulation Calculation Method
+    ,                         !- Clothing Insulation Calculation Method Schedule Name
+    Clothing Schedule,        !- Clothing Insulation Schedule Name
+    Air Velocity Schedule;    !- Air Velocity Schedule Name
+
+Lights,
+    Space Type 1 Lights,      !- Name
+    Space Type 1,             !- Zone or ZoneList Name
+    MidriseApartment Apartment Light,    !- Schedule Name
+    Watts/Area,               !- Design Level Calculation Method
+    ,                         !- Lighting Level
+    4.197921,                 !- Watts per Zone Floor Area
+    ,                         !- Watts per Person
+    0,                        !- Return Air Fraction
+    0,                        !- Fraction Radiant
+    0,                        !- Fraction Visible
+    0,                        !- Fraction Replaceable
+    General;                  !- EndUse Subcategory
+
+ElectricEquipment,
+    Space Type 1 Elec Equip,    !- Name
+    Space Type 1,             !- Zone or ZoneList Name
+    ApartmentMidRise EQP_APT_SCH,    !- Schedule Name
+    Watts/Area,               !- Design Level Calculation Method
+    ,                         !- Design Level
+    4.305,                    !- Watts per Zone Floor Area
+    ,                         !- Watts per Person
+    0,                        !- Fraction Latent
+    0.5,                      !- Fraction Radiant
+    0,                        !- Fraction Lost
+    General;                  !- EndUse Subcategory
+
+ZoneInfiltration:DesignFlowRate,
+    Space 0 Infiltration,     !- Name
+    Space 0 ZN,               !- Zone or ZoneList Name
+    MidriseApartment Infil,    !- Schedule Name
+    Flow/ExteriorArea,        !- Design Flow Rate Calculation Method
+    ,                         !- Design Flow Rate
+    ,                         !- Flow per Zone Floor Area
+    0.000241026283,           !- Flow per Exterior Surface Area
+    ,                         !- Air Changes per Hour
+    1,                        !- Constant Term Coefficient
+    0,                        !- Temperature Term Coefficient
+    0,                        !- Velocity Term Coefficient
+    0;                        !- Velocity Squared Term Coefficient
+
+ZoneInfiltration:DesignFlowRate,
+    Space Type 1 Infiltration,    !- Name
+    Space Type 1,             !- Zone or ZoneList Name
+    MidriseApartment Infil,    !- Schedule Name
+    Flow/ExteriorWallArea,    !- Design Flow Rate Calculation Method
+    ,                         !- Design Flow Rate
+    ,                         !- Flow per Zone Floor Area
+    0.00113284,               !- Flow per Exterior Surface Area
+    ,                         !- Air Changes per Hour
+    1,                        !- Constant Term Coefficient
+    0,                        !- Temperature Term Coefficient
+    0,                        !- Velocity Term Coefficient
+    0;                        !- Velocity Squared Term Coefficient
+
+ZONEVENTILATION:DESIGNFLOWRATE,
+    Space 0 ZN Ventilation per Person,    !- Name
+    Space 0 ZN,               !- Zone or ZoneList Name
+    Always On Discrete,       !- Schedule Name
+    Flow/Person,              !- Design Flow Rate Calculation Method
+    ,                         !- Design Flow Rate
+    ,                         !- Flow Rate per Zone Floor Area
+    0.0169901079552,          !- Flow Rate per Person
+    ,                         !- Air Changes per Hour
+    ,                         !- Ventilation Type
+    0,                        !- Fan Pressure Rise
+    1,                        !- Fan Total Efficiency
+    1,                        !- Constant Term Coefficient
+    0,                        !- Temperature Term Coefficient
+    0,                        !- Velocity Term Coefficient
+    0,                        !- Velocity Squared Term Coefficient
+    -100,                     !- Minimum Indoor Temperature
+    ,                         !- Minimum Indoor Temperature Schedule Name
+    100,                      !- Maximum Indoor Temperature
+    ,                         !- Maximum Indoor Temperature Schedule Name
+    -100,                     !- Delta Temperature
+    ,                         !- Delta Temperature Schedule Name
+    -100,                     !- Minimum Outdoor Temperature
+    ,                         !- Minimum Outdoor Temperature Schedule Name
+    100,                      !- Maximum Outdoor Temperature
+    ,                         !- Maximum Outdoor Temperature Schedule Name
+    40;                       !- Maximum Wind Speed
+
+Exterior:Lights,
+    NonDimming Exterior Lights Def,    !- Name
+    ApartmentMidRise Exterior_Lgt_ALWAYS_ON,    !- Schedule Name
+    164,                      !- Design Level
+    AstronomicalClock,        !- Control Option
+    General;                  !- EndUse Subcategory
+
+DesignSpecification:OutdoorAir,
+    Space Type 1 Ventilation,    !- Name
+    Sum,                      !- Outdoor Air Method
+    0.0169901079552,          !- Outdoor Air Flow per Person
+    0,                        !- Outdoor Air Flow per Zone Floor Area
+    0,                        !- Outdoor Air Flow per Zone
+    0;                        !- Outdoor Air Flow Air Changes per Hour
+
+Sizing:Parameters,
+    1.2,                      !- Heating Sizing Factor
+    1.2;                      !- Cooling Sizing Factor
+
+Sizing:Zone,
+    Space 0 ZN,               !- Zone or ZoneList Name
+    SupplyAirTemperature,     !- Zone Cooling Design Supply Air Temperature Input Method
+    12.7777777777778,         !- Zone Cooling Design Supply Air Temperature
+    11.11,                    !- Zone Cooling Design Supply Air Temperature Difference
+    SupplyAirTemperature,     !- Zone Heating Design Supply Air Temperature Input Method
+    50.0000000000001,         !- Zone Heating Design Supply Air Temperature
+    11.11,                    !- Zone Heating Design Supply Air Temperature Difference
+    0.008,                    !- Zone Cooling Design Supply Air Humidity Ratio
+    0.008,                    !- Zone Heating Design Supply Air Humidity Ratio
+    Space Type 1 Ventilation,    !- Design Specification Outdoor Air Object Name
+    ,                         !- Zone Heating Sizing Factor
+    ,                         !- Zone Cooling Sizing Factor
+    DesignDay,                !- Cooling Design Air Flow Method
+    0,                        !- Cooling Design Air Flow Rate
+    0.000762,                 !- Cooling Minimum Air Flow per Zone Floor Area
+    0,                        !- Cooling Minimum Air Flow
+    0,                        !- Cooling Minimum Air Flow Fraction
+    DesignDay,                !- Heating Design Air Flow Method
+    0,                        !- Heating Design Air Flow Rate
+    0.002032,                 !- Heating Maximum Air Flow per Zone Floor Area
+    0.1415762,                !- Heating Maximum Air Flow
+    0.3,                      !- Heating Maximum Air Flow Fraction
+    ,                         !- Design Specification Zone Air Distribution Object Name
+    No;                       !- Account for Dedicated Outdoor Air System
+
+Sizing:System,
+    Space 0 ZN SAC,           !- AirLoop Name
+    Sensible,                 !- Type of Load to Size On
+    Autosize,                 !- Design Outdoor Air Flow Rate
+    1,                        !- Central Heating Maximum System Air Flow Ratio
+    7.22222222222229,         !- Preheat Design Temperature
+    0.008,                    !- Preheat Design Humidity Ratio
+    12.7777777777778,         !- Precool Design Temperature
+    0.008,                    !- Precool Design Humidity Ratio
+    12.7777777777778,         !- Central Cooling Design Supply Air Temperature
+    50.0000000000001,         !- Central Heating Design Supply Air Temperature
+    NonCoincident,            !- Type of Zone Sum to Use
+    No,                       !- 100 Outdoor Air in Cooling
+    No,                       !- 100 Outdoor Air in Heating
+    0.0085,                   !- Central Cooling Design Supply Air Humidity Ratio
+    0.008,                    !- Central Heating Design Supply Air Humidity Ratio
+    DesignDay,                !- Cooling Supply Air Flow Rate Method
+    0,                        !- Cooling Supply Air Flow Rate
+    0.0099676501,             !- Cooling Supply Air Flow Rate Per Floor Area
+    1,                        !- Cooling Fraction of Autosized Cooling Supply Air Flow Rate
+    3.9475456e-05,            !- Cooling Supply Air Flow Rate Per Unit Cooling Capacity
+    DesignDay,                !- Heating Supply Air Flow Rate Method
+    0,                        !- Heating Supply Air Flow Rate
+    0.0099676501,             !- Heating Supply Air Flow Rate Per Floor Area
+    1,                        !- Heating Fraction of Autosized Heating Supply Air Flow Rate
+    1,                        !- Heating Fraction of Autosized Cooling Supply Air Flow Rate
+    3.1588213e-05,            !- Heating Supply Air Flow Rate Per Unit Heating Capacity
+    ZoneSum,                  !- System Outdoor Air Method
+    1,                        !- Zone Maximum Outdoor Air Fraction
+    CoolingDesignCapacity,    !- Cooling Design Capacity Method
+    Autosize,                 !- Cooling Design Capacity
+    234.7,                    !- Cooling Design Capacity Per Floor Area
+    1,                        !- Fraction of Autosized Cooling Design Capacity
+    HeatingDesignCapacity,    !- Heating Design Capacity Method
+    Autosize,                 !- Heating Design Capacity
+    157,                      !- Heating Design Capacity Per Floor Area
+    1,                        !- Fraction of Autosized Heating Design Capacity
+    OnOff;                    !- Central Cooling Capacity Control Method
+
+ZoneControl:Thermostat,
+    Space 0 ZN Thermostat,    !- Name
+    Space 0 ZN,               !- Zone or ZoneList Name
+    Space 0 ZN Thermostat Schedule,    !- Control Type Schedule Name
+    ThermostatSetpoint:DualSetpoint,    !- Control 1 Object Type
+    Space Type 1 Thermostat 1,    !- Control 1 Name
+    ,                         !- Control 2 Object Type
+    ,                         !- Control 2 Name
+    ,                         !- Control 3 Object Type
+    ,                         !- Control 3 Name
+    ,                         !- Control 4 Object Type
+    ,                         !- Control 4 Name
+    0;                        !- Temperature Difference Between Cutout And Setpoint
+
+ThermostatSetpoint:DualSetpoint,
+    Space Type 1 Thermostat 1,    !- Name
+    MidriseApartment Apartment HtgSetp,    !- Heating Setpoint Temperature Schedule Name
+    MidriseApartment Apartment ClgSetp;    !- Cooling Setpoint Temperature Schedule Name
+
+ZONEHVAC:IDEALLOADSAIRSYSTEM,
+    Space 0 ZN Ideal Loads Air System,    !- Name
+    ,                         !- Availability Schedule Name
+    Space 0 ZN Ideal Loads Supply Inlet,    !- Zone Supply Air Node Name
+    ,                         !- Zone Exhaust Air Node Name
+    ,                         !- System Inlet Air Node Name
+    50,                       !- Maximum Heating Supply Air Temperature
+    13,                       !- Minimum Cooling Supply Air Temperature
+    0.0156,                   !- Maximum Heating Supply Air Humidity Ratio
+    0.0077,                   !- Minimum Cooling Supply Air Humidity Ratio
+    NoLimit,                  !- Heating Limit
+    ,                         !- Maximum Heating Air Flow Rate
+    ,                         !- Maximum Sensible Heating Capacity
+    NoLimit,                  !- Cooling Limit
+    ,                         !- Maximum Cooling Air Flow Rate
+    ,                         !- Maximum Total Cooling Capacity
+    ,                         !- Heating Availability Schedule Name
+    ,                         !- Cooling Availability Schedule Name
+    ConstantSensibleHeatRatio,    !- Dehumidification Control Type
+    0.7,                      !- Cooling Sensible Heat Ratio
+    None,                     !- Humidification Control Type
+    ,                         !- Design Specification Outdoor Air Object Name
+    ,                         !- Outdoor Air Inlet Node Name
+    None,                     !- Demand Controlled Ventilation Type
+    NoEconomizer,             !- Outdoor Air Economizer Type
+    None,                     !- Heat Recovery Type
+    0.7,                      !- Sensible Heat Recovery Effectiveness
+    0.65;                     !- Latent Heat Recovery Effectiveness
+
+ZONEHVAC:EQUIPMENTLIST,
+    Space 0 ZN  Equipment List,    !- Name
+    SequentialLoad,           !- Load Distribution Scheme
+    ZoneHVAC:IdealLoadsAirSystem,    !- Zone Equipment 1 Object Type
+    Space 0 ZN Ideal Loads Air System,    !- Zone Equipment 1 Name
+    1,                        !- Zone Equipment 1 Cooling Sequence
+    1;                        !- Zone Equipment 1 Heating or NoLoad Sequence
+
+ZONEHVAC:EQUIPMENTCONNECTIONS,
+    Space 0 ZN,               !- Zone Name
+    Space 0 ZN  Equipment List,    !- Zone Conditioning Equipment List Name
+    Space 0 ZN Ideal Loads Supply Inlet,    !- Zone Air Inlet Node or NodeList Name
+    ,                         !- Zone Air Exhaust Node or NodeList Name
+    Space 0 ZN Zone Air Node,    !- Zone Air Node Name
+    Space 0 ZN Return Outlet;    !- Zone Return Air Node or NodeList Name
+
+OutdoorAir:Node,
+    Model Outdoor Air Node;    !- Name
+
+LifeCycleCost:Parameters,
+    Life Cycle Cost Parameters,    !- Name
+    EndOfYear,                !- Discounting Convention
+    ConstantDollar,           !- Inflation Approach
+    0.03,                     !- Real Discount Rate
+    ,                         !- Nominal Discount Rate
+    ,                         !- Inflation
+    ,                         !- Base Date Month
+    2011,                     !- Base Date Year
+    ,                         !- Service Date Month
+    2011,                     !- Service Date Year
+    25,                       !- Length of Study Period in Years
+    ,                         !- Tax rate
+    None;                     !- Depreciation Method
+
+LifeCycleCost:NonrecurringCost,
+    Default Cost,             !- Name
+    Construction,             !- Category
+    0,                        !- Cost
+    ServicePeriod;            !- Start of Costs
+
+LifeCycleCost:UsePriceEscalation,
+    U.S. Avg  Commercial-Electricity,    !- LCC Price Escalation Name
+    Electricity,              !- Resource
+    2011,                     !- Escalation Start Year
+    January,                  !- Escalation Start Month
+    0.9838,                   !- Year 1 Escalation
+    0.973,                    !- Year 2 Escalation
+    0.9632,                   !- Year 3 Escalation
+    0.9611,                   !- Year 4 Escalation
+    0.9571,                   !- Year 5 Escalation
+    0.9553,                   !- Year 6 Escalation
+    0.9539,                   !- Year 7 Escalation
+    0.9521,                   !- Year 8 Escalation
+    0.9546,                   !- Year 9 Escalation
+    0.955,                    !- Year 10 Escalation
+    0.9553,                   !- Year 11 Escalation
+    0.9564,                   !- Year 12 Escalation
+    0.9575,                   !- Year 13 Escalation
+    0.9596,                   !- Year 14 Escalation
+    0.9618,                   !- Year 15 Escalation
+    0.9614,                   !- Year 16 Escalation
+    0.9618,                   !- Year 17 Escalation
+    0.9618,                   !- Year 18 Escalation
+    0.9593,                   !- Year 19 Escalation
+    0.9589,                   !- Year 20 Escalation
+    0.9607,                   !- Year 21 Escalation
+    0.9625,                   !- Year 22 Escalation
+    0.965,                    !- Year 23 Escalation
+    0.9708,                   !- Year 24 Escalation
+    0.9751,                   !- Year 25 Escalation
+    0.9762,                   !- Year 26 Escalation
+    0.9766,                   !- Year 27 Escalation
+    0.9766,                   !- Year 28 Escalation
+    0.9769,                   !- Year 29 Escalation
+    0.9773;                   !- Year 30 Escalation
+
+LifeCycleCost:UsePriceEscalation,
+    U.S. Avg  Commercial-Distillate Oil,    !- LCC Price Escalation Name
+    FuelOilNo1,               !- Resource
+    2011,                     !- Escalation Start Year
+    January,                  !- Escalation Start Month
+    0.9714,                   !- Year 1 Escalation
+    0.973,                    !- Year 2 Escalation
+    0.9942,                   !- Year 3 Escalation
+    1.0164,                   !- Year 4 Escalation
+    1.0541,                   !- Year 5 Escalation
+    1.0928,                   !- Year 6 Escalation
+    1.1267,                   !- Year 7 Escalation
+    1.158,                    !- Year 8 Escalation
+    1.1792,                   !- Year 9 Escalation
+    1.1967,                   !- Year 10 Escalation
+    1.22,                     !- Year 11 Escalation
+    1.2333,                   !- Year 12 Escalation
+    1.2566,                   !- Year 13 Escalation
+    1.2709,                   !- Year 14 Escalation
+    1.2826,                   !- Year 15 Escalation
+    1.2985,                   !- Year 16 Escalation
+    1.3102,                   !- Year 17 Escalation
+    1.325,                    !- Year 18 Escalation
+    1.3261,                   !- Year 19 Escalation
+    1.3282,                   !- Year 20 Escalation
+    1.3324,                   !- Year 21 Escalation
+    1.3356,                   !- Year 22 Escalation
+    1.3431,                   !- Year 23 Escalation
+    1.351,                    !- Year 24 Escalation
+    1.3568,                   !- Year 25 Escalation
+    1.3606,                   !- Year 26 Escalation
+    1.3637,                   !- Year 27 Escalation
+    1.3674,                   !- Year 28 Escalation
+    1.3706,                   !- Year 29 Escalation
+    1.3743;                   !- Year 30 Escalation
+
+LifeCycleCost:UsePriceEscalation,
+    U.S. Avg  Commercial-Residual Oil,    !- LCC Price Escalation Name
+    FuelOilNo2,               !- Resource
+    2011,                     !- Escalation Start Year
+    January,                  !- Escalation Start Month
+    0.8469,                   !- Year 1 Escalation
+    0.8257,                   !- Year 2 Escalation
+    0.8681,                   !- Year 3 Escalation
+    0.8988,                   !- Year 4 Escalation
+    0.9289,                   !- Year 5 Escalation
+    0.9604,                   !- Year 6 Escalation
+    0.9897,                   !- Year 7 Escalation
+    1.0075,                   !- Year 8 Escalation
+    1.0314,                   !- Year 9 Escalation
+    1.0554,                   !- Year 10 Escalation
+    1.0861,                   !- Year 11 Escalation
+    1.1278,                   !- Year 12 Escalation
+    1.1497,                   !- Year 13 Escalation
+    1.162,                    !- Year 14 Escalation
+    1.1743,                   !- Year 15 Escalation
+    1.1852,                   !- Year 16 Escalation
+    1.1948,                   !- Year 17 Escalation
+    1.2037,                   !- Year 18 Escalation
+    1.2071,                   !- Year 19 Escalation
+    1.2119,                   !- Year 20 Escalation
+    1.2139,                   !- Year 21 Escalation
+    1.2194,                   !- Year 22 Escalation
+    1.2276,                   !- Year 23 Escalation
+    1.2365,                   !- Year 24 Escalation
+    1.242,                    !- Year 25 Escalation
+    1.2461,                   !- Year 26 Escalation
+    1.2509,                   !- Year 27 Escalation
+    1.255,                    !- Year 28 Escalation
+    1.2591,                   !- Year 29 Escalation
+    1.2638;                   !- Year 30 Escalation
+
+LifeCycleCost:UsePriceEscalation,
+    U.S. Avg  Commercial-Natural gas,    !- LCC Price Escalation Name
+    NaturalGas,               !- Resource
+    2011,                     !- Escalation Start Year
+    January,                  !- Escalation Start Month
+    0.9823,                   !- Year 1 Escalation
+    0.9557,                   !- Year 2 Escalation
+    0.9279,                   !- Year 3 Escalation
+    0.9257,                   !- Year 4 Escalation
+    0.9346,                   !- Year 5 Escalation
+    0.9412,                   !- Year 6 Escalation
+    0.9512,                   !- Year 7 Escalation
+    0.9645,                   !- Year 8 Escalation
+    0.9856,                   !- Year 9 Escalation
+    1.0067,                   !- Year 10 Escalation
+    1.0222,                   !- Year 11 Escalation
+    1.041,                    !- Year 12 Escalation
+    1.061,                    !- Year 13 Escalation
+    1.0787,                   !- Year 14 Escalation
+    1.0942,                   !- Year 15 Escalation
+    1.1098,                   !- Year 16 Escalation
+    1.122,                    !- Year 17 Escalation
+    1.1308,                   !- Year 18 Escalation
+    1.1386,                   !- Year 19 Escalation
+    1.1486,                   !- Year 20 Escalation
+    1.1619,                   !- Year 21 Escalation
+    1.1763,                   !- Year 22 Escalation
+    1.1918,                   !- Year 23 Escalation
+    1.2118,                   !- Year 24 Escalation
+    1.2284,                   !- Year 25 Escalation
+    1.2439,                   !- Year 26 Escalation
+    1.2605,                   !- Year 27 Escalation
+    1.2772,                   !- Year 28 Escalation
+    1.2938,                   !- Year 29 Escalation
+    1.3115;                   !- Year 30 Escalation
+
+LifeCycleCost:UsePriceEscalation,
+    U.S. Avg  Commercial-Coal,    !- LCC Price Escalation Name
+    Coal,                     !- Resource
+    2011,                     !- Escalation Start Year
+    January,                  !- Escalation Start Month
+    0.997,                    !- Year 1 Escalation
+    1.0089,                   !- Year 2 Escalation
+    1.0089,                   !- Year 3 Escalation
+    0.9941,                   !- Year 4 Escalation
+    0.9941,                   !- Year 5 Escalation
+    1,                        !- Year 6 Escalation
+    1.003,                    !- Year 7 Escalation
+    1.0059,                   !- Year 8 Escalation
+    1.0089,                   !- Year 9 Escalation
+    1.0119,                   !- Year 10 Escalation
+    1.0148,                   !- Year 11 Escalation
+    1.0178,                   !- Year 12 Escalation
+    1.0208,                   !- Year 13 Escalation
+    1.0267,                   !- Year 14 Escalation
+    1.0297,                   !- Year 15 Escalation
+    1.0356,                   !- Year 16 Escalation
+    1.0415,                   !- Year 17 Escalation
+    1.0534,                   !- Year 18 Escalation
+    1.0564,                   !- Year 19 Escalation
+    1.0593,                   !- Year 20 Escalation
+    1.0653,                   !- Year 21 Escalation
+    1.0712,                   !- Year 22 Escalation
+    1.0742,                   !- Year 23 Escalation
+    1.0801,                   !- Year 24 Escalation
+    1.0831,                   !- Year 25 Escalation
+    1.0831,                   !- Year 26 Escalation
+    1.0861,                   !- Year 27 Escalation
+    1.089,                    !- Year 28 Escalation
+    1.092,                    !- Year 29 Escalation
+    1.095;                    !- Year 30 Escalation
+
+Output:VariableDictionary,
+    IDF,                      !- Key Field
+    Unsorted;                 !- Sort Option
+
+Output:Table:SummaryReports,
+    AllSummary;               !- Report 1 Name
+
+Output:Table:Monthly,
+    Building Energy Performance - Electricity,    !- Name
+    2,                        !- Digits After Decimal
+    InteriorLights:Electricity,    !- Variable or Meter 1 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 1
+    ExteriorLights:Electricity,    !- Variable or Meter 2 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 2
+    InteriorEquipment:Electricity,    !- Variable or Meter 3 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 3
+    ExteriorEquipment:Electricity,    !- Variable or Meter 4 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 4
+    Fans:Electricity,         !- Variable or Meter 5 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 5
+    Pumps:Electricity,        !- Variable or Meter 6 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 6
+    Heating:Electricity,      !- Variable or Meter 7 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 7
+    Cooling:Electricity,      !- Variable or Meter 8 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 8
+    HeatRejection:Electricity,    !- Variable or Meter 9 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 9
+    Humidifier:Electricity,    !- Variable or Meter 10 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 10
+    HeatRecovery:Electricity,    !- Variable or Meter 11 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 11
+    WaterSystems:Electricity,    !- Variable or Meter 12 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 12
+    Cogeneration:Electricity,    !- Variable or Meter 13 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 13
+    Refrigeration:Electricity,    !- Variable or Meter 14 Name
+    SumOrAverage;             !- Aggregation Type for Variable or Meter 14
+
+Output:Table:Monthly,
+    Building Energy Performance - Natural Gas,    !- Name
+    2,                        !- Digits After Decimal
+    InteriorEquipment:NaturalGas,    !- Variable or Meter 1 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 1
+    ExteriorEquipment:NaturalGas,    !- Variable or Meter 2 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 2
+    Heating:NaturalGas,       !- Variable or Meter 3 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 3
+    Cooling:NaturalGas,       !- Variable or Meter 4 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 4
+    WaterSystems:NaturalGas,    !- Variable or Meter 5 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 5
+    Cogeneration:NaturalGas,    !- Variable or Meter 6 Name
+    SumOrAverage;             !- Aggregation Type for Variable or Meter 6
+
+Output:Table:Monthly,
+    Building Energy Performance - District Heating,    !- Name
+    2,                        !- Digits After Decimal
+    InteriorLights:DistrictHeating,    !- Variable or Meter 1 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 1
+    ExteriorLights:DistrictHeating,    !- Variable or Meter 2 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 2
+    InteriorEquipment:DistrictHeating,    !- Variable or Meter 3 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 3
+    ExteriorEquipment:DistrictHeating,    !- Variable or Meter 4 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 4
+    Fans:DistrictHeating,     !- Variable or Meter 5 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 5
+    Pumps:DistrictHeating,    !- Variable or Meter 6 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 6
+    Heating:DistrictHeating,    !- Variable or Meter 7 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 7
+    Cooling:DistrictHeating,    !- Variable or Meter 8 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 8
+    HeatRejection:DistrictHeating,    !- Variable or Meter 9 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 9
+    Humidifier:DistrictHeating,    !- Variable or Meter 10 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 10
+    HeatRecovery:DistrictHeating,    !- Variable or Meter 11 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 11
+    WaterSystems:DistrictHeating,    !- Variable or Meter 12 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 12
+    Cogeneration:DistrictHeating,    !- Variable or Meter 13 Name
+    SumOrAverage;             !- Aggregation Type for Variable or Meter 13
+
+Output:Table:Monthly,
+    Building Energy Performance - District Cooling,    !- Name
+    2,                        !- Digits After Decimal
+    InteriorLights:DistrictCooling,    !- Variable or Meter 1 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 1
+    ExteriorLights:DistrictCooling,    !- Variable or Meter 2 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 2
+    InteriorEquipment:DistrictCooling,    !- Variable or Meter 3 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 3
+    ExteriorEquipment:DistrictCooling,    !- Variable or Meter 4 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 4
+    Fans:DistrictCooling,     !- Variable or Meter 5 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 5
+    Pumps:DistrictCooling,    !- Variable or Meter 6 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 6
+    Heating:DistrictCooling,    !- Variable or Meter 7 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 7
+    Cooling:DistrictCooling,    !- Variable or Meter 8 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 8
+    HeatRejection:DistrictCooling,    !- Variable or Meter 9 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 9
+    Humidifier:DistrictCooling,    !- Variable or Meter 10 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 10
+    HeatRecovery:DistrictCooling,    !- Variable or Meter 11 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 11
+    WaterSystems:DistrictCooling,    !- Variable or Meter 12 Name
+    SumOrAverage,             !- Aggregation Type for Variable or Meter 12
+    Cogeneration:DistrictCooling,    !- Variable or Meter 13 Name
+    SumOrAverage;             !- Aggregation Type for Variable or Meter 13
+
+Output:Table:Monthly,
+    Building Energy Performance - Electricity Peak Demand,    !- Name
+    2,                        !- Digits After Decimal
+    Electricity:Facility,     !- Variable or Meter 1 Name
+    Maximum,                  !- Aggregation Type for Variable or Meter 1
+    InteriorLights:Electricity,    !- Variable or Meter 2 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 2
+    ExteriorLights:Electricity,    !- Variable or Meter 3 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 3
+    InteriorEquipment:Electricity,    !- Variable or Meter 4 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 4
+    ExteriorEquipment:Electricity,    !- Variable or Meter 5 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 5
+    Fans:Electricity,         !- Variable or Meter 6 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 6
+    Pumps:Electricity,        !- Variable or Meter 7 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 7
+    Heating:Electricity,      !- Variable or Meter 8 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 8
+    Cooling:Electricity,      !- Variable or Meter 9 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 9
+    HeatRejection:Electricity,    !- Variable or Meter 10 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 10
+    Humidifier:Electricity,    !- Variable or Meter 11 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 11
+    HeatRecovery:Electricity,    !- Variable or Meter 12 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 12
+    WaterSystems:Electricity,    !- Variable or Meter 13 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 13
+    Cogeneration:Electricity,    !- Variable or Meter 14 Name
+    ValueWhenMaximumOrMinimum;    !- Aggregation Type for Variable or Meter 14
+
+Output:Table:Monthly,
+    Building Energy Performance - Natural Gas Peak Demand,    !- Name
+    2,                        !- Digits After Decimal
+    NaturalGas:Facility,      !- Variable or Meter 1 Name
+    Maximum,                  !- Aggregation Type for Variable or Meter 1
+    InteriorEquipment:NaturalGas,    !- Variable or Meter 2 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 2
+    ExteriorEquipment:NaturalGas,    !- Variable or Meter 3 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 3
+    Heating:NaturalGas,       !- Variable or Meter 4 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 4
+    Cooling:NaturalGas,       !- Variable or Meter 5 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 5
+    WaterSystems:NaturalGas,    !- Variable or Meter 6 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 6
+    Cogeneration:NaturalGas,    !- Variable or Meter 7 Name
+    ValueWhenMaximumOrMinimum;    !- Aggregation Type for Variable or Meter 7
+
+Output:Table:Monthly,
+    Building Energy Performance - District Heating Peak Demand,    !- Name
+    2,                        !- Digits After Decimal
+    DistrictHeating:Facility,    !- Variable or Meter 1 Name
+    Maximum,                  !- Aggregation Type for Variable or Meter 1
+    InteriorLights:DistrictHeating,    !- Variable or Meter 2 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 2
+    ExteriorLights:DistrictHeating,    !- Variable or Meter 3 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 3
+    InteriorEquipment:DistrictHeating,    !- Variable or Meter 4 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 4
+    ExteriorEquipment:DistrictHeating,    !- Variable or Meter 5 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 5
+    Fans:DistrictHeating,     !- Variable or Meter 6 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 6
+    Pumps:DistrictHeating,    !- Variable or Meter 7 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 7
+    Heating:DistrictHeating,    !- Variable or Meter 8 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 8
+    Cooling:DistrictHeating,    !- Variable or Meter 9 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 9
+    HeatRejection:DistrictHeating,    !- Variable or Meter 10 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 10
+    Humidifier:DistrictHeating,    !- Variable or Meter 11 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 11
+    HeatRecovery:DistrictHeating,    !- Variable or Meter 12 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 12
+    WaterSystems:DistrictHeating,    !- Variable or Meter 13 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 13
+    Cogeneration:DistrictHeating,    !- Variable or Meter 14 Name
+    ValueWhenMaximumOrMinimum;    !- Aggregation Type for Variable or Meter 14
+
+Output:Table:Monthly,
+    Building Energy Performance - District Cooling Peak Demand,    !- Name
+    2,                        !- Digits After Decimal
+    DistrictCooling:Facility,    !- Variable or Meter 1 Name
+    Maximum,                  !- Aggregation Type for Variable or Meter 1
+    InteriorLights:DistrictCooling,    !- Variable or Meter 2 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 2
+    ExteriorLights:DistrictCooling,    !- Variable or Meter 3 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 3
+    InteriorEquipment:DistrictCooling,    !- Variable or Meter 4 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 4
+    ExteriorEquipment:DistrictCooling,    !- Variable or Meter 5 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 5
+    Fans:DistrictCooling,     !- Variable or Meter 6 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 6
+    Pumps:DistrictCooling,    !- Variable or Meter 7 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 7
+    Heating:DistrictCooling,    !- Variable or Meter 8 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 8
+    Cooling:DistrictCooling,    !- Variable or Meter 9 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 9
+    HeatRejection:DistrictCooling,    !- Variable or Meter 10 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 10
+    Humidifier:DistrictCooling,    !- Variable or Meter 11 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 11
+    HeatRecovery:DistrictCooling,    !- Variable or Meter 12 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 12
+    WaterSystems:DistrictCooling,    !- Variable or Meter 13 Name
+    ValueWhenMaximumOrMinimum,    !- Aggregation Type for Variable or Meter 13
+    Cogeneration:DistrictCooling,    !- Variable or Meter 14 Name
+    ValueWhenMaximumOrMinimum;    !- Aggregation Type for Variable or Meter 14
+
+OutputControl:Table:Style,
+    HTML;                     !- Column Separator
+
+OUTPUT:VARIABLE,
+    *,                        !- Key Value
+    Zone Ideal Loads Zone Total Cooling Energy,    !- Variable Name
+    Hourly;                   !- Reporting Frequency
+
+OUTPUT:VARIABLE,
+    *,                        !- Key Value
+    Zone Ideal Loads Zone Total Heating Energy,    !- Variable Name
+    Hourly;                   !- Reporting Frequency
+
+OUTPUT:VARIABLE,
+    *,                        !- Key Value
+    Electric Equipment Electricity Energy,    !- Variable Name
+    Hourly;                   !- Reporting Frequency
+
+OUTPUT:VARIABLE,
+    *,                        !- Key Value
+    Zone Air Temperature,     !- Variable Name
+    Hourly;                   !- Reporting Frequency
+
+OUTPUT:VARIABLE,
+    *,                        !- Key Value
+    Zone Air Relative Humidity,    !- Variable Name
+    Hourly;                   !- Reporting Frequency
+
+OUTPUT:VARIABLE,
+    *,                        !- Key Value
+    Zone Thermostat Cooling Setpoint Temperature,    !- Variable Name
+    Hourly;                   !- Reporting Frequency
+
+OUTPUT:VARIABLE,
+    *,                        !- Key Value
+    Zone Thermostat Heating Setpoint Temperature,    !- Variable Name
+    Hourly;                   !- Reporting Frequency
+
+Output:Meter,
+    Electricity:Facility,     !- Key Name
+    Timestep;                 !- Reporting Frequency
+
+Output:Meter,
+    NaturalGas:Facility,      !- Key Name
+    Timestep;                 !- Reporting Frequency
+
+Output:Meter,
+    DistrictCooling:Facility,    !- Key Name
+    Timestep;                 !- Reporting Frequency
+
+Output:Meter,
+    DistrictHeating:Facility,    !- Key Name
+    Timestep;                 !- Reporting Frequency
+
+Output:Meter:MeterFileOnly,
+    NaturalGas:Facility,      !- Key Name
+    Daily;                    !- Reporting Frequency
+
+Output:Meter:MeterFileOnly,
+    Electricity:Facility,     !- Key Name
+    Timestep;                 !- Reporting Frequency
+
+Output:Meter:MeterFileOnly,
+    Electricity:Facility,     !- Key Name
+    Daily;                    !- Reporting Frequency
+
+OutputControl:Files,
+    No,                       !- Output CSV
+    No,                       !- Output MTR
+    No,                       !- Output ESO
+    No,                       !- Output EIO
+    No,                       !- Output Tabular
+    Yes,                      !- Output SQLite
+    No,                       !- Output JSON
+    No,                       !- Output AUDIT
+    No,                       !- Output Zone Sizing
+    No,                       !- Output System Sizing
+    No,                       !- Output DXF
+    No,                       !- Output BND
+    No,                       !- Output RDD
+    No,                       !- Output MDD
+    No,                       !- Output MTD
+    No,                       !- Output END
+    No,                       !- Output SHD
+    No,                       !- Output DFS
+    No,                       !- Output GLHE
+    No,                       !- Output DelightIn
+    No,                       !- Output DelightELdmp
+    No,                       !- Output DelightDFdmp
+    No,                       !- Output EDD
+    No,                       !- Output DBG
+    No,                       !- Output PerfLog
+    No,                       !- Output SLN
+    No,                       !- Output SCI
+    No,                       !- Output WRL
+    No,                       !- Output Screen
+    No,                       !- Output ExtShd
+    No;                       !- Output Tarcog
+
+Output:SQLite,
+    SimpleAndTabular;         !- Option Type

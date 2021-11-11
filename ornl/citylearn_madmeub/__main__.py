@@ -6,17 +6,14 @@ import sys
 from citylearn_madmeub.ornl import CityLearnIDF
 from citylearn_madmeub.utilities import read_json, write_json
 
-def simulate(filepath=None):
-    filepath = os.path.join(os.path.dirname(__file__),'../data/idf/selected.json') if filepath is None else filepath
-    selected_idfs = read_json(filepath)[0:20]
+def simulate(idf_directory,filepath=None):
+    filepath = os.path.join(os.path.dirname(__file__),'../data/selected.json') if filepath is None else filepath
+    selected_idfs = read_json(filepath)[0:2]
     print('Simulating ...')
     
     for i, selected_idf in enumerate(selected_idfs):
         print(f'{i+1}/{len(selected_idfs)} {selected_idf}')
-        selected_idf['idf_filepath'] = os.path.join(
-            os.path.join(os.path.dirname(__file__),'../data/idf/counties/'),
-            selected_idf['idf_filepath']
-        )
+        selected_idf['idf_filepath'] = os.path.join(idf_directory,selected_idf['idf_filepath'])
         selected_idf['id'] = __build_id(selected_idf)
         args = (selected_idf['idf_filepath'],selected_idf['climate_zone'],selected_idf['building_type'])
         kwargs = {"id":selected_idf['id'],"random_state":int(selected_idf['id'].split('_')[-2])}
@@ -26,7 +23,7 @@ def simulate(filepath=None):
         clidf.save()
 
 def upload(filepath=None,root_citylearn_directory=None,root_output_directory=None):
-    filepath = os.path.join(os.path.dirname(__file__),'../data/idf/selected.json') if filepath is None else filepath
+    filepath = os.path.join(os.path.dirname(__file__),'../data/selected.json') if filepath is None else filepath
     root_citylearn_directory = os.path.join(os.path.dirname(__file__),'../../') if root_citylearn_directory is None else root_citylearn_directory
     root_output_directory = os.path.join(os.path.dirname(__file__),CityLearnIDF.settings()['root_output_directory']) if root_output_directory is None else root_output_directory
     citylearn_building_state_action_space_filepath = os.path.join(root_citylearn_directory,'buildings_state_action_space.json')
@@ -78,6 +75,7 @@ def main():
     # simulate
     sp_simulate = subparsers.add_parser('simulate',description='Simulate selected IDFs.')
     sp_simulate.set_defaults(func=simulate)
+    sp_simulate.add_argument('idf_directory',help='Path to directory containing raw IDF files to simulate.')
 
     # upload
     sp_upload = subparsers.add_parser('upload',description='Upload simulation output to CityLearn environment.')
