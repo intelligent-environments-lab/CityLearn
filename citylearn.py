@@ -331,7 +331,7 @@ class CityLearn(gym.Env):
         
         return building_info
         
-    def step(self, actions):
+    def step(self, actions, **kwargs):
                 
         self.buildings_net_electricity_demand = []
         self.current_carbon_intensity = list(self.buildings.values())[0].sim_results['carbon_intensity'][self.time_step]
@@ -533,7 +533,7 @@ class CityLearn(gym.Env):
             
             
             
-            rewards = self.reward_function.get_rewards(self.buildings_net_electricity_demand, self.current_carbon_intensity)
+            rewards = self.reward_function.get_rewards(self.buildings_net_electricity_demand, self.current_carbon_intensity, **kwargs)
             self.cumulated_reward_episode += sum(rewards)
             
         # Control variables which are used to display the results and the behavior of the buildings at the district level.
