@@ -1,0 +1,6 @@
+
+.DS_Store
+__pycache__
+*.pyc
+.DS_Store
+.ipynb_checkpoints
