@@ -18,3 +18,5 @@ export LAUNCHER_JOB_FILE=reward_function_exploration.sh
 
 # activate virtual environment
 source /work/07083/ken658/projects/citylearn/env/bin/activate
+
+${LAUNCHER_DIR}/paramrun
