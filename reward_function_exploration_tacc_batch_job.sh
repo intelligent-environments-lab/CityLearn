@@ -9,7 +9,7 @@
 #SBATCH -o slurm.out
 #SBATCH -A DemandAnalysis
 
-# moad modules
+# load modules
 module load launcher
 
 # set environment variables
