@@ -95,9 +95,12 @@ def run(reward_style,simulation_filepath=None,log_filepath=None):
                 'previous_carbon_intensity':previous_carbon_intensity
             }
             next_state, reward, done, misc = env.step(action,**step_kwargs)
+            logger.debug(f'previous_electricity_demand: {previous_electricity_demand}, previous_carbon_intensity: {previous_carbon_intensity}')
+            logger.debug(f'next_state: {next_state}, reward: {reward}, done: {done}, misc: {misc}')
             previous_electricity_demand = env.buildings_net_electricity_demand
             previous_carbon_intensity = env.current_carbon_intensity
             action_next, coordination_vars_next = agents.select_action(next_state, deterministic=is_evaluating)
+            logger.debug(f'action_next: {action_next}, coordination_vars_next: {coordination_vars_next}')
             agents.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
             coordination_vars = coordination_vars_next
             state = next_state
