@@ -471,6 +471,7 @@ class CityLearn(gym.Env):
                 if self.buildings_states_actions[uid]['actions']['electrical_storage']:
                     _electric_demand_electrical_storage = building.set_storage_electrical(actions[0])
                     elec_consumption_electrical_storage += _electric_demand_electrical_storage
+                    actions = actions[1:]
                 else:
                     _electric_demand_electrical_storage = 0.0
 

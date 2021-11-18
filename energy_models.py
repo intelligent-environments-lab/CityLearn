@@ -502,7 +502,7 @@ class HeatPump:
         _elec_consumption_cooling = cooling_supply/self.cop_cooling[self.time_step]
         return _elec_consumption_cooling
     
-    def set_total_electric_consumption_heating(self, heat_supply = 0):
+    def set_total_electric_consumption_heating(self, heating_supply = 0):
         """
         Method that calculates the electricity consumption of the heat pump given an amount of heating energy to be supplied
         Args:
@@ -512,15 +512,15 @@ class HeatPump:
             _elec_consumption_heating (float): electricity consumption for heating
         """
         
-        self.heat_supply.append(heat_supply)
-        self._electrical_consumption_heating = heat_supply/self.cop_heating[self.time_step]
+        self.heat_supply.append(heating_supply)
+        self._electrical_consumption_heating = heating_supply/self.cop_heating[self.time_step]
         
         if self.save_memory == False:
             self.electrical_consumption_heating.append(np.float32(self._electrical_consumption_heating))
             
         return self._electrical_consumption_heating
     
-    def get_electric_consumption_heating(self, heat_supply = 0):
+    def get_electric_consumption_heating(self, heating_supply = 0):
         """
         Method that calculates the electricity consumption of the heat pump given an amount of heating energy to be supplied
         Args:
@@ -530,7 +530,7 @@ class HeatPump:
             _elec_consumption_heating (float): electricity consumption for heating
         """
         
-        _elec_consumption_heating = heat_supply/self.cop_heating[self.time_step]
+        _elec_consumption_heating = heating_supply/self.cop_heating[self.time_step]
         return _elec_consumption_heating
     
     def reset(self):
