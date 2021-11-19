@@ -85,7 +85,9 @@ class Building:
         
         self.electrical_storage_electric_consumption = []
         self.electrical_storage_soc = []
-        
+
+        self.__validate_energy_models()
+
     def set_state_space(self, high_state, low_state):
         # Setting the state space and the lower and upper bounds of each state-variable
         self.observation_space = spaces.Box(low=low_state, high=high_state, dtype=np.float32)
@@ -406,7 +408,15 @@ class Building:
             
             self.electrical_storage_electric_consumption = np.array(self.electrical_storage_electric_consumption)
             self.electrical_storage_soc = np.array(self.electrical_storage_soc)
-        
+
+    def __validate_energy_models(self):
+        if self.cooling_storage is not None and self.heating_storage is not None:
+            assert not (self.cooling_storage.capacity > 0 and self.heating_storage.capacity > 0),\
+                'A building may have either cooling or heating storage but not both. Set either cooling or heating storage capacity to 0.'
+        else:
+            pass
+
+        assert not isinstance(self.dhw_heating_device, HeatPump), 'HeatPump as DHW heating device is not supported.'
 
 class HeatPump:
     def __init__(self, nominal_power = None, eta_tech = None, t_target_heating = None, t_target_cooling = None, save_memory = True):
