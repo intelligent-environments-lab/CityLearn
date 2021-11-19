@@ -1,3 +1,4 @@
+import os
 import gym
 from gym.utils import seeding
 import numpy as np
@@ -295,7 +296,7 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
 
 class CityLearn(gym.Env):  
     def __init__(self, data_path, building_attributes, weather_file, solar_profile, building_ids, carbon_intensity = None, buildings_states_actions = None, simulation_period = (0,8759), cost_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption'], central_agent = False, save_memory = True, verbose = 0):
-        with open(buildings_states_actions) as json_file:
+        with open(os.path.join(data_path,buildings_states_actions)) as json_file:
             self.buildings_states_actions = json.load(json_file)
         
         self.data_path = data_path
