@@ -10,9 +10,9 @@ class reward_function_ma:
         self.n_agents = n_agents
         self.building_info = building_info
 
-    @property
-    def styles(self):
-        return list(self.__get_style_functions().keys())
+    @classmethod
+    def get_styles(cls):
+        return list(cls(None,None).__get_style_functions().keys())
 
     # electricity_demand contains negative values when the building consumes more electricity than it generates
     def get_rewards(self, electricity_demand, carbon_intensity, style='default', **kwargs):

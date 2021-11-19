@@ -80,7 +80,7 @@ def run(reward_style,simulation_filepath=None,log_filepath=None):
     previous_electricity_demand = None
     previous_carbon_intensity = None
 
-    for e in range(n_episodes): 
+    for _ in range(n_episodes): 
         state = env.reset()
         done = False
         j = 0
@@ -126,7 +126,7 @@ def __save(data,filepath='citylearn.pkl'):
 
 def main():
     parser = argparse.ArgumentParser(prog='reward_function_exploration',description='Explore different reward functions in CityLearn environment.')
-    parser.add_argument('reward_style',type=str,choices=reward_function_ma(None,None).styles,help='Reward function style.')
+    parser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
     parser.add_argument('-sf','--simulation_filepath',type=str,default='simulation.pkl',dest='simulation_filepath',help='Filepath to write simulation.')
     parser.add_argument('-lf','--log_filepath',type=str,default='std.log',dest='log_filepath',help='Filepath to write log.')
     args = parser.parse_args()
