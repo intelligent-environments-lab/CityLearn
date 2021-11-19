@@ -47,8 +47,6 @@ def auto_size(buildings):
             
             # If the DHW device is a HeatPump
             if isinstance(building.dhw_heating_device, HeatPump):
-                raise Exception('DHW device as HeatPump object not yet supported.')
-
                 #We assume that the heat pump is always large enough to meet the highest heating or cooling demand of the building
                 building.dhw_heating_device.nominal_power = np.array(building.sim_results['dhw_demand']/building.dhw_heating_device.cop_heating).max()
                 
@@ -141,6 +139,10 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
             building.sim_results['t_in'] = list(data['Indoor Temperature [C]'])
             building.sim_results['avg_unmet_setpoint'] = list(data['Average Unmet Cooling Setpoint Difference [C]'])
             building.sim_results['rh_in'] = list(data['Indoor Relative Humidity [%]'])
+
+            # check that there are no timesteps with bot cooling and heating demand > 0
+            assert sum(np.array(building.sim_results['cooling_demand'])*np.array(building.sim_results['heating_demand'])) == 0,\
+                'Simultaneous cooling and heating demand in a building is not supported.'
             
             with open(weather_file) as csv_file:
                 weather_data = pd.read_csv(csv_file)
@@ -267,8 +269,6 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
     for building in buildings.values():
         # If the DHW device is a HeatPump
         if isinstance(building.dhw_heating_device, HeatPump):
-            raise Exception('DHW device as HeatPump object not yet supported.')
-                
             # Calculating COPs of the heat pumps for every hour
             building.dhw_heating_device.cop_heating = building.dhw_heating_device.eta_tech*(building.dhw_heating_device.t_target_heating + 273.15)/(building.dhw_heating_device.t_target_heating - weather_data['Outdoor Drybulb Temperature [C]'])
             building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating < 0] = 20.0
