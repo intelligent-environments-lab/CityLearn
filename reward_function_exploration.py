@@ -92,7 +92,8 @@ def run(reward_style,simulation_filepath=None,log_filepath=None):
             step_kwargs = {
                 'style':reward_style,
                 'previous_electricity_demand':previous_electricity_demand,
-                'previous_carbon_intensity':previous_carbon_intensity
+                'previous_carbon_intensity':previous_carbon_intensity,
+                'exponential_scaling_factor':0.01,
             }
             next_state, reward, done, misc = env.step(action,**step_kwargs)
             logger.debug(f'previous_electricity_demand: {previous_electricity_demand}, previous_carbon_intensity: {previous_carbon_intensity}')

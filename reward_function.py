@@ -6,10 +6,9 @@ import numpy as np
 
 # Reward used in the CityLearn Challenge. Reward function for the multi-agent (decentralized) agents.
 class reward_function_ma:
-    def __init__(self, n_agents, building_info, reward_scale=5):
+    def __init__(self, n_agents, building_info):
         self.n_agents = n_agents
         self.building_info = building_info
-        self.reward_scale = reward_scale
 
     @property
     def styles(self):
@@ -62,13 +61,8 @@ class reward_function_ma:
         return reward
 
     def __get_ramping_square_reward(self,**kwargs):
-        try:
-            assert 'previous_electricity_demand' in kwargs.keys()
-            assert 'previous_carbon_intensity' in kwargs.keys()
-
-        except AssertionError as e:
-            raise Exception('ramping_square reward requires previous_electricity_demand and previous_carbon_intensity arguments to parsed.')
-        
+        assert 'previous_electricity_demand' in kwargs.keys(), 'ramping_square reward requires previous_electricity_demand keyword argument.'
+        assert 'previous_carbon_intensity' in kwargs.keys(), 'ramping_square reward requires previous_carbon_intensity keyword argument.'
         default_reward = self.__get_default_reward(kwargs['electricity_demand'],kwargs['carbon_intensity'])
         previous_default_reward = self.__get_default_reward(kwargs['previous_electricity_demand'],kwargs['previous_carbon_intensity'])\
             if kwargs['previous_electricity_demand'] and kwargs['previous_carbon_intensity'] is not None else None
@@ -77,31 +71,27 @@ class reward_function_ma:
         return reward
 
     def __get_exponential_reward(self,**kwargs):
+        scaling_factor = kwargs.get('exponential_scaling_factor',1)
         default_reward = self.__get_default_reward(kwargs['electricity_demand'],kwargs['carbon_intensity'])
-        reward = -np.exp(-np.sum(default_reward)/50.)
+        reward = -np.exp(-np.sum(default_reward)*scaling_factor/50.)
         reward = [reward/9. for _ in range(9)]
         return reward
 
     def __get_mixed_reward(self,**kwargs):
-        try:
-            assert 'previous_electricity_demand' in kwargs.keys()
-            assert 'previous_carbon_intensity' in kwargs.keys()
-
-        except AssertionError as e:
-            raise Exception('mixed reward requires previous_electricity_demand and previous_carbon_intensity arguments to parsed.')
-
+        assert 'previous_electricity_demand' in kwargs.keys(), 'mixed reward requires previous_electricity_demand keyword argument.'
+        assert 'previous_carbon_intensity' in kwargs.keys(), 'mixed reward requires previous_carbon_intensity keyword argument.'
+        scaling_factor = kwargs.get('exponential_scaling_factor',1)
         default_reward = self.__get_default_reward(kwargs['electricity_demand'],kwargs['carbon_intensity'])
         previous_default_reward = self.__get_default_reward(kwargs['previous_electricity_demand'],kwargs['previous_carbon_intensity'])\
             if kwargs['previous_electricity_demand'] and kwargs['previous_carbon_intensity'] is not None else None
         reward_1 = -np.square(np.sum(default_reward) - np.sum(previous_default_reward)) if previous_default_reward is not None else 0
-        reward_2 = -np.exp(-np.sum(default_reward)/50.)
+        reward_2 = -np.exp(-np.sum(default_reward)*scaling_factor/50.)
         reward = [(reward_1 + reward_2)/9. for _ in range(9)]
         return reward
 
 # Do not use or delete
 # Reward function for the centralized agent. To be used only if all the buildings receive the same reward.
 def reward_function_sa(electricity_demand):
-
     reward_ = -np.array(electricity_demand).sum()
     reward_ = max(0, reward_)
     reward_ = reward_**3.0
