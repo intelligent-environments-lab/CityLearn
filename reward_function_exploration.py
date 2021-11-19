@@ -24,7 +24,7 @@ def run(reward_style,simulation_filepath=None,log_filepath=None):
 
     # Load environment
     climate_zone = 5
-    building_ids = ["Building_"+str(i) for i in [1]]
+    building_ids = ["Building_"+str(i) for i in range(10)]
     params_env = {
         'data_path':Path("data/Climate_Zone_"+str(climate_zone)), 
         'building_attributes':'building_attributes.json', 

@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH -p skx-dev
+#SBATCH -p skx-normal
 #SBATCH -J citylearn_reward_function_exploration
-#SBATCH -N 4
-#SBATCH -n 192
-#SBATCH -t 2:00:00
+#SBATCH -N 5
+#SBATCH -n 240
+#SBATCH -t 48:00:00
 #SBATCH --mail-user=nweye@utexas.edu
 #SBATCH --mail-type=all
 #SBATCH -o slurm.out
