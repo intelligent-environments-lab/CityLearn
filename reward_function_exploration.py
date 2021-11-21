@@ -13,21 +13,17 @@ from reward_function import reward_function_ma
 def run(**kwargs):
     climate_zone = kwargs['climate_zone']
     reward_style = kwargs['reward_style']
-    log_filepath = kwargs.get('log_filepath','simulation.log')
-    simulation_filepath = kwargs.get('simulation_filepath','simulation.pkl')
     simulation_period_start = kwargs.get('simulation_period_start',0)
     simulation_period_end = kwargs.get('simulation_period_end',8759)
     episode_count = kwargs.get('episode_count',1)
     deterministic_period_start = kwargs.get('deterministic_period_start',3*8760 + 1)
-
-    directory = '/'.join(log_filepath.split('/')[0:-1])
-    
-    if directory != log_filepath:
-        os.makedirs(directory,exist_ok=True)
-    else:
-        pass
+    data_directory = 'data_reward_function_exploration'
+    climate_zone_directory = os.path.join(data_directory,f'Climate_Zone_{climate_zone}')
+    output_directory = os.path.join(climate_zone_directory,'reward_function_exploration')
+    os.makedirs(output_directory,exist_ok=True)
     
     # set logger
+    log_filepath = os.path.join(output_directory,f'{reward_style}.log')
     logging.basicConfig(filename=log_filepath,format='%(asctime)s %(message)s',filemode='w') 
     logger = logging.getLogger() 
     logger.setLevel(logging.DEBUG)
@@ -35,7 +31,7 @@ def run(**kwargs):
     # Load environment
     building_ids = ["Building_"+str(i) for i in range(1,10)]
     params_env = {
-        'data_path':Path("data_reward_function_exploration/Climate_Zone_"+str(climate_zone)), 
+        'data_path':Path(climate_zone_directory), 
         'building_attributes':'building_attributes.json', 
         'weather_file':'weather_data.csv', 
         'solar_profile':'solar_generation_1kW.csv', 
@@ -123,6 +119,7 @@ def run(**kwargs):
             
     logger.debug(f'Reward style: {reward_style}, Loss - {env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
     data = {'env':env,'agents':agents}
+    simulation_filepath = os.path.join(output_directory,f'{reward_style}.pkl')
     __save(data,filepath=simulation_filepath)
 
 def __save(data,filepath='citylearn.pkl'):
@@ -151,8 +148,6 @@ def main():
     parser = argparse.ArgumentParser(prog='reward_function_exploration',description='Explore different reward functions in CityLearn environment.')
     parser.add_argument('climate_zone',type=str,choices=__get_climate_zones(),help='Simulation climate zone.')
     parser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
-    parser.add_argument('-sf','--simulation_filepath',type=str,default='simulation.pkl',dest='simulation_filepath',help='Filepath to write simulation.')
-    parser.add_argument('-lf','--log_filepath',type=str,default='std.log',dest='log_filepath',help='Filepath to write log.')
     parser.add_argument('-e','--episode_count',type=int,default=1,dest='episode_count',help='Number of episodes.')
     parser.add_argument('-sps','--simulation_period_start',type=int,default=0,dest='simulation_period_start',help='Simulation start index.')
     parser.add_argument('-spe','--simulation_period_end',type=int,default=8759,dest='simulation_period_end',help='Simulation end index.')
