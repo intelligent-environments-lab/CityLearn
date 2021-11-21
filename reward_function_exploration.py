@@ -10,37 +10,50 @@ from agents.marlisa import MARLISA
 from citylearn import  CityLearn
 from reward_function import reward_function_ma
 
-def run(reward_style,simulation_filepath=None,log_filepath=None):
+def run(**kwargs):
+    climate_zone = kwargs['climate_zone']
+    reward_style = kwargs['reward_style']
+    log_filepath = kwargs.get('log_filepath','simulation.log')
+    simulation_filepath = kwargs.get('simulation_filepath','simulation.pkl')
+    simulation_period_start = kwargs.get('simulation_period_start',0)
+    simulation_period_end = kwargs.get('simulation_period_end',8759)
+    episode_count = kwargs.get('episode_count',1)
+    deterministic_period_start = kwargs.get('deterministic_period_start',3*8760 + 1)
+
     directory = '/'.join(log_filepath.split('/')[0:-1])
     
     if directory != log_filepath:
         os.makedirs(directory,exist_ok=True)
     else:
         pass
-
+    
+    # set logger
     logging.basicConfig(filename=log_filepath,format='%(asctime)s %(message)s',filemode='w') 
     logger = logging.getLogger() 
     logger.setLevel(logging.DEBUG)
 
     # Load environment
-    climate_zone = 5
     building_ids = ["Building_"+str(i) for i in range(1,10)]
     params_env = {
-        'data_path':Path("data/Climate_Zone_"+str(climate_zone)), 
+        'data_path':Path("data_reward_function_exploration/Climate_Zone_"+str(climate_zone)), 
         'building_attributes':'building_attributes.json', 
         'weather_file':'weather_data.csv', 
         'solar_profile':'solar_generation_1kW.csv', 
         'carbon_intensity':'carbon_intensity.csv',
         'building_ids':building_ids,
         'buildings_states_actions':'buildings_state_action_space.json', 
-        'simulation_period': (0, 8760*4-1), 
-        'cost_function': ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption','carbon_emissions'], 
+        'simulation_period': (simulation_period_start,simulation_period_end), 
+        'cost_function': [
+            'ramping',
+            '1-load_factor',
+            'average_daily_peak',
+            'peak_demand',
+            'net_electricity_consumption',
+            'carbon_emissions'
+        ], 
         'central_agent': False,
         'save_memory': False
     }
-    # We will use 1 episode if we intend to simulate a real-time RL controller (like in the CityLearn Challenge)
-    # In climate zone 5, 1 episode contains 5 years of data, or 8760*5 time-steps.
-    n_episodes = 1
     # Contain the lower and upper bounds of the states and actions, to be provided to the agent to normalize the variables between 0 and 1.
     # Can be obtained using observations_spaces[i].low or .high
     env = CityLearn(**params_env)
@@ -48,7 +61,6 @@ def run(reward_style,simulation_filepath=None,log_filepath=None):
 
     # Provides information on Building type, Climate Zone, Annual DHW demand, Annual Cooling Demand, Annual Electricity Demand, Solar Capacity, and correllations among buildings
     building_info = env.get_building_information()
-
     params_agent = {
         'building_ids':building_ids,
         'buildings_states_actions':'buildings_state_action_space.json', 
@@ -80,7 +92,7 @@ def run(reward_style,simulation_filepath=None,log_filepath=None):
     previous_electricity_demand = None
     previous_carbon_intensity = None
 
-    for _ in range(n_episodes): 
+    for _ in range(episode_count): 
         state = env.reset()
         done = False
         j = 0
@@ -93,11 +105,11 @@ def run(reward_style,simulation_filepath=None,log_filepath=None):
                 'style':reward_style,
                 'previous_electricity_demand':previous_electricity_demand,
                 'previous_carbon_intensity':previous_carbon_intensity,
-                'exponential_scaling_factor':0.01,
+                'exponential_scaling_factor':0.002,
             }
             next_state, reward, done, misc = env.step(action,**step_kwargs)
-            logger.debug(f'previous_electricity_demand: {previous_electricity_demand}, previous_carbon_intensity: {previous_carbon_intensity}')
-            logger.debug(f'next_state: {next_state}, reward: {reward}, done: {done}, misc: {misc}')
+            logger.debug(f'previous_electricity_demand: {previous_electricity_demand}')
+            logger.debug(f'next_state: {next_state}, reward: {reward}')
             previous_electricity_demand = env.buildings_net_electricity_demand
             previous_carbon_intensity = env.current_carbon_intensity
             action_next, coordination_vars_next = agents.select_action(next_state, deterministic=is_evaluating)
@@ -106,7 +118,7 @@ def run(reward_style,simulation_filepath=None,log_filepath=None):
             coordination_vars = coordination_vars_next
             state = next_state
             action = action_next
-            is_evaluating = (j > 3*8760)
+            is_evaluating = (j >= deterministic_period_start)
             j += 1
             
     logger.debug(f'Reward style: {reward_style}, Loss - {env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
@@ -124,15 +136,30 @@ def __save(data,filepath='citylearn.pkl'):
     with open(filepath,'wb') as f:
         pickle.dump(data,f)
 
+def __get_climate_zones():
+    climate_zones = []
+
+    for climate_zone_directory in os.listdir('data'):
+        if climate_zone_directory.startswith('Climate_Zone'):
+            climate_zones.append(climate_zone_directory.split('_')[-1])
+        else:
+            continue
+    
+    return climate_zones
+
 def main():
     parser = argparse.ArgumentParser(prog='reward_function_exploration',description='Explore different reward functions in CityLearn environment.')
+    parser.add_argument('climate_zone',type=str,choices=__get_climate_zones(),help='Simulation climate zone.')
     parser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
     parser.add_argument('-sf','--simulation_filepath',type=str,default='simulation.pkl',dest='simulation_filepath',help='Filepath to write simulation.')
     parser.add_argument('-lf','--log_filepath',type=str,default='std.log',dest='log_filepath',help='Filepath to write log.')
+    parser.add_argument('-e','--episode_count',type=int,default=1,dest='episode_count',help='Number of episodes.')
+    parser.add_argument('-sps','--simulation_period_start',type=int,default=0,dest='simulation_period_start',help='Simulation start index.')
+    parser.add_argument('-spe','--simulation_period_end',type=int,default=8759,dest='simulation_period_end',help='Simulation end index.')
+    parser.add_argument('-dps','--deterministic_period_start',type=int,default=int(8760*3 + 1),dest='deterministic_period_start',help='Deterministic period start index.')
     args = parser.parse_args()
-    arg_spec = inspect.getfullargspec(run)
-    args_for_func = {k:getattr(args,k,None) for k in arg_spec.args}
-    run(**args_for_func)
+    kwargs = {key:value for (key, value) in args._get_kwargs()}
+    run(**kwargs)
 
 if __name__ == '__main__':
     sys.exit(main())
