@@ -26,10 +26,11 @@
 "non_shiftable_load": true,
 "solar_gen": true,
 "cooling_storage_soc": true,
+"heating_storage_soc": false,
 "dhw_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions":{"cooling_storage": true, "dhw_storage": true, "electrical_storage": true}},
+"actions":{"cooling_storage": true, "heating_storage": false, "dhw_storage": true, "electrical_storage": true}},
 
 "Building_2": {
 "states": {
@@ -59,10 +60,11 @@
 "non_shiftable_load": true,
 "solar_gen": true,
 "cooling_storage_soc": true,
+"heating_storage_soc": false,
 "dhw_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": true, "electrical_storage": true}},
+"actions": {"cooling_storage": true, "heating_storage": false, "dhw_storage": true, "electrical_storage": true}},
 
 "Building_3": {
 "states": {
@@ -92,10 +94,11 @@
 "non_shiftable_load": true,
 "solar_gen": true,
 "cooling_storage_soc": true,
+"heating_storage_soc": false,
 "dhw_storage_soc": false,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": false, "electrical_storage": true}},
+"actions": {"cooling_storage": true, "heating_storage": false, "dhw_storage": false, "electrical_storage": true}},
 
 "Building_4": {
 "states": {
@@ -125,10 +128,11 @@
 "non_shiftable_load": true,
 "solar_gen": true,
 "cooling_storage_soc": true,
+"heating_storage_soc": false,
 "dhw_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": false, "electrical_storage": true}},
+"actions": {"cooling_storage": true, "heating_storage": false, "dhw_storage": false, "electrical_storage": true}},
 
 "Building_5": {
 "states": {
@@ -158,10 +162,11 @@
 "non_shiftable_load": true,
 "solar_gen": true,
 "cooling_storage_soc": true,
+"heating_storage_soc": false,
 "dhw_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": true, "electrical_storage": true}},
+"actions": {"cooling_storage": true, "heating_storage": false, "dhw_storage": true, "electrical_storage": true}},
 
 "Building_6": {
 "states": {
@@ -191,10 +196,11 @@
 "non_shiftable_load": true,
 "solar_gen": true,
 "cooling_storage_soc": true,
+"heating_storage_soc": false,
 "dhw_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": true, "electrical_storage": true}},
+"actions": {"cooling_storage": true, "heating_storage": false, "dhw_storage": true, "electrical_storage": true}},
 
 "Building_7": {
 "states": {
@@ -224,10 +230,11 @@
 "non_shiftable_load": true,
 "solar_gen": true,
 "cooling_storage_soc": true,
+"heating_storage_soc": false,
 "dhw_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": true, "electrical_storage": true}},
+"actions": {"cooling_storage": true, "heating_storage": false, "dhw_storage": true, "electrical_storage": true}},
 
 "Building_8": {
 "states": {
@@ -257,10 +264,11 @@
 "non_shiftable_load": true,
 "solar_gen": true,
 "cooling_storage_soc": true,
+"heating_storage_soc": false,
 "dhw_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": true, "electrical_storage": true}},
+"actions": {"cooling_storage": true, "heating_storage": false, "dhw_storage": true, "electrical_storage": true}},
 
 "Building_9": {
 "states": {
@@ -290,8 +298,9 @@
 "non_shiftable_load": true,
 "solar_gen": true,
 "cooling_storage_soc": true,
+"heating_storage_soc": false,
 "dhw_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": true, "electrical_storage": true}}
+"actions": {"cooling_storage": true, "heating_storage": false, "dhw_storage": true, "electrical_storage": true}}
 }
