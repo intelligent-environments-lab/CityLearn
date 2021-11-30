@@ -120,7 +120,7 @@ class Building:
         return electrical_energy_balance
     
 
-    def set_storage_dhw_heating(self, action):
+    def set_storage_dhw(self, action):
         """
         Args:
             action (float): Amount of heating energy stored (added) in that time-step as a ratio of the maximum capacity of the energy storage device. 

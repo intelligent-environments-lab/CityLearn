@@ -404,7 +404,7 @@ class CityLearn(gym.Env):
 
                 if self.buildings_states_actions[uid]['actions']['dhw_storage']:
                     # DHW
-                    _electric_demand_dhw = building.set_storage_dhw_heating(actions[0])
+                    _electric_demand_dhw = building.set_storage_dhw(actions[0])
                     actions = actions[1:]
                     elec_consumption_dhw_storage += building._electric_consumption_dhw_storage
                 else:
@@ -462,7 +462,7 @@ class CityLearn(gym.Env):
 
                 if self.buildings_states_actions[uid]['actions']['dhw_storage']:
                     # DHW
-                    _electric_demand_dhw = building.set_storage_dhw_heating(actions[0])
+                    _electric_demand_dhw = building.set_storage_dhw(actions[0])
                     actions = actions[1:]
                     elec_consumption_dhw_storage += building._electric_consumption_dhw_storage
                 else:
