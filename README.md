@@ -5,14 +5,10 @@ CityLearn is an open source OpenAI Gym environment for the implementation of Mul
 Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Flattening, smoothening, and reducing the overall curve of electrical demand helps reduce operational and capital costs of electricity generation, transmission, and distribution networks. Demand response is the coordination of electricity consuming agents (i.e. buildings) in order to reshape the overall curve of electrical demand.
 CityLearn allows the easy implementation of reinforcement learning agents in a multi-agent setting to reshape their aggregated curve of electrical demand by controlling the storage of energy by every agent. Currently, CityLearn allows controlling the storage of domestic hot water (DHW), and chilled water (for sensible cooling and dehumidification). CityLearn also includes models of air-to-water heat pumps, electric heaters, solar photovoltaic arrays, and the pre-computed energy loads of the buildings, which include space cooling, dehumidification, appliances, DHW, and solar generation.
 ## Requirements
-CityLearn requires the installation of the following Python libraries:
-- Pandas 0.24.2 or older
-- Numpy 1.16.4 or older
-- Gym 0.14.0
-- Json 2.0.9
-
-In order to run the main files with the sample agent provided you will need:
-- PyTorch 1.1.0
+Refer to [requirements.txt](requirements.txt) for a list of CityLearn Python library dependencies. You may install the required libraries by executing the following command:
+```console
+pip install -r requirements.txt
+```
 
 CityLearn may still work with some earlier versions of these libraries, but we have tested it with those.
 
