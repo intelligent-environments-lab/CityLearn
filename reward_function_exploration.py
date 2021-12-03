@@ -78,7 +78,7 @@ def run(**kwargs):
         'action_scaling_coef':0.5, # Actions are multiplied by this factor to prevent too aggressive actions
         'reward_scaling':5., # Rewards are normalized and multiplied by this factor
         'update_per_step':2, # How many times the actor-critic networks are updated every hourly time-step
-        'iterations_as':2,# Iterations of the iterative action selection (see MARLISA paper for more info)
+        'iterations_as':10,# Iterations of the iterative action selection (see MARLISA paper for more info)
         'safe_exploration':True
     } 
 
