@@ -7,7 +7,8 @@ import pickle
 import sys
 import time
 from agents.marlisa import MARLISA
-from citylearn import  CityLearn
+from citylearn import CityLearn, RBC_Agent
+import cost_function
 from reward_function import reward_function_ma
 
 def run(**kwargs):
@@ -85,8 +86,14 @@ def run(**kwargs):
     # Instantiating the control agent(s)
     agents = MARLISA(**params_agent)
     start = time.time()
-    previous_electricity_demand = None
-    previous_carbon_intensity = None
+    step_kwargs = {
+        'style':reward_style,
+        'previous_electricity_demand':None,
+        'previous_carbon_intensity':None,
+        'exponential_scaling_factor':0.002,
+    }
+    baseline = {'params_env':params_env}
+    timestep_costs = []
 
     for _ in range(episode_count): 
         state = env.reset()
@@ -97,32 +104,86 @@ def run(**kwargs):
         
         while not done:
             logger.debug(f'Timestep: {j+1}/{int(params_env["simulation_period"][1])}')
-            step_kwargs = {
-                'style':reward_style,
-                'previous_electricity_demand':previous_electricity_demand,
-                'previous_carbon_intensity':previous_carbon_intensity,
-                'exponential_scaling_factor':0.002,
-            }
             next_state, reward, done, misc = env.step(action,**step_kwargs)
-            logger.debug(f'previous_electricity_demand: {previous_electricity_demand}')
-            logger.debug(f'next_state: {next_state}, reward: {reward}')
-            previous_electricity_demand = env.buildings_net_electricity_demand
-            previous_carbon_intensity = env.current_carbon_intensity
+            logger.debug(f'next_state: {next_state}')
+            logger.debug(f'reward: {reward}')
+            step_kwargs['previous_electricity_demand'] = env.buildings_net_electricity_demand
+            step_kwargs['previous_carbon_intensity'] = env.current_carbon_intensity
             action_next, coordination_vars_next = agents.select_action(next_state, deterministic=is_evaluating)
-            logger.debug(f'action_next: {action_next}, coordination_vars_next: {coordination_vars_next}')
+            logger.debug(f'action_next: {action_next}')
             agents.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
             coordination_vars = coordination_vars_next
             state = next_state
             action = action_next
             is_evaluating = (j >= deterministic_period_start)
+            
+            # calculate timestep cost
+            baseline = {**run_baseline(**baseline),**baseline}
+            timestep_cost = {}
+
+            for agent_name, agent_env in zip(['agent','baseline'],[env,baseline['env']]):
+                cost_kwargs = {
+                    'net_electric_consumption':agent_env.net_electric_consumption,
+                    'carbon_emissions':agent_env.carbon_emissions,
+                }
+                timestep_cost[agent_name] = {key:get_cost(key,**cost_kwargs) for key in params_env['cost_function']}
+
+            timestep_costs.append(timestep_cost)
+            logger.debug(f'cost: {timestep_cost}')
+
             j += 1
             
     logger.debug(f'Reward style: {reward_style}, Loss - {env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
-    data = {'env':env,'agents':agents}
+    data = {
+        'env':env,
+        'agents':agents,
+        'misc':{
+            'timestep_costs':timestep_costs
+        }
+    }
     simulation_filepath = os.path.join(output_directory,f'{reward_style}.pkl')
-    __save(data,filepath=simulation_filepath)
+    save(data,filepath=simulation_filepath)
 
-def __save(data,filepath='citylearn.pkl'):
+def get_cost(key,**kwargs):
+    reference = {
+        'ramping':cost_function.ramping,
+        '1-load_factor':cost_function.load_factor,
+        'average_daily_peak':cost_function.average_daily_peak,
+        'peak_demand':cost_function.peak_demand,
+        'net_electricity_consumption':cost_function.net_electric_consumption,
+        'carbon_emissions':cost_function.carbon_emissions,
+        'quadratic':cost_function.quadratic,
+    }
+    function = reference[key]
+    arg_spec = inspect.getfullargspec(function)
+    function_kwargs = {k:kwargs.get(k) for k in arg_spec.args if k in kwargs.keys()}
+    cost = function(**function_kwargs)
+    return cost
+
+def run_baseline(env=None,agent=None,done=None,params_env=None,iterations=1):
+    if env is None:
+        env = CityLearn(**params_env)
+        _, actions_spaces = env.get_state_action_spaces()
+
+        #Instantiatiing the control agent(s)
+        agent = RBC_Agent(actions_spaces)
+        _ = env.reset()
+        done = False
+
+    else:
+        pass
+
+    if not done:
+        for _ in range(iterations):
+            action = agent.select_action([list(env.buildings.values())[0].sim_results['hour'][env.time_step]])
+            _, _, done, _ = env.step(action)
+
+    else:
+        pass
+    
+    return {'env':env,'agent':agent,'done':done}
+
+def save(data,filepath='citylearn.pkl'):
     directory = '/'.join(filepath.split('/')[0:-1])
     
     if directory != filepath:
@@ -133,7 +194,7 @@ def __save(data,filepath='citylearn.pkl'):
     with open(filepath,'wb') as f:
         pickle.dump(data,f)
 
-def __get_climate_zones():
+def get_climate_zones():
     climate_zones = []
 
     for climate_zone_directory in os.listdir('data'):
@@ -146,7 +207,7 @@ def __get_climate_zones():
 
 def main():
     parser = argparse.ArgumentParser(prog='reward_function_exploration',description='Explore different reward functions in CityLearn environment.')
-    parser.add_argument('climate_zone',type=str,choices=__get_climate_zones(),help='Simulation climate zone.')
+    parser.add_argument('climate_zone',type=str,choices=get_climate_zones(),help='Simulation climate zone.')
     parser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
     parser.add_argument('-e','--episode_count',type=int,default=1,dest='episode_count',help='Number of episodes.')
     parser.add_argument('-sps','--simulation_period_start',type=int,default=0,dest='simulation_period_start',help='Simulation start index.')
