@@ -12,11 +12,11 @@
 # load modules
 module load launcher
 
-# set environment variables
-export LAUNCHER_WORKDIR=/work/07083/ken658/projects/citylearn/CityLearn
-export LAUNCHER_JOB_FILE=reward_function_exploration.sh
-
 # activate virtual environment
 source /work/07083/ken658/projects/citylearn/env/bin/activate
+
+# set environment variables
+export LAUNCHER_WORKDIR=/work/07083/ken658/projects/citylearn/CityLearn
+export LAUNCHER_JOB_FILE=reward_function_exploration
 
 ${LAUNCHER_DIR}/paramrun
