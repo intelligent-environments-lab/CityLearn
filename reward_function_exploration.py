@@ -1,5 +1,4 @@
 import argparse
-import inspect
 import logging
 import os
 from pathlib import Path
@@ -8,7 +7,6 @@ import sys
 import time
 from agents.marlisa import MARLISA
 from citylearn import CityLearn, RBC_Agent
-import cost_function
 from reward_function import reward_function_ma
 
 def run(**kwargs):
@@ -29,6 +27,8 @@ def run(**kwargs):
     start = time.time()
     env, agent = runner(**kwargs)
     logger.debug(f'Loss - {env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
+
+    # save simulation
     data = {'env':env,'agents':agent}
     simulation_filepath = os.path.join(output_directory,f'{simulation_id}.pkl')
     save(data,filepath=simulation_filepath)
@@ -169,10 +169,7 @@ def __run_rbc(**kwargs):
             logger.debug(f'Timestep: {j+1}/{int(env.simulation_period[1])}')
             hour = list(env.buildings.values())[0].sim_results['hour'][env.time_step]
             action = agent.select_action([hour])
-            _, reward, done, _ = env.step(action,**step_kwargs)
-            step_kwargs['previous_electricity_demand'] = env.buildings_net_electricity_demand
-            step_kwargs['previous_carbon_intensity'] = env.current_carbon_intensity
-            logger.debug(f'reward: {reward}')
+            _, _, done, _ = env.step(action,**step_kwargs)
             j += 1
 
     return env, agent
@@ -182,22 +179,6 @@ def get_logger(filepath):
     logger = logging.getLogger() 
     logger.setLevel(logging.DEBUG)
     return logger
-
-def get_cost(key,**kwargs):
-    reference = {
-        'ramping':cost_function.ramping,
-        '1-load_factor':cost_function.load_factor,
-        'average_daily_peak':cost_function.average_daily_peak,
-        'peak_demand':cost_function.peak_demand,
-        'net_electricity_consumption':cost_function.net_electric_consumption,
-        'carbon_emissions':cost_function.carbon_emissions,
-        'quadratic':cost_function.quadratic,
-    }
-    function = reference[key]
-    arg_spec = inspect.getfullargspec(function)
-    function_kwargs = {k:kwargs.get(k) for k in arg_spec.args if k in kwargs.keys()}
-    cost = function(**function_kwargs)
-    return cost
 
 def save(data,filepath='citylearn.pkl'):
     directory = '/'.join(filepath.split('/')[0:-1])
@@ -210,20 +191,9 @@ def save(data,filepath='citylearn.pkl'):
     with open(filepath,'wb') as f:
         pickle.dump(data,f)
 
-def get_climate_zones():
-    climate_zones = []
-
-    for climate_zone_directory in os.listdir('data'):
-        if climate_zone_directory.startswith('Climate_Zone'):
-            climate_zones.append(climate_zone_directory.split('_')[-1])
-        else:
-            continue
-    
-    return climate_zones
-
 def main():
     parser = argparse.ArgumentParser(prog='reward_function_exploration',description='Explore different reward functions in CityLearn environment.')
-    parser.add_argument('climate_zone',type=str,choices=get_climate_zones(),help='Simulation climate zone.')
+    parser.add_argument('climate_zone',type=str,choices=['1','2','3','4','5'],help='Simulation climate zone.')
     parser.add_argument('agent_name',type=str,choices=['marlisa','rbc'],help='Simulation agent.')
     parser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
     parser.add_argument('-e','--episode_count',type=int,default=1,dest='episode_count',help='Number of episodes.')
