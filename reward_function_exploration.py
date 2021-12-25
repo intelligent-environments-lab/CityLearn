@@ -1,4 +1,5 @@
 import argparse
+import inspect
 import logging
 import os
 from pathlib import Path
@@ -6,6 +7,7 @@ import pickle
 import sys
 import time
 from agents.marlisa import MARLISA
+from agents.rl_agents_coord import RL_Agents_Coord
 from citylearn import CityLearn, RBC_Agent
 from reward_function import reward_function_ma
 
@@ -13,8 +15,7 @@ def run(**kwargs):
     agent_name = kwargs['agent_name']
     reward_style = kwargs['reward_style']
     simulation_id = f'{agent_name}-{reward_style}'
-    climate_zone_directory = os.path.join('data_reward_function_exploration',f'Climate_Zone_{kwargs["climate_zone"]}')
-    output_directory = os.path.join(climate_zone_directory,'reward_function_exploration')
+    output_directory = os.path.join(kwargs['data_path'],'reward_function_exploration')
     os.makedirs(output_directory,exist_ok=True)
     
     # get logger
@@ -26,7 +27,7 @@ def run(**kwargs):
     kwargs = {**kwargs,'env':env,'agent':agent,'step_kwargs':step_kwargs,'logger':logger}
     start = time.time()
     env, agent = runner(**kwargs)
-    logger.debug(f'Loss - {env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
+    logger.debug(f'Cost - {env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
 
     # save simulation
     data = {'env':env,'agents':agent}
@@ -41,85 +42,95 @@ def get_run_params(**kwargs):
         'previous_carbon_intensity':None,
         'exponential_scaling_factor':0.002,
     }
-    agent_params = get_agent_params(kwargs['agent_name'],env)
+    agent_params = get_agent_params(env,**kwargs)
     agent = agent_params['constructor'](**agent_params['constructor_kwargs'])
     runner = agent_params['runner']
     return env, agent, step_kwargs, runner
 
 def get_env(**kwargs):
-    climate_zone = kwargs['climate_zone']
-    simulation_period_start = kwargs.get('simulation_period_start',0)
-    simulation_period_end = kwargs.get('simulation_period_end',8759)
-    data_directory = 'data_reward_function_exploration'
-    climate_zone_directory = os.path.join(data_directory,f'Climate_Zone_{climate_zone}')
-    output_directory = os.path.join(climate_zone_directory,'reward_function_exploration')
-    os.makedirs(output_directory,exist_ok=True)
-    building_ids = ["Building_"+str(i) for i in range(1,10)]
-    env_kwargs = {
-        'data_path':Path(climate_zone_directory), 
-        'building_attributes':'building_attributes.json', 
-        'weather_file':'weather_data.csv', 
-        'solar_profile':'solar_generation_1kW.csv', 
-        'carbon_intensity':'carbon_intensity.csv',
-        'building_ids':building_ids,
-        'buildings_states_actions':'buildings_state_action_space.json', 
-        'simulation_period': (simulation_period_start,simulation_period_end), 
-        'cost_function': [
-            'ramping',
-            '1-load_factor',
-            'average_daily_peak',
-            'peak_demand',
-            'net_electricity_consumption',
-            'carbon_emissions'
-        ], 
-        'central_agent': False,
-        'save_memory': False
+    arg_spec = inspect.getfullargspec(CityLearn)
+    kwargs = {
+        key:value for (key, value) in kwargs.items()
+        if (key in arg_spec.args or (arg_spec.varkw is not None and key not in ['func','subcommands']))
     }
-    env = CityLearn(**env_kwargs)
+    env = CityLearn(**kwargs)
     return env
 
-def get_agent_params(agent_name,env):
+def get_agent_params(env,**kwargs):
     observations_spaces, actions_spaces = env.get_state_action_spaces()
-    building_info = env.get_building_information()
-    building_ids = env.building_ids
-    agent_params = {
+    agent_handlers = __get_agent_handlers()
+    
+    constructor_kwargs = {
+        'building_ids':env.building_ids,
+        'buildings_states_actions':env.buildings_states_actions_filename, 
+        'building_info':env.get_building_information(),
+        'observation_spaces':observations_spaces, 
+        'action_spaces':actions_spaces,
+        **kwargs
+    }
+    agent_name = kwargs['agent_name']
+    arg_spec = inspect.getfullargspec(agent_handlers[agent_name]['constructor'])
+    constructor_kwargs = {
+        key:value for (key, value) in constructor_kwargs.items()
+        if (key in arg_spec.args or (arg_spec.varkw is not None and key not in ['func','subcommands']))
+    }
+    params = {**agent_handlers[agent_name],**{'constructor_kwargs':constructor_kwargs}}
+    return params
+
+def __get_agent_handlers():
+    return {
+        'rl_agents_coord': {
+            'constructor':RL_Agents_Coord,
+            'runner':__run_marlisa
+        },
         'marlisa': {
-            'constructor_kwargs':{
-                'building_ids':building_ids,
-                'buildings_states_actions':'buildings_state_action_space.json', 
-                'building_info':building_info,
-                'observation_spaces':observations_spaces, 
-                'action_spaces':actions_spaces, 
-                'hidden_dim':[256,256], 
-                'discount':0.99, 
-                'tau':5e-3, 
-                'lr':3e-4, 
-                'batch_size':256, 
-                'replay_buffer_capacity':1e5, 
-                'regression_buffer_capacity':3e4, 
-                'start_training':600, # Start updating actor-critic networks
-                'exploration_period':7500, # Just taking random actions
-                'start_regression':500, # Start training the regression model
-                'information_sharing':True, # If True -> set the appropriate 'reward_function_ma' in reward_function.py
-                'pca_compression':.95, 
-                'action_scaling_coef':0.5, # Actions are multiplied by this factor to prevent too aggressive actions
-                'reward_scaling':5., # Rewards are normalized and multiplied by this factor
-                'update_per_step':2, # How many times the actor-critic networks are updated every hourly time-step
-                'iterations_as':10,# Iterations of the iterative action selection (see MARLISA paper for more info)
-                'safe_exploration':True
-            },
             'constructor':MARLISA,
             'runner':__run_marlisa
         },
         'rbc':{
-            'constructor_kwargs':{
-                'actions_spaces':actions_spaces
-            },
             'constructor':RBC_Agent,
             'runner':__run_rbc
         },
     }
-    return agent_params[agent_name]
+
+def __get_env_params():
+    cost_function_choices = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption','carbon_emissions']
+    default_building_ids = [f'Building_{i}' for i in range(1,10)]
+    return {
+        'data_path':{'required':True,'type':Path},
+        'building_attributes':{'default':Path('building_attributes.json'),'type':Path}, 
+        'weather_file':{'default':Path('weather_data.csv'),'type':Path}, 
+        'solar_profile':{'default':Path('solar_generation_1kW.csv'),'type':Path}, 
+        'carbon_intensity':{'default':Path('carbon_intensity.csv'),'type':Path}, 
+        'building_ids':{'default':default_building_ids,'nargs':'+','type':str}, 
+        'buildings_states_actions':{'default':'buildings_state_action_space.json','type':str}, 
+        'simulation_period':{'default':[0,8760],'nargs':2,'type':int}, 
+        'cost_function':{'default':cost_function_choices,'nargs':'+','choices':cost_function_choices,'type':str},
+        'central_agent':{'default':False,'action':'store_true'},
+        'save_memory':{'default':False,'action':'store_true'},
+    }
+
+def __get_agent_params():
+    return {
+        'hidden_dim':{'default':[256,256],'nargs':2,'type':int}, 
+        'discount':{'default':0.99,'type':float}, 
+        'tau':{'default':5e-3,'type':float}, 
+        'lr':{'default':3e-4,'type':float}, 
+        'batch_size':{'default':256,'type':int}, 
+        'replay_buffer_capacity':{'default':1e5,'type':float}, 
+        'regression_buffer_capacity':{'default':8760,'type':float}, 
+        'start_training':{'default':600,'type':int}, 
+        'exploration_period':{'default':7500,'type':int},
+        'start_regression':{'default':500,'type':int}, 
+        'information_sharing':{'default':False,'action':'store_true'}, 
+        'pca_compression':{'default':0.95,'type':float}, 
+        'action_scaling_coef':{'default':1.0,'type':float}, 
+        'reward_scaling':{'default':0.5,'type':float}, 
+        'update_per_step':{'default':1,'type':int}, 
+        'iterations_as':{'default':2,'type':int}, 
+        'safe_exploration':{'default':False,'action':'store_true'},
+        'seed':{'default':0,'type':int},
+    }
 
 def __run_marlisa(**kwargs):
     env = kwargs['env']
@@ -129,7 +140,7 @@ def __run_marlisa(**kwargs):
     episode_count = kwargs.get('episode_count',1)
     deterministic_period_start = kwargs.get('deterministic_period_start',3*8760 + 1)
 
-    for _ in range(episode_count): 
+    for i in range(episode_count): 
         state = env.reset()
         done = False
         j = 0
@@ -137,7 +148,7 @@ def __run_marlisa(**kwargs):
         action, coordination_vars = agent.select_action(state, deterministic=is_evaluating)    
         
         while not done:
-            logger.debug(f'Timestep: {j+1}/{int(env.simulation_period[1])}')
+            logger.debug(f'Episode: {i+1}/{int(episode_count)} | Timestep: {j+1}/{int(env.simulation_period[1])}')
             next_state, reward, done, _ = env.step(action,**step_kwargs)
             step_kwargs['previous_electricity_demand'] = env.buildings_net_electricity_demand
             step_kwargs['previous_carbon_intensity'] = env.current_carbon_intensity
@@ -160,13 +171,13 @@ def __run_rbc(**kwargs):
     step_kwargs = kwargs['step_kwargs']
     episode_count = kwargs.get('episode_count',1)
 
-    for _ in range(episode_count): 
+    for i in range(episode_count): 
         _ = env.reset()
         done = False
         j = 0
         
         while not done:
-            logger.debug(f'Timestep: {j+1}/{int(env.simulation_period[1])}')
+            logger.debug(f'Episode: {i+1}/{int(episode_count)} | Timestep: {j+1}/{int(env.simulation_period[1])}')
             hour = list(env.buildings.values())[0].sim_results['hour'][env.time_step]
             action = agent.select_action([hour])
             _, _, done, _ = env.step(action,**step_kwargs)
@@ -192,14 +203,19 @@ def save(data,filepath='citylearn.pkl'):
         pickle.dump(data,f)
 
 def main():
-    parser = argparse.ArgumentParser(prog='reward_function_exploration',description='Explore different reward functions in CityLearn environment.')
-    parser.add_argument('climate_zone',type=str,choices=['1','2','3','4','5'],help='Simulation climate zone.')
-    parser.add_argument('agent_name',type=str,choices=['marlisa','rbc'],help='Simulation agent.')
+    parser = argparse.ArgumentParser(prog='reward_function_exploration',formatter_class=argparse.ArgumentDefaultsHelpFormatter,description='Explore different reward functions in CityLearn environment.')
+    parser.add_argument('agent_name',type=str,choices=list(__get_agent_handlers().keys()),help='Simulation agent.')
     parser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
     parser.add_argument('-e','--episode_count',type=int,default=1,dest='episode_count',help='Number of episodes.')
-    parser.add_argument('-sps','--simulation_period_start',type=int,default=0,dest='simulation_period_start',help='Simulation start index.')
-    parser.add_argument('-spe','--simulation_period_end',type=int,default=8759,dest='simulation_period_end',help='Simulation end index.')
-    parser.add_argument('-dps','--deterministic_period_start',type=int,default=int(8760*3 + 1),dest='deterministic_period_start',help='Deterministic period start index.')
+    parser.add_argument('-dps','--deterministic_period_start',type=int,default=int(7500),dest='deterministic_period_start',help='Deterministic period start index.')
+    # env kwargs
+    for env_kwarg, arg_kwargs in __get_env_params().items():
+        parser.add_argument(f'--{env_kwarg}',dest=env_kwarg,**arg_kwargs,help=' ')
+
+    # agent kwargs
+    for agent_kwarg, arg_kwargs in __get_agent_params().items():
+        parser.add_argument(f'--{agent_kwarg}',dest=agent_kwarg,**arg_kwargs,help=' ')
+
     args = parser.parse_args()
     kwargs = {key:value for (key, value) in args._get_kwargs()}
     run(**kwargs)
