@@ -1,0 +1,334 @@
+{
+  "Climate_Zone_2": {
+    "Building_1": {
+      "Solar_Power_Installed(kW)": 120.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_2": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_3": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 0.0
+      }
+    },
+    "Building_4": {
+      "Solar_Power_Installed(kW)": 40.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_5": {
+      "Solar_Power_Installed(kW)": 25.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_6": {
+      "Solar_Power_Installed(kW)": 20.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_7": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_8": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_9": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    }
+  },
+  "Climate_Zone_3": {
+    "Building_1": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 2.0
+      },
+      "DHW_Tank": {
+        "capacity": 2.0
+      }
+    },
+    "Building_2": {
+      "Solar_Power_Installed(kW)": 30.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 2.5
+      }
+    },
+    "Building_3": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 2.0
+      },
+      "DHW_Tank": {
+        "capacity": 0.0
+      }
+    },
+    "Building_4": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 2.5
+      },
+      "DHW_Tank": {
+        "capacity": 0.0
+      }
+    },
+    "Building_5": {
+      "Solar_Power_Installed(kW)": 25.0,
+      "Chilled_Water_Tank": {
+        "capacity": 1.5
+      },
+      "DHW_Tank": {
+        "capacity": 2.0
+      }
+    },
+    "Building_6": {
+      "Solar_Power_Installed(kW)": 25.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_7": {
+      "Solar_Power_Installed(kW)": 25.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_8": {
+      "Solar_Power_Installed(kW)": 25.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.5
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_9": {
+      "Solar_Power_Installed(kW)": 25.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    }
+  },
+  "Climate_Zone_4": {
+    "Building_1": {
+      "Solar_Power_Installed(kW)": 20.0,
+      "Chilled_Water_Tank": {
+        "capacity": 1.5
+      },
+      "DHW_Tank": {
+        "capacity": 1.5
+      }
+    },
+    "Building_2": {
+      "Solar_Power_Installed(kW)": 20.0,
+      "Chilled_Water_Tank": {
+        "capacity": 2.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_3": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 0.0
+      }
+    },
+    "Building_4": {
+      "Solar_Power_Installed(kW)": 40.0,
+      "Chilled_Water_Tank": {
+        "capacity": 2.0
+      },
+      "DHW_Tank": {
+        "capacity": 0.0
+      }
+    },
+    "Building_5": {
+      "Solar_Power_Installed(kW)": 15.0,
+      "Chilled_Water_Tank": {
+        "capacity": 2.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_6": {
+      "Solar_Power_Installed(kW)": 5.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_7": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 1.5
+      },
+      "DHW_Tank": {
+        "capacity": 2.0
+      }
+    },
+    "Building_8": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_9": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    }
+  },
+  "Climate_Zone_5": {
+    "Building_1": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 4.0
+      },
+      "DHW_Tank": {
+        "capacity": 4.0
+      }
+    },
+    "Building_2": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_3": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 0.0
+      }
+    },
+    "Building_4": {
+      "Solar_Power_Installed(kW)": 25.0,
+      "Chilled_Water_Tank": {
+        "capacity": 2.0
+      },
+      "DHW_Tank": {
+        "capacity": 0.0
+      }
+    },
+    "Building_5": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 2.0
+      },
+      "DHW_Tank": {
+        "capacity": 2.0
+      }
+    },
+    "Building_6": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_7": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_8": {
+      "Solar_Power_Installed(kW)": 20.0,
+      "Chilled_Water_Tank": {
+        "capacity": 2.0
+      },
+      "DHW_Tank": {
+        "capacity": 3.0
+      }
+    },
+    "Building_9": {
+      "Solar_Power_Installed(kW)": 0.0,
+      "Chilled_Water_Tank": {
+        "capacity": 3.0
+      },
+      "DHW_Tank": {
+        "capacity": 2.0
+      }
+    }
+  }
+}
