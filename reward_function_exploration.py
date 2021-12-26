@@ -14,7 +14,7 @@ from reward_function import reward_function_ma
 def run(**kwargs):
     agent_name = kwargs['agent_name']
     reward_style = kwargs['reward_style']
-    simulation_id = f'{agent_name}-{reward_style}'
+    simulation_id = kwargs.get('simulation_id') if kwargs.get('simulation_id') is not None else f'{agent_name}-{reward_style}'
     output_directory = os.path.join(kwargs['data_path'],'reward_function_exploration')
     os.makedirs(output_directory,exist_ok=True)
     
@@ -32,7 +32,7 @@ def run(**kwargs):
     # save simulation
     data = {'env':env,'agents':agent}
     simulation_filepath = os.path.join(output_directory,f'{simulation_id}.pkl')
-    save(data,filepath=simulation_filepath)
+    save(data,simulation_filepath)
 
 def get_run_params(**kwargs):
     env = get_env(**kwargs)
@@ -137,8 +137,8 @@ def __run_marlisa(**kwargs):
     agent = kwargs['agent']
     logger = kwargs['logger']
     step_kwargs = kwargs['step_kwargs']
-    episode_count = kwargs.get('episode_count',1)
-    deterministic_period_start = kwargs.get('deterministic_period_start',3*8760 + 1)
+    episode_count = kwargs['episode_count']
+    deterministic_period_start = kwargs['deterministic_period_start']
 
     for i in range(episode_count): 
         state = env.reset()
@@ -169,7 +169,7 @@ def __run_rbc(**kwargs):
     agent = kwargs['agent']
     logger = kwargs['logger']
     step_kwargs = kwargs['step_kwargs']
-    episode_count = kwargs.get('episode_count',1)
+    episode_count = kwargs['episode_count']
 
     for i in range(episode_count): 
         _ = env.reset()
@@ -191,7 +191,7 @@ def get_logger(filepath):
     logger.setLevel(logging.DEBUG)
     return logger
 
-def save(data,filepath='citylearn.pkl'):
+def save(data,filepath):
     directory = '/'.join(filepath.split('/')[0:-1])
     
     if directory != filepath:
@@ -206,6 +206,7 @@ def main():
     parser = argparse.ArgumentParser(prog='reward_function_exploration',formatter_class=argparse.ArgumentDefaultsHelpFormatter,description='Explore different reward functions in CityLearn environment.')
     parser.add_argument('agent_name',type=str,choices=list(__get_agent_handlers().keys()),help='Simulation agent.')
     parser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
+    parser.add_argument('-id','--simulation_id',type=str,dest='simulation_id',help='ID used to name simulation output files. The default is <agent_name>-<reward_style>.')
     parser.add_argument('-e','--episode_count',type=int,default=1,dest='episode_count',help='Number of episodes.')
     parser.add_argument('-dps','--deterministic_period_start',type=int,default=int(7500),dest='deterministic_period_start',help='Deterministic period start index.')
     # env kwargs
