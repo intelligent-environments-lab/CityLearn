@@ -6,6 +6,7 @@ import pandas as pd
 source_directory = 'data'
 destination_directory = 'data_reward_function_exploration'
 building_attributes_update_filepath = 'building_attributes_update.json'
+building_state_action_space_filepath = 'buildings_state_action_space.json'
 carbon_intensity_filepath = 'data/Climate_Zone_5/carbon_intensity.csv'
 
 # copy original data directory
@@ -16,26 +17,40 @@ else:
 
 destination = shutil.copytree(source_directory,destination_directory)
 
-# adjust attributes
+# adjust attributes and state action space
 with open(building_attributes_update_filepath) as f:
         building_attributes_update = json.load(f)
 
 for climate_zone, climate_zone_building_attributes_update in building_attributes_update.items():
-    filepath = os.path.join(
-        destination_directory,
-        os.path.join(climate_zone,'building_attributes.json')
-    )
-    with open(filepath) as f:
+    climate_zone_building_attributes_source_filepath = os.path.join(destination_directory,os.path.join(climate_zone,'building_attributes.json'))
+    climate_zone_building_attributes_destination_filepath = climate_zone_building_attributes_source_filepath
+    climate_zone_building_state_action_space_source_filepath = building_state_action_space_filepath
+    climate_zone_building_state_action_space_destination_filepath = os.path.join(destination_directory,os.path.join(climate_zone,'buildings_state_action_space.json'))
+
+    with open(climate_zone_building_attributes_source_filepath) as f:
         climate_zone_building_attributes = json.load(f)
 
-    for (_, building_attributes), (_, building_attributes_update) in zip(climate_zone_building_attributes.items(), climate_zone_building_attributes_update.items()):
-        building_attributes['Solar_Power_Installed(kW)'] = building_attributes_update['Solar_Power_Installed(kW)']
-        building_attributes['Chilled_Water_Tank']['capacity'] = building_attributes_update['Chilled_Water_Tank']['capacity']
-        building_attributes['DHW_Tank']['capacity'] = building_attributes_update['DHW_Tank']['capacity']
-        building_attributes['Battery']['capacity'] = 0
+    with open(climate_zone_building_state_action_space_source_filepath) as f:
+        climate_zone_building_state_action_space = json.load(f)
 
-    with open(filepath,'w') as f:
+    for building in climate_zone_building_attributes:
+        climate_zone_building_attributes[building]['Solar_Power_Installed(kW)'] = climate_zone_building_attributes_update[building]['Solar_Power_Installed(kW)']
+        climate_zone_building_attributes[building]['Chilled_Water_Tank']['capacity'] = climate_zone_building_attributes_update[building]['Chilled_Water_Tank']['capacity']
+        climate_zone_building_attributes[building]['DHW_Tank']['capacity'] = climate_zone_building_attributes_update[building]['DHW_Tank']['capacity']
+        climate_zone_building_attributes[building]['Battery']['capacity'] = 0
+        climate_zone_building_state_action_space[building]['states']['solar_gen'] = True if climate_zone_building_attributes[building]['Solar_Power_Installed(kW)'] > 0 else False
+        climate_zone_building_state_action_space[building]['states']['cooling_storage_soc'] = True if climate_zone_building_attributes[building]['Chilled_Water_Tank']['capacity'] > 0 else False
+        climate_zone_building_state_action_space[building]['states']['dhw_storage_soc'] = True if climate_zone_building_attributes[building]['DHW_Tank']['capacity'] > 0 else False
+        climate_zone_building_state_action_space[building]['states']['electrical_storage_soc'] = True if climate_zone_building_attributes[building]['Battery']['capacity'] > 0 else False
+        climate_zone_building_state_action_space[building]['actions']['cooling_storage'] = climate_zone_building_state_action_space[building]['states']['cooling_storage_soc']
+        climate_zone_building_state_action_space[building]['actions']['dhw_storage'] = climate_zone_building_state_action_space[building]['states']['dhw_storage_soc']
+        climate_zone_building_state_action_space[building]['actions']['electrical_storage'] = climate_zone_building_state_action_space[building]['states']['electrical_storage_soc']
+
+    with open(climate_zone_building_attributes_destination_filepath,'w') as f:
         json.dump(climate_zone_building_attributes,f,sort_keys=False,indent=2)
+
+    with open(climate_zone_building_state_action_space_destination_filepath,'w') as f:
+        json.dump(climate_zone_building_state_action_space,f,sort_keys=False,indent=2)
 
 # set carbon intensity data
 carbon_intensity = pd.read_csv(carbon_intensity_filepath)
