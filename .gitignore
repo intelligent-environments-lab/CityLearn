@@ -4,3 +4,7 @@ __pycache__
 .DS_Store
 .ipynb_checkpoints
 */*/reward_function_exploration
+notes.txt
+grid_search_data/
+grid_search
+grid_search.csv
