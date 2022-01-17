@@ -11,6 +11,7 @@ SOURCE_CARBON_INTENSITY_FILEPATH = os.path.join(SOURCE_DATA_DIRECTORY,'Climate_Z
 GRID_SEARCH_FILEPATH = 'grid_search.json'
 BUILDING_MULTIPLIER = 9
 PYTHON_EXECUTION = 'python -m citylearn_cli'
+CLIMATE_ZONES = [2]
 
 def main():
     if os.path.isdir(DESTINATION_DATA_DIRECTORY):
@@ -31,7 +32,7 @@ def set_grid():
     grid['--start_regression'] = (grid['--start_training']*0.5).astype(int)
     grid_list = []
     
-    for data_path in [os.path.join(DESTINATION_DATA_DIRECTORY,d) for d in os.listdir(DESTINATION_DATA_DIRECTORY) if d.startswith('Climate_')]:
+    for data_path in [os.path.join(DESTINATION_DATA_DIRECTORY,f'Climate_Zone_{i}') for i in CLIMATE_ZONES]:
         for i in range(1,BUILDING_MULTIPLIER+1):
             grid_copy = grid.copy()
             grid_copy['--data_path'] = data_path
@@ -47,6 +48,7 @@ def set_grid():
     ]
     script = '\n'.join(script)
     write_data(script,GRID_SEARCH_FILEPATH.split(".")[0])
+    print('Number of simulations to run:',{grid.shape[0]})
 
 def set_building_data():
     for source_climate_zone_directory in [os.path.join(SOURCE_DATA_DIRECTORY,d) for d in os.listdir(SOURCE_DATA_DIRECTORY) if d.startswith('Climate_')]:
