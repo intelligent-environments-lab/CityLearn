@@ -25,7 +25,7 @@ class CityLearn_CLI:
             os.makedirs(self.__output_directory,exist_ok=True)
         else:
             self.__output_directory = ''
-            
+
         self.set_logger()
         self.__set_run_params()
         start = time.time()
@@ -33,7 +33,7 @@ class CityLearn_CLI:
         try:
             self.__runner()
             self.__logger.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
-        except:
+        finally:
             self.__save()
 
     def __set_run_params(self):
