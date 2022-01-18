@@ -1,7 +1,7 @@
 {
     "agent_name":["marlisa"],
     "reward_style":["default","marlisa","ramping_square","exponential","mixed"],
-    "--hidden_dim":["256 256"], 
+    "--hidden_dim":["256 256","128 128","64 64"], 
     "--discount":[0.99,0.2,0.4,0.8,0.9], 
     "--tau":[5e-3,5e-2,5e-1],
     "--lr":[3e-4,3e-2],
