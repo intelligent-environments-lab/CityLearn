@@ -1,6 +1,6 @@
 {
-    "reward_style":["default","marlisa","ramping_square","exponential","mixed"],
     "agent_name":["marlisa"],
+    "reward_style":["default","marlisa","ramping_square","exponential","mixed"],
     "--hidden_dim":["256 256"], 
     "--discount":[0.99,0.2,0.4,0.8,0.9], 
     "--tau":[5e-3,5e-2,5e-1],
@@ -18,7 +18,7 @@
     "--update_per_step":[1], 
     "--iterations_as":[2], 
     "--safe_exploration":[null,""],
-    "--seed":[0],
+    "--seed":[null],
     "--episode_count":[10],
     "--deterministic_period_start":[61320],
     "--simulation_period":["0 8759"],
