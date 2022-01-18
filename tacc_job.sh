@@ -2,7 +2,7 @@
 #SBATCH -p normal
 #SBATCH -J citylearn_grid_search
 #SBATCH -N 256
-#SBATCH -tasks-per-node 1
+#SBATCH --tasks-per-node 1
 #SBATCH -t 48:00:00
 #SBATCH --mail-user=nweye@utexas.edu
 #SBATCH --mail-type=all
