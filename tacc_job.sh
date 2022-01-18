@@ -17,6 +17,6 @@ source /work/07083/ken658/projects/citylearn/env/bin/activate
 
 # set launcher environment variables
 export LAUNCHER_WORKDIR="/work/07083/ken658/projects/citylearn/CityLearn"
-export LAUNCHER_JOB_FILE="tacc_launcher_job_file"
+export LAUNCHER_JOB_FILE="tacc_launcher_job"
 
 ${LAUNCHER_DIR}/paramrun
