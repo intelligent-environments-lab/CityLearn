@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH -p skx-normal
-#SBATCH -J citylearn_reward_function_exploration
-#SBATCH -N 5
-#SBATCH -n 240
+#SBATCH -p normal
+#SBATCH -J citylearn_grid_search
+#SBATCH -N 256
+#SBATCH -n 115200
 #SBATCH -t 48:00:00
 #SBATCH --mail-user=nweye@utexas.edu
 #SBATCH --mail-type=all
