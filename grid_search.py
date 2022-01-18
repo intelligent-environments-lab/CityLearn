@@ -13,6 +13,7 @@ GRID_SEARCH_FILEPATH = 'grid_search.json'
 DEFAULT_BUILDING_COUNT = 9
 BUILDING_COUNT_MULTIPLIERS = [1,4,7,10]
 PYTHON_EXECUTION = 'python -m citylearn_cli'
+TACC_LAUNCHER_JOB_FILEPATH = 'tacc_launcher_job'
 CLIMATE_ZONES = [2]
 SIMULATION_COUNT = 4
 
@@ -54,7 +55,7 @@ def set_grid():
         for record in grid.to_dict(orient='records')
     ]
     script = '\n'.join(script)
-    write_data(script,GRID_SEARCH_FILEPATH.split(".")[0])
+    write_data(script,TACC_LAUNCHER_JOB_FILEPATH)
     print('Number of simulations to run:',grid.shape[0])
 
 def set_building_data():
