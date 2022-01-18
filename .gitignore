@@ -6,5 +6,5 @@ __pycache__
 */*/reward_function_exploration
 notes.txt
 grid_search_data/
-grid_search
+tacc_launcher_job
 grid_search.csv
