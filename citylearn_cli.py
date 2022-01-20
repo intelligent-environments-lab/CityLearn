@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 import inspect
 import logging
 import os
@@ -7,7 +8,7 @@ import pickle
 import sys
 import time
 from agents.marlisa import MARLISA
-from agents.rl_agents_coord import RL_Agents_Coord
+from agents.sac import SAC
 from citylearn import CityLearn, RBC_Agent
 from reward_function import reward_function_ma
 
@@ -16,6 +17,20 @@ class CityLearn_CLI:
         self.kwargs = kwargs
 
     def run(self):
+        self.__set_run_params()
+        start = time.time()
+        
+        try:
+            self.__successful = False
+            self.__start_timestamp = datetime.now()
+            self.__runner()
+            self.__logger.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
+            self.__successful = True
+        finally:
+            self.__end_timestamp = datetime.now()
+            self.__save()
+
+    def __set_run_params(self):
         agent_name = self.kwargs['agent_name']
         reward_style = self.kwargs['reward_style']
         self.__simulation_id = self.kwargs.get('simulation_id') if self.kwargs.get('simulation_id') is not None else f'{agent_name}-{reward_style}'
@@ -27,16 +42,6 @@ class CityLearn_CLI:
             self.__output_directory = ''
 
         self.set_logger()
-        self.__set_run_params()
-        start = time.time()
-        
-        try:
-            self.__runner()
-            self.__logger.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
-        finally:
-            self.__save()
-
-    def __set_run_params(self):
         self.__set_env()
         self.__step_kwargs = {
             'style':self.kwargs['reward_style'],
@@ -77,12 +82,12 @@ class CityLearn_CLI:
 
     def get_agent_handlers(self):
         return {
-            'rl_agents_coord': {
-                'constructor':RL_Agents_Coord,
-                'runner':self.__run_marlisa
-            },
             'marlisa': {
                 'constructor':MARLISA,
+                'runner':self.__run_marlisa
+            },
+            'sac':{
+                'constructor':SAC,
                 'runner':self.__run_marlisa
             },
             'rbc':{
@@ -135,13 +140,20 @@ class CityLearn_CLI:
     def __run_marlisa(self):
         episode_count = self.kwargs['episode_count']
         deterministic_period_start = self.kwargs['deterministic_period_start']
+        select_action_kwarg_keys = ['states','deterministic']
+        select_action_kwarg_keys = [
+            key for key in select_action_kwarg_keys 
+            if key in inspect.getfullargspec(self.__agent.select_action).args
+        ]
 
         for i in range(episode_count): 
             state = self.__env.reset()
             done = False
             j = 0
             is_evaluating = False
-            action, coordination_vars = self.__agent.select_action(state, deterministic=is_evaluating)    
+            select_action_kwargs = {'states':state,'deterministic':is_evaluating}
+            select_action_kwargs = {key:value for key,value in select_action_kwargs.items() if key in select_action_kwarg_keys}
+            action, coordination_vars = self.__agent.select_action(**select_action_kwargs)    
             
             while not done:
                 self.__logger.debug(f'Episode: {i+1}/{int(episode_count)} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
@@ -149,7 +161,9 @@ class CityLearn_CLI:
                 self.__step_kwargs['previous_electricity_demand'] = self.__env.buildings_net_electricity_demand
                 self.__step_kwargs['previous_carbon_intensity'] = self.__env.current_carbon_intensity
                 self.__logger.debug(f'reward: {reward}')
-                action_next, coordination_vars_next = self.__agent.select_action(next_state, deterministic=is_evaluating)
+                select_action_kwargs = {'states':next_state,'deterministic':is_evaluating}
+                select_action_kwargs = {key:value for key,value in select_action_kwargs.items() if key in select_action_kwarg_keys}
+                action_next, coordination_vars_next = self.__agent.select_action(**select_action_kwargs)
                 self.__logger.debug(f'action_next: {action_next}')
                 self.__agent.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
                 coordination_vars = coordination_vars_next
@@ -181,7 +195,15 @@ class CityLearn_CLI:
         self.__logger = logger
 
     def __save(self):
-        data = {'env':self.__env,'agents':self.__agent}
+        data = {
+            'metadata':{
+                'start_timestamp':self.__start_timestamp,
+                'end_timestamp':self.__end_timestamp,
+                'successful':self.__successful,
+            },
+            'env':self.__env,
+            'agents':self.__agent
+        }
         filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.pkl')
         directory = '/'.join(filepath.split('/')[0:-1])
         
