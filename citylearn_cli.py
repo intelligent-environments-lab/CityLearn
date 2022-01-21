@@ -1,16 +1,19 @@
 import argparse
+import concurrent.futures
 from datetime import datetime
 import inspect
 import logging
 import os
 from pathlib import Path
 import pickle
-import sys
 import time
+import sys
 from agents.marlisa import MARLISA
 from agents.sac import SAC
 from citylearn import CityLearn, RBC_Agent
+from database import CityLearnDatabase
 from reward_function import reward_function_ma
+from utilities import get_data_from_path
 
 class CityLearn_CLI:
     def __init__(self,**kwargs):
@@ -18,6 +21,7 @@ class CityLearn_CLI:
 
     def run(self):
         self.__set_run_params()
+        assert False
         start = time.time()
         
         try:
@@ -28,7 +32,11 @@ class CityLearn_CLI:
             self.__successful = True
         finally:
             self.__end_timestamp = datetime.now()
-            self.__save()
+
+            if self.kwargs['write_pickle']:
+                self.__write_pickle()
+            else:
+                pass
 
     def __set_run_params(self):
         agent_name = self.kwargs['agent_name']
@@ -40,8 +48,8 @@ class CityLearn_CLI:
             os.makedirs(self.__output_directory,exist_ok=True)
         else:
             self.__output_directory = ''
-
-        self.set_logger()
+        logger_filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.log')
+        self.__logger = self.get_logger(logger_filepath)
         self.__set_env()
         self.__step_kwargs = {
             'style':self.kwargs['reward_style'],
@@ -50,6 +58,7 @@ class CityLearn_CLI:
             'exponential_scaling_factor':0.002,
         }
         self.__set_agent()
+        self.__initialize_database()
 
     def __set_env(self):
         arg_spec = inspect.getfullargspec(CityLearn)
@@ -108,7 +117,7 @@ class CityLearn_CLI:
             'carbon_intensity':{'default':Path('carbon_intensity.csv'),'type':Path}, 
             'building_ids':{'default':default_building_ids,'nargs':'+','type':str}, 
             'buildings_states_actions':{'default':'buildings_state_action_space.json','type':str}, 
-            'simulation_period':{'default':[0,8760],'nargs':2,'type':int}, 
+            'simulation_period':{'default':[0,8759],'nargs':2,'type':int}, 
             'cost_function':{'default':cost_function_choices,'nargs':'+','choices':cost_function_choices,'type':str},
             'central_agent':{'default':False,'action':'store_true'},
             'save_memory':{'default':False,'action':'store_true'},
@@ -187,14 +196,34 @@ class CityLearn_CLI:
                 _, _, done, _ = self.__env.step(action,**self.__step_kwargs)
                 j += 1
 
-    def set_logger(self):
-        filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.log')
-        logging.basicConfig(filename=filepath,format='%(asctime)s %(message)s',filemode='w') 
+    @classmethod
+    def get_logger(cls,filepath,**kwargs):
+        kwargs = {
+            'filename':filepath,
+            'format':'%(asctime)s %(message)s',
+            'filemode':'w',
+            **kwargs
+        }
+        logging.basicConfig(**kwargs) 
         logger = logging.getLogger() 
         logger.setLevel(logging.DEBUG)
-        self.__logger = logger
+        return logger
 
-    def __save(self):
+    def __initialize_database(self):
+        if self.kwargs['write_sqlite']:
+            database_filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.db')
+            self.__database = CityLearnDatabase(database_filepath,self.__env,self.__agent,overwrite=True,apply_changes=True)
+            self.__database.initialize(**self.kwargs)
+        else:
+            pass
+
+    def __database_timestep_update(self):
+        if self.kwargs['write_sqlite']:
+            self.__database.timestep_update(**self.kwargs)
+        else:
+            pass
+            
+    def __write_pickle(self):
         data = {
             'metadata':{
                 'start_timestamp':self.__start_timestamp,
@@ -215,29 +244,68 @@ class CityLearn_CLI:
         with open(filepath,'wb') as f:
             pickle.dump(data,f)
 
-def main():
-    parser = argparse.ArgumentParser(prog='reward_function_exploration',formatter_class=argparse.ArgumentDefaultsHelpFormatter,description='Explore different reward functions in CityLearn environment.')
-    parser.add_argument('agent_name',type=str,choices=list(CityLearn_CLI().get_agent_handlers().keys()),help='Simulation agent.')
-    parser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
-    parser.add_argument('-id','--simulation_id',type=str,dest='simulation_id',help='ID used to name simulation output files. The default is <agent_name>-<reward_style>.')
-    parser.add_argument('-d','--output_directory',type=str,dest='output_directory',help='Directory to store simulation environment, agent and log.')
-    parser.add_argument('-e','--episode_count',type=int,default=1,dest='episode_count',help='Number of episodes.')
-    parser.add_argument('-dps','--deterministic_period_start',type=int,default=int(7500),dest='deterministic_period_start',help='Deterministic period start index.')
+    @staticmethod
+    def single_simulation_run(**kwargs):
+        cli = CityLearn_CLI(**kwargs)
+        cli.run()
 
+    @staticmethod
+    def multiple_simulation_run(filepath):
+        commands = get_data_from_path(filepath)
+        commands = commands.split('\n')
+        
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            _ = executor.map(CityLearn_CLI.parse_single_simulation_run,commands)
+
+    @staticmethod
+    def parse_single_simulation_run(command):
+        args = command.split(' ')[3:]
+        args = get_parser().parse_args(args)
+        arg_spec = inspect.getfullargspec(args.func)
+        kwargs = {
+            key:value for (key, value) in args._get_kwargs() 
+            if (key in arg_spec.args or (arg_spec.varkw is not None and key not in ['func','subcommands']))
+        }
+        CityLearn_CLI.single_simulation_run(**kwargs)
+
+def get_parser():
+    parser = argparse.ArgumentParser(prog='reward_function_exploration',formatter_class=argparse.ArgumentDefaultsHelpFormatter,description='Explore different reward functions in CityLearn environment.')
+    parser.add_argument('--write_sqlite',action='store_true',help='Write simulation to SQLite database.')
+    parser.add_argument('--write_pickle',action='store_true',help='Write simulation to pickle file.')
+    subparsers = parser.add_subparsers(title='subcommands',required=True,dest='subcommands')
+    
+    # single simulation run
+    single_run_subparser = subparsers.add_parser('single',description='Run a single CityLearn simulation on a single process.')
+    single_run_subparser.set_defaults(func=CityLearn_CLI.single_simulation_run)
+    single_run_subparser.add_argument('agent_name',type=str,choices=list(CityLearn_CLI().get_agent_handlers().keys()),help='Simulation agent.')
+    single_run_subparser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
+    single_run_subparser.add_argument('-id','--simulation_id',type=str,dest='simulation_id',help='ID used to name simulation output files. The default is <agent_name>-<reward_style>.')
+    single_run_subparser.add_argument('-d','--output_directory',type=str,dest='output_directory',help='Directory to store simulation environment, agent and log.')
+    single_run_subparser.add_argument('-e','--episode_count',type=int,default=1,dest='episode_count',help='Number of episodes.')
+    single_run_subparser.add_argument('-dps','--deterministic_period_start',type=int,default=int(7500),dest='deterministic_period_start',help='Deterministic period start index.')
     # env kwargs
     for env_kwarg, arg_kwargs in CityLearn_CLI.get_env_params().items():
-        parser.add_argument(f'--{env_kwarg}',dest=env_kwarg,**arg_kwargs,help=' ')
-
+        single_run_subparser.add_argument(f'--{env_kwarg}',dest=env_kwarg,**arg_kwargs,help=' ')
     # agent kwargs
     for agent_kwarg, arg_kwargs in CityLearn_CLI.get_agent_params().items():
-        parser.add_argument(f'--{agent_kwarg}',dest=agent_kwarg,**arg_kwargs,help=' ')
+        single_run_subparser.add_argument(f'--{agent_kwarg}',dest=agent_kwarg,**arg_kwargs,help=' ')
 
+    # multiple simulation run
+    multiple_run_subparser = subparsers.add_parser('multiple',description='Run multiple single CityLearn simulations on a multiple processes.')
+    multiple_run_subparser.set_defaults(func=CityLearn_CLI.multiple_simulation_run)
+    multiple_run_subparser.add_argument('filepath',type=str,help='Filepath to script containing multiple simulation commands.')
+
+    return parser
+
+def main():
+    parser = get_parser()
     args = parser.parse_args()
-    kwargs = {key:value for (key, value) in args._get_kwargs()}
-
-    # run simulation
-    cli = CityLearn_CLI(**kwargs)
-    cli.run()
+    arg_spec = inspect.getfullargspec(args.func)
+    kwargs = {
+        key:value for (key, value) in args._get_kwargs() 
+        if (key in arg_spec.args or (arg_spec.varkw is not None and key not in ['func','subcommands']))
+    }
+    args.func(**kwargs)
 
 if __name__ == '__main__':
     sys.exit(main())

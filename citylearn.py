@@ -69,6 +69,8 @@ def auto_size(buildings):
             building.dhw_storage.capacity = 0.00001
         if building.cooling_storage.capacity <= 0.00001:
             building.cooling_storage.capacity = 0.00001
+        if building.electrical_storage.capacity <= 0.00001:
+            building.electrical_storage.capacity = 0.00001
         
         
 def building_loader(data_path, building_attributes, weather_file, solar_profile, carbon_intensity, building_ids, buildings_states_actions, save_memory = True):

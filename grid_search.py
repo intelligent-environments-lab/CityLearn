@@ -1,3 +1,4 @@
+from copy import copy, deepcopy
 import itertools
 import os
 import random
@@ -11,11 +12,11 @@ SOURCE_CARBON_INTENSITY_FILEPATH = os.path.join(SOURCE_DATA_DIRECTORY,'Climate_Z
 SIMULATION_OUTPUT_DIRECTORY = os.path.join(DESTINATION_DATA_DIRECTORY,'simulation_output')
 GRID_SEARCH_FILEPATH = 'grid_search.json'
 DEFAULT_BUILDING_COUNT = 9
-BUILDING_COUNT_MULTIPLIERS = [1,4,7,10]
-PYTHON_EXECUTION = 'python -m citylearn_cli'
+BUILDING_COUNT_MULTIPLIERS = [1,5,10]
+PYTHON_EXECUTION = 'python -m citylearn_cli single'
 TACC_LAUNCHER_JOB_FILEPATH = 'tacc_launcher_job'
 CLIMATE_ZONES = [2]
-SIMULATION_COUNT = 4
+SIMULATION_COUNT = 3
 
 def main():
     if os.path.isdir(DESTINATION_DATA_DIRECTORY):
@@ -38,12 +39,12 @@ def set_grid():
     
     for data_path in [os.path.join(DESTINATION_DATA_DIRECTORY,f'Climate_Zone_{i}') for i in CLIMATE_ZONES]:
         for multiplier in BUILDING_COUNT_MULTIPLIERS:
-            grid_copy = grid.copy()
-            grid_copy['--data_path'] = data_path
-            grid_copy['--building_ids'] = ' '.join([f'Building_{i}' for i in range(1,int(DEFAULT_BUILDING_COUNT*multiplier)+1)])
-            grid_copy['--buildings_states_actions'] = os.path.join(data_path,'buildings_state_action_space.json')
-
-            for _ in range(SIMULATION_COUNT):
+            for i in range(SIMULATION_COUNT):
+                grid_copy = grid.copy()
+                grid_copy['--data_path'] = data_path
+                grid_copy['--building_ids'] = ' '.join([f'Building_{i}' for i in range(1,int(DEFAULT_BUILDING_COUNT*multiplier)+1)])
+                grid_copy['--buildings_states_actions'] = os.path.join(data_path,'buildings_state_action_space.json')
+                grid_copy['--seed'] = i
                 grid_list.append(grid_copy)
 
     grid = pd.concat(grid_list,ignore_index=True)
@@ -89,17 +90,19 @@ def set_building_data():
         destination_attributes = {}
         destination_state_action_space = {}
 
-        for building, attributes in source_attributes.items():
-            building_number = int(building.split('_')[-1])
-            destination_attributes[building] = attributes
-            destination_state_action_space[building] = source_state_action_space[building]
+        for building_id in source_attributes:
+            building_number = int(building_id.split('_')[-1])
+            destination_attributes[building_id] = deepcopy(source_attributes[building_id])
+            destination_state_action_space[building_id] = source_state_action_space[building_id]
 
             for i in range(1,int(max(BUILDING_COUNT_MULTIPLIERS))):
                 j = int(len(source_attributes)*i + building_number)
-                building_copy = f'Building_{j}'
-                attributes['File_Name'] = building_copy
-                destination_attributes[building_copy] = get_attributes(attributes,random_seed=j)
-                destination_state_action_space[building_copy] = get_state_action_space(source_state_action_space[building],destination_attributes[building_copy])
+                building_copy_id = f'Building_{j}'
+                destination_attributes[building_copy_id] = deepcopy(destination_attributes[building_id])
+                destination_attributes[building_copy_id]['File_Name'] = f'{building_copy_id}.csv'
+                destination_attributes[building_copy_id] = get_attributes(destination_attributes[building_copy_id],random_seed=j)
+                destination_state_action_space[building_copy_id] = deepcopy(destination_state_action_space[building_id])
+                destination_state_action_space[building_copy_id] = get_state_action_space(destination_state_action_space[building_copy_id],destination_attributes[building_copy_id])
 
         write_json(destination_attributes_filepath,destination_attributes,sort_keys=True)
         write_json(destination_state_action_space_filepath,destination_state_action_space,sort_keys=True)
@@ -140,7 +143,7 @@ def get_attributes(attributes,random_seed=None):
     # randomize applicable values
     if random_seed is not None:
         random.seed(random_seed)
-        attributes['Solar_Power_Installed(kW)'] = attributes['Solar_Power_Installed(kW)']*random.randint(0,10)
+        attributes['Solar_Power_Installed(kW)'] = attributes['Solar_Power_Installed(kW)']*random.randint(0,5)
         attributes['Battery']['capacity'] = attributes['Battery']['capacity']*random.randint(0,2)
         attributes['Heat_Pump']['technical_efficiency'] = random.uniform(0.2,0.3)
         attributes['Heat_Pump']['t_target_heating'] = random.randint(47,50)
