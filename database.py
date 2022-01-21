@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime
 import math
 import os
@@ -5,7 +6,7 @@ import pytz
 import sqlite3
 import numpy as np
 import pandas as pd
-from utilities import read_json
+from energy_models import HeatPump
 
 class SQLiteDatabase:
     def __init__(self,filepath):
@@ -152,6 +153,8 @@ class SQLiteDatabase:
     def __register_adapter(self):
         sqlite3.register_adapter(np.int64,lambda x: int(x))
         sqlite3.register_adapter(np.int32,lambda x: int(x))
+        sqlite3.register_adapter(np.float32,lambda x: int(x))
+        sqlite3.register_adapter(np.float64,lambda x: int(x))
         sqlite3.register_adapter(np.datetime64,lambda x: np.datetime_as_string(x,unit='s').replace('T',' '))
 
 class CityLearnDatabase(SQLiteDatabase):
@@ -235,28 +238,27 @@ class CityLearnDatabase(SQLiteDatabase):
             record['id'] = i
             self.insert('agent',list(record.keys()),[list(record.values())])
 
-        building_attributes = read_json(os.path.join(self.env.data_path,self.env.building_attributes))
-
         for i, (building_name, building) in enumerate(self.env.buildings.items()):
             # building
+            building = deepcopy(building)
             building_id = i + 1
             record = {
                 'id':building_id,
                 'name':building_name,
                 'environment_id':self.__environment_id,
                 'agent_id':i+self.__MINIMUM_ROW_ID if agent_count > 1 else self.__MINIMUM_ROW_ID,
-                'type':building_attributes[building_name]['Building_Type'],
-                'solar_power_installed':building_attributes[building_name]['Solar_Power_Installed(kW)'],
+                'type':building.building_type,
+                'solar_power_installed':building.solar_power_capacity,
             }
             self.insert('building',list(record.keys()),[list(record.values())])
 
             # state space
-            record = self.env.buildings_states_actions[building_name]['states']
+            record = deepcopy(self.env.buildings_states_actions[building_name]['states'])
             record['building_id'] = building_id
             self.insert('state_space',list(record.keys()),[list(record.values())])
 
             # action space
-            record = self.env.buildings_states_actions[building_name]['actions']
+            record = deepcopy(self.env.buildings_states_actions[building_name]['actions'])
             record['building_id'] = building_id
             self.insert('action_space',list(record.keys()),[list(record.values())])
 
@@ -320,92 +322,163 @@ class CityLearnDatabase(SQLiteDatabase):
             }
             self.insert('electrical_storage',list(record.keys()),[list(record.values())])
 
-    def timestep_update(self,timestep,maximum_timestep,episode,env):
-        ix = timestep
-        timestep = int(timestep + (episode*maximum_timestep))
+    def timestep_update(self,episode):
+        timestep = self.env.time_step
+        timestep_id = int(timestep + (episode*self.env.simulation_period[1] + 1))
+        building_sim_results = list(self.env.buildings.values())[0].sim_results
+        buildings = self.get_table('building').set_index('name').to_dict(orient='index')
 
-        # update environment table
+        # timestep
         record = {
+            'id':timestep_id,
             'timestep':timestep,
-            'carbon_emissions':env.carbon_emissions[ix],
-            'net_electric_consumption':env.net_electric_consumption[ix],
-            'electric_consumption_electric_storage':env.electric_consumption_electric_storage[ix],
-            'electric_consumption_dhw_storage':env.electric_consumption_dhw_storage[ix],
-            'electric_consumption_cooling_storage':env.electric_consumption_cooling_storage[ix],
-            'electric_consumption_dhw':env.electric_consumption_dhw[ix],
-            'electric_consumption_cooling':env.electric_consumption_cooling[ix],
-            'electric_consumption_appliances':env.electric_consumption_appliances[ix],
-            'electric_generation':env.electric_generation[ix]
+            'episode':episode,
+            'month':building_sim_results['month'][timestep],
+            'hour':building_sim_results['hour'][timestep],
+            'day_type':building_sim_results['day'][timestep],
+            'daylight_savings_status':building_sim_results['daylight_savings_status'][timestep],
         }
-        self.insert(
-            'environment_timeseries',
-            list(record.keys()),
-            [list(record.values())],
-            on_conflict_fields=['timestamp']
-        )
-        
-        # update building table
-        for building in env.buildings:
+        self.insert('timestep',list(record.keys()),[list(record.values())])
+
+        # weather
+        record = {
+            'timestep_id':timestep_id,
+            'outdoor_drybulb_temperature':building_sim_results['t_out'][timestep],
+            'outdoor_relative_humidity':building_sim_results['rh_out'][timestep],
+            'diffuse_solar_radiation':building_sim_results['diffuse_solar_rad'][timestep],
+            'direct_solar_radiation':building_sim_results['direct_solar_rad'][timestep],
+            'prediction_6h_outdoor_drybulb_temperature':building_sim_results['t_out_pred_6h'][timestep],
+            'prediction_6h_outdoor_relative_humidity':building_sim_results['rh_out_pred_6h'][timestep],
+            'prediction_6h_diffuse_solar_radiation':building_sim_results['diffuse_solar_rad_pred_6h'][timestep],
+            'prediction_6h_direct_solar_radiation':building_sim_results['direct_solar_rad_pred_6h'][timestep],
+            'prediction_12h_outdoor_drybulb_temperature':building_sim_results['t_out_pred_12h'][timestep],
+            'prediction_12h_outdoor_relative_humidity':building_sim_results['rh_out_pred_12h'][timestep],
+            'prediction_12h_diffuse_solar_radiation':building_sim_results['diffuse_solar_rad_pred_12h'][timestep],
+            'prediction_12h_direct_solar_radiation':building_sim_results['direct_solar_rad_pred_12h'][timestep],
+            'prediction_24h_outdoor_drybulb_temperature':building_sim_results['t_out_pred_24h'][timestep],
+            'prediction_24h_outdoor_relative_humidity':building_sim_results['rh_out_pred_24h'][timestep],
+            'prediction_24h_diffuse_solar_radiation':building_sim_results['diffuse_solar_rad_pred_24h'][timestep],
+            'prediction_24h_direct_solar_radiation':building_sim_results['direct_solar_rad_pred_24h'][timestep],
+            
+        }
+        self.insert('weather_timeseries',list(record.keys()),[list(record.values())])
+
+        # building
+        for building_name, building in self.env.buildings.items():
+            building = deepcopy(building)
+            building_id = buildings[building_name]['id']
             record = {
-                'timestep':timestep,
-                'building_id':building.buildingId,
-                'cooling_demand_building':building.cooling_demand_building[ix],
-                'dhw_demand_building':building.dhw_demand_building[ix],
-                'electric_consumption_appliances':building.electric_consumption_appliances[ix],
-                'electric_generation':building.electric_generation[ix],
-                'electric_consumption_cooling':building.electric_consumption_cooling[ix],
-                'electric_consumption_cooling_storage':building.electric_consumption_cooling_storage[ix],
-                'electric_consumption_dhw':building.electric_consumption_dhw[ix],
-                'electric_consumption_dhw_storage':building.electric_consumption_dhw_storage[ix],
-                'net_electric_consumption':building.net_electric_consumption[ix],
-                'cooling_device_to_building':building.cooling_device_to_building[ix],
-                'cooling_storage_to_building':building.cooling_storage_to_building[ix],
-                'cooling_device_to_storage':building.cooling_device_to_storage[ix],
-                'cooling_storage_soc':building.cooling_storage_soc[ix],
-                'dhw_heating_device_to_building':building.dhw_heating_device_to_building[ix],
-                'dhw_storage_to_building':building.dhw_storage_to_building[ix],
-                'dhw_heating_device_to_storage':building.dhw_heating_device_to_storage[ix],
-                'dhw_storage_soc':building.dhw_storage_soc[ix],
-                'electrical_storage_electric_consumption':building.electrical_storage_electric_consumption[ix],
-                'electrical_storage_soc':building.electrical_storage_soc[ix]
+                'timestep_id':timestep_id,
+                'building_id':building_id,
+                'indoor_temperature':building.sim_results['t_in'][timestep],
+                'average_unmet_cooling_setpoint_difference':building.sim_results['avg_unmet_setpoint'][timestep],
+                'indoor_relative_humidity':building.sim_results['rh_in'][timestep],
+                'cooling_demand_building':building.sim_results['cooling_demand'][timestep],
+                'dhw_demand_building':building.sim_results['dhw_demand'][timestep],
+                'electric_consumption_appliances':building.sim_results['non_shiftable_load'][timestep],
+                'electric_generation':building.sim_results['solar_gen'][timestep],
             }
-            self.insert(
-                'building_timeseries',
-                list(record.keys()),
-                [list(record.values())],
-                on_conflict_fields=['timestamp','building_id']
-            )
 
-            # update cooling device timeseries
+            if timestep > 0:
+                record = {
+                    'electric_consumption_cooling':building.electric_consumption_cooling[timestep-1],
+                    'electric_consumption_cooling_storage':building.electric_consumption_cooling_storage[timestep-1],
+                    'electric_consumption_dhw':building.electric_consumption_dhw[timestep-1],
+                    'electric_consumption_dhw_storage':building.electric_consumption_dhw_storage[timestep-1],
+                    'cooling_device_to_building':building.cooling_device_to_building[timestep-1],
+                    'cooling_storage_to_building':building.cooling_storage_to_building[timestep-1],
+                    'cooling_device_to_storage':building.cooling_device_to_storage[timestep-1],
+                    'cooling_storage_soc':building.cooling_storage_soc[timestep-1],
+                    'dhw_heating_device_to_building':building.dhw_heating_device_to_building[timestep-1],
+                    'dhw_storage_to_building':building.dhw_storage_to_building[timestep-1],
+                    'dhw_heating_device_to_storage':building.dhw_heating_device_to_storage[timestep-1],
+                    'dhw_storage_soc':building.dhw_storage_soc[timestep-1],
+                    'electrical_storage_electric_consumption':building.electrical_storage_electric_consumption[timestep-1],
+                    'electrical_storage_soc':building.electrical_storage_soc[timestep-1],
+                    **record
+                }
+            else:
+                pass
+
+            self.insert('building_timeseries',list(record.keys()),[list(record.values())])
+
+            # cooling device
             record = {
-                'timestep':timestep,
-                'building_id':building.buildingId,
-                'cop_heating':building.cooling_device.cop_heating[ix],
-                'cop_cooling':building.cooling_device.cop_heating[ix],
-                'electrical_consumption_cooling':building.cooling_device.electrical_consumption_cooling[ix],
-                'electrical_consumption_heating':building.cooling_device.electrical_consumption_heating[ix],
-                'heat_supply':building.cooling_device.heat_supply[ix],
-                'cooling_supply':building.cooling_device.cooling_supply[ix],
+                'timestep_id':timestep_id,
+                'cooling_device_id':building_id,
+                'cop_cooling':building.cooling_device.cop_cooling[timestep],
+                'cop_heating':building.cooling_device.cop_heating[timestep] if isinstance(building.dhw_heating_device,HeatPump) else None,
             }
-            self.insert(
-                'cooling_device_timeseries',
-                list(record.keys()),
-                [list(record.values())],
-                on_conflict_fields=['timestep','building_id']
-            )
 
-            # update dhw heating device timeseries
+            if timestep > 0:
+                record = {
+                    'electrical_consumption_cooling':building.cooling_device.electrical_consumption_cooling[timestep-1],
+                    'electrical_consumption_heating':building.cooling_device.electrical_consumption_heating[timestep-1]  if isinstance(building.dhw_heating_device,HeatPump) else None,
+                    'cooling_supply':building.cooling_device.cooling_supply[timestep-1],
+                    'heat_supply':building.cooling_device.heat_supply[timestep-1] if isinstance(building.dhw_heating_device,HeatPump) else None,
+                    **record
+                }
+            else:
+                pass
+
+            self.insert('cooling_device_timeseries',list(record.keys()),[list(record.values())])
+
+            
+            if timestep > 0:
+                # dhw heating device
+                record = {
+                    'timestep_id':timestep_id,
+                    'dhw_heating_device_id':building_id,
+                    'electrical_consumption_heating':building.dhw_heating_device.electrical_consumption_heating[timestep-1],
+                    'heat_supply':building.dhw_heating_device.heat_supply[timestep-1],
+                }
+                self.insert('dhw_heating_device_timeseries',list(record.keys()),[list(record.values())])
+
+                # cooling storage
+                record = {
+                    'timestep_id':timestep_id,
+                    'cooling_storage_id':building_id,
+                    'soc':building.cooling_storage.soc[timestep-1],
+                    'energy_balance':building.cooling_storage.energy_balance[timestep-1],
+                }
+                self.insert('cooling_storage_timeseries',list(record.keys()),[list(record.values())])
+
+                # dhw storage
+                record = {
+                    'timestep_id':timestep_id,
+                    'dhw_storage_id':building_id,
+                    'soc':building.dhw_storage.soc[timestep-1],
+                    'energy_balance':building.dhw_storage.energy_balance[timestep-1],
+                }
+                self.insert('dhw_storage_timeseries',list(record.keys()),[list(record.values())])
+
+                # electrical storage
+                record = {
+                    'timestep_id':timestep_id,
+                    'electrical_storage_id':building_id,
+                    'soc':building.electrical_storage.soc[timestep-1],
+                    'energy_balance':building.electrical_storage.energy_balance[timestep-1],
+                }
+                self.insert('electrical_storage_timeseries',list(record.keys()),[list(record.values())])
+            
+            else:
+                pass
+
+        if timestep > 0:
+            # environment
             record = {
-                'timestep':timestep,
-                'building_id':building.buildingId,
-                'electrical_consumption_heating':building.dhw_heating_device.electrical_consumption_heating[ix],
-                'heat_supply':building.dhw_heating_device.heat_supply[ix]
+                'timestep_id':timestep_id,
+                'environment_id':self.__MINIMUM_ROW_ID,
+                'carbon_emissions':self.env.carbon_emissions[timestep-1],
+                'net_electric_consumption':self.env.net_electric_consumption[timestep-1],
+                'electric_consumption_electric_storage':self.env.electric_consumption_electric_storage[timestep-1],
+                'electric_consumption_dhw_storage':self.env.electric_consumption_dhw_storage[timestep-1],
+                'electric_consumption_cooling_storage':self.env.electric_consumption_cooling_storage[timestep-1],
+                'electric_consumption_dhw':self.env.electric_consumption_dhw[timestep-1],
+                'electric_consumption_cooling':self.env.electric_consumption_cooling[timestep-1],
+                'electric_consumption_appliances':self.env.electric_consumption_appliances[timestep-1],
+                'electric_generation':self.env.electric_generation[timestep-1]
             }
-            self.insert(
-                'dhw_heating_device_timeseries',
-                list(record.keys()),
-                [list(record.values())],
-                on_conflict_fields=['timestep','building_id']
-            )
-
-
+            self.insert('environment_timeseries',list(record.keys()),[list(record.values())])
+        else:
+            pass

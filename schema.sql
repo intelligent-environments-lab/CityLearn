@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS timestep (
     id INTEGER NOT NULL PRIMARY KEY,
     timestep INTEGER NOT NULL,
     episode INTEGER NOT NULL,
-    month INTEGER NOT NULL,
+    "month" INTEGER NOT NULL,
     hour INTEGER NOT NULL,
     day_type INTEGER NOT NULL,
     daylight_savings_status INTEGER NOT NULL
@@ -198,7 +198,6 @@ CREATE TABLE IF NOT EXISTS building_timeseries (
     electric_consumption_cooling_storage REAL,
     electric_consumption_dhw REAL,
     electric_consumption_dhw_storage REAL,
-    net_electric_consumption REAL,
     cooling_device_to_building REAL,
     cooling_storage_to_building REAL,
     cooling_device_to_storage REAL,
@@ -215,59 +214,59 @@ CREATE TABLE IF NOT EXISTS building_timeseries (
 CREATE TABLE IF NOT EXISTS cooling_device_timeseries (
     timestep_id INTEGER NOT NULL REFERENCES timestep (id),
     cooling_device_id INTEGER NOT NULL REFERENCES cooling_device (id),
-    cop_heating REAL NOT NULL,
-    cop_cooling REAL NOT NULL,
-    electrical_consumption_cooling REAL NOT NULL,
-    electrical_consumption_heating REAL NOT NULL,
-    heat_supply REAL NOT NULL,
-    cooling_supply REAL NOT NULL,
+    cop_cooling REAL,
+    cop_heating REAL,
+    electrical_consumption_cooling REAL,
+    electrical_consumption_heating REAL,
+    cooling_supply REAL,
+    heat_supply REAL,
     PRIMARY KEY (timestep_id, cooling_device_id)
 );
 
 CREATE TABLE IF NOT EXISTS dhw_heating_device_timeseries (
     timestep_id INTEGER NOT NULL REFERENCES timestep (id),
     dhw_heating_device_id INTEGER NOT NULL REFERENCES dhw_heating_device (id),
-    electrical_consumption_heating REAL NOT NULL,
-    heat_supply REAL NOT NULL,
+    electrical_consumption_heating REAL,
+    heat_supply REAL,
     PRIMARY KEY (timestep_id, dhw_heating_device_id)
 );
 
 CREATE TABLE IF NOT EXISTS cooling_storage_timeseries (
     timestep_id INTEGER NOT NULL REFERENCES timestep (id),
     cooling_storage_id INTEGER NOT NULL REFERENCES cooling_storage (id),
-    soc REAL NOT NULL,
-    energy_balance REAL NOT NULL,
+    soc REAL,
+    energy_balance REAL,
     PRIMARY KEY (timestep_id, cooling_storage_id)
 );
 
 CREATE TABLE IF NOT EXISTS dhw_storage_timeseries (
     timestep_id INTEGER NOT NULL REFERENCES timestep (id),
     dhw_storage_id INTEGER NOT NULL REFERENCES dhw_storage (id),
-    soc REAL NOT NULL,
-    energy_balance REAL NOT NULL,
+    soc REAL,
+    energy_balance REAL,
     PRIMARY KEY (timestep_id, dhw_storage_id)
 );
 
 CREATE TABLE IF NOT EXISTS electrical_storage_timeseries (
     timestep_id INTEGER NOT NULL REFERENCES timestep (id),
     electrical_storage_id INTEGER NOT NULL REFERENCES electrical_storage (id),
-    soc REAL NOT NULL,
-    energy_balance REAL NOT NULL,
+    soc REAL,
+    energy_balance REAL,
     PRIMARY KEY (timestep_id, electrical_storage_id)
 );
 
 CREATE TABLE IF NOT EXISTS action_timeseries (
     timestep_id INTEGER NOT NULL REFERENCES timestep (id),
     building_id INTEGER NOT NULL REFERENCES building (id),
-    cooling_storage REAL NOT NULL,
-    dhw_storage REAL NOT NULL,
-    electrical_storage REAL NOT NULL,
+    cooling_storage REAL,
+    dhw_storage REAL,
+    electrical_storage REAL,
     PRIMARY KEY (timestep_id, building_id)
 );
 
 CREATE TABLE reward_timeseries (
     timestep_id INTEGER NOT NULL REFERENCES timestep (id),
     building_id INTEGER NOT NULL REFERENCES building (id),
-    value REAL NOT NULL,
+    value REAL,
     PRIMARY KEY (timestep_id, building_id)
 );

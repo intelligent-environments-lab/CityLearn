@@ -21,7 +21,6 @@ class CityLearn_CLI:
 
     def run(self):
         self.__set_run_params()
-        assert False
         start = time.time()
         
         try:
@@ -162,7 +161,8 @@ class CityLearn_CLI:
             is_evaluating = False
             select_action_kwargs = {'states':state,'deterministic':is_evaluating}
             select_action_kwargs = {key:value for key,value in select_action_kwargs.items() if key in select_action_kwarg_keys}
-            action, coordination_vars = self.__agent.select_action(**select_action_kwargs)    
+            action, coordination_vars = self.__agent.select_action(**select_action_kwargs)
+            self.__database.timestep_update(i)
             
             while not done:
                 self.__logger.debug(f'Episode: {i+1}/{int(episode_count)} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
@@ -180,6 +180,7 @@ class CityLearn_CLI:
                 action = action_next
                 is_evaluating = (j >= deterministic_period_start)
                 j += 1
+                self.__database.timestep_update(i)
 
     def __run_rbc(self):
         episode_count = self.kwargs['episode_count']
