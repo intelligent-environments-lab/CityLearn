@@ -2,8 +2,7 @@ CREATE TABLE IF NOT EXISTS simulation (
     id INTEGER NOT NULL PRIMARY KEY,
     start_timestamp TEXT NOT NULL,
     end_timestamp TEXT,
-    last_timestep_timestamp TEXT,
-    success INTEGER DEFAULT 0
+    successful INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS environment (
@@ -154,19 +153,7 @@ CREATE TABLE IF NOT EXISTS weather_timeseries (
     outdoor_drybulb_temperature REAL NOT NULL,
     outdoor_relative_humidity REAL NOT NULL,
     diffuse_solar_radiation REAL NOT NULL,
-    direct_solar_radiation REAL NOT NULL,
-    prediction_6h_outdoor_drybulb_temperature REAL NOT NULL,
-    prediction_12h_outdoor_drybulb_temperature REAL NOT NULL,
-    prediction_24h_outdoor_drybulb_temperature REAL NOT NULL,
-    prediction_6h_outdoor_relative_humidity REAL NOT NULL,
-    prediction_12h_outdoor_relative_humidity REAL NOT NULL,
-    prediction_24h_outdoor_relative_humidity REAL NOT NULL,
-    prediction_6h_diffuse_solar_radiation REAL NOT NULL,
-    prediction_12h_diffuse_solar_radiation REAL NOT NULL,
-    prediction_24h_diffuse_solar_radiation REAL NOT NULL,
-    prediction_6h_direct_solar_radiation REAL NOT NULL,
-    prediction_12h_direct_solar_radiation REAL NOT NULL,
-    prediction_24h_direct_solar_radiation REAL NOT NULL
+    direct_solar_radiation REAL NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS environment_timeseries (
@@ -199,15 +186,12 @@ CREATE TABLE IF NOT EXISTS building_timeseries (
     electric_consumption_dhw REAL,
     electric_consumption_dhw_storage REAL,
     cooling_device_to_building REAL,
-    cooling_storage_to_building REAL,
     cooling_device_to_storage REAL,
-    cooling_storage_soc REAL,
+    cooling_storage_to_building REAL,
     dhw_heating_device_to_building REAL,
-    dhw_storage_to_building REAL,
     dhw_heating_device_to_storage REAL,
-    dhw_storage_soc REAL,
+    dhw_storage_to_building REAL,
     electrical_storage_electric_consumption REAL,
-    electrical_storage_soc REAL,
     PRIMARY KEY (timestep_id, building_id)
 );
 
@@ -267,6 +251,6 @@ CREATE TABLE IF NOT EXISTS action_timeseries (
 CREATE TABLE reward_timeseries (
     timestep_id INTEGER NOT NULL REFERENCES timestep (id),
     building_id INTEGER NOT NULL REFERENCES building (id),
-    value REAL,
+    "value" REAL,
     PRIMARY KEY (timestep_id, building_id)
 );

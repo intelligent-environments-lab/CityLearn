@@ -32,6 +32,22 @@ class SQLiteDatabase:
         query = f"SELECT * FROM {table_name}"
         return self.query_table(self.__validate_query(query))
 
+    def query(self,query,**kwargs):
+        query = self.__validate_query(query)
+        responses = []
+        connection = self.__get_connection()
+        
+        try:
+            for q in query.split(';'):
+                cursor = connection.execute(q,**kwargs)
+                response = cursor.fetchall()
+                responses.append(response)
+                connection.commit()
+        finally:
+            connection.close()
+
+        return responses
+
     def query_table(self,query):
         try:
             connection = self.__get_connection()
@@ -204,8 +220,7 @@ class CityLearnDatabase(SQLiteDatabase):
             'id':self.__simulation_id,
             'start_timestamp':start_timestamp,
             'end_timestamp':None,
-            'last_timestep_timestamp':None,
-            'success':False
+            'successful':False
         }
         self.insert('simulation',list(record.keys()),[list(record.values())])
 
@@ -322,163 +337,187 @@ class CityLearnDatabase(SQLiteDatabase):
             }
             self.insert('electrical_storage',list(record.keys()),[list(record.values())])
 
-    def timestep_update(self,episode):
-        timestep = self.env.time_step
-        timestep_id = int(timestep + (episode*self.env.simulation_period[1] + 1))
+    def timestep_update(self,**kwargs):
+        start_timestep = kwargs['start_timestep']
+        alt_start_timestep = max([0,start_timestep-1])
+        end_timestep = kwargs['end_timestep']
+        episode = kwargs['episode']
+        timesteps = list(range(start_timestep,end_timestep))
+        timestep_ids = [(episode - 1)*self.env.simulation_period[1] + i + 1 for i in range(start_timestep,end_timestep)]
+        alt_timestep_ids = timestep_ids[1:] if start_timestep == 0 else timestep_ids
         building_sim_results = list(self.env.buildings.values())[0].sim_results
         buildings = self.get_table('building').set_index('name').to_dict(orient='index')
+        actions = self.get_table('action_space').set_index('building_id').to_dict(orient='index')
 
         # timestep
-        record = {
-            'id':timestep_id,
-            'timestep':timestep,
-            'episode':episode,
-            'month':building_sim_results['month'][timestep],
-            'hour':building_sim_results['hour'][timestep],
-            'day_type':building_sim_results['day'][timestep],
-            'daylight_savings_status':building_sim_results['daylight_savings_status'][timestep],
-        }
-        self.insert('timestep',list(record.keys()),[list(record.values())])
+        record = pd.DataFrame({
+            'id':timestep_ids,
+            'timestep':timesteps,
+            'month':building_sim_results['month'][start_timestep:end_timestep],
+            'hour':building_sim_results['hour'][start_timestep:end_timestep],
+            'day_type':building_sim_results['day'][start_timestep:end_timestep],
+            'daylight_savings_status':building_sim_results['daylight_savings_status'][start_timestep:end_timestep],
+        })
+        record['episode'] = episode
+        self.insert('timestep',record.columns.tolist(),record.values)
 
         # weather
-        record = {
-            'timestep_id':timestep_id,
-            'outdoor_drybulb_temperature':building_sim_results['t_out'][timestep],
-            'outdoor_relative_humidity':building_sim_results['rh_out'][timestep],
-            'diffuse_solar_radiation':building_sim_results['diffuse_solar_rad'][timestep],
-            'direct_solar_radiation':building_sim_results['direct_solar_rad'][timestep],
-            'prediction_6h_outdoor_drybulb_temperature':building_sim_results['t_out_pred_6h'][timestep],
-            'prediction_6h_outdoor_relative_humidity':building_sim_results['rh_out_pred_6h'][timestep],
-            'prediction_6h_diffuse_solar_radiation':building_sim_results['diffuse_solar_rad_pred_6h'][timestep],
-            'prediction_6h_direct_solar_radiation':building_sim_results['direct_solar_rad_pred_6h'][timestep],
-            'prediction_12h_outdoor_drybulb_temperature':building_sim_results['t_out_pred_12h'][timestep],
-            'prediction_12h_outdoor_relative_humidity':building_sim_results['rh_out_pred_12h'][timestep],
-            'prediction_12h_diffuse_solar_radiation':building_sim_results['diffuse_solar_rad_pred_12h'][timestep],
-            'prediction_12h_direct_solar_radiation':building_sim_results['direct_solar_rad_pred_12h'][timestep],
-            'prediction_24h_outdoor_drybulb_temperature':building_sim_results['t_out_pred_24h'][timestep],
-            'prediction_24h_outdoor_relative_humidity':building_sim_results['rh_out_pred_24h'][timestep],
-            'prediction_24h_diffuse_solar_radiation':building_sim_results['diffuse_solar_rad_pred_24h'][timestep],
-            'prediction_24h_direct_solar_radiation':building_sim_results['direct_solar_rad_pred_24h'][timestep],
-            
-        }
-        self.insert('weather_timeseries',list(record.keys()),[list(record.values())])
+        record = pd.DataFrame({
+            'timestep_id':timestep_ids,
+            'outdoor_drybulb_temperature':building_sim_results['t_out'][start_timestep:end_timestep],
+            'outdoor_relative_humidity':building_sim_results['rh_out'][start_timestep:end_timestep],
+            'diffuse_solar_radiation':building_sim_results['diffuse_solar_rad'][start_timestep:end_timestep],
+            'direct_solar_radiation':building_sim_results['direct_solar_rad'][start_timestep:end_timestep],            
+        })
+        self.insert('weather_timeseries',record.columns.tolist(),record.values)
 
-        # building
-        for building_name, building in self.env.buildings.items():
+        # environment
+        record = pd.DataFrame({
+            'timestep_id':alt_timestep_ids,
+            'carbon_emissions':self.env.carbon_emissions[alt_start_timestep:max(timesteps)],
+            'net_electric_consumption':self.env.net_electric_consumption[alt_start_timestep:max(timesteps)],
+            'electric_consumption_electric_storage':self.env.electric_consumption_electric_storage[alt_start_timestep:max(timesteps)],
+            'electric_consumption_dhw_storage':self.env.electric_consumption_dhw_storage[alt_start_timestep:max(timesteps)],
+            'electric_consumption_cooling_storage':self.env.electric_consumption_cooling_storage[alt_start_timestep:max(timesteps)],
+            'electric_consumption_dhw':self.env.electric_consumption_dhw[alt_start_timestep:max(timesteps)],
+            'electric_consumption_cooling':self.env.electric_consumption_cooling[alt_start_timestep:max(timesteps)],
+            'electric_consumption_appliances':self.env.electric_consumption_appliances[alt_start_timestep:max(timesteps)],
+            'electric_generation':self.env.electric_generation[alt_start_timestep:max(timesteps)]
+        })
+        record['environment_id'] = self.__MINIMUM_ROW_ID
+        self.insert('environment_timeseries',record.columns.tolist(),record.values)
+
+        for i, (building_name, building) in enumerate(self.env.buildings.items()):
+            # building
             building = deepcopy(building)
             building_id = buildings[building_name]['id']
-            record = {
-                'timestep_id':timestep_id,
-                'building_id':building_id,
-                'indoor_temperature':building.sim_results['t_in'][timestep],
-                'average_unmet_cooling_setpoint_difference':building.sim_results['avg_unmet_setpoint'][timestep],
-                'indoor_relative_humidity':building.sim_results['rh_in'][timestep],
-                'cooling_demand_building':building.sim_results['cooling_demand'][timestep],
-                'dhw_demand_building':building.sim_results['dhw_demand'][timestep],
-                'electric_consumption_appliances':building.sim_results['non_shiftable_load'][timestep],
-                'electric_generation':building.sim_results['solar_gen'][timestep],
-            }
-
-            if timestep > 0:
-                record = {
-                    'electric_consumption_cooling':building.electric_consumption_cooling[timestep-1],
-                    'electric_consumption_cooling_storage':building.electric_consumption_cooling_storage[timestep-1],
-                    'electric_consumption_dhw':building.electric_consumption_dhw[timestep-1],
-                    'electric_consumption_dhw_storage':building.electric_consumption_dhw_storage[timestep-1],
-                    'cooling_device_to_building':building.cooling_device_to_building[timestep-1],
-                    'cooling_storage_to_building':building.cooling_storage_to_building[timestep-1],
-                    'cooling_device_to_storage':building.cooling_device_to_storage[timestep-1],
-                    'cooling_storage_soc':building.cooling_storage_soc[timestep-1],
-                    'dhw_heating_device_to_building':building.dhw_heating_device_to_building[timestep-1],
-                    'dhw_storage_to_building':building.dhw_storage_to_building[timestep-1],
-                    'dhw_heating_device_to_storage':building.dhw_heating_device_to_storage[timestep-1],
-                    'dhw_storage_soc':building.dhw_storage_soc[timestep-1],
-                    'electrical_storage_electric_consumption':building.electrical_storage_electric_consumption[timestep-1],
-                    'electrical_storage_soc':building.electrical_storage_soc[timestep-1],
-                    **record
-                }
-            else:
-                pass
-
-            self.insert('building_timeseries',list(record.keys()),[list(record.values())])
+            record = pd.DataFrame({
+                'timestep_id':timestep_ids,
+                'indoor_temperature':building.sim_results['t_in'][start_timestep:end_timestep],
+                'average_unmet_cooling_setpoint_difference':building.sim_results['avg_unmet_setpoint'][start_timestep:end_timestep],
+                'indoor_relative_humidity':building.sim_results['rh_in'][start_timestep:end_timestep],
+                'cooling_demand_building':building.sim_results['cooling_demand'][start_timestep:end_timestep],
+                'dhw_demand_building':building.sim_results['dhw_demand'][start_timestep:end_timestep],
+                'electric_consumption_appliances':building.sim_results['non_shiftable_load'][start_timestep:end_timestep],
+                'electric_generation':building.sim_results['solar_gen'][start_timestep:end_timestep],
+            })
+            record = pd.merge(
+                record,
+                pd.DataFrame({
+                    'timestep_id':alt_timestep_ids,
+                    'electric_consumption_cooling':building.electric_consumption_cooling[alt_start_timestep:max(timesteps)],
+                    'electric_consumption_cooling_storage':building.electric_consumption_cooling_storage[alt_start_timestep:max(timesteps)],
+                    'electric_consumption_dhw':building.electric_consumption_dhw[alt_start_timestep:max(timesteps)],
+                    'electric_consumption_dhw_storage':building.electric_consumption_dhw_storage[alt_start_timestep:max(timesteps)],
+                    'cooling_device_to_building':building.cooling_device_to_building[alt_start_timestep:max(timesteps)],
+                    'cooling_storage_to_building':building.cooling_storage_to_building[alt_start_timestep:max(timesteps)],
+                    'cooling_device_to_storage':building.cooling_device_to_storage[alt_start_timestep:max(timesteps)],
+                    'dhw_heating_device_to_building':building.dhw_heating_device_to_building[alt_start_timestep:max(timesteps)],
+                    'dhw_storage_to_building':building.dhw_storage_to_building[alt_start_timestep:max(timesteps)],
+                    'dhw_heating_device_to_storage':building.dhw_heating_device_to_storage[alt_start_timestep:max(timesteps)],
+                    'electrical_storage_electric_consumption':building.electrical_storage_electric_consumption[alt_start_timestep:max(timesteps)]
+            }),on='timestep_id',how='left')
+            record['building_id'] = building_id
+            self.insert('building_timeseries',record.columns.tolist(),record.values)
 
             # cooling device
+            record = pd.DataFrame({
+                'timestep_id':timestep_ids,
+                'cop_cooling':building.cooling_device.cop_cooling[start_timestep:end_timestep],
+                'cop_heating':building.cooling_device.cop_heating[start_timestep:end_timestep] if isinstance(building.dhw_heating_device,HeatPump) else None,
+            })
+            record = pd.merge(
+                record,
+                pd.DataFrame({
+                    'timestep_id':alt_timestep_ids,
+                    'electrical_consumption_cooling':building.cooling_device.electrical_consumption_cooling[alt_start_timestep:max(timesteps)],
+                    'electrical_consumption_heating':building.cooling_device.electrical_consumption_heating[alt_start_timestep:max(timesteps)] if isinstance(building.dhw_heating_device,HeatPump) else None,
+                    'cooling_supply':building.cooling_device.cooling_supply[alt_start_timestep:max(timesteps)],
+                    'heat_supply':building.cooling_device.heat_supply[alt_start_timestep:max(timesteps)] if isinstance(building.dhw_heating_device,HeatPump) else None,
+            }),on='timestep_id',how='left')
+            record['cooling_device_id'] = building_id
+            self.insert('cooling_device_timeseries',record.columns.tolist(),record.values)
+
+            # dhw heating device
+            record = pd.DataFrame({
+                'timestep_id':alt_timestep_ids,
+                'electrical_consumption_heating':building.dhw_heating_device.electrical_consumption_heating[alt_start_timestep:max(timesteps)],
+                'heat_supply':building.dhw_heating_device.heat_supply[alt_start_timestep:max(timesteps)],
+            })
+            record['dhw_heating_device_id'] = building_id
+            self.insert('dhw_heating_device_timeseries',record.columns.tolist(),record.values)
+
+            # cooling storage
+            record = pd.DataFrame({
+                'timestep_id':alt_timestep_ids,
+                'soc':building.cooling_storage.soc[alt_start_timestep:max(timesteps)],
+                'energy_balance':building.cooling_storage.energy_balance[alt_start_timestep:max(timesteps)],
+            })
+            record['cooling_storage_id'] = building_id
+            self.insert('cooling_storage_timeseries',record.columns.tolist(),record.values)
+
+            # dhw storage
+            record = pd.DataFrame({
+                'timestep_id':alt_timestep_ids,
+                'soc':building.dhw_storage.soc[alt_start_timestep:max(timesteps)],
+                'energy_balance':building.dhw_storage.energy_balance[alt_start_timestep:max(timesteps)],
+            })
+            record['dhw_storage_id'] = building_id
+            self.insert('dhw_storage_timeseries',record.columns.tolist(),record.values)
+
+            # electrical storage
+            record = pd.DataFrame({
+                'timestep_id':alt_timestep_ids,
+                'soc':building.electrical_storage.soc[alt_start_timestep:max(timesteps)],
+                'energy_balance':building.electrical_storage.energy_balance[alt_start_timestep:max(timesteps)],
+            })
+            record['electrical_storage_id'] = building_id
+            self.insert('electrical_storage_timeseries',record.columns.tolist(),record.values)
+
+            # action timeseries
             record = {
-                'timestep_id':timestep_id,
-                'cooling_device_id':building_id,
-                'cop_cooling':building.cooling_device.cop_cooling[timestep],
-                'cop_heating':building.cooling_device.cop_heating[timestep] if isinstance(building.dhw_heating_device,HeatPump) else None,
+                'timestep_id':timestep_ids,
+                'cooling_storage':[],
+                'dhw_storage':[],
+                'electrical_storage':[]
             }
-
-            if timestep > 0:
-                record = {
-                    'electrical_consumption_cooling':building.cooling_device.electrical_consumption_cooling[timestep-1],
-                    'electrical_consumption_heating':building.cooling_device.electrical_consumption_heating[timestep-1]  if isinstance(building.dhw_heating_device,HeatPump) else None,
-                    'cooling_supply':building.cooling_device.cooling_supply[timestep-1],
-                    'heat_supply':building.cooling_device.heat_supply[timestep-1] if isinstance(building.dhw_heating_device,HeatPump) else None,
-                    **record
-                }
-            else:
-                pass
-
-            self.insert('cooling_device_timeseries',list(record.keys()),[list(record.values())])
-
+            for j in timesteps:
+                if actions[building_id]['cooling_storage']:
+                    record['cooling_storage'].append(kwargs['action'][j][i][0])
+                    kwargs['action'][j][i] = kwargs['action'][j][i][1:]
+                else:
+                    record['cooling_storage'].append(None)
+                if actions[building_id]['dhw_storage']:
+                    record['dhw_storage'].append(kwargs['action'][j][i][0])
+                    kwargs['action'][j][i] = kwargs['action'][j][i][1:]
+                else:
+                    record['dhw_storage'].append(None)
+                if actions[building_id]['electrical_storage']:
+                    record['electrical_storage'].append(kwargs['action'][j][i][0])
+                    kwargs['action'][j][i] = kwargs['action'][j][i][1:]
+                else:
+                    record['electrical_storage'].append(None)
             
-            if timestep > 0:
-                # dhw heating device
-                record = {
-                    'timestep_id':timestep_id,
-                    'dhw_heating_device_id':building_id,
-                    'electrical_consumption_heating':building.dhw_heating_device.electrical_consumption_heating[timestep-1],
-                    'heat_supply':building.dhw_heating_device.heat_supply[timestep-1],
-                }
-                self.insert('dhw_heating_device_timeseries',list(record.keys()),[list(record.values())])
+            record = pd.DataFrame(record)
+            record['building_id'] = building_id
+            self.insert('action_timeseries',record.columns.tolist(),record.values)
 
-                # cooling storage
-                record = {
-                    'timestep_id':timestep_id,
-                    'cooling_storage_id':building_id,
-                    'soc':building.cooling_storage.soc[timestep-1],
-                    'energy_balance':building.cooling_storage.energy_balance[timestep-1],
-                }
-                self.insert('cooling_storage_timeseries',list(record.keys()),[list(record.values())])
+            # reward
+            record = pd.DataFrame({
+                'timestep_id':timestep_ids,
+                'value':[kwargs['reward'][j][i] for j in timesteps]
+            })
+            record['building_id'] = building_id
+            self.insert('reward_timeseries',record.columns.tolist(),record.values)
 
-                # dhw storage
-                record = {
-                    'timestep_id':timestep_id,
-                    'dhw_storage_id':building_id,
-                    'soc':building.dhw_storage.soc[timestep-1],
-                    'energy_balance':building.dhw_storage.energy_balance[timestep-1],
-                }
-                self.insert('dhw_storage_timeseries',list(record.keys()),[list(record.values())])
-
-                # electrical storage
-                record = {
-                    'timestep_id':timestep_id,
-                    'electrical_storage_id':building_id,
-                    'soc':building.electrical_storage.soc[timestep-1],
-                    'energy_balance':building.electrical_storage.energy_balance[timestep-1],
-                }
-                self.insert('electrical_storage_timeseries',list(record.keys()),[list(record.values())])
-            
-            else:
-                pass
-
-        if timestep > 0:
-            # environment
-            record = {
-                'timestep_id':timestep_id,
-                'environment_id':self.__MINIMUM_ROW_ID,
-                'carbon_emissions':self.env.carbon_emissions[timestep-1],
-                'net_electric_consumption':self.env.net_electric_consumption[timestep-1],
-                'electric_consumption_electric_storage':self.env.electric_consumption_electric_storage[timestep-1],
-                'electric_consumption_dhw_storage':self.env.electric_consumption_dhw_storage[timestep-1],
-                'electric_consumption_cooling_storage':self.env.electric_consumption_cooling_storage[timestep-1],
-                'electric_consumption_dhw':self.env.electric_consumption_dhw[timestep-1],
-                'electric_consumption_cooling':self.env.electric_consumption_cooling[timestep-1],
-                'electric_consumption_appliances':self.env.electric_consumption_appliances[timestep-1],
-                'electric_generation':self.env.electric_generation[timestep-1]
-            }
-            self.insert('environment_timeseries',list(record.keys()),[list(record.values())])
-        else:
-            pass
+    def end_simulation(self,**kwargs):
+        end_timestamp = datetime.utcnow().replace(tzinfo=pytz.utc).strftime('%Y-%m-%d %H:%M:%S%z')
+        query = f"""
+        UPDATE simulation
+        SET
+            end_timestamp = {end_timestamp}
+            successful = {kwargs['success']}
+        WHERE
+            id = {self.__MINIMUM_ROW_ID}
+        """
+        _ = self.query(query)

@@ -13,7 +13,8 @@ SIMULATION_OUTPUT_DIRECTORY = os.path.join(DESTINATION_DATA_DIRECTORY,'simulatio
 GRID_SEARCH_FILEPATH = 'grid_search.json'
 DEFAULT_BUILDING_COUNT = 9
 BUILDING_COUNT_MULTIPLIERS = [1,5,10]
-PYTHON_EXECUTION = 'python -m citylearn_cli single'
+WRITE_FREQUENCY = 4000
+PYTHON_EXECUTION = f'python -m citylearn_cli --write_sqlite --write_frequency {WRITE_FREQUENCY} single'
 TACC_LAUNCHER_JOB_FILEPATH = 'tacc_launcher_job'
 CLIMATE_ZONES = [2]
 SIMULATION_COUNT = 3
@@ -49,7 +50,16 @@ def set_grid():
 
     grid = pd.concat(grid_list,ignore_index=True)
     grid['--output_directory'] = SIMULATION_OUTPUT_DIRECTORY
-    grid['--simulation_id'] = grid.index.map(lambda x: f'simulation_{x + 1}')
+    grid.loc[grid['agent_name']=='sac','reward_style'] = 'sac'
+    grid = grid.drop_duplicates()
+    grid = grid.sort_values([
+        '--data_path',
+        '--seed',
+        'reward_style',
+        'agent_name',
+        '--building_ids',
+    ])
+    grid['--simulation_id'] = grid.reset_index().index + 1
     grid.to_csv(f'{GRID_SEARCH_FILEPATH.split(".")[0]}.csv',index=False)
     script = [
         PYTHON_EXECUTION + ' ' + ' '.join([f'{key if key.startswith("--") else ""} {value}'.strip() for key, value in record.items() if value is not None])

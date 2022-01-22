@@ -27,15 +27,12 @@ class CityLearn_CLI:
             self.__successful = False
             self.__start_timestamp = datetime.now()
             self.__runner()
-            self.__logger.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
             self.__successful = True
+            self.__logger.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
         finally:
             self.__end_timestamp = datetime.now()
-
-            if self.kwargs['write_pickle']:
-                self.__write_pickle()
-            else:
-                pass
+            self.__close_database(**{'successful':self.__successful})
+            self.__write_pickle()
 
     def __set_run_params(self):
         agent_name = self.kwargs['agent_name']
@@ -58,6 +55,10 @@ class CityLearn_CLI:
         }
         self.__set_agent()
         self.__initialize_database()
+        self.__update_write_timestep(reset=True)
+        self.__episode = 0
+        self.__episode_actions = []
+        self.__episode_rewards = []
 
     def __set_env(self):
         arg_spec = inspect.getfullargspec(CityLearn)
@@ -85,6 +86,12 @@ class CityLearn_CLI:
             if (key in arg_spec.args or (arg_spec.varkw is not None and key not in ['func','subcommands']))
         }
         params = {**agent_handlers[agent_name],**{'constructor_kwargs':constructor_kwargs}}
+
+        if self.kwargs['agent_name'] == 'rbc':
+            params['constructor_kwargs']['actions_spaces'] = actions_spaces
+        else:
+            pass
+
         self.__agent = params['constructor'](**params['constructor_kwargs'])
         self.__runner = params['runner']
 
@@ -145,63 +152,79 @@ class CityLearn_CLI:
             'seed':{'default':0,'type':int},
         }
 
-    def __run_marlisa(self):
-        episode_count = self.kwargs['episode_count']
-        deterministic_period_start = self.kwargs['deterministic_period_start']
+    def __run_marlisa(self): 
         select_action_kwarg_keys = ['states','deterministic']
         select_action_kwarg_keys = [
             key for key in select_action_kwarg_keys 
             if key in inspect.getfullargspec(self.__agent.select_action).args
         ]
 
-        for i in range(episode_count): 
+        while self.__episode < self.kwargs['episode_count']:
+            self.__episode += 1
+            self.__update_write_timestep(reset=True)
+            self.__episode_actions = []
+            self.__episode_rewards = []
             state = self.__env.reset()
             done = False
-            j = 0
             is_evaluating = False
             select_action_kwargs = {'states':state,'deterministic':is_evaluating}
             select_action_kwargs = {key:value for key,value in select_action_kwargs.items() if key in select_action_kwarg_keys}
             action, coordination_vars = self.__agent.select_action(**select_action_kwargs)
-            self.__database.timestep_update(i)
-            
-            while not done:
-                self.__logger.debug(f'Episode: {i+1}/{int(episode_count)} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
-                next_state, reward, done, _ = self.__env.step(action,**self.__step_kwargs)
-                self.__step_kwargs['previous_electricity_demand'] = self.__env.buildings_net_electricity_demand
-                self.__step_kwargs['previous_carbon_intensity'] = self.__env.current_carbon_intensity
-                self.__logger.debug(f'reward: {reward}')
-                select_action_kwargs = {'states':next_state,'deterministic':is_evaluating}
-                select_action_kwargs = {key:value for key,value in select_action_kwargs.items() if key in select_action_kwarg_keys}
-                action_next, coordination_vars_next = self.__agent.select_action(**select_action_kwargs)
-                self.__logger.debug(f'action_next: {action_next}')
-                self.__agent.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
-                coordination_vars = coordination_vars_next
-                state = next_state
-                action = action_next
-                is_evaluating = (j >= deterministic_period_start)
-                j += 1
-                self.__database.timestep_update(i)
-
-    def __run_rbc(self):
-        episode_count = self.kwargs['episode_count']
-
-        for i in range(episode_count): 
-            _ = self.__env.reset()
-            done = False
             j = 0
             
             while not done:
-                self.__logger.debug(f'Episode: {i+1}/{int(episode_count)} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
-                hour = list(self.__env.buildings.values())[0].sim_results['hour'][self.__env.time_step]
-                action = self.__agent.select_action([hour])
-                _, _, done, _ = self.__env.step(action,**self.__step_kwargs)
-                j += 1
+                while j < self.__write_end_timestep and not done:
+                    self.__logger.debug(f'Episode: {self.__episode}/{int(self.kwargs["episode_count"])} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
+                    next_state, reward, done, _ = self.__env.step(action,**self.__step_kwargs)
+                    self.__logger.debug(f'action: {action}')
+                    self.__logger.debug(f'reward: {reward}')
+                    self.__episode_actions.append(action)
+                    self.__episode_rewards.append(reward)
+                    self.__step_kwargs['previous_electricity_demand'] = self.__env.buildings_net_electricity_demand
+                    self.__step_kwargs['previous_carbon_intensity'] = self.__env.current_carbon_intensity
+                    select_action_kwargs = {'states':next_state,'deterministic':is_evaluating}
+                    select_action_kwargs = {key:value for key,value in select_action_kwargs.items() if key in select_action_kwarg_keys}
+                    action_next, coordination_vars_next = self.__agent.select_action(**select_action_kwargs)
+                    self.__agent.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
+                    coordination_vars = coordination_vars_next
+                    state = next_state
+                    action = action_next
+                    is_evaluating = (j >= self.kwargs['deterministic_period_start'])
+                    j += 1
+
+                self.__database_timestep_update()
+
+    def __run_rbc(self):
+        while self.__episode < self.kwargs['episode_count']:
+            self.__episode += 1
+            self.__update_write_timestep(reset=True)
+            self.__episode_actions = []
+            self.__episode_rewards = []
+            _ = self.__env.reset()
+            done = False
+            hour = list(self.__env.buildings.values())[0].sim_results['hour'][self.__env.time_step]
+            action = self.__agent.select_action([hour])
+            j = 0
+            
+            while not done:
+                while j < self.__write_end_timestep and not done:
+                    self.__logger.debug(f'Episode: {self.__episode}/{int(self.kwargs["episode_count"])} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
+                    _, reward, done, _ = self.__env.step(action,**self.__step_kwargs)
+                    self.__logger.debug(f'action: {action}')
+                    self.__logger.debug(f'reward: {reward}')
+                    self.__episode_actions.append(action)
+                    self.__episode_rewards.append(reward)
+                    hour = list(self.__env.buildings.values())[0].sim_results['hour'][self.__env.time_step]
+                    action = self.__agent.select_action([hour])
+                    j += 1
+
+                self.__database_timestep_update()
 
     @classmethod
     def get_logger(cls,filepath,**kwargs):
         kwargs = {
             'filename':filepath,
-            'format':'%(asctime)s %(message)s',
+            'format':'%(asctime)s PID %(process)d TID %(thread)d: %(message)s',
             'filemode':'w',
             **kwargs
         }
@@ -210,40 +233,69 @@ class CityLearn_CLI:
         logger.setLevel(logging.DEBUG)
         return logger
 
+    def __close_database(self):
+        if self.kwargs['write_sqlite']:
+            self.__database.end_simulation()
+        else:
+            pass
+
     def __initialize_database(self):
         if self.kwargs['write_sqlite']:
             database_filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.db')
             self.__database = CityLearnDatabase(database_filepath,self.__env,self.__agent,overwrite=True,apply_changes=True)
             self.__database.initialize(**self.kwargs)
+            self.__logger.debug(f'Initialized database with filepath - {self.__database.filepath}.')
         else:
             pass
 
     def __database_timestep_update(self):
         if self.kwargs['write_sqlite']:
-            self.__database.timestep_update(**self.kwargs)
-        else:
-            pass
-            
-    def __write_pickle(self):
-        data = {
-            'metadata':{
-                'start_timestamp':self.__start_timestamp,
-                'end_timestamp':self.__end_timestamp,
-                'successful':self.__successful,
-            },
-            'env':self.__env,
-            'agents':self.__agent
-        }
-        filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.pkl')
-        directory = '/'.join(filepath.split('/')[0:-1])
-        
-        if directory != filepath:
-            os.makedirs(directory,exist_ok=True)
+            self.__logger.debug(f'Updating database timeseries.')
+            kwargs = {
+                'start_timestep':self.__write_start_timestep,
+                'end_timestep':self.__write_end_timestep,
+                'episode':self.__episode,
+                'action':self.__episode_actions,
+                'reward':self.__episode_rewards
+            }
+            self.__logger.debug(f'Finished updating database timeseries.')
+            self.__database.timestep_update(**kwargs)
+            self.__update_write_timestep(reset=False)
         else:
             pass
 
-        with open(filepath,'wb') as f:
-            pickle.dump(data,f)
+    def __update_write_timestep(self,reset=False):
+        if reset:
+            self.__write_start_timestep = 0
+        else:
+            self.__write_start_timestep = self.__write_end_timestep
+
+        self.__write_end_timestep = min([self.__write_start_timestep + self.kwargs['write_frequency'],self.__env.simulation_period[1]])
+            
+    def __write_pickle(self):
+        if self.kwargs['write_pickle']:
+            data = {
+                'metadata':{
+                    'start_timestamp':self.__start_timestamp,
+                    'end_timestamp':self.__end_timestamp,
+                    'successful':self.__successful,
+                },
+                'env':self.__env,
+                'agents':self.__agent
+            }
+            filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.pkl')
+            directory = '/'.join(filepath.split('/')[0:-1])
+            self.__logger.debug(f'Writing simulation to pickle file - {filepath}.')
+            
+            if directory != filepath:
+                os.makedirs(directory,exist_ok=True)
+            else:
+                pass
+
+            with open(filepath,'wb') as f:
+                pickle.dump(data,f)
+        else:
+            pass
 
     @staticmethod
     def single_simulation_run(**kwargs):
@@ -272,6 +324,7 @@ class CityLearn_CLI:
 def get_parser():
     parser = argparse.ArgumentParser(prog='reward_function_exploration',formatter_class=argparse.ArgumentDefaultsHelpFormatter,description='Explore different reward functions in CityLearn environment.')
     parser.add_argument('--write_sqlite',action='store_true',help='Write simulation to SQLite database.')
+    parser.add_argument('--write_frequency',type=int,default=1000,help='Timestep frequency for writing simulation to SQLite database.')
     parser.add_argument('--write_pickle',action='store_true',help='Write simulation to pickle file.')
     subparsers = parser.add_subparsers(title='subcommands',required=True,dest='subcommands')
     
