@@ -312,6 +312,7 @@ class CityLearn_CLI:
 
     @staticmethod
     def parse_single_simulation_run(command):
+        command = command.split('citylearn_cli')[-1].strip()
         args = command.split(' ')[3:]
         args = get_parser().parse_args(args)
         arg_spec = inspect.getfullargspec(args.func)
