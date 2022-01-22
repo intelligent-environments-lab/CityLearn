@@ -13,7 +13,7 @@ from agents.sac import SAC
 from citylearn import CityLearn, RBC_Agent
 from database import CityLearnDatabase
 from reward_function import reward_function_ma
-from utilities import get_data_from_path
+from utilities import get_data_from_path, write_json
 
 class CityLearn_CLI:
     def __init__(self,**kwargs):
@@ -26,11 +26,14 @@ class CityLearn_CLI:
         try:
             self.__successful = False
             self.__start_timestamp = datetime.now()
+            self.__end_timestamp = None
+            self.__write_success_note()
             self.__runner()
             self.__successful = True
             self.__logger.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
         finally:
             self.__end_timestamp = datetime.now()
+            self.__write_success_note()
             self.__close_database(**{'successful':self.__successful})
             self.__write_pickle()
 
@@ -176,8 +179,8 @@ class CityLearn_CLI:
                 while j < self.__write_end_timestep and not done:
                     self.__logger.debug(f'Episode: {self.__episode}/{int(self.kwargs["episode_count"])} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
                     next_state, reward, done, _ = self.__env.step(action,**self.__step_kwargs)
-                    self.__logger.debug(f'action: {action}')
-                    self.__logger.debug(f'reward: {reward}')
+                    # self.__logger.debug(f'action: {action}')
+                    # self.__logger.debug(f'reward: {reward}')
                     self.__episode_actions.append(action)
                     self.__episode_rewards.append(reward)
                     self.__step_kwargs['previous_electricity_demand'] = self.__env.buildings_net_electricity_demand
@@ -210,8 +213,8 @@ class CityLearn_CLI:
                 while j < self.__write_end_timestep and not done:
                     self.__logger.debug(f'Episode: {self.__episode}/{int(self.kwargs["episode_count"])} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
                     _, reward, done, _ = self.__env.step(action,**self.__step_kwargs)
-                    self.__logger.debug(f'action: {action}')
-                    self.__logger.debug(f'reward: {reward}')
+                    # self.__logger.debug(f'action: {action}')
+                    # self.__logger.debug(f'reward: {reward}')
                     self.__episode_actions.append(action)
                     self.__episode_rewards.append(reward)
                     hour = list(self.__env.buildings.values())[0].sim_results['hour'][self.__env.time_step]
@@ -271,7 +274,18 @@ class CityLearn_CLI:
             self.__write_start_timestep = self.__write_end_timestep
 
         self.__write_end_timestep = min([self.__write_start_timestep + self.kwargs['write_frequency'],self.__env.simulation_period[1]])
-            
+
+    def __write_success_note(self):
+        note = {
+            'simulation_id':self.__simulation_id,
+            'pid':os.getpid(),
+            'start_timestamp':str(self.__start_timestamp),
+            'end_timestamp':str(self.__end_timestamp),
+            'successful':self.__successful,
+        }
+        filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.json')
+        write_json(filepath,note)     
+    
     def __write_pickle(self):
         if self.kwargs['write_pickle']:
             data = {
@@ -309,11 +323,11 @@ class CityLearn_CLI:
         
         with concurrent.futures.ProcessPoolExecutor() as executor:
             _ = executor.map(CityLearn_CLI.parse_single_simulation_run,commands)
-
+           
     @staticmethod
     def parse_single_simulation_run(command):
         command = command.split('citylearn_cli')[-1].strip()
-        args = command.split(' ')[3:]
+        args = command.split(' ')
         args = get_parser().parse_args(args)
         arg_spec = inspect.getfullargspec(args.func)
         kwargs = {

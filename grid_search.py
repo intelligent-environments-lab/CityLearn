@@ -59,7 +59,7 @@ def set_grid():
         'agent_name',
         '--building_ids',
     ])
-    grid['--simulation_id'] = grid.reset_index().index + 1
+    grid['--simulation_id'] = grid.reset_index().index.map(lambda x: f'simulation_{x + 1}')
     grid.to_csv(f'{GRID_SEARCH_FILEPATH.split(".")[0]}.csv',index=False)
     script = [
         PYTHON_EXECUTION + ' ' + ' '.join([f'{key if key.startswith("--") else ""} {value}'.strip() for key, value in record.items() if value is not None])
