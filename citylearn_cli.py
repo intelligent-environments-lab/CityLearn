@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import pickle
 import time
+import subprocess
 import sys
 from agents.marlisa import MARLISA
 from agents.sac import SAC
@@ -15,40 +16,49 @@ from database import CityLearnDatabase
 from reward_function import reward_function_ma
 from utilities import get_data_from_path, write_json
 
+# module logger
+logger = logging.getLogger(__name__)
+
 class CityLearn_CLI:
     def __init__(self,**kwargs):
         self.kwargs = kwargs
 
     def run(self):
         self.__set_run_params()
+        self.__set_logger()
         start = time.time()
         
         try:
             self.__successful = False
             self.__start_timestamp = datetime.now()
             self.__end_timestamp = None
-            self.__write_success_note()
+            self.__write_progress()
             self.__runner()
             self.__successful = True
-            self.__logger.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
+            logger.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
+        
+        except Exception as e:
+            print(e)
+            logger.exception(e)
+        
         finally:
             self.__end_timestamp = datetime.now()
-            self.__write_success_note()
+            self.__write_progress()
             self.__close_database(**{'successful':self.__successful})
             self.__write_pickle()
 
     def __set_run_params(self):
-        agent_name = self.kwargs['agent_name']
-        reward_style = self.kwargs['reward_style']
-        self.__simulation_id = self.kwargs.get('simulation_id') if self.kwargs.get('simulation_id') is not None else f'{agent_name}-{reward_style}'
         self.__output_directory = self.kwargs.get('output_directory',None)
 
         if self.__output_directory is not None:
             os.makedirs(self.__output_directory,exist_ok=True)
         else:
             self.__output_directory = ''
-        logger_filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.log')
-        self.__logger = self.get_logger(logger_filepath)
+
+        agent_name = self.kwargs['agent_name']
+        reward_style = self.kwargs['reward_style']
+        self.__simulation_id = self.kwargs.get('simulation_id')\
+            if self.kwargs.get('simulation_id') is not None else f'{agent_name}-{reward_style}'
         self.__set_env()
         self.__step_kwargs = {
             'style':self.kwargs['reward_style'],
@@ -59,7 +69,8 @@ class CityLearn_CLI:
         self.__set_agent()
         self.__initialize_database()
         self.__update_write_timestep(reset=True)
-        self.__episode = 0
+        self.__episode = -1
+        self.__timestep = -1
         self.__episode_actions = []
         self.__episode_rewards = []
 
@@ -162,7 +173,7 @@ class CityLearn_CLI:
             if key in inspect.getfullargspec(self.__agent.select_action).args
         ]
 
-        while self.__episode < self.kwargs['episode_count']:
+        while self.__episode < self.kwargs['episode_count'] - 1:
             self.__episode += 1
             self.__update_write_timestep(reset=True)
             self.__episode_actions = []
@@ -177,10 +188,9 @@ class CityLearn_CLI:
             
             while not done:
                 while j < self.__write_end_timestep and not done:
-                    self.__logger.debug(f'Episode: {self.__episode}/{int(self.kwargs["episode_count"])} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
+                    logger.debug(f'Episode: {self.__episode+1}/{int(self.kwargs["episode_count"])} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
                     next_state, reward, done, _ = self.__env.step(action,**self.__step_kwargs)
-                    # self.__logger.debug(f'action: {action}')
-                    # self.__logger.debug(f'reward: {reward}')
+                    self.__timestep = j
                     self.__episode_actions.append(action)
                     self.__episode_rewards.append(reward)
                     self.__step_kwargs['previous_electricity_demand'] = self.__env.buildings_net_electricity_demand
@@ -196,9 +206,10 @@ class CityLearn_CLI:
                     j += 1
 
                 self.__database_timestep_update()
+                self.__write_progress()
 
     def __run_rbc(self):
-        while self.__episode < self.kwargs['episode_count']:
+        while self.__episode < self.kwargs['episode_count'] - 1:
             self.__episode += 1
             self.__update_write_timestep(reset=True)
             self.__episode_actions = []
@@ -211,10 +222,9 @@ class CityLearn_CLI:
             
             while not done:
                 while j < self.__write_end_timestep and not done:
-                    self.__logger.debug(f'Episode: {self.__episode}/{int(self.kwargs["episode_count"])} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
+                    logger.debug(f'Episode: {self.__episode+1}/{int(self.kwargs["episode_count"])} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
                     _, reward, done, _ = self.__env.step(action,**self.__step_kwargs)
-                    # self.__logger.debug(f'action: {action}')
-                    # self.__logger.debug(f'reward: {reward}')
+                    self.__timestep = j
                     self.__episode_actions.append(action)
                     self.__episode_rewards.append(reward)
                     hour = list(self.__env.buildings.values())[0].sim_results['hour'][self.__env.time_step]
@@ -222,20 +232,16 @@ class CityLearn_CLI:
                     j += 1
 
                 self.__database_timestep_update()
+                self.__write_progress()
 
-    @classmethod
-    def get_logger(cls,filepath,**kwargs):
-        kwargs = {
-            'filename':filepath,
-            'format':'%(asctime)s PID %(process)d TID %(thread)d: %(message)s',
-            'filemode':'w',
-            **kwargs
-        }
-        logging.basicConfig(**kwargs) 
-        logger = logging.getLogger() 
+    def __set_logger(self):
+        filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.log')
         logger.setLevel(logging.DEBUG)
-        return logger
-
+        handler = logging.FileHandler(filepath,mode='w')
+        formatter = logging.Formatter('%(levelname)s - %(asctime)s - %(process)d - %(thread)d: %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        
     def __close_database(self):
         if self.kwargs['write_sqlite']:
             self.__database.end_simulation()
@@ -247,13 +253,13 @@ class CityLearn_CLI:
             database_filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.db')
             self.__database = CityLearnDatabase(database_filepath,self.__env,self.__agent,overwrite=True,apply_changes=True)
             self.__database.initialize(**self.kwargs)
-            self.__logger.debug(f'Initialized database with filepath - {self.__database.filepath}.')
+            logger.debug(f'Initialized database with filepath - {self.__database.filepath}.')
         else:
             pass
 
     def __database_timestep_update(self):
         if self.kwargs['write_sqlite']:
-            self.__logger.debug(f'Updating database timeseries.')
+            logger.debug(f'Updating database timeseries.')
             kwargs = {
                 'start_timestep':self.__write_start_timestep,
                 'end_timestep':self.__write_end_timestep,
@@ -261,7 +267,7 @@ class CityLearn_CLI:
                 'action':self.__episode_actions,
                 'reward':self.__episode_rewards
             }
-            self.__logger.debug(f'Finished updating database timeseries.')
+            logger.debug(f'Finished updating database timeseries.')
             self.__database.timestep_update(**kwargs)
             self.__update_write_timestep(reset=False)
         else:
@@ -275,16 +281,19 @@ class CityLearn_CLI:
 
         self.__write_end_timestep = min([self.__write_start_timestep + self.kwargs['write_frequency'],self.__env.simulation_period[1]])
 
-    def __write_success_note(self):
-        note = {
+    def __write_progress(self):
+        data = {
             'simulation_id':self.__simulation_id,
             'pid':os.getpid(),
-            'start_timestamp':str(self.__start_timestamp),
-            'end_timestamp':str(self.__end_timestamp),
+            'start_timestamp':self.__start_timestamp,
+            'end_timestamp':self.__end_timestamp,
+            'last_update_timestamp':datetime.now(),
+            'last_update_episode':self.__episode,
+            'last_update_timestep':self.__timestep,
             'successful':self.__successful,
         }
         filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.json')
-        write_json(filepath,note)     
+        write_json(filepath,data)     
     
     def __write_pickle(self):
         if self.kwargs['write_pickle']:
@@ -299,7 +308,7 @@ class CityLearn_CLI:
             }
             filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.pkl')
             directory = '/'.join(filepath.split('/')[0:-1])
-            self.__logger.debug(f'Writing simulation to pickle file - {filepath}.')
+            logger.debug(f'Writing simulation to pickle file - {filepath}.')
             
             if directory != filepath:
                 os.makedirs(directory,exist_ok=True)
@@ -311,32 +320,18 @@ class CityLearn_CLI:
         else:
             pass
 
-    @staticmethod
-    def single_simulation_run(**kwargs):
-        cli = CityLearn_CLI(**kwargs)
-        cli.run()
+def single_simulation_run(**kwargs):
+    cli = CityLearn_CLI(**kwargs)
+    cli.run()
 
-    @staticmethod
-    def multiple_simulation_run(filepath):
-        commands = get_data_from_path(filepath)
-        commands = commands.split('\n')
-        
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            _ = executor.map(CityLearn_CLI.parse_single_simulation_run,commands)
-           
-    @staticmethod
-    def parse_single_simulation_run(command):
-        command = command.split('citylearn_cli')[-1].strip()
-        args = command.split(' ')
-        args = get_parser().parse_args(args)
-        arg_spec = inspect.getfullargspec(args.func)
-        kwargs = {
-            key:value for (key, value) in args._get_kwargs() 
-            if (key in arg_spec.args or (arg_spec.varkw is not None and key not in ['func','subcommands']))
-        }
-        CityLearn_CLI.single_simulation_run(**kwargs)
+def multiple_simulation_run(filepath):
+    args = get_data_from_path(filepath).split('\n')
+    
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        print(f'Pooling {len(args)} jobs to run in parallel...')
+        _ = executor.map(subprocess.run,args)
 
-def get_parser():
+def main():
     parser = argparse.ArgumentParser(prog='reward_function_exploration',formatter_class=argparse.ArgumentDefaultsHelpFormatter,description='Explore different reward functions in CityLearn environment.')
     parser.add_argument('--write_sqlite',action='store_true',help='Write simulation to SQLite database.')
     parser.add_argument('--write_frequency',type=int,default=1000,help='Timestep frequency for writing simulation to SQLite database.')
@@ -345,7 +340,7 @@ def get_parser():
     
     # single simulation run
     single_run_subparser = subparsers.add_parser('single',description='Run a single CityLearn simulation on a single process.')
-    single_run_subparser.set_defaults(func=CityLearn_CLI.single_simulation_run)
+    single_run_subparser.set_defaults(func=single_simulation_run)
     single_run_subparser.add_argument('agent_name',type=str,choices=list(CityLearn_CLI().get_agent_handlers().keys()),help='Simulation agent.')
     single_run_subparser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
     single_run_subparser.add_argument('-id','--simulation_id',type=str,dest='simulation_id',help='ID used to name simulation output files. The default is <agent_name>-<reward_style>.')
@@ -361,13 +356,9 @@ def get_parser():
 
     # multiple simulation run
     multiple_run_subparser = subparsers.add_parser('multiple',description='Run multiple single CityLearn simulations on a multiple processes.')
-    multiple_run_subparser.set_defaults(func=CityLearn_CLI.multiple_simulation_run)
+    multiple_run_subparser.set_defaults(func=multiple_simulation_run)
     multiple_run_subparser.add_argument('filepath',type=str,help='Filepath to script containing multiple simulation commands.')
 
-    return parser
-
-def main():
-    parser = get_parser()
     args = parser.parse_args()
     arg_spec = inspect.getfullargspec(args.func)
     kwargs = {
