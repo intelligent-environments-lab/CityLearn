@@ -27,19 +27,18 @@ class CityLearn_CLI:
         self.__set_run_params()
         self.__set_logger()
         start = time.time()
+        self.__successful = False
+        self.__start_timestamp = datetime.now()
+        self.__end_timestamp = None
+        self.__write_progress()
         
         try:
-            self.__successful = False
-            self.__start_timestamp = datetime.now()
-            self.__end_timestamp = None
-            self.__write_progress()
             self.__runner()
             self.__successful = True
             logger.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
         
         except Exception as e:
-            print(e)
-            logger.exception(e)
+            logger.exception(e,stack_info=True)
         
         finally:
             self.__end_timestamp = datetime.now()
