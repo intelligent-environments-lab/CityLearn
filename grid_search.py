@@ -1,8 +1,9 @@
-from copy import copy, deepcopy
+from copy import deepcopy
 import itertools
 import os
 import random
 import shutil
+import sys
 import pandas as pd
 from utilities import read_json, write_data, write_json
 
@@ -14,7 +15,7 @@ GRID_SEARCH_FILEPATH = 'grid_search.json'
 DEFAULT_BUILDING_COUNT = 9
 BUILDING_COUNT_MULTIPLIERS = [1,5,10]
 WRITE_FREQUENCY = 4000
-PYTHON_EXECUTION = f'python -m citylearn_cli --write_sqlite --write_frequency {WRITE_FREQUENCY} single'
+PYTHON_EXECUTION = f'{sys.executable} -m citylearn_cli --write_sqlite --write_frequency {WRITE_FREQUENCY} single'
 TACC_LAUNCHER_JOB_FILEPATH = 'tacc_launcher_job'
 CLIMATE_ZONES = [2]
 SIMULATION_COUNT = 3
