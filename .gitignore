@@ -8,3 +8,5 @@ notes.txt
 grid_search_data/
 tacc_launcher_job
 grid_search.csv
+scratch.py
+processes.csv
