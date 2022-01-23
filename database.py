@@ -216,8 +216,10 @@ class CityLearnDatabase(SQLiteDatabase):
         # simulation
         start_timestamp = datetime.utcnow().replace(tzinfo=pytz.utc).strftime('%Y-%m-%d %H:%M:%S%z')
         self.__simulation_id = self.__MINIMUM_ROW_ID
+        simulation_name = kwargs.get('simulation_name',None)
         record = {
             'id':self.__simulation_id,
+            'name': simulation_name if simulation_name is not None else str(self.__simulation_id),
             'start_timestamp':start_timestamp,
             'end_timestamp':None,
             'successful':False
@@ -228,6 +230,7 @@ class CityLearnDatabase(SQLiteDatabase):
         self.__environment_id = self.__MINIMUM_ROW_ID
         record = {
             'id':self.__environment_id,
+            'simulation_id':self.__simulation_id,
             'simulation_period_start':self.env.simulation_period[0],
             'simulation_period_end':self.env.simulation_period[1],
             'central_agent':self.env.central_agent
@@ -343,7 +346,7 @@ class CityLearnDatabase(SQLiteDatabase):
         end_timestep = kwargs['end_timestep']
         episode = kwargs['episode']
         timesteps = list(range(start_timestep,end_timestep))
-        timestep_ids = [(episode - 1)*self.env.simulation_period[1] + i + 1 for i in range(start_timestep,end_timestep)]
+        timestep_ids = [episode*self.env.simulation_period[1] + i + 1 for i in range(start_timestep,end_timestep)]
         alt_timestep_ids = timestep_ids[1:] if start_timestep == 0 else timestep_ids
         building_sim_results = list(self.env.buildings.values())[0].sim_results
         buildings = self.get_table('building').set_index('name').to_dict(orient='index')

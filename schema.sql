@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS simulation (
     id INTEGER NOT NULL PRIMARY KEY,
+    "name" TEXT UNIQUE NOT NULL,
     start_timestamp TEXT NOT NULL,
     end_timestamp TEXT,
     successful INTEGER DEFAULT 0
@@ -7,6 +8,7 @@ CREATE TABLE IF NOT EXISTS simulation (
 
 CREATE TABLE IF NOT EXISTS environment (
     id INTEGER NOT NULL PRIMARY KEY,
+    simulation_id INTEGER NOT NULL REFERENCES simulation (id),
     simulation_period_start INTEGER NOT NULL,
     simulation_period_end INTEGER NOT NULL,
     central_agent INTEGER NOT NULL
