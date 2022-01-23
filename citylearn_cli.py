@@ -243,7 +243,8 @@ class CityLearn_CLI:
         
     def __close_database(self):
         if self.kwargs['write_sqlite']:
-            self.__database.end_simulation()
+            kwargs = {'successful':self.__successful}
+            self.__database.end_simulation(**kwargs)
         else:
             pass
 
