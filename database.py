@@ -518,8 +518,8 @@ class CityLearnDatabase(SQLiteDatabase):
         query = f"""
         UPDATE simulation
         SET
-            end_timestamp = {end_timestamp}
-            successful = {kwargs['successful']}
+            end_timestamp = '{end_timestamp}',
+            successful = {int(kwargs['successful'])}
         WHERE
             id = {self.__MINIMUM_ROW_ID}
         """
