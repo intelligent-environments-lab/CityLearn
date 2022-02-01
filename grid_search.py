@@ -10,7 +10,7 @@ from utilities import read_json, write_data, write_json
 SOURCE_DATA_DIRECTORY = 'data/'
 DESTINATION_DATA_DIRECTORY = 'grid_search_data/'
 SOURCE_CARBON_INTENSITY_FILEPATH = os.path.join(SOURCE_DATA_DIRECTORY,'Climate_Zone_5/carbon_intensity.csv')
-SIMULATION_OUTPUT_DIRECTORY = os.path.join(DESTINATION_DATA_DIRECTORY,'simulation_output')
+SIMULATION_OUTPUT_DIRECTORY = 'simulation_output'
 GRID_SEARCH_FILEPATH = 'grid_search.json'
 DEFAULT_BUILDING_COUNT = 9
 BUILDING_COUNT_MULTIPLIERS = [1,5,10]
