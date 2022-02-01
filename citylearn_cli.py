@@ -1,5 +1,6 @@
 import argparse
 import concurrent.futures
+from copy import deepcopy
 from datetime import datetime
 import inspect
 import logging
@@ -28,21 +29,27 @@ class CityLearn_CLI:
         self.__set_logger()
 
     def run(self):
-        self.__set_run_params()
-        start = time.time()
-        self.__successful = False
-        self.__start_timestamp = datetime.now()
-        self.__end_timestamp = None
-        self.__write_progress()
-        
         try:
             LOGGER.debug(f'Started simulation.')
+            LOGGER.debug(f'kwargs: {self.kwargs}.')
+            self.__set_run_params()
+            start = time.time()
+            self.__successful = False
+            self.__start_timestamp = datetime.now()
+            self.__end_timestamp = None
+            self.__write_progress()
             self.__runner()
             self.__successful = True
             LOGGER.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
         
-        except Exception as e:
+        except (Exception, KeyboardInterrupt) as e:
             LOGGER.exception(e,stack_info=True)
+
+            if self.__timestep >= 0:
+                self.__write_end_timestep = self.__timestep + 1
+                self.__database_timestep_update()
+            else:
+                pass
         
         finally:
             LOGGER.debug(f'Ending simulation ...')
@@ -129,6 +136,7 @@ class CityLearn_CLI:
 
         while self.__episode < episode_count - 1:
             self.__episode += 1
+            self.__timestep = -1
             self.__update_write_timestep(reset=True)
             self.__episode_actions = []
             self.__episode_rewards = []
@@ -167,6 +175,7 @@ class CityLearn_CLI:
 
         while self.__episode < episode_count - 1:
             self.__episode += 1
+            self.__timestep = -1
             self.__update_write_timestep(reset=True)
             self.__episode_actions = []
             self.__episode_rewards = []
@@ -210,7 +219,9 @@ class CityLearn_CLI:
         if self.kwargs['write_sqlite']:
             database_filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.db')
             self.__database = CityLearnDatabase(database_filepath,self.__env,self.__agent,overwrite=True,apply_changes=True)
-            self.__database.initialize(**self.kwargs)
+            kwargs = deepcopy(self.kwargs)
+            kwargs['simulation_name'] = self.__simulation_id
+            self.__database.initialize(**kwargs)
             LOGGER.debug(f'Initialized database with filepath - {self.__database.filepath}.')
         else:
             pass
@@ -342,12 +353,21 @@ def single_simulation_run(**kwargs):
 
 def multiple_simulation_run(filepath,**kwargs):
     args = get_data_from_path(filepath).split('\n')
+
+    if kwargs.get('work_directory',None) is not None:
+        args = [f'cd {kwargs["work_directory"]} && {a}' for a in args]
+    else:
+        pass
+
     max_workers = kwargs['max_workers'] if kwargs.get('max_workers',None) is not None else cpu_count()
     
     with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
         print(f'Will use {max_workers} workers for job.')
         print(f'Pooling {len(args)} jobs to run in parallel...')
-        _ = executor.map(subprocess.run,args)
+        results = [executor.submit(subprocess.run,**{'args':a,'shell':True}) for a in args]
+            
+        for future in concurrent.futures.as_completed(results):
+            print(future.result())
 
 def main():
     parser = argparse.ArgumentParser(prog='reward_function_exploration',formatter_class=argparse.ArgumentDefaultsHelpFormatter,description='Explore different reward functions in CityLearn environment.')
@@ -381,6 +401,7 @@ def main():
             ' Defaults to the number of processors on machine. On Windows, max_workers must be less than or equal to 61.'\
                 ' If max_workers is None, then the default chosen will be at most 61, even if more processors are available.'
     )
+    multiple_run_subparser.add_argument('-d','--work_directory',type=str,default=None,dest='work_directory',help='Directory to execute runs from.')
 
     args = parser.parse_args()
     arg_spec = inspect.getfullargspec(args.func)

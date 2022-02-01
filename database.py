@@ -3,6 +3,7 @@ from datetime import datetime
 import math
 import os
 import pytz
+import shutil
 import sqlite3
 import numpy as np
 import pandas as pd
@@ -32,14 +33,22 @@ class SQLiteDatabase:
         query = f"SELECT * FROM {table_name}"
         return self.query_table(self.__validate_query(query))
 
-    def query(self,query,**kwargs):
+    def query(self,query,foreign_key_constraint=True,**kwargs):
         query = self.__validate_query(query)
         responses = []
         connection = self.__get_connection()
         
         try:
-            for q in query.split(';'):
-                cursor = connection.execute(q,**kwargs)
+            queries = query.split(';')
+            queries = [f'PRAGMA foreign_keys = {"ON" if foreign_key_constraint else "OFF"}'] + queries
+            
+            for q in queries:
+                try:
+                    cursor = connection.execute(q,**kwargs)
+                except Exception as e:
+                    print(q)
+                    print(e)
+                    assert False
                 response = cursor.fetchall()
                 responses.append(response)
                 connection.commit()
@@ -211,6 +220,45 @@ class CityLearnDatabase(SQLiteDatabase):
             pass
 
         self.execute_sql_from_file(schema_filepath)
+
+    @classmethod
+    def concatenate(cls,filepath,source_filepaths):
+        database = CityLearnDatabase(filepath,None,None,overwrite=True)
+        table_names = database.query_table("""
+        SELECT 
+            name 
+        FROM sqlite_master
+        WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
+        """)['name'].tolist()
+        id_update_table_names = [
+            'simulation','environment','agent','building','cooling_device','dhw_heating_device',
+            'cooling_storage','dhw_storage','electrical_storage','timestep',
+        ]
+        other_table_names = [t for t in table_names if t not in id_update_table_names]
+        temp_filepath = 'temp.db'
+        
+        for i, source_filepath in enumerate(source_filepaths):
+            try:
+                source_database = SQLiteDatabase(temp_filepath)
+                shutil.copy(source_filepath,temp_filepath)
+                j = 0
+
+                for table_name in id_update_table_names:
+                    print(f'Database: {i+1}/{len(source_filepaths)}, Table: {j+1}/{len(table_names)}')
+                    max_id = database.query_table(f"SELECT MAX(id) AS id FROM {table_name}").iloc[0]['id'] if i > 0 else 0
+                    source_database.query(f"UPDATE {table_name} SET id = id + {max_id}")
+                    data = source_database.get_table(table_name)
+                    database.insert(table_name,data.columns.tolist(),data.values)
+                    j += 1
+                
+                for table_name in other_table_names:
+                    print(f'Database: {i+1}/{len(source_filepaths)}, Table: {j+1}/{len(table_names)}')
+                    data = source_database.get_table(table_name)
+                    database.insert(table_name,data.columns.tolist(),data.values)
+                    j += 1
+        
+            finally:
+                os.remove(temp_filepath)
 
     def initialize(self,**kwargs):
         # simulation

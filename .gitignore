@@ -10,3 +10,6 @@ tacc_launcher_job
 grid_search.csv
 scratch.py
 processes.csv
+dataverse_files
+test_data
+simulation_output_c8
