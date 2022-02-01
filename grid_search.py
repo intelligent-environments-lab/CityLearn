@@ -66,6 +66,7 @@ def set_grid():
         PYTHON_EXECUTION + ' ' + ' '.join([f'{key if key.startswith("--") else ""} {value}'.strip() for key, value in record.items() if value is not None])
         for record in grid.to_dict(orient='records')
     ]
+    script.append('') # append blank line
     script = '\n'.join(script)
     write_data(script,TACC_LAUNCHER_JOB_FILEPATH)
     print('Number of simulations to run:',grid.shape[0])
