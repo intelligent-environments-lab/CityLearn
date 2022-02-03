@@ -2,10 +2,9 @@ from common.preprocessing import *
 from common.rl import *
 from sklearn.linear_model import LinearRegression
 from sklearn.decomposition import PCA
-from sklearn.ensemble import GradientBoostingRegressor
 import torch.optim as optim
-from torch.optim import Adam
 import json
+from agents.rbc import BasicRBC, OptimizedRBC
 
 class MARLISA:
     def __init__(self, building_ids, 
@@ -30,6 +29,7 @@ class MARLISA:
                  update_per_step = 1, 
                  iterations_as = 2, 
                  safe_exploration = False, 
+                 basic_rbc = False,
                  seed = 0):
         
         assert start_training > start_regression, 'start_training must be greater than start_regression'
@@ -54,6 +54,7 @@ class MARLISA:
         self.iterations_as = iterations_as
         self.safe_exploration = safe_exploration
         self.exploration_period = exploration_period
+        self.basic_rbc = basic_rbc
         
         self.action_list_ = []
         self.action_list2_ = []
@@ -203,7 +204,6 @@ class MARLISA:
             
             
     def select_action(self, states, deterministic=False):
-        
         self.time_step += 1
         explore = self.time_step <= self.exploration_period
         
@@ -219,7 +219,6 @@ class MARLISA:
         actions = [None for _ in range(len(self.building_ids))]
         
         # Initialize coordination vars. Accumulated net electricity consumption = 0, queue = 0
-        accum_net_electric_demand = 0.
         coordination_variables = [[None, None] for _ in range(len(self.building_ids))]
 
         coordination_vars = {key:np.array([0., 0.]) for key in _building_ids}
@@ -233,33 +232,17 @@ class MARLISA:
                 if self.safe_exploration:
                     multiplier = 0.4
                     hour_day = state[2]
-                    a_dim = len(self.action_spaces[uid].sample())
-        
-                    act = [0.0 for _ in range(a_dim)]
-                    if hour_day >= 7 and hour_day <= 11:
-                        act = [-0.05 * multiplier for _ in range(a_dim)]
-                    elif hour_day >= 12 and hour_day <= 15:
-                        act = [-0.05 * multiplier for _ in range(a_dim)]
-                    elif hour_day >= 16 and hour_day <= 18:
-                        act = [-0.11 * multiplier for _ in range(a_dim)]
-                    elif hour_day >= 19 and hour_day <= 22:
-                        act = [-0.06 * multiplier for _ in range(a_dim)]
-
-                    # Early nightime: store DHW and/or cooling energy
-                    if hour_day >= 23 and hour_day <= 24:
-                        act = [0.085 * multiplier for _ in range(a_dim)]
-                    elif hour_day >= 1 and hour_day <= 6:
-                        act = [0.1383 * multiplier for _ in range(a_dim)]
-                        
-
-#                     # Daytime: release stored energy
-#                     act = [0.0 for _ in range(a_dim)]
-#                     if hour_day >= 9 and hour_day <= 21:
-#                         act = [-0.08 for _ in range(a_dim)]
+                    rbc_kwargs = {'actions_spaces':[self.action_spaces[uid]]}
                     
-#                     # Early nightime: store DHW and/or cooling energy
-#                     if (hour_day >= 1 and hour_day <= 8) or (hour_day >= 22 and hour_day <= 24):
-#                         act = [0.091 for _ in range(a_dim)]
+                    if self.basic_rbc:
+                        act = BasicRBC(**rbc_kwargs)
+                        act = rbc.select_action(hour_day)
+                        
+                    else:
+                        rbc = OptimizedRBC(**rbc_kwargs)
+                        act = rbc.select_action(hour_day,multiplier=multiplier)
+
+                    act = list(act[0])
                         
                 else:
                     act = self.action_scaling_coef*self.action_spaces[uid].sample()
