@@ -168,6 +168,7 @@ CREATE TABLE IF NOT EXISTS electrical_storage (
 
 CREATE TABLE IF NOT EXISTS timestep (
     id INTEGER NOT NULL,
+    environment_id INTEGER NOT NULL,
     timestep INTEGER NOT NULL,
     episode INTEGER NOT NULL,
     "month" INTEGER NOT NULL,
@@ -175,7 +176,8 @@ CREATE TABLE IF NOT EXISTS timestep (
     day_type INTEGER NOT NULL,
     daylight_savings_status INTEGER NOT NULL,
     PRIMARY KEY (id),
-    UNIQUE (timestep, episode)
+    FOREIGN KEY (environment_id) REFERENCES environment (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    UNIQUE (environment_id, timestep, episode)
 );
 
 CREATE TABLE IF NOT EXISTS weather_timeseries (
