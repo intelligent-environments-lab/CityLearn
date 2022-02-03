@@ -234,7 +234,6 @@ class CityLearnDatabase(SQLiteDatabase):
             'simulation','environment','agent','building','cooling_device','dhw_heating_device',
             'cooling_storage','dhw_storage','electrical_storage','timestep',
         ]
-        other_table_names = [t for t in table_names if t not in id_update_table_names]
         temp_filepath = 'temp.db'
         
         for i, source_filepath in enumerate(source_filepaths):
@@ -243,16 +242,15 @@ class CityLearnDatabase(SQLiteDatabase):
                 shutil.copy(source_filepath,temp_filepath)
                 j = 0
 
-                for table_name in id_update_table_names:
-                    print(f'Database: {i+1}/{len(source_filepaths)}, Table: {j+1}/{len(table_names)}')
-                    max_id = database.query_table(f"SELECT MAX(id) AS id FROM {table_name}").iloc[0]['id'] if i > 0 else 0
-                    source_database.query(f"UPDATE {table_name} SET id = id + {max_id}")
-                    data = source_database.get_table(table_name)
-                    database.insert(table_name,data.columns.tolist(),data.values)
-                    j += 1
-                
-                for table_name in other_table_names:
-                    print(f'Database: {i+1}/{len(source_filepaths)}, Table: {j+1}/{len(table_names)}')
+                for table_name in table_names:
+                    print(f'\rDatabase: {i+1}/{len(source_filepaths)}, Table: {j+1}/{len(table_names)}',end='')
+
+                    if table_name in id_update_table_names:
+                        max_id = database.query_table(f"SELECT MAX(id) AS id FROM {table_name}").iloc[0]['id'] if i > 0 else 0
+                        source_database.query(f"UPDATE {table_name} SET id = id + {max_id}")
+                    else:
+                        pass
+
                     data = source_database.get_table(table_name)
                     database.insert(table_name,data.columns.tolist(),data.values)
                     j += 1
@@ -410,6 +408,7 @@ class CityLearnDatabase(SQLiteDatabase):
             'daylight_savings_status':building_sim_results['daylight_savings_status'][start_timestep:end_timestep],
         })
         record['episode'] = episode
+        record['environment_id'] = self.__environment_id
         self.insert('timestep',record.columns.tolist(),record.values)
 
         # weather
