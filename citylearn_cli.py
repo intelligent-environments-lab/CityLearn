@@ -12,8 +12,9 @@ import time
 import subprocess
 import sys
 from agents.marlisa import MARLISA
+from agents.rbc import BasicRBC, OptimizedRBC
 from agents.sac import SAC
-from citylearn import CityLearn, RBC_Agent
+from citylearn import CityLearn
 from database import CityLearnDatabase
 from reward_function import reward_function_ma
 from utilities import get_data_from_path, write_json
@@ -38,7 +39,7 @@ class CityLearn_CLI:
             self.__start_timestamp = datetime.now()
             self.__end_timestamp = None
             self.__write_progress()
-            self.__runner()
+            self.__run()
             self.__successful = True
             LOGGER.debug(f'Cost - {self.__env.cost()}, Simulation time (min) - {(time.time()-start)/60.0}')
         
@@ -67,6 +68,7 @@ class CityLearn_CLI:
             'previous_carbon_intensity':None,
             'exponential_scaling_factor':0.002,
         }
+        self.__is_rbc = self.kwargs['agent_name'] in ['basic_rbc','optimized_rbc']
         self.__set_agent()
         self.__initialize_database()
         self.__update_write_timestep(reset=True)
@@ -85,7 +87,8 @@ class CityLearn_CLI:
 
     def __set_agent(self):
         observations_spaces, actions_spaces = self.__env.get_state_action_spaces()
-        agent_handlers = self.get_agent_handlers()
+        agent_name = self.kwargs['agent_name']
+        constructor = self.get_agent_constructors()[agent_name]
         constructor_kwargs = {
             'building_ids':self.__env.building_ids,
             'buildings_states_actions':self.__env.buildings_states_actions_filename, 
@@ -94,39 +97,29 @@ class CityLearn_CLI:
             'action_spaces':actions_spaces,
             **self.kwargs
         }
-        agent_name = self.kwargs['agent_name']
-        arg_spec = inspect.getfullargspec(agent_handlers[agent_name]['constructor'])
+        arg_spec = inspect.getfullargspec(constructor)
         constructor_kwargs = {
             key:value for (key, value) in constructor_kwargs.items()
             if (key in arg_spec.args or (arg_spec.varkw is not None and key not in ['func','subcommands']))
         }
-        params = {**agent_handlers[agent_name],**{'constructor_kwargs':constructor_kwargs}}
 
-        if self.kwargs['agent_name'] == 'rbc':
-            params['constructor_kwargs']['actions_spaces'] = actions_spaces
+        if self.__is_rbc:
+            constructor_kwargs['actions_spaces'] = actions_spaces
         else:
             pass
 
-        self.__agent = params['constructor'](**params['constructor_kwargs'])
-        self.__runner = params['runner']
+        self.__agent = constructor(**constructor_kwargs)
 
-    def get_agent_handlers(self):
+    @staticmethod
+    def get_agent_constructors():
         return {
-            'marlisa': {
-                'constructor':MARLISA,
-                'runner':self.__run_marlisa
-            },
-            'sac':{
-                'constructor':SAC,
-                'runner':self.__run_marlisa
-            },
-            'rbc':{
-                'constructor':RBC_Agent,
-                'runner':self.__run_rbc
-            },
+            'marlisa':MARLISA,
+            'sac':SAC,
+            'basic_rbc':BasicRBC,
+            'optimized_rbc':OptimizedRBC,
         }
 
-    def __run_marlisa(self):
+    def __run(self):
         select_action_kwarg_keys = ['states','deterministic']
         select_action_kwarg_keys = [
             key for key in select_action_kwarg_keys 
@@ -137,16 +130,21 @@ class CityLearn_CLI:
         while self.__episode < episode_count - 1:
             self.__episode += 1
             self.__timestep = -1
+            j = 0
             self.__update_write_timestep(reset=True)
             self.__episode_actions = []
             self.__episode_rewards = []
-            state = self.__env.reset()
             done = False
             is_evaluating = False
-            select_action_kwargs = {'states':state,'deterministic':is_evaluating}
-            select_action_kwargs = {key:value for key,value in select_action_kwargs.items() if key in select_action_kwarg_keys}
-            action, coordination_vars = self.__agent.select_action(**select_action_kwargs)
-            j = 0
+            
+            if self.__is_rbc:
+                hour_day = list(self.__env.buildings.values())[0].sim_results['hour'][self.__env.time_step]
+                action = self.__agent.select_action(hour_day)
+            else:
+                state = self.__env.reset()
+                select_action_kwargs = {'states':state,'deterministic':is_evaluating}
+                select_action_kwargs = {key:value for key,value in select_action_kwargs.items() if key in select_action_kwarg_keys}
+                action, coordination_vars = self.__agent.select_action(**select_action_kwargs)
             
             while not done:
                 while j < self.__write_end_timestep and not done:
@@ -157,47 +155,26 @@ class CityLearn_CLI:
                     self.__episode_rewards.append(reward)
                     self.__step_kwargs['previous_electricity_demand'] = self.__env.buildings_net_electricity_demand
                     self.__step_kwargs['previous_carbon_intensity'] = self.__env.current_carbon_intensity
-                    select_action_kwargs = {'states':next_state,'deterministic':is_evaluating}
-                    select_action_kwargs = {key:value for key,value in select_action_kwargs.items() if key in select_action_kwarg_keys}
-                    action_next, coordination_vars_next = self.__agent.select_action(**select_action_kwargs)
-                    self.__agent.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
-                    coordination_vars = coordination_vars_next
-                    state = next_state
-                    action = action_next
-                    is_evaluating = (j >= self.kwargs['deterministic_period_start'])
+                
+                    if self.__is_rbc:
+                        hour_day = list(self.__env.buildings.values())[0].sim_results['hour'][self.__env.time_step]
+                        action = self.__agent.select_action(hour_day)
+
+                    else:
+                        select_action_kwargs = {'states':next_state,'deterministic':is_evaluating}
+                        select_action_kwargs = {key:value for key,value in select_action_kwargs.items() if key in select_action_kwarg_keys}
+                        action_next, coordination_vars_next = self.__agent.select_action(**select_action_kwargs)
+                        self.__agent.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
+                        coordination_vars = coordination_vars_next
+                        state = next_state
+                        action = action_next
+                        is_evaluating = (j >= self.kwargs['deterministic_period_start'])
+                    
                     j += 1
 
                 self.__database_timestep_update()
                 self.__write_progress()
-
-    def __run_rbc(self):
-        episode_count = self.kwargs['episode_count']
-
-        while self.__episode < episode_count - 1:
-            self.__episode += 1
-            self.__timestep = -1
-            self.__update_write_timestep(reset=True)
-            self.__episode_actions = []
-            self.__episode_rewards = []
-            _ = self.__env.reset()
-            done = False
-            hour = list(self.__env.buildings.values())[0].sim_results['hour'][self.__env.time_step]
-            action = self.__agent.select_action([hour])
-            j = 0
-            
-            while not done:
-                while j < self.__write_end_timestep and not done:
-                    LOGGER.debug(f'Episode: {self.__episode+1}/{episode_count} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
-                    _, reward, done, _ = self.__env.step(action,**self.__step_kwargs)
-                    self.__timestep = j
-                    self.__episode_actions.append(action)
-                    self.__episode_rewards.append(reward)
-                    hour = list(self.__env.buildings.values())[0].sim_results['hour'][self.__env.time_step]
-                    action = self.__agent.select_action([hour])
-                    j += 1
-
-                self.__database_timestep_update()
-                self.__write_progress()
+                self.__update_write_timestep(reset=False)
 
     def __set_logger(self):
         filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.log')
@@ -238,7 +215,6 @@ class CityLearn_CLI:
             }
             self.__database.timestep_update(**kwargs)
             LOGGER.debug(f'Finished updating database timeseries.')
-            self.__update_write_timestep(reset=False)
         else:
             pass
 
@@ -340,6 +316,7 @@ class CityLearn_CLI:
             'update_per_step':{'default':1,'type':int}, 
             'iterations_as':{'default':2,'type':int}, 
             'safe_exploration':{'default':False,'action':'store_true'},
+            'basic_rbc':{'default':False,'action':'store_true'},
             'seed':{'default':0,'type':int},
         }
 
@@ -379,7 +356,7 @@ def main():
     # single simulation run
     single_run_subparser = subparsers.add_parser('single',description='Run a single CityLearn simulation on a single process.')
     single_run_subparser.set_defaults(func=single_simulation_run)
-    single_run_subparser.add_argument('agent_name',type=str,choices=['marlisa','sac','rbc'],help='Simulation agent.')
+    single_run_subparser.add_argument('agent_name',type=str,choices=list(CityLearn_CLI.get_agent_constructors().keys()),help='Simulation agent.')
     single_run_subparser.add_argument('reward_style',type=str,choices=reward_function_ma.get_styles(),help='Reward function style.')
     single_run_subparser.add_argument('-id','--simulation_id',type=str,dest='simulation_id',help='ID used to name simulation output files. The default is <agent_name>-<reward_style>.')
     single_run_subparser.add_argument('-d','--output_directory',type=str,dest='output_directory',help='Directory to store simulation environment, agent and log.')
