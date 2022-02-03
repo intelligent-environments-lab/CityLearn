@@ -235,7 +235,7 @@ class MARLISA:
                     rbc_kwargs = {'actions_spaces':[self.action_spaces[uid]]}
                     
                     if self.basic_rbc:
-                        act = BasicRBC(**rbc_kwargs)
+                        rbc = BasicRBC(**rbc_kwargs)
                         act = rbc.select_action(hour_day)
                         
                     else:
