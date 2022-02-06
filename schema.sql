@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS agent (
     update_per_step INTEGER,
     iterations_as INTEGER,
     safe_exploration REAL,
+    basic_rbc INTEGER,
     deterministic_period_start INTEGER NOT NULL,
     seed INTEGER,
     PRIMARY KEY (id)
