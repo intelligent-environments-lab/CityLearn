@@ -167,10 +167,11 @@ class SQLiteDatabase:
 
             try:
                 connection.executemany(query,values)
-            except:
+            except Exception as e:
+                print(e)
                 print(query)
-                print(values)
                 assert False
+                
             connection.commit()
         finally:
             connection.close()
@@ -178,8 +179,8 @@ class SQLiteDatabase:
     def __register_adapter(self):
         sqlite3.register_adapter(np.int64,lambda x: int(x))
         sqlite3.register_adapter(np.int32,lambda x: int(x))
-        sqlite3.register_adapter(np.float32,lambda x: int(x))
-        sqlite3.register_adapter(np.float64,lambda x: int(x))
+        sqlite3.register_adapter(np.float32,lambda x: float(x))
+        sqlite3.register_adapter(np.float64,lambda x: float(x))
         sqlite3.register_adapter(np.datetime64,lambda x: np.datetime_as_string(x,unit='s').replace('T',' '))
 
 class CityLearnDatabase(SQLiteDatabase):
@@ -299,6 +300,7 @@ class CityLearnDatabase(SQLiteDatabase):
             record['name'] = kwargs['agent_name']
             record['reward_style'] = kwargs['reward_style']
             record['deterministic_period_start'] = kwargs['deterministic_period_start']
+            record['basic_rbc'] = kwargs['basic_rbc']
             record['id'] = i
             self.insert('agent',list(record.keys()),[list(record.values())])
 
