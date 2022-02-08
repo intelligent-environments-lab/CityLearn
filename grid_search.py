@@ -116,8 +116,10 @@ def set_building_data():
                 destination_state_action_space[building_copy_id] = deepcopy(destination_state_action_space[building_id])
                 destination_state_action_space[building_copy_id] = get_state_action_space(destination_state_action_space[building_copy_id],destination_attributes[building_copy_id])
 
-        write_json(destination_attributes_filepath,destination_attributes,sort_keys=True)
-        write_json(destination_state_action_space_filepath,destination_state_action_space,sort_keys=True)
+        destination_attributes = {f'Building_{i+1}':destination_attributes[f'Building_{i+1}'] for i in range(len(destination_attributes))}
+        destination_state_action_space = {f'Building_{i+1}':destination_state_action_space[f'Building_{i+1}'] for i in range(len(destination_state_action_space))}
+        write_json(destination_attributes_filepath,destination_attributes,sort_keys=False)
+        write_json(destination_state_action_space_filepath,destination_state_action_space,sort_keys=False)
 
     # set carbon intensity data
     carbon_intensity = pd.read_csv(SOURCE_CARBON_INTENSITY_FILEPATH)

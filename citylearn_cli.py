@@ -25,19 +25,33 @@ LOGGER = logging.getLogger(__name__)
 class CityLearn_CLI:
     def __init__(self,**kwargs):
         self.kwargs = kwargs
+        self.__output_directory = None
+        self.__simulation_id = None
         self.__set_output_directory()
         self.__set_simulation_id()
         self.__set_logger()
+        self.__successful = False
+        self.__start_timestamp = None
+        self.__end_timestamp = None
+        self.__env = None
+        self.__agent = None
+        self.__database = None
+        self.__episode = -1
+        self.__timestep = -1
+        self.__episode_actions = []
+        self.__episode_rewards = []
+        self.__is_rbc = False
+        self.__step_kwargs = None
+        self.__write_start_timestep = None
+        self.__write_end_timestep = None
 
     def run(self):
         try:
+            self.__start_timestamp = datetime.now()
             LOGGER.debug(f'Started simulation.')
             LOGGER.debug(f'kwargs: {self.kwargs}.')
             self.__set_run_params()
             start = time.time()
-            self.__successful = False
-            self.__start_timestamp = datetime.now()
-            self.__end_timestamp = None
             self.__write_progress()
             self.__run()
             self.__successful = True
@@ -72,10 +86,6 @@ class CityLearn_CLI:
         self.__set_agent()
         self.__initialize_database()
         self.__update_write_timestep(reset=True)
-        self.__episode = -1
-        self.__timestep = -1
-        self.__episode_actions = []
-        self.__episode_rewards = []
 
     def __set_env(self):
         arg_spec = inspect.getfullargspec(CityLearn)
