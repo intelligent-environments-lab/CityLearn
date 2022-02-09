@@ -13,4 +13,7 @@ processes.csv
 dataverse_files
 test_data
 simulation_output_c8
+tacc_launcher_job_c8
+grid_search_c8.csv
 figures
+*.pkl
