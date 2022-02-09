@@ -1,6 +1,6 @@
 {
     "agent_name":["marlisa","sac","basic_rbc","optimized_rbc"],
-    "reward_style":["marlisa"],
+    "reward_style":["marlisa","sac"],
     "--hidden_dim":["256 256"],
     "--discount":[0.99], 
     "--tau":[5e-3],
