@@ -3,6 +3,7 @@ from common.rl import *
 import torch.optim as optim
 from torch.optim import Adam
 import json
+from agents.rbc import BasicRBC, OptimizedRBC
 
 class SAC:
     def __init__(self, building_ids,
@@ -21,6 +22,8 @@ class SAC:
                  action_scaling_coef = 0.5,
                  reward_scaling = 5.,
                  update_per_step = 2,
+                 random_exploration = True,
+                 basic_rbc = False,
                  seed = 0):
                 
         with open(buildings_states_actions) as json_file:
@@ -38,6 +41,8 @@ class SAC:
         self.deterministic = False
         self.update_per_step = update_per_step
         self.exploration_period = exploration_period
+        self.random_exploration = random_exploration
+        self.basic_rbc = basic_rbc
         
         self.action_list_ = []
         self.action_list2_ = []
@@ -128,18 +133,31 @@ class SAC:
             self.target_entropy[uid] = -np.prod(self.action_spaces[uid].shape).item()
             
             
-    def select_action(self, states):
-        
+    def select_action(self, states, deterministic=False):
         self.time_step += 1
         explore = self.time_step <= self.exploration_period
         actions = []
         k = 0
         
-        deterministic = (self.time_step > 3*8760)
-        
         for uid, state in zip(self.building_ids, states):
             if explore:
-                actions.append(self.action_scaling_coef*self.action_spaces[uid].sample())
+                if self.random_exploration:
+                    actions.append(self.action_scaling_coef*self.action_spaces[uid].sample())
+                
+                else:
+                    hour_day = state[2]
+                    rbc_kwargs = {'actions_spaces':[self.action_spaces[uid]]}
+
+                    if self.basic_rbc:
+                        rbc = BasicRBC(**rbc_kwargs)
+                        acts = rbc.select_action(hour_day)
+                        
+                    else:
+                        rbc = OptimizedRBC(**rbc_kwargs)
+                        acts = rbc.select_action(hour_day)
+
+                    actions.append(acts[0].tolist())
+
             else:
                 state_ = np.array([j for j in np.hstack(self.encoder[uid]*state) if j != None])
 
