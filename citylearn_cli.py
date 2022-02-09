@@ -139,8 +139,7 @@ class CityLearn_CLI:
 
         while self.__episode < episode_count - 1:
             self.__episode += 1
-            self.__timestep = -1
-            j = 0
+            self.__timestep = 0
             self.__update_write_timestep(reset=True)
             self.__episode_actions = []
             self.__episode_rewards = []
@@ -157,10 +156,9 @@ class CityLearn_CLI:
                 action, coordination_vars = self.__agent.select_action(**select_action_kwargs)
             
             while not done:
-                while j < self.__write_end_timestep and not done:
-                    LOGGER.debug(f'Episode: {self.__episode+1}/{episode_count} | Timestep: {j+1}/{int(self.__env.simulation_period[1])}')
+                while self.__timestep < self.__write_end_timestep and not done:
+                    LOGGER.debug(f'Episode: {self.__episode+1}/{episode_count} | Timestep: {self.__timestep+1}/{int(self.__env.simulation_period[1])}')
                     next_state, reward, done, _ = self.__env.step(action,**self.__step_kwargs)
-                    self.__timestep = j
                     self.__episode_actions.append(action)
                     self.__episode_rewards.append(reward)
                     self.__step_kwargs['previous_electricity_demand'] = self.__env.buildings_net_electricity_demand
@@ -178,9 +176,9 @@ class CityLearn_CLI:
                         coordination_vars = coordination_vars_next
                         state = next_state
                         action = action_next
-                        is_evaluating = (j >= self.kwargs['deterministic_period_start'])
+                        is_evaluating = ((self.__timestep + 1)*(self.__episode + 1) > self.kwargs['deterministic_period_start'])
                     
-                    j += 1
+                    self.__timestep += 1
 
                 self.__database_timestep_update()
                 self.__write_progress()
@@ -327,6 +325,7 @@ class CityLearn_CLI:
             'iterations_as':{'default':2,'type':int}, 
             'safe_exploration':{'default':False,'action':'store_true'},
             'basic_rbc':{'default':False,'action':'store_true'},
+            'random_exploration':{'default':False,'action':'store_true'},
             'seed':{'default':0,'type':int},
         }
 
