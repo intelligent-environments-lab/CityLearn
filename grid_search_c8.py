@@ -19,9 +19,8 @@ def set_grid():
     param_values_grid = list(itertools.product(*param_values))
     grid = pd.DataFrame(param_values_grid,columns=param_names)
     grid.loc[grid['agent_name']=='sac','reward_style'] = 'sac'
-    grid.loc[grid['agent_name']!='marlisa','--basic_rbc'] = True
-    grid.loc[grid['agent_name'].isin(['basic_rbc','optimized_rbc']),'--exploration_period'] = 0
-    grid.loc[grid['agent_name'].isin(['basic_rbc','optimized_rbc']),'--seed'] = 0
+    grid.loc[grid['agent_name']=='marlisa','reward_style'] = 'marlisa'
+    grid.loc[grid['agent_name'].isin(['basic_rbc','optimized_rbc']),('--basic_rbc','--exploration_period','--seed')] = (True,0,0)
     grid = grid.drop_duplicates()
     grid['--simulation_id'] = grid.reset_index().index.map(lambda x: f'simulation_{x + 1}')
     grid.to_csv(f'{GRID_SEARCH_FILEPATH.split(".")[0]}.csv',index=False)
