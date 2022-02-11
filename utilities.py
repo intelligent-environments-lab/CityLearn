@@ -75,3 +75,31 @@ def unnest_dict(nested_dict,seperator=',',prefix=None):
             master_unnest[key] = value
 
     return master_unnest
+
+def split_lines(text,line_character_limit=24,delimiter=' '):
+    text = text.strip()
+    
+    if len(text) > line_character_limit:
+        words = text.split(delimiter)
+        lines = []
+        
+        i = 0
+        while i < len(words):
+            line = words[i]
+            i += 1
+
+            for j in range(i,len(words)): 
+                if len(line + words[j]) < line_character_limit:
+                    line = delimiter.join([line,words[j]])
+                    i += 1
+                else:
+                    break
+
+            lines.append(line)
+
+        text = '\n'.join(lines)
+
+    else:
+        pass
+
+    return text
