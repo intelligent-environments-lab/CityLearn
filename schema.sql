@@ -299,7 +299,7 @@ CREATE TABLE IF NOT EXISTS action_timeseries (
     FOREIGN KEY (building_id) REFERENCES building (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE reward_timeseries (
+CREATE TABLE IF NOT EXISTS reward_timeseries (
     timestep_id INTEGER NOT NULL,
     building_id INTEGER NOT NULL,
     "value" REAL,
@@ -307,3 +307,141 @@ CREATE TABLE reward_timeseries (
     FOREIGN KEY (timestep_id) REFERENCES timestep (id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (building_id) REFERENCES building (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+-- cost function views
+DROP VIEW IF EXISTS ramping_cost_function;
+CREATE VIEW ramping_cost_function AS
+    SELECT
+        timestep,
+        environment_id,
+        SUM(value) OVER (
+            PARTITION BY environment_id ORDER BY timestep ASC
+        ) AS "value"
+    FROM (
+        SELECT
+            t.timestep,
+            e.*,
+            ABS(e.net_electric_consumption - LAG(e.net_electric_consumption, 1, NULL) OVER (
+                    PARTITION BY e.environment_id ORDER BY t.timestep ASC
+            )) AS "value"
+        FROM environment_timeseries e
+        LEFT JOIN timestep t ON t.id = e.timestep_id
+    )
+;
+
+DROP VIEW IF EXISTS load_factor_cost_function;
+CREATE VIEW load_factor_cost_function AS
+    WITH c AS (
+        SELECT
+            timestep,
+            environment_id,
+            AVG((1 - (avg_value/max_value))) OVER (
+                PARTITION BY environment_id ORDER BY timestep ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            ) AS value
+        FROM (
+            SELECT
+                t.timestep,
+                e.*,
+                AVG(e.net_electric_consumption) OVER (win ROWS BETWEEN 729 PRECEDING AND CURRENT ROW) AS avg_value,
+                MAX(e.net_electric_consumption) OVER (win ROWS BETWEEN 729 PRECEDING AND CURRENT ROW) AS max_value
+            FROM environment_timeseries e
+            LEFT JOIN timestep t ON t.id = e.timestep_id
+            WINDOW win AS (PARTITION BY e.environment_id ORDER BY t.timestep ASC)
+        )
+        WHERE timestep > 729
+    )
+
+    SELECT
+        t.timestep,
+        c.environment_id,
+        c.value
+    FROM timestep t
+    LEFT JOIN c ON 
+        c.timestep = t.timestep 
+        AND c.environment_id = t.environment_id
+;
+
+DROP VIEW IF EXISTS average_daily_peak_cost_function;
+CREATE VIEW average_daily_peak_cost_function AS
+    WITH c AS (
+        SELECT
+            timestep,
+            environment_id,
+            AVG(avg_value) OVER (
+                PARTITION BY environment_id ORDER BY timestep ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            ) AS value
+        FROM (
+            SELECT
+                t.timestep,
+                e.*,
+                MAX(e.net_electric_consumption) OVER (win ROWS BETWEEN 23 PRECEDING AND CURRENT ROW) AS avg_value
+            FROM environment_timeseries e
+            LEFT JOIN timestep t ON t.id = e.timestep_id
+            WINDOW win AS (PARTITION BY e.environment_id ORDER BY t.timestep ASC)
+        )
+        WHERE timestep > 23
+    )
+
+    SELECT
+        t.timestep,
+        c.environment_id,
+        c.value
+    FROM timestep t
+    LEFT JOIN c ON 
+        c.timestep = t.timestep 
+        AND c.environment_id = t.environment_id
+;
+
+DROP VIEW IF EXISTS annual_peak_cost_function;
+CREATE VIEW annual_peak_cost_function AS
+    WITH c AS (
+        SELECT
+            t.timestep,
+            e.environment_id,
+            MAX(e.net_electric_consumption) OVER (win ROWS BETWEEN 8759 PRECEDING AND CURRENT ROW) AS value
+        FROM environment_timeseries e
+        LEFT JOIN timestep t ON t.id = e.timestep_id
+        WINDOW win AS (PARTITION BY e.environment_id ORDER BY t.timestep ASC)
+    )
+    SELECT
+        * 
+    FROM c 
+    WHERE timestep > 8759
+;
+
+DROP VIEW IF EXISTS net_electric_consumption_cost_function;
+CREATE VIEW net_electric_consumption_cost_function AS
+    SELECT
+        t.timestep,
+        e.environment_id,
+        SUM(CASE WHEN e.net_electric_consumption >= 0 THEN e.net_electric_consumption ELSE 0 END) OVER (
+            win ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS value
+    FROM environment_timeseries e
+    LEFT JOIN timestep t ON t.id = e.timestep_id
+    WINDOW win AS (PARTITION BY e.environment_id ORDER BY t.timestep ASC)
+;
+
+DROP VIEW IF EXISTS quadratic_cost_function;
+CREATE VIEW quadratic_cost_function AS
+    SELECT
+        t.timestep,
+        e.environment_id,
+        SUM(CASE WHEN e.net_electric_consumption >= 0 THEN e.net_electric_consumption*e.net_electric_consumption ELSE 0 END) OVER (
+            win ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS value
+    FROM environment_timeseries e
+    LEFT JOIN timestep t ON t.id = e.timestep_id
+    WINDOW win AS (PARTITION BY e.environment_id ORDER BY t.timestep ASC)
+;
+
+DROP VIEW IF EXISTS carbon_emission_cost_function;
+CREATE VIEW carbon_emission_cost_function AS
+    SELECT
+        t.timestep,
+        e.environment_id,
+        SUM(e.carbon_emissions) OVER (win ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS value
+    FROM environment_timeseries e
+    LEFT JOIN timestep t ON t.id = e.timestep_id
+    WINDOW win AS (PARTITION BY e.environment_id ORDER BY t.timestep ASC)
+;

@@ -1,2793 +1,3411 @@
 {
-    "annotations": {
-      "list": [
-        {
-          "builtIn": 1,
-          "datasource": "-- Grafana --",
-          "enable": true,
-          "hide": true,
-          "iconColor": "rgba(0, 211, 255, 1)",
-          "name": "Annotations & Alerts",
-          "target": {
-            "limit": 100,
-            "matchAny": false,
-            "tags": [],
-            "type": "dashboard"
-          },
-          "type": "dashboard"
-        }
-      ]
-    },
-    "editable": true,
-    "fiscalYearStartMonth": 0,
-    "graphTooltip": 0,
-    "id": 1,
-    "iteration": 1644695746870,
-    "links": [],
-    "liveNow": false,
-    "panels": [
+  "annotations": {
+    "list": [
       {
-        "datasource": {
-          "type": "frser-sqlite-datasource",
-          "uid": "PgLc9U-nk"
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
         },
-        "fieldConfig": {
-          "defaults": {
-            "color": {
-              "fixedColor": "#ccccdb80",
-              "mode": "fixed"
-            },
-            "custom": {
-              "align": "auto",
-              "displayMode": "color-background",
-              "filterable": false
-            },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 1,
+  "iteration": 1644695746870,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#ccccdb80",
+            "mode": "fixed"
           },
-          "overrides": [
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Successful"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 87
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Start"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 188
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "End"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 185
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "No. Buildings"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 107
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Agent"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 75
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Reward"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 210
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Central Agent"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 102
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Start Timestep"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 113
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "End Timestep"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 105
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "No. Episodes"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 101
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Seed"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 50
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Started"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 159
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Ended"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 157
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Buildings"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 78
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Cooling Devices"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 118
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Timesteps"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 84
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Episodes"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 75
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "DHW Heating Devices"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 157
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Cooling Storages"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 127
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "DHW Storages"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 110
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Simulation Start Timestep"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 184
-                }
-              ]
-            },
-            {
-              "matcher": {
-                "id": "byName",
-                "options": "Simulation End Timestep"
-              },
-              "properties": [
-                {
-                  "id": "custom.width",
-                  "value": 185
-                }
-              ]
-            }
-          ]
-        },
-        "gridPos": {
-          "h": 3,
-          "w": 22,
-          "x": 1,
-          "y": 0
-        },
-        "id": 8,
-        "options": {
-          "footer": {
-            "fields": "",
-            "reducer": [
-              "sum"
-            ],
-            "show": false
+          "custom": {
+            "align": "auto",
+            "displayMode": "color-background",
+            "filterable": false
           },
-          "showHeader": true,
-          "sortBy": []
-        },
-        "pluginVersion": "8.3.5",
-        "targets": [
-          {
-            "queryText": "SELECT\ns.start_timestamp AS \"Started\",\ns.end_timestamp AS  \"Ended\",\nCASE WHEN s.successful = 1 THEN 'True' ELSE 'False' END AS \"Successful\",\ne.simulation_period_start AS \"Simulation Start Timestep\",\ne.simulation_period_end AS \"Simulation End Timestep\",\nMAX(timestep) AS \"Timesteps\",\nMAX(t.episode) + 1 AS \"Episodes\",\nMIN(a.seed) AS \"Seed\",\nCASE WHEN e.central_agent = 1 THEN 'True' ELSE 'False' END AS \"Central Agent\",\nMIN(a.name) AS \"Agent\",\nMIN(a.reward_style) AS \"Reward\"\nFROM simulation s\nLEFT JOIN environment e ON e.simulation_id = s.id\nLEFT JOIN building b ON b.environment_id = e.id\nLEFT JOIN agent a ON b.agent_id = a.id\nLEFT JOIN timestep t ON t.environment_id = e.id\nWHERE s.id = ${simulation_id}",
-            "queryType": "table",
-            "rawQueryText": "SELECT\ns.start_timestamp AS \"Started\",\ns.end_timestamp AS  \"Ended\",\nCASE WHEN s.successful = 1 THEN 'True' ELSE 'False' END AS \"Successful\",\ne.simulation_period_start AS \"Simulation Start Timestep\",\ne.simulation_period_end AS \"Simulation End Timestep\",\nMAX(timestep) AS \"Timesteps\",\nMAX(t.episode) + 1 AS \"Episodes\",\nMIN(a.seed) AS \"Seed\",\nCASE WHEN e.central_agent = 1 THEN 'True' ELSE 'False' END AS \"Central Agent\",\nMIN(a.name) AS \"Agent\",\nMIN(a.reward_style) AS \"Reward\"\nFROM simulation s\nLEFT JOIN environment e ON e.simulation_id = s.id\nLEFT JOIN building b ON b.environment_id = e.id\nLEFT JOIN agent a ON b.agent_id = a.id\nLEFT JOIN timestep t ON t.environment_id = e.id\nWHERE s.id = ${simulation_id}",
-            "refId": "A",
-            "timeColumns": [
-              "start_timestamp",
-              "end_timestamp"
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
             ]
           }
-        ],
-        "transparent": true,
-        "type": "table"
-      },
-      {
-        "collapsed": true,
-        "gridPos": {
-          "h": 1,
-          "w": 24,
-          "x": 0,
-          "y": 3
         },
-        "id": 17,
-        "panels": [
+        "overrides": [
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Successful"
             },
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "semi-dark-orange",
-                  "mode": "fixed"
-                },
-                "mappings": [],
-                "noValue": "0",
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "red",
-                      "value": 80
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 0,
-              "y": 4
-            },
-            "id": 19,
-            "options": {
-              "colorMode": "background",
-              "graphMode": "none",
-              "justifyMode": "center",
-              "orientation": "auto",
-              "reduceOptions": {
-                "calcs": [
-                  "lastNotNull"
-                ],
-                "fields": "",
-                "values": true
-              },
-              "text": {
-                "valueSize": 70
-              },
-              "textMode": "value"
-            },
-            "pluginVersion": "8.3.5",
-            "targets": [
+            "properties": [
               {
-                "queryText": "SELECT\nCOUNT(b.id)\nFROM building b\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nCOUNT(b.id)\nFROM building b\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 87
               }
-            ],
-            "title": "Building",
-            "type": "stat"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Start"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "#FF780A",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 20,
-              "x": 4,
-              "y": 4
-            },
-            "id": 26,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nb.solar_power_installed\nFROM building b\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nb.solar_power_installed\nFROM building b\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 188
               }
-            ],
-            "title": "PV Capacity (kW)",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "End"
             },
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "mappings": [],
-                "noValue": "0",
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "red",
-                      "value": 80
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 0,
-              "y": 8
-            },
-            "id": 20,
-            "options": {
-              "colorMode": "background",
-              "graphMode": "none",
-              "justifyMode": "center",
-              "orientation": "auto",
-              "reduceOptions": {
-                "calcs": [
-                  "lastNotNull"
-                ],
-                "fields": "/.*/",
-                "values": true
-              },
-              "text": {
-                "valueSize": 70
-              },
-              "textMode": "value"
-            },
-            "pluginVersion": "8.3.5",
-            "targets": [
+            "properties": [
               {
-                "queryText": "SELECT\nCOUNT(d.id)\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.nominal_power > 0.001\nAND e.simulation_id = ${simulation_id}\n",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nCOUNT(d.id)\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.nominal_power > 0.001\nAND e.simulation_id = ${simulation_id}\n",
-                "refId": "A",
-                "timeColumns": []
+                "id": "custom.width",
+                "value": 185
               }
-            ],
-            "title": "Cooling Device",
-            "type": "stat"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "No. Buildings"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 5,
-              "x": 4,
-              "y": 8
-            },
-            "id": 27,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.nominal_power AS \"Nominal Power (kW)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.nominal_power AS \"Nominal Power (kW)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 107
               }
-            ],
-            "title": "Nominal Power (kW)",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Agent"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 5,
-              "x": 9,
-              "y": 8
-            },
-            "id": 28,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.eta_tech AS \"Technical Efficiency\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.eta_tech AS \"Technical Efficiency\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 75
               }
-            ],
-            "title": "Technical Efficiency",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Reward"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 5,
-              "x": 14,
-              "y": 8
-            },
-            "id": 29,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "list",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.t_target_cooling AS \"Cooling Target Temp. (C)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.t_target_cooling AS \"Cooling Target Temp. (C)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 210
               }
-            ],
-            "title": "Cooling Target Temp. (C",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Central Agent"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 5,
-              "x": 19,
-              "y": 8
-            },
-            "id": 30,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "list",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.t_target_heating AS \"Heating Target Temp. (C)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.t_target_heating AS \"Heating Target Temp. (C)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 102
               }
-            ],
-            "title": "Heating Target Temp. (C)",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Start Timestep"
             },
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                },
-                "mappings": [],
-                "noValue": "0",
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "red",
-                      "value": 80
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 0,
-              "y": 12
-            },
-            "id": 21,
-            "options": {
-              "colorMode": "background",
-              "graphMode": "none",
-              "justifyMode": "center",
-              "orientation": "auto",
-              "reduceOptions": {
-                "calcs": [
-                  "lastNotNull"
-                ],
-                "fields": "/.*/",
-                "values": true
-              },
-              "text": {
-                "valueSize": 70
-              },
-              "textMode": "value"
-            },
-            "pluginVersion": "8.3.5",
-            "targets": [
+            "properties": [
               {
-                "queryText": "SELECT\nCOUNT(d.id)\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.nominal_power > 0.001\nAND e.simulation_id = ${simulation_id}\n",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nCOUNT(d.id)\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.nominal_power > 0.001\nAND e.simulation_id = ${simulation_id}\n",
-                "refId": "A",
-                "timeColumns": []
+                "id": "custom.width",
+                "value": 113
               }
-            ],
-            "title": "DHW Heating Device",
-            "type": "stat"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "End Timestep"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 9,
-              "x": 4,
-              "y": 12
-            },
-            "id": 31,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.nominal_power AS \"Nominal Power (kW)\"\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.nominal_power AS \"Nominal Power (kW)\"\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 105
               }
-            ],
-            "title": "Nominal Power (kW)",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "No. Episodes"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 11,
-              "x": 13,
-              "y": 12
-            },
-            "id": 38,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 101
               }
-            ],
-            "title": "Efficiency",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Seed"
             },
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "mappings": [],
-                "noValue": "0",
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "red",
-                      "value": 80
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 0,
-              "y": 16
-            },
-            "id": 22,
-            "options": {
-              "colorMode": "background",
-              "graphMode": "none",
-              "justifyMode": "center",
-              "orientation": "auto",
-              "reduceOptions": {
-                "calcs": [
-                  "lastNotNull"
-                ],
-                "fields": "/.*/",
-                "values": true
-              },
-              "text": {
-                "valueSize": 70
-              },
-              "textMode": "value"
-            },
-            "pluginVersion": "8.3.5",
-            "targets": [
+            "properties": [
               {
-                "queryText": "SELECT\nCOUNT(d.id)\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nCOUNT(d.id)\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
-                "refId": "A",
-                "timeColumns": []
+                "id": "custom.width",
+                "value": 50
               }
-            ],
-            "title": "Cooling Storage",
-            "type": "stat"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Started"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 4,
-              "y": 16
-            },
-            "id": 33,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.capacity AS \"Capacity (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.capacity AS \"Capacity (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 159
               }
-            ],
-            "title": "Capacity (kW)",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Ended"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 8,
-              "y": 16
-            },
-            "id": 34,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.max_power_output AS \"Max. Power Output (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.max_power_output AS \"Max. Power Output (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 157
               }
-            ],
-            "title": "Max. Power Output (kW)",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Buildings"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 12,
-              "y": 16
-            },
-            "id": 40,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.max_power_charging AS \"Max. Power Charging (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.max_power_charging AS \"Max. Power Charging (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 78
               }
-            ],
-            "title": "Max. Power Charging (kW)",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Cooling Devices"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 16,
-              "y": 16
-            },
-            "id": 36,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 118
               }
-            ],
-            "title": "Efficiency",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Timesteps"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 20,
-              "y": 16
-            },
-            "id": 37,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.loss_coef AS \"Loss Coefficient\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.loss_coef AS \"Loss Coefficient\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 84
               }
-            ],
-            "title": "Loss Coefficient",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Episodes"
             },
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                },
-                "mappings": [],
-                "noValue": "0",
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "red",
-                      "value": 80
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 0,
-              "y": 20
-            },
-            "id": 23,
-            "options": {
-              "colorMode": "background",
-              "graphMode": "none",
-              "justifyMode": "center",
-              "orientation": "auto",
-              "reduceOptions": {
-                "calcs": [
-                  "lastNotNull"
-                ],
-                "fields": "/.*/",
-                "values": true
-              },
-              "text": {
-                "valueSize": 70
-              },
-              "textMode": "value"
-            },
-            "pluginVersion": "8.3.5",
-            "targets": [
+            "properties": [
               {
-                "queryText": "SELECT\nCOUNT(d.id)\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nCOUNT(d.id)\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
-                "refId": "A",
-                "timeColumns": []
+                "id": "custom.width",
+                "value": 75
               }
-            ],
-            "title": "DHW Storage",
-            "type": "stat"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "DHW Heating Devices"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 4,
-              "y": 20
-            },
-            "id": 39,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.capacity AS \"Capacity (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.capacity AS \"Capacity (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 157
               }
-            ],
-            "title": "Capacity (kW)",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Cooling Storages"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 8,
-              "y": 20
-            },
-            "id": 41,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.max_power_output AS \"Max. Power Output (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.max_power_output AS \"Max. Power Output (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 127
               }
-            ],
-            "title": "Max. Power Output (kW)",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "DHW Storages"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 12,
-              "y": 20
-            },
-            "id": 42,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.max_power_charging AS \"Max. Power Charging (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.max_power_charging AS \"Max. Power Charging (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 110
               }
-            ],
-            "title": "Max. Power Charging (kW)",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Simulation Start Timestep"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 16,
-              "y": 20
-            },
-            "id": 43,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 184
               }
-            ],
-            "title": "Efficiency",
-            "transparent": true,
-            "type": "histogram"
+            ]
           },
           {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
+            "matcher": {
+              "id": "byName",
+              "options": "Simulation End Timestep"
             },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-red",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 20,
-              "y": 20
-            },
-            "id": 44,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
+            "properties": [
               {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.loss_coef AS \"Loss Coefficient\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.loss_coef AS \"Loss Coefficient\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
+                "id": "custom.width",
+                "value": 185
               }
-            ],
-            "title": "Loss Coefficient",
-            "transparent": true,
-            "type": "histogram"
-          },
-          {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
-            },
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-green",
-                  "mode": "fixed"
-                },
-                "mappings": [],
-                "noValue": "0",
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "red",
-                      "value": 80
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 0,
-              "y": 24
-            },
-            "id": 24,
-            "options": {
-              "colorMode": "background",
-              "graphMode": "none",
-              "justifyMode": "center",
-              "orientation": "auto",
-              "reduceOptions": {
-                "calcs": [
-                  "lastNotNull"
-                ],
-                "fields": "/.*/",
-                "values": true
-              },
-              "text": {
-                "valueSize": 70
-              },
-              "textMode": "value"
-            },
-            "pluginVersion": "8.3.5",
-            "targets": [
-              {
-                "queryText": "SELECT\nCOUNT(d.id)\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nCOUNT(d.id)\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
-                "refId": "A",
-                "timeColumns": []
-              }
-            ],
-            "title": "Electrical Storage",
-            "type": "stat"
-          },
-          {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
-            },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-green",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 4,
-              "y": 24
-            },
-            "id": 45,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.capacity AS \"Capacity (kWh)\"\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.capacity AS \"Capacity (kWh)\"\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
-              }
-            ],
-            "title": "Capacity (kW)",
-            "transparent": true,
-            "type": "histogram"
-          },
-          {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
-            },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-green",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 8,
-              "y": 24
-            },
-            "id": 46,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.nominal_power\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.nominal_power\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
-              }
-            ],
-            "title": "Nominal Power (kW)",
-            "transparent": true,
-            "type": "histogram"
-          },
-          {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
-            },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-green",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 12,
-              "y": 24
-            },
-            "id": 47,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.capacity_loss_coef\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.capacity_loss_coef\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
-              }
-            ],
-            "title": "Capacity Loss Coefficient",
-            "transparent": true,
-            "type": "histogram"
-          },
-          {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
-            },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-green",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 16,
-              "y": 24
-            },
-            "id": 48,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.efficiency\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.efficiency\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
-              }
-            ],
-            "title": "Efficiency",
-            "transparent": true,
-            "type": "histogram"
-          },
-          {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
-            },
-            "description": "",
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "fixedColor": "dark-green",
-                  "mode": "fixed"
-                },
-                "custom": {
-                  "fillOpacity": 50,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineWidth": 1
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 4,
-              "w": 4,
-              "x": 20,
-              "y": 24
-            },
-            "id": 49,
-            "options": {
-              "bucketOffset": 0,
-              "combine": false,
-              "legend": {
-                "calcs": [],
-                "displayMode": "hidden",
-                "placement": "bottom"
-              }
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\nd.loss_coef\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\nd.loss_coef\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "time",
-                  "ts"
-                ]
-              }
-            ],
-            "title": "Loss Coefficient",
-            "transparent": true,
-            "type": "histogram"
+            ]
           }
-        ],
-        "title": "METADATA",
-        "type": "row"
+        ]
       },
-      {
-        "collapsed": true,
-        "gridPos": {
-          "h": 1,
-          "w": 24,
-          "x": 0,
-          "y": 4
-        },
-        "id": 51,
-        "panels": [
-          {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
-            },
-            "fieldConfig": {
-              "defaults": {
-                "unit": "short"
-              },
-              "overrides": []
-            },
-            "fill": 0,
-            "fillGradient": 0,
-            "gridPos": {
-              "h": 6,
-              "w": 24,
-              "x": 0,
-              "y": 5
-            },
-            "hiddenSeries": false,
-            "id": 53,
-            "legend": {
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "nullPointMode": "null",
-            "options": {
-              "alertThreshold": true
-            },
-            "percentage": false,
-            "pluginVersion": "8.3.5",
-            "pointradius": 2,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\n(t.timestep*86400/24) AS timestamp,\nw.outdoor_drybulb_temperature\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\n(t.timestep*86400/24) AS timestamp,\nw.outdoor_drybulb_temperature\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "timestamp"
-                ]
-              }
-            ],
-            "thresholds": [
-              {
-                "$$hashKey": "object:1240",
-                "colorMode": "custom",
-                "fill": false,
-                "fillColor": "rgba(51, 162, 229, 0.2)",
-                "line": true,
-                "lineColor": "#C4162A",
-                "op": "gt",
-                "value": 0,
-                "yaxis": "left"
-              }
-            ],
-            "timeRegions": [],
-            "title": "Dry-Bulb Temperature",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "transparent": true,
-            "type": "graph",
-            "xaxis": {
-              "mode": "time",
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "$$hashKey": "object:1212",
-                "format": "short",
-                "logBase": 1,
-                "show": true
-              },
-              {
-                "$$hashKey": "object:1213",
-                "format": "short",
-                "logBase": 1,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false
-            }
-          },
-          {
-            "aliasColors": {
-              "outdoor_drybulb_temperature": "dark-blue",
-              "outdoor_relative_humidity": "dark-blue"
-            },
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
-            },
-            "fill": 2,
-            "fillGradient": 0,
-            "gridPos": {
-              "h": 6,
-              "w": 24,
-              "x": 0,
-              "y": 11
-            },
-            "hiddenSeries": false,
-            "id": 54,
-            "legend": {
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "nullPointMode": "null",
-            "options": {
-              "alertThreshold": true
-            },
-            "percentage": false,
-            "pluginVersion": "8.3.5",
-            "pointradius": 2,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\n(t.timestep*86400/24) AS timestamp,\nw.outdoor_relative_humidity\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\n(t.timestep*86400/24) AS timestamp,\nw.outdoor_relative_humidity\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "timestamp"
-                ]
-              }
-            ],
-            "thresholds": [],
-            "timeRegions": [],
-            "title": "Relative Humidity",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "transparent": true,
-            "type": "graph",
-            "xaxis": {
-              "mode": "time",
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "$$hashKey": "object:106",
-                "format": "short",
-                "label": "%",
-                "logBase": 1,
-                "show": true
-              },
-              {
-                "$$hashKey": "object:107",
-                "format": "short",
-                "label": "",
-                "logBase": 1,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false
-            }
-          },
-          {
-            "aliasColors": {
-              "outdoor_drybulb_temperature": "dark-blue",
-              "outdoor_relative_humidity": "dark-blue"
-            },
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
-            },
-            "fill": 2,
-            "fillGradient": 0,
-            "gridPos": {
-              "h": 6,
-              "w": 24,
-              "x": 0,
-              "y": 17
-            },
-            "hiddenSeries": false,
-            "id": 55,
-            "legend": {
-              "avg": false,
-              "current": false,
-              "max": false,
-              "min": false,
-              "show": true,
-              "total": false,
-              "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "nullPointMode": "null",
-            "options": {
-              "alertThreshold": true
-            },
-            "percentage": false,
-            "pluginVersion": "8.3.5",
-            "pointradius": 2,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": true,
-            "steppedLine": false,
-            "targets": [
-              {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\n(t.timestep*86400/24) AS timestamp,\nw.diffuse_solar_radiation AS diffuse,\nw.direct_solar_radiation AS direct\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\n(t.timestep*86400/24) AS timestamp,\nw.diffuse_solar_radiation AS diffuse,\nw.direct_solar_radiation AS direct\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "timestamp"
-                ]
-              }
-            ],
-            "thresholds": [],
-            "timeRegions": [],
-            "title": "Solar Irradiation",
-            "tooltip": {
-              "shared": true,
-              "sort": 0,
-              "value_type": "individual"
-            },
-            "transparent": true,
-            "type": "graph",
-            "xaxis": {
-              "mode": "time",
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "$$hashKey": "object:106",
-                "format": "short",
-                "label": "W/m^2",
-                "logBase": 1,
-                "show": true
-              },
-              {
-                "$$hashKey": "object:107",
-                "format": "short",
-                "label": "",
-                "logBase": 1,
-                "show": true
-              }
-            ],
-            "yaxis": {
-              "align": false
-            }
-          }
-        ],
-        "title": "WEATHER",
-        "type": "row"
+      "gridPos": {
+        "h": 3,
+        "w": 22,
+        "x": 1,
+        "y": 0
       },
-      {
-        "collapsed": true,
-        "gridPos": {
-          "h": 1,
-          "w": 24,
-          "x": 0,
-          "y": 5
+      "id": 8,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
         },
-        "id": 14,
-        "panels": [
-          {
-            "datasource": {
-              "type": "frser-sqlite-datasource",
-              "uid": "PgLc9U-nk"
-            },
-            "fieldConfig": {
-              "defaults": {
-                "color": {
-                  "mode": "palette-classic"
-                },
-                "custom": {
-                  "axisLabel": "",
-                  "axisPlacement": "auto",
-                  "barAlignment": 0,
-                  "drawStyle": "line",
-                  "fillOpacity": 0,
-                  "gradientMode": "none",
-                  "hideFrom": {
-                    "legend": false,
-                    "tooltip": false,
-                    "viz": false
-                  },
-                  "lineInterpolation": "linear",
-                  "lineWidth": 1,
-                  "pointSize": 5,
-                  "scaleDistribution": {
-                    "type": "linear"
-                  },
-                  "showPoints": "auto",
-                  "spanNulls": false,
-                  "stacking": {
-                    "group": "A",
-                    "mode": "none"
-                  },
-                  "thresholdsStyle": {
-                    "mode": "off"
-                  }
-                },
-                "mappings": [],
-                "thresholds": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              },
-              "overrides": []
-            },
-            "gridPos": {
-              "h": 7,
-              "w": 24,
-              "x": 0,
-              "y": 6
-            },
-            "id": 57,
-            "options": {
-              "legend": {
-                "calcs": [],
-                "displayMode": "list",
-                "placement": "bottom"
-              },
-              "tooltip": {
-                "mode": "multi"
-              }
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "frser-sqlite-datasource",
-                  "uid": "PgLc9U-nk"
-                },
-                "queryText": "SELECT\n    (t.timestep*86400/24) AS timestamp,\n    s.net_electric_consumption AS net,\n    s.electric_consumption_cooling AS cooling,\n    s.electric_consumption_dhw AS dhw,\n    s.electric_consumption_appliances AS appliances,\n    s.electric_consumption_cooling_storage AS cooling_storage,\n    s.electric_consumption_dhw_storage AS dhw_storage,\n    s.electric_consumption_electric_storage AS electric_storage,\n    (s.net_electric_consumption + s.electric_generation) AS net_without_generation,\n    (s.net_electric_consumption + s.electric_generation - \n        (s.electric_consumption_cooling_storage + s.electric_consumption_dhw_storage + s.electric_consumption_electric_storage)\n    ) AS net_without_generation_and_storage\nFROM environment_timeseries s\nLEFT JOIN timestep t ON t.id = s.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "queryType": "table",
-                "rawQueryText": "SELECT\n    (t.timestep*86400/24) AS timestamp,\n    s.net_electric_consumption AS net,\n    s.electric_consumption_cooling AS cooling,\n    s.electric_consumption_dhw AS dhw,\n    s.electric_consumption_appliances AS appliances,\n    s.electric_consumption_cooling_storage AS cooling_storage,\n    s.electric_consumption_dhw_storage AS dhw_storage,\n    s.electric_consumption_electric_storage AS electric_storage,\n    (s.net_electric_consumption + s.electric_generation) AS net_without_generation,\n    (s.net_electric_consumption + s.electric_generation - \n        (s.electric_consumption_cooling_storage + s.electric_consumption_dhw_storage + s.electric_consumption_electric_storage)\n    ) AS net_without_generation_and_storage\nFROM environment_timeseries s\nLEFT JOIN timestep t ON t.id = s.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
-                "refId": "A",
-                "timeColumns": [
-                  "timestamp"
-                ]
-              }
-            ],
-            "title": "Electricity Consumption & Generation",
-            "transparent": true,
-            "type": "timeseries"
-          }
-        ],
-        "title": "ENVIRONMENT",
-        "type": "row"
-      }
-    ],
-    "refresh": false,
-    "schemaVersion": 34,
-    "style": "dark",
-    "tags": [],
-    "templating": {
-      "list": [
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.3.5",
+      "targets": [
         {
-          "current": {
-            "selected": false,
-            "text": "1",
-            "value": "1"
+          "queryText": "SELECT\ns.start_timestamp AS \"Started\",\ns.end_timestamp AS  \"Ended\",\nCASE WHEN s.successful = 1 THEN 'True' ELSE 'False' END AS \"Successful\",\ne.simulation_period_start AS \"Simulation Start Timestep\",\ne.simulation_period_end AS \"Simulation End Timestep\",\nMAX(timestep) AS \"Timesteps\",\nMAX(t.episode) + 1 AS \"Episodes\",\nMIN(a.seed) AS \"Seed\",\nCASE WHEN e.central_agent = 1 THEN 'True' ELSE 'False' END AS \"Central Agent\",\nMIN(a.name) AS \"Agent\",\nMIN(a.reward_style) AS \"Reward\"\nFROM simulation s\nLEFT JOIN environment e ON e.simulation_id = s.id\nLEFT JOIN building b ON b.environment_id = e.id\nLEFT JOIN agent a ON b.agent_id = a.id\nLEFT JOIN timestep t ON t.environment_id = e.id\nWHERE s.id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\ns.start_timestamp AS \"Started\",\ns.end_timestamp AS  \"Ended\",\nCASE WHEN s.successful = 1 THEN 'True' ELSE 'False' END AS \"Successful\",\ne.simulation_period_start AS \"Simulation Start Timestep\",\ne.simulation_period_end AS \"Simulation End Timestep\",\nMAX(timestep) AS \"Timesteps\",\nMAX(t.episode) + 1 AS \"Episodes\",\nMIN(a.seed) AS \"Seed\",\nCASE WHEN e.central_agent = 1 THEN 'True' ELSE 'False' END AS \"Central Agent\",\nMIN(a.name) AS \"Agent\",\nMIN(a.reward_style) AS \"Reward\"\nFROM simulation s\nLEFT JOIN environment e ON e.simulation_id = s.id\nLEFT JOIN building b ON b.environment_id = e.id\nLEFT JOIN agent a ON b.agent_id = a.id\nLEFT JOIN timestep t ON t.environment_id = e.id\nWHERE s.id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "start_timestamp",
+            "end_timestamp"
+          ]
+        }
+      ],
+      "transparent": true,
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 17,
+      "panels": [],
+      "title": "METADATA",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "semi-dark-orange",
+            "mode": "fixed"
           },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 4
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "text": {
+          "valueSize": 70
+        },
+        "textMode": "value"
+      },
+      "pluginVersion": "8.3.5",
+      "targets": [
+        {
+          "queryText": "SELECT\nCOUNT(b.id)\nFROM building b\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nCOUNT(b.id)\nFROM building b\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Building",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#FF780A",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 20,
+        "x": 4,
+        "y": 4
+      },
+      "id": 26,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
           "datasource": {
             "type": "frser-sqlite-datasource",
             "uid": "PgLc9U-nk"
           },
-          "definition": "SELECT id FROM simulation",
-          "hide": 0,
-          "includeAll": false,
-          "label": "Simulation ID",
-          "multi": false,
-          "name": "simulation_id",
-          "options": [],
-          "query": "SELECT id FROM simulation",
-          "refresh": 1,
-          "regex": "",
-          "skipUrlSync": false,
-          "sort": 3,
-          "type": "query"
+          "queryText": "SELECT\nb.solar_power_installed\nFROM building b\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nb.solar_power_installed\nFROM building b\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
         }
-      ]
+      ],
+      "title": "PV Capacity (kW)",
+      "transparent": true,
+      "type": "histogram"
     },
-    "time": {
-      "from": "1970-06-21T06:50:16.968Z",
-      "to": "1970-07-12T20:45:47.949Z"
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 8
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": true
+        },
+        "text": {
+          "valueSize": 70
+        },
+        "textMode": "value"
+      },
+      "pluginVersion": "8.3.5",
+      "targets": [
+        {
+          "queryText": "SELECT\nCOUNT(d.id)\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.nominal_power > 0.001\nAND e.simulation_id = ${simulation_id}\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nCOUNT(d.id)\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.nominal_power > 0.001\nAND e.simulation_id = ${simulation_id}\n",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "Cooling Device",
+      "type": "stat"
     },
-    "timepicker": {
-      "hidden": false
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 4,
+        "y": 8
+      },
+      "id": 27,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.nominal_power AS \"Nominal Power (kW)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.nominal_power AS \"Nominal Power (kW)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Nominal Power (kW)",
+      "transparent": true,
+      "type": "histogram"
     },
-    "timezone": "",
-    "title": "CityLearn",
-    "uid": "ZaaE9wa7z",
-    "version": 23,
-    "weekStart": ""
-  }
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 9,
+        "y": 8
+      },
+      "id": 28,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.eta_tech AS \"Technical Efficiency\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.eta_tech AS \"Technical Efficiency\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Technical Efficiency",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 14,
+        "y": 8
+      },
+      "id": 29,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.t_target_cooling AS \"Cooling Target Temp. (C)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.t_target_cooling AS \"Cooling Target Temp. (C)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Cooling Target Temp. (C",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 19,
+        "y": 8
+      },
+      "id": 30,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.t_target_heating AS \"Heating Target Temp. (C)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.t_target_heating AS \"Heating Target Temp. (C)\"\nFROM cooling_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Heating Target Temp. (C)",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-red",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 12
+      },
+      "id": 21,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": true
+        },
+        "text": {
+          "valueSize": 70
+        },
+        "textMode": "value"
+      },
+      "pluginVersion": "8.3.5",
+      "targets": [
+        {
+          "queryText": "SELECT\nCOUNT(d.id)\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.nominal_power > 0.001\nAND e.simulation_id = ${simulation_id}\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nCOUNT(d.id)\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.nominal_power > 0.001\nAND e.simulation_id = ${simulation_id}\n",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "DHW Heating Device",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 9,
+        "x": 4,
+        "y": 12
+      },
+      "id": 31,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.nominal_power AS \"Nominal Power (kW)\"\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.nominal_power AS \"Nominal Power (kW)\"\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Nominal Power (kW)",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 11,
+        "x": 13,
+        "y": 12
+      },
+      "id": 38,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM dhw_heating_device d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Efficiency",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 16
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": true
+        },
+        "text": {
+          "valueSize": 70
+        },
+        "textMode": "value"
+      },
+      "pluginVersion": "8.3.5",
+      "targets": [
+        {
+          "queryText": "SELECT\nCOUNT(d.id)\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nCOUNT(d.id)\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "Cooling Storage",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 16
+      },
+      "id": 33,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.capacity AS \"Capacity (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.capacity AS \"Capacity (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Capacity (kW)",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 16
+      },
+      "id": 34,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.max_power_output AS \"Max. Power Output (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.max_power_output AS \"Max. Power Output (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Max. Power Output (kW)",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 16
+      },
+      "id": 40,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.max_power_charging AS \"Max. Power Charging (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.max_power_charging AS \"Max. Power Charging (kW)\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Max. Power Charging (kW)",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 16
+      },
+      "id": 36,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Efficiency",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 16
+      },
+      "id": 37,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.loss_coef AS \"Loss Coefficient\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.loss_coef AS \"Loss Coefficient\"\nFROM cooling_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Loss Coefficient",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-red",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 20
+      },
+      "id": 23,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": true
+        },
+        "text": {
+          "valueSize": 70
+        },
+        "textMode": "value"
+      },
+      "pluginVersion": "8.3.5",
+      "targets": [
+        {
+          "queryText": "SELECT\nCOUNT(d.id)\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nCOUNT(d.id)\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "DHW Storage",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 20
+      },
+      "id": 39,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.capacity AS \"Capacity (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.capacity AS \"Capacity (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Capacity (kW)",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 20
+      },
+      "id": 41,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.max_power_output AS \"Max. Power Output (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.max_power_output AS \"Max. Power Output (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Max. Power Output (kW)",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 20
+      },
+      "id": 42,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.max_power_charging AS \"Max. Power Charging (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.max_power_charging AS \"Max. Power Charging (kW)\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Max. Power Charging (kW)",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 20
+      },
+      "id": 43,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.efficiency AS \"Efficiency\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Efficiency",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 20
+      },
+      "id": 44,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.loss_coef AS \"Loss Coefficient\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.loss_coef AS \"Loss Coefficient\"\nFROM dhw_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Loss Coefficient",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-green",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 24
+      },
+      "id": 24,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/.*/",
+          "values": true
+        },
+        "text": {
+          "valueSize": 70
+        },
+        "textMode": "value"
+      },
+      "pluginVersion": "8.3.5",
+      "targets": [
+        {
+          "queryText": "SELECT\nCOUNT(d.id)\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nCOUNT(d.id)\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE d.capacity > 0.001\nAND e.simulation_id = ${simulation_id}\n",
+          "refId": "A",
+          "timeColumns": []
+        }
+      ],
+      "title": "Electrical Storage",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-green",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 24
+      },
+      "id": 45,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.capacity AS \"Capacity (kWh)\"\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.capacity AS \"Capacity (kWh)\"\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Capacity (kW)",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-green",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 24
+      },
+      "id": 46,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.nominal_power\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.nominal_power\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Nominal Power (kW)",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-green",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 24
+      },
+      "id": 47,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.capacity_loss_coef\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.capacity_loss_coef\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Capacity Loss Coefficient",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-green",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 24
+      },
+      "id": 48,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.efficiency\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.efficiency\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Efficiency",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-green",
+            "mode": "fixed"
+          },
+          "custom": {
+            "fillOpacity": 50,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 24
+      },
+      "id": 49,
+      "options": {
+        "bucketOffset": 0,
+        "combine": false,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\nd.loss_coef\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\nd.loss_coef\nFROM electrical_storage d\nLEFT JOIN building b ON b.id = d.building_id\nLEFT JOIN environment e ON e.id = b.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Loss Coefficient",
+      "transparent": true,
+      "type": "histogram"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 51,
+      "panels": [],
+      "title": "WEATHER",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "hiddenSeries": false,
+      "id": 53,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.3.5",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\n(t.timestep + ${timezone_offset})*3600 AS timestamp,\nw.outdoor_drybulb_temperature\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\n(t.timestep + ${timezone_offset})*3600 AS timestamp,\nw.outdoor_drybulb_temperature\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "thresholds": [
+        {
+          "$$hashKey": "object:1240",
+          "colorMode": "custom",
+          "fill": false,
+          "fillColor": "rgba(51, 162, 229, 0.2)",
+          "line": true,
+          "lineColor": "#C4162A",
+          "op": "gt",
+          "value": 0,
+          "yaxis": "left"
+        }
+      ],
+      "timeRegions": [],
+      "title": "Dry-Bulb Temperature",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:1212",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:1213",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {
+        "outdoor_drybulb_temperature": "dark-blue",
+        "outdoor_relative_humidity": "dark-blue"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fill": 2,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "hiddenSeries": false,
+      "id": 54,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.3.5",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\n(t.timestep + ${timezone_offset})*3600 AS timestamp,\nw.outdoor_relative_humidity\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\n(t.timestep + ${timezone_offset})*3600 AS timestamp,\nw.outdoor_relative_humidity\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Relative Humidity",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:106",
+          "format": "short",
+          "label": "%",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:107",
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {
+        "outdoor_drybulb_temperature": "dark-blue",
+        "outdoor_relative_humidity": "dark-blue"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fill": 2,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "hiddenSeries": false,
+      "id": 55,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.3.5",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\n(t.timestep + ${timezone_offset})*3600 AS timestamp,\nw.diffuse_solar_radiation AS diffuse,\nw.direct_solar_radiation AS direct\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\n(t.timestep + ${timezone_offset})*3600 AS timestamp,\nw.diffuse_solar_radiation AS diffuse,\nw.direct_solar_radiation AS direct\nFROM weather_timeseries w\nLEFT JOIN timestep t ON t.id = w.timestep_id\nLEFT JOIN environment_timeseries s ON s.timestep_id = w.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Solar Irradiation",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:106",
+          "format": "short",
+          "label": "W/m^2",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:107",
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 47
+      },
+      "id": 14,
+      "panels": [],
+      "title": "ENVIRONMENT",
+      "type": "row"
+    },
+    {
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "id": 65,
+      "options": {
+        "content": "<h5><center>Energy Flexibility KPI<center><h5>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.3.5",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisGridShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "dark-red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 50
+      },
+      "id": 66,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "WITH c_union AS (\nSELECT *, 1 AS label FROM ramping_cost_function\nUNION ALL\nSELECT *, 2 AS label FROM load_factor_cost_function\nUNION ALL\nSELECT *, 3 AS label FROM average_daily_peak_cost_function\nUNION ALL\nSELECT *, 4 AS label FROM annual_peak_cost_function\nUNION ALL\nSELECT *, 5 AS label FROM net_electric_consumption_cost_function\n)\n\nSELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\nAVG(s.value/b.value) AS basic,\nAVG(s.value/o.value) AS optimized\nFROM c_union s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT * FROM c_union WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep AND b.label = s.label\nLEFT JOIN (\nSELECT * FROM c_union WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep AND o.label = s.label\nWHERE e.simulation_id = ${simulation_id}\nGROUP BY\ns.timestep,\ns.environment_id",
+          "queryType": "table",
+          "rawQueryText": "WITH c_union AS (\nSELECT *, 1 AS label FROM ramping_cost_function\nUNION ALL\nSELECT *, 2 AS label FROM load_factor_cost_function\nUNION ALL\nSELECT *, 3 AS label FROM average_daily_peak_cost_function\nUNION ALL\nSELECT *, 4 AS label FROM annual_peak_cost_function\nUNION ALL\nSELECT *, 5 AS label FROM net_electric_consumption_cost_function\n)\n\nSELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\nAVG(s.value/b.value) AS basic,\nAVG(s.value/o.value) AS optimized\nFROM c_union s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT * FROM c_union WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep AND b.label = s.label\nLEFT JOIN (\nSELECT * FROM c_union WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep AND o.label = s.label\nWHERE e.simulation_id = ${simulation_id}\nGROUP BY\ns.timestep,\ns.environment_id",
+          "refId": "A",
+          "timeColumns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "title": "Average",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisGridShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line+area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 50
+      },
+      "id": 59,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.3.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\ns.value/b.value AS basic,\ns.value/o.value AS optimized\nFROM ramping_cost_function s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT timestep, value FROM   ramping_cost_function WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep\nLEFT JOIN (\nSELECT timestep, value FROM   ramping_cost_function WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\ns.value/b.value AS basic,\ns.value/o.value AS optimized\nFROM ramping_cost_function s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT timestep, value FROM   ramping_cost_function WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep\nLEFT JOIN (\nSELECT timestep, value FROM   ramping_cost_function WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "title": "Ramping",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisGridShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "dark-red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 8,
+        "y": 50
+      },
+      "id": 60,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\ns.value/b.value AS basic,\ns.value/o.value AS optimized\nFROM load_factor_cost_function s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT timestep, value FROM   load_factor_cost_function WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep\nLEFT JOIN (\nSELECT timestep, value FROM   load_factor_cost_function WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\ns.value/b.value AS basic,\ns.value/o.value AS optimized\nFROM load_factor_cost_function s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT timestep, value FROM   load_factor_cost_function WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep\nLEFT JOIN (\nSELECT timestep, value FROM   load_factor_cost_function WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "title": "Load Factor",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisGridShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "dark-red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 12,
+        "y": 50
+      },
+      "id": 61,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\ns.value/b.value AS basic,\ns.value/o.value AS optimized\nFROM average_daily_peak_cost_function s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT timestep, value FROM  average_daily_peak_cost_function WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep\nLEFT JOIN (\nSELECT timestep, value FROM  average_daily_peak_cost_function WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\ns.value/b.value AS basic,\ns.value/o.value AS optimized\nFROM average_daily_peak_cost_function s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT timestep, value FROM  average_daily_peak_cost_function WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep\nLEFT JOIN (\nSELECT timestep, value FROM  average_daily_peak_cost_function WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "title": "Average Daily Peak",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisGridShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "dark-red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 16,
+        "y": 50
+      },
+      "id": 62,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\ns.value/b.value AS basic,\ns.value/o.value AS optimized\nFROM annual_peak_cost_function s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT timestep, value FROM  annual_peak_cost_function WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep\nLEFT JOIN (\nSELECT timestep, value FROM  annual_peak_cost_function WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\ns.value/b.value AS basic,\ns.value/o.value AS optimized\nFROM annual_peak_cost_function s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT timestep, value FROM  annual_peak_cost_function WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep\nLEFT JOIN (\nSELECT timestep, value FROM  annual_peak_cost_function WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "title": "Annual Peak",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisGridShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "dark-red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 20,
+        "y": 50
+      },
+      "id": 63,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\ns.value/b.value AS basic,\ns.value/o.value AS optimized\nFROM net_electric_consumption_cost_function s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT timestep, value FROM  net_electric_consumption_cost_function WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep\nLEFT JOIN (\nSELECT timestep, value FROM  net_electric_consumption_cost_function WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\n(s.timestep + ${timezone_offset})*3600 AS timestamp,\ns.value/b.value AS basic,\ns.value/o.value AS optimized\nFROM net_electric_consumption_cost_function s\nLEFT JOIN environment e ON e.id = s.environment_id\nLEFT JOIN (\nSELECT timestep, value FROM  net_electric_consumption_cost_function WHERE environment_id = ${basic_rbc_environment_id}\n) b ON b.timestep = s.timestep\nLEFT JOIN (\nSELECT timestep, value FROM  net_electric_consumption_cost_function WHERE environment_id = ${optimized_rbc_environment_id}\n) o ON o.timestep = s.timestep\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "title": "Net Electric Consumption",
+      "type": "timeseries"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "PgLc9U-nk"
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "hiddenSeries": false,
+      "id": 57,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "8.3.5",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "PgLc9U-nk"
+          },
+          "queryText": "SELECT\n    (t.timestep + ${timezone_offset})*3600 AS timestamp,\n    s.electric_consumption_cooling AS cooling,\n    s.electric_consumption_dhw AS dhw,\n    s.electric_consumption_appliances AS appliances,\n    s.electric_consumption_cooling_storage AS cooling_storage,\n    s.electric_consumption_dhw_storage AS dhw_storage,\n    s.electric_consumption_electric_storage AS electric_storage,\n    s.net_electric_consumption AS net,\n    (s.net_electric_consumption + s.electric_generation) AS net_without_generation,\n    (s.net_electric_consumption + s.electric_generation - \n        (s.electric_consumption_cooling_storage + s.electric_consumption_dhw_storage + s.electric_consumption_electric_storage)\n    ) AS net_without_generation_and_storage\nFROM environment_timeseries s\nLEFT JOIN timestep t ON t.id = s.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "queryType": "table",
+          "rawQueryText": "SELECT\n    (t.timestep + ${timezone_offset})*3600 AS timestamp,\n    s.electric_consumption_cooling AS cooling,\n    s.electric_consumption_dhw AS dhw,\n    s.electric_consumption_appliances AS appliances,\n    s.electric_consumption_cooling_storage AS cooling_storage,\n    s.electric_consumption_dhw_storage AS dhw_storage,\n    s.electric_consumption_electric_storage AS electric_storage,\n    s.net_electric_consumption AS net,\n    (s.net_electric_consumption + s.electric_generation) AS net_without_generation,\n    (s.net_electric_consumption + s.electric_generation - \n        (s.electric_consumption_cooling_storage + s.electric_consumption_dhw_storage + s.electric_consumption_electric_storage)\n    ) AS net_without_generation_and_storage\nFROM environment_timeseries s\nLEFT JOIN timestep t ON t.id = s.timestep_id\nLEFT JOIN environment e ON e.id = s.environment_id\nWHERE e.simulation_id = ${simulation_id}",
+          "refId": "A",
+          "timeColumns": [
+            "timestamp"
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Electricity Consumption & Generation",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:1450",
+          "format": "short",
+          "label": "kWh",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:1451",
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 34,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "1",
+          "value": "1"
+        },
+        "datasource": {
+          "type": "frser-sqlite-datasource",
+          "uid": "PgLc9U-nk"
+        },
+        "definition": "SELECT id FROM simulation",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Simulation ID",
+        "multi": false,
+        "name": "simulation_id",
+        "options": [],
+        "query": "SELECT id FROM simulation",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 3,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "Building_1",
+          "value": "Building_1"
+        },
+        "datasource": {
+          "type": "frser-sqlite-datasource",
+          "uid": "PgLc9U-nk"
+        },
+        "definition": "SELECT b.name FROM building b LEFT JOIN environment e ON e.id = b.environment_id WHERE e.simulation_id = ${simulation_id}",
+        "description": "Select building name as it appeared in building_attributes.json",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Building Name",
+        "multi": false,
+        "name": "building_name",
+        "options": [],
+        "query": "SELECT b.name FROM building b LEFT JOIN environment e ON e.id = b.environment_id WHERE e.simulation_id = ${simulation_id}",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 3,
+        "type": "query"
+      },
+      {
+        "hide": 2,
+        "name": "basic_rbc_environment_id",
+        "query": "38",
+        "skipUrlSync": false,
+        "type": "constant"
+      },
+      {
+        "hide": 2,
+        "name": "optimized_rbc_environment_id",
+        "query": "40",
+        "skipUrlSync": false,
+        "type": "constant"
+      },
+      {
+        "hide": 2,
+        "name": "timezone_offset",
+        "query": "6",
+        "skipUrlSync": false,
+        "type": "constant"
+      }
+    ]
+  },
+  "time": {
+    "from": "1970-01-01T06:00:00.000Z",
+    "to": "1973-12-31T06:00:00.000Z"
+  },
+  "timepicker": {
+    "hidden": false
+  },
+  "timezone": "",
+  "title": "CityLearn",
+  "uid": "ZaaE9wa7z",
+  "version": 24,
+  "weekStart": ""
+}
