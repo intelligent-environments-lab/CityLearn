@@ -15,7 +15,7 @@ gym==0.14.0
 idna==3.3
 importlib-metadata==4.8.1
 ipykernel==6.4.2
-ipython==7.28.0
+ipython==7.31.1
 ipython-genutils==0.2.0
 jedi==0.18.0
 joblib==1.1.0
