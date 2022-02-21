@@ -1,267 +1,13 @@
+import json
 import gym
+from gym import spaces
 from gym.utils import seeding
 import numpy as np
 import pandas as pd
-import json
-from gym import spaces
-from energy_models import Battery, HeatPump, ElectricHeater, EnergyStorage, Building
-from reward_function import reward_function_sa, reward_function_ma
-from pathlib import Path
+from citylearn.agent import BasicRBC
+from citylearn.energy_model import Battery, Building, ElectricHeater, EnergyStorage, HeatPump
+from citylearn.reward_function import reward_function_ma, reward_function_sa
 gym.logger.set_level(40)
-
-# Reference Rule-based controller. Used as a baseline to calculate the costs in CityLearn
-# It requires, at least, the hour of the day as input state
-class RBC_Agent:
-    def __init__(self, actions_spaces):
-        self.actions_spaces = actions_spaces
-        self.action_tracker = []
-        
-    def select_action(self, states):
-        hour_day = states[0]
-        
-        multiplier = 0.4
-        # Daytime: release stored energy
-        a = [[0.0 for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
-        if hour_day >= 7 and hour_day <= 11:
-            a = [[-0.05 * multiplier for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
-        elif hour_day >= 12 and hour_day <= 15:
-            a = [[-0.05 * multiplier for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
-        elif hour_day >= 16 and hour_day <= 18:
-            a = [[-0.11 * multiplier for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
-        elif hour_day >= 19 and hour_day <= 22:
-            a = [[-0.06 * multiplier for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
-        
-        # Early nightime: store DHW and/or cooling energy
-        if hour_day >= 23 and hour_day <= 24:
-            a = [[0.085 * multiplier for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
-        elif hour_day >= 1 and hour_day <= 6:
-            a = [[0.1383 * multiplier for _ in range(len(self.actions_spaces[i].sample()))] for i in range(len(self.actions_spaces))]
-        
-        return np.array(a, dtype='object')
-
-def auto_size(buildings):
-    for building in buildings.values():
-        
-        # Autosize guarantees that the DHW device is large enough to always satisfy the maximum DHW demand
-        if building.dhw_heating_device.nominal_power == 'autosize':
-            
-            # If the DHW device is a HeatPump
-            if isinstance(building.dhw_heating_device, HeatPump):
-                
-                #We assume that the heat pump is always large enough to meet the highest heating or cooling demand of the building
-                building.dhw_heating_device.nominal_power = np.array(building.sim_results['dhw_demand']/building.dhw_heating_device.cop_heating).max()
-                
-            # If the device is an electric heater
-            elif isinstance(building.dhw_heating_device, ElectricHeater):
-                building.dhw_heating_device.nominal_power = (np.array(building.sim_results['dhw_demand'])/building.dhw_heating_device.efficiency).max()
-        
-        # Autosize guarantees that the cooling device device is large enough to always satisfy the maximum DHW demand
-        if building.cooling_device.nominal_power == 'autosize':
-
-            building.cooling_device.nominal_power = (np.array(building.sim_results['cooling_demand'])/building.cooling_device.cop_cooling).max()
-        
-        # Defining the capacity of the storage devices as a number of times the maximum demand
-        building.dhw_storage.capacity = max(building.sim_results['dhw_demand'])*building.dhw_storage.capacity
-        building.cooling_storage.capacity = max(building.sim_results['cooling_demand'])*building.cooling_storage.capacity
-        
-        # Done in order to avoid dividing by 0 if the capacity is 0
-        if building.dhw_storage.capacity <= 0.00001:
-            building.dhw_storage.capacity = 0.00001
-        if building.cooling_storage.capacity <= 0.00001:
-            building.cooling_storage.capacity = 0.00001
-        if building.electrical_storage.capacity <= 0.00001:
-            building.electrical_storage.capacity = 0.00001
-        
-        
-def building_loader(data_path, building_attributes, weather_file, solar_profile, carbon_intensity, building_ids, buildings_states_actions, save_memory = True):
-    with open(building_attributes) as json_file:
-        data = json.load(json_file)
-
-    buildings, observation_spaces, action_spaces = {},[],[]
-    s_low_central_agent, s_high_central_agent, appended_states = [], [], []
-    a_low_central_agent, a_high_central_agent, appended_actions = [], [], []
-    for uid, attributes in zip(data, data.values()):
-        if uid in building_ids:
-            
-            battery = Battery(capacity = attributes['Battery']['capacity'],
-                                         capacity_loss_coef = attributes['Battery']['capacity_loss_coefficient'],
-                                         loss_coef = attributes['Battery']['loss_coefficient'],
-                                         efficiency = attributes['Battery']['efficiency'],
-                                         nominal_power = attributes['Battery']['nominal_power'],
-                                         power_efficiency_curve = attributes['Battery']['power_efficiency_curve'],
-                                         capacity_power_curve = attributes['Battery']['capacity_power_curve'],                              
-                                         save_memory = save_memory)        
-            
-            heat_pump = HeatPump(nominal_power = attributes['Heat_Pump']['nominal_power'], 
-                                 eta_tech = attributes['Heat_Pump']['technical_efficiency'], 
-                                 t_target_heating = attributes['Heat_Pump']['t_target_heating'], 
-                                 t_target_cooling = attributes['Heat_Pump']['t_target_cooling'], save_memory = save_memory)
-
-            electric_heater = ElectricHeater(nominal_power = attributes['Electric_Water_Heater']['nominal_power'], 
-                                             efficiency = attributes['Electric_Water_Heater']['efficiency'], save_memory = save_memory)
-
-            chilled_water_tank = EnergyStorage(capacity = attributes['Chilled_Water_Tank']['capacity'],
-                                               loss_coef = attributes['Chilled_Water_Tank']['loss_coefficient'], save_memory = save_memory)
-
-            dhw_tank = EnergyStorage(capacity = attributes['DHW_Tank']['capacity'],
-                                     loss_coef = attributes['DHW_Tank']['loss_coefficient'], save_memory = save_memory)
-
-            building = Building(buildingId = uid, dhw_storage = dhw_tank, cooling_storage = chilled_water_tank, electrical_storage = battery, dhw_heating_device = electric_heater, cooling_device = heat_pump, save_memory = save_memory)
-
-            data_file = str(uid) + '.csv'
-            simulation_data = data_path / data_file
-            with open(simulation_data) as csv_file:
-                data = pd.read_csv(csv_file)
-
-            building.sim_results['cooling_demand'] = list(data['Cooling Load [kWh]'])
-            building.sim_results['dhw_demand'] = list(data['DHW Heating [kWh]'])
-            building.sim_results['non_shiftable_load'] = list(data['Equipment Electric Power [kWh]'])
-            building.sim_results['month'] = list(data['Month'])
-            building.sim_results['day'] = list(data['Day Type'])
-            building.sim_results['hour'] = list(data['Hour'])
-            building.sim_results['daylight_savings_status'] = list(data['Daylight Savings Status'])
-            building.sim_results['t_in'] = list(data['Indoor Temperature [C]'])
-            building.sim_results['avg_unmet_setpoint'] = list(data['Average Unmet Cooling Setpoint Difference [C]'])
-            building.sim_results['rh_in'] = list(data['Indoor Relative Humidity [%]'])
-            
-            with open(weather_file) as csv_file:
-                weather_data = pd.read_csv(csv_file)
-                
-            building.sim_results['t_out'] = list(weather_data['Outdoor Drybulb Temperature [C]'])
-            building.sim_results['rh_out'] = list(weather_data['Outdoor Relative Humidity [%]'])
-            building.sim_results['diffuse_solar_rad'] = list(weather_data['Diffuse Solar Radiation [W/m2]'])
-            building.sim_results['direct_solar_rad'] = list(weather_data['Direct Solar Radiation [W/m2]'])
-            
-            # Reading weather forecasts
-            building.sim_results['t_out_pred_6h'] = list(weather_data['6h Prediction Outdoor Drybulb Temperature [C]'])
-            building.sim_results['t_out_pred_12h'] = list(weather_data['12h Prediction Outdoor Drybulb Temperature [C]'])
-            building.sim_results['t_out_pred_24h'] = list(weather_data['24h Prediction Outdoor Drybulb Temperature [C]'])
-            
-            building.sim_results['rh_out_pred_6h'] = list(weather_data['6h Prediction Outdoor Relative Humidity [%]'])
-            building.sim_results['rh_out_pred_12h'] = list(weather_data['12h Prediction Outdoor Relative Humidity [%]'])
-            building.sim_results['rh_out_pred_24h'] = list(weather_data['24h Prediction Outdoor Relative Humidity [%]'])
-            
-            building.sim_results['diffuse_solar_rad_pred_6h'] = list(weather_data['6h Prediction Diffuse Solar Radiation [W/m2]'])
-            building.sim_results['diffuse_solar_rad_pred_12h'] = list(weather_data['12h Prediction Diffuse Solar Radiation [W/m2]'])
-            building.sim_results['diffuse_solar_rad_pred_24h'] = list(weather_data['24h Prediction Diffuse Solar Radiation [W/m2]'])
-            
-            building.sim_results['direct_solar_rad_pred_6h'] = list(weather_data['6h Prediction Direct Solar Radiation [W/m2]'])
-            building.sim_results['direct_solar_rad_pred_12h'] = list(weather_data['12h Prediction Direct Solar Radiation [W/m2]'])
-            building.sim_results['direct_solar_rad_pred_24h'] = list(weather_data['24h Prediction Direct Solar Radiation [W/m2]'])
-            
-            # Reading the building attributes
-            building.building_type = attributes['Building_Type']
-            building.climate_zone = attributes['Climate_Zone']
-            building.solar_power_capacity = attributes['Solar_Power_Installed(kW)']
-
-            with open(solar_profile) as csv_file:
-                data = pd.read_csv(csv_file)
-
-            building.sim_results['solar_gen'] = list(attributes['Solar_Power_Installed(kW)']*data['Hourly Data: AC inverter power (W)']/1000)
-            
-            with open(carbon_intensity) as csv_file:
-                data = pd.read_csv(csv_file)
-
-            building.sim_results['carbon_intensity'] = list(data['kg_CO2/kWh'])
-            
-            # Finding the max and min possible values of all the states, which can then be used by the RL agent to scale the states and train any function approximators more effectively
-            s_low, s_high = [], []
-            for state_name, value in zip(buildings_states_actions[uid]['states'], buildings_states_actions[uid]['states'].values()):
-                if value == True:
-                    if state_name == "net_electricity_consumption":
-                        # lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate. Scaling this state-variable using these bounds may result in normalized values above 1 or below 0.
-                        _net_elec_cons_upper_bound = max(np.array(building.sim_results['non_shiftable_load']) - np.array(building.sim_results['solar_gen']) + np.array(building.sim_results['dhw_demand'])/.8 + np.array(building.sim_results['cooling_demand']) + building.dhw_storage.capacity/.8 + building.cooling_storage.capacity/2)
-                        s_low.append(0.)
-                        s_high.append(_net_elec_cons_upper_bound)
-                        s_low_central_agent.append(0.)
-                        s_high_central_agent.append(_net_elec_cons_upper_bound)
-                        
-                    elif (state_name != 'cooling_storage_soc') and (state_name != 'dhw_storage_soc') and (state_name != 'electrical_storage_soc'):
-                        s_low.append(min(building.sim_results[state_name]))
-                        s_high.append(max(building.sim_results[state_name]))
-                        
-                        # Create boundaries of the observation space of a centralized agent (if a central agent is being used instead of decentralized ones). We include all the weather variables used as states, and use the list appended_states to make sure we don't include any repeated states (i.e. weather variables measured by different buildings)
-                        if state_name in ['t_in', 'avg_unmet_setpoint', 'rh_in', 'non_shiftable_load', 'solar_gen']:
-                            s_low_central_agent.append(min(building.sim_results[state_name]))
-                            s_high_central_agent.append(max(building.sim_results[state_name]))
-                            
-                        elif state_name not in appended_states:
-                            s_low_central_agent.append(min(building.sim_results[state_name]))
-                            s_high_central_agent.append(max(building.sim_results[state_name]))
-                            appended_states.append(state_name)
-                    else:
-                        s_low.append(0.0)
-                        s_high.append(1.0)
-                        s_low_central_agent.append(0.0)
-                        s_high_central_agent.append(1.0)
-            
-            '''The energy storage (tank) capacity indicates how many times bigger the tank is compared to the maximum hourly energy demand of the building (cooling or DHW respectively), which sets a lower bound for the action of 1/tank_capacity, as the energy storage device can't provide the building with more energy than it will ever need for a given hour. The heat pump is sized using approximately the maximum hourly energy demand of the building (after accounting for the COP, see function autosize). Therefore, we make the fair assumption that the action also has an upper bound equal to 1/tank_capacity. This boundaries should speed up the learning process of the agents and make them more stable rather than if we just set them to -1 and 1. I.e. if Chilled_Water_Tank.Capacity is 3 (3 times the max. hourly demand of the building in the entire year), its actions will be bounded between -1/3 and 1/3'''
-            a_low, a_high = [], []    
-            for action_name, value in zip(buildings_states_actions[uid]['actions'], buildings_states_actions[uid]['actions'].values()):
-                if value == True:
-                    if action_name =='cooling_storage':
-                        
-                        # Avoid division by 0
-                        if attributes['Chilled_Water_Tank']['capacity'] > 0.000001:                            
-                            a_low.append(max(-1.0/attributes['Chilled_Water_Tank']['capacity'], -1.0))
-                            a_high.append(min(1.0/attributes['Chilled_Water_Tank']['capacity'], 1.0))
-                            a_low_central_agent.append(max(-1.0/attributes['Chilled_Water_Tank']['capacity'], -1.0))
-                            a_high_central_agent.append(min(1.0/attributes['Chilled_Water_Tank']['capacity'], 1.0))
-                        else:
-                            a_low.append(-1.0)
-                            a_high.append(1.0)
-                            a_low_central_agent.append(-1.0)
-                            a_high_central_agent.append(1.0)
-                    elif action_name =='dhw_storage':
-                        if attributes['DHW_Tank']['capacity'] > 0.000001:
-                            a_low.append(max(-1.0/attributes['DHW_Tank']['capacity'], -1.0))
-                            a_high.append(min(1.0/attributes['DHW_Tank']['capacity'], 1.0))
-                            a_low_central_agent.append(max(-1.0/attributes['DHW_Tank']['capacity'], -1.0))
-                            a_high_central_agent.append(min(1.0/attributes['DHW_Tank']['capacity'], 1.0))
-                        else:
-                            a_low.append(-1.0)
-                            a_high.append(1.0)
-                            a_low_central_agent.append(-1.0)
-                            a_high_central_agent.append(1.0)
-                            
-                    elif action_name =='electrical_storage':
-                        a_low.append(-1.0)
-                        a_high.append(1.0)
-                        a_low_central_agent.append(-1.0)
-                        a_high_central_agent.append(1.0)
-                        
-            building.set_state_space(np.array(s_high), np.array(s_low))
-            building.set_action_space(np.array(a_high), np.array(a_low))
-            
-            observation_spaces.append(building.observation_space)
-            action_spaces.append(building.action_space)
-            
-            buildings[uid] = building
-    
-    observation_space_central_agent = spaces.Box(low=np.float32(np.array(s_low_central_agent)), high=np.float32(np.array(s_high_central_agent)), dtype=np.float32)
-    action_space_central_agent = spaces.Box(low=np.float32(np.array(a_low_central_agent)), high=np.float32(np.array(a_high_central_agent)), dtype=np.float32)
-        
-    for building in buildings.values():
-
-        # If the DHW device is a HeatPump
-        if isinstance(building.dhw_heating_device, HeatPump):
-                
-            # Calculating COPs of the heat pumps for every hour
-            building.dhw_heating_device.cop_heating = building.dhw_heating_device.eta_tech*(building.dhw_heating_device.t_target_heating + 273.15)/(building.dhw_heating_device.t_target_heating - weather_data['Outdoor Drybulb Temperature [C]'])
-            building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating < 0] = 20.0
-            building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating > 20] = 20.0
-            building.dhw_heating_device.cop_heating = building.dhw_heating_device.cop_heating.to_numpy()
-
-        building.cooling_device.cop_cooling = building.cooling_device.eta_tech*(building.cooling_device.t_target_cooling + 273.15)/(weather_data['Outdoor Drybulb Temperature [C]'] - building.cooling_device.t_target_cooling)
-        building.cooling_device.cop_cooling[building.cooling_device.cop_cooling < 0] = 20.0
-        building.cooling_device.cop_cooling[building.cooling_device.cop_cooling > 20] = 20.0
-        building.cooling_device.cop_cooling = building.cooling_device.cop_cooling.to_numpy()
-        
-        building.reset()
-        
-    auto_size(buildings)
-
-    return buildings, observation_spaces, action_spaces, observation_space_central_agent, action_space_central_agent
 
 class CityLearn(gym.Env):  
     def __init__(self, data_path, building_attributes, weather_file, solar_profile, building_ids, carbon_intensity = None, buildings_states_actions = None, simulation_period = (0,8759), cost_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption'], central_agent = False, save_memory = True, verbose = 0):
@@ -291,7 +37,7 @@ class CityLearn(gym.Env):
                          'buildings_states_actions':self.buildings_states_actions,
                          'save_memory':save_memory}
         
-        self.buildings, self.observation_spaces, self.action_spaces, self.observation_space, self.action_space = building_loader(**params_loader)
+        self.buildings, self.observation_spaces, self.action_spaces, self.observation_space, self.action_space = self.building_loader(**params_loader)
         
         self.simulation_period = simulation_period
         self.uid = None
@@ -666,7 +412,7 @@ class CityLearn(gym.Env):
             _, actions_spaces = env_rbc.get_state_action_spaces()
 
             #Instantiatiing the control agent(s)
-            agent_rbc = RBC_Agent(actions_spaces)
+            agent_rbc = BasicRBC(actions_spaces)
 
             state = env_rbc.reset()
             done = False
@@ -803,3 +549,227 @@ class CityLearn(gym.Env):
             return cost, cost_last_yr
             
         return cost
+
+
+    def auto_size(self,buildings):
+        for building in buildings.values():
+            
+            # Autosize guarantees that the DHW device is large enough to always satisfy the maximum DHW demand
+            if building.dhw_heating_device.nominal_power == 'autosize':
+                
+                # If the DHW device is a HeatPump
+                if isinstance(building.dhw_heating_device, HeatPump):
+                    
+                    #We assume that the heat pump is always large enough to meet the highest heating or cooling demand of the building
+                    building.dhw_heating_device.nominal_power = np.array(building.sim_results['dhw_demand']/building.dhw_heating_device.cop_heating).max()
+                    
+                # If the device is an electric heater
+                elif isinstance(building.dhw_heating_device, ElectricHeater):
+                    building.dhw_heating_device.nominal_power = (np.array(building.sim_results['dhw_demand'])/building.dhw_heating_device.efficiency).max()
+            
+            # Autosize guarantees that the cooling device device is large enough to always satisfy the maximum DHW demand
+            if building.cooling_device.nominal_power == 'autosize':
+
+                building.cooling_device.nominal_power = (np.array(building.sim_results['cooling_demand'])/building.cooling_device.cop_cooling).max()
+            
+            # Defining the capacity of the storage devices as a number of times the maximum demand
+            building.dhw_storage.capacity = max(building.sim_results['dhw_demand'])*building.dhw_storage.capacity
+            building.cooling_storage.capacity = max(building.sim_results['cooling_demand'])*building.cooling_storage.capacity
+            
+            # Done in order to avoid dividing by 0 if the capacity is 0
+            if building.dhw_storage.capacity <= 0.00001:
+                building.dhw_storage.capacity = 0.00001
+            if building.cooling_storage.capacity <= 0.00001:
+                building.cooling_storage.capacity = 0.00001
+            if building.electrical_storage.capacity <= 0.00001:
+                building.electrical_storage.capacity = 0.00001
+                   
+    def building_loader(self, data_path, building_attributes, weather_file, solar_profile, carbon_intensity, building_ids, buildings_states_actions, save_memory = True):
+        with open(building_attributes) as json_file:
+            data = json.load(json_file)
+
+        buildings, observation_spaces, action_spaces = {},[],[]
+        s_low_central_agent, s_high_central_agent, appended_states = [], [], []
+        a_low_central_agent, a_high_central_agent, appended_actions = [], [], []
+        for uid, attributes in zip(data, data.values()):
+            if uid in building_ids:
+                
+                battery = Battery(capacity = attributes['Battery']['capacity'],
+                                            capacity_loss_coef = attributes['Battery']['capacity_loss_coefficient'],
+                                            loss_coef = attributes['Battery']['loss_coefficient'],
+                                            efficiency = attributes['Battery']['efficiency'],
+                                            nominal_power = attributes['Battery']['nominal_power'],
+                                            power_efficiency_curve = attributes['Battery']['power_efficiency_curve'],
+                                            capacity_power_curve = attributes['Battery']['capacity_power_curve'],                              
+                                            save_memory = save_memory)        
+                
+                heat_pump = HeatPump(nominal_power = attributes['Heat_Pump']['nominal_power'], 
+                                    eta_tech = attributes['Heat_Pump']['technical_efficiency'], 
+                                    t_target_heating = attributes['Heat_Pump']['t_target_heating'], 
+                                    t_target_cooling = attributes['Heat_Pump']['t_target_cooling'], save_memory = save_memory)
+
+                electric_heater = ElectricHeater(nominal_power = attributes['Electric_Water_Heater']['nominal_power'], 
+                                                efficiency = attributes['Electric_Water_Heater']['efficiency'], save_memory = save_memory)
+
+                chilled_water_tank = EnergyStorage(capacity = attributes['Chilled_Water_Tank']['capacity'],
+                                                loss_coef = attributes['Chilled_Water_Tank']['loss_coefficient'], save_memory = save_memory)
+
+                dhw_tank = EnergyStorage(capacity = attributes['DHW_Tank']['capacity'],
+                                        loss_coef = attributes['DHW_Tank']['loss_coefficient'], save_memory = save_memory)
+
+                building = Building(buildingId = uid, dhw_storage = dhw_tank, cooling_storage = chilled_water_tank, electrical_storage = battery, dhw_heating_device = electric_heater, cooling_device = heat_pump, save_memory = save_memory)
+
+                data_file = str(uid) + '.csv'
+                simulation_data = data_path / data_file
+                with open(simulation_data) as csv_file:
+                    data = pd.read_csv(csv_file)
+
+                building.sim_results['cooling_demand'] = list(data['Cooling Load [kWh]'])
+                building.sim_results['dhw_demand'] = list(data['DHW Heating [kWh]'])
+                building.sim_results['non_shiftable_load'] = list(data['Equipment Electric Power [kWh]'])
+                building.sim_results['month'] = list(data['Month'])
+                building.sim_results['day'] = list(data['Day Type'])
+                building.sim_results['hour'] = list(data['Hour'])
+                building.sim_results['daylight_savings_status'] = list(data['Daylight Savings Status'])
+                building.sim_results['t_in'] = list(data['Indoor Temperature [C]'])
+                building.sim_results['avg_unmet_setpoint'] = list(data['Average Unmet Cooling Setpoint Difference [C]'])
+                building.sim_results['rh_in'] = list(data['Indoor Relative Humidity [%]'])
+                
+                with open(weather_file) as csv_file:
+                    weather_data = pd.read_csv(csv_file)
+                    
+                building.sim_results['t_out'] = list(weather_data['Outdoor Drybulb Temperature [C]'])
+                building.sim_results['rh_out'] = list(weather_data['Outdoor Relative Humidity [%]'])
+                building.sim_results['diffuse_solar_rad'] = list(weather_data['Diffuse Solar Radiation [W/m2]'])
+                building.sim_results['direct_solar_rad'] = list(weather_data['Direct Solar Radiation [W/m2]'])
+                
+                # Reading weather forecasts
+                building.sim_results['t_out_pred_6h'] = list(weather_data['6h Prediction Outdoor Drybulb Temperature [C]'])
+                building.sim_results['t_out_pred_12h'] = list(weather_data['12h Prediction Outdoor Drybulb Temperature [C]'])
+                building.sim_results['t_out_pred_24h'] = list(weather_data['24h Prediction Outdoor Drybulb Temperature [C]'])
+                
+                building.sim_results['rh_out_pred_6h'] = list(weather_data['6h Prediction Outdoor Relative Humidity [%]'])
+                building.sim_results['rh_out_pred_12h'] = list(weather_data['12h Prediction Outdoor Relative Humidity [%]'])
+                building.sim_results['rh_out_pred_24h'] = list(weather_data['24h Prediction Outdoor Relative Humidity [%]'])
+                
+                building.sim_results['diffuse_solar_rad_pred_6h'] = list(weather_data['6h Prediction Diffuse Solar Radiation [W/m2]'])
+                building.sim_results['diffuse_solar_rad_pred_12h'] = list(weather_data['12h Prediction Diffuse Solar Radiation [W/m2]'])
+                building.sim_results['diffuse_solar_rad_pred_24h'] = list(weather_data['24h Prediction Diffuse Solar Radiation [W/m2]'])
+                
+                building.sim_results['direct_solar_rad_pred_6h'] = list(weather_data['6h Prediction Direct Solar Radiation [W/m2]'])
+                building.sim_results['direct_solar_rad_pred_12h'] = list(weather_data['12h Prediction Direct Solar Radiation [W/m2]'])
+                building.sim_results['direct_solar_rad_pred_24h'] = list(weather_data['24h Prediction Direct Solar Radiation [W/m2]'])
+                
+                # Reading the building attributes
+                building.building_type = attributes['Building_Type']
+                building.climate_zone = attributes['Climate_Zone']
+                building.solar_power_capacity = attributes['Solar_Power_Installed(kW)']
+
+                with open(solar_profile) as csv_file:
+                    data = pd.read_csv(csv_file)
+
+                building.sim_results['solar_gen'] = list(attributes['Solar_Power_Installed(kW)']*data['Hourly Data: AC inverter power (W)']/1000)
+                
+                with open(carbon_intensity) as csv_file:
+                    data = pd.read_csv(csv_file)
+
+                building.sim_results['carbon_intensity'] = list(data['kg_CO2/kWh'])
+                
+                # Finding the max and min possible values of all the states, which can then be used by the RL agent to scale the states and train any function approximators more effectively
+                s_low, s_high = [], []
+                for state_name, value in zip(buildings_states_actions[uid]['states'], buildings_states_actions[uid]['states'].values()):
+                    if value == True:
+                        if state_name == "net_electricity_consumption":
+                            # lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate. Scaling this state-variable using these bounds may result in normalized values above 1 or below 0.
+                            _net_elec_cons_upper_bound = max(np.array(building.sim_results['non_shiftable_load']) - np.array(building.sim_results['solar_gen']) + np.array(building.sim_results['dhw_demand'])/.8 + np.array(building.sim_results['cooling_demand']) + building.dhw_storage.capacity/.8 + building.cooling_storage.capacity/2)
+                            s_low.append(0.)
+                            s_high.append(_net_elec_cons_upper_bound)
+                            s_low_central_agent.append(0.)
+                            s_high_central_agent.append(_net_elec_cons_upper_bound)
+                            
+                        elif (state_name != 'cooling_storage_soc') and (state_name != 'dhw_storage_soc') and (state_name != 'electrical_storage_soc'):
+                            s_low.append(min(building.sim_results[state_name]))
+                            s_high.append(max(building.sim_results[state_name]))
+                            
+                            # Create boundaries of the observation space of a centralized agent (if a central agent is being used instead of decentralized ones). We include all the weather variables used as states, and use the list appended_states to make sure we don't include any repeated states (i.e. weather variables measured by different buildings)
+                            if state_name in ['t_in', 'avg_unmet_setpoint', 'rh_in', 'non_shiftable_load', 'solar_gen']:
+                                s_low_central_agent.append(min(building.sim_results[state_name]))
+                                s_high_central_agent.append(max(building.sim_results[state_name]))
+                                
+                            elif state_name not in appended_states:
+                                s_low_central_agent.append(min(building.sim_results[state_name]))
+                                s_high_central_agent.append(max(building.sim_results[state_name]))
+                                appended_states.append(state_name)
+                        else:
+                            s_low.append(0.0)
+                            s_high.append(1.0)
+                            s_low_central_agent.append(0.0)
+                            s_high_central_agent.append(1.0)
+                
+                '''The energy storage (tank) capacity indicates how many times bigger the tank is compared to the maximum hourly energy demand of the building (cooling or DHW respectively), which sets a lower bound for the action of 1/tank_capacity, as the energy storage device can't provide the building with more energy than it will ever need for a given hour. The heat pump is sized using approximately the maximum hourly energy demand of the building (after accounting for the COP, see function autosize). Therefore, we make the fair assumption that the action also has an upper bound equal to 1/tank_capacity. This boundaries should speed up the learning process of the agents and make them more stable rather than if we just set them to -1 and 1. I.e. if Chilled_Water_Tank.Capacity is 3 (3 times the max. hourly demand of the building in the entire year), its actions will be bounded between -1/3 and 1/3'''
+                a_low, a_high = [], []    
+                for action_name, value in zip(buildings_states_actions[uid]['actions'], buildings_states_actions[uid]['actions'].values()):
+                    if value == True:
+                        if action_name =='cooling_storage':
+                            
+                            # Avoid division by 0
+                            if attributes['Chilled_Water_Tank']['capacity'] > 0.000001:                            
+                                a_low.append(max(-1.0/attributes['Chilled_Water_Tank']['capacity'], -1.0))
+                                a_high.append(min(1.0/attributes['Chilled_Water_Tank']['capacity'], 1.0))
+                                a_low_central_agent.append(max(-1.0/attributes['Chilled_Water_Tank']['capacity'], -1.0))
+                                a_high_central_agent.append(min(1.0/attributes['Chilled_Water_Tank']['capacity'], 1.0))
+                            else:
+                                a_low.append(-1.0)
+                                a_high.append(1.0)
+                                a_low_central_agent.append(-1.0)
+                                a_high_central_agent.append(1.0)
+                        elif action_name =='dhw_storage':
+                            if attributes['DHW_Tank']['capacity'] > 0.000001:
+                                a_low.append(max(-1.0/attributes['DHW_Tank']['capacity'], -1.0))
+                                a_high.append(min(1.0/attributes['DHW_Tank']['capacity'], 1.0))
+                                a_low_central_agent.append(max(-1.0/attributes['DHW_Tank']['capacity'], -1.0))
+                                a_high_central_agent.append(min(1.0/attributes['DHW_Tank']['capacity'], 1.0))
+                            else:
+                                a_low.append(-1.0)
+                                a_high.append(1.0)
+                                a_low_central_agent.append(-1.0)
+                                a_high_central_agent.append(1.0)
+                                
+                        elif action_name =='electrical_storage':
+                            a_low.append(-1.0)
+                            a_high.append(1.0)
+                            a_low_central_agent.append(-1.0)
+                            a_high_central_agent.append(1.0)
+                            
+                building.set_state_space(np.array(s_high), np.array(s_low))
+                building.set_action_space(np.array(a_high), np.array(a_low))
+                
+                observation_spaces.append(building.observation_space)
+                action_spaces.append(building.action_space)
+                
+                buildings[uid] = building
+        
+        observation_space_central_agent = spaces.Box(low=np.float32(np.array(s_low_central_agent)), high=np.float32(np.array(s_high_central_agent)), dtype=np.float32)
+        action_space_central_agent = spaces.Box(low=np.float32(np.array(a_low_central_agent)), high=np.float32(np.array(a_high_central_agent)), dtype=np.float32)
+            
+        for building in buildings.values():
+
+            # If the DHW device is a HeatPump
+            if isinstance(building.dhw_heating_device, HeatPump):
+                    
+                # Calculating COPs of the heat pumps for every hour
+                building.dhw_heating_device.cop_heating = building.dhw_heating_device.eta_tech*(building.dhw_heating_device.t_target_heating + 273.15)/(building.dhw_heating_device.t_target_heating - weather_data['Outdoor Drybulb Temperature [C]'])
+                building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating < 0] = 20.0
+                building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating > 20] = 20.0
+                building.dhw_heating_device.cop_heating = building.dhw_heating_device.cop_heating.to_numpy()
+
+            building.cooling_device.cop_cooling = building.cooling_device.eta_tech*(building.cooling_device.t_target_cooling + 273.15)/(weather_data['Outdoor Drybulb Temperature [C]'] - building.cooling_device.t_target_cooling)
+            building.cooling_device.cop_cooling[building.cooling_device.cop_cooling < 0] = 20.0
+            building.cooling_device.cop_cooling[building.cooling_device.cop_cooling > 20] = 20.0
+            building.cooling_device.cop_cooling = building.cooling_device.cop_cooling.to_numpy()
+            
+            building.reset()
+            
+        self.auto_size(buildings)
+
+        return buildings, observation_spaces, action_spaces, observation_space_central_agent, action_space_central_agent

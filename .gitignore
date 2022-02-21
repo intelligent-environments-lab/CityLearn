@@ -17,3 +17,4 @@ tacc_launcher_job_c8
 grid_search_c8.csv
 figures
 *.pkl
+epri.ipynb
