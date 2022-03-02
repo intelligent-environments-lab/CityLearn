@@ -589,7 +589,7 @@ class EnergyStorage:
         #Discharging
         else:
             if self.max_power_output is not None:
-                energy = max(-max_power_output, energy)
+                energy = max(-self.max_power_output, energy)
             self._soc = max(0, soc_init + energy/self.efficiency)  
             
         if self.capacity is not None:
