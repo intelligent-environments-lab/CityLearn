@@ -71,7 +71,7 @@ def auto_size(buildings):
             building.cooling_storage.capacity = 0.00001
         
         
-def building_loader(data_path, building_attributes, weather_file, solar_profile, carbon_intensity, building_ids, buildings_states_actions, save_memory = True):
+def building_loader(data_path, building_attributes, weather_file, carbon_intensity, building_ids, buildings_states_actions, save_memory = True):
     with open(building_attributes) as json_file:
         data = json.load(json_file)
 
@@ -152,10 +152,10 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
             building.climate_zone = attributes['Climate_Zone']
             building.solar_power_capacity = attributes['Solar_Power_Installed(kW)']
 
-            with open(solar_profile) as csv_file:
-                data = pd.read_csv(csv_file)
-
-            building.sim_results['solar_gen'] = list(attributes['Solar_Power_Installed(kW)']*data[f'{uid} Hourly Data: AC inverter power (W)']/1000)
+            # solar profile
+            solar_profile = data_path/attributes['File_Name_Solar_Profile']
+            data = pd.read_csv(solar_profile)
+            building.sim_results['solar_gen'] = list(attributes['Solar_Power_Installed(kW)']*data[f'Hourly Data: AC inverter power (W)']/1000)
             
             with open(carbon_intensity) as csv_file:
                 data = pd.read_csv(csv_file)
@@ -262,7 +262,7 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
     return buildings, observation_spaces, action_spaces, observation_space_central_agent, action_space_central_agent
 
 class CityLearn(gym.Env):  
-    def __init__(self, data_path, building_attributes, weather_file, solar_profile, building_ids, carbon_intensity = None, buildings_states_actions = None, simulation_period = (0,8759), cost_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption'], central_agent = False, save_memory = True, verbose = 0):
+    def __init__(self, data_path, building_attributes, weather_file, building_ids, carbon_intensity = None, buildings_states_actions = None, simulation_period = (0,8759), cost_function = ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption'], central_agent = False, save_memory = True, verbose = 0):
         with open(buildings_states_actions) as json_file:
             self.buildings_states_actions = json.load(json_file)
         
@@ -270,7 +270,6 @@ class CityLearn(gym.Env):
         self.buildings_states_actions_filename = buildings_states_actions
         self.buildings_net_electricity_demand = []
         self.building_attributes = building_attributes
-        self.solar_profile = solar_profile
         self.carbon_intensity = carbon_intensity
         self.building_ids = building_ids
         self.cost_function = cost_function
@@ -283,7 +282,6 @@ class CityLearn(gym.Env):
         params_loader = {'data_path':data_path,
                          'building_attributes':self.data_path / self.building_attributes,
                          'weather_file':self.data_path / self.weather_file,
-                         'solar_profile':self.data_path / self.solar_profile,
                          'carbon_intensity':self.data_path / self.carbon_intensity,
                          'building_ids':building_ids,
                          'buildings_states_actions':self.buildings_states_actions,
@@ -661,7 +659,7 @@ class CityLearn(gym.Env):
         
         # Running the reference rule-based controller to find the baseline cost
         if self.cost_rbc is None:
-            env_rbc = CityLearn(self.data_path, self.building_attributes, self.weather_file, self.solar_profile, self.building_ids, carbon_intensity = self.carbon_intensity, buildings_states_actions = self.buildings_states_actions_filename, simulation_period = self.simulation_period, cost_function = self.cost_function, central_agent = False)
+            env_rbc = CityLearn(self.data_path, self.building_attributes, self.weather_file, self.building_ids, carbon_intensity = self.carbon_intensity, buildings_states_actions = self.buildings_states_actions_filename, simulation_period = self.simulation_period, cost_function = self.cost_function, central_agent = False)
             _, actions_spaces = env_rbc.get_state_action_spaces()
 
             #Instantiatiing the control agent(s)
