@@ -155,7 +155,7 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
             with open(solar_profile) as csv_file:
                 data = pd.read_csv(csv_file)
 
-            building.sim_results['solar_gen'] = list(attributes['Solar_Power_Installed(kW)']*data['Hourly Data: AC inverter power (W)']/1000)
+            building.sim_results['solar_gen'] = list(attributes['Solar_Power_Installed(kW)']*data[f'{uid} Hourly Data: AC inverter power (W)']/1000)
             
             with open(carbon_intensity) as csv_file:
                 data = pd.read_csv(csv_file)
