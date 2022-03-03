@@ -19,11 +19,11 @@ class Building:
         self.solar_power_capacity = None
         
         self.buildingId = buildingId
-        self.dhw_storage = dhw_storage
-        self.cooling_storage = cooling_storage
-        self.electrical_storage = electrical_storage
-        self.dhw_heating_device = dhw_heating_device
-        self.cooling_device = cooling_device
+        self.dhw_storage = EnergyStorage(0.0) if dhw_storage is None else dhw_storage
+        self.cooling_storage = EnergyStorage(0.0) if cooling_storage is None else cooling_storage
+        self.electrical_storage = Battery(0.0,0.0) if electrical_storage is None else electrical_storage
+        self.dhw_heating_device = ElectricHeater(0.0) if dhw_heating_device is None else dhw_heating_device
+        self.cooling_device = HeatPump(0.0) if cooling_device is None else cooling_device
         self.observation_space = None
         self.action_space = None
         self.time_step = 0
@@ -314,7 +314,7 @@ class Building:
         
 
 class HeatPump:
-    def __init__(self, nominal_power = None, eta_tech = None, t_target_heating = None, t_target_cooling = None, save_memory = True):
+    def __init__(self, nominal_power, eta_tech = 0.2, t_target_heating = 45, t_target_cooling = 8, save_memory = True):
         """
         Args:
             nominal_power (float): Maximum amount of electric power that the heat pump can consume from the power grid (given by the nominal power of the compressor)
@@ -463,7 +463,7 @@ class HeatPump:
             self.cooling_supply = np.array(self.cooling_supply)
 
 class ElectricHeater:
-    def __init__(self, nominal_power = None, efficiency = None, save_memory = True):
+    def __init__(self, nominal_power, efficiency = 0.9, save_memory = True):
         """
         Args:
             nominal_power (float): Maximum amount of electric power that the electric heater can consume from the power grid
@@ -540,7 +540,7 @@ class ElectricHeater:
         self.heat_supply = []
     
 class EnergyStorage:
-    def __init__(self, capacity = None, max_power_output = None, max_power_charging = None, efficiency = 1, loss_coef = 0, save_memory = True):
+    def __init__(self, capacity, max_power_output = None, max_power_charging = None, efficiency = 1, loss_coef = 0, save_memory = True):
         """
         Generic energy storage class. It can be used as a chilled water storage tank or a DHW storage tank
         Args:
@@ -620,7 +620,7 @@ class EnergyStorage:
         
 
 class Battery:
-    def __init__(self, capacity, nominal_power = None, capacity_loss_coef = None, power_efficiency_curve = None, capacity_power_curve = None, efficiency = None, loss_coef = 0, save_memory = True):
+    def __init__(self, capacity, nominal_power, capacity_loss_coef = 1e-5, power_efficiency_curve = None, capacity_power_curve = None, efficiency = 0.9, loss_coef = 0, save_memory = True):
         """
         Generic energy storage class. It can be used as a chilled water storage tank or a DHW storage tank
         Args:
