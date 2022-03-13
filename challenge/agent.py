@@ -1,7 +1,7 @@
 import random
 from citylearn.citylearn import District
 from citylearn.controller.rlc import RLC
-from typing import List
+from typing import List, Mapping, Tuple
 
 class Agent(RLC):
     def __init__(self, index: int, actions_dimension: int, district: District, **kwargs):
@@ -28,19 +28,21 @@ class Agent(RLC):
     def district(self) -> District:
         return self.__district
 
-    def select_actions(self, states: List[float]) -> List[float]:
+    def select_actions(self, states: List[float]) -> Tuple[List[float], Mapping]:
         '''Action selection algorithm'''
        
         # ************* BEGIN EDIT *************
         # Write action selection algorithm. The placeholder algorithm below selects random values betwenn -1 and 1.
+        # Include in kwargs any keyword arguments that will be used in add_to_buffer function.
         actions = [random.uniform(-1,1) for _ in range(self.actions_dimension)]
+        kwargs = {}
         # ***************** END ****************
         
-        self.actions = actions
+        self.actions = list(actions)
         self.next_time_step()
-        return self.actions[-2]
+        return self.actions[-2], kwargs
 
-    def add_to_buffer(self, states: List[float], actions: List[float], reward: float, next_states: List[float], done: bool):
+    def add_to_buffer(self, states: List[float], actions: List[float], reward: float, next_states: List[float], done: bool, **kwargs):
         self.reward = reward
 
         # ************* BEGIN EDIT *************
