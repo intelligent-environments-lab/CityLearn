@@ -736,7 +736,7 @@ class District(Environment, Env):
             actions = actions[0]
             
             for building in self.buildings:
-                size = building.action_space.shape[0]
+                size = building.action_spaces.shape[0]
                 building_actions.append(actions[0:size])
                 actions = actions[size:]
 
