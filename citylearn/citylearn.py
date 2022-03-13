@@ -564,14 +564,8 @@ class District(Environment, Env):
     @property
     def action_spaces(self) -> List[spaces.Box]:
         if self.central_agent:
-            low_limit = [
-                v for i, b in enumerate(self.buildings) for v, s in zip(b.action_spaces.low, b.active_states) 
-                if i == 0 or s not in self.shared_states
-            ]
-            high_limit = [
-                v for i, b in enumerate(self.buildings) for v, s in zip(b.action_spaces.high, b.active_states) 
-                if i == 0 or s not in self.shared_states
-            ]
+            low_limit = [v for b in self.buildings for v in b.action_spaces.low]
+            high_limit = [v for b in self.buildings for v in b.action_spaces.high]
             action_spaces = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
         else:
             action_spaces = [b.action_spaces for b in self.buildings]
