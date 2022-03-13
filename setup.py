@@ -10,7 +10,7 @@ with open('requirements.txt', 'r') as fh:
 
 setuptools.setup(
     name='CityLearn',
-    version=None,
+    version='0.0.1',
     author='Jose Ramon Vazquez-Canteli, Kingsley Nweye',
     author_email='nweye@utexas.edu',
     description='An open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities.',
