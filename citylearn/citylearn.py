@@ -89,8 +89,7 @@ class Building(Environment):
         return self.__name
 
     @property
-    def observation_encoders(self) -> List[Mapping[str, Any]]:
-        active_states = [k for k, v in self.state_metadata.items() if v]
+    def observation_encoders(self) -> List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]:
         remove_features = ['net_electricity_consumption']
         remove_features += [
             'solar_generation', 'diffuse_solar_radiation', 'diffuse_solar_radiation_predicted_6h',
@@ -111,11 +110,10 @@ class Building(Environment):
             'non_shiftable_load': np.nansum(self.energy_simulation.non_shiftable_load),
         }
         remove_features += [k for k, v in demand_states.items() if v == 0]
-        remove_features = [f for f in remove_features if f in active_states]
-        
+        remove_features = [f for f in remove_features if f in self.active_states]
         encoders = []
 
-        for i, state in enumerate(active_states):
+        for i, state in enumerate(self.active_states):
             if state in ['month', 'hour']:
                 encoders.append(PeriodicNormalization(self.observation_spaces.high[i]))
             
@@ -145,32 +143,28 @@ class Building(Environment):
             **vars(self.carbon_intensity),
         }
 
-        for key, value in self.state_metadata.items():
-            if value:
-                if key == 'net_electricity_consumption':
-                    # lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate. 
-                    # Scaling this state-variable using these bounds may result in normalized values above 1 or below 0.
-                    low_limit.append(0.0)
-                    net_electric_consumption = self.energy_simulation.non_shiftable_load\
-                        + (self.energy_simulation.dhw_demand/0.8)\
-                            + self.energy_simulation.cooling_demand\
-                                + self.energy_simulation.heating_demand\
-                                    + (self.dhw_storage.capacity/0.8)\
-                                        + (self.cooling_storage.capacity/2.0)\
-                                            + (self.heating_storage.capacity/2.0)\
-                                                - data['solar_generation']
-                    high_limit.append(max(net_electric_consumption))
+        for key in self.active_states:
+            if key == 'net_electricity_consumption':
+                # lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate. 
+                # Scaling this state-variable using these bounds may result in normalized values above 1 or below 0.
+                low_limit.append(0.0)
+                net_electric_consumption = self.energy_simulation.non_shiftable_load\
+                    + (self.energy_simulation.dhw_demand/0.8)\
+                        + self.energy_simulation.cooling_demand\
+                            + self.energy_simulation.heating_demand\
+                                + (self.dhw_storage.capacity/0.8)\
+                                    + (self.cooling_storage.capacity/2.0)\
+                                        + (self.heating_storage.capacity/2.0)\
+                                            - data['solar_generation']
+                high_limit.append(max(net_electric_consumption))
 
-                elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc']:
-                    low_limit.append(0.0)
-                    high_limit.append(1.0)
+            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc']:
+                low_limit.append(0.0)
+                high_limit.append(1.0)
 
-                else:
-                    low_limit.append(min(data[key]))
-                    high_limit.append(max(data[key]))
-            
             else:
-                continue
+                low_limit.append(min(data[key]))
+                high_limit.append(max(data[key]))
 
         return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
     
@@ -179,25 +173,21 @@ class Building(Environment):
         
         low_limit, high_limit = [], []
  
-        for key, value in self.action_metadata.items():
-            if value:
-                if key == 'electrical_storage':
+        for key in self.active_actions:
+            if key == 'electrical_storage':
+                low_limit.append(-1.0)
+                high_limit.append(1.0)
+            
+            else:
+                '''The energy storage (tank) capacity indicates how many times bigger the tank is compared to the maximum hourly energy demand of the building (cooling or DHW respectively), which sets a lower bound for the action of 1/tank_capacity, as the energy storage device can't provide the building with more energy than it will ever need for a given hour. The heat pump is sized using approximately the maximum hourly energy demand of the building (after accounting for the COP, see function autosize). Therefore, we make the fair assumption that the action also has an upper bound equal to 1/tank_capacity. This boundaries should speed up the learning process of the agents and make them more stable rather than if we just set them to -1 and 1. I.e. if Chilled_Water_Tank.Capacity is 3 (3 times the max. hourly demand of the building in the entire year), its actions will be bounded between -1/3 and 1/3'''
+                capacity = vars(self)[f'_{self.__class__.__name__}__{key}'].capacity
+
+                try:
+                    low_limit.append(max([-1.0/capacity, -1.0]))
+                    high_limit.append(min([1.0/capacity, 1.0]))
+                except ZeroDivisionError:
                     low_limit.append(-1.0)
                     high_limit.append(1.0)
-                
-                else:
-                    '''The energy storage (tank) capacity indicates how many times bigger the tank is compared to the maximum hourly energy demand of the building (cooling or DHW respectively), which sets a lower bound for the action of 1/tank_capacity, as the energy storage device can't provide the building with more energy than it will ever need for a given hour. The heat pump is sized using approximately the maximum hourly energy demand of the building (after accounting for the COP, see function autosize). Therefore, we make the fair assumption that the action also has an upper bound equal to 1/tank_capacity. This boundaries should speed up the learning process of the agents and make them more stable rather than if we just set them to -1 and 1. I.e. if Chilled_Water_Tank.Capacity is 3 (3 times the max. hourly demand of the building in the entire year), its actions will be bounded between -1/3 and 1/3'''
-                    capacity = vars(self)[f'_{self.__class__.__name__}__{key}'].capacity
-
-                    try:
-                        low_limit.append(max([-1.0/capacity, -1.0]))
-                        high_limit.append(min([1.0/capacity, 1.0]))
-                    except ZeroDivisionError:
-                        low_limit.append(-1.0)
-                        high_limit.append(1.0)
-
-            else:
-                continue
                     
         return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
 
@@ -217,10 +207,18 @@ class Building(Environment):
             'net_electricity_consumption': self.net_electricity_consumption[-1] if self.time_step > 0 else 0.0,
             **{k: v[self.time_step] for k, v in vars(self.carbon_intensity).items()},
         }
-        states = {k: data[k] for k, v in self.state_metadata.items() if v and k in data.keys()}
-        unknown_states = list(set([k for k, v in self.state_metadata.items() if v]).difference(states.keys()))
+        states = {k: data[k] for k in self.active_states if k in data.keys()}
+        unknown_states = list(set([k for k in self.active_states]).difference(states.keys()))
         assert len(unknown_states) == 0, f'Unkown states: {unknown_states}'
         return states
+
+    @property
+    def active_states(self) -> List[str]:
+        return [k for k, v in self.state_metadata.items() if v]
+
+    @property
+    def active_actions(self) -> List[str]:
+        return [k for k, v in self.action_metadata.items() if v]
 
     @property
     def net_electricity_consumption_without_storage_and_pv(self) -> List[float]:
@@ -537,12 +535,54 @@ class District(Environment, Env):
         return self.time_step == self.time_steps - 1
 
     @property
+    def observation_encoders(self) -> Union[
+        List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]], 
+        List[List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]]
+    ]:
+        return [
+            k for i, b in enumerate(self.buildings) for k, s in zip(b.observation_encoders, b.active_states) 
+            if i == 0 or s not in self.shared_states
+        ] if self.central_agent else [b.observation_encoders for b in self.buildings]
+
+    @property
     def observation_spaces(self) -> List[spaces.Box]:
-        return [b.observation_spaces for b in self.buildings]
+        if self.central_agent:
+            low_limit = [
+                v for i, b in enumerate(self.buildings) for v, s in zip(b.observation_spaces.low, b.active_states) 
+                if i == 0 or s not in self.shared_states
+            ]
+            high_limit = [
+                v for i, b in enumerate(self.buildings) for v, s in zip(b.observation_spaces.high, b.active_states) 
+                if i == 0 or s not in self.shared_states
+            ]
+            observation_spaces = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
+        else:
+            observation_spaces = [b.observation_spaces for b in self.buildings]
+        
+        return observation_spaces
 
     @property
     def action_spaces(self) -> List[spaces.Box]:
-        return [b.action_spaces for b in self.buildings]
+        if self.central_agent:
+            low_limit = [
+                v for i, b in enumerate(self.buildings) for v, s in zip(b.action_spaces.low, b.active_states) 
+                if i == 0 or s not in self.shared_states
+            ]
+            high_limit = [
+                v for i, b in enumerate(self.buildings) for v, s in zip(b.action_spaces.high, b.active_states) 
+                if i == 0 or s not in self.shared_states
+            ]
+            action_spaces = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
+        else:
+            action_spaces = [b.action_spaces for b in self.buildings]
+        
+        return action_spaces
+
+    @property
+    def states(self) -> List[List[float]]:
+        return [[
+            v for i, b in enumerate(self.buildings) for k, v in b.states.items() if i == 0 or k not in self.shared_states
+        ]] if self.central_agent else [list(b.states.values()) for b in self.buildings]
 
     @property
     def default_shared_states(self) -> List[str]:
@@ -558,15 +598,6 @@ class District(Environment, Env):
             'direct_solar_radiation_predicted_12h', 'direct_solar_radiation_predicted_24h',
             'carbon_intensity',
         ]
-
-    @property
-    def states(self) -> Union[List[float], List[List[float]]]:
-        states = list(self.buildings[0].states.values()) + [
-            v for b in self.buildings[1:] for k, v in b.states if k not in self.shared_states
-        ] if self.central_agent else [
-            list(b.states.values()) for b in self.buildings
-        ]
-        return states
 
     @property
     def net_electricity_consumption_without_storage_and_pv(self) -> List[float]:
@@ -689,7 +720,7 @@ class District(Environment, Env):
     def shared_states(self, shared_states: List[str]):
         self.__shared_states = [] if shared_states is None else shared_states
 
-    def step(self, actions: Union[List[float] ,List[List[float]]]):
+    def step(self, actions: List[List[float]]):
         actions = self.__parse_actions(actions)
 
         for building, building_actions in zip(self.buildings, actions):
@@ -697,11 +728,13 @@ class District(Environment, Env):
 
         self.next_time_step()
 
-    def __parse_actions(self, actions: Union[List[float] ,List[List[float]]]) -> List[Mapping[str, float]]:
+    def __parse_actions(self, actions: List[List[float]]) -> List[Mapping[str, float]]:
         actions = list(actions)
         building_actions = []
 
         if self.central_agent:
+            actions = actions[0]
+            
             for building in self.buildings:
                 size = building.action_space.shape[0]
                 building_actions.append(actions[0:size])
