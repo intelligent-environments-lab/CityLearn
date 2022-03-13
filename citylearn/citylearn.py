@@ -249,7 +249,7 @@ class Building(Environment):
     @property
     def cooling_electricity_consumption(self) -> List[float]:
         demand = np.sum([self.cooling_demand, self.cooling_storage.energy_balance], axis = 0)
-        consumption = self.cooling_device.get_input_power(demand, self.weather.outdoor_drybulb_temperature[:self.time_step], False)
+        consumption = self.cooling_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step], False)
         return list(consumption)
 
     @property
@@ -257,7 +257,7 @@ class Building(Environment):
         demand = np.sum([self.heating_demand, self.heating_storage.energy_balance], axis = 0)
 
         if isinstance(self.heating_device, HeatPump):
-            consumption = self.heating_device.get_input_power(demand, self.weather.outdoor_drybulb_temperature[:self.time_step], True)
+            consumption = self.heating_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step], True)
         else:
             consumption = self.dhw_device.get_input_power(demand)
 
@@ -268,7 +268,7 @@ class Building(Environment):
         demand = np.sum([self.dhw_demand, self.dhw_storage.energy_balance], axis = 0)
 
         if isinstance(self.dhw_device, HeatPump):
-            consumption = self.dhw_device.get_input_power(demand, self.weather.outdoor_drybulb_temperature[:self.time_step], True)
+            consumption = self.dhw_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step], True)
         else:
             consumption = self.dhw_device.get_input_power(demand)
 
@@ -276,13 +276,13 @@ class Building(Environment):
 
     @property
     def cooling_storage_electricity_consumption(self) -> List[float]:
-        consumption = self.cooling_device.get_input_power(self.cooling_storage.energy_balance, self.weather.outdoor_drybulb_temperature[:self.time_step], False)
+        consumption = self.cooling_device.get_input_power(self.cooling_storage.energy_balance, self.weather.outdoor_dry_bulb_temperature[:self.time_step], False)
         return list(consumption)
 
     @property
     def heating_storage_electricity_consumption(self) -> List[float]:
         if isinstance(self.heating_device, HeatPump):
-            consumption = self.heating_device.get_input_power(self.heating_storage.energy_balance, self.weather.outdoor_drybulb_temperature[:self.time_step], True)
+            consumption = self.heating_device.get_input_power(self.heating_storage.energy_balance, self.weather.outdoor_dry_bulb_temperature[:self.time_step], True)
         else:
             consumption = self.heating_device.get_input_power(self.heating_storage.energy_balance)
 
@@ -291,7 +291,7 @@ class Building(Environment):
     @property
     def dhw_storage_electricity_consumption(self) -> List[float]:
         if isinstance(self.dhw_device, HeatPump):
-            consumption = self.dhw_device.get_input_power(self.dhw_storage.energy_balance, self.weather.outdoor_drybulb_temperature[:self.time_step], True)
+            consumption = self.dhw_device.get_input_power(self.dhw_storage.energy_balance, self.weather.outdoor_dry_bulb_temperature[:self.time_step], True)
         else:
             consumption = self.dhw_device.get_input_power(self.dhw_storage.energy_balance)
 
@@ -434,7 +434,7 @@ class Building(Environment):
         energy = action*self.cooling_storage.capacity
         space_demand = self.energy_simulation.cooling_demand[self.time_step]
         space_demand = 0 if space_demand is None else space_demand # case where space demand is unknown
-        max_output = self.cooling_device.get_max_output_power(self.weather.outdoor_drybulb_temperature[self.time_step], False)
+        max_output = self.cooling_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], False)
         energy = max(-space_demand, min(max_output - space_demand, energy))
         self.cooling_storage.charge(energy)
 
@@ -442,7 +442,7 @@ class Building(Environment):
         energy = action*self.heating_storage.capacity
         space_demand = self.energy_simulation.heating_demand[self.time_step]
         space_demand = 0 if space_demand is None else space_demand # case where space demand is unknown
-        max_output = self.heating_device.get_max_output_power(self.weather.outdoor_drybulb_temperature[self.time_step], False)\
+        max_output = self.heating_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], False)\
             if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power()
         energy = max(-space_demand, min(max_output - space_demand, energy))
         self.heating_storage.charge(energy)
@@ -451,7 +451,7 @@ class Building(Environment):
         energy = action*self.dhw_storage.capacity
         space_demand = self.energy_simulation.dhw_demand[self.time_step]
         space_demand = 0 if space_demand is None else space_demand # case where space demand is unknown
-        max_output = self.dhw_device.get_max_output_power(self.weather.outdoor_drybulb_temperature[self.time_step], False)\
+        max_output = self.dhw_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], False)\
             if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_max_output_power()
         energy = max(-space_demand, min(max_output - space_demand, energy))
         self.dhw_storage.charge(energy)
@@ -461,14 +461,14 @@ class Building(Environment):
         self.electrical_storage.charge(energy)
 
     def autosize_cooling_device(self):
-        self.cooling_device.autosize(self.weather.outdoor_drybulb_temperature, cooling_demand = self.energy_simulation.cooling_demand)
+        self.cooling_device.autosize(self.weather.outdoor_dry_bulb_temperature, cooling_demand = self.energy_simulation.cooling_demand)
 
     def autosize_heating_device(self):
-        self.heating_device.autosize(self.weather.outdoor_drybulb_temperature, heating_demand = self.energy_simulation.heating_demand)\
+        self.heating_device.autosize(self.weather.outdoor_dry_bulb_temperature, heating_demand = self.energy_simulation.heating_demand)\
             if isinstance(self.heating_device, HeatPump) else self.heating_device.autosize(self.energy_simulation.heating_demand)
 
     def autosize_dhw_device(self):
-        self.dhw_device.autosize(self.weather.outdoor_drybulb_temperature, heating_demand = self.energy_simulation.dhw_demand)\
+        self.dhw_device.autosize(self.weather.outdoor_dry_bulb_temperature, heating_demand = self.energy_simulation.dhw_demand)\
             if isinstance(self.dhw_device, HeatPump) else self.dhw_device.autosize(self.energy_simulation.dhw_demand)
 
     def autosize_cooling_storage(self, **kwargs):
@@ -508,7 +508,7 @@ class Building(Environment):
         self.dhw_device.reset()
         self.pv.reset()
 
-class City(Environment, Env):
+class District(Environment, Env):
     def __init__(self,buildings: List[Building], time_steps: int, central_agent: bool = False, shared_states: List[str] = None):
         self.buildings = buildings
         self.time_steps = time_steps
@@ -548,8 +548,8 @@ class City(Environment, Env):
     def default_shared_states(self) -> List[str]:
         return [
             'month', 'day_type', 'hour', 'daylight_savings_status',
-            'outdoor_drybulb_temperature', 'outdoor_drybulb_temperature_predicted_6h',
-            'outdoor_drybulb_temperature_predicted_12h', 'outdoor_drybulb_temperature_predicted_24h',
+            'outdoor_dry_bulb_temperature', 'outdoor_dry_bulb_temperature_predicted_6h',
+            'outdoor_dry_bulb_temperature_predicted_12h', 'outdoor_dry_bulb_temperature_predicted_24h',
             'outdoor_relative_humidity', 'outdoor_relative_humidity_predicted_6h',
             'outdoor_relative_humidity_predicted_12h', 'outdoor_relative_humidity_predicted_24h',
             'diffuse_solar_radiation', 'diffuse_solar_radiation_predicted_6h',
@@ -804,5 +804,5 @@ class City(Environment, Env):
             else:
                 continue
 
-        city = City(list(buildings), timesteps, central_agent = central_agent, shared_states = shared_states)
-        return city
+        district = District(list(buildings), timesteps, central_agent = central_agent, shared_states = shared_states)
+        return district
