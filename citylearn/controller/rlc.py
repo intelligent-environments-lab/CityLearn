@@ -6,41 +6,22 @@ import torch.nn as nn
 import torch.optim as optim
 from citylearn.controller.base import Controller
 from citylearn.controller.rbc import RBC, BasicRBC, OptimizedRBC
-from citylearn.preprocessing import Encoder, NoNormalization
+from citylearn.preprocessing import Encoder
 from citylearn.rl import PolicyNetwork, ReplayBuffer, SoftQNetwork
 
 class RLC(Controller):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-    
-    @property
-    def reward(self) -> List[float]:
-        return self.__reward
-
-    @reward.setter
-    def reward(self, reward: float):
-        self.__reward[self.time_step] = reward
-
-    def next_time_step(self):
-        super().next_time_step()
-        self.__reward.append(np.nan)
-
-    def reset(self):
-        super().reset()
-        self.__reward = [np.nan]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 class SAC(RLC):
     def __init__(
-        self, action_spaces: spaces.Box, observation_spaces: spaces.Box, encoders: List[Encoder] = None, hidden_dimension: List[float] = [256, 256], discount: float = 0.99, tau: float = 5e-3, lr: float = 3e-4, batch_size: int = 256,
+        self, *args, hidden_dimension: List[float] = [256, 256], discount: float = 0.99, tau: float = 5e-3, lr: float = 3e-4, batch_size: int = 256,
         replay_buffer_capacity: int = 1e5, start_training_time_step: int = 6000, end_exploration_time_step: int = 7000, 
-        deterministic_start_time_step = 7500, action_scaling_coef: float = 0.5, reward_scaling: float = 5.0, 
+        deterministic_start_time_step: int = 7500, action_scaling_coef: float = 0.5, reward_scaling: float = 5.0, 
         update_per_time_step: int = 2, seed: int = 0, **kwargs
     ):
         # user defined
-        super().__init__(**kwargs)
-        self.action_spaces = action_spaces
-        self.observation_spaces = observation_spaces
-        self.encoders = encoders
+        super().__init__(*args, **kwargs)
         self.hidden_dimension = hidden_dimension
         self.discount = discount
         self.tau = tau
@@ -56,6 +37,9 @@ class SAC(RLC):
         self.seed = seed
         
         # internally defined
+        self.__action_spaces = self.district.action_spaces[self.index]
+        self.__observation_spaces = self.district.observation_spaces[self.index]
+        self.__encoders = self.district.observation_encoders[self.index]
         self.__normalized = False
         self.__alpha = 0.2
         self.__soft_q_criterion = nn.SmoothL1Loss()
@@ -141,10 +125,6 @@ class SAC(RLC):
         return self.__seed
 
     @property
-    def action_dimension(self) -> int:
-        return self.action_spaces.shape[0]
-
-    @property
     def observation_dimension(self) -> int:
         return len([j for j in np.hstack(self.encoders*np.ones(len(self.observation_spaces.low))) if j != None])
 
@@ -220,21 +200,6 @@ class SAC(RLC):
     def target_entropy(self) -> float:
         return self.__target_entropy
 
-    @action_spaces.setter
-    def action_spaces(self, action_spaces: spaces.Box):
-        self.__action_spaces = action_spaces
-
-    @observation_spaces.setter
-    def observation_spaces(self, observation_spaces: spaces.Box):
-        self.__observation_spaces = observation_spaces
-
-    @encoders.setter
-    def encoders(self, encoders: List[Encoder]):
-        if encoders is None:
-            self.__encoders = [NoNormalization for _ in self.observation_spaces.shape[0]]
-        else:
-            self.__encoders = encoders
-
     @hidden_dimension.setter
     def hidden_dimension(self,  hidden_dimension: List[float]):
         self.__hidden_dimension = hidden_dimension
@@ -291,8 +256,7 @@ class SAC(RLC):
 
     def add_to_buffer(self, states: List[float], actions: List[float], reward: float, next_states: List[float], done: bool = False):
         # Run once the regression model has been fitted
-        # Normalize all the states using periodical normalization, one-hot encoding, or -1, 1 scaling. It also removes states that are not necessary (solar radiation if there are no solar PV panels).
-        self.reward = reward
+        # Normalize all the states using periodical normalization, one-hot encoding, or -1, 1 scaling. It also removes states that are not necessary (solar irradiance if there are no solar PV panels).
         states = np.array(self.__get_encoded_states(states), dtype = float)
         next_states = np.array(self.__get_encoded_states(next_states), dtype = float)
 
@@ -432,8 +396,8 @@ class SAC(RLC):
         self.__target_entropy = -np.prod(self.action_dimension).item()
 
 class SAC_RBC(SAC):
-    def __init__(self, action_spaces: spaces.Box, observation_spaces: spaces.Box, rbc: RBC, **kwargs):
-        super().__init__(action_spaces, observation_spaces, **kwargs)
+    def __init__(self, *args, rbc: RBC, **kwargs):
+        super().__init__(*args, **kwargs)
         self.rbc = rbc
 
     @property
@@ -448,11 +412,11 @@ class SAC_RBC(SAC):
         return self.rbc.select_actions(**kwargs)
 
 class SAC_BasicRBC(SAC_RBC):
-     def __init__(self, action_spaces: spaces.Box, observation_spaces: spaces.Box, **kwargs):
-        super().__init__(action_spaces, observation_spaces, **kwargs)
-        self.rbc = BasicRBC(action_dimesion = self.action_dimension)
+     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.rbc = BasicRBC(action_dimension = self.action_dimension)
 
 class SAC_OptimizedRBC(SAC_RBC):
-     def __init__(self, action_spaces: spaces.Box, observation_spaces: spaces.Box, **kwargs):
-        super().__init__(action_spaces, observation_spaces, **kwargs)
-        self.rbc = OptimizedRBC(action_dimesion = self.action_dimension)
+     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.rbc = OptimizedRBC(action_dimension = self.action_dimension)

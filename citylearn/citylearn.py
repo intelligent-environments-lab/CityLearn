@@ -1,3 +1,4 @@
+import importlib
 import os
 from pathlib import Path
 from typing import Any, List, Mapping, Union
@@ -92,10 +93,10 @@ class Building(Environment):
     def observation_encoders(self) -> List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]:
         remove_features = ['net_electricity_consumption']
         remove_features += [
-            'solar_generation', 'diffuse_solar_radiation', 'diffuse_solar_radiation_predicted_6h',
-            'diffuse_solar_radiation_predicted_12h', 'diffuse_solar_radiation_predicted_24h',
-            'direct_solar_radiation', 'direct_solar_radiation_predicted_6h',
-            'direct_solar_radiation_predicted_12h', 'direct_solar_radiation_predicted_24h',
+            'solar_generation', 'diffuse_solar_irradiance', 'diffuse_solar_irradiance_predicted_6h',
+            'diffuse_solar_irradiance_predicted_12h', 'diffuse_solar_irradiance_predicted_24h',
+            'direct_solar_irradiance', 'direct_solar_irradiance_predicted_6h',
+            'direct_solar_irradiance_predicted_12h', 'direct_solar_irradiance_predicted_24h',
         ] if self.pv.capacity == 0 else []
         demand_states = {
             'dhw_storage_soc': np.nansum(self.energy_simulation.dhw_demand),
@@ -586,10 +587,10 @@ class District(Environment, Env):
             'outdoor_dry_bulb_temperature_predicted_12h', 'outdoor_dry_bulb_temperature_predicted_24h',
             'outdoor_relative_humidity', 'outdoor_relative_humidity_predicted_6h',
             'outdoor_relative_humidity_predicted_12h', 'outdoor_relative_humidity_predicted_24h',
-            'diffuse_solar_radiation', 'diffuse_solar_radiation_predicted_6h',
-            'diffuse_solar_radiation_predicted_12h', 'diffuse_solar_radiation_predicted_24h',
-            'direct_solar_radiation', 'direct_solar_radiation_predicted_6h',
-            'direct_solar_radiation_predicted_12h', 'direct_solar_radiation_predicted_24h',
+            'diffuse_solar_irradiance', 'diffuse_solar_irradiance_predicted_6h',
+            'diffuse_solar_irradiance_predicted_12h', 'diffuse_solar_irradiance_predicted_24h',
+            'direct_solar_irradiance', 'direct_solar_irradiance_predicted_6h',
+            'direct_solar_irradiance_predicted_12h', 'direct_solar_irradiance_predicted_24h',
             'carbon_intensity',
         ]
 
@@ -754,13 +755,48 @@ class District(Environment, Env):
         for building in self.buildings:
             building.reset()
 
-    @staticmethod
-    def load(schema: Union[str, Path, Mapping[str, Any]]):
+class CityLearn:
+    def __init__(self, district: District, controllers: List[Any]):
+        self.district = district
+        self.controllers = controllers
+
+    @property
+    def district(self) -> District:
+        return self.__district
+
+    @property
+    def controllers(self) -> List[Any]:
+        return self.__controllers
+
+    @district.setter
+    def district(self, district: District):
+        self.__district = district
+
+    @controllers.setter
+    def controllers(self, controllers: List[Any]):
+        self.__controllers = controllers
+
+    def simulate(self):
+        while not self.district.terminal:
+            print(f'Timestep: {self.district.time_step}/{self.district.time_steps - 1}')
+            states_list = self.district.states
+
+            # select actions
+            actions_list = [controller.select_actions(states) if controller.action_dimension > 0 else [] for controller, states in zip(self.controllers, states_list)]
+            self.district.step(actions_list)
+            _ = [
+                controller.add_to_buffer(states, actions, controller.rewards[-1], next_states, done = self.district.terminal)
+                for controller, states, actions, next_states
+                in zip(self.controllers, states_list, actions_list, self.district.states) if controller.action_dimension > 0
+            ]
+
+    @classmethod
+    def load(cls, schema: Union[str, Path, Mapping[str, Any]]):
         if not isinstance(schema, dict):
             schema = read_json(schema)
-            root_directory = os.path.split(schema) if schema['root_directory'] is None else schema['root_directory']
+            schema['root_directory'] = os.path.split(schema) if schema['root_directory'] is None else schema['root_directory']
         else:
-            root_directory = '' if schema['root_directory'] is None else schema['root_directory']
+            schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
 
         central_agent = schema['central_agent']
         states = {s: v for s, v in schema['states'].items() if v['active']}
@@ -769,25 +805,18 @@ class District(Environment, Env):
         simulation_start_timestep = schema['simulation_start_timestep']
         simulation_end_timestep = schema['simulation_end_timestep']
         timesteps = simulation_end_timestep - simulation_start_timestep + 1
-        constructors = {
-            HeatPump.__name__: HeatPump,
-            ElectricHeater.__name__: ElectricHeater,
-            StorageTank.__name__: StorageTank,
-            Battery.__name__: Battery,
-            PV.__name__: PV
-        }
         buildings = ()
         
         for building_name, building_schema in schema['buildings'].items():
             if building_schema['include']:
                 # data
-                energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
+                energy_simulation = pd.read_csv(os.path.join(schema['root_directory'],building_schema['energy_simulation'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
                 energy_simulation = EnergySimulation(*energy_simulation.values.T)
-                weather = pd.read_csv(os.path.join(root_directory,building_schema['weather'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
+                weather = pd.read_csv(os.path.join(schema['root_directory'],building_schema['weather'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
                 weather = Weather(*weather.values.T)
 
                 if building_schema.get('carbon_intensity', None) is not None:
-                    carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
+                    carbon_intensity = pd.read_csv(os.path.join(schema['root_directory'],building_schema['carbon_intensity'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
                     carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
                     carbon_intensity = CarbonIntensity(carbon_intensity)
                 else:
@@ -815,16 +844,24 @@ class District(Environment, Env):
                 }
 
                 for name in device_metadata:
-                    autosizer = device_metadata[name]['autosizer']
-                    device = constructors[building_schema[name]['type']](**building_schema[name]['attributes']) if building_schema.get(name, None) is not None else None
-                    building.__setattr__(name, device)
-                    autosize = False if building_schema.get(name, {}).get('autosize', None) is None else building_schema[name]['autosize']
-                    autosize_kwargs = {} if building_schema.get(name, {}).get('autosize_kwargs', None) is None else building_schema[name]['autosize_kwargs']
-
-                    if autosize:
-                        autosizer(**autosize_kwargs)
+                    if building_schema.get(name, None) is None:
+                        device = None
                     else:
-                        pass
+                        device_type = building_schema[name]['type']
+                        device_module = '.'.join(device_type.split('.')[0:-1])
+                        device_name = device_type.split('.')[-1]
+                        constructor = getattr(importlib.import_module(device_module),device_name)
+                        attributes = building_schema[name].get('attributes',{})
+                        device = constructor(**attributes)
+                        autosize = False if building_schema[name].get('autosize', None) is None else building_schema[name]['autosize']
+                        building.__setattr__(name, device)
+
+                        if autosize:
+                            autosizer = device_metadata[name]['autosizer']
+                            autosize_kwargs = {} if building_schema[name].get('autosize_kwargs', None) is None else building_schema[name]['autosize_kwargs']
+                            autosizer(**autosize_kwargs)
+                        else:
+                            pass
 
                 buildings += (building,)
                 
@@ -832,4 +869,15 @@ class District(Environment, Env):
                 continue
 
         district = District(list(buildings), timesteps, central_agent = central_agent, shared_states = shared_states)
-        return district
+        controller_count = 1 if district.central_agent else len(district.buildings)
+        controller_type = schema['controller']['type']
+        controller_module = '.'.join(controller_type.split('.')[0:-1])
+        controller_name = controller_type.split('.')[-1]
+        controller_constructor = getattr(importlib.import_module(controller_module), controller_name)
+        controller_attributes = schema['controller'].get('attributes', {})
+        reward_type = schema['reward']
+        reward_module = '.'.join(reward_type.split('.')[0:-1])
+        reward_name = reward_type.split('.')[-1]
+        reward_constructor = getattr(importlib.import_module(reward_module), reward_name)
+        controllers = [controller_constructor(i, district, reward_constructor, **controller_attributes) for i in range(controller_count)]
+        return district, controllers

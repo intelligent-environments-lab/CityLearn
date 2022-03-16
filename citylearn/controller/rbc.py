@@ -2,21 +2,12 @@ from typing import List
 from citylearn.controller.base import Controller
 
 class RBC(Controller):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 class BasicRBC(RBC):
-    def __init__(self, action_dimension: int = 1, **kwargs):
-        super().__init__(**kwargs)
-        self.action_dimension = action_dimension
-
-    @property
-    def action_dimension(self) -> int:
-        return self.__action_dimension
-
-    @action_dimension.setter
-    def action_dimension(self, action_dimension: int):
-        self.__action_dimension = action_dimension
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def select_actions(self, hour: int) -> List[float]:
         # Daytime: release stored energy
@@ -35,8 +26,8 @@ class BasicRBC(RBC):
         return actions
 
 class OptimizedRBC(BasicRBC):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def select_actions(self, hour: int) -> List[float]:
         # Daytime: release stored energy  2*0.08 + 0.1*7 + 0.09
