@@ -6,7 +6,7 @@ from gym import Env, spaces
 import numpy as np
 import pandas as pd
 from citylearn.base import Environment
-from citylearn.data import EnergySimulation, CarbonIntensity, Weather
+from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, StorageTank
 from citylearn.preprocessing import Normalize, OnehotEncoding, PeriodicNormalization, RemoveFeature
 from citylearn.utilities import read_json
@@ -14,13 +14,14 @@ from citylearn.utilities import read_json
 class Building(Environment):
     def __init__(
         self, energy_simulation: EnergySimulation, weather: Weather, state_metadata: Mapping[str, bool], action_metadata: Mapping[str, bool], carbon_intensity: CarbonIntensity = None, 
-        dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, 
+        pricing: Pricing = None, dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, 
         dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None
     ):
         self.name = name
         self.energy_simulation = energy_simulation
         self.weather = weather
         self.carbon_intensity = carbon_intensity
+        self.pricing = pricing
         self.dhw_storage = dhw_storage
         self.cooling_storage = cooling_storage
         self.heating_storage = heating_storage
@@ -31,6 +32,8 @@ class Building(Environment):
         self.pv = pv
         self.state_metadata = state_metadata
         self.action_metadata = action_metadata
+        self.observation_spaces = self.update_observation_spaces()
+        self.action_spaces = self.update_action_spaces()
         super().__init__()
 
     @property
@@ -52,6 +55,10 @@ class Building(Environment):
     @property
     def carbon_intensity(self) -> CarbonIntensity:
         return self.__carbon_intensity
+
+    @property
+    def pricing(self) -> Pricing:
+        return self.__pricing
 
     @property
     def dhw_storage(self) -> StorageTank:
@@ -88,6 +95,14 @@ class Building(Environment):
     @property
     def name(self) -> str:
         return self.__name
+
+    @property
+    def observation_spaces(self) -> spaces.Box:
+        return self.__observation_spaces
+
+    @property
+    def action_spaces(self) -> spaces.Box:
+        return self.__action_spaces
 
     @property
     def observation_encoders(self) -> List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]:
@@ -133,71 +148,12 @@ class Building(Environment):
         return encoders
 
     @property
-    def observation_spaces(self) -> spaces.Box:
-        # Finding the max and min possible values of all the states, which can then be used 
-        # by the RL agent to scale the states and train any function approximators more effectively
-        low_limit, high_limit = [], []
-        data = {
-            'solar_generation':np.array(self.pv.get_generation(self.energy_simulation.solar_generation)),
-            **vars(self.energy_simulation),
-            **vars(self.weather),
-            **vars(self.carbon_intensity),
-        }
-
-        for key in self.active_states:
-            if key == 'net_electricity_consumption':
-                # lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate. 
-                # Scaling this state-variable using these bounds may result in normalized values above 1 or below 0.
-                low_limit.append(0.0)
-                net_electric_consumption = self.energy_simulation.non_shiftable_load\
-                    + (self.energy_simulation.dhw_demand/0.8)\
-                        + self.energy_simulation.cooling_demand\
-                            + self.energy_simulation.heating_demand\
-                                + (self.dhw_storage.capacity/0.8)\
-                                    + (self.cooling_storage.capacity/2.0)\
-                                        + (self.heating_storage.capacity/2.0)\
-                                            - data['solar_generation']
-                high_limit.append(max(net_electric_consumption))
-
-            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc']:
-                low_limit.append(0.0)
-                high_limit.append(1.0)
-
-            else:
-                low_limit.append(min(data[key]))
-                high_limit.append(max(data[key]))
-
-        return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
-    
-    @property
-    def action_spaces(self) -> spaces.Box:
-        
-        low_limit, high_limit = [], []
- 
-        for key in self.active_actions:
-            if key == 'electrical_storage':
-                low_limit.append(-1.0)
-                high_limit.append(1.0)
-            
-            else:
-                '''The energy storage (tank) capacity indicates how many times bigger the tank is compared to the maximum hourly energy demand of the building (cooling or DHW respectively), which sets a lower bound for the action of 1/tank_capacity, as the energy storage device can't provide the building with more energy than it will ever need for a given hour. The heat pump is sized using approximately the maximum hourly energy demand of the building (after accounting for the COP, see function autosize). Therefore, we make the fair assumption that the action also has an upper bound equal to 1/tank_capacity. This boundaries should speed up the learning process of the agents and make them more stable rather than if we just set them to -1 and 1. I.e. if Chilled_Water_Tank.Capacity is 3 (3 times the max. hourly demand of the building in the entire year), its actions will be bounded between -1/3 and 1/3'''
-                capacity = vars(self)[f'_{self.__class__.__name__}__{key}'].capacity
-
-                try:
-                    low_limit.append(max([-1.0/capacity, -1.0]))
-                    high_limit.append(min([1.0/capacity, 1.0]))
-                except ZeroDivisionError:
-                    low_limit.append(-1.0)
-                    high_limit.append(1.0)
-                    
-        return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
-
-    @property
     def states(self) -> Mapping[str, float]:
         states = {}
         data = {
             **{k: v[self.time_step] for k, v in vars(self.energy_simulation).items()},
             **{k: v[self.time_step] for k, v in vars(self.weather).items()},
+            **{k: v[self.time_step] for k, v in vars(self.pricing).items()},
             'solar_generation':self.pv.get_generation(self.energy_simulation.solar_generation[self.time_step]),
             **{
                 'cooling_storage_soc':self.cooling_storage.soc[-1]/self.cooling_storage.capacity if self.time_step > 0 else self.cooling_storage.initial_soc/self.cooling_storage.capacity,
@@ -233,6 +189,14 @@ class Building(Environment):
             self.dhw_storage_electricity_consumption,
             self.electrical_storage_electricity_consumption
         ], axis = 0)).tolist()
+
+    @property
+    def net_emission(self) -> List[float]:
+        return (self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption).tolist()
+
+    @property
+    def net_electricity_price(self) -> List[float]:
+        return (np.array(self.pricing.electricity_pricing[0:self.time_step])*self.net_electricity_consumption).tolist()
 
     @property
     def net_electricity_consumption(self) -> List[float]:
@@ -387,6 +351,17 @@ class Building(Environment):
         else:
             self.__carbon_intensity = carbon_intensity
 
+    @pricing.setter
+    def pricing(self, pricing: Pricing):
+        if pricing is None:
+            self.__pricing = Pricing(
+                np.zeros(len(self.energy_simulation.hour), dtype = float),
+                np.zeros(len(self.energy_simulation.hour), dtype = float),
+                np.zeros(len(self.energy_simulation.hour), dtype = float)
+            )
+        else:
+            self.__pricing = pricing
+
     @dhw_storage.setter
     def dhw_storage(self, dhw_storage: StorageTank):
         self.__dhw_storage = StorageTank(0.0) if dhw_storage is None else dhw_storage
@@ -419,6 +394,14 @@ class Building(Environment):
     def pv(self, pv: PV):
         self.__pv = PV(0.0) if pv is None else pv
 
+    @observation_spaces.setter
+    def observation_spaces(self, observation_spaces: spaces.Box):
+        self.__action_spaces = observation_spaces
+
+    @action_spaces.setter
+    def action_spaces(self, action_spaces: spaces.Box):
+        self.__action_spaces = action_spaces
+
     @name.setter
     def name(self, name: str):
         self.__name = self.uid if name is None else name
@@ -428,6 +411,65 @@ class Building(Environment):
         self.update_heating(heating_storage_action)
         self.update_dhw(dhw_storage_action)
         self.update_battery(electrical_storage_action)
+
+    def update_observation_spaces(self) -> spaces.Box:
+        # Finding the max and min possible values of all the states, which can then be used 
+        # by the RL agent to scale the states and train any function approximators more effectively
+        low_limit, high_limit = [], []
+        data = {
+            'solar_generation':np.array(self.pv.get_generation(self.energy_simulation.solar_generation)),
+            **vars(self.energy_simulation),
+            **vars(self.weather),
+            **vars(self.carbon_intensity),
+            **vars(self.pricing),
+        }
+
+        for key in self.active_states:
+            if key == 'net_electricity_consumption':
+                # lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate. 
+                # Scaling this state-variable using these bounds may result in normalized values above 1 or below 0.
+                low_limit.append(0.0)
+                net_electric_consumption = self.energy_simulation.non_shiftable_load\
+                    + (self.energy_simulation.dhw_demand/0.8)\
+                        + self.energy_simulation.cooling_demand\
+                            + self.energy_simulation.heating_demand\
+                                + (self.dhw_storage.capacity/0.8)\
+                                    + (self.cooling_storage.capacity/2.0)\
+                                        + (self.heating_storage.capacity/2.0)\
+                                            - data['solar_generation']
+                high_limit.append(max(net_electric_consumption))
+
+            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc']:
+                low_limit.append(0.0)
+                high_limit.append(1.0)
+
+            else:
+                low_limit.append(min(data[key]))
+                high_limit.append(max(data[key]))
+
+        return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
+    
+    def update_action_spaces(self) -> spaces.Box:
+        
+        low_limit, high_limit = [], []
+ 
+        for key in self.active_actions:
+            if key == 'electrical_storage':
+                low_limit.append(-1.0)
+                high_limit.append(1.0)
+            
+            else:
+                '''The energy storage (tank) capacity indicates how many times bigger the tank is compared to the maximum hourly energy demand of the building (cooling or DHW respectively), which sets a lower bound for the action of 1/tank_capacity, as the energy storage device can't provide the building with more energy than it will ever need for a given hour. The heat pump is sized using approximately the maximum hourly energy demand of the building (after accounting for the COP, see function autosize). Therefore, we make the fair assumption that the action also has an upper bound equal to 1/tank_capacity. This boundaries should speed up the learning process of the agents and make them more stable rather than if we just set them to -1 and 1. I.e. if Chilled_Water_Tank.Capacity is 3 (3 times the max. hourly demand of the building in the entire year), its actions will be bounded between -1/3 and 1/3'''
+                capacity = vars(self)[f'_{self.__class__.__name__}__{key}'].capacity
+
+                try:
+                    low_limit.append(max([-1.0/capacity, -1.0]))
+                    high_limit.append(min([1.0/capacity, 1.0]))
+                except ZeroDivisionError:
+                    low_limit.append(-1.0)
+                    high_limit.append(1.0)
+                    
+        return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
 
     def update_cooling(self, action: float = 0):
         energy = action*self.cooling_storage.capacity
@@ -601,6 +643,14 @@ class District(Environment, Env):
     @property
     def net_electricity_consumption_without_storage(self) -> List[float]:
         return pd.DataFrame([b.net_electricity_consumption_without_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+
+    @property
+    def net_emission(self) -> List[float]:
+        return pd.DataFrame([b.net_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+
+    @property
+    def net_electricity_price(self) -> List[float]:
+        return pd.DataFrame([b.net_electricity_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption(self) -> List[float]:
@@ -784,11 +834,12 @@ class CityLearn:
             # select actions
             actions_list = [controller.select_actions(states) if controller.action_dimension > 0 else [] for controller, states in zip(self.controllers, states_list)]
             self.district.step(actions_list)
-            _ = [
-                controller.add_to_buffer(states, actions, controller.rewards[-1], next_states, done = self.district.terminal)
-                for controller, states, actions, next_states
-                in zip(self.controllers, states_list, actions_list, self.district.states) if controller.action_dimension > 0
-            ]
+
+            # update
+            for controller, states, actions, next_states in zip(self.controllers, states_list, actions_list, self.district.states):
+                if controller.action_dimension > 0:
+                    controller.add_to_buffer(states, actions, controller.rewards[-1], next_states, done = self.district.terminal)
+                continue
 
     @classmethod
     def load(cls, schema: Union[str, Path, Mapping[str, Any]]):
@@ -822,6 +873,12 @@ class CityLearn:
                 else:
                     carbon_intensity = None
 
+                if building_schema.get('pricing', None) is not None:
+                    pricing = pd.read_csv(os.path.join(schema['root_directory'],building_schema['pricing'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
+                    pricing = Pricing(*pricing.values.T)
+                else:
+                    pricing = None
+                    
                 # state and action metadata
                 inactive_states = [] if building_schema.get('inactive_states', None) is None else building_schema['inactive_states']
                 inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
@@ -829,11 +886,11 @@ class CityLearn:
                 action_metadata = {a: False if a in inactive_actions else True for a in actions}
 
                 # construct building
-                building = Building(energy_simulation, weather, state_metadata, action_metadata, carbon_intensity = carbon_intensity, name = building_name)
+                building = Building(energy_simulation, weather, state_metadata, action_metadata, carbon_intensity=carbon_intensity, pricing=pricing, name=building_name)
 
                 # update devices
                 device_metadata = {
-                    'dhw_storage': {'autosizer': building.autosize_dhw_storage}, 
+                    'dhw_storage': {'autosizer': building.autosize_dhw_storage},  
                     'cooling_storage': {'autosizer': building.autosize_cooling_storage}, 
                     'heating_storage': {'autosizer': building.autosize_heating_storage}, 
                     'electrical_storage': {'autosizer': building.autosize_electrical_storage}, 
@@ -862,7 +919,9 @@ class CityLearn:
                             autosizer(**autosize_kwargs)
                         else:
                             pass
-
+                
+                building.observation_spaces = building.update_observation_spaces()
+                building.action_spaces = building.update_action_spaces()
                 buildings += (building,)
                 
             else:
@@ -879,5 +938,6 @@ class CityLearn:
         reward_module = '.'.join(reward_type.split('.')[0:-1])
         reward_name = reward_type.split('.')[-1]
         reward_constructor = getattr(importlib.import_module(reward_module), reward_name)
-        controllers = [controller_constructor(i, district, reward_constructor, **controller_attributes) for i in range(controller_count)]
-        return district, controllers
+        reward_function = reward_constructor()
+        controllers = [controller_constructor(district.action_spaces[i], **controller_attributes) for i in range(controller_count)]
+        return district, controllers, reward_function

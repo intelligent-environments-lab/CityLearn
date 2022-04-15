@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from gym import spaces
 import numpy as np
 import torch
@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from citylearn.controller.base import Controller
 from citylearn.controller.rbc import RBC, BasicRBC, OptimizedRBC
-from citylearn.preprocessing import Encoder
+from citylearn.preprocessing import Encoder, PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize
 from citylearn.rl import PolicyNetwork, ReplayBuffer, SoftQNetwork
 
 class RLC(Controller):
@@ -15,13 +15,17 @@ class RLC(Controller):
 
 class SAC(RLC):
     def __init__(
-        self, *args, hidden_dimension: List[float] = [256, 256], discount: float = 0.99, tau: float = 5e-3, lr: float = 3e-4, batch_size: int = 256,
+        self, *args, observation_spaces: spaces.Box, 
+        encoders: List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]], hidden_dimension: List[float] = [256, 256], discount: float = 0.99, 
+        tau: float = 5e-3, lr: float = 3e-4, batch_size: int = 256,
         replay_buffer_capacity: int = 1e5, start_training_time_step: int = 6000, end_exploration_time_step: int = 7000, 
         deterministic_start_time_step: int = 7500, action_scaling_coef: float = 0.5, reward_scaling: float = 5.0, 
         update_per_time_step: int = 2, seed: int = 0, **kwargs
     ):
         # user defined
         super().__init__(*args, **kwargs)
+        self.observation_spaces = observation_spaces
+        self.encoders = encoders
         self.hidden_dimension = hidden_dimension
         self.discount = discount
         self.tau = tau
@@ -37,9 +41,6 @@ class SAC(RLC):
         self.seed = seed
         
         # internally defined
-        self.__action_spaces = self.district.action_spaces[self.index]
-        self.__observation_spaces = self.district.observation_spaces[self.index]
-        self.__encoders = self.district.observation_encoders[self.index]
         self.__normalized = False
         self.__alpha = 0.2
         self.__soft_q_criterion = nn.SmoothL1Loss()
@@ -59,10 +60,6 @@ class SAC(RLC):
         self.__r_norm_mean = None
         self.__r_norm_std = None
         self.__set_networks()
-
-    @property
-    def action_spaces(self) -> spaces.Box:
-        return self.__action_spaces
 
     @property
     def observation_spaces(self) -> spaces.Box:
@@ -216,6 +213,14 @@ class SAC(RLC):
     def lr(self, lr: float):
         self.__lr = lr
 
+    @observation_spaces.setter
+    def observation_spaces(self, observation_spaces: spaces.Box):
+        self.__observation_spaces = observation_spaces
+
+    @encoders.setter
+    def encoders(self, encoders: List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]):
+        self.__encoders = encoders
+
     @batch_size.setter
     def batch_size(self, batch_size: int):
         self.__batch_size = batch_size
@@ -342,9 +347,9 @@ class SAC(RLC):
         else:
             pass
 
-    def select_actions(self, states: List[float], **kwargs):        
+    def select_actions(self, states: List[float]):        
         if self.time_step <= self.end_exploration_time_step:
-            actions = self.get_exploration_actions(**kwargs)
+            actions = self.get_exploration_actions(states)
         
         else:
             actions = self.__get_post_exploration_actions(states)
@@ -362,7 +367,7 @@ class SAC(RLC):
         actions = actions.detach().cpu().numpy()[0]
         return list(actions)
             
-    def get_exploration_actions(self) -> List[float]:
+    def get_exploration_actions(self, states: List[float]) -> List[float]:
         # random actions
         return list(self.action_scaling_coef*self.action_spaces.sample())
 
@@ -408,8 +413,8 @@ class SAC_RBC(SAC):
     def rbc(self, rbc: RBC):
         self.__rbc = rbc
 
-    def get_exploration_actions(self, **kwargs) -> List[float]:
-        return self.rbc.select_actions(**kwargs)
+    def get_exploration_actions(self, states: List[float]) -> List[float]:
+        return self.rbc.select_actions(states)
 
 class SAC_BasicRBC(SAC_RBC):
      def __init__(self, *args, **kwargs):
@@ -417,6 +422,6 @@ class SAC_BasicRBC(SAC_RBC):
         self.rbc = BasicRBC(action_dimension = self.action_dimension)
 
 class SAC_OptimizedRBC(SAC_RBC):
-     def __init__(self, *args, **kwargs):
+     def __init__(self,*args, **kwargs):
         super().__init__(*args, **kwargs)
         self.rbc = OptimizedRBC(action_dimension = self.action_dimension)

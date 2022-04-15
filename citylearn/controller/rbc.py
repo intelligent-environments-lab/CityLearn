@@ -6,10 +6,21 @@ class RBC(Controller):
         super().__init__(*args, **kwargs)
 
 class BasicRBC(RBC):
-    def __init__(self, *args, **kwargs):
+    def __init__(self,*args, hour_index: int = None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.hour_index = hour_index
 
-    def select_actions(self, hour: int) -> List[float]:
+    @property
+    def hour_index(self) -> int:
+        return self.__hour_index
+
+    @hour_index.setter
+    def hour_index(self, hour_index: int):
+        self.__hour_index = hour_index
+
+    def select_actions(self, states: List[float]) -> List[float]:
+        hour = states[self.hour_index]
+
         # Daytime: release stored energy
         if hour >= 9 and hour <= 21:
             actions = [-0.08 for _ in range(self.action_dimension)]
@@ -29,7 +40,9 @@ class OptimizedRBC(BasicRBC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def select_actions(self, hour: int) -> List[float]:
+    def select_actions(self, states: List[float]) -> List[float]:
+        hour = states[self.hour_index]
+        
         # Daytime: release stored energy  2*0.08 + 0.1*7 + 0.09
         if hour >= 7 and hour <= 15:
             actions = [-0.02 for _ in range(self.action_dimension)]

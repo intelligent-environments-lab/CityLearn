@@ -160,3 +160,6 @@ cython_debug/
 
 # do not track data
 data/*
+
+# do not track docs for now
+docs/*

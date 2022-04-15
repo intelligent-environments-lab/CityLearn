@@ -9,7 +9,7 @@ class Device(Environment):
 
         Parameters
         ----------
-        efficiency: float, default: 1.0
+        efficiency : float, default: 1.0
             Technical efficiency. Must be set to > 0.
 
         Other Parameters
@@ -41,7 +41,7 @@ class ElectricDevice(Device):
 
         Parameters
         ----------
-        nominal_power: float
+        nominal_power : float
             Electric device nominal power >= 0. If == 0, set to 0.00001 to avoid `ZeroDivisionError`.
 
         Other Parameters
@@ -111,11 +111,11 @@ class HeatPump(ElectricDevice):
         ----------
         nominal_power: float
             Maximum amount of electric power that the heat pump can consume from the power grid (given by the nominal power of the compressor).
-        efficiency: float, default: 0.2
+        efficiency : float, default: 0.2
             Technical efficiency.
-        t_target_heating: float, default: 45.0
+        t_target_heating : float, default: 45.0
             Target heating supply dry bulb temperature in [C].
-        t_target_cooling: float, default: 8.0
+        t_target_cooling : float, default: 8.0
             Target cooling supply dry bulb temperature in [C].
 
         Other Parameters
@@ -170,14 +170,14 @@ class HeatPump(ElectricDevice):
 
         Parameters
         ----------
-        outdoor_dry_bulb_temperature: Union[float, Iterable[float]]
+        outdoor_dry_bulb_temperature : Union[float, Iterable[float]]
             Outdoor dry bulb temperature in [C].
-        heating: bool
+        heating : bool
             If `True` return the heating COP else return cooling COP.
 
         Returns
         -------
-        cop: Union[float, Iterable[float]]
+        cop : Union[float, Iterable[float]]
             COP as single value or time series depending on input parameter types.
 
         Notes
@@ -206,16 +206,16 @@ class HeatPump(ElectricDevice):
 
         Parameters
         ----------
-        outdoor_dry_bulb_temperature: Union[float, Iterable[float]]
+        outdoor_dry_bulb_temperature : Union[float, Iterable[float]]
             Outdoor dry bulb temperature in [C].
-        heating: bool
+        heating : bool
             If `True` use heating COP else use cooling COP.
-        max_electric_power: Union[float, Iterable[float]], optional
+        max_electric_power : Union[float, Iterable[float]], optional
             Maximum amount of electric power that the heat pump can consume from the power grid.
 
         Returns
         -------
-        max_output_power: Union[float, Iterable[float]]
+        max_output_power : Union[float, Iterable[float]]
             Maximum output power as single value or time series depending on input parameter types.
 
         Notes
@@ -237,16 +237,16 @@ class HeatPump(ElectricDevice):
 
         Parameters
         ----------
-        output_power: Union[float, Iterable[float]]
+        output_power : Union[float, Iterable[float]]
             Output power from heat pump
-        outdoor_dry_bulb_temperature: Union[float, Iterable[float]]
+        outdoor_dry_bulb_temperature : Union[float, Iterable[float]]
             Outdoor dry bulb temperature in [C].
-        heating: bool
+        heating : bool
             If `True` use heating COP else use cooling COP.
 
         Returns
         -------
-        input_power: Union[float, Iterable[float]]
+        input_power : Union[float, Iterable[float]]
             Input power as single value or time series depending on input parameter types.
 
         Notes
@@ -256,24 +256,28 @@ class HeatPump(ElectricDevice):
 
         return output_power/self.get_cop(outdoor_dry_bulb_temperature, heating)
 
-    def autosize(self, outdoor_dry_bulb_temperature: Iterable[float], cooling_demand: Iterable[float] = None, heating_demand: Iterable[float] = None):
+    def autosize(self, outdoor_dry_bulb_temperature: Iterable[float], cooling_demand: Iterable[float] = None, heating_demand: Iterable[float] = None, safety_factor: float = None):
         r"""Autosize `nominal_power`.
 
         Set `nominal_power` to the maximum input power needed to meet cooling + heating demand.
 
         Parameters
         ----------
-        outdoor_dry_bulb_temperature: Union[float, Iterable[float]]
+        outdoor_dry_bulb_temperature : Union[float, Iterable[float]]
             Outdoor dry bulb temperature in [C].
-        cooling_demand: Union[float, Iterable[float]], optional
+        cooling_demand : Union[float, Iterable[float]], optional
             Cooling demand in [kWh].
-        heating_demand: Union[float, Iterable[float]], optional
+        heating_demand : Union[float, Iterable[float]], optional
             Heating demand in [kWh].
+        safety_factor : float, default: 1.0
+            `nominal_power` is oversized by factor of `safety_factor`.
 
         Notes
         -----
         `nominal_power` = max((cooling_demand/cooling_cop) + (heating_demand/heating_cop))
         """
+        
+        safety_factor = 1.0 if safety_factor is None else safety_factor
 
         if cooling_demand is not None:
             cooling_nominal_power = np.array(cooling_demand)/self.get_cop(outdoor_dry_bulb_temperature, False)
@@ -285,7 +289,7 @@ class HeatPump(ElectricDevice):
         else:
             heating_nominal_power = 0
 
-        self.nominal_power = max(cooling_nominal_power + heating_nominal_power)
+        self.nominal_power = np.nanmax(cooling_nominal_power + heating_nominal_power)*safety_factor
 
 class ElectricHeater(ElectricDevice):
     def __init__(self, nominal_power: float, efficiency: float = None, **kwargs):
@@ -293,9 +297,9 @@ class ElectricHeater(ElectricDevice):
 
         Parameters
         ----------
-        nominal_power: float
+        nominal_power : float
             Maximum amount of electric power that the electric heater can consume from the power grid.
-        efficiency: float, default: 0.9
+        efficiency : float, default: 0.9
             Technical efficiency.
 
         Other Parameters
@@ -322,12 +326,12 @@ class ElectricHeater(ElectricDevice):
 
         Parameters
         ----------
-        max_electric_power: Union[float, Iterable[float]], optional
+        max_electric_power : Union[float, Iterable[float]], optional
             Maximum amount of electric power that the heat pump can consume from the power grid.
 
         Returns
         -------
-        max_output_power: Union[float, Iterable[float]]
+        max_output_power : Union[float, Iterable[float]]
             Maximum output power as single value or time series depending on input parameter types.
 
         Notes
@@ -347,12 +351,12 @@ class ElectricHeater(ElectricDevice):
 
         Parameters
         ----------
-        output_power: Union[float, Iterable[float]] 
+        output_power : Union[float, Iterable[float]] 
             Output power from heat pump
 
         Returns
         -------
-        input_power: Union[float, Iterable[float]]
+        input_power : Union[float, Iterable[float]]
             Input power as single value or time series depending on input parameter types.
 
         Notes
@@ -362,22 +366,25 @@ class ElectricHeater(ElectricDevice):
 
         return np.array(output_power)/self.efficiency
 
-    def autosize(self, demand: Iterable[float]):
+    def autosize(self, demand: Iterable[float], safety_factor: float = None):
         r"""Autosize `nominal_power`.
 
         Set `nominal_power` property to the maximum value of demand/`efficiency`.
 
         Parameters
         ----------
-        demand: Union[float, Iterable[float]], optional
+        demand : Union[float, Iterable[float]], optional
             Heating emand in [kWh].
+        safety_factor : float, default: 1.0
+            `nominal_power` is oversized by factor of `safety_factor`.
 
         Notes
         -----
         `nominal_power` = max(demand/`efficiency`)
         """
 
-        self.nominal_power = max(np.array(demand)/self.efficiency)
+        safety_factor = 1.0 if safety_factor is None else safety_factor
+        self.nominal_power = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
 
 class PV(Device):
     def __init__(self, capacity: float, **kwargs):
@@ -385,7 +392,7 @@ class PV(Device):
 
         Parameters
         ----------
-        capacity: float
+        capacity : float
             PV array capacity in [kW]. Must be >= 0.
 
         Other Parameters
@@ -413,12 +420,12 @@ class PV(Device):
 
         Parameters
         ----------
-        inverter_ac_power_per_w: Union[float, Iterable[float]]
+        inverter_ac_power_per_w : Union[float, Iterable[float]]
             Inverter AC power output per kW of PV capacity in [W/kW].
 
         Returns
         -------
-        generation: Union[float, Iterable[float]]
+        generation : Union[float, Iterable[float]]
             Solar generation as single value or time series depending on input parameter types.
 
         Notes
@@ -428,22 +435,25 @@ class PV(Device):
 
         return self.capacity*np.array(inverter_ac_power_per_w)/1000
 
-    def autosize(self, demand: Iterable[float]):
+    def autosize(self, demand: Iterable[float], safety_factor: float = None):
         r"""Autosize `capacity`.
 
         Set `capacity` property to the maximum value of demand/`efficiency`.
 
         Parameters
         ----------
-        demand: Union[float, Iterable[float]], optional
+        demand : Union[float, Iterable[float]], optional
             Heating emand in [kWh].
+        safety_factor : float, default: 1.0
+            The `capacity` is oversized by factor of `safety_factor`.
 
         Notes
         -----
         `capacity` = max(demand/`efficiency`)
         """
 
-        self.capacity = max(np.array(demand)/self.efficiency)
+        safety_factor = 1.0 if safety_factor is None else safety_factor
+        self.capacity = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
 
 class StorageDevice(Device):
     def __init__(self, capacity: float, efficiency: float = None, loss_coef: float = None, initial_soc: float = None, efficiency_scaling: float = None, **kwargs):
@@ -451,15 +461,15 @@ class StorageDevice(Device):
 
         Parameters
         ----------
-        capacity: float
+        capacity : float
             Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
-        efficiency: float, default: 0.9
+        efficiency : float, default: 0.9
             Technical efficiency.
-        loss_coef: float, default: 0.006
+        loss_coef : float, default: 0.006
             Standby hourly losses. Must be between 0 and 1 (this value is often 0 or really close to 0).
-        initial_soc: float, default: 0.0
+        initial_soc : float, default: 0.0
             State of charge when `time_step` = 0. Must be >= 0 and < `capacity`.
-        efficiency_scaling: float, default: 0.5
+        efficiency_scaling : float, default: 0.5
             `efficiency` exponent scaling for `efficienct` such that `efficiency` **= `efficiency_scaling`
 
         Other Parameters
@@ -570,7 +580,7 @@ class StorageDevice(Device):
 
         Parameters
         ----------
-        energy: float
+        energy : float
             Energy to charge if (+) or discharge if (-) in [kWh].
 
         Notes
@@ -583,8 +593,25 @@ class StorageDevice(Device):
         soc = min(self.soc_init + energy*self.efficiency, self.capacity) if energy >= 0 else max(0, self.soc_init + energy/self.efficiency)
         self.__soc.append(soc)
 
-    def autosize(self, demand: Iterable[float], safety_factor: int = 1):
-        self.capacity = max(demand)*safety_factor
+    def autosize(self, demand: Iterable[float], safety_factor: float = None):
+        r"""Autosize `capacity`.
+
+        Set `capacity` property to the maximum value of demand.
+
+        Parameters
+        ----------
+        demand : Union[float, Iterable[float]], optional
+            Heating emand in [kWh].
+        safety_factor : float, default: 1.0
+            The `capacity` is oversized by factor of `safety_factor`.
+
+        Notes
+        -----
+        `capacity` = max(demand/`efficiency`)
+        """
+
+        safety_factor = 1.0 if safety_factor is None else safety_factor
+        self.capacity = np.nanmax(demand)*safety_factor
 
     def reset(self):
         super().reset()
@@ -592,15 +619,23 @@ class StorageDevice(Device):
 
 class StorageTank(StorageDevice):
     def __init__(self, capacity: float, max_output_power: float = None, max_input_power: float = None, **kwargs):
+        r"""Initialize `StorageTank`.
+
+        Parameters
+        ----------
+        capacity : float
+            Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
+        max_output_power : float, default: None
+            Maximum amount of power that the storage unit can output [kW].
+        max_input_power : float, default: None
+            Maximum amount of power that the storage unit can use to charge [kW].
+        
+        Other Parameters
+        ----------------
+        **kwargs : dict
+            Other keyword arguments used to initialize super class.
         """
-        Generic energy storage class. It can be used as a chilled water storage tank or a DHW storage tank
-        Args:
-            capacity (float): Maximum amount of energy that the storage unit is able to store (kWh)
-            max_output_power (float): Maximum amount of power that the storage unit can output (kW)
-            max_input_power (float): Maximum amount of power that the storage unit can use to charge (kW)
-            efficiency (float): Efficiency factor of charging and discharging the storage unit (from 0 to 1)
-            loss_coef (float): Loss coefficient used to calculate the amount of energy lost every hour (from 0 to 1)
-        """
+
         super().__init__(capacity = capacity, **kwargs)
         self.max_output_power = max_output_power
         self.max_input_power = max_input_power
@@ -615,11 +650,12 @@ class StorageTank(StorageDevice):
 
     @max_output_power.setter
     def max_output_power(self, max_output_power: float):
-        
+        assert max_output_power is None or max_output_power >= 0, '`max_output_power` must be >= 0.'
         self.__max_output_power = max_output_power
 
     @max_input_power.setter
     def max_input_power(self, max_input_power: float):
+        assert max_input_power is None or max_input_power >= 0, '`max_input_power` must be >= 0.'
         self.__max_input_power = max_input_power
 
     def charge(self, energy: float):
@@ -731,9 +767,11 @@ class Battery(ElectricDevice, StorageDevice):
         """
 
         energy = min(energy, self.get_max_input_power()) if energy >= 0 else max(-self.get_max_output_power(), energy)
-        self.__efficiency_history.append(self.efficiency)
+        self.efficiency = self.get_current_efficiency(energy)
         super().charge(energy)
-        self.__capacity_history.append(self.capacity - self.degrade())
+        print()
+        print(self.capacity, self.degrade(), self.capacity - self.degrade())
+        self.capacity = self.capacity - self.degrade()
 
     def get_max_output_power(self) -> float:
         return self.get_max_input_power()

@@ -1,39 +1,33 @@
+import inspect
 from typing import Any, List
-import numpy as np
+from gym import spaces
 from citylearn.base import Environment
-from citylearn.citylearn import District
-from citylearn.reward import Reward
 
 class Controller(Environment):
-    def __init__(self, index: int, district: District, reward_function: Reward, **kwargs):
+    def __init__(self, action_spaces: spaces.Box, **kwargs):
+        arg_spec = inspect.getfullargspec(super().__init__)
+        kwargs = {
+            key:value for (key, value) in kwargs.items()
+            if (key in arg_spec.args or (arg_spec.varkw is not None))
+        }
         super().__init__(**kwargs)
-        self.__index = index
-        self.__district = district
-        self.__reward_function = reward_function
+        self.action_spaces = action_spaces
 
     @property
-    def index(self) -> int:
-        return self.__index
-
-    @property
-    def district(self) -> District:
-        return self.__district
-
-    @property
-    def reward_function(self) -> Reward:
-        return self.__reward_function
+    def action_spaces(self) -> spaces.Box:
+        return self.__action_spaces
 
     @property
     def action_dimension(self) -> int:
-        return self.district.action_spaces[self.index].shape[0]
+        return self.action_spaces.shape[0]
 
     @property
     def actions(self) -> List[List[Any]]:
         return self.__actions
 
-    @property
-    def rewards(self) -> List[float]:
-        return self.reward_function(self.index, self.district).get()
+    @action_spaces.setter
+    def action_spaces(self, action_spaces: spaces.Box):
+        self.__action_spaces = action_spaces
 
     @actions.setter
     def actions(self, actions: List[Any]):

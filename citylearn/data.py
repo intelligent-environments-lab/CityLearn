@@ -118,13 +118,39 @@ class Weather:
         self.direct_solar_irradiance_predicted_12h = np.array(direct_solar_irradiance_predicted_12h, dtype = float)
         self.direct_solar_irradiance_predicted_24h = np.array(direct_solar_irradiance_predicted_24h, dtype = float)
 
+class Pricing:
+    """`Building` `pricing` data class.
+
+    Attributes
+    ----------
+    electricity_pricing : np.array
+        Electricity pricing time series in [W/m^2].
+    electricity_pricing_predicted_6h : np.array
+        Electricity pricing 6 hours ahead prediction time series in [$].
+    electricity_pricing_predicted_12h : np.array
+        Electricity pricing 12 hours ahead prediction time series in [$].
+    electricity_pricing_predicted_24h : np.array
+        Electricity pricing 24 hours ahead prediction time series in [$].
+    """
+
+    def __init__(
+        self, electricity_pricing: Iterable[float], electricity_pricing_predicted_6h: Iterable[float], 
+        electricity_pricing_predicted_12h: Iterable[float], electricity_pricing_predicted_24h: Iterable[float]
+    ):
+        r"""Initialize `Pricing`."""
+
+        self.electricity_pricing = np.array(electricity_pricing, dtype = float)
+        self.electricity_pricing_predicted_6h = np.array(electricity_pricing_predicted_6h, dtype = float)
+        self.electricity_pricing_predicted_12h = np.array(electricity_pricing_predicted_12h, dtype = float)
+        self.electricity_pricing_predicted_24h = np.array(electricity_pricing_predicted_24h, dtype = float)
+
 class CarbonIntensity:
     """`Building` `carbon_intensity` data class.
 
     Attributes
     ----------
     carbon_intensity : np.array
-        Outdoor dry bulb temperature time series in [kg_co2/kWh].
+        Emission rate time series in [kg_co2/kWh].
     """
 
     def __init__(self, carbon_intensity: Iterable[float]):
