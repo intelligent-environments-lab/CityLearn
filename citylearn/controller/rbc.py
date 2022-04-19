@@ -66,3 +66,22 @@ class OptimizedRBC(BasicRBC):
         self.actions = actions
         self.next_time_step()
         return actions
+
+class BasicBatteryRBC(BasicRBC):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def select_actions(self, states: List[float]) -> List[float]:
+        hour = states[self.hour_index]
+
+        # Late morning and early evening: store energy
+        if hour >= 6 and hour <= 14:
+            actions = [0.11 for _ in range(self.action_dimension)]
+        
+        # Early morning and late evening: release energy
+        else:
+            actions = [-0.067 for _ in range(self.action_dimension)]
+
+        self.actions = actions
+        self.next_time_step()
+        return actions

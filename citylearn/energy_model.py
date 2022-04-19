@@ -769,8 +769,6 @@ class Battery(ElectricDevice, StorageDevice):
         energy = min(energy, self.get_max_input_power()) if energy >= 0 else max(-self.get_max_output_power(), energy)
         self.efficiency = self.get_current_efficiency(energy)
         super().charge(energy)
-        print()
-        print(self.capacity, self.degrade(), self.capacity - self.degrade())
         self.capacity = self.capacity - self.degrade()
 
     def get_max_output_power(self) -> float:

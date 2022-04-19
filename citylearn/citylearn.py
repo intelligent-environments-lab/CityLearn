@@ -178,8 +178,26 @@ class Building(Environment):
         return [k for k, v in self.action_metadata.items() if v]
 
     @property
+    def net_electricity_consumption_without_storage_and_pv_emission(self) -> List[float]:
+        return (
+            self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption_without_storage_and_pv
+        ).clip(min=0).tolist()
+
+    @property
+    def net_electricity_consumption_without_storage_and_pv_price(self) -> List[float]:
+        return (np.array(self.pricing.electricity_pricing[0:self.time_step])*self.net_electricity_consumption_without_storage_and_pv).tolist()
+
+    @property
     def net_electricity_consumption_without_storage_and_pv(self) -> List[float]:
         return (np.array(self.net_electricity_consumption_without_storage) - self.solar_generation).tolist()
+
+    @property
+    def net_electricity_consumption_without_storage_emission(self) -> List[float]:
+        return (self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption_without_storage).clip(min=0).tolist()
+
+    @property
+    def net_electricity_consumption_without_storage_price(self) -> List[float]:
+        return (np.array(self.pricing.electricity_pricing[0:self.time_step])*self.net_electricity_consumption_without_storage).tolist()
 
     @property
     def net_electricity_consumption_without_storage(self) -> List[float]:
@@ -191,11 +209,11 @@ class Building(Environment):
         ], axis = 0)).tolist()
 
     @property
-    def net_emission(self) -> List[float]:
-        return (self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption).tolist()
+    def net_electricity_consumption_emission(self) -> List[float]:
+        return (self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption).clip(min=0).tolist()
 
     @property
-    def net_electricity_price(self) -> List[float]:
+    def net_electricity_consumption_price(self) -> List[float]:
         return (np.array(self.pricing.electricity_pricing[0:self.time_step])*self.net_electricity_consumption).tolist()
 
     @property
@@ -637,20 +655,36 @@ class District(Environment, Env):
         ]
 
     @property
+    def net_electricity_consumption_without_storage_and_pv_emission(self) -> List[float]:
+        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+
+    @property
+    def net_electricity_consumption_without_storage_and_pv_price(self) -> List[float]:
+        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+
+    @property
     def net_electricity_consumption_without_storage_and_pv(self) -> List[float]:
         return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+
+    @property
+    def net_electricity_consumption_without_storage_emission(self) -> List[float]:
+        return pd.DataFrame([b.net_electricity_consumption_without_storage_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+
+    @property
+    def net_electricity_consumption_without_storage_price(self) -> List[float]:
+        return pd.DataFrame([b.net_electricity_consumption_without_storage_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption_without_storage(self) -> List[float]:
         return pd.DataFrame([b.net_electricity_consumption_without_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
-    def net_emission(self) -> List[float]:
-        return pd.DataFrame([b.net_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+    def net_electricity_consumption_emission(self) -> List[float]:
+        return pd.DataFrame([b.net_electricity_consumption_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
-    def net_electricity_price(self) -> List[float]:
-        return pd.DataFrame([b.net_electricity_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+    def net_electricity_consumption_price(self) -> List[float]:
+        return pd.DataFrame([b.net_electricity_consumption_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption(self) -> List[float]:
