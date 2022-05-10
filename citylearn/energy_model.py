@@ -625,9 +625,9 @@ class StorageTank(StorageDevice):
         ----------
         capacity : float
             Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
-        max_output_power : float, default: None
+        max_output_power : float, optional
             Maximum amount of power that the storage unit can output [kW].
-        max_input_power : float, default: None
+        max_input_power : float, optional
             Maximum amount of power that the storage unit can use to charge [kW].
         
         Other Parameters
