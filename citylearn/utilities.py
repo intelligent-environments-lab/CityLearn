@@ -1,5 +1,4 @@
 import simplejson as json
-from datetime import datetime
 
 def read_json(filepath: str, **kwargs):
     """Return json document as dictionary.
@@ -41,10 +40,6 @@ def write_json(filepath: str, dictionary: dict, **kwargs):
         Other infrequently used keyword arguments to be parsed to `simplejson.dump`.
     """
 
-    def default(obj):
-        if isinstance(obj, datetime):
-            return obj.__str__()
-
-    kwargs = {'ignore_nan':True,'sort_keys':False,'default':default,'indent':2,**kwargs}
+    kwargs = {'ignore_nan':True,'sort_keys':False,'default':str,'indent':2,**kwargs}
     with open(filepath,'w') as f:
         json.dump(dictionary,f,**kwargs)
