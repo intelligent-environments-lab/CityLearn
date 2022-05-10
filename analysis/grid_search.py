@@ -5,7 +5,7 @@ import random
 import shutil
 import sys
 import pandas as pd
-from utilities import read_json, write_data, write_json
+from citylearn.utilities import read_json, write_data, write_json
 
 SOURCE_DATA_DIRECTORY = 'data/'
 DESTINATION_DATA_DIRECTORY = 'grid_search_data/'

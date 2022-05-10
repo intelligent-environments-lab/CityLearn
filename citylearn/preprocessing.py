@@ -1,5 +1,4 @@
 import numpy as np
-import random
 
 class no_normalization:
     def __init__(self):

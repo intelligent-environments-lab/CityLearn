@@ -1,7 +1,7 @@
 import itertools
 import sys
 import pandas as pd
-from utilities import read_json, write_data
+from citylearn.utilities import read_json, write_data
 
 GRID_SEARCH_FILEPATH = 'grid_search_c8.json'
 WRITE_FREQUENCY = 4000

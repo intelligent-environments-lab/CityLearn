@@ -11,13 +11,11 @@ import pickle
 import time
 import subprocess
 import sys
-from agents.marlisa import MARLISA
-from agents.rbc import BasicRBC, OptimizedRBC
-from agents.sac import SAC
-from citylearn import CityLearn
+from citylearn.agent import BasicRBC, MARLISA, OptimizedRBC, SAC
+from citylearn.environment import CityLearn
 from database import CityLearnDatabase
-from reward_function import reward_function_ma
-from utilities import get_data_from_path, write_json
+from citylearn.reward_function import reward_function_ma
+from citylearn.utilities import get_data_from_path, write_json
 
 # module logger
 LOGGER = logging.getLogger(__name__)
@@ -251,16 +249,13 @@ class CityLearn_CLI:
     
     def __write_pickle(self):
         if self.kwargs['write_pickle']:
-            # data = {
-            #     'metadata':{
-            #         'start_timestamp':self.__start_timestamp,
-            #         'end_timestamp':self.__end_timestamp,
-            #         'successful':self.__successful,
-            #     },
-            #     'env':self.__env,
-            #     'agents':self.__agent
-            # }
             data = {
+                'metadata':{
+                    'start_timestamp':self.__start_timestamp,
+                    'end_timestamp':self.__end_timestamp,
+                    'successful':self.__successful,
+                },
+                'env':self.__env,
                 'agents':self.__agent
             }
             filepath = os.path.join(self.__output_directory,f'{self.__simulation_id}.pkl')
