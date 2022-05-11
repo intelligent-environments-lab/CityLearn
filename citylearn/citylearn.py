@@ -1,7 +1,7 @@
 import importlib
 import os
 from pathlib import Path
-from typing import Any, List, Mapping, Union
+from typing import Any, List, Mapping, Tuple, Union
 from gym import Env, spaces
 import numpy as np
 import pandas as pd
@@ -877,6 +877,17 @@ class Building(Environment):
 
         self.electrical_storage.autosize(self.pv.get_generation(self.energy_simulation.solar_generation), **kwargs)
 
+    def autosize_pv(self, **kwargs):
+        """Autosize `PV` `capacity` to minimum capacity needed to store maximum `solar_generation`.
+        
+        Other Parameters
+        ----------------
+        **kwargs : dict
+            Other keyword arguments parsed to `electrical_storage` `autosize` function.
+        """
+
+        self.pv.autosize(self.pv.get_generation(self.energy_simulation.solar_generation), **kwargs)
+
     def next_time_step(self):
         r"""Advance all energy storage and electric devices and, PV to next `time_step`."""
 
@@ -905,7 +916,7 @@ class Building(Environment):
 
 class District(Environment, Env):
     def __init__(self,buildings: List[Building], time_steps: int, central_agent: bool = False, shared_states: List[str] = None, **kwargs):
-        r"""Initialize `Building`.
+        r"""Initialize `District`.
 
         Parameters
         ----------
@@ -1351,15 +1362,29 @@ class District(Environment, Env):
 
 class CityLearn:
     def __init__(self, district: District, controllers: List[Any]):
+        r"""Initialize `CityLearn`.
+
+        Parameters
+        ----------
+        district : District
+            Simulation district.
+        controllers : List[Any]
+            Simulation controllers for `district.buildings` energy storage charging/discharging management.
+        """
+
         self.district = district
         self.controllers = controllers
 
     @property
     def district(self) -> District:
+        """Simulation district."""
+
         return self.__district
 
     @property
     def controllers(self) -> List[Any]:
+        """Simulation controllers for `district.buildings` energy storage charging/discharging management."""
+
         return self.__controllers
 
     @district.setter
@@ -1368,9 +1393,16 @@ class CityLearn:
 
     @controllers.setter
     def controllers(self, controllers: List[Any]):
+        if self.district.central_agent:
+            assert len(controllers) == 1, 'Only 1 controller is expected when `district.central_agent` = True.'
+        else:
+            assert len(controllers) == len(self.district.buildings), 'Length of `controllers` and `district.buildings` must be equal when using `district.central_agent` = False.'
+
         self.__controllers = controllers
 
     def simulate(self):
+        """Run traditional simulation."""
+
         while not self.district.terminal:
             print(f'Timestep: {self.district.time_step}/{self.district.time_steps - 1}')
             states_list = self.district.states
@@ -1386,7 +1418,22 @@ class CityLearn:
                 continue
 
     @classmethod
-    def load(cls, schema: Union[str, Path, Mapping[str, Any]]):
+    def load(cls, schema: Union[str, Path, Mapping[str, Any]]) -> Tuple[District, List[Any]]:
+        """Return `District` and `Controller` objects as defined by the `schema`.
+
+        Parameters
+        ----------
+        schema: Union[str, Path, Mapping[str, Any]]
+            Filepath to JSON representation or `dict` object of CityLearn schema.
+        
+        Returns
+        -------
+        district: District
+            Simulation district.
+        controllers: List[Any]
+            Simulation controllers for `district.buildings` energy storage charging/discharging management.
+        """
+
         if not isinstance(schema, dict):
             schema = read_json(schema)
             schema['root_directory'] = os.path.split(schema) if schema['root_directory'] is None else schema['root_directory']

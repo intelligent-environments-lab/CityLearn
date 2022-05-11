@@ -163,3 +163,6 @@ data/*
 
 # do not track docs for now
 docs/*
+
+# test files
+test.*
