@@ -22,17 +22,17 @@ class Building(Environment):
         Parameters
         ----------
         energy_simulation : EnergySimulation
-            Time series of building'stemporal features, cooling, heating, dhw and plug loads, solar generation and indoor environment.
+            Temporal features, cooling, heating, dhw and plug loads, solar generation and indoor environment time series.
         weather : Weather
-            Time series of outdoor weather conditions and forecasts.
+            Outdoor weather conditions and forecasts time sereis.
         state_metadata : dict
             Mapping of active and inactive states.
         action_metadata : dict
             Mapping od active and inactive actions.
         carbon_intensity : CarbonIntensity, optional
-            Time series of emission rate.
+            Emission rate time series.
         pricing : Pricing, optional
-            Time series of energy pricing and forecasts.
+            Energy pricing and forecasts time series.
         dhw_storage : StorageTank, optional
             Hot water storage object for domestic hot water.
         cooling_storage : StorageTank, optional
@@ -79,13 +79,13 @@ class Building(Environment):
 
     @property
     def energy_simulation(self) -> EnergySimulation:
-        """Time series of building'stemporal features, cooling, heating, dhw and plug loads, solar generation and indoor environment."""
+        """Temporal features, cooling, heating, dhw and plug loads, solar generation and indoor environment time series."""
 
         return self.__energy_simulation
 
     @property
     def weather(self) -> Weather:
-        """Time series of outdoor weather conditions and forecasts."""
+        """Outdoor weather conditions and forecasts time series."""
 
         return self.__weather
 
@@ -103,13 +103,13 @@ class Building(Environment):
 
     @property
     def carbon_intensity(self) -> CarbonIntensity:
-        """Time series of emission rate."""
+        """Emission rate time series."""
 
         return self.__carbon_intensity
 
     @property
     def pricing(self) -> Pricing:
-        """Time series of energy pricing and forecasts."""
+        """Energy pricing and forecasts time series."""
 
         return self.__pricing
 
@@ -272,7 +272,7 @@ class Building(Environment):
 
     @property
     def net_electricity_consumption_without_storage_and_pv_emission(self) -> List[float]:
-        """Time series of carbon emmissions from `net_electricity_consumption_without_storage_and_pv`, in [kg_co2]."""
+        """Carbon emmissions from `net_electricity_consumption_without_storage_and_pv` time series, in [kg_co2]."""
 
         return (
             self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption_without_storage_and_pv
@@ -280,13 +280,13 @@ class Building(Environment):
 
     @property
     def net_electricity_consumption_without_storage_and_pv_price(self) -> List[float]:
-        """Time series of `net_electricity_consumption_without_storage_and_pv` cost, in [$]."""
+        """net_electricity_consumption_without_storage_and_pv` cost time series, in [$]."""
 
         return (np.array(self.pricing.electricity_pricing[0:self.time_step])*self.net_electricity_consumption_without_storage_and_pv).tolist()
 
     @property
     def net_electricity_consumption_without_storage_and_pv(self) -> List[float]:
-        """Time series of net electricity consumption in the absence of flexibility provided by `cooling_storage` and self generation, in [kWh]. 
+        """Net electricity consumption in the absence of flexibility provided by `cooling_storage` and self generation time series, in [kWh]. 
         
         Notes
         -----
@@ -297,19 +297,19 @@ class Building(Environment):
 
     @property
     def net_electricity_consumption_without_storage_emission(self) -> List[float]:
-        """Time series of carbon emmissions from `net_electricity_consumption_without_storage`, in [kg_co2]."""
+        """Carbon emmissions from `net_electricity_consumption_without_storage` time series, in [kg_co2]."""
 
         return (self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption_without_storage).clip(min=0).tolist()
 
     @property
     def net_electricity_consumption_without_storage_price(self) -> List[float]:
-        """Time series of `net_electricity_consumption_without_storage` cost, in [$]."""
+        """`net_electricity_consumption_without_storage` cost time series, in [$]."""
 
         return (np.array(self.pricing.electricity_pricing[0:self.time_step])*self.net_electricity_consumption_without_storage).tolist()
 
     @property
     def net_electricity_consumption_without_storage(self) -> List[float]:
-        """Time series of net electricity consumption in the absence of flexibility provided by storage devices, in [kWh]. 
+        """net electricity consumption in the absence of flexibility provided by storage devices time series, in [kWh]. 
         
         Notes
         -----
@@ -325,19 +325,19 @@ class Building(Environment):
 
     @property
     def net_electricity_consumption_emission(self) -> List[float]:
-        """Time series of carbon emmissions from `net_electricity_consumption`, in [kg_co2]."""
+        """carbon emmissions from `net_electricity_consumption` time series, in [kg_co2]."""
 
         return (self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption).clip(min=0).tolist()
 
     @property
     def net_electricity_consumption_price(self) -> List[float]:
-        """Time series of `net_electricity_consumption` cost, in [$]."""
+        """`net_electricity_consumption` cost time series, in [$]."""
 
         return (np.array(self.pricing.electricity_pricing[0:self.time_step])*self.net_electricity_consumption).tolist()
 
     @property
     def net_electricity_consumption(self) -> List[float]:
-        """Time series of net electricity consumption, in [kWh]. 
+        """net electricity consumption time series, in [kWh]. 
         
         Notes
         -----
@@ -355,7 +355,7 @@ class Building(Environment):
 
     @property
     def cooling_electricity_consumption(self) -> List[float]:
-        """Time series of `cooling_device` net electricity consumption in meeting domestic hot water and `cooling_stoage` energy demand, in [kWh]. 
+        """`cooling_device` net electricity consumption in meeting domestic hot water and `cooling_stoage` energy demand time series, in [kWh]. 
         
         Positive values indicate `cooling_device` electricity consumption to charge `cooling_storage` and/or meet `cooling_demand` while negative values indicate avoided `cooling_device` 
         electricity consumption by discharging `cooling_storage` to meet `cooling_demand`.
@@ -367,7 +367,7 @@ class Building(Environment):
 
     @property
     def heating_electricity_consumption(self) -> List[float]:
-        """Time series of `heating_device` net electricity consumption in meeting domestic hot water and `heating_stoage` energy demand, in [kWh]. 
+        """`heating_device` net electricity consumption in meeting domestic hot water and `heating_stoage` energy demand time series, in [kWh]. 
         
         Positive values indicate `heating_device` electricity consumption to charge `heating_storage` and/or meet `heating_demand` while negative values indicate avoided `heating_device` 
         electricity consumption by discharging `heating_storage` to meet `heating_demand`.
@@ -384,7 +384,7 @@ class Building(Environment):
 
     @property
     def dhw_electricity_consumption(self) -> List[float]:
-        """Time series of `dhw_device` net electricity consumption in meeting domestic hot water and `dhw_stoage` energy demand, in [kWh]. 
+        """`dhw_device` net electricity consumption in meeting domestic hot water and `dhw_stoage` energy demand time series, in [kWh]. 
         
         Positive values indicate `dhw_device` electricity consumption to charge `dhw_storage` and/or meet `dhw_demand` while negative values indicate avoided `dhw_device` 
         electricity consumption by discharging `dhw_storage` to meet `dhw_demand`.
@@ -401,7 +401,7 @@ class Building(Environment):
 
     @property
     def cooling_storage_electricity_consumption(self) -> List[float]:
-        """Time series of `cooling_storage` net electricity consumption in [kWh]. 
+        """`cooling_storage` net electricity consumption time series, in [kWh]. 
         
         Positive values indicate `cooling_device` electricity consumption to charge `cooling_storage` while negative values indicate avoided `cooling_device` 
         electricity consumption by discharging `cooling_storage` to meet `cooling_demand`.
@@ -412,7 +412,7 @@ class Building(Environment):
 
     @property
     def heating_storage_electricity_consumption(self) -> List[float]:
-        """Time series of `heating_storage` net electricity consumption in [kWh]. 
+        """`heating_storage` net electricity consumption time series, in [kWh]. 
         
         Positive values indicate `heating_device` electricity consumption to charge `heating_storage` while negative values indicate avoided `heating_device` 
         electricity consumption by discharging `heating_storage` to meet `heating_demand`.
@@ -427,7 +427,7 @@ class Building(Environment):
 
     @property
     def dhw_storage_electricity_consumption(self) -> List[float]:
-        """Time series of `dhw_storage` net electricity consumption in [kWh]. 
+        """`dhw_storage` net electricity consumption time series, in [kWh]. 
         
         Positive values indicate `dhw_device` electricity consumption to charge `dhw_storage` while negative values indicate avoided `dhw_device` 
         electricity consumption by discharging `dhw_storage` to meet `dhw_demand`.
@@ -442,103 +442,103 @@ class Building(Environment):
 
     @property
     def electrical_storage_electricity_consumption(self) -> List[float]:
-        """Time series of energy supply from grid and/or `PV` to `electrical_storage`, in [kWh]."""
+        """Energy supply from grid and/or `PV` to `electrical_storage` time series, in [kWh]."""
 
         return self.electrical_storage.electricity_consumption
 
     @property
     def energy_from_cooling_device_to_cooling_storage(self) -> List[float]:
-        """Time series of energy supply from `cooling_device` to `cooling_storage`, in [kWh]."""
+        """Energy supply from `cooling_device` to `cooling_storage` time series, in [kWh]."""
 
         return np.array(self.cooling_storage.energy_balance).clip(min=0).tolist()
 
     @property
     def energy_from_heating_device_to_heating_storage(self) -> List[float]:
-        """Time series of energy supply from `heating_device` to `heating_storage`, in [kWh]."""
+        """Energy supply from `heating_device` to `heating_storage` time series, in [kWh]."""
 
         return np.array(self.heating_storage.energy_balance).clip(min=0).tolist()
 
     @property
     def energy_from_dhw_device_to_dhw_storage(self) -> List[float]:
-        """Time series of energy supply from `dhw_device` to `dhw_storage`, in [kWh]."""
+        """Energy supply from `dhw_device` to `dhw_storage` time series, in [kWh]."""
 
         return np.array(self.dhw_storage.energy_balance).clip(min=0).tolist()
 
     @property
     def energy_to_electrical_storage(self) -> List[float]:
-        """Time series of energy supply from `electrical_device` to building, in [kWh]."""
+        """Energy supply from `electrical_device` to building time series, in [kWh]."""
 
         return np.array(self.electrical_storage.energy_balance).clip(min=0).tolist()
 
     @property
     def energy_from_cooling_device(self) -> List[float]:
-        """Time series of energy supply from `cooling_device` to building, in [kWh]."""
+        """Energy supply from `cooling_device` to building time series, in [kWh]."""
 
         return (np.array(self.cooling_demand) - self.energy_from_cooling_storage).tolist()
 
     @property
     def energy_from_heating_device(self) -> List[float]:
-        """Time series of energy supply from `heating_device` to building, in [kWh]."""
+        """Energy supply from `heating_device` to building time series, in [kWh]."""
 
         return (np.array(self.heating_demand) - self.energy_from_heating_storage).tolist()
 
     @property
     def energy_from_dhw_device(self) -> List[float]:
-        """Time series of energy supply from `dhw_device` to building, in [kWh]."""
+        """Energy supply from `dhw_device` to building time series, in [kWh]."""
 
         return (np.array(self.dhw_demand) - self.energy_from_dhw_storage).tolist()
 
     @property
     def energy_from_cooling_storage(self) -> List[float]:
-        """Time series of energy supply from `cooling_storage` to building, in [kWh]."""
+        """Energy supply from `cooling_storage` to building time series, in [kWh]."""
 
         return (np.array(self.cooling_storage.energy_balance).clip(max = 0)*-1).tolist()
 
     @property
     def energy_from_heating_storage(self) -> List[float]:
-        """Time series of energy supply from `heating_storage` to building, in [kWh]."""
+        """Energy supply from `heating_storage` to building time series, in [kWh]."""
 
         return (np.array(self.heating_storage.energy_balance).clip(max = 0)*-1).tolist()
 
     @property
     def energy_from_dhw_storage(self) -> List[float]:
-        """Time series of energy supply from `dhw_storage` to building, in [kWh]."""
+        """Energy supply from `dhw_storage` to building time series, in [kWh]."""
 
         return (np.array(self.dhw_storage.energy_balance).clip(max = 0)*-1).tolist()
 
     @property
     def energy_from_electrical_storage(self) -> List[float]:
-        """Time series of energy supply from `electrical_storage` to building, in [kWh]."""
+        """Energy supply from `electrical_storage` to building time series, in [kWh]."""
 
         return (np.array(self.electrical_storage.energy_balance).clip(max = 0)*-1).tolist()
 
     @property
     def cooling_demand(self) -> List[float]:
-        """Time series of space cooling demand to be met by `cooling_device` and/or `cooling_storage`, in [kWh]."""
+        """Space cooling demand to be met by `cooling_device` and/or `cooling_storage` time series, in [kWh]."""
 
         return self.energy_simulation.cooling_demand.tolist()[0:self.time_step]
 
     @property
     def heating_demand(self) -> List[float]:
-        """Time series of space heating demand to be met by `heating_device` and/or `heating_storage`, in [kWh]."""
+        """Space heating demand to be met by `heating_device` and/or `heating_storage` time series, in [kWh]."""
 
         return self.energy_simulation.heating_demand.tolist()[0:self.time_step]
 
     @property
     def dhw_demand(self) -> List[float]:
-        """Time series of domestic hot water demand to be met by `dhw_device` and/or `dhw_storage`, in [kWh]."""
+        """Domestic hot water demand to be met by `dhw_device` and/or `dhw_storage` time series, in [kWh]."""
 
         return self.energy_simulation.dhw_demand.tolist()[0:self.time_step]
 
     @property
     def non_shiftable_load_demand(self) -> List[float]:
-        """Time series of electricity load that must be met by the grid, or `PV` and/or `electrical_storage` if available, in [kWh]."""
+        """Electricity load that must be met by the grid, or `PV` and/or `electrical_storage` if available time series, in [kWh]."""
 
         return self.energy_simulation.non_shiftable_load.tolist()[0:self.time_step]
 
     @property
     def solar_generation(self) -> List[float]:
-        """Time series of `PV` solar generation (negative value) in [kWh]."""
+        """`PV` solar generation (negative value) time series, in [kWh]."""
 
         return (np.array(self.pv.get_generation(self.energy_simulation.solar_generation[0:self.time_step]))*-1).tolist()
 
@@ -1070,193 +1070,193 @@ class District(Environment, Env):
 
     @property
     def net_electricity_consumption_without_storage_and_pv_emission(self) -> List[float]:
-        """Time series of summed `Building.net_electricity_consumption_without_storage_and_pv_emission`, in [kg_co2]."""
+        """Summed `Building.net_electricity_consumption_without_storage_and_pv_emission` time series, in [kg_co2]."""
 
         return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption_without_storage_and_pv_price(self) -> List[float]:
-        """Time series of summed `Building.net_electricity_consumption_without_storage_and_pv_price`, in [$]."""
+        """Summed `Building.net_electricity_consumption_without_storage_and_pv_price` time series, in [$]."""
 
         return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption_without_storage_and_pv(self) -> List[float]:
-        """Time series of summed `Building.net_electricity_consumption_without_storage_and_pv`, in [kWh]."""
+        """Summed `Building.net_electricity_consumption_without_storage_and_pv` time series, in [kWh]."""
 
         return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption_without_storage_emission(self) -> List[float]:
-        """Time series of summed `Building.net_electricity_consumption_without_storage_emission`, in [kg_co2]."""
+        """Summed `Building.net_electricity_consumption_without_storage_emission` time series, in [kg_co2]."""
 
         return pd.DataFrame([b.net_electricity_consumption_without_storage_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption_without_storage_price(self) -> List[float]:
-        """Time series of summed `Building.net_electricity_consumption_without_storage_price`, in [$]."""
+        """Summed `Building.net_electricity_consumption_without_storage_price` time series, in [$]."""
 
         return pd.DataFrame([b.net_electricity_consumption_without_storage_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption_without_storage(self) -> List[float]:
-        """Time series of summed `Building.net_electricity_consumption_without_storage`, in [kWh]."""
+        """Summed `Building.net_electricity_consumption_without_storage` time series, in [kWh]."""
 
         return pd.DataFrame([b.net_electricity_consumption_without_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption_emission(self) -> List[float]:
-        """Time series of summed `Building.net_electricity_consumption_emission`, in [kg_co2]."""
+        """Summed `Building.net_electricity_consumption_emission` time series, in [kg_co2]."""
 
         return pd.DataFrame([b.net_electricity_consumption_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption_price(self) -> List[float]:
-        """Time series of summed `Building.net_electricity_consumption_price`, in [$]."""
+        """Summed `Building.net_electricity_consumption_price` time series, in [$]."""
 
         return pd.DataFrame([b.net_electricity_consumption_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def net_electricity_consumption(self) -> List[float]:
-        """Time series of summed `Building.net_electricity_consumption`, in [kWh]."""
+        """Summed `Building.net_electricity_consumption` time series, in [kWh]."""
 
         return pd.DataFrame([b.net_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def cooling_electricity_consumption(self) -> List[float]:
-        """Time series of summed `Building.cooling_electricity_consumption`, in [kWh]."""
+        """Summed `Building.cooling_electricity_consumption` time series, in [kWh]."""
 
         return pd.DataFrame([b.cooling_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def heating_electricity_consumption(self) -> List[float]:
-        """Time series of summed `Building.heating_electricity_consumption`, in [kWh]."""
+        """Summed `Building.heating_electricity_consumption` time series, in [kWh]."""
 
         return pd.DataFrame([b.heating_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def dhw_electricity_consumption(self) -> List[float]:
-        """Time series of summed `Building.dhw_electricity_consumption`, in [kWh]."""
+        """Summed `Building.dhw_electricity_consumption` time series, in [kWh]."""
 
         return pd.DataFrame([b.dhw_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def cooling_storage_electricity_consumption(self) -> List[float]:
-        """Time series of summed `Building.cooling_storage_electricity_consumption`, in [kWh]."""
+        """Summed `Building.cooling_storage_electricity_consumption` time series, in [kWh]."""
 
         return pd.DataFrame([b.cooling_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def heating_storage_electricity_consumption(self) -> List[float]:
-        """Time series of summed `Building.heating_storage_electricity_consumption`, in [kWh]."""
+        """Summed `Building.heating_storage_electricity_consumption` time series, in [kWh]."""
 
         return pd.DataFrame([b.heating_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def dhw_storage_electricity_consumption(self) -> List[float]:
-        """Time series of summed `Building.dhw_storage_electricity_consumption`, in [kWh]."""
+        """Summed `Building.dhw_storage_electricity_consumption` time series, in [kWh]."""
 
         return pd.DataFrame([b.dhw_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def electrical_storage_electricity_consumption(self) -> List[float]:
-        """Time series of summed `Building.electrical_storage_electricity_consumption`, in [kWh]."""
+        """Summed `Building.electrical_storage_electricity_consumption` time series, in [kWh]."""
 
         return pd.DataFrame([b.electrical_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_from_cooling_device_to_cooling_storage(self) -> List[float]:
-        """Time series of summed `Building.energy_from_cooling_device_to_cooling_storage`, in [kWh]."""
+        """Summed `Building.energy_from_cooling_device_to_cooling_storage` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_cooling_device_to_cooling_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_from_heating_device_to_heating_storage(self) -> List[float]:
-        """Time series of summed `Building.energy_from_heating_device_to_heating_storage`, in [kWh]."""
+        """Summed `Building.energy_from_heating_device_to_heating_storage` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_heating_device_to_heating_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_from_dhw_device_to_dhw_storage(self) -> List[float]:
-        """Time series of summed `Building.energy_from_dhw_device_to_dhw_storage`, in [kWh]."""
+        """Summed `Building.energy_from_dhw_device_to_dhw_storage` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_dhw_device_to_dhw_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_to_electrical_storage(self) -> List[float]:
-        """Time series of summed `Building.energy_to_electrical_storage`, in [kWh]."""
+        """Summed `Building.energy_to_electrical_storage` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_to_electrical_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_from_cooling_device(self) -> List[float]:
-        """Time series of summed `Building.energy_from_cooling_device`, in [kWh]."""
+        """Summed `Building.energy_from_cooling_device` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_cooling_device for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_from_heating_device(self) -> List[float]:
-        """Time series of summed `Building.energy_from_heating_device`, in [kWh]."""
+        """Summed `Building.energy_from_heating_device` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_heating_device for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_from_dhw_device(self) -> List[float]:
-        """Time series of summed `Building.energy_from_dhw_device`, in [kWh]."""
+        """Summed `Building.energy_from_dhw_device` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_dhw_device for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_from_cooling_storage(self) -> List[float]:
-        """Time series of summed `Building.energy_from_cooling_storage`, in [kWh]."""
+        """Summed `Building.energy_from_cooling_storage` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_cooling_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_from_heating_storage(self) -> List[float]:
-        """Time series of summed `Building.energy_from_heating_storage`, in [kWh]."""
+        """Summed `Building.energy_from_heating_storage` time series, in [kWh]."""
         
         return pd.DataFrame([b.energy_from_heating_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_from_dhw_storage(self) -> List[float]:
-        """Time series of summed `Building.energy_from_dhw_storage`, in [kWh]."""
+        """Summed `Building.energy_from_dhw_storage` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_dhw_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def energy_from_electrical_storage(self) -> List[float]:
-        """Time series of summed `Building.energy_from_electrical_storage`, in [kWh]."""
+        """Summed `Building.energy_from_electrical_storage` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_electrical_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def cooling_demand(self) -> List[float]:
-        """Time series of summed `Building.cooling_demand`, in [kWh]."""
+        """Summed `Building.cooling_demand`, in [kWh]."""
 
         return pd.DataFrame([b.cooling_demand for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def heating_demand(self) -> List[float]:
-        """Time series of summed `Building.heating_demand`, in [kWh]."""
+        """Summed `Building.heating_demand`, in [kWh]."""
 
         return pd.DataFrame([b.heating_demand for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def dhw_demand(self) -> List[float]:
-        """Time series of summed `Building.dhw_demand`, in [kWh]."""
+        """Summed `Building.dhw_demand`, in [kWh]."""
 
         return pd.DataFrame([b.dhw_demand for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def non_shiftable_load_demand(self) -> List[float]:
-        """Time series of summed `Building.non_shiftable_load_demand`, in [kWh]."""
+        """Summed `Building.non_shiftable_load_demand`, in [kWh]."""
 
         return pd.DataFrame([b.non_shiftable_load_demand for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
     def solar_generation(self) -> List[float]:
-        """Time series of summed `Building.solar_generation, in [kWh]`."""
+        """Summed `Building.solar_generation, in [kWh]`."""
 
         return pd.DataFrame([b.solar_generation for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
