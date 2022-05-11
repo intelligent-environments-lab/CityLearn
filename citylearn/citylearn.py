@@ -1525,10 +1525,10 @@ class CityLearn:
         controller_name = controller_type.split('.')[-1]
         controller_constructor = getattr(importlib.import_module(controller_module), controller_name)
         controller_attributes = schema['controller'].get('attributes', {})
+        controllers = [controller_constructor(district.action_spaces[i], **controller_attributes) for i in range(controller_count)]
         reward_type = schema['reward']
         reward_module = '.'.join(reward_type.split('.')[0:-1])
         reward_name = reward_type.split('.')[-1]
         reward_constructor = getattr(importlib.import_module(reward_module), reward_name)
-        reward_function = reward_constructor()
-        controllers = [controller_constructor(district.action_spaces[i], **controller_attributes) for i in range(controller_count)]
+        reward_function = reward_constructor(agent_count=len(controllers))
         return district, controllers, reward_function

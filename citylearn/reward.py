@@ -2,11 +2,13 @@ from typing import List
 import numpy as np
 
 class Reward:
-    def __init__(self, electricity_consumption: List[float] = None, carbon_emission: List[float] = None, electricity_price: List[float] = None):
+    def __init__(self, agent_count: int, electricity_consumption: List[float] = None, carbon_emission: List[float] = None, electricity_price: List[float] = None):
         r"""Initialize `Reward`.
 
         Parameters
         ----------
+        agent_count: int
+            Number of agents.
         electricity_consumption: List[float]
             Buildings' electricity consumption in [kWh].
         carbon_emission: List[float], optional
@@ -15,9 +17,16 @@ class Reward:
             Buildings' electricty prices in [$].
         """
 
+        self.agent_count = agent_count
         self.electricty_consumption = electricity_consumption
         self.carbon_emission = carbon_emission
         self.electricity_price = electricity_price
+
+    @property
+    def agent_count(self) -> int:
+        """Number of agents."""
+
+        return self.__agent_count
 
     @property
     def electricity_consumption(self) -> List[float]:
@@ -37,17 +46,21 @@ class Reward:
 
         return self.__electricity_price
 
+    @agent_count.setter
+    def agent_count(self, agent_count: int):
+        self.__agent_count = agent_count
+
     @electricity_consumption.setter
     def electricity_consumption(self, electricity_consumption: List[float]):
-        self.__electricity_consumption = electricity_consumption
+        self.__electricity_consumption = [np.nan]*self.agent_count if electricity_consumption is None else electricity_consumption
 
     @carbon_emission.setter
     def carbon_emission(self, carbon_emission: List[float]):
-        self.__carbon_emission = carbon_emission
+        self.__carbon_emission = [np.nan]*self.agent_count if carbon_emission is None else carbon_emission
 
     @electricity_price.setter
     def electricity_price(self, electricity_price: List[float]):
-        self.__electricity_price = electricity_price
+        self.__electricity_price = [np.nan]*self.agent_count if electricity_price is None else electricity_price
 
     def calculate(self) -> List[float]:
         r"""Calculates default reward.
@@ -62,7 +75,7 @@ class Reward:
 
     
 class MARL(Reward):
-    def __init__(self, electricity_consumption: List[float], **kwargs):
+    def __init__(self, electricity_consumption: List[float] = None, **kwargs):
         super().__init__(electricity_consumption=electricity_consumption, **kwargs)
 
     def calculate(self) -> List[float]:
@@ -85,7 +98,7 @@ class MARL(Reward):
         return reward.tolist()
 
 class IndependentSACReward(Reward):
-    def __init__(self, electricity_consumption: List[float], **kwargs):
+    def __init__(self, electricity_consumption: List[float] = None, **kwargs):
         super().__init__(electricity_consumption=electricity_consumption, **kwargs)
 
     def calculate(self) -> List[float]:
