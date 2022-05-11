@@ -124,7 +124,7 @@ class Pricing:
     Attributes
     ----------
     electricity_pricing : np.array
-        Electricity pricing time series in [W/m^2].
+        Electricity pricing time series in [$].
     electricity_pricing_predicted_6h : np.array
         Electricity pricing 6 hours ahead prediction time series in [$].
     electricity_pricing_predicted_12h : np.array

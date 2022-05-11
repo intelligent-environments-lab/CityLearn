@@ -98,7 +98,7 @@ class ElectricDevice(Device):
         self.__electricity_consumption.append(0.0)
 
     def reset(self):
-        r"""Reset environment to initial state and set `electricity_consumption` at `time_step` 0 to = 0.0."""
+        r"""Reset `ElectricDevice` to initial state and set `electricity_consumption` at `time_step` 0 to = 0.0."""
 
         super().reset()
         self.__electricity_consumption = [0.0]
@@ -259,7 +259,7 @@ class HeatPump(ElectricDevice):
     def autosize(self, outdoor_dry_bulb_temperature: Iterable[float], cooling_demand: Iterable[float] = None, heating_demand: Iterable[float] = None, safety_factor: float = None):
         r"""Autosize `nominal_power`.
 
-        Set `nominal_power` to the maximum input power needed to meet cooling + heating demand.
+        Set `nominal_power` to the minimum power needed to always meet `cooling_demand` + `heating_demand`.
 
         Parameters
         ----------
@@ -274,7 +274,7 @@ class HeatPump(ElectricDevice):
 
         Notes
         -----
-        `nominal_power` = max((cooling_demand/cooling_cop) + (heating_demand/heating_cop))
+        `nominal_power` = max((cooling_demand/cooling_cop) + (heating_demand/heating_cop))*safety_factor
         """
         
         safety_factor = 1.0 if safety_factor is None else safety_factor
@@ -369,7 +369,7 @@ class ElectricHeater(ElectricDevice):
     def autosize(self, demand: Iterable[float], safety_factor: float = None):
         r"""Autosize `nominal_power`.
 
-        Set `nominal_power` property to the maximum value of demand/`efficiency`.
+        Set `nominal_power` to the minimum power needed to always meet `demand`.
 
         Parameters
         ----------
@@ -380,7 +380,7 @@ class ElectricHeater(ElectricDevice):
 
         Notes
         -----
-        `nominal_power` = max(demand/`efficiency`)
+        `nominal_power` = max(demand/`efficiency`)*safety_factor
         """
 
         safety_factor = 1.0 if safety_factor is None else safety_factor
@@ -438,7 +438,7 @@ class PV(Device):
     def autosize(self, demand: Iterable[float], safety_factor: float = None):
         r"""Autosize `capacity`.
 
-        Set `capacity` property to the maximum value of demand/`efficiency`.
+        Set `capacity` to the minimum capacity needed to always meet `demand`.
 
         Parameters
         ----------
@@ -449,7 +449,7 @@ class PV(Device):
 
         Notes
         -----
-        `capacity` = max(demand/`efficiency`)
+        `capacity` = max(demand/`efficiency`)*safety_factor
         """
 
         safety_factor = 1.0 if safety_factor is None else safety_factor
@@ -596,7 +596,7 @@ class StorageDevice(Device):
     def autosize(self, demand: Iterable[float], safety_factor: float = None):
         r"""Autosize `capacity`.
 
-        Set `capacity` property to the maximum value of demand.
+        Set `capacity` to the minimum capacity needed to always meet `demand`.
 
         Parameters
         ----------
@@ -607,13 +607,15 @@ class StorageDevice(Device):
 
         Notes
         -----
-        `capacity` = max(demand/`efficiency`)
+        `capacity` = max(demand/`efficiency`)*safety_factor
         """
 
         safety_factor = 1.0 if safety_factor is None else safety_factor
         self.capacity = np.nanmax(demand)*safety_factor
 
     def reset(self):
+        r"""Reset `StorageDevice` to initial state."""
+
         super().reset()
         self.__soc = [self.initial_soc]
 
@@ -912,6 +914,8 @@ class Battery(ElectricDevice, StorageDevice):
         return capacity_degrade
 
     def reset(self):
+        r"""Reset `Battery` to initial state."""
+
         super().reset()
         self.__efficiency_history = self.efficiency_history[0:1]
         self.__capacity_history = self.capacity_history[0:1]
