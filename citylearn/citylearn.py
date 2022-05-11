@@ -1,4 +1,5 @@
 import importlib
+import logging
 import os
 from pathlib import Path
 from typing import Any, List, Mapping, Tuple, Union
@@ -6,10 +7,14 @@ from gym import Env, spaces
 import numpy as np
 import pandas as pd
 from citylearn.base import Environment
+from citylearn.controller.base import Controller
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, StorageTank
 from citylearn.preprocessing import Normalize, OnehotEncoding, PeriodicNormalization, RemoveFeature
+from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
+
+logging.basicConfig(filename='output.log', level=logging.DEBUG)
     
 class Building(Environment):
     def __init__(
@@ -1361,19 +1366,22 @@ class District(Environment, Env):
             building.reset()
 
 class CityLearn:
-    def __init__(self, district: District, controllers: List[Any]):
+    def __init__(self, district: District, controllers: Union[List[Controller], List[Any]], reward_function: Union[RewardFunction, Any]):
         r"""Initialize `CityLearn`.
 
         Parameters
         ----------
         district : District
             Simulation district.
-        controllers : List[Any]
+        controllers : Union[List[Controller], List[Any]]
             Simulation controllers for `district.buildings` energy storage charging/discharging management.
+        reward_function : Union[RewardFunction, Any]
+            Simulation reward function class.
         """
 
         self.district = district
         self.controllers = controllers
+        self.reward_function = reward_function
 
     @property
     def district(self) -> District:
@@ -1382,17 +1390,23 @@ class CityLearn:
         return self.__district
 
     @property
-    def controllers(self) -> List[Any]:
+    def controllers(self) -> Union[List[Controller], List[Any]]:
         """Simulation controllers for `district.buildings` energy storage charging/discharging management."""
 
         return self.__controllers
+
+    @property
+    def reward_function(self) -> Union[RewardFunction, Any]:
+        """Simulation reward function class."""
+
+        return self.__reward_function
 
     @district.setter
     def district(self, district: District):
         self.__district = district
 
     @controllers.setter
-    def controllers(self, controllers: List[Any]):
+    def controllers(self, controllers: Union[List[Controller], List[Any]]):
         if self.district.central_agent:
             assert len(controllers) == 1, 'Only 1 controller is expected when `district.central_agent` = True.'
         else:
@@ -1400,25 +1414,47 @@ class CityLearn:
 
         self.__controllers = controllers
 
+    @reward_function.setter
+    def reward_function(self, reward_function: Union[RewardFunction, Any]):
+        self.__reward_function = reward_function
+
     def simulate(self):
         """Run traditional simulation."""
 
         while not self.district.terminal:
-            print(f'Timestep: {self.district.time_step}/{self.district.time_steps - 1}')
+            logging.debug(f'Timestep: {self.district.time_step}/{self.district.time_steps - 1}')
             states_list = self.district.states
+            actions_list = []
+            reward_list = []
 
             # select actions
-            actions_list = [controller.select_actions(states) if controller.action_dimension > 0 else [] for controller, states in zip(self.controllers, states_list)]
+            for controller, states in zip(self.controllers, states_list):
+                if controller.action_dimension > 0:
+                    actions_list.append(controller.select_actions(states))
+                else:
+                    actions_list.append([]) 
+
+            # apply actions to district
             self.district.step(actions_list)
 
+            # get rewards
+            self.reward_function.electricity_consumption = [sum(self.district.net_electricity_consumption)] if self.district.central_agent\
+                else self.district.net_electricity_consumption
+            self.reward_function.carbon_emission = [sum(self.district.net_electricity_consumption_emission)] if self.district.central_agent\
+                else self.district.net_electricity_consumption_emission
+            self.reward_function.electricity_price = [sum(self.district.net_electricity_consumption_price)] if self.district.central_agent\
+                else self.district.net_electricity_consumption_price
+            reward_list = self.reward_function.calculate()
+
             # update
-            for controller, states, actions, next_states in zip(self.controllers, states_list, actions_list, self.district.states):
+            for controller, states, actions, reward, next_states in zip(self.controllers, states_list, actions_list, reward_list, self.district.states):
                 if controller.action_dimension > 0:
-                    controller.add_to_buffer(states, actions, controller.rewards[-1], next_states, done = self.district.terminal)
-                continue
+                    controller.add_to_buffer(states, actions, reward, next_states, done = self.district.terminal)
+                else:
+                    continue
 
     @classmethod
-    def load(cls, schema: Union[str, Path, Mapping[str, Any]]) -> Tuple[District, List[Any]]:
+    def load(cls, schema: Union[str, Path, Mapping[str, Any]]) -> Tuple:
         """Return `District` and `Controller` objects as defined by the `schema`.
 
         Parameters
@@ -1430,8 +1466,10 @@ class CityLearn:
         -------
         district: District
             Simulation district.
-        controllers: List[Any]
+        controllers: Union[List[Controller], List[Any]]
             Simulation controllers for `district.buildings` energy storage charging/discharging management.
+        reward_function: Union[RewardFunction, Any]
+            Simulation reward function class.
         """
 
         if not isinstance(schema, dict):

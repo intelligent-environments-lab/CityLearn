@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 
-class Reward:
+class RewardFunction:
     def __init__(self, agent_count: int, electricity_consumption: List[float] = None, carbon_emission: List[float] = None, electricity_price: List[float] = None):
         r"""Initialize `Reward`.
 
@@ -68,13 +68,13 @@ class Reward:
         Notes
         -----
         Reward value is calculated as :math:`[\textrm{max}(-e_0, 0), \dots, \textrm{max}(-e_n, 0)]` 
-        where :math:`e` is `electricity_consumption` and :math:`n` is the number of buildings.
+        where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
         """
 
         return (np.array(self.electricity_consumption)*-1).clip(max=0).tolist()
 
     
-class MARL(Reward):
+class MARL(RewardFunction):
     def __init__(self, electricity_consumption: List[float] = None, **kwargs):
         super().__init__(electricity_consumption=electricity_consumption, **kwargs)
 
@@ -97,7 +97,7 @@ class MARL(Reward):
         reward = np.sign(electricity_consumption)*0.01*electricity_consumption**2*np.nanmax(0, sum(total_electricity_consumption))
         return reward.tolist()
 
-class IndependentSACReward(Reward):
+class IndependentSACReward(RewardFunction):
     def __init__(self, electricity_consumption: List[float] = None, **kwargs):
         super().__init__(electricity_consumption=electricity_consumption, **kwargs)
 
@@ -109,7 +109,7 @@ class IndependentSACReward(Reward):
         Notes
         -----
         Reward value is calculated as :math:`[\textrm{max}(-e_0^3, 0), \dots, \textrm{max}(-e_n^3, 0)]` 
-        where :math:`e` is `electricity_consumption` and :math:`n` is the number of buildings.
+        where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
         """
 
         electricity_consumption = np.array(electricity_consumption)*-1**3
