@@ -23,6 +23,8 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
     agent.py
 
+    buildings_states_actions_space.json
+
     reward_function.py
 
     agents
@@ -49,8 +51,6 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
             ├── solar_generation_1kW.csv
 
-            ├── buildings_state_action_space
-
             ├── weather_data.csv
 
             └── Building_i.csv
@@ -73,7 +73,7 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
 - [main.ipynb](/main.ipynb): jupyter lab file. File that will be executed to evaluate the submission of the challenge.
 - [main.py](/main.py): Copy of main.ipynb as a .py  file.
-- [buildings_state_action_space.json](data/Climate_Zone_5/buildings_state_action_space.json): json file containing the possible states and actions for every building, from which users can choose.
+- [buildings_state_action_space.json](/buildings_state_action_space.json): json file containing the possible states and actions for every building, from which users can choose.
 - [building_attributes.json](/data/Climate_Zone_5/building_attributes.json): json file containing the attributes of the buildings and which users can modify.
 - [citylearn.py](/citylearn.py): Contains the CityLearn environment and the functions building_loader() and autosize()
 - [energy_models.py](/energy_models.py): Contains the classes Building, HeatPump, EnergyStorage, and Battery which are called by the CityLearn class.
@@ -106,16 +106,14 @@ This class of type OpenAI Gym Environment contains all the buildings and their s
   - ```verbose```: set to 0 if you don't want CityLearn to print out the cumulated reward of each episode and set it to 1 if you do
 - Internal attributes (all in kWh)
   - ```net_electric_consumption```: district net electricity consumption
-  - ```net_electric_consumption_no_storage```: district net electricity consumption if there were no cooling storage, heating storage and DHW storage
-  - ```net_electric_consumption_no_pv_no_storage```: district net electricity consumption if there were no cooling storage, heating storage, DHW storage and PV generation
+  - ```net_electric_consumption_no_storage```: district net electricity consumption if there were no cooling storage and DHW storage
+  - ```net_electric_consumption_no_pv_no_storage```: district net electricity consumption if there were no cooling storage, DHW storage and PV generation
   - ```electric_consumption_dhw_storage```: electricity consumed in the district to increase DHW energy stored (when > 0) and electricity that the decrease in DHW energy stored saves from consuming in the district (when < 0).
   - ```electric_consumption_cooling_storage```: electricity consumed in the district to increase cooling energy stored (when > 0) and electricity that the decrease in cooling energy stored saves from consuming in the district (when < 0).
-  - ```electric_consumption_heating_storage```: electricity consumed in the district to increase heating energy stored (when > 0) and electricity that the decrease in heating energy stored saves from consuming in the district (when < 0).
-  - ```electric_consumption_dhw```: electricity consumed to satisfy the DHW demand of the district.
-  - ```electric_consumption_cooling```: electricity consumed to satisfy the cooling demand of the district.
-  - ```electric_consumption_heating```: electricity consumed to satisfy the heating demand of the district.
-  - ```electric_consumption_appliances```: non-shiftable electricity consumed by appliances.
-  - ```electric_generation```: electricity generated in the district.
+  - ```electric_consumption_dhw```: electricity consumed to satisfy the DHW demand of the district
+  - ```electric_consumption_cooling```: electricity consumed to satisfy the cooling demand of the district
+  - ```electric_consumption_appliances```: non-shiftable electricity consumed by appliances
+  - ```electric_generation```: electricity generated in the district 
 - CityLearn specific methods
   - ```get_state_action_spaces()```: returns state-action spaces for all the buildings
   - ```next_hour()```: advances simulation to the next time-step
@@ -129,30 +127,24 @@ This class of type OpenAI Gym Environment contains all the buildings and their s
   - ```seed()```: specifies a random seed
 
 ### Building
-The DHW, cooling and heating demands of the buildings have been pre-computed and obtained from EnergyPlus. The DHW and, cooling and heating supply systems (HVAC system) are sized such that the DHW, cooling and heating demands are always satisfied. CityLearn automatically sets constraints to the actions from the controllers to guarantee that the DHW, cooling and heating demands are satisfied, and that the building does not receive from the storage units more energy than it needs. 
-The file ```building_attributes.json``` contains the attributes of each building, which can be modified. We do not advise to modify the attributes Building -> HeatPump -> nominal_power and Building -> ElectricHeater -> nominal_power from their default value "autosize", as they guarantee that the DHW, cooling and heating demand are always satisfied.
+The DHW and cooling demands of the buildings have been pre-computed and obtained from EnergyPlus. The DHW and cooling supply systems are sized such that the DHW and cooling demands are always satisfied. CityLearn automatically sets constraints to the actions from the controllers to guarantee that the DHW and cooling demands are satisfied, and that the building does not receive from the storage units more energy than it needs. 
+The file building_attributes.json contains the attributes of each building, which can be modified. We do not advise to modify the attributes Building -> HeatPump -> nominal_power and Building -> ElectricHeater -> nominal_power from their default value "autosize", as they guarantee that the DHW and cooling demand are always satisfied.
 - Building attributes (all in kWh)
-  - ```cooling_demand_building```: demand for cooling energy to cool down and dehumidify the building.
-  - ```heating_demand_building```: demand for heating energy to heat up the building.
-  - ```dhw_demand_building```: demand for heat to supply the building with domestic hot water (DHW).
-  - ```electric_consumption_appliances```: non-shiftable electricity consumed by appliances.
-  - ```electric_generation```: electricity generated by the solar panels.
-  - ```electric_consumption_cooling```: electricity consumed to satisfy the cooling demand of the building.
-  - ```electric_consumption_heating```: electricity consumed to satisfy the heating demand of the building.
-  - ```electric_consumption_cooling_storage```: if > 0, electricity consumed by the building's HVAC device (i.e. heat pump) to increase cooling energy stored; if < 0, electricity saved from being consumed by the building's HVAC device (through decreasing the cooling energy stored and releasing it into the building's cooling system).
-  - ```electric_consumption_heating_storage```: if > 0, electricity consumed by the building's HVAC device (i.e. heat pump) to increase heating energy stored; if < 0, electricity saved from being consumed by the building's HVAC device (through decreasing the heating energy stored and releasing it into the building's heating system).
-  - ```electric_consumption_dhw```: electricity consumed to satisfy the DHW demand of the building.
+  - ```cooling_demand_building```: demand for cooling energy to cool down and dehumidify the building
+  - ```dhw_demand_building```: demand for heat to supply the building with domestic hot water (DHW)
+  - ```electric_consumption_appliances```: non-shiftable electricity consumed by appliances
+  - ```electric_generation```: electricity generated by the solar panels
+  - ```electric_consumption_cooling```: electricity consumed to satisfy the cooling demand of the building
+  - ```electric_consumption_cooling_storage```: if > 0, electricity consumed by the building's cooling device (i.e. heat pump) to increase cooling energy stored; if < 0, electricity saved from being consumed by the building's cooling device (through decreasing the cooling energy stored and releasing it into the building's cooling system).
+  - ```electric_consumption_dhw```: electricity consumed to satisfy the DHW demand of the building
   - ```electric_consumption_dhw_storage```: if > 0, electricity consumed by the building's heating device (i.e. DHW) to increase DHW energy storage; if < 0, electricity saved from being consumed by the building's heating device (through decreasing the heating energy stored and releasing it into the building's DHW system).
   - ```net_electric_consumption```: building net electricity consumption
-  - ```net_electric_consumption_no_storage```: building net electricity consumption if there were no cooling, heating and DHW storage
-  - ```net_electric_consumption_no_pv_no_storage```: building net electricity consumption if there were no cooling, heating and DHW storage and PV generation
-  - ```hvac_device_to_building```: cooling and heating energy supplied by the HVAC device (i.e. heat pump) to the building
+  - ```net_electric_consumption_no_storage```: building net electricity consumption if there were no cooling and DHW storage
+  - ```net_electric_consumption_no_pv_no_storage```: building net electricity consumption if there were no cooling, DHW storage and PV generation
+  - ```cooling_device_to_building```: cooling energy supplied by the cooling device (i.e. heat pump) to the building
   - ```cooling_storage_to_building```: cooling energy supplied by the cooling storage device to the building
-  - ```heating_storage_to_building```: heating energy supplied by the heating storage device to the building
-  - ```hvac_device_to_cooling_storage```: cooling energy supplied by the HVAC device to the cooling storage device
-  - ```hvac_device_to_heating_storage```: heatinf energy supplied by the HVAC device to the heating storage device
+  - ```cooling_device_to_storage```: cooling energy supplied by the cooling device to the cooling storage device
   - ```cooling_storage_soc```: state of charge of the cooling storage device
-  - ```heating_storage_soc```: state of charge of the heating storage device
   - ```dhw_heating_device_to_building```: DHW heating energy supplied by the heating device to the building
   - ```dhw_storage_to_building```: DHW heating energy supplied by the DHW storage device to the building
   - ```dhw_heating_device_to_storage```: DHW heating energy supplied by the heating device to the DHW storage device
@@ -160,8 +152,8 @@ The file ```building_attributes.json``` contains the attributes of each building
 
 - Methods
   - ```set_state_space()``` and ```set_action_space()``` set the state-action space of each building
-  - ```set_storage_dhw()```, ```set_storage_cooling()``` and ```set_storage_heating()``` set the state of charge of the ```EnergyStorage``` device to the specified value and within the physical constraints of the system. Returns the total electricity consumption of the building for dhw heating, space heating and space cooling respectively at that time-step.
-  - ```get_non_shiftable_load()```, ```get_solar_power()```, ```get_dhw_electric_demand()```, ```get_cooling_electric_demand()``` and ```get_heating_electric_demand()``` get the different types of electricity demand and generation.
+  - ```set_storage_heating()``` and ```set_storage_cooling()``` set the state of charge of the ```EnergyStorage``` device to the specified value and within the physical constraints of the system. Returns the total electricity consumption of the building for heating and cooling respectively at that time-step.
+  - ```get_non_shiftable_load()```, ```get_solar_power()```, ```get_dhw_electric_demand()``` and ```get_cooling_electric_demand()``` get the different types of electricity demand and generation.
   
 ### Heat pump
 Its efficiency is given by the coefficient of performance (COP), which is calculated as a function of the outdoor air temperature and of the following parameters:
@@ -169,7 +161,7 @@ Its efficiency is given by the coefficient of performance (COP), which is calcul
 -```eta_tech```: technical efficiency of the heat pump
 
 -```T_target```: target temperature. Conceptually, it is  equal to the logarithmic mean of the temperature of the supply water of the storage device and the temperature of the water returning from the building. Here it is assumed to be constant and defined by the user in the [building_attributes.json](/data/building_attributes.json) file.  For cooling, values between 7C and 10C are reasonable.
-Any amount of cooling demand of the building that isn't satisfied by the ```EnergyStorage``` device is automatically supplied by the ```HeatPump``` directly to the ```Building```, guaranteeing that the cooling and heating demands are always satisfied. The ```HeatPump``` is more efficient (has a higher COP) if the outdoor air temperature is lower, and less efficient (lower COP) when the outdoor temperature is higher (typically during the day time). On the other hand, the electricity demand is typically higher during the daytime and lower at night. ```cooling_energy_generated = COP*electricity_consumed, COP > 1```
+Any amount of cooling demand of the building that isn't satisfied by the ```EnergyStorage``` device is automatically supplied by the ```HeatPump``` directly to the ```Building```, guaranteeing that the cooling demand is always satisfied. The ```HeatPump``` is more efficient (has a higher COP) if the outdoor air temperature is lower, and less efficient (lower COP) when the outdoor temperature is higher (typically during the day time). On the other hand, the electricity demand is typically higher during the daytime and lower at night. ```cooling_energy_generated = COP*electricity_consumed, COP > 1```
 - Attributes
   - ```cop_heating```: coefficient of performance for heating supply
   - ```cop_cooling```:  coefficient of performance for cooling supply
@@ -232,7 +224,6 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
 - ```non_shiftable_load```: electricity currently consumed by electrical appliances in kW.
 - ```solar_gen```: electricity currently being generated by photovoltaic panels in kWh.
 - ```cooling_storage_soc```: state of the charge (SOC) of the cooling storage device. From 0 (no energy stored) to 1 (at full capacity).
-- ```heating_storage_soc```: state of the charge (SOC) of the heating storage device. From 0 (no energy stored) to 1 (at full capacity).
 - ```dhw_storage_soc```: state of the charge (SOC) of the domestic hot water (DHW) storage device. From 0 (no energy stored) to 1 (at full capacity).
 - ```net_electricity_consumption```: net electricity consumption of the building (including all energy systems) in the current time step.
 - ```carbon_intensity```: current carbon intensity of the power grid.
@@ -240,7 +231,6 @@ The file [buildings_state_action_space.json](/buildings_state_action_space.json)
 ### Possible actions
 C determines the capacity of the storage device and is defined as a multiple of the maximum thermal energy consumption by the building.
 - ```cooling_storage```: increase (action > 0) or decrease (action < 0) of the amount of cooling energy stored in the cooling storage device. -1/C <= action <= 1/C (attempts to decrease or increase the cooling energy stored in the storage device by an amount equal to the action times the storage device's maximum capacity). In order to decrease the energy stored in the device (action < 0), the energy must be released into the building's cooling system. Therefore, the state of charge will not decrease proportionally to the action taken if the demand for cooling of the building is lower than the action times the maximum capacity of the cooling storage device.
-- ```heating_storage```: increase (action > 0) or decrease (action < 0) of the amount of heating energy stored in the heating storage device. -1/C <= action <= 1/C (attempts to decrease or increase the heating energy stored in the storage device by an amount equal to the action times the storage device's maximum capacity). In order to decrease the energy stored in the device (action < 0), the energy must be released into the building's heating system. Therefore, the state of charge will not decrease proportionally to the action taken if the demand for heating of the building is lower than the action times the maximum capacity of the heating storage device.
 - ```dhw_storage```: increase (action > 0) or decrease (action < 0) of the amount of DHW stored in the DHW storage device. -1/C <= action <= 1/C (attempts to decrease or increase the DHW stored in the storage device by an amount equivalent to action times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into the building. Therefore, the state of charge will not decrease proportionally to the action taken if the demand for DHW of the building is lower than the action times the maximum capacity of the DHW storage device.
 
 Note that the action of the user-implemented controller can be bounded between -1/C and 1/C because the capacity of the storage unit, C, is defined as a multiple of the maximum thermal energy consumption by the building. For instance, if C_cooling = 3 and the peak cooling energy consumption of the building during the simulation is 20 kWh, then the storage unit will have a total capacity of 60 kWh.
@@ -248,7 +238,7 @@ Note that the action of the user-implemented controller can be bounded between -
 - ```electrical_storage```: increase (action > 0) or decrease (action < 0) of the amount of electricity stored in the battery. -1.0 <= action <= 1.0 (attempts to decrease or increase the electricity stored in the battery by an amount equivalent to action times its maximum capacity). In order to decrease the energy stored in the device, the energy must be released into whole micro-grid.
 
 
-The mathematical formulation of the effects of the actions can be found in the methods ```set_storage_electrical(action)```, ```set_storage_dhw(action)```, ```set_storage_cooling(action)``` and ```set_storage_heating(action)``` of the class Building in the file [energy_models.py](/energy_models.py).
+The mathematical formulation of the effects of the actions can be found in the methods ```set_storage_electrical(action)```, ```set_storage_heating(action)``` and ```set_storage_cooling(action)``` of the class Building in the file [energy_models.py](/energy_models.py).
 ### Reward function
 The reward function must be defined by the users by changing the class ```reward_function_ma``` in the file [reward_function.py](/reward_function.py).
 ```reward_function_ma```: it is a multi-agent reward function that takes the total net electricity consumption of each building (< 0 if generation is higher than demand), and the carbon intensity at a given time and returns a list with as many rewards as the number of agents. It can also be initialized with some information about the number of buildings and some information about them as provided by the variable building_info
@@ -265,11 +255,6 @@ The reward function must be defined by the users by changing the class ```reward
 
 All these metrics are divided by the metrics of a reference rule-based controller (RBC). Therefore, any metric > 1 is worse than that of the RBC, and < 1 means that the controller is minimizing that metric better than the RBC. Since the metrics are normalized using the RBC results, it is possible to have results in which for example ```average_daily_peak``` > ```peak_demand```. This just means that the RL controller minimized the total peak demand more than it minimized the average daily peak demand with respect to the RBC.
 
-### Environment Limitations
-1. Only single-zone buildings are supported hence, simultaneous space cooling and heating loads are not allowed. Therefore, at any given timestep, the product of  ```Cooling Load [kWh]``` and ```Heating Load [kWh]``` must equal 0.
-2. A building may have either cooling or heating storage, or neither cooling nor heating storage. Hence, define ```Chilled_Water_Tank``` and ```Hot_Water_Tank``` capacities as well as the ```buildings_state_action_space.json``` accordingly.
-3. The DHW device must be an ```ElectricHeater``` object.
-
 ### Scores
 - Total - Average of the metrics 1, 2, 3, 4, 5, and 6 for the full simulated period (4 years)
 - Total Last Year - Average of the metrics 1, 2, 3, 4, 5, and 6 for the last year of the simulation
@@ -279,10 +264,10 @@ All these metrics are divided by the metrics of a reference rule-based controlle
 
 ## Additional functions
 - ```building_loader(demand_file, weather_file, buildings)``` receives a dictionary with all the building instances and their respectives IDs, and loads them with the data of heating and cooling loads from the simulations.
-- ```auto_size(buildings, t_target_heating, t_target_cooling)``` automatically sizes the heat pumps and the storage devices. It assumes fixed target temperatures of the heat pump for heating and cooling, which combines with weather data to estimate their hourly COP for the simulated period. The ```HeatPump``` is sized such that it will always be able to fully satisfy the heating and cooling demands of the building. This function also sizes the ```EnergyStorage``` devices, setting their capacity as 3 times the maximum hourly cooling and heating demand in the simulated period.
+- ```auto_size(buildings, t_target_heating, t_target_cooling)``` automatically sizes the heat pumps and the storage devices. It assumes fixed target temperatures of the heat pump for heating and cooling, which combines with weather data to estimate their hourly COP for the simulated period. The ```HeatPump``` is sized such that it will always be able to fully satisfy the heating and cooling demands of the building. This function also sizes the ```EnergyStorage``` devices, setting their capacity as 3 times the maximum hourly cooling demand in the simulated period.
 ## Multi-agent coordination
 ### One building
-  - A good control policy for cooling and heating is trivial, and consists on storing cooling and heating energy during the night (when the cooling and heating demand of the building is low and the COP of the heat pump is higher), and releasing the stored cooling and heating energy into the building during the day (high demand for cooling and heating and low COP). 
+  - A good control policy for cooling is trivial, and consists on storing cooling energy during the night (when the cooling demand of the building is low and the COP of the heat pump is higher), and releasing the stored cooling energy into the building during the day (high demand for cooling and low COP). 
 ### Multiple buildings
   - If controlled independently of each other and without coordination or sharing any information, the buildings will tend to consume more electricity simultaneously, which may not be optimal if the objective is peak reduction and load flattening. 
 ### [Challenge](www.citylearn.net)

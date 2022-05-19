@@ -1,5 +1,4 @@
 # Run this again after editing submodules so Colab uses the updated versions
-import os
 from citylearn import  CityLearn
 from pathlib import Path
 from agent import Agent
@@ -8,17 +7,14 @@ import torch
 
 # Load environment
 climate_zone = 5
-data_path = Path("data/Climate_Zone_"+str(climate_zone))
-building_ids = ["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]]
-sim_period = (0, 8760*4-1)
 params = {'data_path':Path("data/Climate_Zone_"+str(climate_zone)), 
         'building_attributes':'building_attributes.json', 
         'weather_file':'weather_data.csv', 
         'solar_profile':'solar_generation_1kW.csv', 
         'carbon_intensity':'carbon_intensity.csv',
-        'building_ids':building_ids,
+        'building_ids':["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]],
         'buildings_states_actions':'buildings_state_action_space.json', 
-        'simulation_period': sim_period, 
+        'simulation_period': (0, 8760*4-1), 
         'cost_function': ['ramping','1-load_factor','average_daily_peak','peak_demand','net_electricity_consumption','carbon_emissions'], 
         'central_agent': False,
         'save_memory': False }
@@ -30,8 +26,8 @@ observations_spaces, actions_spaces = env.get_state_action_spaces()
 # Provides information on Building type, Climate Zone, Annual DHW demand, Annual Cooling Demand, Annual Electricity Demand, Solar Capacity, and correllations among buildings
 building_info = env.get_building_information()
 
-params_agent = {'building_ids':building_ids,
-                 'buildings_states_actions':os.path.join(data_path,'buildings_state_action_space.json'), 
+params_agent = {'building_ids':["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]],
+                 'buildings_states_actions':'buildings_state_action_space.json', 
                  'building_info':building_info,
                  'observation_spaces':observations_spaces, 
                  'action_spaces':actions_spaces
