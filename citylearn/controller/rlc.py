@@ -10,13 +10,38 @@ from citylearn.preprocessing import Encoder, PeriodicNormalization, OnehotEncodi
 from citylearn.rl import PolicyNetwork, ReplayBuffer, SoftQNetwork
 
 class RLC(Controller):
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self, *args, 
+        encoders: List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]], observation_spaces: spaces.Box,
+        **kwargs
+    ):
         super().__init__(*args, **kwargs)
+        self.encoders = encoders
+        self.observation_spaces = observation_spaces
+
+    @property
+    def encoders(self) -> List[Encoder]:
+        return self.__encoders
+
+    @property
+    def observation_dimension(self) -> int:
+        return len([j for j in np.hstack(self.encoders*np.ones(len(self.observation_spaces.low))) if j != None])
+
+    @property
+    def observation_spaces(self) -> spaces.Box:
+        return self.__observation_spaces
+
+    @encoders.setter
+    def encoders(self, encoders: List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]):
+        self.__encoders = encoders
+
+    @observation_spaces.setter
+    def observation_spaces(self, observation_spaces: spaces.Box):
+        self.__observation_spaces = observation_spaces
 
 class SAC(RLC):
     def __init__(
-        self, *args, observation_spaces: spaces.Box, 
-        encoders: List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]], hidden_dimension: List[float] = [256, 256], discount: float = 0.99, 
+        self, *args, hidden_dimension: List[float] = [256, 256], discount: float = 0.99, 
         tau: float = 5e-3, lr: float = 3e-4, batch_size: int = 256,
         replay_buffer_capacity: int = 1e5, start_training_time_step: int = 6000, end_exploration_time_step: int = 7000, 
         deterministic_start_time_step: int = 7500, action_scaling_coef: float = 0.5, reward_scaling: float = 5.0, 
@@ -24,8 +49,6 @@ class SAC(RLC):
     ):
         # user defined
         super().__init__(*args, **kwargs)
-        self.observation_spaces = observation_spaces
-        self.encoders = encoders
         self.hidden_dimension = hidden_dimension
         self.discount = discount
         self.tau = tau
@@ -60,14 +83,6 @@ class SAC(RLC):
         self.__r_norm_mean = None
         self.__r_norm_std = None
         self.__set_networks()
-
-    @property
-    def observation_spaces(self) -> spaces.Box:
-        return self.__observation_spaces
-
-    @property
-    def encoders(self) -> List[Encoder]:
-        return self.__encoders
 
     @property
     def hidden_dimension(self) -> List[float]:
@@ -120,10 +135,6 @@ class SAC(RLC):
     @property
     def seed(self) -> int:
         return self.__seed
-
-    @property
-    def observation_dimension(self) -> int:
-        return len([j for j in np.hstack(self.encoders*np.ones(len(self.observation_spaces.low))) if j != None])
 
     @property
     def device(self) -> torch.device:
@@ -212,14 +223,6 @@ class SAC(RLC):
     @lr.setter
     def lr(self, lr: float):
         self.__lr = lr
-
-    @observation_spaces.setter
-    def observation_spaces(self, observation_spaces: spaces.Box):
-        self.__observation_spaces = observation_spaces
-
-    @encoders.setter
-    def encoders(self, encoders: List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]):
-        self.__encoders = encoders
 
     @batch_size.setter
     def batch_size(self, batch_size: int):

@@ -14,7 +14,9 @@ from citylearn.preprocessing import Normalize, OnehotEncoding, PeriodicNormaliza
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 
-logging.basicConfig(filename='output.log', level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
+logging.getLogger('matplotlib.font_manager').disabled = True
+logging.getLogger('matplotlib.pyplot').disabled = True
     
 class Building(Environment):
     def __init__(
@@ -1563,7 +1565,13 @@ class CityLearn:
         controller_name = controller_type.split('.')[-1]
         controller_constructor = getattr(importlib.import_module(controller_module), controller_name)
         controller_attributes = schema['controller'].get('attributes', {})
-        controllers = [controller_constructor(district.action_spaces[i], **controller_attributes) for i in range(controller_count)]
+        controller_attributes = [{
+            'action_spaces':district.action_spaces[i],
+            'observation_spaces':district.observation_spaces[i],
+            'encoders':district.observation_encoders[i],
+            **controller_attributes
+        }  for i in range(controller_count)]
+        controllers = [controller_constructor(**controller_attribute) for controller_attribute in controller_attributes]
         reward_type = schema['reward']
         reward_module = '.'.join(reward_type.split('.')[0:-1])
         reward_name = reward_type.split('.')[-1]
