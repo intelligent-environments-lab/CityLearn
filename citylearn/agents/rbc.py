@@ -1,7 +1,7 @@
 from typing import List
-from citylearn.controller.base import Controller
+from citylearn.agents.base import Agent
 
-class RBC(Controller):
+class RBC(Agent):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -18,8 +18,8 @@ class BasicRBC(RBC):
     def hour_index(self, hour_index: int):
         self.__hour_index = hour_index
 
-    def select_actions(self, states: List[float]) -> List[float]:
-        hour = states[self.hour_index]
+    def select_actions(self, observations: List[float]) -> List[float]:
+        hour = observations[self.hour_index]
 
         # Daytime: release stored energy
         if hour >= 9 and hour <= 21:
@@ -40,8 +40,8 @@ class OptimizedRBC(BasicRBC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def select_actions(self, states: List[float]) -> List[float]:
-        hour = states[self.hour_index]
+    def select_actions(self, observations: List[float]) -> List[float]:
+        hour = observations[self.hour_index]
         
         # Daytime: release stored energy  2*0.08 + 0.1*7 + 0.09
         if hour >= 7 and hour <= 15:
@@ -71,8 +71,8 @@ class BasicBatteryRBC(BasicRBC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def select_actions(self, states: List[float]) -> List[float]:
-        hour = states[self.hour_index]
+    def select_actions(self, observations: List[float]) -> List[float]:
+        hour = observations[self.hour_index]
 
         # Late morning and early evening: store energy
         if hour >= 6 and hour <= 14:

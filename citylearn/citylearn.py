@@ -7,10 +7,10 @@ from gym import Env, spaces
 import numpy as np
 import pandas as pd
 from citylearn.base import Environment
-from citylearn.controller.base import Controller
+from citylearn.agents.base import Agent
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, StorageTank
-from citylearn.preprocessing import Normalize, OnehotEncoding, PeriodicNormalization, RemoveFeature
+from citylearn.preprocessing import Encoder, PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 
@@ -20,7 +20,7 @@ logging.getLogger('matplotlib.pyplot').disabled = True
     
 class Building(Environment):
     def __init__(
-        self, energy_simulation: EnergySimulation, weather: Weather, state_metadata: Mapping[str, bool], action_metadata: Mapping[str, bool], carbon_intensity: CarbonIntensity = None, 
+        self, energy_simulation: EnergySimulation, weather: Weather, observation_metadata: Mapping[str, bool], action_metadata: Mapping[str, bool], carbon_intensity: CarbonIntensity = None, 
         pricing: Pricing = None, dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, 
         dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None, **kwargs
     ):
@@ -32,8 +32,8 @@ class Building(Environment):
             Temporal features, cooling, heating, dhw and plug loads, solar generation and indoor environment time series.
         weather : Weather
             Outdoor weather conditions and forecasts time sereis.
-        state_metadata : dict
-            Mapping of active and inactive states.
+        observation_metadata : dict
+            Mapping of active and inactive observations.
         action_metadata : dict
             Mapping od active and inactive actions.
         carbon_intensity : CarbonIntensity, optional
@@ -78,10 +78,10 @@ class Building(Environment):
         self.cooling_device = cooling_device
         self.heating_device = heating_device
         self.pv = pv
-        self.state_metadata = state_metadata
+        self.observation_metadata = observation_metadata
         self.action_metadata = action_metadata
-        self.observation_spaces = self.estimate_observation_spaces()
-        self.action_spaces = self.estimate_action_spaces()
+        self.observation_space = self.estimate_observation_space()
+        self.action_space = self.estimate_action_space()
         super().__init__(**kwargs)
 
     @property
@@ -97,10 +97,10 @@ class Building(Environment):
         return self.__weather
 
     @property
-    def state_metadata(self) -> Mapping[str, bool]:
-        """Mapping of active and inactive states."""
+    def observation_metadata(self) -> Mapping[str, bool]:
+        """Mapping of active and inactive observations."""
 
-        return self.__state_metadata
+        return self.__observation_metadata
 
     @property
     def action_metadata(self) -> Mapping[str, bool]:
@@ -175,20 +175,20 @@ class Building(Environment):
         return self.__name
 
     @property
-    def observation_spaces(self) -> spaces.Box:
-        """Controller observation/state spaces."""
+    def observation_space(self) -> spaces.Box:
+        """Controller observation space."""
 
-        return self.__observation_spaces
+        return self.__observation_space
 
     @property
-    def action_spaces(self) -> spaces.Box:
+    def action_space(self) -> spaces.Box:
         """Controller action spaces."""
 
-        return self.__action_spaces
+        return self.__action_space
 
     @property
-    def observation_encoders(self) -> List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]:
-        r"""Get observation value transformers/encoders for use in controller algorithm.
+    def observation_encoders(self) -> List[Encoder]:
+        r"""Get observation value transformers/encoders for use in agent algorithm.
 
         The encoder classes are defined in the `preprocessing.py` module and include `PeriodicNormalization` for cyclic observations,
         `OnehotEncoding` for categorical obeservations, `RemoveFeature` for non-applicable observations given available storage systems and devices
@@ -196,8 +196,8 @@ class Building(Environment):
         
         Returns
         -------
-        encoders : List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]
-            Encoder classes for states ordered with respect to `active_states`.
+        encoders : List[Encoder]
+            Encoder classes for observations ordered with respect to `active_observations`.
         """
 
         remove_features = ['net_electricity_consumption']
@@ -207,7 +207,7 @@ class Building(Environment):
             'direct_solar_irradiance', 'direct_solar_irradiance_predicted_6h',
             'direct_solar_irradiance_predicted_12h', 'direct_solar_irradiance_predicted_24h',
         ] if self.pv.capacity == 0 else []
-        demand_states = {
+        demand_observations = {
             'dhw_storage_soc': np.nansum(self.energy_simulation.dhw_demand),
             'cooling_storage_soc': np.nansum(self.energy_simulation.cooling_demand),
             'heating_storage_soc': np.nansum(self.energy_simulation.heating_demand),
@@ -219,33 +219,33 @@ class Building(Environment):
             ], axis = 0)),
             'non_shiftable_load': np.nansum(self.energy_simulation.non_shiftable_load),
         }
-        remove_features += [k for k, v in demand_states.items() if v == 0]
-        remove_features = [f for f in remove_features if f in self.active_states]
+        remove_features += [k for k, v in demand_observations.items() if v == 0]
+        remove_features = [f for f in remove_features if f in self.active_observations]
         encoders = []
 
-        for i, state in enumerate(self.active_states):
-            if state in ['month', 'hour']:
-                encoders.append(PeriodicNormalization(self.observation_spaces.high[i]))
+        for i, observation in enumerate(self.active_observations):
+            if observation in ['month', 'hour']:
+                encoders.append(PeriodicNormalization(self.observation_space.high[i]))
             
-            elif state == 'day_type':
+            elif observation == 'day_type':
                 encoders.append(OnehotEncoding([0, 1, 2, 3, 4, 5, 6, 7, 8]))
             
-            elif state == "daylight_savings_status":
+            elif observation == "daylight_savings_status":
                 encoders.append(OnehotEncoding([0, 1, 2]))
             
-            elif state in remove_features:
+            elif observation in remove_features:
                 encoders.append(RemoveFeature())
             
             else:
-                encoders.append(Normalize(self.observation_spaces.low[i], self.observation_spaces.high[i]))
+                encoders.append(Normalize(self.observation_space.low[i], self.observation_space.high[i]))
 
         return encoders
 
     @property
-    def states(self) -> Mapping[str, float]:
-        """States at current time step."""
+    def observations(self) -> Mapping[str, float]:
+        """Observations at current time step."""
 
-        states = {}
+        observations = {}
         data = {
             **{k: v[self.time_step] for k, v in vars(self.energy_simulation).items()},
             **{k: v[self.time_step] for k, v in vars(self.weather).items()},
@@ -260,16 +260,16 @@ class Building(Environment):
             'net_electricity_consumption': self.net_electricity_consumption[-1] if self.time_step > 0 else 0.0,
             **{k: v[self.time_step] for k, v in vars(self.carbon_intensity).items()},
         }
-        states = {k: data[k] for k in self.active_states if k in data.keys()}
-        unknown_states = list(set([k for k in self.active_states]).difference(states.keys()))
-        assert len(unknown_states) == 0, f'Unkown states: {unknown_states}'
-        return states
+        observations = {k: data[k] for k in self.active_observations if k in data.keys()}
+        unknown_observations = list(set([k for k in self.active_observations]).difference(observations.keys()))
+        assert len(unknown_observations) == 0, f'Unkown observations: {unknown_observations}'
+        return observations
 
     @property
-    def active_states(self) -> List[str]:
-        """States in `state_metadata` with True value i.e. obeservable."""
+    def active_observations(self) -> List[str]:
+        """Observations in `observation_metadata` with True value i.e. obeservable."""
 
-        return [k for k, v in self.state_metadata.items() if v]
+        return [k for k, v in self.observation_metadata.items() if v]
 
     @property
     def active_actions(self) -> List[str]:
@@ -557,9 +557,9 @@ class Building(Environment):
     def weather(self, weather: Weather):
         self.__weather = weather
 
-    @state_metadata.setter
-    def state_metadata(self, state_metadata: Mapping[str, bool]):
-        self.__state_metadata = state_metadata
+    @observation_metadata.setter
+    def observation_metadata(self, observation_metadata: Mapping[str, bool]):
+        self.__observation_metadata = observation_metadata
 
     @action_metadata.setter
     def action_metadata(self, action_metadata: Mapping[str, bool]):
@@ -615,13 +615,13 @@ class Building(Environment):
     def pv(self, pv: PV):
         self.__pv = PV(0.0) if pv is None else pv
 
-    @observation_spaces.setter
-    def observation_spaces(self, observation_spaces: spaces.Box):
-        self.__observation_spaces = observation_spaces
+    @observation_space.setter
+    def observation_space(self, observation_space: spaces.Box):
+        self.__observation_space = observation_space
 
-    @action_spaces.setter
-    def action_spaces(self, action_spaces: spaces.Box):
-        self.__action_spaces = action_spaces
+    @action_space.setter
+    def action_space(self, action_space: spaces.Box):
+        self.__action_space = action_space
 
     @name.setter
     def name(self, name: str):
@@ -719,20 +719,20 @@ class Building(Environment):
         energy = action*self.electrical_storage.capacity
         self.electrical_storage.charge(energy)
 
-    def estimate_observation_spaces(self) -> spaces.Box:
+    def estimate_observation_space(self) -> spaces.Box:
         r"""Get estimate of observation spaces.
 
-        Find minimum and maximum possible values of all the states, which can then be used by the RL agent to scale the states and train any function approximators more effectively.
+        Find minimum and maximum possible values of all the observations, which can then be used by the RL agent to scale the observations and train any function approximators more effectively.
 
         Returns
         -------
-        observation_spaces : spaces.Box
+        observation_space : spaces.Box
             Observation low and high limits.
 
         Notes
         -----
         Lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate hence,
-        scaling this state-variable using these bounds may result in normalized values above 1 or below 0.
+        scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.
         """
 
         low_limit, high_limit = [], []
@@ -744,7 +744,7 @@ class Building(Environment):
             **vars(self.pricing),
         }
 
-        for key in self.active_states:
+        for key in self.active_observations:
             if key == 'net_electricity_consumption':
                 low_limit.append(0.0)
                 net_electric_consumption = self.energy_simulation.non_shiftable_load\
@@ -767,14 +767,14 @@ class Building(Environment):
 
         return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
     
-    def estimate_action_spaces(self) -> spaces.Box:
+    def estimate_action_space(self) -> spaces.Box:
         r"""Get estimate of action spaces.
 
         Find minimum and maximum possible values of all the actions, which can then be used by the RL agent to scale the selected actions.
 
         Returns
         -------
-        action_spaces : spaces.Box
+        action_space : spaces.Box
             Action low and high limits.
 
         Notes
@@ -922,7 +922,7 @@ class Building(Environment):
         self.pv.reset()
 
 class District(Environment, Env):
-    def __init__(self,buildings: List[Building], time_steps: int, central_agent: bool = False, shared_states: List[str] = None, **kwargs):
+    def __init__(self, buildings: List[Building], time_steps: int, reward_function: RewardFunction, central_agent: bool = False, shared_observations: List[str] = None, **kwargs):
         r"""Initialize `District`.
 
         Parameters
@@ -931,10 +931,12 @@ class District(Environment, Env):
             Buildings in district.
         time_steps : int
             Number of simulation time steps.
+        reward_function : RewardFunction
+            Reward function class instance.
         central_agent : bool, optional
             Expect 1 central agent to control all building storage device.
-        shared_states : List[str], optional
-            Names of common states across all buildings i.e. states that have the same value irrespective of the building.
+        shared_observations : List[str], optional
+            Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
 
         Other Parameters
         ----------------
@@ -944,8 +946,9 @@ class District(Environment, Env):
 
         self.buildings = buildings
         self.time_steps = time_steps
+        self.reward_function = reward_function
         self.central_agent = central_agent
-        self.shared_states = shared_states
+        self.shared_observations = shared_observations
         super().__init__()
 
     @property
@@ -961,89 +964,92 @@ class District(Environment, Env):
         return self.__time_steps
 
     @property
+    def reward_function(self) -> RewardFunction:
+        """Reward function class instance"""
+
+        return self.__reward_function
+
+    @property
     def central_agent(self) -> bool:
         """Expect 1 central agent to control all building storage device."""
 
         return self.__central_agent
 
     @property
-    def shared_states(self) -> List[str]:
-        """Names of common states across all buildings i.e. states that have the same value irrespective of the building."""
+    def shared_observations(self) -> List[str]:
+        """Names of common observations across all buildings i.e. observations that have the same value irrespective of the building."""
 
-        return self.__shared_states
+        return self.__shared_observations
 
     @property
-    def terminal(self) -> bool:
+    def done(self) -> bool:
         """Check if simulation has reached completion."""
 
         return self.time_step == self.time_steps - 1
 
     @property
-    def observation_encoders(self) -> Union[
-        List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]], 
-        List[List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]]
-    ]:
-        r"""Get observation value transformers/encoders for use in buildings' controller(s) algorithm.
+    def observation_encoders(self) -> Union[List[Encoder], List[List[Encoder]]]:
+        r"""Get observation value transformers/encoders for use in buildings' agent(s) algorithm.
 
         See `Building.observation_encoders` documentation for more information.
         
         Returns
         -------
-        encoders : Union[List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]], List[List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]]
-            Encoder classes for states ordered with respect to `active_states` in each building.
+        encoders : Union[List[Encoder], List[List[Encoder]]
+            Encoder classes for observations ordered with respect to `active_observations` in each building.
 
         Notes
         -----
         If `central_agent` is True, 1 list containing all buildings' encoders is returned in the same order as `buildings`. 
-        The `shared_states` encoders are only included in the first building's listing.
+        The `shared_observations` encoders are only included in the first building's listing.
         If `central_agent` is False, a list of sublists is returned where each sublist is a list of 1 building's encoders 
         and the sublist in the same order as `buildings`.
         """
 
         return [
-            k for i, b in enumerate(self.buildings) for k, s in zip(b.observation_encoders, b.active_states) 
-            if i == 0 or s not in self.shared_states
+            k for i, b in enumerate(self.buildings) for k, s in zip(b.observation_encoders, b.active_observations) 
+            if i == 0 or s not in self.shared_observations
         ] if self.central_agent else [b.observation_encoders for b in self.buildings]
 
     @property
-    def observation_spaces(self) -> List[spaces.Box]:
-        """Controller(s) observation/state spaces.
+    def observation_space(self) -> List[spaces.Box]:
+        """Controller(s) observation spaces.
 
         Returns
         -------
-        observation_spaces : List[spaces.Box]
-            List of controller(s) observation spaces.
+        observation_space : List[spaces.Box]
+            List of agent(s) observation spaces.
         
         Notes
         -----
         If `central_agent` is True, a list of 1 `spaces.Box` object is returned that contains all buildings' limits with the limits in the same order as `buildings`. 
-        The `shared_states` limits are only included in the first building's limits. If `central_agent` is False, a list of `space.Box` objects as
+        The `shared_observations` limits are only included in the first building's limits. If `central_agent` is False, a list of `space.Box` objects as
         many as `buildings` is returned in the same order as `buildings`.
         """
 
         if self.central_agent:
             low_limit = [
-                v for i, b in enumerate(self.buildings) for v, s in zip(b.observation_spaces.low, b.active_states) 
-                if i == 0 or s not in self.shared_states
+                v for i, b in enumerate(self.buildings) for v, s in zip(b.observation_space.low, b.active_observations) 
+                if i == 0 or s not in self.shared_observations
             ]
             high_limit = [
-                v for i, b in enumerate(self.buildings) for v, s in zip(b.observation_spaces.high, b.active_states) 
-                if i == 0 or s not in self.shared_states
+                v for i, b in enumerate(self.buildings) for v, s in zip(b.observation_space.high, b.active_observations) 
+                if i == 0 or s not in self.shared_observations
             ]
-            observation_spaces = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
+            observation_space = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
         else:
-            observation_spaces = [b.observation_spaces for b in self.buildings]
+            observation_space = [b.observation_space for b in self.buildings]
         
-        return observation_spaces
+        return observation_space
 
     @property
-    def action_spaces(self) -> List[spaces.Box]:
+    def action_space(self) -> List[spaces.Box]:
         """Controller(s) action spaces.
 
         Returns
         -------
-        action_spaces : List[spaces.Box]
-            List of controller(s) action spaces.
+        action_space : List[spaces.Box]
+            List of agent(s) action spaces.
         
         Notes
         -----
@@ -1052,28 +1058,28 @@ class District(Environment, Env):
         """
 
         if self.central_agent:
-            low_limit = [v for b in self.buildings for v in b.action_spaces.low]
-            high_limit = [v for b in self.buildings for v in b.action_spaces.high]
-            action_spaces = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
+            low_limit = [v for b in self.buildings for v in b.action_space.low]
+            high_limit = [v for b in self.buildings for v in b.action_space.high]
+            action_space = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
         else:
-            action_spaces = [b.action_spaces for b in self.buildings]
+            action_space = [b.action_space for b in self.buildings]
         
-        return action_spaces
+        return action_space
 
     @property
-    def states(self) -> List[List[float]]:
-        """States at current time step.
+    def observations(self) -> List[List[float]]:
+        """Observations at current time step.
         
         Notes
         -----
-        If `central_agent` is True, a list of 1 sublist containing all building state values is returned in the same order as `buildings`. 
-        The `shared_states` values are only included in the first building's state values. If `central_agent` is False, a list of sublists 
-        is returned where each sublist is a list of 1 building's state values and the sublist in the same order as `buildings`.
+        If `central_agent` is True, a list of 1 sublist containing all building observation values is returned in the same order as `buildings`. 
+        The `shared_observations` values are only included in the first building's observation values. If `central_agent` is False, a list of sublists 
+        is returned where each sublist is a list of 1 building's observation values and the sublist in the same order as `buildings`.
         """
 
         return [[
-            v for i, b in enumerate(self.buildings) for k, v in b.states.items() if i == 0 or k not in self.shared_states
-        ]] if self.central_agent else [list(b.states.values()) for b in self.buildings]
+            v for i, b in enumerate(self.buildings) for k, v in b.observations.items() if i == 0 or k not in self.shared_observations
+        ]] if self.central_agent else [list(b.observations.values()) for b in self.buildings]
 
     @property
     def net_electricity_consumption_without_storage_and_pv_emission(self) -> List[float]:
@@ -1276,21 +1282,25 @@ class District(Environment, Env):
         assert time_steps >= 1, 'time_steps must be >= 1'
         self.__time_steps = time_steps
 
+    @reward_function.setter
+    def reward_function(self, reward_function: RewardFunction):
+        self.__reward_function = reward_function
+
     @central_agent.setter
     def central_agent(self, central_agent: bool):
         self.__central_agent = central_agent
 
-    @shared_states.setter
-    def shared_states(self, shared_states: List[str]):
-        self.__shared_states = self.get_default_shared_states() if shared_states is None else shared_states
+    @shared_observations.setter
+    def shared_observations(self, shared_observations: List[str]):
+        self.__shared_observations = self.get_default_shared_observations() if shared_observations is None else shared_observations
 
     @staticmethod
-    def get_default_shared_states() -> List[str]:
-        """Names of default common states across all buildings i.e. states that have the same value irrespective of the building.
+    def get_default_shared_observations() -> List[str]:
+        """Names of default common observations across all buildings i.e. observations that have the same value irrespective of the building.
         
         Notes
         -----
-        Can be used to assigned `shared_states` value during `District` object initialization.
+        May be used to assigned :attr:`shared_observations` value during `District` object initialization.
         """
 
         return [
@@ -1313,13 +1323,25 @@ class District(Environment, Env):
         Parameters
         ----------
         actions: List[List[float]]
-            Fractions of `buildings` storage devices' capacities to charge/discharge by.
+            Fractions of `buildings` storage devices' capacities to charge/discharge by. 
+            If `central_agent` is True, `actions` parameter should be a list of 1 list containing all buildings' actions and follows
+            the ordering of buildings in `buildings`. If `central_agent` is False, `actions` parameter should be a list of sublists
+            where each sublists contains the actions for each building in `buildings`  and follows the ordering of buildings in `buildings`.
 
-        Notes
-        -----
-        If `central_agent` is True, `actions` parameter should be a list of 1 list containing all buildings' actions and follows
-        the ordering of buildings in `buildings`. If `central_agent` is False, `actions` parameter should be a list of sublists
-        where each sublists contains the actions for each building in `buildings`  and follows the ordering of buildings in `buildings`
+        Returns
+        -------
+        observations: List[List[float]]
+            :attr:`observations` current value.
+        reward: List[float] 
+            :meth:`get_reward` current value.
+        done: bool 
+            A boolean value for if the episode has ended, in which case further :meth:`step` calls will return undefined results.
+            A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully,
+            a certain timelimit was exceeded, or the physics simulation has entered an invalid observation.
+        info: Mapping[Any, Any]
+            A dictionary that may contain additional information regarding the reason for a ``done`` signal.
+            `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
+            Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
 
         actions = self.__parse_actions(actions)
@@ -1328,6 +1350,28 @@ class District(Environment, Env):
             building.apply_actions(**building_actions)
 
         self.next_time_step()
+        return self.observations, self.get_reward(), self.done, self.get_info()
+
+    def get_reward(self) -> List[float]:
+        """Calculate agent(s) reward(s) using :attr:`reward_function`.
+        
+        Returns
+        -------
+        reward: List[float]
+            Reward for current observations. If `central_agent` is True, `reward` is a list of length = 1 else, `reward` has same length as `buildings`.
+        """
+
+        self.reward_function.electricity_consumption = [sum(self.net_electricity_consumption)] if self.central_agent\
+            else self.net_electricity_consumption
+        self.reward_function.carbon_emission = [sum(self.net_electricity_consumption_emission)] if self.central_agent\
+            else self.net_electricity_consumption_emission
+        self.reward_function.electricity_price = [sum(self.net_electricity_consumption_price)] if self.central_agent\
+            else self.net_electricity_consumption_price
+        reward = self.reward_function.calculate()
+        return reward
+
+    def get_info(self) -> Mapping[Any, Any]:
+        return {}
 
     def __parse_actions(self, actions: List[List[float]]) -> List[Mapping[str, float]]:
         """Return mapping of action name to action value for each building."""
@@ -1339,7 +1383,7 @@ class District(Environment, Env):
             actions = actions[0]
             
             for building in self.buildings:
-                size = building.action_spaces.shape[0]
+                size = building.action_space.shape[0]
                 building_actions.append(actions[0:size])
                 actions = actions[size:]
 
@@ -1350,6 +1394,49 @@ class District(Environment, Env):
         actions = [{k:a for k, a in zip(active_actions[i],building_actions[i])} for i in range(len(active_actions))]
         actions = [{f'{k}_action':actions[i].get(k, 0.0) for k in b.action_metadata}  for i, b in enumerate(self.buildings)]
         return actions
+    
+    def get_building_information(self) -> Mapping[str, Any]:
+        """Get buildings PV capacity, end-use annual demands, and correlations with other buildings end-use annual demands.
+
+        Returns
+        -------
+        building_information: Mapping[str, Any]
+            Building information summary.
+        """
+
+        np.seterr(divide='ignore', invalid='ignore')
+        building_info = {}
+        n_years = max(1, self.time_steps*self.seconds_per_time_step/8760*3600)
+
+        for building in self.buildings:
+            building_info[building.uid] = {}
+            building_info[building.uid]['solar_power_capacity'] = round(building.pv.capacity, 3)
+            building_info[building.uid]['annual_dhw_demand'] = round(sum(building.energy_simulation.dhw_demand)/n_years, 3)
+            building_info[building.uid]['annual_cooling_demand'] = round(sum(building.energy_simulation.cooling_demand)/n_years, 3)
+            building_info[building.uid]['annual_heating_demand'] = round(sum(building.energy_simulation.heating_demand)/n_years, 3)
+            building_info[building.uid]['annual_nonshiftable_electrical_demand'] = round(sum(building.energy_simulation.non_shiftable_load)/n_years, 3)
+            building_info[building.uid]['correlations_dhw'] = {}
+            building_info[building.uid]['correlations_cooling_demand'] = {}
+            building_info[building.uid]['correlations_non_shiftable_load'] = {}
+            
+            for corr_building in self.buildings:
+                if building.uid != corr_building.uid:
+                    building_info[building.uid]['correlations_dhw'][corr_building.uid] = round((np.corrcoef(
+                        np.array(building.energy_simulation.dhw_demand), np.array(corr_building.energy_simulation.dhw_demand)
+                    ))[0][1], 3)
+                    building_info[building.uid]['correlations_cooling_demand'][corr_building.uid] = round((np.corrcoef(
+                        np.array(building.energy_simulation.cooling_demand), np.array(corr_building.energy_simulation.cooling_demand)
+                    ))[0][1], 3)
+                    building_info[building.uid]['correlations_heating_demand'][corr_building.uid] = round((np.corrcoef(
+                        np.array(building.energy_simulation.heating_demand), np.array(corr_building.energy_simulation.heating_demand)
+                    ))[0][1], 3)
+                    building_info[building.uid]['correlations_non_shiftable_load'][corr_building.uid] = round((np.corrcoef(
+                        np.array(building.energy_simulation.non_shiftable_load), np.array(corr_building.energy_simulation.non_shiftable_load)
+                    ))[0][1], 3)
+                else:
+                    continue
+        
+        return building_info
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
@@ -1360,30 +1447,38 @@ class District(Environment, Env):
         super().next_time_step()
 
     def reset(self):
-        r"""Reset `District` to initial state."""
+        r"""Reset `District` to initial state.
+        
+        Returns
+        -------
+        observations: List[List[float]]
+            :attr:`observations`. 
+        """
 
         super().reset()
 
         for building in self.buildings:
             building.reset()
 
+        return self.observations
+
 class CityLearn:
-    def __init__(self, district: District, controllers: Union[List[Controller], List[Any]], reward_function: Union[RewardFunction, Any]):
+    def __init__(self, district: District, agents: List[Agent], episodes: int = None):
         r"""Initialize `CityLearn`.
 
         Parameters
         ----------
         district : District
             Simulation district.
-        controllers : Union[List[Controller], List[Any]]
-            Simulation controllers for `district.buildings` energy storage charging/discharging management.
-        reward_function : Union[RewardFunction, Any]
-            Simulation reward function class.
+        agents : List[Agent]
+            Simulation agents for `district.buildings` energy storage charging/discharging management.
+        episodes : int
+            Number of times to simulate until terminal state is reached.
         """
 
         self.district = district
-        self.controllers = controllers
-        self.reward_function = reward_function
+        self.agents = agents
+        self.episodes = episodes
 
     @property
     def district(self) -> District:
@@ -1392,71 +1487,70 @@ class CityLearn:
         return self.__district
 
     @property
-    def controllers(self) -> Union[List[Controller], List[Any]]:
-        """Simulation controllers for `district.buildings` energy storage charging/discharging management."""
+    def agents(self) -> List[Agent]:
+        """Simulation agents for `district.buildings` energy storage charging/discharging management."""
 
-        return self.__controllers
+        return self.__agents
 
     @property
-    def reward_function(self) -> Union[RewardFunction, Any]:
-        """Simulation reward function class."""
+    def episodes(self) -> int:
+        """Number of times to simulate until terminal state is reached."""
 
-        return self.__reward_function
+        return self.__episodes
 
     @district.setter
     def district(self, district: District):
         self.__district = district
 
-    @controllers.setter
-    def controllers(self, controllers: Union[List[Controller], List[Any]]):
+    @agents.setter
+    def agents(self, agents: List[Agent]):
         if self.district.central_agent:
-            assert len(controllers) == 1, 'Only 1 controller is expected when `district.central_agent` = True.'
+            assert len(agents) == 1, 'Only 1 agent is expected when `district.central_agent` = True.'
         else:
-            assert len(controllers) == len(self.district.buildings), 'Length of `controllers` and `district.buildings` must be equal when using `district.central_agent` = False.'
+            assert len(agents) == len(self.district.buildings), 'Length of `agents` and `district.buildings` must be equal when using `district.central_agent` = False.'
 
-        self.__controllers = controllers
+        self.__agents = agents
 
-    @reward_function.setter
-    def reward_function(self, reward_function: Union[RewardFunction, Any]):
-        self.__reward_function = reward_function
+    @episodes.setter
+    def episodes(self, episodes: int):
+        episodes = 1 if episodes is None else int(episodes)
+        assert episodes > 0, ':attr:`episodes` must be >= 0.'
+        self.__episodes = episodes
 
     def simulate(self):
-        """Run traditional simulation."""
+        """traditional simulation.
+        
+        Runs central or multi agent simulation.
+        """
 
-        while not self.district.terminal:
-            logging.debug(f'Timestep: {self.district.time_step}/{self.district.time_steps - 1}')
-            states_list = self.district.states
-            actions_list = []
-            reward_list = []
+        for episode in range(self.episodes):
+            observations_list = self.district.reset()
 
-            # select actions
-            for controller, states in zip(self.controllers, states_list):
-                if controller.action_dimension > 0:
-                    actions_list.append(controller.select_actions(states))
-                else:
-                    actions_list.append([]) 
+            while not self.district.done:
+                logging.debug(f'Timestep: {self.district.time_step}/{self.district.time_steps - 1}, Episode: {episode}')
+                actions_list = []
 
-            # apply actions to district
-            self.district.step(actions_list)
+                # select actions
+                for agent, observations in zip(self.agents, observations_list):
+                    if agent.action_dimension > 0:
+                        actions_list.append(agent.select_actions(observations))
+                    else:
+                        actions_list.append([]) 
 
-            # get rewards
-            self.reward_function.electricity_consumption = [sum(self.district.net_electricity_consumption)] if self.district.central_agent\
-                else self.district.net_electricity_consumption
-            self.reward_function.carbon_emission = [sum(self.district.net_electricity_consumption_emission)] if self.district.central_agent\
-                else self.district.net_electricity_consumption_emission
-            self.reward_function.electricity_price = [sum(self.district.net_electricity_consumption_price)] if self.district.central_agent\
-                else self.district.net_electricity_consumption_price
-            reward_list = self.reward_function.calculate()
+                # apply actions to district
+                next_observations_list, reward_list, _, _ = self.district.step(actions_list)
 
-            # update
-            for controller, states, actions, reward, next_states in zip(self.controllers, states_list, actions_list, reward_list, self.district.states):
-                if controller.action_dimension > 0:
-                    controller.add_to_buffer(states, actions, reward, next_states, done = self.district.terminal)
-                else:
-                    continue
+                # update
+                for agent, observations, actions, reward, next_observations in zip(self.agents, observations_list, actions_list, reward_list, next_observations_list):
+                    if agent.action_dimension > 0:
+                        agent.add_to_buffer(observations, actions, reward, next_observations, done = self.district.done)
+                    else:
+                        continue
+
+                observations_list = [o for o in next_observations_list]
 
     @classmethod
-    def load(cls, schema: Union[str, Path, Mapping[str, Any]]) -> Tuple:
+    def load(cls, schema: Union[str, Path, Mapping[str, Any]]) -> Tuple[District, List[Agent]]:
         """Return `District` and `Controller` objects as defined by the `schema`.
 
         Parameters
@@ -1468,10 +1562,8 @@ class CityLearn:
         -------
         district: District
             Simulation district.
-        controllers: Union[List[Controller], List[Any]]
-            Simulation controllers for `district.buildings` energy storage charging/discharging management.
-        reward_function: Union[RewardFunction, Any]
-            Simulation reward function class.
+        agents: List[Agent]
+            Simulation agents for `district.buildings` energy storage charging/discharging management.
         """
 
         if not isinstance(schema, dict):
@@ -1481,12 +1573,12 @@ class CityLearn:
             schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
 
         central_agent = schema['central_agent']
-        states = {s: v for s, v in schema['states'].items() if v['active']}
+        observations = {s: v for s, v in schema['observations'].items() if v['active']}
         actions = {a: v for a, v in schema['actions'].items() if v['active']}
-        shared_states = [k for k, v in states.items() if v['shared_in_central_agent']]
+        shared_observations = [k for k, v in observations.items() if v['shared_in_central_agent']]
         simulation_start_timestep = schema['simulation_start_timestep']
         simulation_end_timestep = schema['simulation_end_timestep']
-        timesteps = simulation_end_timestep - simulation_start_timestep + 1
+        timesteps = simulation_end_timestep - simulation_start_timestep
         buildings = ()
         
         for building_name, building_schema in schema['buildings'].items():
@@ -1510,14 +1602,14 @@ class CityLearn:
                 else:
                     pricing = None
                     
-                # state and action metadata
-                inactive_states = [] if building_schema.get('inactive_states', None) is None else building_schema['inactive_states']
+                # observation and action metadata
+                inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
                 inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
-                state_metadata = {s: False if s in inactive_states else True for s in states}
+                observation_metadata = {s: False if s in inactive_observations else True for s in observations}
                 action_metadata = {a: False if a in inactive_actions else True for a in actions}
 
                 # construct building
-                building = Building(energy_simulation, weather, state_metadata, action_metadata, carbon_intensity=carbon_intensity, pricing=pricing, name=building_name)
+                building = Building(energy_simulation, weather, observation_metadata, action_metadata, carbon_intensity=carbon_intensity, pricing=pricing, name=building_name)
 
                 # update devices
                 device_metadata = {
@@ -1551,30 +1643,34 @@ class CityLearn:
                         else:
                             pass
                 
-                building.observation_spaces = building.estimate_observation_spaces()
-                building.action_spaces = building.estimate_action_spaces()
+                building.observation_space = building.estimate_observation_space()
+                building.action_space = building.estimate_action_space()
                 buildings += (building,)
                 
             else:
                 continue
 
-        district = District(list(buildings), timesteps, central_agent = central_agent, shared_states = shared_states)
-        controller_count = 1 if district.central_agent else len(district.buildings)
-        controller_type = schema['controller']['type']
-        controller_module = '.'.join(controller_type.split('.')[0:-1])
-        controller_name = controller_type.split('.')[-1]
-        controller_constructor = getattr(importlib.import_module(controller_module), controller_name)
-        controller_attributes = schema['controller'].get('attributes', {})
-        controller_attributes = [{
-            'action_spaces':district.action_spaces[i],
-            'observation_spaces':district.observation_spaces[i],
-            'encoders':district.observation_encoders[i],
-            **controller_attributes
-        }  for i in range(controller_count)]
-        controllers = [controller_constructor(**controller_attribute) for controller_attribute in controller_attributes]
-        reward_type = schema['reward']
-        reward_module = '.'.join(reward_type.split('.')[0:-1])
-        reward_name = reward_type.split('.')[-1]
-        reward_constructor = getattr(importlib.import_module(reward_module), reward_name)
-        reward_function = reward_constructor(agent_count=len(controllers))
-        return district, controllers, reward_function
+        reward_function_type = schema['reward_function']
+        reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
+        reward_function_name = reward_function_type.split('.')[-1]
+        reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
+        agent_count = 1 if central_agent else len(buildings)
+        reward_function = reward_function_constructor(agent_count)
+        district = District(list(buildings), timesteps, reward_function, central_agent = central_agent, shared_observations = shared_observations)
+        # agent_type = schema['agent']['type']
+        # agent_module = '.'.join(agent_type.split('.')[0:-1])
+        # agent_name = agent_type.split('.')[-1]
+        # agent_constructor = getattr(importlib.import_module(agent_module), agent_name)
+        # agent_attributes = schema['agent'].get('attributes', {})
+        # agent_attributes = [{
+        #     'building_ids':[b.uid for b in buildings],
+        #     'action_space':district.action_space[i],
+        #     'observation_space':district.observation_space[i],
+        #     'encoders':district.observation_encoders[i],
+        #     **agent_attributes
+        # }  for i in range(agent_count)]
+        # agents = [agent_constructor(**agent_attribute) for agent_attribute in agent_attributes]
+        agents = None
+        episodes = schema['episodes']
+
+        return district, agents, episodes

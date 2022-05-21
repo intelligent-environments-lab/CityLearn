@@ -1,23 +1,19 @@
-from typing import List, Union
+from typing import List
 from gym import spaces
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from citylearn.controller.base import Controller
-from citylearn.controller.rbc import RBC, BasicRBC, OptimizedRBC
-from citylearn.preprocessing import Encoder, PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize
+from citylearn.agents.base import Agent
+from citylearn.agents.rbc import RBC, BasicRBC, OptimizedRBC
+from citylearn.preprocessing import Encoder
 from citylearn.rl import PolicyNetwork, ReplayBuffer, SoftQNetwork
 
-class RLC(Controller):
-    def __init__(
-        self, *args, 
-        encoders: List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]], observation_spaces: spaces.Box,
-        **kwargs
-    ):
+class RLC(Agent):
+    def __init__(self, *args, encoders: List[Encoder], observation_space: spaces.Box, **kwargs):
         super().__init__(*args, **kwargs)
         self.encoders = encoders
-        self.observation_spaces = observation_spaces
+        self.observation_space = observation_space
 
     @property
     def encoders(self) -> List[Encoder]:
@@ -25,19 +21,19 @@ class RLC(Controller):
 
     @property
     def observation_dimension(self) -> int:
-        return len([j for j in np.hstack(self.encoders*np.ones(len(self.observation_spaces.low))) if j != None])
+        return len([j for j in np.hstack(self.encoders*np.ones(len(self.observation_space.low))) if j != None])
 
     @property
-    def observation_spaces(self) -> spaces.Box:
-        return self.__observation_spaces
+    def observation_space(self) -> spaces.Box:
+        return self.__observation_space
 
     @encoders.setter
-    def encoders(self, encoders: List[Union[PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize]]):
+    def encoders(self, encoders: List[Encoder]):
         self.__encoders = encoders
 
-    @observation_spaces.setter
-    def observation_spaces(self, observation_spaces: spaces.Box):
-        self.__observation_spaces = observation_spaces
+    @observation_space.setter
+    def observation_space(self, observation_space: spaces.Box):
+        self.__observation_space = observation_space
 
 class SAC(RLC):
     def __init__(
@@ -262,20 +258,20 @@ class SAC(RLC):
         torch.manual_seed(seed)
         np.random.seed(seed)
 
-    def add_to_buffer(self, states: List[float], actions: List[float], reward: float, next_states: List[float], done: bool = False):
+    def add_to_buffer(self, observations: List[float], actions: List[float], reward: float, next_observations: List[float], done: bool = False):
         # Run once the regression model has been fitted
-        # Normalize all the states using periodical normalization, one-hot encoding, or -1, 1 scaling. It also removes states that are not necessary (solar irradiance if there are no solar PV panels).
-        states = np.array(self.__get_encoded_states(states), dtype = float)
-        next_states = np.array(self.__get_encoded_states(next_states), dtype = float)
+        # Normalize all the observations using periodical normalization, one-hot encoding, or -1, 1 scaling. It also removes observations that are not necessary (solar irradiance if there are no solar PV panels).
+        observations = np.array(self.__get_encoded_observations(observations), dtype = float)
+        next_observations = np.array(self.__get_encoded_observations(next_observations), dtype = float)
 
         if self.normalized:
-            states = np.array(self.__get_normalized_states(states), dtype = float)
-            next_states = np.array(self.__get_normalized_states(states), dtype = float)
+            observations = np.array(self.__get_normalized_observations(observations), dtype = float)
+            next_observations = np.array(self.__get_normalized_observations(observations), dtype = float)
             reward = self.__get_normalized_reward(reward)
         else:
             pass
 
-        self.__replay_buffer.push(states, actions, reward, next_states, done)
+        self.__replay_buffer.push(observations, actions, reward, next_observations, done)
 
         if self.time_step >= self.start_training_time_step and self.batch_size <= len(self.__replay_buffer):
             if not self.normalized:
@@ -286,40 +282,40 @@ class SAC(RLC):
                 self.__r_norm_mean = np.nanmean(R, dtype = float)
                 self.__r_norm_std = np.nanstd(R, dtype = float)/self.reward_scaling + 1e-5
                 new_buffer = [(
-                    np.hstack((np.array(self.__get_normalized_states(states), dtype = float)).reshape(1,-1)[0]),
+                    np.hstack((np.array(self.__get_normalized_observations(observations), dtype = float)).reshape(1,-1)[0]),
                     actions,
                     self.__get_normalized_reward(reward),
-                    np.hstack((np.array(self.__get_normalized_states(next_states), dtype = float)).reshape(1,-1)[0]),
+                    np.hstack((np.array(self.__get_normalized_observations(next_observations), dtype = float)).reshape(1,-1)[0]),
                     done
-                ) for states, actions, reward, next_states, done in self.__replay_buffer.buffer]
+                ) for observations, actions, reward, next_observations, done in self.__replay_buffer.buffer]
                 self.__replay_buffer.buffer = new_buffer
                 self.__normalized = True
             else:
                 pass
 
             for _ in range(self.update_per_time_step):
-                states, actions, reward, next_states, done = self.__replay_buffer.sample(self.batch_size)
+                observations, actions, reward, next_observations, done = self.__replay_buffer.sample(self.batch_size)
                 tensor = torch.cuda.FloatTensor if self.device.type == 'cuda' else torch.FloatTensor
-                states = tensor(states).to(self.device)
-                next_states = tensor(next_states).to(self.device)
+                observations = tensor(observations).to(self.device)
+                next_observations = tensor(next_observations).to(self.device)
                 actions = tensor(actions).to(self.device)
                 reward = tensor(reward).unsqueeze(1).to(self.device)
                 done = tensor(done).unsqueeze(1).to(self.device)
 
                 with torch.no_grad():
-                    # Update Q-values. First, sample an action from the Gaussian policy/distribution for the current (next) state and its associated log probability of occurrence.
-                    new_next_actions, new_log_pi, _ = self.__policy_net.sample(next_states)
+                    # Update Q-values. First, sample an action from the Gaussian policy/distribution for the current (next) observation and its associated log probability of occurrence.
+                    new_next_actions, new_log_pi, _ = self.__policy_net.sample(next_observations)
 
                     # The updated Q-value is found by subtracting the logprob of the sampled action (proportional to the entropy) to the Q-values estimated by the target networks.
                     target_q_values = torch.min(
-                        self.__target_soft_q_net1(next_states, new_next_actions),
-                        self.__target_soft_q_net2(next_states, new_next_actions),
+                        self.__target_soft_q_net1(next_observations, new_next_actions),
+                        self.__target_soft_q_net2(next_observations, new_next_actions),
                     ) - self.alpha*new_log_pi
                     q_target = reward + (1 - done)*self.discount*target_q_values
 
                 # Update Soft Q-Networks
-                q1_pred = self.__soft_q_net1(states, actions)
-                q2_pred = self.__soft_q_net2(states, actions)
+                q1_pred = self.__soft_q_net1(observations, actions)
+                q2_pred = self.__soft_q_net2(observations, actions)
                 q1_loss = self.__soft_q_criterion(q1_pred, q_target)
                 q2_loss = self.__soft_q_criterion(q2_pred, q_target)
                 self.__soft_q_optimizer1.zero_grad()
@@ -330,10 +326,10 @@ class SAC(RLC):
                 self.__soft_q_optimizer2.step()
 
                 # Update Policy
-                new_actions, log_pi, _ = self.__policy_net.sample(states)
+                new_actions, log_pi, _ = self.__policy_net.sample(observations)
                 q_new_actions = torch.min(
-                    self.__soft_q_net1(states, new_actions),
-                    self.__soft_q_net2(states, new_actions)
+                    self.__soft_q_net1(observations, new_actions),
+                    self.__soft_q_net2(observations, new_actions)
                 )
                 policy_loss = (self.alpha*log_pi - q_new_actions).mean()
                 self.__policy_optimizer.zero_grad()
@@ -350,38 +346,38 @@ class SAC(RLC):
         else:
             pass
 
-    def select_actions(self, states: List[float]):        
+    def select_actions(self, observations: List[float]):        
         if self.time_step <= self.end_exploration_time_step:
-            actions = self.get_exploration_actions(states)
+            actions = self.get_exploration_actions(observations)
         
         else:
-            actions = self.__get_post_exploration_actions(states)
+            actions = self.__get_post_exploration_actions(observations)
 
         self.actions = actions
         self.next_time_step()
         return actions
 
-    def __get_post_exploration_actions(self, states: List[float]) -> List[float]:
-        states = np.array(self.__get_encoded_states(states), dtype = float)
-        states = np.array(self.__get_normalized_states(states), dtype = float)
-        states = torch.FloatTensor(states).unsqueeze(0).to(self.__device)
-        result = self.__policy_net.sample(states)
+    def __get_post_exploration_actions(self, observations: List[float]) -> List[float]:
+        observations = np.array(self.__get_encoded_observations(observations), dtype = float)
+        observations = np.array(self.__get_normalized_observations(observations), dtype = float)
+        observations = torch.FloatTensor(observations).unsqueeze(0).to(self.__device)
+        result = self.__policy_net.sample(observations)
         actions = result[2] if self.time_step >= self.deterministic_start_time_step else result[0]
         actions = actions.detach().cpu().numpy()[0]
         return list(actions)
             
-    def get_exploration_actions(self, states: List[float]) -> List[float]:
+    def get_exploration_actions(self, observations: List[float]) -> List[float]:
         # random actions
-        return list(self.action_scaling_coef*self.action_spaces.sample())
+        return list(self.action_scaling_coef*self.action_space.sample())
 
     def __get_normalized_reward(self, reward: float) -> float:
         return (reward - self.r_norm_mean)/self.r_norm_std
 
-    def __get_normalized_states(self, states: List[float]) -> List[float]:
-        return ((np.array(states, dtype = float) - self.norm_mean)/self.norm_std).tolist()
+    def __get_normalized_observations(self, observations: List[float]) -> List[float]:
+        return ((np.array(observations, dtype = float) - self.norm_mean)/self.norm_std).tolist()
 
-    def __get_encoded_states(self, states: List[float]) -> List[float]:
-        return np.array([j for j in np.hstack(self.encoders*np.array(states, dtype = float)) if j != None], dtype = float).tolist()
+    def __get_encoded_observations(self, observations: List[float]) -> List[float]:
+        return np.array([j for j in np.hstack(self.encoders*np.array(observations, dtype = float)) if j != None], dtype = float).tolist()
 
     def __set_networks(self):
         # init networks
@@ -397,16 +393,16 @@ class SAC(RLC):
             target_param.data.copy_(param.data)
 
         # Policy
-        self.__policy_net = PolicyNetwork(self.observation_dimension, self.action_dimension, self.action_spaces, self.action_scaling_coef, self.hidden_dimension).to(self.device)
+        self.__policy_net = PolicyNetwork(self.observation_dimension, self.action_dimension, self.action_space, self.action_scaling_coef, self.hidden_dimension).to(self.device)
         self.__soft_q_optimizer1 = optim.Adam(self.__soft_q_net1.parameters(), lr = self.lr)
         self.__soft_q_optimizer2 = optim.Adam(self.__soft_q_net2.parameters(), lr = self.lr)
         self.__policy_optimizer = optim.Adam(self.__policy_net.parameters(), lr = self.lr)
         self.__target_entropy = -np.prod(self.action_dimension).item()
 
-class SAC_RBC(SAC):
-    def __init__(self, *args, rbc: RBC, **kwargs):
+class SACRBC(SAC):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.rbc = rbc
+        self.rbc = RBC(action_space=self.action_space)
 
     @property
     def rbc(self) -> RBC:
@@ -419,12 +415,12 @@ class SAC_RBC(SAC):
     def get_exploration_actions(self, states: List[float]) -> List[float]:
         return self.rbc.select_actions(states)
 
-class SAC_BasicRBC(SAC_RBC):
-     def __init__(self, *args, **kwargs):
+class SACBasicRBC(SACRBC):
+     def __init__(self, *args, hour_index: int = None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.rbc = BasicRBC(action_dimension = self.action_dimension)
+        self.rbc = BasicRBC(action_space=self.action_space, hour_index=hour_index)
 
-class SAC_OptimizedRBC(SAC_RBC):
-     def __init__(self,*args, **kwargs):
+class SACOptimizedRBC(SACRBC):
+     def __init__(self,*args, hour_index: int = None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.rbc = OptimizedRBC(action_dimension = self.action_dimension)
+        self.rbc = OptimizedRBC(action_space=self.action_space, hour_index=hour_index)
