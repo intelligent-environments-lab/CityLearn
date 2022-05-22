@@ -4,16 +4,18 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.reward_function module &mdash; CityLearn 1.1.1 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <title>citylearn.reward_function module &mdash; CityLearn 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,7 +38,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment.html">Environment</a></li>
@@ -87,8 +89,85 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="citylearn-reward-function-module">
-<h1>citylearn.reward_function module<a class="headerlink" href="#citylearn-reward-function-module" title="Permalink to this headline">¶</a></h1>
+  <section id="module-citylearn.reward_function">
+<span id="citylearn-reward-function-module"></span><h1>citylearn.reward_function module<a class="headerlink" href="#module-citylearn.reward_function" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.reward_function.IndependentSACReward">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">IndependentSACReward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#IndependentSACReward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.IndependentSACReward" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.reward_function.IndependentSACReward.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#IndependentSACReward.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.IndependentSACReward.calculate" title="Permalink to this definition"></a></dt>
+<dd><p>Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.</p>
+<p>Recommended for use with the <cite>SAC</cite> controllers.</p>
+<p class="rubric">Notes</p>
+<p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{max}(-e_0^3, 0), \dots, \textrm{max}(-e_n^3, 0)]\)</span>
+where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(n\)</span> is the number of agents.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.reward_function.MARL">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">MARL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#MARL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.MARL" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.reward_function.MARL.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#MARL.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.MARL.calculate" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates MARL reward.</p>
+<p class="rubric">Notes</p>
+<p>See <a class="footnote-reference brackets" href="#id2" id="id1">1</a> for more information.</p>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Vázquez-Canteli, José &amp; Henze, Gregor &amp; Nagy, Zoltán. (2020).
+MARLISA: Multi-Agent Reinforcement Learning with Iterative Sequential
+Action Selection for Load Shaping of Grid-Interactive Connected Buildings. 10.1145/3408308.3427604.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">RewardFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">carbon_emission</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electricity_price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#RewardFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.RewardFunction" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction.agent_count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">agent_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.RewardFunction.agent_count" title="Permalink to this definition"></a></dt>
+<dd><p>Number of agents.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#RewardFunction.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.RewardFunction.calculate" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates default reward.</p>
+<p class="rubric">Notes</p>
+<p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{max}(-e_0, 0), \dots, \textrm{max}(-e_n, 0)]\)</span>
+where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(n\)</span> is the number of agents.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction.carbon_emission">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">carbon_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.reward_function.RewardFunction.carbon_emission" title="Permalink to this definition"></a></dt>
+<dd><p>Buildings’ carbon emissions in [kg_co2].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction.electricity_consumption">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.reward_function.RewardFunction.electricity_consumption" title="Permalink to this definition"></a></dt>
+<dd><p>Buildings’ electricity consumption in [kWh].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction.electricity_price">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electricity_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.reward_function.RewardFunction.electricity_price" title="Permalink to this definition"></a></dt>
+<dd><p>Buildings’ electricty prices in [$].</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

@@ -4,16 +4,17 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.data module &mdash; CityLearn 1.1.1 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <title>citylearn.data module &mdash; CityLearn 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,7 +37,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment.html">Environment</a></li>
@@ -87,8 +88,399 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="citylearn-data-module">
-<h1>citylearn.data module<a class="headerlink" href="#citylearn-data-module" title="Permalink to this headline">¶</a></h1>
+  <section id="module-citylearn.data">
+<span id="citylearn-data-module"></span><h1>citylearn.data module<a class="headerlink" href="#module-citylearn.data" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.data.CarbonIntensity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.data.</span></span><span class="sig-name descname"><span class="pre">CarbonIntensity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">carbon_intensity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/data.html#CarbonIntensity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.data.CarbonIntensity" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p><cite>Building</cite> <cite>carbon_intensity</cite> data class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.CarbonIntensity.carbon_intensity">
+<span class="sig-name descname"><span class="pre">carbon_intensity</span></span><a class="headerlink" href="#citylearn.data.CarbonIntensity.carbon_intensity" title="Permalink to this definition"></a></dt>
+<dd><p>Emission rate time series in [kg_co2/kWh].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.data.</span></span><span class="sig-name descname"><span class="pre">EnergySimulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">month</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daylight_savings_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indoor_dry_bulb_temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_unmet_cooling_setpoint_difference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indoor_relative_humidity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_shiftable_load</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dhw_demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooling_demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heating_demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solar_generation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/data.html#EnergySimulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.data.EnergySimulation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p><cite>Building</cite> <cite>energy_simulation</cite> data class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.month">
+<span class="sig-name descname"><span class="pre">month</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.month" title="Permalink to this definition"></a></dt>
+<dd><p>Month time series value ranging from 1 - 12.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.hour">
+<span class="sig-name descname"><span class="pre">hour</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.hour" title="Permalink to this definition"></a></dt>
+<dd><p>Hour time series value ranging from 0 - 23.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.day_type">
+<span class="sig-name descname"><span class="pre">day_type</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.day_type" title="Permalink to this definition"></a></dt>
+<dd><p>Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.daylight_savings_status">
+<span class="sig-name descname"><span class="pre">daylight_savings_status</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.daylight_savings_status" title="Permalink to this definition"></a></dt>
+<dd><p>Daylight saving status time series signal of 0 or 1 indicating inactive  or active daylight saving respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.indoor_dry_bulb_temperature">
+<span class="sig-name descname"><span class="pre">indoor_dry_bulb_temperature</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.indoor_dry_bulb_temperature" title="Permalink to this definition"></a></dt>
+<dd><p>Zone volume-weighted average building dry bulb temperature time series in [C].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.average_unment_cooling_setpoint_difference">
+<span class="sig-name descname"><span class="pre">average_unment_cooling_setpoint_difference</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.average_unment_cooling_setpoint_difference" title="Permalink to this definition"></a></dt>
+<dd><p>Zone volume-weighted average difference between <cite>indoor_dry_bulb_temperature</cite> and cooling temperature setpoints time series in [C].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.indoor_relative_humidity">
+<span class="sig-name descname"><span class="pre">indoor_relative_humidity</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.indoor_relative_humidity" title="Permalink to this definition"></a></dt>
+<dd><p>Zone volume-weighted average building relative humidity time series in [%].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.non_shiftable_load">
+<span class="sig-name descname"><span class="pre">non_shiftable_load</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.non_shiftable_load" title="Permalink to this definition"></a></dt>
+<dd><p>Total building non-shiftable plug and equipment loads time series in [kWh].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.dhw_demand">
+<span class="sig-name descname"><span class="pre">dhw_demand</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.dhw_demand" title="Permalink to this definition"></a></dt>
+<dd><p>Total building domestic hot water demand time series in [kWh].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.cooling_demand">
+<span class="sig-name descname"><span class="pre">cooling_demand</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.cooling_demand" title="Permalink to this definition"></a></dt>
+<dd><p>Total building space cooling demand time series in [kWh].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.heating_demand">
+<span class="sig-name descname"><span class="pre">heating_demand</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.heating_demand" title="Permalink to this definition"></a></dt>
+<dd><p>Total building space heating demand time series in [kWh].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.EnergySimulation.solar_generation">
+<span class="sig-name descname"><span class="pre">solar_generation</span></span><a class="headerlink" href="#citylearn.data.EnergySimulation.solar_generation" title="Permalink to this definition"></a></dt>
+<dd><p>Inverter output per 1 kW of PV system time series in [W/kW].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.data.Pricing">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.data.</span></span><span class="sig-name descname"><span class="pre">Pricing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electricity_pricing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electricity_pricing_predicted_6h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electricity_pricing_predicted_12h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electricity_pricing_predicted_24h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/data.html#Pricing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.data.Pricing" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p><cite>Building</cite> <cite>pricing</cite> data class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Pricing.electricity_pricing">
+<span class="sig-name descname"><span class="pre">electricity_pricing</span></span><a class="headerlink" href="#citylearn.data.Pricing.electricity_pricing" title="Permalink to this definition"></a></dt>
+<dd><p>Electricity pricing time series in [$].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Pricing.electricity_pricing_predicted_6h">
+<span class="sig-name descname"><span class="pre">electricity_pricing_predicted_6h</span></span><a class="headerlink" href="#citylearn.data.Pricing.electricity_pricing_predicted_6h" title="Permalink to this definition"></a></dt>
+<dd><p>Electricity pricing 6 hours ahead prediction time series in [$].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Pricing.electricity_pricing_predicted_12h">
+<span class="sig-name descname"><span class="pre">electricity_pricing_predicted_12h</span></span><a class="headerlink" href="#citylearn.data.Pricing.electricity_pricing_predicted_12h" title="Permalink to this definition"></a></dt>
+<dd><p>Electricity pricing 12 hours ahead prediction time series in [$].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Pricing.electricity_pricing_predicted_24h">
+<span class="sig-name descname"><span class="pre">electricity_pricing_predicted_24h</span></span><a class="headerlink" href="#citylearn.data.Pricing.electricity_pricing_predicted_24h" title="Permalink to this definition"></a></dt>
+<dd><p>Electricity pricing 24 hours ahead prediction time series in [$].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.data.Weather">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.data.</span></span><span class="sig-name descname"><span class="pre">Weather</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdoor_dry_bulb_temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdoor_relative_humidity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffuse_solar_irradiance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct_solar_irradiance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdoor_dry_bulb_temperature_predicted_6h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdoor_dry_bulb_temperature_predicted_12h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdoor_dry_bulb_temperature_predicted_24h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdoor_relative_humidity_predicted_6h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdoor_relative_humidity_predicted_12h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdoor_relative_humidity_predicted_24h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffuse_solar_irradiance_predicted_6h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffuse_solar_irradiance_predicted_12h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diffuse_solar_irradiance_predicted_24h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct_solar_irradiance_predicted_6h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct_solar_irradiance_predicted_12h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct_solar_irradiance_predicted_24h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/data.html#Weather"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.data.Weather" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p><cite>Building</cite> <cite>weather</cite> data class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.outdoor_dry_bulb_temperature">
+<span class="sig-name descname"><span class="pre">outdoor_dry_bulb_temperature</span></span><a class="headerlink" href="#citylearn.data.Weather.outdoor_dry_bulb_temperature" title="Permalink to this definition"></a></dt>
+<dd><p>Outdoor dry bulb temperature time series in [C].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.outdoor_relative_humidity">
+<span class="sig-name descname"><span class="pre">outdoor_relative_humidity</span></span><a class="headerlink" href="#citylearn.data.Weather.outdoor_relative_humidity" title="Permalink to this definition"></a></dt>
+<dd><p>Outdoor relative humidity time series in [%].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.diffuse_solar_irradiance">
+<span class="sig-name descname"><span class="pre">diffuse_solar_irradiance</span></span><a class="headerlink" href="#citylearn.data.Weather.diffuse_solar_irradiance" title="Permalink to this definition"></a></dt>
+<dd><p>Diffuse solar irradiance time series in [W/m^2].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.direct_solar_irradiance">
+<span class="sig-name descname"><span class="pre">direct_solar_irradiance</span></span><a class="headerlink" href="#citylearn.data.Weather.direct_solar_irradiance" title="Permalink to this definition"></a></dt>
+<dd><p>Direct solar irradiance time series in [W/m^2].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.outdoor_dry_bulb_temperature_predicted_6h">
+<span class="sig-name descname"><span class="pre">outdoor_dry_bulb_temperature_predicted_6h</span></span><a class="headerlink" href="#citylearn.data.Weather.outdoor_dry_bulb_temperature_predicted_6h" title="Permalink to this definition"></a></dt>
+<dd><p>Outdoor dry bulb temperature 6 hours ahead prediction time series in [C].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.outdoor_dry_bulb_temperature_predicted_12h">
+<span class="sig-name descname"><span class="pre">outdoor_dry_bulb_temperature_predicted_12h</span></span><a class="headerlink" href="#citylearn.data.Weather.outdoor_dry_bulb_temperature_predicted_12h" title="Permalink to this definition"></a></dt>
+<dd><p>Outdoor dry bulb temperature 12 hours ahead prediction time series in [C].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.outdoor_dry_bulb_temperature_predicted_24h">
+<span class="sig-name descname"><span class="pre">outdoor_dry_bulb_temperature_predicted_24h</span></span><a class="headerlink" href="#citylearn.data.Weather.outdoor_dry_bulb_temperature_predicted_24h" title="Permalink to this definition"></a></dt>
+<dd><p>Outdoor dry bulb temperature 24 hours ahead prediction time series in [C].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.outdoor_relative_humidity_predicted_6h">
+<span class="sig-name descname"><span class="pre">outdoor_relative_humidity_predicted_6h</span></span><a class="headerlink" href="#citylearn.data.Weather.outdoor_relative_humidity_predicted_6h" title="Permalink to this definition"></a></dt>
+<dd><p>Outdoor relative humidity 6 hours ahead prediction time series in [%].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.outdoor_relative_humidity_predicted_12h">
+<span class="sig-name descname"><span class="pre">outdoor_relative_humidity_predicted_12h</span></span><a class="headerlink" href="#citylearn.data.Weather.outdoor_relative_humidity_predicted_12h" title="Permalink to this definition"></a></dt>
+<dd><p>Outdoor relative humidity 12 hours ahead prediction time series in [%].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.outdoor_relative_humidity_predicted_24h">
+<span class="sig-name descname"><span class="pre">outdoor_relative_humidity_predicted_24h</span></span><a class="headerlink" href="#citylearn.data.Weather.outdoor_relative_humidity_predicted_24h" title="Permalink to this definition"></a></dt>
+<dd><p>Outdoor relative humidity 24 hours ahead prediction time series in [%].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.diffuse_solar_irradiance_predicted_6h">
+<span class="sig-name descname"><span class="pre">diffuse_solar_irradiance_predicted_6h</span></span><a class="headerlink" href="#citylearn.data.Weather.diffuse_solar_irradiance_predicted_6h" title="Permalink to this definition"></a></dt>
+<dd><p>Diffuse solar irradiance 6 hours ahead prediction time series in [W/m^2].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.diffuse_solar_irradiance_predicted_12h">
+<span class="sig-name descname"><span class="pre">diffuse_solar_irradiance_predicted_12h</span></span><a class="headerlink" href="#citylearn.data.Weather.diffuse_solar_irradiance_predicted_12h" title="Permalink to this definition"></a></dt>
+<dd><p>Diffuse solar irradiance 12 hours ahead prediction time series in [W/m^2].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.diffuse_solar_irradiance_predicted_24h">
+<span class="sig-name descname"><span class="pre">diffuse_solar_irradiance_predicted_24h</span></span><a class="headerlink" href="#citylearn.data.Weather.diffuse_solar_irradiance_predicted_24h" title="Permalink to this definition"></a></dt>
+<dd><p>Diffuse solar irradiance 24 hours ahead prediction time series in [W/m^2].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.direct_solar_irradiance_predicted_6h">
+<span class="sig-name descname"><span class="pre">direct_solar_irradiance_predicted_6h</span></span><a class="headerlink" href="#citylearn.data.Weather.direct_solar_irradiance_predicted_6h" title="Permalink to this definition"></a></dt>
+<dd><p>Direct solar irradiance 6 hours ahead prediction time series in [W/m^2].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.direct_solar_irradiance_predicted_12h">
+<span class="sig-name descname"><span class="pre">direct_solar_irradiance_predicted_12h</span></span><a class="headerlink" href="#citylearn.data.Weather.direct_solar_irradiance_predicted_12h" title="Permalink to this definition"></a></dt>
+<dd><p>Direct solar irradiance 12 hours ahead prediction time series in [W/m^2].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.Weather.direct_solar_irradiance_predicted_24h">
+<span class="sig-name descname"><span class="pre">direct_solar_irradiance_predicted_24h</span></span><a class="headerlink" href="#citylearn.data.Weather.direct_solar_irradiance_predicted_24h" title="Permalink to this definition"></a></dt>
+<dd><p>Direct solar irradiance 24 hours ahead prediction time series in [W/m^2].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

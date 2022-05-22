@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citylearn.data &mdash; CityLearn 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment.html">Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>citylearn.data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for citylearn.data</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="EnergySimulation"><a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.EnergySimulation">[docs]</a><span class="k">class</span> <span class="nc">EnergySimulation</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;`Building` `energy_simulation` data class.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    month : np.array</span>
+<span class="sd">        Month time series value ranging from 1 - 12.</span>
+<span class="sd">    hour : np.array</span>
+<span class="sd">        Hour time series value ranging from 0 - 23.</span>
+<span class="sd">    day_type : np.array</span>
+<span class="sd">        Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.</span>
+<span class="sd">    daylight_savings_status : np.array</span>
+<span class="sd">        Daylight saving status time series signal of 0 or 1 indicating inactive  or active daylight saving respectively.</span>
+<span class="sd">    indoor_dry_bulb_temperature : np.array</span>
+<span class="sd">        Zone volume-weighted average building dry bulb temperature time series in [C].</span>
+<span class="sd">    average_unment_cooling_setpoint_difference : np.array</span>
+<span class="sd">        Zone volume-weighted average difference between `indoor_dry_bulb_temperature` and cooling temperature setpoints time series in [C].</span>
+<span class="sd">    indoor_relative_humidity : np.array</span>
+<span class="sd">        Zone volume-weighted average building relative humidity time series in [%].</span>
+<span class="sd">    non_shiftable_load : np.array</span>
+<span class="sd">        Total building non-shiftable plug and equipment loads time series in [kWh].</span>
+<span class="sd">    dhw_demand : np.array</span>
+<span class="sd">        Total building domestic hot water demand time series in [kWh].</span>
+<span class="sd">    cooling_demand : np.array</span>
+<span class="sd">        Total building space cooling demand time series in [kWh].</span>
+<span class="sd">    heating_demand : np.array</span>
+<span class="sd">        Total building space heating demand time series in [kWh].</span>
+<span class="sd">    solar_generation : np.array</span>
+<span class="sd">        Inverter output per 1 kW of PV system time series in [W/kW].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">hour</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">day_type</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">daylight_savings_status</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">indoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">average_unmet_cooling_setpoint_difference</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">indoor_relative_humidity</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
+        <span class="n">non_shiftable_load</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dhw_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">cooling_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">heating_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">solar_generation</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `EnergySimulation`.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hour</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hour</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">day_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">day_type</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daylight_savings_status</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">daylight_savings_status</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">average_unmet_cooling_setpoint_difference</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">average_unmet_cooling_setpoint_difference</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indoor_relative_humidity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indoor_relative_humidity</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">non_shiftable_load</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">non_shiftable_load</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dhw_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dhw_demand</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cooling_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cooling_demand</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heating_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">heating_demand</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solar_generation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Weather"><a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.Weather">[docs]</a><span class="k">class</span> <span class="nc">Weather</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;`Building` `weather` data class.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    outdoor_dry_bulb_temperature : np.array</span>
+<span class="sd">        Outdoor dry bulb temperature time series in [C].</span>
+<span class="sd">    outdoor_relative_humidity : np.array</span>
+<span class="sd">        Outdoor relative humidity time series in [%].</span>
+<span class="sd">    diffuse_solar_irradiance : np.array</span>
+<span class="sd">        Diffuse solar irradiance time series in [W/m^2].</span>
+<span class="sd">    direct_solar_irradiance : np.array</span>
+<span class="sd">        Direct solar irradiance time series in [W/m^2].</span>
+<span class="sd">    outdoor_dry_bulb_temperature_predicted_6h : np.array</span>
+<span class="sd">        Outdoor dry bulb temperature 6 hours ahead prediction time series in [C].</span>
+<span class="sd">    outdoor_dry_bulb_temperature_predicted_12h : np.array</span>
+<span class="sd">        Outdoor dry bulb temperature 12 hours ahead prediction time series in [C].</span>
+<span class="sd">    outdoor_dry_bulb_temperature_predicted_24h : np.array</span>
+<span class="sd">        Outdoor dry bulb temperature 24 hours ahead prediction time series in [C].</span>
+<span class="sd">    outdoor_relative_humidity_predicted_6h : np.array</span>
+<span class="sd">        Outdoor relative humidity 6 hours ahead prediction time series in [%].</span>
+<span class="sd">    outdoor_relative_humidity_predicted_12h : np.array</span>
+<span class="sd">        Outdoor relative humidity 12 hours ahead prediction time series in [%].</span>
+<span class="sd">    outdoor_relative_humidity_predicted_24h : np.array</span>
+<span class="sd">        Outdoor relative humidity 24 hours ahead prediction time series in [%].</span>
+<span class="sd">    diffuse_solar_irradiance_predicted_6h : np.array</span>
+<span class="sd">        Diffuse solar irradiance 6 hours ahead prediction time series in [W/m^2].</span>
+<span class="sd">    diffuse_solar_irradiance_predicted_12h : np.array</span>
+<span class="sd">        Diffuse solar irradiance 12 hours ahead prediction time series in [W/m^2].</span>
+<span class="sd">    diffuse_solar_irradiance_predicted_24h : np.array</span>
+<span class="sd">        Diffuse solar irradiance 24 hours ahead prediction time series in [W/m^2].</span>
+<span class="sd">    direct_solar_irradiance_predicted_6h : np.array</span>
+<span class="sd">        Direct solar irradiance 6 hours ahead prediction time series in [W/m^2].</span>
+<span class="sd">    direct_solar_irradiance_predicted_12h : np.array</span>
+<span class="sd">        Direct solar irradiance 12 hours ahead prediction time series in [W/m^2].</span>
+<span class="sd">    direct_solar_irradiance_predicted_24h : np.array</span>
+<span class="sd">        Direct solar irradiance 24 hours ahead prediction time series in [W/m^2].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">outdoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">outdoor_relative_humidity</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">diffuse_solar_irradiance</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">direct_solar_irradiance</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
+        <span class="n">outdoor_dry_bulb_temperature_predicted_6h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">outdoor_dry_bulb_temperature_predicted_12h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">outdoor_dry_bulb_temperature_predicted_24h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">outdoor_relative_humidity_predicted_6h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">outdoor_relative_humidity_predicted_12h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">outdoor_relative_humidity_predicted_24h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">diffuse_solar_irradiance_predicted_6h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">diffuse_solar_irradiance_predicted_12h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">diffuse_solar_irradiance_predicted_24h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">direct_solar_irradiance_predicted_6h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">direct_solar_irradiance_predicted_12h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">direct_solar_irradiance_predicted_24h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Weather`.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdoor_relative_humidity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">outdoor_relative_humidity</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diffuse_solar_irradiance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">diffuse_solar_irradiance</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">direct_solar_irradiance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">direct_solar_irradiance</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature_predicted_6h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">outdoor_dry_bulb_temperature_predicted_6h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature_predicted_12h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">outdoor_dry_bulb_temperature_predicted_12h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature_predicted_24h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">outdoor_dry_bulb_temperature_predicted_24h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdoor_relative_humidity_predicted_6h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">outdoor_relative_humidity_predicted_6h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdoor_relative_humidity_predicted_12h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">outdoor_relative_humidity_predicted_12h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdoor_relative_humidity_predicted_24h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">outdoor_relative_humidity_predicted_24h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diffuse_solar_irradiance_predicted_6h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">diffuse_solar_irradiance_predicted_6h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diffuse_solar_irradiance_predicted_12h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">diffuse_solar_irradiance_predicted_12h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diffuse_solar_irradiance_predicted_24h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">diffuse_solar_irradiance_predicted_24h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">direct_solar_irradiance_predicted_6h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">direct_solar_irradiance_predicted_6h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">direct_solar_irradiance_predicted_12h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">direct_solar_irradiance_predicted_12h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">direct_solar_irradiance_predicted_24h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">direct_solar_irradiance_predicted_24h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pricing"><a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.Pricing">[docs]</a><span class="k">class</span> <span class="nc">Pricing</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;`Building` `pricing` data class.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    electricity_pricing : np.array</span>
+<span class="sd">        Electricity pricing time series in [$].</span>
+<span class="sd">    electricity_pricing_predicted_6h : np.array</span>
+<span class="sd">        Electricity pricing 6 hours ahead prediction time series in [$].</span>
+<span class="sd">    electricity_pricing_predicted_12h : np.array</span>
+<span class="sd">        Electricity pricing 12 hours ahead prediction time series in [$].</span>
+<span class="sd">    electricity_pricing_predicted_24h : np.array</span>
+<span class="sd">        Electricity pricing 24 hours ahead prediction time series in [$].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">electricity_pricing</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">electricity_pricing_predicted_6h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
+        <span class="n">electricity_pricing_predicted_12h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">electricity_pricing_predicted_24h</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Pricing`.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">electricity_pricing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">electricity_pricing</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electricity_pricing_predicted_6h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">electricity_pricing_predicted_6h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electricity_pricing_predicted_12h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">electricity_pricing_predicted_12h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electricity_pricing_predicted_24h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">electricity_pricing_predicted_24h</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CarbonIntensity"><a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.CarbonIntensity">[docs]</a><span class="k">class</span> <span class="nc">CarbonIntensity</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;`Building` `carbon_intensity` data class.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    carbon_intensity : np.array</span>
+<span class="sd">        Emission rate time series in [kg_co2/kWh].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">carbon_intensity</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `CarbonIntensity`.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">carbon_intensity</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

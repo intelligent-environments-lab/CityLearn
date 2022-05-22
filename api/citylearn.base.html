@@ -4,16 +4,17 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.base module &mdash; CityLearn 1.1.1 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <title>citylearn.base module &mdash; CityLearn 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,7 +37,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../environment.html">Environment</a></li>
@@ -88,51 +89,51 @@
            <div itemprop="articleBody">
              
   <section id="module-citylearn.base">
-<span id="citylearn-base-module"></span><h1>citylearn.base module<a class="headerlink" href="#module-citylearn.base" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="citylearn.base.Environment">
-<em class="property">class </em><code class="sig-prename descclassname">citylearn.base.</code><code class="sig-name descname">Environment</code><span class="sig-paren">(</span><em class="sig-param">seconds_per_timestep: float = None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/base.html#Environment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#citylearn.base.Environment" title="Permalink to this definition">¶</a></dt>
+<span id="citylearn-base-module"></span><h1>citylearn.base module<a class="headerlink" href="#module-citylearn.base" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.base.Environment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.base.</span></span><span class="sig-name descname"><span class="pre">Environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds_per_timestep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/base.html#Environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.base.Environment" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
-<dt id="citylearn.base.Environment.next_time_step">
-<code class="sig-name descname">next_time_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/base.html#Environment.next_time_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#citylearn.base.Environment.next_time_step" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.base.Environment.next_time_step">
+<span class="sig-name descname"><span class="pre">next_time_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/base.html#Environment.next_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.base.Environment.next_time_step" title="Permalink to this definition"></a></dt>
 <dd><p>Advance to next <cite>time_step</cite> value.</p>
 <p>Adds 1 to <cite>time_step</cite> <cite>property</cite>.</p>
 <p class="rubric">Notes</p>
 <p>Override in subclass for custom implementation when advancing to next <cite>time_step</cite>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="citylearn.base.Environment.reset">
-<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/base.html#Environment.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#citylearn.base.Environment.reset" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.base.Environment.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/base.html#Environment.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.base.Environment.reset" title="Permalink to this definition"></a></dt>
 <dd><p>Reset environment to initial state.</p>
 <p>Calls <cite>reset_time_step</cite>.</p>
 <p class="rubric">Notes</p>
 <p>Override in subclass for custom implementation when reseting environment.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="citylearn.base.Environment.reset_time_step">
-<code class="sig-name descname">reset_time_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/base.html#Environment.reset_time_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#citylearn.base.Environment.reset_time_step" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.base.Environment.reset_time_step">
+<span class="sig-name descname"><span class="pre">reset_time_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/base.html#Environment.reset_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.base.Environment.reset_time_step" title="Permalink to this definition"></a></dt>
 <dd><p>Reset <cite>time_step</cite> to initial state.</p>
 <p>Sets <cite>time_step</cite> to 0.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="citylearn.base.Environment.seconds_per_time_step">
-<em class="property">property </em><code class="sig-name descname">seconds_per_time_step</code><a class="headerlink" href="#citylearn.base.Environment.seconds_per_time_step" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.base.Environment.seconds_per_time_step">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seconds_per_time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.base.Environment.seconds_per_time_step" title="Permalink to this definition"></a></dt>
 <dd><p>Number of seconds in 1 time step.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="citylearn.base.Environment.time_step">
-<em class="property">property </em><code class="sig-name descname">time_step</code><a class="headerlink" href="#citylearn.base.Environment.time_step" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.base.Environment.time_step">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.base.Environment.time_step" title="Permalink to this definition"></a></dt>
 <dd><p>Current environment time step.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="citylearn.base.Environment.uid">
-<em class="property">property </em><code class="sig-name descname">uid</code><a class="headerlink" href="#citylearn.base.Environment.uid" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.base.Environment.uid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">uid</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#citylearn.base.Environment.uid" title="Permalink to this definition"></a></dt>
 <dd><p>Unique environment ID.</p>
 </dd></dl>
 

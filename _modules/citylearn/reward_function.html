@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citylearn.reward_function &mdash; CityLearn 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment.html">Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>citylearn.reward_function</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for citylearn.reward_function</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="RewardFunction"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction">[docs]</a><span class="k">class</span> <span class="nc">RewardFunction</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">carbon_emission</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">electricity_price</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Reward`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        agent_count: int</span>
+<span class="sd">            Number of agents.</span>
+<span class="sd">        electricity_consumption: List[float]</span>
+<span class="sd">            Buildings&#39; electricity consumption in [kWh].</span>
+<span class="sd">        carbon_emission: List[float], optional</span>
+<span class="sd">            Buildings&#39; carbon emissions in [kg_co2].</span>
+<span class="sd">        electricity_price: List[float], optional</span>
+<span class="sd">            Buildings&#39; electricty prices in [$].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent_count</span> <span class="o">=</span> <span class="n">agent_count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electricty_consumption</span> <span class="o">=</span> <span class="n">electricity_consumption</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">carbon_emission</span> <span class="o">=</span> <span class="n">carbon_emission</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electricity_price</span> <span class="o">=</span> <span class="n">electricity_price</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">agent_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Number of agents.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__agent_count</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Buildings&#39; electricity consumption in [kWh].&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_consumption</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">carbon_emission</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Buildings&#39; carbon emissions in [kg_co2].&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__carbon_emission</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">electricity_price</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Buildings&#39; electricty prices in [$].&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_price</span>
+
+    <span class="nd">@agent_count</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">agent_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__agent_count</span> <span class="o">=</span> <span class="n">agent_count</span>
+
+    <span class="nd">@electricity_consumption</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_consumption</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_count</span> <span class="k">if</span> <span class="n">electricity_consumption</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">electricity_consumption</span>
+
+    <span class="nd">@carbon_emission</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">carbon_emission</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">carbon_emission</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__carbon_emission</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_count</span> <span class="k">if</span> <span class="n">carbon_emission</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">carbon_emission</span>
+
+    <span class="nd">@electricity_price</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">electricity_price</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electricity_price</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_price</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_count</span> <span class="k">if</span> <span class="n">electricity_price</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">electricity_price</span>
+
+<div class="viewcode-block" id="RewardFunction.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates default reward.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Reward value is calculated as :math:`[\textrm{max}(-e_0, 0), \dots, \textrm{max}(-e_n, 0)]` </span>
+<span class="sd">        where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">electricity_consumption</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div></div>
+
+    
+<div class="viewcode-block" id="MARL"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.MARL">[docs]</a><span class="k">class</span> <span class="nc">MARL</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">electricity_consumption</span><span class="o">=</span><span class="n">electricity_consumption</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MARL.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.MARL.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates MARL reward.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        See [1]_ for more information.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        .. [1] Vázquez-Canteli, José &amp; Henze, Gregor &amp; Nagy, Zoltán. (2020).</span>
+<span class="sd">            MARLISA: Multi-Agent Reinforcement Learning with Iterative Sequential</span>
+<span class="sd">            Action Selection for Load Shaping of Grid-Interactive Connected Buildings. 10.1145/3408308.3427604.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">electricity_consumption</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">electricity_consumption</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span>
+        <span class="n">total_electricity_consumption</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">electricity_consumption</span><span class="p">)</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">electricity_consumption</span><span class="p">)</span><span class="o">*</span><span class="mf">0.01</span><span class="o">*</span><span class="n">electricity_consumption</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">total_electricity_consumption</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">reward</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div></div>
+
+<div class="viewcode-block" id="IndependentSACReward"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.IndependentSACReward">[docs]</a><span class="k">class</span> <span class="nc">IndependentSACReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">electricity_consumption</span><span class="o">=</span><span class="n">electricity_consumption</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="IndependentSACReward.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.IndependentSACReward.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.</span>
+
+<span class="sd">        Recommended for use with the `SAC` controllers.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Reward value is calculated as :math:`[\textrm{max}(-e_0^3, 0), \dots, \textrm{max}(-e_n^3, 0)]` </span>
+<span class="sd">        where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">electricity_consumption</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">electricity_consumption</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span><span class="o">**</span><span class="mi">3</span>
+        <span class="k">return</span> <span class="n">electricity_consumption</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

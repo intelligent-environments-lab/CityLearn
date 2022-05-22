@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citylearn.agents.rlc &mdash; CityLearn 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../environment.html">Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">citylearn</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>citylearn.agents.rlc</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for citylearn.agents.rlc</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">gym</span> <span class="kn">import</span> <span class="n">spaces</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+<span class="kn">from</span> <span class="nn">citylearn.agents.base</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">citylearn.agents.rbc</span> <span class="kn">import</span> <span class="n">RBC</span><span class="p">,</span> <span class="n">BasicRBC</span><span class="p">,</span> <span class="n">OptimizedRBC</span>
+<span class="kn">from</span> <span class="nn">citylearn.preprocessing</span> <span class="kn">import</span> <span class="n">Encoder</span>
+<span class="kn">from</span> <span class="nn">citylearn.rl</span> <span class="kn">import</span> <span class="n">PolicyNetwork</span><span class="p">,</span> <span class="n">ReplayBuffer</span><span class="p">,</span> <span class="n">SoftQNetwork</span>
+
+<div class="viewcode-block" id="RLC"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.RLC">[docs]</a><span class="k">class</span> <span class="nc">RLC</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">encoders</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Encoder</span><span class="p">],</span> <span class="n">observation_space</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoders</span> <span class="o">=</span> <span class="n">encoders</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">observation_space</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">encoders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Encoder</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__encoders</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">observation_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoders</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">low</span><span class="p">)))</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__observation_space</span>
+
+    <span class="nd">@encoders</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">encoders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoders</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Encoder</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__encoders</span> <span class="o">=</span> <span class="n">encoders</span>
+
+    <span class="nd">@observation_space</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_space</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__observation_space</span> <span class="o">=</span> <span class="n">observation_space</span></div>
+
+<div class="viewcode-block" id="SAC"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.SAC">[docs]</a><span class="k">class</span> <span class="nc">SAC</span><span class="p">(</span><span class="n">RLC</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">hidden_dimension</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">],</span> <span class="n">discount</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.99</span><span class="p">,</span> 
+        <span class="n">tau</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e-3</span><span class="p">,</span> <span class="n">lr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3e-4</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
+        <span class="n">replay_buffer_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e5</span><span class="p">,</span> <span class="n">start_training_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6000</span><span class="p">,</span> <span class="n">end_exploration_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7000</span><span class="p">,</span> 
+        <span class="n">deterministic_start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7500</span><span class="p">,</span> <span class="n">action_scaling_coef</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">reward_scaling</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span> 
+        <span class="n">update_per_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="c1"># user defined</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dimension</span> <span class="o">=</span> <span class="n">hidden_dimension</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">discount</span> <span class="o">=</span> <span class="n">discount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau</span> <span class="o">=</span> <span class="n">tau</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">lr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replay_buffer_capacity</span> <span class="o">=</span> <span class="n">replay_buffer_capacity</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_training_time_step</span> <span class="o">=</span> <span class="n">start_training_time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_exploration_time_step</span> <span class="o">=</span> <span class="n">end_exploration_time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deterministic_start_time_step</span> <span class="o">=</span> <span class="n">deterministic_start_time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_scaling_coef</span> <span class="o">=</span> <span class="n">action_scaling_coef</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward_scaling</span> <span class="o">=</span> <span class="n">reward_scaling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_per_time_step</span> <span class="o">=</span> <span class="n">update_per_time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        
+        <span class="c1"># internally defined</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__normalized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__alpha</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">SmoothL1Loss</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span> <span class="o">=</span> <span class="n">ReplayBuffer</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replay_buffer_capacity</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__policy_net</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_optimizer1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_optimizer2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__policy_optimizer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__target_entropy</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__norm_mean</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__norm_std</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__r_norm_mean</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__r_norm_std</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_networks</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hidden_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hidden_dimension</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">discount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__discount</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tau</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tau</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lr</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">batch_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__batch_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">replay_buffer_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer_capacity</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">start_training_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__start_training_time_step</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">end_exploration_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__end_exploration_time_step</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">deterministic_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__deterministic_start_time_step</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">action_scaling_coef</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_scaling_coef</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reward_scaling</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__reward_scaling</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">update_per_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__update_per_time_step</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__seed</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__device</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">soft_q_net1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SoftQNetwork</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net1</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">soft_q_net2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SoftQNetwork</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net2</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">policy_net</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolicyNetwork</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__policy_net</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">norm_mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__norm_mean</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">norm_std</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__norm_std</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">normalized</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__normalized</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">r_norm_mean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__r_norm_mean</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">r_norm_std</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__r_norm_std</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">replay_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReplayBuffer</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__alpha</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">soft_q_criterion</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">SmoothL1Loss</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_criterion</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_soft_q_net1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SoftQNetwork</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net1</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_soft_q_net2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SoftQNetwork</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net2</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">soft_q_optimizer1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_optimizer1</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">soft_q_optimizer2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_optimizer2</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">policy_optimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__policy_optimizer</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target_entropy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__target_entropy</span>
+
+    <span class="nd">@hidden_dimension</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">hidden_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">hidden_dimension</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__hidden_dimension</span> <span class="o">=</span> <span class="n">hidden_dimension</span>
+
+    <span class="nd">@discount</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">discount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">discount</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__discount</span> <span class="o">=</span> <span class="n">discount</span>
+
+    <span class="nd">@tau</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">tau</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tau</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__tau</span> <span class="o">=</span> <span class="n">tau</span>
+    
+    <span class="nd">@lr</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lr</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__lr</span> <span class="o">=</span> <span class="n">lr</span>
+
+    <span class="nd">@batch_size</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">batch_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+
+    <span class="nd">@replay_buffer_capacity</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">replay_buffer_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replay_buffer_capacity</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer_capacity</span> <span class="o">=</span> <span class="n">replay_buffer_capacity</span>
+
+    <span class="nd">@start_training_time_step</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">start_training_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_training_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__start_training_time_step</span> <span class="o">=</span> <span class="n">start_training_time_step</span>
+
+    <span class="nd">@end_exploration_time_step</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">end_exploration_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_exploration_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__end_exploration_time_step</span> <span class="o">=</span> <span class="n">end_exploration_time_step</span>
+
+    <span class="nd">@deterministic_start_time_step</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">deterministic_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deterministic_start_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__deterministic_start_time_step</span> <span class="o">=</span> <span class="n">deterministic_start_time_step</span>
+
+    <span class="nd">@action_scaling_coef</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">action_scaling_coef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_scaling_coef</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__action_scaling_coef</span> <span class="o">=</span> <span class="n">action_scaling_coef</span>
+
+    <span class="nd">@reward_scaling</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">reward_scaling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward_scaling</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__reward_scaling</span> <span class="o">=</span> <span class="n">reward_scaling</span>
+
+    <span class="nd">@update_per_time_step</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">update_per_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_per_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__update_per_time_step</span> <span class="o">=</span> <span class="n">update_per_time_step</span>
+
+    <span class="nd">@seed</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SAC.add_to_buffer"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.SAC.add_to_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">reward</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">next_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">done</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Run once the regression model has been fitted</span>
+        <span class="c1"># Normalize all the observations using periodical normalization, one-hot encoding, or -1, 1 scaling. It also removes observations that are not necessary (solar irradiance if there are no solar PV panels).</span>
+        <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_encoded_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="n">next_observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_encoded_observations</span><span class="p">(</span><span class="n">next_observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized</span><span class="p">:</span>
+            <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="n">next_observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_reward</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_observations</span><span class="p">,</span> <span class="n">done</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_training_time_step</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized</span><span class="p">:</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">j</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">buffer</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__norm_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__norm_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-5</span>
+                <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">j</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">buffer</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__r_norm_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__r_norm_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">reward_scaling</span> <span class="o">+</span> <span class="mf">1e-5</span>
+                <span class="n">new_buffer</span> <span class="o">=</span> <span class="p">[(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">actions</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_reward</span><span class="p">(</span><span class="n">reward</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">next_observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">done</span>
+                <span class="p">)</span> <span class="k">for</span> <span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_observations</span><span class="p">,</span> <span class="n">done</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">buffer</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">new_buffer</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__normalized</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_per_time_step</span><span class="p">):</span>
+                <span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_observations</span><span class="p">,</span> <span class="n">done</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
+                <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">FloatTensor</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;cuda&#39;</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span>
+                <span class="n">observations</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">next_observations</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">(</span><span class="n">next_observations</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">actions</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">done</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">(</span><span class="n">done</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                    <span class="c1"># Update Q-values. First, sample an action from the Gaussian policy/distribution for the current (next) observation and its associated log probability of occurrence.</span>
+                    <span class="n">new_next_actions</span><span class="p">,</span> <span class="n">new_log_pi</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__policy_net</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">next_observations</span><span class="p">)</span>
+
+                    <span class="c1"># The updated Q-value is found by subtracting the logprob of the sampled action (proportional to the entropy) to the Q-values estimated by the target networks.</span>
+                    <span class="n">target_q_values</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net1</span><span class="p">(</span><span class="n">next_observations</span><span class="p">,</span> <span class="n">new_next_actions</span><span class="p">),</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net2</span><span class="p">(</span><span class="n">next_observations</span><span class="p">,</span> <span class="n">new_next_actions</span><span class="p">),</span>
+                    <span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">*</span><span class="n">new_log_pi</span>
+                    <span class="n">q_target</span> <span class="o">=</span> <span class="n">reward</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">done</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">discount</span><span class="o">*</span><span class="n">target_q_values</span>
+
+                <span class="c1"># Update Soft Q-Networks</span>
+                <span class="n">q1_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net1</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">)</span>
+                <span class="n">q2_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net2</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">)</span>
+                <span class="n">q1_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_criterion</span><span class="p">(</span><span class="n">q1_pred</span><span class="p">,</span> <span class="n">q_target</span><span class="p">)</span>
+                <span class="n">q2_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_criterion</span><span class="p">(</span><span class="n">q2_pred</span><span class="p">,</span> <span class="n">q_target</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_optimizer1</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                <span class="n">q1_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_optimizer1</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_optimizer2</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                <span class="n">q2_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_optimizer2</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+                <span class="c1"># Update Policy</span>
+                <span class="n">new_actions</span><span class="p">,</span> <span class="n">log_pi</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__policy_net</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+                <span class="n">q_new_actions</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net1</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">new_actions</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net2</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">new_actions</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">policy_loss</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">*</span><span class="n">log_pi</span> <span class="o">-</span> <span class="n">q_new_actions</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__policy_optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                <span class="n">policy_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__policy_optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+                <span class="c1"># Soft Updates</span>
+                <span class="k">for</span> <span class="n">target_param</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net1</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net1</span><span class="o">.</span><span class="n">parameters</span><span class="p">()):</span>
+                    <span class="n">target_param</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">target_param</span><span class="o">.</span><span class="n">data</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="p">)</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="n">data</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">target_param</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net2</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net2</span><span class="o">.</span><span class="n">parameters</span><span class="p">()):</span>
+                    <span class="n">target_param</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">target_param</span><span class="o">.</span><span class="n">data</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="p">)</span> <span class="o">+</span> <span class="n">param</span><span class="o">.</span><span class="n">data</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="SAC.select_actions"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.SAC.select_actions">[docs]</a>    <span class="k">def</span> <span class="nf">select_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_exploration_time_step</span><span class="p">:</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_exploration_actions</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_post_exploration_actions</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="n">actions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">actions</span></div>
+
+    <span class="k">def</span> <span class="nf">__get_post_exploration_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_encoded_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="n">observations</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__device</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__policy_net</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deterministic_start_time_step</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="n">actions</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+            
+<div class="viewcode-block" id="SAC.get_exploration_actions"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.SAC.get_exploration_actions">[docs]</a>    <span class="k">def</span> <span class="nf">get_exploration_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="c1"># random actions</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_scaling_coef</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="nf">__get_normalized_reward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">reward</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_norm_mean</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">r_norm_std</span>
+
+    <span class="k">def</span> <span class="nf">__get_normalized_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_mean</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_std</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__get_encoded_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoders</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">))</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__set_networks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># init networks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net1</span> <span class="o">=</span> <span class="n">SoftQNetwork</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dimension</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net2</span> <span class="o">=</span> <span class="n">SoftQNetwork</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dimension</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net1</span> <span class="o">=</span> <span class="n">SoftQNetwork</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dimension</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net2</span> <span class="o">=</span> <span class="n">SoftQNetwork</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dimension</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">target_param</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net1</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net1</span><span class="o">.</span><span class="n">parameters</span><span class="p">()):</span>
+            <span class="n">target_param</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">target_param</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__target_soft_q_net2</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net2</span><span class="o">.</span><span class="n">parameters</span><span class="p">()):</span>
+            <span class="n">target_param</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># Policy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__policy_net</span> <span class="o">=</span> <span class="n">PolicyNetwork</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_scaling_coef</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dimension</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_optimizer1</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net1</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_optimizer2</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__soft_q_net2</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__policy_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__policy_net</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__target_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SACRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.SACRBC">[docs]</a><span class="k">class</span> <span class="nc">SACRBC</span><span class="p">(</span><span class="n">SAC</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rbc</span> <span class="o">=</span> <span class="n">RBC</span><span class="p">(</span><span class="n">action_space</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rbc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RBC</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rbc</span>
+
+    <span class="nd">@rbc</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">rbc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rbc</span><span class="p">:</span> <span class="n">RBC</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__rbc</span> <span class="o">=</span> <span class="n">rbc</span>
+
+<div class="viewcode-block" id="SACRBC.get_exploration_actions"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.SACRBC.get_exploration_actions">[docs]</a>    <span class="k">def</span> <span class="nf">get_exploration_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rbc</span><span class="o">.</span><span class="n">select_actions</span><span class="p">(</span><span class="n">states</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="SACBasicRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.SACBasicRBC">[docs]</a><span class="k">class</span> <span class="nc">SACBasicRBC</span><span class="p">(</span><span class="n">SACRBC</span><span class="p">):</span>
+     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">hour_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rbc</span> <span class="o">=</span> <span class="n">BasicRBC</span><span class="p">(</span><span class="n">action_space</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span> <span class="n">hour_index</span><span class="o">=</span><span class="n">hour_index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SACOptimizedRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.SACOptimizedRBC">[docs]</a><span class="k">class</span> <span class="nc">SACOptimizedRBC</span><span class="p">(</span><span class="n">SACRBC</span><span class="p">):</span>
+     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">hour_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rbc</span> <span class="o">=</span> <span class="n">OptimizedRBC</span><span class="p">(</span><span class="n">action_space</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span> <span class="n">hour_index</span><span class="o">=</span><span class="n">hour_index</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
