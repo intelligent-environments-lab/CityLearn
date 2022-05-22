@@ -12,6 +12,7 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
+        python-version: '3.7.3'
         name: html-docs
         path: docs/build/html/
     - name: Deploy
