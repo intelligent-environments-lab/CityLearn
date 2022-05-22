@@ -38,12 +38,12 @@ Cite CityLearn
 
 Related Publications
 --------------------
-   .. [1] Vazquez-Canteli, J. R., Henze, G., & Nagy, Z. (2020, November).
+   .. [3] Vazquez-Canteli, J. R., Henze, G., & Nagy, Z. (2020, November).
           *MARLISA: Multi-agent reinforcement learning with iterative sequential action selection for load shaping of grid-interactive connected buildings.*
           In Proceedings of the 7th ACM international conference on systems for energy-efficient buildings, cities, and transportation (pp. 170-179).
           `doi: 10.1145/3408308.3427604 <http://dx.doi.org/10.1145/3408308.3427604>`_
 
-   .. [2] Vázquez-Canteli, J. R., & Nagy, Z. (2019). 
+   .. [4] Vázquez-Canteli, J. R., & Nagy, Z. (2019). 
           *Reinforcement learning for demand response: A review of algorithms and modeling techniques.*
           Applied energy, 235, 1072-1089.
           `doi: 10.1016/j.apenergy.2018.11.002 <https://doi.org/10.1016/j.apenergy.2018.11.002>`_
