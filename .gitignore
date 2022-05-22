@@ -160,6 +160,7 @@ cython_debug/
 
 # do not track data
 data/*
+cc2022_staging/*
 
 # do not track docs for now
 docs/*
