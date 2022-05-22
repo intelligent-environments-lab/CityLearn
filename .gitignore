@@ -163,7 +163,7 @@ data/*
 cc2022_staging/*
 
 # do not track docs for now
-docs/*
+docs/build/*
 
 # test files
 test.*
