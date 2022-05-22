@@ -1,5 +1,6 @@
 import argparse
 from datetime import datetime
+from citylearn.__init__ import __version__
 import inspect
 from pathlib import Path
 import pickle
@@ -26,7 +27,7 @@ def main():
         An open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement 
         Learning (RL) for building energy coordination and demand response in cities.'''
     ))
-    parser.add_argument('--version', action='version', version='%(prog)s 1.1.1')
+    parser.add_argument('--version', action='version', version='%(prog)s' + f' {__version__}')
     subparsers = parser.add_subparsers(title='subcommands',required=True,dest='subcommands')
     subparser_simulate = subparsers.add_parser('simulate',description='Run simulation.')
     subparser_simulate.add_argument('schema',type=Path,help='Schema absolute filepath.')

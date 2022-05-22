@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
+from citylearn.__init__ import __version__
 
 
 # -- Project information -----------------------------------------------------
@@ -22,7 +23,7 @@ copyright = '2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy'
 author = 'Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.1'
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
