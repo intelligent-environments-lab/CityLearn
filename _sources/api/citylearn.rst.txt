@@ -1,0 +1,31 @@
+citylearn package
+=================
+
+.. automodule:: citylearn
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   citylearn.agents
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   citylearn.base
+   citylearn.citylearn
+   citylearn.cost_function
+   citylearn.data
+   citylearn.energy_model
+   citylearn.preprocessing
+   citylearn.reward_function
+   citylearn.rl
+   citylearn.utilities
