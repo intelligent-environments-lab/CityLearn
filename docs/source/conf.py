@@ -32,7 +32,6 @@ release = '1.1.1'
 # ones.
 extensions = [
     'sphinx.ext.napoleon',
-    'sphinx.ext.autodoc',
     # 'sphinx.ext.viewcode',
 ]
 
