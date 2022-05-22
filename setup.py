@@ -1,4 +1,9 @@
+import os
+import re
 import setuptools
+
+ROOT = os.path.dirname(__file__)
+VERSION_RE = re.compile(r'''__version__ = ['"]([0-9.]+)['"]''')
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
@@ -8,9 +13,13 @@ with open('requirements.txt', 'r') as fh:
    requirements = [requirement.strip().replace('\n','').replace('\r','') for requirement in requirements]
    requirements = [requirement for requirement in requirements if len(requirement) != 0 and requirement[0] != '#']
 
+def get_version():
+    init = open(os.path.join(ROOT, 'citylearn', '__init__.py')).read()
+    return VERSION_RE.search(init).group(1)
+
 setuptools.setup(
     name='CityLearn',
-    version='0.0.1',
+    version=get_version(),
     author='Jose Ramon Vazquez-Canteli, Kingsley Nweye',
     author_email='nweye@utexas.edu',
     description='An open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities.',
