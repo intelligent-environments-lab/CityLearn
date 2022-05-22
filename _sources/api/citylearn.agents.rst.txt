@@ -15,4 +15,3 @@ Submodules
    citylearn.agents.base
    citylearn.agents.rbc
    citylearn.agents.rlc
-   citylearn.agents.sac
