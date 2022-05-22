@@ -104,7 +104,7 @@ class ElectricDevice(Device):
         self.__electricity_consumption = [0.0]
 
 class HeatPump(ElectricDevice):
-    def __init__(self, nominal_power: float, efficiency: float = None, t_target_heating: float = None, t_target_cooling: float = None, **kwargs):
+    def __init__(self, nominal_power: float, efficiency: float = None, target_heating_temperature: float = None, target_cooling_temperature: float = None, **kwargs):
         r"""Initialize `HeatPump`.
 
         Parameters
@@ -113,9 +113,9 @@ class HeatPump(ElectricDevice):
             Maximum amount of electric power that the heat pump can consume from the power grid (given by the nominal power of the compressor).
         efficiency : float, default: 0.2
             Technical efficiency.
-        t_target_heating : float, default: 45.0
+        target_heating_temperature : float, default: 45.0
             Target heating supply dry bulb temperature in [C].
-        t_target_cooling : float, default: 8.0
+        target_cooling_temperature : float, default: 8.0
             Target cooling supply dry bulb temperature in [C].
 
         Other Parameters
@@ -125,34 +125,34 @@ class HeatPump(ElectricDevice):
         """
 
         super().__init__(nominal_power = nominal_power, efficiency = efficiency, **kwargs)
-        self.t_target_heating = t_target_heating
-        self.t_target_cooling = t_target_cooling
+        self.target_heating_temperature = target_heating_temperature
+        self.target_cooling_temperature = target_cooling_temperature
 
     @property
-    def t_target_heating(self) -> float:
+    def target_heating_temperature(self) -> float:
         r"""Target heating supply dry bulb temperature in [C]."""
 
-        return self.__t_target_heating
+        return self.__target_heating_temperature
 
     @property
-    def t_target_cooling(self) -> float:
+    def target_cooling_temperature(self) -> float:
         r"""Target cooling supply dry bulb temperature in [C]."""
 
-        return self.__t_target_cooling
+        return self.__target_cooling_temperature
 
-    @t_target_heating.setter
-    def t_target_heating(self, t_target_heating: float):
-        if t_target_heating is None:
-            self.__t_target_heating = 45.0
+    @target_heating_temperature.setter
+    def target_heating_temperature(self, target_heating_temperature: float):
+        if target_heating_temperature is None:
+            self.__target_heating_temperature = 45.0
         else:
-            self.__t_target_heating = t_target_heating
+            self.__target_heating_temperature = target_heating_temperature
 
-    @t_target_cooling.setter
-    def t_target_cooling(self, t_target_cooling: float):
-        if t_target_cooling is None:
-            self.__t_target_cooling = 8.0
+    @target_cooling_temperature.setter
+    def target_cooling_temperature(self, target_cooling_temperature: float):
+        if target_cooling_temperature is None:
+            self.__target_cooling_temperature = 8.0
         else:
-            self.__t_target_cooling = t_target_cooling
+            self.__target_cooling_temperature = target_cooling_temperature
 
     @ElectricDevice.efficiency.setter
     def efficiency(self, efficiency: float):
@@ -190,9 +190,9 @@ class HeatPump(ElectricDevice):
         outdoor_dry_bulb_temperature = np.array(outdoor_dry_bulb_temperature)
 
         if heating:
-            cop = self.efficiency*c_to_k(self.t_target_heating)/(self.t_target_heating - outdoor_dry_bulb_temperature)
+            cop = self.efficiency*c_to_k(self.target_heating_temperature)/(self.target_heating_temperature - outdoor_dry_bulb_temperature)
         else:
-            cop = self.efficiency*c_to_k(self.t_target_cooling)/(outdoor_dry_bulb_temperature - self.t_target_cooling)
+            cop = self.efficiency*c_to_k(self.target_cooling_temperature)/(outdoor_dry_bulb_temperature - self.target_cooling_temperature)
         
         cop = np.array(cop)
         cop[cop < 0] = 20
@@ -456,7 +456,7 @@ class PV(Device):
         self.capacity = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
 
 class StorageDevice(Device):
-    def __init__(self, capacity: float, efficiency: float = None, loss_coef: float = None, initial_soc: float = None, efficiency_scaling: float = None, **kwargs):
+    def __init__(self, capacity: float, efficiency: float = None, loss_coefficient: float = None, initial_soc: float = None, efficiency_scaling: float = None, **kwargs):
         r"""Initialize `StorageDevice`.
 
         Parameters
@@ -465,7 +465,7 @@ class StorageDevice(Device):
             Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
         efficiency : float, default: 0.9
             Technical efficiency.
-        loss_coef : float, default: 0.006
+        loss_coefficient : float, default: 0.006
             Standby hourly losses. Must be between 0 and 1 (this value is often 0 or really close to 0).
         initial_soc : float, default: 0.0
             State of charge when `time_step` = 0. Must be >= 0 and < `capacity`.
@@ -480,7 +480,7 @@ class StorageDevice(Device):
 
         self.efficiency_scaling = efficiency_scaling
         self.capacity = capacity
-        self.loss_coef = loss_coef
+        self.loss_coefficient = loss_coefficient
         self.initial_soc = initial_soc
         super().__init__(efficiency = efficiency, **kwargs)
 
@@ -491,10 +491,10 @@ class StorageDevice(Device):
         return self.__capacity
 
     @property
-    def loss_coef(self) -> float:
+    def loss_coefficient(self) -> float:
         r"""Standby hourly losses."""
 
-        return self.__loss_coef
+        return self.__loss_coefficient
 
     @property
     def initial_soc(self) -> float:
@@ -512,7 +512,7 @@ class StorageDevice(Device):
     def soc_init(self) -> float:
         r"""Latest state of charge after accounting for standby hourly lossses."""
 
-        return self.__soc[-1]*(1 - self.loss_coef)
+        return self.__soc[-1]*(1 - self.loss_coefficient)
 
     @property
     def efficiency_scaling(self) -> float:
@@ -530,7 +530,7 @@ class StorageDevice(Device):
 
         # actual energy charged/discharged irrespective of what is determined in the step function after 
         # taking into account storage design limits e.g. maximum power input/output, capacity
-        energy_balance = np.array(self.soc, dtype = float) - np.array(self.__soc[0:-1], dtype = float)*(1 - self.loss_coef)
+        energy_balance = np.array(self.soc, dtype = float) - np.array(self.__soc[0:-1], dtype = float)*(1 - self.loss_coefficient)
         energy_balance[energy_balance >= 0.0] /= self.efficiency
         energy_balance[energy_balance < 0.0] *= self.efficiency
         return energy_balance.tolist()
@@ -552,13 +552,13 @@ class StorageDevice(Device):
             assert capacity >= 0, 'capacity must be >= 0.'
             self.__capacity = capacity
 
-    @loss_coef.setter
-    def loss_coef(self, loss_coef: float):
-        if loss_coef is None:
-            self.__loss_coef = 0.006
+    @loss_coefficient.setter
+    def loss_coefficient(self, loss_coefficient: float):
+        if loss_coefficient is None:
+            self.__loss_coefficient = 0.006
         else:
-            assert 0 <= loss_coef <= 1, 'initial_soc must be >= 0 and <= 1.'
-            self.__loss_coef = loss_coef
+            assert 0 <= loss_coefficient <= 1, 'initial_soc must be >= 0 and <= 1.'
+            self.__loss_coefficient = loss_coefficient
 
     @initial_soc.setter
     def initial_soc(self, initial_soc: float):
@@ -686,7 +686,7 @@ class StorageTank(StorageDevice):
         super().charge(energy)
 
 class Battery(ElectricDevice, StorageDevice):
-    def __init__(self, capacity: float, nominal_power: float, capacity_loss_coef: float = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, **kwargs):
+    def __init__(self, capacity: float, nominal_power: float, capacity_loss_coefficient: float = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, **kwargs):
         r"""Initialize `Battery`.
 
         Parameters
@@ -695,7 +695,7 @@ class Battery(ElectricDevice, StorageDevice):
             Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
         nominal_power: float
             Maximum amount of electric power that the battery can use to charge or discharge.
-        capacity_loss_coef : float, default: 0.00001
+        capacity_loss_coefficient : float, default: 0.00001
             Battery degradation; storage capacity lost in each charge and discharge cycle (as a fraction of the total capacity).
         power_efficiency_curve: list, default: [[0, 0.83],[0.3, 0.83],[0.7, 0.9],[0.8, 0.9],[1, 0.85]]
             Charging/Discharging efficiency as a function of the power released or consumed.
@@ -711,7 +711,7 @@ class Battery(ElectricDevice, StorageDevice):
         self.__efficiency_history = []
         self.__capacity_history = []
         super().__init__(capacity = capacity, nominal_power = nominal_power, **kwargs)
-        self.capacity_loss_coef = capacity_loss_coef
+        self.capacity_loss_coefficient = capacity_loss_coefficient
         self.power_efficiency_curve = power_efficiency_curve
         self.capacity_power_curve = capacity_power_curve
         
@@ -734,10 +734,10 @@ class Battery(ElectricDevice, StorageDevice):
         return self.energy_balance
 
     @property
-    def capacity_loss_coef(self) -> float:
+    def capacity_loss_coefficient(self) -> float:
         """Battery degradation; storage capacity lost in each charge and discharge cycle (as a fraction of the total capacity)."""
 
-        return self.__capacity_loss_coef
+        return self.__capacity_loss_coefficient
 
     @property
     def power_efficiency_curve(self) -> List[List[float]]:
@@ -792,14 +792,14 @@ class Battery(ElectricDevice, StorageDevice):
         StorageDevice.efficiency.fset(self, efficiency)
         self.__efficiency_history.append(efficiency)
 
-    @capacity_loss_coef.setter
-    def capacity_loss_coef(self, capacity_loss_coef: float):
-        if capacity_loss_coef is None:
-            capacity_loss_coef = 1e-5
+    @capacity_loss_coefficient.setter
+    def capacity_loss_coefficient(self, capacity_loss_coefficient: float):
+        if capacity_loss_coefficient is None:
+            capacity_loss_coefficient = 1e-5
         else:
             pass
 
-        self.__capacity_loss_coef = capacity_loss_coef
+        self.__capacity_loss_coefficient = capacity_loss_coefficient
 
     @power_efficiency_curve.setter
     def power_efficiency_curve(self, power_efficiency_curve: List[List[float]]):
@@ -910,7 +910,7 @@ class Battery(ElectricDevice, StorageDevice):
         """
 
         # Calculating the degradation of the battery: new max. capacity of the battery after charge/discharge
-        capacity_degrade = self.capacity_loss_coef*self.capacity_history[0]*np.abs(self.energy_balance[-1])/(2*self.capacity)
+        capacity_degrade = self.capacity_loss_coefficient*self.capacity_history[0]*np.abs(self.energy_balance[-1])/(2*self.capacity)
         return capacity_degrade
 
     def reset(self):

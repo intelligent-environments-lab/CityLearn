@@ -1,5 +1,6 @@
 import importlib
 import logging
+import math
 import os
 from pathlib import Path
 from typing import Any, List, Mapping, Tuple, Union
@@ -578,7 +579,8 @@ class Building(Environment):
             self.__pricing = Pricing(
                 np.zeros(len(self.energy_simulation.hour), dtype = float),
                 np.zeros(len(self.energy_simulation.hour), dtype = float),
-                np.zeros(len(self.energy_simulation.hour), dtype = float)
+                np.zeros(len(self.energy_simulation.hour), dtype = float),
+                np.zeros(len(self.energy_simulation.hour), dtype = float),
             )
         else:
             self.__pricing = pricing
@@ -658,7 +660,7 @@ class Building(Environment):
 
         energy = action*self.cooling_storage.capacity
         space_demand = self.energy_simulation.cooling_demand[self.time_step]
-        space_demand = 0 if space_demand is None else space_demand # case where space demand is unknown
+        space_demand = 0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
         max_output = self.cooling_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], False)
         energy = max(-space_demand, min(max_output - space_demand, energy))
         self.cooling_storage.charge(energy)
@@ -676,7 +678,7 @@ class Building(Environment):
 
         energy = action*self.heating_storage.capacity
         space_demand = self.energy_simulation.heating_demand[self.time_step]
-        space_demand = 0 if space_demand is None else space_demand # case where space demand is unknown
+        space_demand = 0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
         max_output = self.heating_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], False)\
             if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power()
         energy = max(-space_demand, min(max_output - space_demand, energy))
@@ -684,7 +686,7 @@ class Building(Environment):
         demand = space_demand + energy
         input_power = self.heating_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], False)\
             if isinstance(self.heating_device, HeatPump) else self.heating_device.get_input_power(demand)
-        self.heating_device.update_electricity_consumption(input_power) 
+        self.heating_device.update_electricity_consumption(input_power)
 
     def update_dhw(self, action: float = 0):
         r"""Charge/discharge `dhw_storage`.
@@ -697,7 +699,7 @@ class Building(Environment):
 
         energy = action*self.dhw_storage.capacity
         space_demand = self.energy_simulation.dhw_demand[self.time_step]
-        space_demand = 0 if space_demand is None else space_demand # case where space demand is unknown
+        space_demand = 0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
         max_output = self.dhw_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], False)\
             if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_max_output_power()
         energy = max(-space_demand, min(max_output - space_demand, energy))
@@ -794,7 +796,8 @@ class Building(Environment):
             
             else:
                 capacity = vars(self)[f'_{self.__class__.__name__}__{key}'].capacity
-                maximum_demand = vars(self)[f'_{self.__class__.__name__}__energy_simulation_{key.split("_")[-1]}_demand'].max()
+                energy_simulation = vars(self)[f'_{self.__class__.__name__}__energy_simulation']
+                maximum_demand = vars(energy_simulation)[f'{key.split("_")[0]}_demand'].max()
 
                 try:
                     low_limit.append(max([-1.0/(maximum_demand/capacity), -1.0]))
@@ -1638,7 +1641,7 @@ class CityLearn:
 
                         if autosize:
                             autosizer = device_metadata[name]['autosizer']
-                            autosize_kwargs = {} if building_schema[name].get('autosize_kwargs', None) is None else building_schema[name]['autosize_kwargs']
+                            autosize_kwargs = {} if building_schema[name].get('autosize_attributes', None) is None else building_schema[name]['autosize_attributes']
                             autosizer(**autosize_kwargs)
                         else:
                             pass
@@ -1655,22 +1658,21 @@ class CityLearn:
         reward_function_name = reward_function_type.split('.')[-1]
         reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
         agent_count = 1 if central_agent else len(buildings)
-        reward_function = reward_function_constructor(agent_count)
+        reward_function = reward_function_constructor(agent_count=agent_count)
         district = District(list(buildings), timesteps, reward_function, central_agent = central_agent, shared_observations = shared_observations)
-        # agent_type = schema['agent']['type']
-        # agent_module = '.'.join(agent_type.split('.')[0:-1])
-        # agent_name = agent_type.split('.')[-1]
-        # agent_constructor = getattr(importlib.import_module(agent_module), agent_name)
-        # agent_attributes = schema['agent'].get('attributes', {})
-        # agent_attributes = [{
-        #     'building_ids':[b.uid for b in buildings],
-        #     'action_space':district.action_space[i],
-        #     'observation_space':district.observation_space[i],
-        #     'encoders':district.observation_encoders[i],
-        #     **agent_attributes
-        # }  for i in range(agent_count)]
-        # agents = [agent_constructor(**agent_attribute) for agent_attribute in agent_attributes]
-        agents = None
+        agent_type = schema['agent']['type']
+        agent_module = '.'.join(agent_type.split('.')[0:-1])
+        agent_name = agent_type.split('.')[-1]
+        agent_constructor = getattr(importlib.import_module(agent_module), agent_name)
+        agent_attributes = schema['agent'].get('attributes', {})
+        agent_attributes = [{
+            'building_ids':[b.uid for b in buildings],
+            'action_space':district.action_space[i],
+            'observation_space':district.observation_space[i],
+            'encoders':district.observation_encoders[i],
+            **agent_attributes
+        }  for i in range(agent_count)]
+        agents = [agent_constructor(**agent_attribute) for agent_attribute in agent_attributes]
         episodes = schema['episodes']
 
         return district, agents, episodes

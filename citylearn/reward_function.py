@@ -112,5 +112,5 @@ class IndependentSACReward(RewardFunction):
         where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
         """
 
-        electricity_consumption = np.array(electricity_consumption)*-1**3
+        electricity_consumption = np.array(self.electricity_consumption)*-1**3
         return electricity_consumption.clip(max=0).tolist()
