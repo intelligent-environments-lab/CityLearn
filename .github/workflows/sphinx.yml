@@ -4,12 +4,15 @@ on: push
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
     - name: Build HTML
       uses: ammaraskar/sphinx-action@0.4
+      with:
+        docs-folder: "docs2/"
+        pre-build-command: "sudo apt-get update && sudo apt-get install python3.7.3"
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
