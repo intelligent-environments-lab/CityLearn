@@ -9,10 +9,11 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build HTML
       uses: ammaraskar/sphinx-action@0.4
+      with:
+        python-version: '3.7.3'
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
-        python-version: '3.7.3'
         name: html-docs
         path: docs/build/html/
     - name: Deploy
