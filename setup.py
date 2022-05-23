@@ -20,7 +20,7 @@ def get_version():
 setuptools.setup(
     name='CityLearn',
     version=get_version(),
-    author='Jose Ramon Vazquez-Canteli, Kingsley Nweye',
+    author='Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy',
     author_email='nweye@utexas.edu',
     description='An open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities.',
     long_description=long_description,
