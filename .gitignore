@@ -159,7 +159,7 @@ cython_debug/
 .DS_Store
 
 # do not track data
-data/*
+data/
 cc2022_staging/*
 
 # do not track docs for now
