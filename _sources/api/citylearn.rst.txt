@@ -21,6 +21,7 @@ Submodules
    :maxdepth: 4
 
    citylearn.base
+   citylearn.building
    citylearn.citylearn
    citylearn.cost_function
    citylearn.data
@@ -28,4 +29,5 @@ Submodules
    citylearn.preprocessing
    citylearn.reward_function
    citylearn.rl
+   citylearn.simulator
    citylearn.utilities
