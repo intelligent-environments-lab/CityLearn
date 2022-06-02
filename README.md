@@ -55,7 +55,7 @@ CityLearn may still work with some earlier versions of these libraries, but we h
 
             ├── solar_generation_1kW.csv
 
-            ├── weather_data.csv
+            ├── weather.csv
 
             └── Building_i.csv
 
