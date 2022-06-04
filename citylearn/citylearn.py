@@ -1,4 +1,3 @@
-import logging
 from typing import Any, List, Mapping, Union
 from gym import Env, spaces
 import numpy as np
