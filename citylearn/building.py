@@ -26,7 +26,7 @@ class Building(Environment):
         action_metadata : dict
             Mapping od active and inactive actions.
         carbon_intensity : CarbonIntensity, optional
-            Emission rate time series.
+            Carbon dioxide emission rate time series.
         pricing : Pricing, optional
             Energy pricing and forecasts time series.
         dhw_storage : StorageTank, optional
@@ -99,7 +99,7 @@ class Building(Environment):
 
     @property
     def carbon_intensity(self) -> CarbonIntensity:
-        """Emission rate time series."""
+        """Carbon dioxide emission rate time series."""
 
         return self.__carbon_intensity
 
@@ -268,7 +268,7 @@ class Building(Environment):
 
     @property
     def net_electricity_consumption_without_storage_and_pv_emission(self) -> List[float]:
-        """Carbon emmissions from `net_electricity_consumption_without_storage_and_pv` time series, in [kg_co2]."""
+        """Carbon dioxide emmission from `net_electricity_consumption_without_storage_and_pv` time series, in [kg_co2]."""
 
         return (
             self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption_without_storage_and_pv
@@ -293,7 +293,7 @@ class Building(Environment):
 
     @property
     def net_electricity_consumption_without_storage_emission(self) -> List[float]:
-        """Carbon emmissions from `net_electricity_consumption_without_storage` time series, in [kg_co2]."""
+        """Carbon dioxide emmission from `net_electricity_consumption_without_storage` time series, in [kg_co2]."""
 
         return (self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption_without_storage).clip(min=0).tolist()
 
@@ -321,7 +321,7 @@ class Building(Environment):
 
     @property
     def net_electricity_consumption_emission(self) -> List[float]:
-        """carbon emmissions from `net_electricity_consumption` time series, in [kg_co2]."""
+        """Carbon dioxide emmission from `net_electricity_consumption` time series, in [kg_co2]."""
 
         return (self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption).clip(min=0).tolist()
 
