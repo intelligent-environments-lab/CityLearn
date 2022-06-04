@@ -94,7 +94,7 @@
 <span class="sd">        action_metadata : dict</span>
 <span class="sd">            Mapping od active and inactive actions.</span>
 <span class="sd">        carbon_intensity : CarbonIntensity, optional</span>
-<span class="sd">            Emission rate time series.</span>
+<span class="sd">            Carbon dioxide emission rate time series.</span>
 <span class="sd">        pricing : Pricing, optional</span>
 <span class="sd">            Energy pricing and forecasts time series.</span>
 <span class="sd">        dhw_storage : StorageTank, optional</span>
@@ -167,7 +167,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">carbon_intensity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CarbonIntensity</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Emission rate time series.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Carbon dioxide emission rate time series.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__carbon_intensity</span>
 
@@ -336,7 +336,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">net_electricity_consumption_without_storage_and_pv_emission</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Carbon emmissions from `net_electricity_consumption_without_storage_and_pv` time series, in [kg_co2].&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Carbon dioxide emmission from `net_electricity_consumption_without_storage_and_pv` time series, in [kg_co2].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_pv</span>
@@ -361,7 +361,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">net_electricity_consumption_without_storage_emission</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Carbon emmissions from `net_electricity_consumption_without_storage` time series, in [kg_co2].&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Carbon dioxide emmission from `net_electricity_consumption_without_storage` time series, in [kg_co2].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
@@ -389,7 +389,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">net_electricity_consumption_emission</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;carbon emmissions from `net_electricity_consumption` time series, in [kg_co2].&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Carbon dioxide emmission from `net_electricity_consumption` time series, in [kg_co2].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
