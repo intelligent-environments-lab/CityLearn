@@ -159,8 +159,11 @@ cython_debug/
 .DS_Store
 
 # do not track data
-data/
+data/cc2022_d1/*
 cc2022_staging/*
+
+# track schema
+!data/*/schema.json
 
 # do not track docs for now
 docs/build/*
