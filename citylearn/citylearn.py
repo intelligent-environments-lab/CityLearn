@@ -14,7 +14,7 @@ from citylearn.utilities import read_json
 
 class CityLearnEnv(Environment, Env):
     def __init__(self, schema: Union[str, Path, Mapping[str, Any]], **kwargs):
-        r"""Initialize `District`.
+        r"""Initialize `CityLearnEnv`.
 
         Parameters
         ----------
@@ -390,7 +390,7 @@ class CityLearnEnv(Environment, Env):
         
         Notes
         -----
-        May be used to assigned :attr:`shared_observations` value during `District` object initialization.
+        May be used to assigned :attr:`shared_observations` value during `CityLearnEnv` object initialization.
         """
 
         return [
@@ -537,7 +537,7 @@ class CityLearnEnv(Environment, Env):
         super().next_time_step()
 
     def reset(self):
-        r"""Reset `District` to initial state.
+        r"""Reset `CityLearnEnv` to initial state.
         
         Returns
         -------
