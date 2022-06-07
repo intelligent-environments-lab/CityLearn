@@ -554,16 +554,10 @@ class CityLearnEnv(Environment, Env):
         return self.observations
 
     def load_agents(self) -> List[Agent]:
-        """Return `Controller` objects as defined by the `schema`.
-        Parameters
-        ----------
-        schema: Union[str, Path, Mapping[str, Any]]
-            Filepath to JSON representation or `dict` object of CityLearn schema.
+        """Return :class:`Agent` or sub class objects as defined by the `schema`.
         
         Returns
         -------
-        citylearn_env: CityLearnEnv
-            Simulation environment.
         agents: List[Agent]
             Simulation agents for `citylearn_env.buildings` energy storage charging/discharging management.
         """
