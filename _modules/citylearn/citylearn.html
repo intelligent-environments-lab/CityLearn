@@ -73,6 +73,7 @@
 <span class="kn">from</span> <span class="nn">gym</span> <span class="kn">import</span> <span class="n">Env</span><span class="p">,</span> <span class="n">spaces</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">citylearn.agents.base</span> <span class="kn">import</span> <span class="n">Agent</span>
 <span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span>
 <span class="kn">from</span> <span class="nn">citylearn.building</span> <span class="kn">import</span> <span class="n">Building</span>
 <span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">Weather</span>
@@ -92,7 +93,7 @@
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        **kwargs : dict</span>
-<span class="sd">            Other keyword arguments used to initialize `Environment` and `gym.Env` super classes.</span>
+<span class="sd">            Other keyword arguments used to initialize super classes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">schema</span>
@@ -619,6 +620,31 @@
             <span class="n">building</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span></div>
+
+<div class="viewcode-block" id="CityLearnEnv.load_agents"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.load_agents">[docs]</a>    <span class="k">def</span> <span class="nf">load_agents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Agent</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return :class:`Agent` or sub class objects as defined by the `schema`.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        agents: List[Agent]</span>
+<span class="sd">            Simulation agents for `citylearn_env.buildings` energy storage charging/discharging management.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">agent_count</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_agent</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">)</span>
+        <span class="n">agent_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="n">agent_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">agent_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">agent_name</span> <span class="o">=</span> <span class="n">agent_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">agent_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">agent_module</span><span class="p">),</span> <span class="n">agent_name</span><span class="p">)</span>
+        <span class="n">agent_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">agent_attributes</span> <span class="o">=</span> <span class="p">[{</span>
+            <span class="s1">&#39;building_ids&#39;</span><span class="p">:[</span><span class="n">b</span><span class="o">.</span><span class="n">uid</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">],</span>
+            <span class="s1">&#39;action_space&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;observation_space&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="s1">&#39;encoders&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_encoders</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+            <span class="o">**</span><span class="n">agent_attributes</span>
+        <span class="p">}</span>  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">agent_count</span><span class="p">)]</span>
+        <span class="n">agents</span> <span class="o">=</span> <span class="p">[</span><span class="n">agent_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">agent_attribute</span><span class="p">)</span> <span class="k">for</span> <span class="n">agent_attribute</span> <span class="ow">in</span> <span class="n">agent_attributes</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">agents</span></div>
 
     <span class="k">def</span> <span class="nf">__load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="n">RewardFunction</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.</span>

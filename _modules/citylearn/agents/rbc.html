@@ -83,7 +83,7 @@
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        **kwargs : dict</span>
-<span class="sd">            Other keyword arguments used to initialize `Agent` super class.</span>
+<span class="sd">            Other keyword arguments used to initialize super class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -99,12 +99,12 @@
 <span class="sd">        *args : tuple</span>
 <span class="sd">            `Agent` positional arguments.</span>
 <span class="sd">        hour_index: int, default: 2</span>
-<span class="sd">            Expected position of hour observation when  `observations` paramater is parsed into `select_actions` method.</span>
+<span class="sd">            Expected position of hour observation when `observations` paramater is parsed into `select_actions` method.</span>
 <span class="sd">        </span>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
 <span class="sd">        **kwargs : dict</span>
-<span class="sd">            Other keyword arguments used to initialize `Agent` super class.</span>
+<span class="sd">            Other keyword arguments used to initialize super class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -129,7 +129,7 @@
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        actions: List[Any]</span>
+<span class="sd">        actions: List[float]</span>
 <span class="sd">            Action values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -163,7 +163,7 @@
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        actions: List[Any]</span>
+<span class="sd">        actions: List[float]</span>
 <span class="sd">            Action values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -202,11 +202,11 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        The actions are designed such that the agent charges the controlled storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, and discharges 6.7% of its maximum capacity at every other hour.</span>
+<span class="sd">        The actions are optimized for electrical storage (battery) such that the agent charges the controlled storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, and discharges 6.7% of its maximum capacity at every other hour.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        actions: List[Any]</span>
+<span class="sd">        actions: List[float]</span>
 <span class="sd">            Action values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
