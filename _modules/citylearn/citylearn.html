@@ -82,7 +82,7 @@
 
 <div class="viewcode-block" id="CityLearnEnv"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv">[docs]</a><span class="k">class</span> <span class="nc">CityLearnEnv</span><span class="p">(</span><span class="n">Environment</span><span class="p">,</span> <span class="n">Env</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `District`.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `CityLearnEnv`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -458,7 +458,7 @@
 <span class="sd">        </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        May be used to assigned :attr:`shared_observations` value during `District` object initialization.</span>
+<span class="sd">        May be used to assigned :attr:`shared_observations` value during `CityLearnEnv` object initialization.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">[</span>
@@ -605,7 +605,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="CityLearnEnv.reset"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `District` to initial state.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `CityLearnEnv` to initial state.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
