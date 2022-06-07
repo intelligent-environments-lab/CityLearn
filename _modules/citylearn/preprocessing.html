@@ -89,6 +89,14 @@
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `NoNormalization` encoder class.</span>
 
 <span class="sd">        Use to return observation value as-is i.e. without any transformation.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; x_max = 24</span>
+<span class="sd">        &gt;&gt;&gt; encoder = NoNormalization()</span>
+<span class="sd">        &gt;&gt;&gt; observation = 2</span>
+<span class="sd">        &gt;&gt;&gt; encoder*observation</span>
+<span class="sd">        2</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -123,7 +131,8 @@
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; x_max = 24</span>
 <span class="sd">        &gt;&gt;&gt; encoder = PeriodicNormalization(x_max)</span>
-<span class="sd">        &gt;&gt;&gt; encoder*2</span>
+<span class="sd">        &gt;&gt;&gt; observation = 2</span>
+<span class="sd">        &gt;&gt;&gt; encoder*observation</span>
 <span class="sd">        array([0.75, 0.9330127])</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -157,7 +166,8 @@
 <span class="sd">    &gt;&gt;&gt; classes = [1, 2, 3, 4]</span>
 <span class="sd">    &gt;&gt;&gt; encoder = OnehotEncoding(classes)</span>
 <span class="sd">    # identity_matrix = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]</span>
-<span class="sd">    &gt;&gt;&gt; encoder*2</span>
+<span class="sd">    &gt;&gt;&gt; observation = 2</span>
+<span class="sd">    &gt;&gt;&gt; encoder*observation</span>
 <span class="sd">    [0, 1, 0, 0]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -175,6 +185,34 @@
     
 <div class="viewcode-block" id="Normalize"><a class="viewcode-back" href="../../api/citylearn.preprocessing.html#citylearn.preprocessing.Normalize">[docs]</a><span class="k">class</span> <span class="nc">Normalize</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_min</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">x_max</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Normalize` encoder class.</span>
+
+<span class="sd">        Use to transform observations to a value between `x_min` and `x_max` using min-max normalization.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x_min : Union[float, int]</span>
+<span class="sd">            Minimum observation value.</span>
+<span class="sd">        x_max : Union[float, int]</span>
+<span class="sd">            Maximum observation value.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The transformation returns two values :math:`x_{sin}` and :math:`x_{sin}` defined as:</span>
+<span class="sd">        </span>
+<span class="sd">        .. math:: </span>
+<span class="sd">            x = \frac{x - x_{min}}{x_{max} - x_{min}}</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; x_min = 0</span>
+<span class="sd">        &gt;&gt;&gt; x_max = 24</span>
+<span class="sd">        &gt;&gt;&gt; encoder = Normalize(x_min, x_max)</span>
+<span class="sd">        &gt;&gt;&gt; observation = 2</span>
+<span class="sd">        &gt;&gt;&gt; encoder*observation</span>
+<span class="sd">        0.08333333333333333</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x_min</span> <span class="o">=</span> <span class="n">x_min</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x_max</span> <span class="o">=</span> <span class="n">x_max</span>
@@ -193,6 +231,18 @@
         
 <div class="viewcode-block" id="RemoveFeature"><a class="viewcode-back" href="../../api/citylearn.preprocessing.html#citylearn.preprocessing.RemoveFeature">[docs]</a><span class="k">class</span> <span class="nc">RemoveFeature</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `RemoveFeature` encoder class.</span>
+
+<span class="sd">        Use to exlude an observation by returning `None` type.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; encoder = RemoveFeature()</span>
+<span class="sd">        &gt;&gt;&gt; observation = 2</span>
+<span class="sd">        &gt;&gt;&gt; encoder*observation</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">pass</span>
 
