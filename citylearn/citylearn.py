@@ -5,6 +5,7 @@ from typing import Any, List, Mapping, Tuple, Union
 from gym import Env, spaces
 import numpy as np
 import pandas as pd
+from citylearn.agents.base import Agent
 from citylearn.base import Environment
 from citylearn.building import Building
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
@@ -24,7 +25,7 @@ class CityLearnEnv(Environment, Env):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `Environment` and `gym.Env` super classes.
+            Other keyword arguments used to initialize super classes.
         """
 
         self.schema = schema
@@ -551,6 +552,37 @@ class CityLearnEnv(Environment, Env):
             building.reset()
 
         return self.observations
+
+    def load_agents(self) -> List[Agent]:
+        """Return `Controller` objects as defined by the `schema`.
+        Parameters
+        ----------
+        schema: Union[str, Path, Mapping[str, Any]]
+            Filepath to JSON representation or `dict` object of CityLearn schema.
+        
+        Returns
+        -------
+        citylearn_env: CityLearnEnv
+            Simulation environment.
+        agents: List[Agent]
+            Simulation agents for `citylearn_env.buildings` energy storage charging/discharging management.
+        """
+
+        agent_count = 1 if self.central_agent else len(self.buildings)
+        agent_type = self.schema['agent']['type']
+        agent_module = '.'.join(agent_type.split('.')[0:-1])
+        agent_name = agent_type.split('.')[-1]
+        agent_constructor = getattr(importlib.import_module(agent_module), agent_name)
+        agent_attributes = self.schema['agent'].get('attributes', {})
+        agent_attributes = [{
+            'building_ids':[b.uid for b in self.buildings],
+            'action_space':self.action_space[i],
+            'observation_space':self.observation_space[i],
+            'encoders':self.observation_encoders[i],
+            **agent_attributes
+        }  for i in range(agent_count)]
+        agents = [agent_constructor(**agent_attribute) for agent_attribute in agent_attributes]
+        return agents
 
     def __load(self) -> Tuple[List[Building], int, RewardFunction, bool, List[str]]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.

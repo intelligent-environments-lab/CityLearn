@@ -15,7 +15,7 @@ class Device(Environment):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `Environment` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         super().__init__(**kwargs)
@@ -47,7 +47,7 @@ class ElectricDevice(Device):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `Device` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         super().__init__(**kwargs)
@@ -121,7 +121,7 @@ class HeatPump(ElectricDevice):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `ElectricDevice` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         super().__init__(nominal_power = nominal_power, efficiency = efficiency, **kwargs)
@@ -305,7 +305,7 @@ class ElectricHeater(ElectricDevice):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `ElectricDevice` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         super().__init__(nominal_power = nominal_power, efficiency = efficiency, **kwargs)
@@ -398,7 +398,7 @@ class PV(Device):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `Device` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         super().__init__(**kwargs)
@@ -475,7 +475,7 @@ class StorageDevice(Device):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `Device` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         self.efficiency_scaling = efficiency_scaling
@@ -635,7 +635,7 @@ class StorageTank(StorageDevice):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `StorageDevice` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         super().__init__(capacity = capacity, **kwargs)
@@ -705,7 +705,7 @@ class Battery(ElectricDevice, StorageDevice):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `ElectricDevice` and `StorageDevice` super classes.
+            Other keyword arguments used to initialize super classes.
         """
 
         self.__efficiency_history = []

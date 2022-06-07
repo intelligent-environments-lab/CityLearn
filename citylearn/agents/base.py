@@ -15,7 +15,7 @@ class Agent(Environment):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `Environment` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         arg_spec = inspect.getfullargspec(super().__init__)
@@ -52,14 +52,14 @@ class Agent(Environment):
     def actions(self, actions: List[Any]):
         self.__actions[self.time_step] = actions
 
-    def select_actions(self) -> List[Any]:
+    def select_actions(self) -> List[float]:
         """Provide actions for current time step.
 
-        Return random action samples in `action_space`.
+        Return randomly sampled actions from `action_space`.
         
         Returns
         -------
-        actions: List[Any]
+        actions: List[float]
             Action values
         """
 

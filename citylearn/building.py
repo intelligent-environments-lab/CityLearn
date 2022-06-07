@@ -51,7 +51,7 @@ class Building(Environment):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `Environment` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         self.name = name

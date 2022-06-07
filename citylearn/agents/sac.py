@@ -8,29 +8,22 @@ from citylearn.agents.rlc import RLC
 from citylearn.rl import PolicyNetwork, ReplayBuffer, SoftQNetwork
 
 class SAC(RLC):
-    def __init__(
-        self, *args, hidden_dimension: List[float] = [256, 256], discount: float = 0.99, 
-        tau: float = 5e-3, lr: float = 3e-4, batch_size: int = 256,
-        replay_buffer_capacity: int = 1e5, start_training_time_step: int = 6000, end_exploration_time_step: int = 7000, 
-        deterministic_start_time_step: int = 7500, action_scaling_coef: float = 0.5, reward_scaling: float = 5.0, 
-        update_per_time_step: int = 2, seed: int = 0, **kwargs
-    ):
-        # user defined
-        super().__init__(*args, **kwargs)
-        self.hidden_dimension = hidden_dimension
-        self.discount = discount
-        self.tau = tau
-        self.lr = lr
-        self.batch_size = batch_size
-        self.replay_buffer_capacity = replay_buffer_capacity
-        self.start_training_time_step = start_training_time_step
-        self.end_exploration_time_step = end_exploration_time_step
-        self.deterministic_start_time_step = deterministic_start_time_step
-        self.action_scaling_coef = action_scaling_coef
-        self.reward_scaling = reward_scaling
-        self.update_per_time_step = update_per_time_step
-        self.seed = seed
+    def __init__(self, *args, **kwargs):
+        r"""Initialize :class:`SAC`.
+
+        Parameters
+        ----------
+        *args : tuple
+            `RLC` positional arguments.
         
+        Other Parameters
+        ----------------
+        **kwargs : dict
+            Other keyword arguments used to initialize super class.
+        """
+
+        super().__init__(*args, **kwargs)
+
         # internally defined
         self.__normalized = False
         self.__alpha = 0.2
@@ -53,184 +46,130 @@ class SAC(RLC):
         self.__set_networks()
 
     @property
-    def hidden_dimension(self) -> List[float]:
-        return self.__hidden_dimension
-
-    @property
-    def discount(self) -> float:
-        return self.__discount
-
-    @property
-    def tau(self) -> float:
-        return self.__tau
-    
-    @property
-    def lr(self) -> float:
-        return self.__lr
-
-    @property
-    def batch_size(self) -> int:
-        return self.__batch_size
-
-    @property
-    def replay_buffer_capacity(self) -> int:
-        return self.__replay_buffer_capacity
-
-    @property
-    def start_training_time_step(self) -> int:
-        return self.__start_training_time_step
-
-    @property
-    def end_exploration_time_step(self) -> int:
-        return self.__end_exploration_time_step
-
-    @property
-    def deterministic_start_time_step(self) -> int:
-        return self.__deterministic_start_time_step
-
-    @property
-    def action_scaling_coef(self) -> float:
-        return self.__action_scaling_coef
-
-    @property
-    def reward_scaling(self) -> float:
-        return self.__reward_scaling
-
-    @property
-    def update_per_time_step(self) -> int:
-        return self.__update_per_time_step
-
-    @property
-    def seed(self) -> int:
-        return self.__seed
-
-    @property
     def device(self) -> torch.device:
+        """Device; cuda or cpu."""
+
         return self.__device
 
     @property
     def soft_q_net1(self) -> SoftQNetwork:
+        """soft_q_net1."""
+
         return self.__soft_q_net1
 
     @property
     def soft_q_net2(self) -> SoftQNetwork:
+        """soft_q_net2."""
+
         return self.__soft_q_net2
 
     @property
     def policy_net(self) -> PolicyNetwork:
+        """policy_net."""
+
         return self.__policy_net
 
     @property
     def norm_mean(self) -> List[float]:
+        """norm_mean."""
+
         return self.__norm_mean
 
     @property
     def norm_std(self) -> List[float]:
+        """norm_std."""
+        
         return self.__norm_std
     
     @property
     def normalized(self) -> bool:
+        """normalized."""
+
         return self.__normalized
 
     @property
     def r_norm_mean(self) -> float:
+        """r_norm_mean."""
+
         return self.__r_norm_mean
 
     @property
     def r_norm_std(self) -> float:
+        """r_norm_std."""
+
         return self.__r_norm_std
 
     @property
     def replay_buffer(self) -> ReplayBuffer:
+        """replay_buffer."""
+
         return self.__replay_buffer
 
     @property
     def alpha(self) -> float:
+        """alpha."""
+
         return self.__alpha
 
     @property
     def soft_q_criterion(self) -> nn.SmoothL1Loss:
+        """soft_q_criterion."""
+        
         return self.__soft_q_criterion
 
     @property
     def target_soft_q_net1(self) -> SoftQNetwork:
+        """target_soft_q_net1."""
+
         return self.__target_soft_q_net1
 
     @property
     def target_soft_q_net2(self) -> SoftQNetwork:
+        """target_soft_q_net2."""
+
         return self.__target_soft_q_net2
 
     @property
     def soft_q_optimizer1(self) -> optim.Adam:
+        """soft_q_optimizer1."""
+
         return self.__soft_q_optimizer1
 
     @property
     def soft_q_optimizer2(self) -> optim.Adam:
+        """soft_q_optimizer2."""
+
         return self.__soft_q_optimizer2
 
     @property
     def policy_optimizer(self) -> optim.Adam:
+        """policy_optimizer."""
+
         return self.__policy_optimizer
 
     @property
     def target_entropy(self) -> float:
+        """target_entropy."""
+
         return self.__target_entropy
 
-    @hidden_dimension.setter
-    def hidden_dimension(self,  hidden_dimension: List[float]):
-        self.__hidden_dimension = hidden_dimension
-
-    @discount.setter
-    def discount(self, discount: float):
-        self.__discount = discount
-
-    @tau.setter
-    def tau(self, tau: float):
-        self.__tau = tau
-    
-    @lr.setter
-    def lr(self, lr: float):
-        self.__lr = lr
-
-    @batch_size.setter
-    def batch_size(self, batch_size: int):
-        self.__batch_size = batch_size
-
-    @replay_buffer_capacity.setter
-    def replay_buffer_capacity(self, replay_buffer_capacity: int):
-        self.__replay_buffer_capacity = replay_buffer_capacity
-
-    @start_training_time_step.setter
-    def start_training_time_step(self, start_training_time_step: int):
-        self.__start_training_time_step = start_training_time_step
-
-    @end_exploration_time_step.setter
-    def end_exploration_time_step(self, end_exploration_time_step: int):
-        self.__end_exploration_time_step = end_exploration_time_step
-
-    @deterministic_start_time_step.setter
-    def deterministic_start_time_step(self, deterministic_start_time_step: int):
-        self.__deterministic_start_time_step = deterministic_start_time_step
-
-    @action_scaling_coef.setter
-    def action_scaling_coef(self, action_scaling_coef: float):
-        self.__action_scaling_coef = action_scaling_coef
-
-    @reward_scaling.setter
-    def reward_scaling(self, reward_scaling: float):
-        self.__reward_scaling = reward_scaling
-
-    @update_per_time_step.setter
-    def update_per_time_step(self, update_per_time_step: int):
-        self.__update_per_time_step = update_per_time_step
-
-    @seed.setter
-    def seed(self, seed: int):
-        self.__seed = seed
-        torch.manual_seed(seed)
-        np.random.seed(seed)
-
     def add_to_buffer(self, observations: List[float], actions: List[float], reward: float, next_observations: List[float], done: bool = False):
+        r"""Update replay buffer.
+
+        Parameters
+        ----------
+        observations : List[float]
+            Previous time step observations.
+        actions : List[float]
+            Previous time step actions.
+        reward : float
+            Current time step reward.
+        next_observations : List[float]
+            Current time step observations.
+        done : bool
+            Indication that episode has ended.
+        """
+
         # Run once the regression model has been fitted
         # Normalize all the observations using periodical normalization, one-hot encoding, or -1, 1 scaling. It also removes observations that are not necessary (solar irradiance if there are no solar PV panels).
         observations = np.array(self.__get_encoded_observations(observations), dtype = float)
@@ -318,7 +257,18 @@ class SAC(RLC):
         else:
             pass
 
-    def select_actions(self, observations: List[float]):        
+    def select_actions(self, observations: List[float]):
+        r"""Provide actions for current time step.
+
+        Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` >= :attr:`time_step` 
+        else will use policy to sample actions.
+        
+        Returns
+        -------
+        actions: List[float]
+            Action values
+        """
+
         if self.time_step <= self.end_exploration_time_step:
             actions = self.get_exploration_actions(observations)
         
@@ -330,6 +280,8 @@ class SAC(RLC):
         return actions
 
     def __get_post_exploration_actions(self, observations: List[float]) -> List[float]:
+        """Action sampling using policy, post-exploration time step"""
+
         observations = np.array(self.__get_encoded_observations(observations), dtype = float)
         observations = np.array(self.__get_normalized_observations(observations), dtype = float)
         observations = torch.FloatTensor(observations).unsqueeze(0).to(self.__device)
@@ -339,8 +291,16 @@ class SAC(RLC):
         return list(actions)
             
     def get_exploration_actions(self, observations: List[float]) -> List[float]:
+        """Return randomly sampled actions from `action_space` multiplied by :attr:`action_scaling_coefficient`.
+        
+        Returns
+        -------
+        actions: List[float]
+            Action values.
+        """
+
         # random actions
-        return list(self.action_scaling_coef*self.action_space.sample())
+        return list(self.action_scaling_coefficient*self.action_space.sample())
 
     def __get_normalized_reward(self, reward: float) -> float:
         return (reward - self.r_norm_mean)/self.r_norm_std
@@ -365,7 +325,7 @@ class SAC(RLC):
             target_param.data.copy_(param.data)
 
         # Policy
-        self.__policy_net = PolicyNetwork(self.observation_dimension, self.action_dimension, self.action_space, self.action_scaling_coef, self.hidden_dimension).to(self.device)
+        self.__policy_net = PolicyNetwork(self.observation_dimension, self.action_dimension, self.action_space, self.action_scaling_coefficient, self.hidden_dimension).to(self.device)
         self.__soft_q_optimizer1 = optim.Adam(self.__soft_q_net1.parameters(), lr = self.lr)
         self.__soft_q_optimizer2 = optim.Adam(self.__soft_q_net2.parameters(), lr = self.lr)
         self.__policy_optimizer = optim.Adam(self.__policy_net.parameters(), lr = self.lr)
@@ -373,11 +333,28 @@ class SAC(RLC):
 
 class SACRBC(SAC):
     def __init__(self, *args, **kwargs):
+        r"""Initialize `SACRBC`.
+
+        Uses :class:`RBC` to select action during exploration before using :class:`SAC`. 
+
+        Parameters
+        ----------
+        *args : tuple
+            :class:`SAC` positional arguments.
+        
+        Other Parameters
+        ----------------
+        **kwargs : dict
+            Other keyword arguments used to initialize super class.
+        """
+
         super().__init__(*args, **kwargs)
         self.rbc = RBC(action_space=self.action_space)
 
     @property
     def rbc(self) -> RBC:
+        """:class:`RBC` or child class, used to select actions during exploration."""
+
         return self.__rbc
 
     @rbc.setter
@@ -385,14 +362,56 @@ class SACRBC(SAC):
         self.__rbc = rbc
 
     def get_exploration_actions(self, states: List[float]) -> List[float]:
+        """Return actions using :class:`RBC`.
+        
+        Returns
+        -------
+        actions: List[float]
+            Action values.
+        """
+
         return self.rbc.select_actions(states)
 
 class SACBasicRBC(SACRBC):
      def __init__(self, *args, hour_index: int = None, **kwargs):
+        r"""Initialize `SACRBC`.
+
+        Uses :class:`BasicRBC` to select action during exploration before using :class:`SAC`.
+
+        Parameters
+        ----------
+        *args : tuple
+            :class:`SAC` positional arguments.
+        hour_index: int, default: 2
+            Expected position of hour observation when `observations` paramater is parsed into `select_actions` method (used in :class:`BasicRBC`).
+        
+        Other Parameters
+        ----------------
+        **kwargs : dict
+            Other keyword arguments used to initialize super class.
+        """
+
         super().__init__(*args, **kwargs)
         self.rbc = BasicRBC(action_space=self.action_space, hour_index=hour_index)
 
-class SACOptimizedRBC(SACRBC):
+class SACOptimizedRBC(SACBasicRBC):
      def __init__(self,*args, hour_index: int = None, **kwargs):
+        r"""Initialize `SACOptimizedRBC`.
+
+        Uses :class:`OptimizedRBC` to select action during exploration before using :class:`SAC`.
+
+        Parameters
+        ----------
+        *args : tuple
+            :class:`SAC` positional arguments.
+        hour_index: int, default: 2
+            Expected position of hour observation when `observations` paramater is parsed into `select_actions` method (used in :class:`OptimizedRBC`).
+        
+        Other Parameters
+        ----------------
+        **kwargs : dict
+            Other keyword arguments used to initialize super class.
+        """
+
         super().__init__(*args, **kwargs)
         self.rbc = OptimizedRBC(action_space=self.action_space, hour_index=hour_index)

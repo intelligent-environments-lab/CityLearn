@@ -5,22 +5,25 @@ import inspect
 from pathlib import Path
 import pickle
 import sys
-from citylearn.citylearn import CityLearn
+from citylearn.citylearn import CityLearnEnv
+from citylearn.simulator import Simulator
 from citylearn.utilities import read_json
 
 def simulate(schema: str, result_filepath: str = None):
     schema = read_json(schema)
-    citylearn = CityLearn(*CityLearn.load(schema))
+    citylearn_env = CityLearnEnv(schema)
+    agents = citylearn_env.load_agents()
+    simulator = Simulator(citylearn_env,agents,schema['episodes'])
 
     try:
-        citylearn.simulate()
+        simulator.simulate()
     
     finally:
         result_filepath = f'simulation_{datetime.utcnow().replace(microsecond=0)}' if result_filepath is None else result_filepath
         result_filepath = '.'.join(result_filepath.split('.')) + '.pkl'
 
         with open(result_filepath, 'wb') as f:
-            pickle.dump(citylearn, f)
+            pickle.dump(citylearn_env, f)
 
 def main():
     parser = argparse.ArgumentParser(prog='citylearn', formatter_class=argparse.ArgumentDefaultsHelpFormatter, description=('''

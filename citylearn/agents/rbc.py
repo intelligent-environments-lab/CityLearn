@@ -15,7 +15,7 @@ class RBC(Agent):
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `Agent` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         super().__init__(*args, **kwargs)
@@ -31,12 +31,12 @@ class BasicRBC(RBC):
         *args : tuple
             `Agent` positional arguments.
         hour_index: int, default: 2
-            Expected position of hour observation when  `observations` paramater is parsed into `select_actions` method.
+            Expected position of hour observation when `observations` paramater is parsed into `select_actions` method.
         
         Other Parameters
         ----------------
         **kwargs : dict
-            Other keyword arguments used to initialize `Agent` super class.
+            Other keyword arguments used to initialize super class.
         """
 
         super().__init__(*args, **kwargs)
@@ -61,7 +61,7 @@ class BasicRBC(RBC):
         
         Returns
         -------
-        actions: List[Any]
+        actions: List[float]
             Action values
         """
 
@@ -95,7 +95,7 @@ class OptimizedRBC(BasicRBC):
         
         Returns
         -------
-        actions: List[Any]
+        actions: List[float]
             Action values
         """
 
@@ -134,11 +134,11 @@ class BasicBatteryRBC(BasicRBC):
 
         Notes
         -----
-        The actions are designed such that the agent charges the controlled storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, and discharges 6.7% of its maximum capacity at every other hour.
+        The actions are optimized for electrical storage (battery) such that the agent charges the controlled storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, and discharges 6.7% of its maximum capacity at every other hour.
         
         Returns
         -------
-        actions: List[Any]
+        actions: List[float]
             Action values
         """
 
