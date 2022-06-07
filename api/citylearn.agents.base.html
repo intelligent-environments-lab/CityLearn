@@ -90,28 +90,33 @@
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.agents.base.Agent.action_dimension">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_dimension</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.agents.base.Agent.action_dimension" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Number of returned actions.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.agents.base.Agent.action_space">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_space</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">gym.spaces.box.Box</span></em><a class="headerlink" href="#citylearn.agents.base.Agent.action_space" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Format of valid actions.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.agents.base.Agent.actions">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">actions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.agents.base.Agent.actions" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Action history/time series.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.agents.base.Agent.add_to_buffer">
 <span class="sig-name descname"><span class="pre">add_to_buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/base.html#Agent.add_to_buffer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.base.Agent.add_to_buffer" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Update replay buffer</p>
+<p class="rubric">Notes</p>
+<p>This implementation does nothing but is kept to keep the API for all agents similar during simulation.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.agents.base.Agent.next_time_step">
 <span class="sig-name descname"><span class="pre">next_time_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/base.html#Agent.next_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.base.Agent.next_time_step" title="Permalink to this definition"></a></dt>
 <dd><p>Advance to next <cite>time_step</cite> value.</p>
-<p>Adds 1 to <cite>time_step</cite> <cite>property</cite>.</p>
 <p class="rubric">Notes</p>
 <p>Override in subclass for custom implementation when advancing to next <cite>time_step</cite>.</p>
 </dd></dl>
@@ -127,8 +132,18 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.agents.base.Agent.select_actions">
-<span class="sig-name descname"><span class="pre">select_actions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/base.html#Agent.select_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.base.Agent.select_actions" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">select_actions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/agents/base.html#Agent.select_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.base.Agent.select_actions" title="Permalink to this definition"></a></dt>
+<dd><p>Provide actions for current time step.</p>
+<p>Return random action samples in <cite>action_space</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>actions</strong> – Action values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[Any]</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
