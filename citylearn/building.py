@@ -165,13 +165,13 @@ class Building(Environment):
 
     @property
     def observation_space(self) -> spaces.Box:
-        """Controller observation space."""
+        """Agent observation space."""
 
         return self.__observation_space
 
     @property
     def action_space(self) -> spaces.Box:
-        """Controller action spaces."""
+        """Agent action spaces."""
 
         return self.__action_space
 

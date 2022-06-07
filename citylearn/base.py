@@ -44,8 +44,6 @@ class Environment:
     def next_time_step(self):
         r"""Advance to next `time_step` value.
 
-        Adds 1 to `time_step` `property`.
-
         Notes
         -----
         Override in subclass for custom implementation when advancing to next `time_step`.
