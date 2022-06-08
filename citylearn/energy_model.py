@@ -430,7 +430,8 @@ class PV(Device):
 
         Notes
         -----
-        generation = `capacity`*inverter_ac_power_per_w/1000
+        .. math::
+            \textrm{generation} = \frac{\textrm{capacity} \times \textrm{inverter_ac_power_per_w}}{1000}
         """
 
         return self.capacity*np.array(inverter_ac_power_per_w)/1000

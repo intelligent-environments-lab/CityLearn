@@ -612,7 +612,7 @@ class CityLearnEnv(Environment, Env):
         shared_observations = [k for k, v in observations.items() if v['shared_in_central_agent']]
         simulation_start_timestep = self.schema['simulation_start_timestep']
         simulation_end_timestep = self.schema['simulation_end_timestep']
-        time_steps = simulation_end_timestep - simulation_start_timestep
+        time_steps = (simulation_end_timestep - simulation_start_timestep) + 1
         buildings = ()
         
         for building_name, building_schema in self.schema['buildings'].items():
