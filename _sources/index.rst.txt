@@ -9,14 +9,15 @@ CityLearn
 .. toctree::
    usage
    environment
+   citylearn_challenge/years
    api/modules
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
 Description
 -----------
 
-CityLearn is an open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities. Its objective is to facilitiate and standardize the evaluation of RL agents such that different algorithms can be easily compared with each other.
+CityLearn is an open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities. Its objective is to facilitate and standardize the evaluation of RL agents such that different algorithms can be easily compared with each other.
 
 .. image:: ../../images/dr.jpg
    :scale: 30 %

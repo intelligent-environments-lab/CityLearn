@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2021 &mdash; CityLearn 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2022" href="2022.html" />
+    <link rel="prev" title="2020" href="2020.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment.html">Environment</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="years.html">CityLearn Challenge</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="2020.html">2020</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2021</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#faqs">FAQS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="2022.html">2022</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">citylearn</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="years.html">CityLearn Challenge</a> &raquo;</li>
+      <li>2021</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/citylearn_challenge/2021.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>2021<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h1>
+<section id="faqs">
+<h2>FAQS<a class="headerlink" href="#faqs" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>After running the agents, the average_daily_peak cost is higher than the the peak_demand cost. How is this possible? The annual peak demand should always be higher than the average daily peak.</p></li>
+</ul>
+<p>All the costs are normalized by the costs a rule-based controller would have. Therefore, the different costs are normalized by different values and that is why the average_daily_peak cost may be higher than the peak_demand cost. To see the factors by which they are being normalized, you can run env.cost_rbc after the environment has run through at least one episode.</p>
+<ul class="simple">
+<li><p>It seems that the building heating_by_device is supplied by electric heater exclusively and cooling_by_device  by heat pump exclusively. So it is correct to assume that the heat pump does not provide heating at all?</p></li>
+</ul>
+<p>In the models provided for the challenge, the heat pump only provides cooling, and the DHW is only provided by the electric heater. Not all buildings have DHW demand and the electric heater supplying it, but all the buildings do have a heat pump supplying cooling energy.</p>
+<ul class="simple">
+<li><p>Do we have limits on storage SOC (Minimum &amp; maximum amount of thermal energy at any given time step)? From cooling_storage_soc it seems that it can be 0 or 1 (full capacity).</p></li>
+</ul>
+<p>Yes, it can be 0 (empty) and 1 (full capacity), or any value in between at any time-steps. The cooling or DHW demands of the building and the power of the energy supply devices also limit the additional energy that can be stored or released on any of theses storage devices at any given time-step.</p>
+<ul class="simple">
+<li><p>Can we use future hour heating, cooling electrical appliances energy / electricity demand as ‘predictions’ for the current time step action selection provided in each building file? Such that one of the state for determine if to supply heating by device would be “future demand for heating”? I don’t see them in the possible states…</p></li>
+</ul>
+<p>We provide as states those variables that we could easily obtained in a real-world implementation. You can only use as states those variables we have provided as such, in the file buildings_state_action_space.json. However, instead of using the predicted values of generation, cooling or heating, you can use other variables as states that are good predictors of those variables. For example, the solar irradiation is a good predictor of the solar generation, the outdoor temperature (and the relative humidity to some extent) are also good predictors of the demand for cooling, and the current electricity consumption from non-shiftable loads may also be a decent predictor of the electricity consumption in the next hour.
+It’s also worth mentioning that within your controller you can do any feature engineering you want using these observed variables that CityLearn returns. You need to use these observed variables from the  buildings_state_action_space.json only, but you can process them as you wish within your controller.</p>
+<ul class="simple">
+<li><p>Is electric_generation the net solar_gen?</p></li>
+</ul>
+<p>Yes, it is the solar generation.</p>
+<ul class="simple">
+<li><p>Does electric_consumption_dhw(t) + electrical_consumption_dhw_storage(t) = electrical_consumption_heating(t)?</p></li>
+</ul>
+<p>electric_consumption_dhw = sum of electrical_consumption_heating across all buildings. It already includes any additional heating energy consumed by the DHW storage (if you are increasing its SOC), or any reduction in the heating demand if you are decreasing the SOC of the DHW storage device.</p>
+<p>The variable electrical_consumption_dhw_storage is the increase or reduction in the electrical demand for heating resulting from increasing or decreasing the SOC</p>
+<ul class="simple">
+<li><p>How do I represent the action selection whether the use solar_gen at this time step or use electricity from grid (for either electric_consumption_appliances or electricity for heat pumps and electric heaters) to reflect the change in state of electricity prices and solar power availability (solar_gen which is related with solar radiation prediction)? I understand that the solar generation will also happen but the agent can decide not to use the electricity generation at this time step when the electricity pricing is cheap but use it later when the electricity price is higher.</p></li>
+</ul>
+<p>There are no actual electricity prices that need to be used. The default reward functions provided with the environment come with some virtual electricity prices that are proportional to the overall net electrical demand in the district. This creates a reward function that depends on the squared value of the electrical consumption: price = constant * net_electric_consumption, reward = price * net_electric_consumption = constant * net_electric_consumption^2.
+This default reward function should incentivize the agent(s) to flatten the curve of net electrical demand. However, you don’t need to use this reward function (feel free to modify it if you think of a better reward function), there are no actual electricity prices, and the objective of the challenge is to do load-shaping a minimize the 5 metrics provided in the cost function: ramping, 1-load_factor (one minus load factor), the average daily peak of net electricity consumption, the maximum peak demand of that year, and the non-negative net electricity consumption.
+The control actions are simply the storage or release of energy from the storage devices, and the overall objective is to make the net electrical demand of the district as flat, smooth and low as possible in order to minimize the aforementioned 5 cost metrics. The electricity generation and demand from appliances is already determined and going to happen regardless of the actions you take.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="2020.html" class="btn btn-neutral float-left" title="2020" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="2022.html" class="btn btn-neutral float-right" title="2022" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

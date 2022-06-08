@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2020 &mdash; CityLearn 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2021" href="2021.html" />
+    <link rel="prev" title="CityLearn Challenge" href="years.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment.html">Environment</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="years.html">CityLearn Challenge</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2020</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#objective">Objective</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rules-and-instructions-of-the-challenge">Rules and Instructions of the Challenge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#submission">Submission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#team-members">Team Members</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#submission-deadlines">Submission Deadlines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="2021.html">2021</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2022.html">2022</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">citylearn</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="years.html">CityLearn Challenge</a> &raquo;</li>
+      <li>2020</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/citylearn_challenge/2020.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>2020<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h1>
+<section id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this headline"></a></h2>
+<p>The objective of the challenge is to explore the potential of reinforcement learning as a control approach for building energy coordination and demand response. In particular, participants will design, tune, and pre-train one central, or multiple decentralized, RL agents that minimize a multi-objective cost function of 5 equally weighted metrics in an entire district of buildings:</p>
+<ol class="arabic simple">
+<li><p>Peak demand (for the entire simulated period)</p></li>
+<li><p>Average daily peak demand (daily peak demand of the district averaged over a year)</p></li>
+<li><p>Ramping</p></li>
+<li><p>1 - Load factor (which will tend to 0 as the load factor approaches 1)</p></li>
+<li><p>Net electricity consumption</p></li>
+</ol>
+<p>This multi-objective cost function is normalized by a baseline cost obtained from the performance of a rule-based-controller (RBC) tuned by hand. Therefore, RL_cost &lt; 1  means that the RL agent performs better than a simple RBC.</p>
+<p>To analyze the plug-and-play and adaptive potential of RL, the controllers will be evaluated on a different dataset than the one that will be shared for the design, tuning, and pre-training of the controllers.</p>
+</section>
+<section id="rules-and-instructions-of-the-challenge">
+<h2>Rules and Instructions of the Challenge<a class="headerlink" href="#rules-and-instructions-of-the-challenge" title="Permalink to this headline"></a></h2>
+<p>Participants were provided with a design data set comprised of four sets of data from nine buildings each. Each set will have been simulated in one of four anonymous climate zones in the US. The dataset contained year-long hourly information about the cooling and DHW demand of the building, electricity consumed by appliances, solar power generation, as well as weather data and other variables. The design dataset were made available in the CityLearn GitHub repository after January 15th 2020, teams could sign up anytime before of after that date.</p>
+<p>Participants used the design dataset to design, tune, and pre-train their RL controller(s) with the objective of shaping the load in the district and minimize the multi-objective cost function of the environment. Participants could select the states and actions the RL agents will use in each building in the file <cite>buildings_state_action_space.json</cite>, and could define their own reward function by modifying the file <cite>reward_function.py</cite>. Communication among buildings were allowed and must be coded within the file <cite>agent.py</cite>. Both centralized, and distributed controllers were allowed, and agents can take decisions both sequentially or simultaneously as long as it was all coded within the file <cite>agent.py</cite>. The file <cite>agent.py`</cite> could call another file, to be made by the participants, which can contain the parameters of the pre-trained RL controllers. In the Github repository we provided a sample RL agent under the class <cite>RL_Agents</cite>, which had not been tuned or pre-trained but was only provided as an example.</p>
+<p>Participants submitted their files <cite>agent.py</cite>, <cite>reward_function.py</cite>, <cite>buildings_state_action_space.json</cite>, and any file with the parameters of the pre-trained agents for their evaluation on an evaluation dataset, which were comprised of different buildings in the same climate zones but different cities. Participants received a score and the leader board was updated.</p>
+<p>At the challenge stage, participants  submitted their agents and reward function for the final run on the challenge dataset, which was different than the design and the evaluation datasets.</p>
+<p>In the evaluation and challenge stages we will paste the files submitted (<cite>agent.py</cite>, <cite>reward_function.py</cite>, <cite>buildings_state_action_space.json</cite>, and file with pre-trained policies, weights, or other parameters) to the CityLearn folder, and run the file <cite>main.py`</cite> as it is. Therefore, it is important that any RL agents be coded within the class RL_Agents in the <cite>agent.py</cite> file.</p>
+</section>
+<section id="submission">
+<h2>Submission<a class="headerlink" href="#submission" title="Permalink to this headline"></a></h2>
+<p>The RL agents must be written in Python 3 and can use PyTorch or TensorFlow, as well as any other library that is already used in our GitHub repository. It must be able to run in both Windows and Linux OS, in either GPU (not necessary) or CPU (if GPU is not used or is not available). Files will be submitted by email to <a class="reference external" href="mailto:citylearn&#37;&#52;&#48;utexas&#46;edu">citylearn<span>&#64;</span>utexas<span>&#46;</span>edu</a> under the subject “Submission StageOfChallenge Team_name”, where the StageOfChallenge can be “Evaluation Stage” or “Challenge Stage”.</p>
+<p>At the evaluation and challenge stages, the agents will be simulated on a single one-year episode for buildings in four different climates, and the obtained costs are averaged to provide the final cost and update the leaderboard. Therefore, participants are encouraged to submit agents that have been pre-trained enough to perform well at the exploration phase but that are still able to learn from and adapt to the new buildings and weather conditions.
+Some basic information about the characteristics of the buildings is provided to the agents in the file <cite>main.py</cite> using the CityLearn method <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_building_information()</span></code>. This method provides information about the type of building, climate zone, solar power capacity, total DHW, cooling, and non-shiftable energy consumption, and about the correlations of the demand profiles with the rest of the buildings. The agent(s) in the file <cite>agent.py`</cite> are not allowed to read any of the files in the folder “data”.</p>
+</section>
+<section id="team-members">
+<h2>Team Members<a class="headerlink" href="#team-members" title="Permalink to this headline"></a></h2>
+<p>Each team can consist of maximum three members. The sign up link is <a class="reference external" href="https://docs.google.com/forms/d/e/1FAIpQLSf8PeqKqw9lzI7xSmjXqdTzzqbYdl3GrgOb7hpPtXETjQVlSg/viewform">here</a>.</p>
+</section>
+<section id="submission-deadlines">
+<h2>Submission Deadlines<a class="headerlink" href="#submission-deadlines" title="Permalink to this headline"></a></h2>
+<p>Please see the timeline below for the detailed timeline of the three stages of the challenge.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="years.html" class="btn btn-neutral float-left" title="CityLearn Challenge" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="2021.html" class="btn btn-neutral float-right" title="2021" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

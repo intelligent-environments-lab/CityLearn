@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citylearn.agents.sac module &mdash; CityLearn 1.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="citylearn.base module" href="citylearn.base.html" />
+    <link rel="prev" title="citylearn.agents.rlc module" href="citylearn.agents.rlc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment.html">Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/years.html">CityLearn Challenge</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="citylearn.html">citylearn package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="citylearn.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="citylearn.agents.html">citylearn.agents package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">citylearn</a> &raquo;</li>
+          <li><a href="citylearn.html">citylearn package</a> &raquo;</li>
+          <li><a href="citylearn.agents.html">citylearn.agents package</a> &raquo;</li>
+      <li>citylearn.agents.sac module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/citylearn.agents.sac.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-citylearn.agents.sac">
+<span id="citylearn-agents-sac-module"></span><h1>citylearn.agents.sac module<a class="headerlink" href="#module-citylearn.agents.sac" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SAC" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="citylearn.agents.rlc.html#citylearn.agents.rlc.RLC" title="citylearn.agents.rlc.RLC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.rlc.RLC</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.add_to_buffer">
+<span class="sig-name descname"><span class="pre">add_to_buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">done</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SAC.add_to_buffer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SAC.add_to_buffer" title="Permalink to this definition"></a></dt>
+<dd><p>Update replay buffer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observations</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Previous time step observations.</p></li>
+<li><p><strong>actions</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Previous time step actions.</p></li>
+<li><p><strong>reward</strong> (<em>float</em>) – Current time step reward.</p></li>
+<li><p><strong>next_observations</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Current time step observations.</p></li>
+<li><p><strong>done</strong> (<em>bool</em>) – Indication that episode has ended.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.alpha">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.alpha" title="Permalink to this definition"></a></dt>
+<dd><p>alpha.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.device</span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.device" title="Permalink to this definition"></a></dt>
+<dd><p>Device; cuda or cpu.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.get_exploration_actions">
+<span class="sig-name descname"><span class="pre">get_exploration_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SAC.get_exploration_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SAC.get_exploration_actions" title="Permalink to this definition"></a></dt>
+<dd><p>Return randomly sampled actions from <cite>action_space</cite> multiplied by <code class="xref py py-attr docutils literal notranslate"><span class="pre">action_scaling_coefficient</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>actions</strong> – Action values.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.norm_mean">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norm_mean</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.norm_mean" title="Permalink to this definition"></a></dt>
+<dd><p>norm_mean.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.norm_std">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norm_std</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.norm_std" title="Permalink to this definition"></a></dt>
+<dd><p>norm_std.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.normalized">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normalized</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.normalized" title="Permalink to this definition"></a></dt>
+<dd><p>normalized.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.policy_net">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">policy_net</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.rl.html#citylearn.rl.PolicyNetwork" title="citylearn.rl.PolicyNetwork"><span class="pre">citylearn.rl.PolicyNetwork</span></a></em><a class="headerlink" href="#citylearn.agents.sac.SAC.policy_net" title="Permalink to this definition"></a></dt>
+<dd><p>policy_net.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.policy_optimizer">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">policy_optimizer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.optim.adam.Adam</span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.policy_optimizer" title="Permalink to this definition"></a></dt>
+<dd><p>policy_optimizer.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.r_norm_mean">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_norm_mean</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.r_norm_mean" title="Permalink to this definition"></a></dt>
+<dd><p>r_norm_mean.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.r_norm_std">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_norm_std</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.r_norm_std" title="Permalink to this definition"></a></dt>
+<dd><p>r_norm_std.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.replay_buffer">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">replay_buffer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.rl.html#citylearn.rl.ReplayBuffer" title="citylearn.rl.ReplayBuffer"><span class="pre">citylearn.rl.ReplayBuffer</span></a></em><a class="headerlink" href="#citylearn.agents.sac.SAC.replay_buffer" title="Permalink to this definition"></a></dt>
+<dd><p>replay_buffer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.select_actions">
+<span class="sig-name descname"><span class="pre">select_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SAC.select_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SAC.select_actions" title="Permalink to this definition"></a></dt>
+<dd><p>Provide actions for current time step.</p>
+<p>Will return randomly sampled actions from <cite>action_space</cite> if <code class="xref py py-attr docutils literal notranslate"><span class="pre">end_exploration_time_step</span></code> &gt;= <code class="xref py py-attr docutils literal notranslate"><span class="pre">time_step</span></code>
+else will use policy to sample actions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>actions</strong> – Action values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.soft_q_criterion">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">soft_q_criterion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.nn.modules.loss.SmoothL1Loss</span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.soft_q_criterion" title="Permalink to this definition"></a></dt>
+<dd><p>soft_q_criterion.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.soft_q_net1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">soft_q_net1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.rl.html#citylearn.rl.SoftQNetwork" title="citylearn.rl.SoftQNetwork"><span class="pre">citylearn.rl.SoftQNetwork</span></a></em><a class="headerlink" href="#citylearn.agents.sac.SAC.soft_q_net1" title="Permalink to this definition"></a></dt>
+<dd><p>soft_q_net1.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.soft_q_net2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">soft_q_net2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.rl.html#citylearn.rl.SoftQNetwork" title="citylearn.rl.SoftQNetwork"><span class="pre">citylearn.rl.SoftQNetwork</span></a></em><a class="headerlink" href="#citylearn.agents.sac.SAC.soft_q_net2" title="Permalink to this definition"></a></dt>
+<dd><p>soft_q_net2.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.soft_q_optimizer1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">soft_q_optimizer1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.optim.adam.Adam</span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.soft_q_optimizer1" title="Permalink to this definition"></a></dt>
+<dd><p>soft_q_optimizer1.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.soft_q_optimizer2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">soft_q_optimizer2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.optim.adam.Adam</span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.soft_q_optimizer2" title="Permalink to this definition"></a></dt>
+<dd><p>soft_q_optimizer2.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.target_entropy">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_entropy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.agents.sac.SAC.target_entropy" title="Permalink to this definition"></a></dt>
+<dd><p>target_entropy.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.target_soft_q_net1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_soft_q_net1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.rl.html#citylearn.rl.SoftQNetwork" title="citylearn.rl.SoftQNetwork"><span class="pre">citylearn.rl.SoftQNetwork</span></a></em><a class="headerlink" href="#citylearn.agents.sac.SAC.target_soft_q_net1" title="Permalink to this definition"></a></dt>
+<dd><p>target_soft_q_net1.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SAC.target_soft_q_net2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_soft_q_net2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.rl.html#citylearn.rl.SoftQNetwork" title="citylearn.rl.SoftQNetwork"><span class="pre">citylearn.rl.SoftQNetwork</span></a></em><a class="headerlink" href="#citylearn.agents.sac.SAC.target_soft_q_net2" title="Permalink to this definition"></a></dt>
+<dd><p>target_soft_q_net2.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SACBasicRBC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACBasicRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hour_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACBasicRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACBasicRBC" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.agents.sac.SACRBC" title="citylearn.agents.sac.SACRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SACRBC</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SACOptimizedRBC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACOptimizedRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hour_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACOptimizedRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACOptimizedRBC" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.agents.sac.SACBasicRBC" title="citylearn.agents.sac.SACBasicRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SACBasicRBC</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SACRBC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACRBC" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.agents.sac.SAC" title="citylearn.agents.sac.SAC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SAC</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SACRBC.get_exploration_actions">
+<span class="sig-name descname"><span class="pre">get_exploration_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACRBC.get_exploration_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACRBC.get_exploration_actions" title="Permalink to this definition"></a></dt>
+<dd><p>Return actions using <code class="xref py py-class docutils literal notranslate"><span class="pre">RBC</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>actions</strong> – Action values.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SACRBC.rbc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rbc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.agents.rbc.html#citylearn.agents.rbc.RBC" title="citylearn.agents.rbc.RBC"><span class="pre">citylearn.agents.rbc.RBC</span></a></em><a class="headerlink" href="#citylearn.agents.sac.SACRBC.rbc" title="Permalink to this definition"></a></dt>
+<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">RBC</span></code> or child class, used to select actions during exploration.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="citylearn.agents.rlc.html" class="btn btn-neutral float-left" title="citylearn.agents.rlc module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="citylearn.base.html" class="btn btn-neutral float-right" title="citylearn.base module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
