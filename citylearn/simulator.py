@@ -72,15 +72,18 @@ class Simulator:
             observations_list = self.citylearn_env.reset()
 
             while not self.citylearn_env.done:
-                logging.debug(f'Timestep: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1}, Episode: {episode}')
+                # logging.debug(f'Timestep: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1}, Episode: {episode}')
                 actions_list = []
 
                 # select actions
                 for agent, observations in zip(self.agents, observations_list):
                     if agent.action_dimension > 0:
-                        actions_list.append(agent.select_actions(observations))
+                        actions = agent.select_actions(observations)
+                        
                     else:
-                        actions_list.append([]) 
+                        actions = []
+                    
+                    actions_list.append(actions)
 
                 # apply actions to citylearn_env
                 next_observations_list, reward_list, _, _ = self.citylearn_env.step(actions_list)
@@ -93,3 +96,10 @@ class Simulator:
                         continue
 
                 observations_list = [o for o in next_observations_list]
+
+                logging.debug(
+                    f'Timestep: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1},'\
+                        f' Episode: {episode}/{self.episodes - 1},'\
+                            f' Actions: {actions_list},'\
+                                f' Rewards: {reward_list}'
+                )
