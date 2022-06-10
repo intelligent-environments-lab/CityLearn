@@ -60,10 +60,10 @@ class ElectricDevice(Device):
         return self.__nominal_power
 
     @property
-    def electricity_consumption(self) -> List[float]:
+    def electricity_consumption(self) -> np.ndarray:
         r"""Electricity consumption time series."""
 
-        return self.__electricity_consumption
+        return np.array(self.__electricity_consumption)
 
     @property
     def available_nominal_power(self) -> float:
@@ -522,7 +522,7 @@ class StorageDevice(Device):
         return self.__efficiency_scaling
 
     @property
-    def energy_balance(self) -> List[float]:
+    def energy_balance(self) -> np.ndarray:
         r"""Charged/discharged energy time series in [kWh].
 
         The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and `efficiency`
@@ -534,7 +534,7 @@ class StorageDevice(Device):
         energy_balance = np.array(self.soc, dtype = float) - np.array(self.__soc[0:-1], dtype = float)*(1 - self.loss_coefficient)
         energy_balance[energy_balance >= 0.0] /= self.efficiency
         energy_balance[energy_balance < 0.0] *= self.efficiency
-        return energy_balance.tolist()
+        return energy_balance
 
     @Device.efficiency.setter
     def efficiency(self, efficiency: float):
@@ -741,13 +741,13 @@ class Battery(ElectricDevice, StorageDevice):
         return self.__capacity_loss_coefficient
 
     @property
-    def power_efficiency_curve(self) -> List[List[float]]:
+    def power_efficiency_curve(self) -> np.ndarray:
         """Charging/Discharging efficiency as a function of the power released or consumed."""
 
         return self.__power_efficiency_curve
 
     @property
-    def capacity_power_curve(self) -> List[List[float]]:
+    def capacity_power_curve(self) -> np.ndarray:
         """Maximum power of the battery as a function of its current state of charge."""
 
         return self.__capacity_power_curve
@@ -765,7 +765,7 @@ class Battery(ElectricDevice, StorageDevice):
         return self.__capacity_history
 
     @property
-    def energy_balance(self) -> List[float]:
+    def energy_balance(self) -> np.ndarray:
         r"""Charged/discharged energy time series in [kWh].
 
         The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and `efficiency`
@@ -776,7 +776,7 @@ class Battery(ElectricDevice, StorageDevice):
         efficiency_history = np.array(self.efficiency_history[1:], dtype = float)
         energy_balance[energy_balance >= 0.0] *= self.efficiency/efficiency_history[energy_balance >= 0.0]
         energy_balance[energy_balance < 0.0] /= self.efficiency*efficiency_history[energy_balance < 0.0]
-        return energy_balance.tolist()
+        return energy_balance
 
     @StorageDevice.capacity.setter
     def capacity(self, capacity: float):
