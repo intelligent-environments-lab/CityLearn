@@ -29,6 +29,7 @@ class CityLearnEnv(Environment, Env):
         """
 
         self.schema = schema
+        self.__rewards = None
         self.buildings, self.time_steps, self.reward_function, self.central_agent, self.shared_observations = self.__load()
         super().__init__(**kwargs)
 
@@ -55,6 +56,12 @@ class CityLearnEnv(Environment, Env):
         """Reward function class instance"""
 
         return self.__reward_function
+
+    @property
+    def rewards(self) -> List[List[float]]:
+        """Reward time series"""
+
+        return self.__rewards
 
     @property
     def central_agent(self) -> bool:
@@ -169,196 +176,196 @@ class CityLearnEnv(Environment, Env):
         ]] if self.central_agent else [list(b.observations.values()) for b in self.buildings]
 
     @property
-    def net_electricity_consumption_without_storage_and_pv_emission(self) -> List[float]:
+    def net_electricity_consumption_without_storage_and_pv_emission(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_without_storage_and_pv_emission` time series, in [kg_co2]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_emission for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_without_storage_and_pv_price(self) -> List[float]:
+    def net_electricity_consumption_without_storage_and_pv_price(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_without_storage_and_pv_price` time series, in [$]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_price for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_without_storage_and_pv(self) -> List[float]:
+    def net_electricity_consumption_without_storage_and_pv(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_without_storage_and_pv` time series, in [kWh]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_without_storage_emission(self) -> List[float]:
+    def net_electricity_consumption_without_storage_emission(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_without_storage_emission` time series, in [kg_co2]."""
 
         return pd.DataFrame([b.net_electricity_consumption_without_storage_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
-    def net_electricity_consumption_without_storage_price(self) -> List[float]:
+    def net_electricity_consumption_without_storage_price(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_without_storage_price` time series, in [$]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.net_electricity_consumption_without_storage_price for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_without_storage(self) -> List[float]:
+    def net_electricity_consumption_without_storage(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_without_storage` time series, in [kWh]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.net_electricity_consumption_without_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_emission(self) -> List[float]:
+    def net_electricity_consumption_emission(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_emission` time series, in [kg_co2]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.net_electricity_consumption_emission for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_price(self) -> List[float]:
+    def net_electricity_consumption_price(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_price` time series, in [$]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_price for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.net_electricity_consumption_price for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption(self) -> List[float]:
+    def net_electricity_consumption(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption` time series, in [kWh]."""
 
-        return pd.DataFrame([b.net_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.net_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def cooling_electricity_consumption(self) -> List[float]:
+    def cooling_electricity_consumption(self) -> np.ndarray:
         """Summed `Building.cooling_electricity_consumption` time series, in [kWh]."""
 
-        return pd.DataFrame([b.cooling_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.cooling_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def heating_electricity_consumption(self) -> List[float]:
+    def heating_electricity_consumption(self) -> np.ndarray:
         """Summed `Building.heating_electricity_consumption` time series, in [kWh]."""
 
-        return pd.DataFrame([b.heating_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.heating_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def dhw_electricity_consumption(self) -> List[float]:
+    def dhw_electricity_consumption(self) -> np.ndarray:
         """Summed `Building.dhw_electricity_consumption` time series, in [kWh]."""
 
-        return pd.DataFrame([b.dhw_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.dhw_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def cooling_storage_electricity_consumption(self) -> List[float]:
+    def cooling_storage_electricity_consumption(self) -> np.ndarray:
         """Summed `Building.cooling_storage_electricity_consumption` time series, in [kWh]."""
 
-        return pd.DataFrame([b.cooling_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.cooling_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def heating_storage_electricity_consumption(self) -> List[float]:
+    def heating_storage_electricity_consumption(self) -> np.ndarray:
         """Summed `Building.heating_storage_electricity_consumption` time series, in [kWh]."""
 
-        return pd.DataFrame([b.heating_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.heating_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def dhw_storage_electricity_consumption(self) -> List[float]:
+    def dhw_storage_electricity_consumption(self) -> np.ndarray:
         """Summed `Building.dhw_storage_electricity_consumption` time series, in [kWh]."""
 
-        return pd.DataFrame([b.dhw_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.dhw_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def electrical_storage_electricity_consumption(self) -> List[float]:
+    def electrical_storage_electricity_consumption(self) -> np.ndarray:
         """Summed `Building.electrical_storage_electricity_consumption` time series, in [kWh]."""
 
-        return pd.DataFrame([b.electrical_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.electrical_storage_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_from_cooling_device_to_cooling_storage(self) -> List[float]:
+    def energy_from_cooling_device_to_cooling_storage(self) -> np.ndarray:
         """Summed `Building.energy_from_cooling_device_to_cooling_storage` time series, in [kWh]."""
 
-        return pd.DataFrame([b.energy_from_cooling_device_to_cooling_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_from_cooling_device_to_cooling_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_from_heating_device_to_heating_storage(self) -> List[float]:
+    def energy_from_heating_device_to_heating_storage(self) -> np.ndarray:
         """Summed `Building.energy_from_heating_device_to_heating_storage` time series, in [kWh]."""
 
-        return pd.DataFrame([b.energy_from_heating_device_to_heating_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_from_heating_device_to_heating_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_from_dhw_device_to_dhw_storage(self) -> List[float]:
+    def energy_from_dhw_device_to_dhw_storage(self) -> np.ndarray:
         """Summed `Building.energy_from_dhw_device_to_dhw_storage` time series, in [kWh]."""
 
-        return pd.DataFrame([b.energy_from_dhw_device_to_dhw_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_from_dhw_device_to_dhw_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_to_electrical_storage(self) -> List[float]:
+    def energy_to_electrical_storage(self) -> np.ndarray:
         """Summed `Building.energy_to_electrical_storage` time series, in [kWh]."""
 
-        return pd.DataFrame([b.energy_to_electrical_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_to_electrical_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_from_cooling_device(self) -> List[float]:
+    def energy_from_cooling_device(self) -> np.ndarray:
         """Summed `Building.energy_from_cooling_device` time series, in [kWh]."""
 
-        return pd.DataFrame([b.energy_from_cooling_device for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_from_cooling_device for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_from_heating_device(self) -> List[float]:
+    def energy_from_heating_device(self) -> np.ndarray:
         """Summed `Building.energy_from_heating_device` time series, in [kWh]."""
 
-        return pd.DataFrame([b.energy_from_heating_device for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_from_heating_device for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_from_dhw_device(self) -> List[float]:
+    def energy_from_dhw_device(self) -> np.ndarray:
         """Summed `Building.energy_from_dhw_device` time series, in [kWh]."""
 
-        return pd.DataFrame([b.energy_from_dhw_device for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_from_dhw_device for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_from_cooling_storage(self) -> List[float]:
+    def energy_from_cooling_storage(self) -> np.ndarray:
         """Summed `Building.energy_from_cooling_storage` time series, in [kWh]."""
 
-        return pd.DataFrame([b.energy_from_cooling_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_from_cooling_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_from_heating_storage(self) -> List[float]:
+    def energy_from_heating_storage(self) -> np.ndarray:
         """Summed `Building.energy_from_heating_storage` time series, in [kWh]."""
         
-        return pd.DataFrame([b.energy_from_heating_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_from_heating_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_from_dhw_storage(self) -> List[float]:
+    def energy_from_dhw_storage(self) -> np.ndarray:
         """Summed `Building.energy_from_dhw_storage` time series, in [kWh]."""
 
-        return pd.DataFrame([b.energy_from_dhw_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_from_dhw_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_from_electrical_storage(self) -> List[float]:
+    def energy_from_electrical_storage(self) -> np.ndarray:
         """Summed `Building.energy_from_electrical_storage` time series, in [kWh]."""
 
-        return pd.DataFrame([b.energy_from_electrical_storage for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.energy_from_electrical_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def cooling_demand(self) -> List[float]:
+    def cooling_demand(self) -> np.ndarray:
         """Summed `Building.cooling_demand`, in [kWh]."""
 
-        return pd.DataFrame([b.cooling_demand for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.cooling_demand for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def heating_demand(self) -> List[float]:
+    def heating_demand(self) -> np.ndarray:
         """Summed `Building.heating_demand`, in [kWh]."""
 
-        return pd.DataFrame([b.heating_demand for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.heating_demand for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def dhw_demand(self) -> List[float]:
+    def dhw_demand(self) -> np.ndarray:
         """Summed `Building.dhw_demand`, in [kWh]."""
 
-        return pd.DataFrame([b.dhw_demand for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.dhw_demand for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def non_shiftable_load_demand(self) -> List[float]:
+    def non_shiftable_load_demand(self) -> np.ndarray:
         """Summed `Building.non_shiftable_load_demand`, in [kWh]."""
 
-        return pd.DataFrame([b.non_shiftable_load_demand for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.non_shiftable_load_demand for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def solar_generation(self) -> List[float]:
+    def solar_generation(self) -> np.ndarray:
         """Summed `Building.solar_generation, in [kWh]`."""
 
-        return pd.DataFrame([b.solar_generation for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([b.solar_generation for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @schema.setter
     def schema(self, schema: Union[str, Path, Mapping[str, Any]]):
@@ -441,7 +448,9 @@ class CityLearnEnv(Environment, Env):
             building.apply_actions(**building_actions)
 
         self.next_time_step()
-        return self.observations, self.get_reward(), self.done, self.get_info()
+        reward = self.get_reward()
+        self.__rewards.append(reward)
+        return self.observations, reward, self.done, self.get_info()
 
     def get_reward(self) -> List[float]:
         """Calculate agent(s) reward(s) using :attr:`reward_function`.
@@ -452,12 +461,12 @@ class CityLearnEnv(Environment, Env):
             Reward for current observations. If `central_agent` is True, `reward` is a list of length = 1 else, `reward` has same length as `buildings`.
         """
 
-        self.reward_function.electricity_consumption = [sum(self.net_electricity_consumption)] if self.central_agent\
-            else self.net_electricity_consumption
-        self.reward_function.carbon_emission = [sum(self.net_electricity_consumption_emission)] if self.central_agent\
-            else self.net_electricity_consumption_emission
-        self.reward_function.electricity_price = [sum(self.net_electricity_consumption_price)] if self.central_agent\
-            else self.net_electricity_consumption_price
+        self.reward_function.electricity_consumption = [self.net_electricity_consumption[self.time_step - 1]] if self.central_agent\
+            else [b.net_electricity_consumption[self.time_step - 1] for b in self.buildings]
+        self.reward_function.carbon_emission = [self.net_electricity_consumption_emission[self.time_step - 1]] if self.central_agent\
+            else [b.net_electricity_consumption_emission[self.time_step - 1] for b in self.buildings]
+        self.reward_function.electricity_price = [self.net_electricity_consumption_price[self.time_step - 1]] if self.central_agent\
+            else [b.net_electricity_consumption_price[self.time_step - 1] for b in self.buildings]
         reward = self.reward_function.calculate()
         return reward
 
@@ -508,6 +517,7 @@ class CityLearnEnv(Environment, Env):
             building_info[building.uid]['annual_nonshiftable_electrical_demand'] = round(sum(building.energy_simulation.non_shiftable_load)/n_years, 3)
             building_info[building.uid]['correlations_dhw'] = {}
             building_info[building.uid]['correlations_cooling_demand'] = {}
+            building_info[building.uid]['correlations_heating_demand'] = {}
             building_info[building.uid]['correlations_non_shiftable_load'] = {}
             
             for corr_building in self.buildings:
@@ -546,6 +556,7 @@ class CityLearnEnv(Environment, Env):
             :attr:`observations`. 
         """
 
+        self.__rewards = [[]]
         super().reset()
 
         for building in self.buildings:
