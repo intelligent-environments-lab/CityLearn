@@ -129,10 +129,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nominal_power</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Electricity consumption time series.&quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_consumption</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__electricity_consumption</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">available_nominal_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -499,7 +499,8 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        generation = `capacity`*inverter_ac_power_per_w/1000</span>
+<span class="sd">        .. math::</span>
+<span class="sd">            \textrm{generation} = \frac{\textrm{capacity} \times \textrm{inverter_ac_power_per_w}}{1000}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inverter_ac_power_per_w</span><span class="p">)</span><span class="o">/</span><span class="mi">1000</span></div>
@@ -590,7 +591,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__efficiency_scaling</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">energy_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">energy_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Charged/discharged energy time series in [kWh].</span>
 
 <span class="sd">        The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and `efficiency`</span>
@@ -602,7 +603,7 @@
         <span class="n">energy_balance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soc</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__soc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_coefficient</span><span class="p">)</span>
         <span class="n">energy_balance</span><span class="p">[</span><span class="n">energy_balance</span> <span class="o">&gt;=</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span>
         <span class="n">energy_balance</span><span class="p">[</span><span class="n">energy_balance</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span>
-        <span class="k">return</span> <span class="n">energy_balance</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">energy_balance</span>
 
     <span class="nd">@Device</span><span class="o">.</span><span class="n">efficiency</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
@@ -809,13 +810,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_loss_coefficient</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">power_efficiency_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">power_efficiency_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Charging/Discharging efficiency as a function of the power released or consumed.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__power_efficiency_curve</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">capacity_power_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">capacity_power_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Maximum power of the battery as a function of its current state of charge.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_power_curve</span>
@@ -833,7 +834,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_history</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">energy_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">energy_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Charged/discharged energy time series in [kWh].</span>
 
 <span class="sd">        The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and `efficiency`</span>
@@ -844,7 +845,7 @@
         <span class="n">efficiency_history</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency_history</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
         <span class="n">energy_balance</span><span class="p">[</span><span class="n">energy_balance</span> <span class="o">&gt;=</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="o">/</span><span class="n">efficiency_history</span><span class="p">[</span><span class="n">energy_balance</span> <span class="o">&gt;=</span> <span class="mf">0.0</span><span class="p">]</span>
         <span class="n">energy_balance</span><span class="p">[</span><span class="n">energy_balance</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="o">*</span><span class="n">efficiency_history</span><span class="p">[</span><span class="n">energy_balance</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">energy_balance</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">energy_balance</span>
 
     <span class="nd">@StorageDevice</span><span class="o">.</span><span class="n">capacity</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>

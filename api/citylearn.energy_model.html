@@ -15,6 +15,7 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -117,7 +118,7 @@
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.capacity_power_curve">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">capacity_power_curve</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.Battery.capacity_power_curve" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">capacity_power_curve</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.energy_model.Battery.capacity_power_curve" title="Permalink to this definition"></a></dt>
 <dd><p>Maximum power of the battery as a function of its current state of charge.</p>
 </dd></dl>
 
@@ -171,7 +172,7 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>efficiency</ci
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.energy_balance">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_balance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.Battery.energy_balance" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_balance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.energy_model.Battery.energy_balance" title="Permalink to this definition"></a></dt>
 <dd><p>Charged/discharged energy time series in [kWh].</p>
 <p>The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and <cite>efficiency</cite>
 for discharge or charge events respectively thus, thus accounts for energy losses to environment during charging and discharge.</p>
@@ -221,7 +222,7 @@ for discharge or charge events respectively thus, thus accounts for energy losse
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.power_efficiency_curve">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">power_efficiency_curve</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.Battery.power_efficiency_curve" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">power_efficiency_curve</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.energy_model.Battery.power_efficiency_curve" title="Permalink to this definition"></a></dt>
 <dd><p>Charging/Discharging efficiency as a function of the power released or consumed.</p>
 </dd></dl>
 
@@ -257,7 +258,7 @@ for discharge or charge events respectively thus, thus accounts for energy losse
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.ElectricDevice.electricity_consumption">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.ElectricDevice.electricity_consumption" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.energy_model.ElectricDevice.electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p>Electricity consumption time series.</p>
 </dd></dl>
 
@@ -519,7 +520,8 @@ cooling_cop = (<cite>t_target_cooling</cite> + 273.15)*`efficiency`/(outdoor_dry
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>generation = <a href="#id1"><span class="problematic" id="id2">`</span></a>capacity`*inverter_ac_power_per_w/1000</p>
+<div class="math notranslate nohighlight">
+\[\textrm{generation} = \frac{\textrm{capacity} \times \textrm{inverter_ac_power_per_w}}{1000}\]</div>
 </dd></dl>
 
 </dd></dl>
@@ -579,7 +581,7 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>efficiency</ci
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.energy_balance">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_balance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.StorageDevice.energy_balance" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_balance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.energy_model.StorageDevice.energy_balance" title="Permalink to this definition"></a></dt>
 <dd><p>Charged/discharged energy time series in [kWh].</p>
 <p>The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and <cite>efficiency</cite>
 for discharge or charge events respectively thus, thus accounts for energy losses to environment during charging and discharge.</p>

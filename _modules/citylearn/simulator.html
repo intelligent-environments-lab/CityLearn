@@ -141,15 +141,18 @@
             <span class="n">observations_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
             <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Timestep: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_step</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="si">}</span><span class="s1">, Episode: </span><span class="si">{</span><span class="n">episode</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="c1"># logging.debug(f&#39;Timestep: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1}, Episode: {episode}&#39;)</span>
                 <span class="n">actions_list</span> <span class="o">=</span> <span class="p">[]</span>
 
                 <span class="c1"># select actions</span>
                 <span class="k">for</span> <span class="n">agent</span><span class="p">,</span> <span class="n">observations</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">,</span> <span class="n">observations_list</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">agent</span><span class="o">.</span><span class="n">action_dimension</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">actions_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">agent</span><span class="o">.</span><span class="n">select_actions</span><span class="p">(</span><span class="n">observations</span><span class="p">))</span>
+                        <span class="n">actions</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">select_actions</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+                        
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">actions_list</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span> 
+                        <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
+                    
+                    <span class="n">actions_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
 
                 <span class="c1"># apply actions to citylearn_env</span>
                 <span class="n">next_observations_list</span><span class="p">,</span> <span class="n">reward_list</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions_list</span><span class="p">)</span>
@@ -161,7 +164,14 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">continue</span>
 
-                <span class="n">observations_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">next_observations_list</span><span class="p">]</span></div></div>
+                <span class="n">observations_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">next_observations_list</span><span class="p">]</span>
+
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Timestep: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_step</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="si">}</span><span class="s1">,&#39;</span>\
+                        <span class="sa">f</span><span class="s1">&#39; Episode: </span><span class="si">{</span><span class="n">episode</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">episodes</span> <span class="o">-</span> <span class="mi">1</span><span class="si">}</span><span class="s1">,&#39;</span>\
+                            <span class="sa">f</span><span class="s1">&#39; Actions: </span><span class="si">{</span><span class="n">actions_list</span><span class="si">}</span><span class="s1">,&#39;</span>\
+                                <span class="sa">f</span><span class="s1">&#39; Rewards: </span><span class="si">{</span><span class="n">reward_list</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span></div></div>
 </pre></div>
 
            </div>

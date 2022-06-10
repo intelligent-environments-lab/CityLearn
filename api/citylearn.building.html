@@ -233,7 +233,7 @@
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.cooling_demand">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cooling_demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.cooling_demand" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cooling_demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.cooling_demand" title="Permalink to this definition"></a></dt>
 <dd><p>Space cooling demand to be met by <cite>cooling_device</cite> and/or <cite>cooling_storage</cite> time series, in [kWh].</p>
 </dd></dl>
 
@@ -245,7 +245,7 @@
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.cooling_electricity_consumption">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cooling_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.cooling_electricity_consumption" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cooling_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.cooling_electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p><cite>cooling_device</cite> net electricity consumption in meeting domestic hot water and <cite>cooling_stoage</cite> energy demand time series, in [kWh].</p>
 <p>Positive values indicate <cite>cooling_device</cite> electricity consumption to charge <cite>cooling_storage</cite> and/or meet <cite>cooling_demand</cite> while negative values indicate avoided <cite>cooling_device</cite>
 electricity consumption by discharging <cite>cooling_storage</cite> to meet <cite>cooling_demand</cite>.</p>
@@ -259,7 +259,7 @@ electricity consumption by discharging <cite>cooling_storage</cite> to meet <cit
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.cooling_storage_electricity_consumption">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cooling_storage_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.cooling_storage_electricity_consumption" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cooling_storage_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.cooling_storage_electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p><cite>cooling_storage</cite> net electricity consumption time series, in [kWh].</p>
 <p>Positive values indicate <cite>cooling_device</cite> electricity consumption to charge <cite>cooling_storage</cite> while negative values indicate avoided <cite>cooling_device</cite>
 electricity consumption by discharging <cite>cooling_storage</cite> to meet <cite>cooling_demand</cite>.</p>
@@ -267,7 +267,7 @@ electricity consumption by discharging <cite>cooling_storage</cite> to meet <cit
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.dhw_demand">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dhw_demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.dhw_demand" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dhw_demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.dhw_demand" title="Permalink to this definition"></a></dt>
 <dd><p>Domestic hot water demand to be met by <cite>dhw_device</cite> and/or <cite>dhw_storage</cite> time series, in [kWh].</p>
 </dd></dl>
 
@@ -279,7 +279,7 @@ electricity consumption by discharging <cite>cooling_storage</cite> to meet <cit
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.dhw_electricity_consumption">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dhw_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.dhw_electricity_consumption" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dhw_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.dhw_electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p><cite>dhw_device</cite> net electricity consumption in meeting domestic hot water and <cite>dhw_stoage</cite> energy demand time series, in [kWh].</p>
 <p>Positive values indicate <cite>dhw_device</cite> electricity consumption to charge <cite>dhw_storage</cite> and/or meet <cite>dhw_demand</cite> while negative values indicate avoided <cite>dhw_device</cite>
 electricity consumption by discharging <cite>dhw_storage</cite> to meet <cite>dhw_demand</cite>.</p>
@@ -293,7 +293,7 @@ electricity consumption by discharging <cite>dhw_storage</cite> to meet <cite>dh
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.dhw_storage_electricity_consumption">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dhw_storage_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.dhw_storage_electricity_consumption" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dhw_storage_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.dhw_storage_electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p><cite>dhw_storage</cite> net electricity consumption time series, in [kWh].</p>
 <p>Positive values indicate <cite>dhw_device</cite> electricity consumption to charge <cite>dhw_storage</cite> while negative values indicate avoided <cite>dhw_device</cite>
 electricity consumption by discharging <cite>dhw_storage</cite> to meet <cite>dhw_demand</cite>.</p>
@@ -307,67 +307,67 @@ electricity consumption by discharging <cite>dhw_storage</cite> to meet <cite>dh
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.electrical_storage_electricity_consumption">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electrical_storage_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.electrical_storage_electricity_consumption" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electrical_storage_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.electrical_storage_electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from grid and/or <cite>PV</cite> to <cite>electrical_storage</cite> time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_from_cooling_device">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_cooling_device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_cooling_device" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_cooling_device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_cooling_device" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>cooling_device</cite> to building time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_from_cooling_device_to_cooling_storage">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_cooling_device_to_cooling_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_cooling_device_to_cooling_storage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_cooling_device_to_cooling_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_cooling_device_to_cooling_storage" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>cooling_device</cite> to <cite>cooling_storage</cite> time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_from_cooling_storage">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_cooling_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_cooling_storage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_cooling_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_cooling_storage" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>cooling_storage</cite> to building time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_from_dhw_device">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_dhw_device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_dhw_device" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_dhw_device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_dhw_device" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>dhw_device</cite> to building time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_from_dhw_device_to_dhw_storage">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_dhw_device_to_dhw_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_dhw_device_to_dhw_storage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_dhw_device_to_dhw_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_dhw_device_to_dhw_storage" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>dhw_device</cite> to <cite>dhw_storage</cite> time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_from_dhw_storage">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_dhw_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_dhw_storage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_dhw_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_dhw_storage" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>dhw_storage</cite> to building time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_from_electrical_storage">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_electrical_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_electrical_storage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_electrical_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_electrical_storage" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>electrical_storage</cite> to building time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_from_heating_device">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_heating_device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_heating_device" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_heating_device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_heating_device" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>heating_device</cite> to building time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_from_heating_device_to_heating_storage">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_heating_device_to_heating_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_heating_device_to_heating_storage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_heating_device_to_heating_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_heating_device_to_heating_storage" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>heating_device</cite> to <cite>heating_storage</cite> time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_from_heating_storage">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_heating_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_heating_storage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_from_heating_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_from_heating_storage" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>heating_storage</cite> to building time series, in [kWh].</p>
 </dd></dl>
 
@@ -379,7 +379,7 @@ electricity consumption by discharging <cite>dhw_storage</cite> to meet <cite>dh
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.energy_to_electrical_storage">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_to_electrical_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.energy_to_electrical_storage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_to_electrical_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.energy_to_electrical_storage" title="Permalink to this definition"></a></dt>
 <dd><p>Energy supply from <cite>electrical_device</cite> to building time series, in [kWh].</p>
 </dd></dl>
 
@@ -423,7 +423,7 @@ scaling this observation-variable using these bounds may result in normalized va
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.heating_demand">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">heating_demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.heating_demand" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">heating_demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.heating_demand" title="Permalink to this definition"></a></dt>
 <dd><p>Space heating demand to be met by <cite>heating_device</cite> and/or <cite>heating_storage</cite> time series, in [kWh].</p>
 </dd></dl>
 
@@ -435,7 +435,7 @@ scaling this observation-variable using these bounds may result in normalized va
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.heating_electricity_consumption">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">heating_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.heating_electricity_consumption" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">heating_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.heating_electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p><cite>heating_device</cite> net electricity consumption in meeting domestic hot water and <cite>heating_stoage</cite> energy demand time series, in [kWh].</p>
 <p>Positive values indicate <cite>heating_device</cite> electricity consumption to charge <cite>heating_storage</cite> and/or meet <cite>heating_demand</cite> while negative values indicate avoided <cite>heating_device</cite>
 electricity consumption by discharging <cite>heating_storage</cite> to meet <cite>heating_demand</cite>.</p>
@@ -449,7 +449,7 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.heating_storage_electricity_consumption">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">heating_storage_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.heating_storage_electricity_consumption" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">heating_storage_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.heating_storage_electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p><cite>heating_storage</cite> net electricity consumption time series, in [kWh].</p>
 <p>Positive values indicate <cite>heating_device</cite> electricity consumption to charge <cite>heating_storage</cite> while negative values indicate avoided <cite>heating_device</cite>
 electricity consumption by discharging <cite>heating_storage</cite> to meet <cite>heating_demand</cite>.</p>
@@ -463,7 +463,7 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p>net electricity consumption time series, in [kWh].</p>
 <p class="rubric">Notes</p>
 <p>net_electricity_consumption = <cite>cooling_electricity_consumption</cite> + <cite>heating_electricity_consumption</cite> + <cite>dhw_electricity_consumption</cite> + <cite>electrical_storage_electricity_consumption</cite> + <cite>non_shiftable_load_demand</cite> + <cite>solar_generation</cite></p>
@@ -471,19 +471,19 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_emission">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_emission" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_emission" title="Permalink to this definition"></a></dt>
 <dd><p>Carbon dioxide emmission from <cite>net_electricity_consumption</cite> time series, in [kg_co2].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_price">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_price" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_price" title="Permalink to this definition"></a></dt>
 <dd><p><cite>net_electricity_consumption</cite> cost time series, in [$].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage" title="Permalink to this definition"></a></dt>
 <dd><p>net electricity consumption in the absence of flexibility provided by storage devices time series, in [kWh].</p>
 <p class="rubric">Notes</p>
 <p>net_electricity_consumption_without_storage = <cite>net_electricity_consumption</cite> - (<cite>cooling_storage_electricity_consumption</cite> + <cite>heating_storage_electricity_consumption</cite> + <cite>dhw_storage_electricity_consumption</cite> + <cite>electrical_storage_electricity_consumption</cite>)</p>
@@ -491,7 +491,7 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_and_pv">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_and_pv" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_and_pv" title="Permalink to this definition"></a></dt>
 <dd><p>Net electricity consumption in the absence of flexibility provided by <cite>cooling_storage</cite> and self generation time series, in [kWh].</p>
 <p class="rubric">Notes</p>
 <p>net_electricity_consumption_without_storage_and_pv = <cite>net_electricity_consumption_without_storage</cite> - <cite>solar_generation</cite></p>
@@ -499,25 +499,25 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_and_pv_emission">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_and_pv_emission" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_and_pv_emission" title="Permalink to this definition"></a></dt>
 <dd><p>Carbon dioxide emmission from <cite>net_electricity_consumption_without_storage_and_pv</cite> time series, in [kg_co2].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_and_pv_price">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_and_pv_price" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_and_pv_price" title="Permalink to this definition"></a></dt>
 <dd><p>net_electricity_consumption_without_storage_and_pv` cost time series, in [$].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_emission">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_emission" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_emission" title="Permalink to this definition"></a></dt>
 <dd><p>Carbon dioxide emmission from <cite>net_electricity_consumption_without_storage</cite> time series, in [kg_co2].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_price">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_price" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_price" title="Permalink to this definition"></a></dt>
 <dd><p><cite>net_electricity_consumption_without_storage</cite> cost time series, in [$].</p>
 </dd></dl>
 
@@ -529,7 +529,7 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.non_shiftable_load_demand">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_shiftable_load_demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.non_shiftable_load_demand" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_shiftable_load_demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.non_shiftable_load_demand" title="Permalink to this definition"></a></dt>
 <dd><p>Electricity load that must be met by the grid, or <cite>PV</cite> and/or <cite>electrical_storage</cite> if available time series, in [kWh].</p>
 </dd></dl>
 
@@ -588,7 +588,7 @@ and <cite>Normalize</cite> for observations with known mnimum and maximum bounda
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.solar_generation">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">solar_generation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.solar_generation" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">solar_generation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.solar_generation" title="Permalink to this definition"></a></dt>
 <dd><p><cite>PV</cite> solar generation (negative value) time series, in [kWh].</p>
 </dd></dl>
 
