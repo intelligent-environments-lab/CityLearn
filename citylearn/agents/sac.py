@@ -192,14 +192,13 @@ class SAC(RLC):
                 R = np.array([j[2] for j in self.__replay_buffer.buffer], dtype = float)
                 self.__r_norm_mean = np.nanmean(R, dtype = float)
                 self.__r_norm_std = np.nanstd(R, dtype = float)/self.reward_scaling + 1e-5
-                new_buffer = [(
+                self.__replay_buffer.buffer = [(
                     np.hstack((np.array(self.__get_normalized_observations(observations), dtype = float)).reshape(1,-1)[0]),
                     actions,
                     self.__get_normalized_reward(reward),
                     np.hstack((np.array(self.__get_normalized_observations(next_observations), dtype = float)).reshape(1,-1)[0]),
                     done
                 ) for observations, actions, reward, next_observations, done in self.__replay_buffer.buffer]
-                self.__replay_buffer.buffer = new_buffer
                 self.__normalized = True
             else:
                 pass
@@ -252,7 +251,7 @@ class SAC(RLC):
                     target_param.data.copy_(target_param.data*(1.0 - self.tau) + param.data*self.tau)
 
                 for target_param, param in zip(self.__target_soft_q_net2.parameters(), self.__soft_q_net2.parameters()):
-                    target_param.data.copy_(target_param.data*(1.0 - self.tau) + param.data * self.tau)
+                    target_param.data.copy_(target_param.data*(1.0 - self.tau) + param.data*self.tau)
 
         else:
             pass
@@ -329,7 +328,7 @@ class SAC(RLC):
         self.__soft_q_optimizer1 = optim.Adam(self.__soft_q_net1.parameters(), lr = self.lr)
         self.__soft_q_optimizer2 = optim.Adam(self.__soft_q_net2.parameters(), lr = self.lr)
         self.__policy_optimizer = optim.Adam(self.__policy_net.parameters(), lr = self.lr)
-        self.__target_entropy = -np.prod(self.action_dimension).item()
+        self.__target_entropy = -np.prod(self.action_space.shape).item()
 
 class SACRBC(SAC):
     def __init__(self, *args, **kwargs):
