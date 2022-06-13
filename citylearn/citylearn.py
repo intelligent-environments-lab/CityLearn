@@ -612,8 +612,10 @@ class CityLearnEnv(Environment, Env):
         """
 
         if not isinstance(self.schema, dict):
+            root_directory = os.path.split(self.schema)[0]
             self.schema = read_json(self.schema)
-            self.schema['root_directory'] = os.path.split(self.schema) if self.schema['root_directory'] is None else self.schema['root_directory']
+            # self.schema['root_directory'] = os.path.split(self.schema) if self.schema['root_directory'] is None else self.schema['root_directory'] # This feels completely wrong?
+            self.schema['root_directory'] = root_directory
         else:
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
 
