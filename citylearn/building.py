@@ -69,6 +69,7 @@ class Building(Environment):
         self.pv = pv
         self.observation_metadata = observation_metadata
         self.action_metadata = action_metadata
+        self.__epsilon = 1.0 # to avoid out of bound observations
         self.observation_space = self.estimate_observation_space()
         self.action_space = self.estimate_action_space()
         super().__init__(**kwargs)
@@ -734,25 +735,31 @@ class Building(Environment):
 
         for key in self.active_observations:
             if key == 'net_electricity_consumption':
-                low_limit.append(0.0)
                 net_electric_consumption = self.energy_simulation.non_shiftable_load\
-                    + (self.energy_simulation.dhw_demand/0.8)\
+                    + (self.energy_simulation.dhw_demand)\
                         + self.energy_simulation.cooling_demand\
                             + self.energy_simulation.heating_demand\
                                 + (self.dhw_storage.capacity/0.8)\
-                                    + (self.cooling_storage.capacity/2.0)\
-                                        + (self.heating_storage.capacity/2.0)\
-                                            - data['solar_generation']
-                high_limit.append(max(net_electric_consumption))
+                                    + (self.cooling_storage.capacity/0.8)\
+                                        + (self.heating_storage.capacity/0.8)\
+                                            + (self.electrical_storage.capacity/0.8)\
+                                                - data['solar_generation']
+    
+                low_limit.append(-max(abs(net_electric_consumption)))
+                high_limit.append(max(abs(net_electric_consumption)))
 
             elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc']:
                 low_limit.append(0.0)
-                high_limit.append(1.0)
+                storage_key = '_'.join(key.split('_')[0:-1])
+                capacity = vars(self)[f'_{self.__class__.__name__}__{storage_key}'].capacity
+                high_limit.append(capacity)
 
             else:
                 low_limit.append(min(data[key]))
                 high_limit.append(max(data[key]))
 
+        low_limit = [v - self.__epsilon for v in low_limit]
+        high_limit = [v + self.__epsilon for v in high_limit]
         return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
     
     def estimate_action_space(self) -> spaces.Box:
@@ -791,7 +798,9 @@ class Building(Environment):
                 except ZeroDivisionError:
                     low_limit.append(-1.0)
                     high_limit.append(1.0)
-                    
+
+        low_limit = [v - self.__epsilon for v in low_limit]
+        high_limit = [v + self.__epsilon for v in high_limit]  
         return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
 
     def autosize_cooling_device(self, **kwargs):
