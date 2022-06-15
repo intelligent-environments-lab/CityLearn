@@ -96,6 +96,7 @@ class Simulator:
                         continue
 
                 observations_list = [o for o in next_observations_list]
+                self.citylearn_env.render()
 
                 logging.debug(
                     f'Timestep: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1},'\
