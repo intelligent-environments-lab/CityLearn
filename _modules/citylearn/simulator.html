@@ -165,6 +165,7 @@
                         <span class="k">continue</span>
 
                 <span class="n">observations_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">next_observations_list</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
 
                 <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s1">&#39;Timestep: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_step</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="si">}</span><span class="s1">,&#39;</span>\

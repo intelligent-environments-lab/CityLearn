@@ -77,6 +77,7 @@
 <span class="kn">from</span> <span class="nn">citylearn.agents.base</span> <span class="kn">import</span> <span class="n">Agent</span>
 <span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span>
 <span class="kn">from</span> <span class="nn">citylearn.building</span> <span class="kn">import</span> <span class="n">Building</span>
+<span class="kn">from</span> <span class="nn">citylearn.cost_function</span> <span class="kn">import</span> <span class="n">CostFunction</span>
 <span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">Weather</span>
 <span class="kn">from</span> <span class="nn">citylearn.preprocessing</span> <span class="kn">import</span> <span class="n">Encoder</span>
 <span class="kn">from</span> <span class="nn">citylearn.reward_function</span> <span class="kn">import</span> <span class="n">RewardFunction</span>
@@ -607,6 +608,42 @@
                     <span class="k">continue</span>
         
         <span class="k">return</span> <span class="n">building_info</span></div>
+
+<div class="viewcode-block" id="CityLearnEnv.render"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Only applies to the CityLearn Challenge 2022 setup.&quot;&quot;&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;reward&#39;</span><span class="p">:{</span>
+                <span class="s1">&#39;cumulative&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">),</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="c1"># rewards rolling sum</span>
+                <span class="s1">&#39;average&#39;</span><span class="p">:</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="c1"># average reward per time step</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;cost&#39;</span><span class="p">:{</span>
+                <span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span><span class="n">CostFunction</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">),</span>
+                <span class="s1">&#39;carbon_emissions&#39;</span><span class="p">:</span><span class="n">CostFunction</span><span class="o">.</span><span class="n">carbon_emissions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">),</span>
+                <span class="s1">&#39;price&#39;</span><span class="p">:</span><span class="n">CostFunction</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_price</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;building&#39;</span><span class="p">:[]</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;building&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="c1"># building name</span>
+                <span class="s1">&#39;connection&#39;</span><span class="p">:{</span>
+                    <span class="s1">&#39;electrical_storage&#39;</span><span class="p">:</span><span class="n">b</span><span class="o">.</span><span class="n">electrical_storage_electricity_consumption</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="c1"># if (-) flow left, else right</span>
+                    <span class="s1">&#39;pv&#39;</span><span class="p">:</span><span class="nb">abs</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">solar_generation</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]),</span> <span class="c1"># unidirectional</span>
+                    <span class="s1">&#39;grid&#39;</span><span class="p">:</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="c1"># if (-) flow down, else up</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;graph&#39;</span><span class="p">:{</span>
+                    <span class="s1">&#39;bar&#39;</span><span class="p">:{</span>
+                        <span class="s1">&#39;electrical_storage_soc&#39;</span><span class="p">:</span><span class="n">b</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">b</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">capacity_history</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="p">},</span>
+                    <span class="s1">&#39;line&#39;</span><span class="p">:{</span>
+                        <span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:],</span>
+                        <span class="s1">&#39;net_electricity_consumption_without_storage&#39;</span><span class="p">:</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:],</span>
+                        <span class="s1">&#39;net_electricity_consumption_without_storage_and_pv&#39;</span><span class="p">:</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_pv</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:],</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">})</span></div>
 
 <div class="viewcode-block" id="CityLearnEnv.next_time_step"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.next_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Advance all buildings to next `time_step`.&quot;&quot;&quot;</span>
