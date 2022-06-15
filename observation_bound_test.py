@@ -1,4 +1,3 @@
-    
 from citylearn.citylearn import CityLearnEnv
     
 schema_path = '/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/data/cc2022_d1/schema.json'
