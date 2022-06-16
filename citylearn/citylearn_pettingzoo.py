@@ -107,13 +107,13 @@ class CityLearnPettingZooEnv(ParallelEnv):
         all_obs, all_rew, done, all_info = self.citylearnenv.step(actions_list)
 
         # rewards for all agents are placed in the rewards dictionary to be returned
-        rewards = {a: all_rew[0] for a in self.agents}  # TODO: There should be array of rewards returned by base env
+        rewards = {a: r for a, r in zip(self.agents, all_rew)}
 
         self.num_moves += 1
         dones = {agent: done for agent in self.agents}
 
         observations = {agent: all_obs[i] for i, agent in enumerate(self.agents) }
-        infos = {agent: all_info for i, agent in enumerate(self.agents) }
+        infos = {agent: all_info for agent in self.agents}
 
         if done:
             self.agents = [] # Required feature in pettingzoo
@@ -138,8 +138,8 @@ def main():
             agent_action = random_policy(None, agent_id)
             citylearn_env.step(agent_action)
 
-        observations, rewards, dones, infos = citylearn_env.last()
-        done = (len(citylearn_env.agents) == 0)
+        observations, rewards, done, infos = citylearn_env.last()
+
         tsteps += 1
         if tsteps % 50 == 0:
             print(f"Timesteps: {tsteps}")
