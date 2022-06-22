@@ -1,10 +1,10 @@
 {
   "root_directory": "/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/data/cc2020_d2",
   "central_agent": false,
-  "simulation_start_timestep": 0,
-  "simulation_end_timestep": 8760,
+  "simulation_start_time_step": 0,
+  "simulation_end_time_step": 8760,
   "episodes": 1,
-  "hour_per_timestep": 1,
+  "seconds_per_time_step": 3600.0,
   "observations": {
     "month": {
       "active": true,
@@ -162,7 +162,7 @@
     }
   },
   "agent": {
-    "type": "citylearn.agents.sac.SAC",
+    "type": "citylearn.agents.rlc.SAC",
     "attributes": {
       "hidden_dimension": [
         256,

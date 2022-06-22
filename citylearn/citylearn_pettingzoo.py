@@ -142,9 +142,9 @@ def main():
         done = (len(citylearn_env.agents) == 0)
         tsteps += 1
         if tsteps % 50 == 0:
-            print(f"Timesteps: {tsteps}")
+            print(f"Time steps: {tsteps}")
     
-    print(f"Episode completed in {tsteps} timesteps")
+    print(f"Episode completed in {tsteps} time steps")
 
 if __name__ == '__main__':
     main()

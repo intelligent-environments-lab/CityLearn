@@ -31,7 +31,8 @@ class CityLearnEnv(Environment, Env):
 
         self.schema = schema
         self.__rewards = None
-        self.buildings, self.time_steps, self.reward_function, self.central_agent, self.shared_observations = self.__load()
+        self.buildings, self.time_steps, self.seconds_per_time_step,\
+            self.reward_function, self.central_agent, self.shared_observations = self.__load()
         super().__init__(**kwargs)
 
     @property
@@ -626,7 +627,7 @@ class CityLearnEnv(Environment, Env):
         agents = [agent_constructor(**agent_attribute) for agent_attribute in agent_attributes]
         return agents
 
-    def __load(self) -> Tuple[List[Building], int, RewardFunction, bool, List[str]]:
+    def __load(self) -> Tuple[List[Building], int, float, RewardFunction, bool, List[str]]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
 
         Parameters
@@ -640,6 +641,8 @@ class CityLearnEnv(Environment, Env):
             Buildings in CityLearn environment.
         time_steps : int
             Number of simulation time steps.
+        seconds_per_time_step: float
+            Number of seconds in 1 `time_step` and must be set to >= 1.
         reward_function : RewardFunction
             Reward function class instance.
         central_agent : bool, optional
@@ -660,28 +663,29 @@ class CityLearnEnv(Environment, Env):
         observations = {s: v for s, v in self.schema['observations'].items() if v['active']}
         actions = {a: v for a, v in self.schema['actions'].items() if v['active']}
         shared_observations = [k for k, v in observations.items() if v['shared_in_central_agent']]
-        simulation_start_timestep = self.schema['simulation_start_timestep']
-        simulation_end_timestep = self.schema['simulation_end_timestep']
-        time_steps = (simulation_end_timestep - simulation_start_timestep) + 1
+        simulation_start_time_step = self.schema['simulation_start_time_step']
+        simulation_end_time_step = self.schema['simulation_end_time_step']
+        time_steps = (simulation_end_time_step - simulation_start_time_step) + 1
+        seconds_per_time_step = self.schema['seconds_per_time_step']
         buildings = ()
         
         for building_name, building_schema in self.schema['buildings'].items():
             if building_schema['include']:
                 # data
-                energy_simulation = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['energy_simulation'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
+                energy_simulation = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['energy_simulation'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
                 energy_simulation = EnergySimulation(*energy_simulation.values.T)
-                weather = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['weather'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
+                weather = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['weather'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
                 weather = Weather(*weather.values.T)
 
                 if building_schema.get('carbon_intensity', None) is not None:
-                    carbon_intensity = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['carbon_intensity'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
+                    carbon_intensity = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['carbon_intensity'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
                     carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
                     carbon_intensity = CarbonIntensity(carbon_intensity)
                 else:
                     carbon_intensity = None
 
                 if building_schema.get('pricing', None) is not None:
-                    pricing = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['pricing'])).iloc[simulation_start_timestep:simulation_end_timestep + 1].copy()
+                    pricing = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['pricing'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
                     pricing = Pricing(*pricing.values.T)
                 else:
                     pricing = None
@@ -693,7 +697,7 @@ class CityLearnEnv(Environment, Env):
                 action_metadata = {a: False if a in inactive_actions else True for a in actions}
 
                 # construct building
-                building = Building(energy_simulation, weather, observation_metadata, action_metadata, carbon_intensity=carbon_intensity, pricing=pricing, name=building_name)
+                building = Building(energy_simulation, weather, observation_metadata, action_metadata, carbon_intensity=carbon_intensity, pricing=pricing, name=building_name, seconds_per_time_step=seconds_per_time_step)
 
                 # update devices
                 device_metadata = {
@@ -716,6 +720,7 @@ class CityLearnEnv(Environment, Env):
                         device_name = device_type.split('.')[-1]
                         constructor = getattr(importlib.import_module(device_module),device_name)
                         attributes = building_schema[name].get('attributes',{})
+                        attributes['seconds_per_time_step'] = seconds_per_time_step
                         device = constructor(**attributes)
                         autosize = False if building_schema[name].get('autosize', None) is None else building_schema[name]['autosize']
                         building.__setattr__(name, device)
@@ -741,4 +746,4 @@ class CityLearnEnv(Environment, Env):
         agent_count = 1 if central_agent else len(buildings)
         reward_function = reward_function_constructor(agent_count=agent_count)
 
-        return buildings, time_steps, reward_function, central_agent, shared_observations
+        return buildings, time_steps, seconds_per_time_step, reward_function, central_agent, shared_observations

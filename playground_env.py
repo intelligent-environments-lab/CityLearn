@@ -13,5 +13,5 @@ if __name__ == '__main__':
         all_obs, all_rew, done, all_info = env.step(actions)
         tsteps += 1
         if tsteps % 50 == 0:
-            print(f"Timesteps: {tsteps}")
-    print(f"Episode completed in {tsteps} timesteps")
+            print(f"Time steps: {tsteps}")
+    print(f"Episode completed in {tsteps} time steps")

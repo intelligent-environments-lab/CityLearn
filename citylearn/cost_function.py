@@ -7,7 +7,7 @@ class CostFunction:
 
     @staticmethod
     def ramping(net_electricity_consumption: List[float]) -> List[float]:
-        r"""Rolling sum of absolute difference in net electric consumption between consecutive timesteps.
+        r"""Rolling sum of absolute difference in net electric consumption between consecutive time steps.
 
         Parameters
         ----------

@@ -21,5 +21,5 @@ while not done:
             assert False
     tsteps += 1
     if tsteps % 50 == 0:
-        print(f"Timesteps: {tsteps}")
-print(f"Episode completed in {tsteps} timesteps")
+        print(f"Time steps: {tsteps}")
+print(f"Episode completed in {tsteps} time steps")

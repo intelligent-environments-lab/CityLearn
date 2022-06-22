@@ -72,7 +72,7 @@ class Simulator:
             observations_list = self.citylearn_env.reset()
 
             while not self.citylearn_env.done:
-                # logging.debug(f'Timestep: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1}, Episode: {episode}')
+                # logging.debug(f'Time step: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1}, Episode: {episode}')
                 actions_list = []
 
                 # select actions
@@ -99,7 +99,7 @@ class Simulator:
                 self.citylearn_env.render()
 
                 logging.debug(
-                    f'Timestep: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1},'\
+                    f'Time step: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1},'\
                         f' Episode: {episode}/{self.episodes - 1},'\
                             f' Actions: {actions_list},'\
                                 f' Rewards: {reward_list}'

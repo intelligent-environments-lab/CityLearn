@@ -1,16 +1,16 @@
 import uuid
 
 class Environment:
-    def __init__(self, seconds_per_timestep: float = None):
+    def __init__(self, seconds_per_time_step: float = None):
         """Initialize `Environment`.
 
         Attributes
         ----------
-        seconds_per_timestep: float, default: 3600.0
+        seconds_per_time_step: float, default: 3600.0
            Number of seconds in 1 `time_step` and must be set to >= 1.
         """
 
-        self.seconds_per_time_step = seconds_per_timestep
+        self.seconds_per_time_step = seconds_per_time_step
         self.__uid = uuid.uuid4().hex
         self.__time_step = None
         self.reset()
