@@ -70,16 +70,16 @@
 <span></span><span class="kn">import</span> <span class="nn">uuid</span>
 
 <div class="viewcode-block" id="Environment"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment">[docs]</a><span class="k">class</span> <span class="nc">Environment</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds_per_timestep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize `Environment`.</span>
 
 <span class="sd">        Attributes</span>
 <span class="sd">        ----------</span>
-<span class="sd">        seconds_per_timestep: float, default: 3600.0</span>
+<span class="sd">        seconds_per_time_step: float, default: 3600.0</span>
 <span class="sd">           Number of seconds in 1 `time_step` and must be set to &gt;= 1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">seconds_per_time_step</span> <span class="o">=</span> <span class="n">seconds_per_timestep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seconds_per_time_step</span> <span class="o">=</span> <span class="n">seconds_per_time_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__uid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__time_step</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
