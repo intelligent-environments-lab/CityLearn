@@ -150,7 +150,7 @@ class CarbonIntensity:
     Attributes
     ----------
     carbon_intensity : np.array
-        Emission rate time series in [kg_co2/kWh].
+        Grid carbon emission rate time series in [kg_co2/kWh].
     """
 
     def __init__(self, carbon_intensity: Iterable[float]):
