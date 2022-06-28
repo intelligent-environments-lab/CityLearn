@@ -1,5 +1,5 @@
 {
-  "root_directory": "/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/data/cc2020_d1",
+  "root_directory": null,
   "central_agent": false,
   "simulation_start_time_step": 0,
   "simulation_end_time_step": 8760,
