@@ -78,7 +78,7 @@
 <span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span>
 <span class="kn">from</span> <span class="nn">citylearn.building</span> <span class="kn">import</span> <span class="n">Building</span>
 <span class="kn">from</span> <span class="nn">citylearn.cost_function</span> <span class="kn">import</span> <span class="n">CostFunction</span>
-<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">Weather</span>
+<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span><span class="p">,</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">Weather</span>
 <span class="kn">from</span> <span class="nn">citylearn.preprocessing</span> <span class="kn">import</span> <span class="n">Encoder</span>
 <span class="kn">from</span> <span class="nn">citylearn.reward_function</span> <span class="kn">import</span> <span class="n">RewardFunction</span>
 <span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
@@ -90,7 +90,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        schema: Union[str, Path, Mapping[str, Any]]</span>
-<span class="sd">            Filepath to JSON representation or `dict` object of CityLearn schema.</span>
+<span class="sd">            Name of CityLearn data set, filepath to JSON representation or `dict` object of a CityLearn schema.</span>
+<span class="sd">            Call :meth:`citylearn.data.DataSet.get_names()` for list of available CityLearn data sets.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -646,6 +647,16 @@
                 <span class="p">}</span>
             <span class="p">})</span></div>
 
+<div class="viewcode-block" id="CityLearnEnv.evaluate"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Only applies to the CityLearn Challenge 2022 setup.&quot;&quot;&quot;</span>
+        
+        <span class="n">price_cost</span> <span class="o">=</span> <span class="n">CostFunction</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_price</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span>\
+            <span class="n">CostFunction</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_price</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">emission_cost</span> <span class="o">=</span> <span class="n">CostFunction</span><span class="o">.</span><span class="n">carbon_emissions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span>\
+            <span class="n">CostFunction</span><span class="o">.</span><span class="n">carbon_emissions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_emission</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">price_cost</span><span class="p">,</span> <span class="n">emission_cost</span></div>
+
 <div class="viewcode-block" id="CityLearnEnv.next_time_step"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.next_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Advance all buildings to next `time_step`.&quot;&quot;&quot;</span>
 
@@ -720,14 +731,16 @@
 <span class="sd">            Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">root_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="ow">in</span> <span class="n">DataSet</span><span class="o">.</span><span class="n">get_names</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">DataSet</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span>
-            <span class="c1"># self.schema[&#39;root_directory&#39;] = os.path.split(self.schema) if self.schema[&#39;root_directory&#39;] is None else self.schema[&#39;root_directory&#39;] # This feels completely wrong?</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_directory</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="n">UnknownSchemaError</span><span class="p">()</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span>
         <span class="n">central_agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;central_agent&#39;</span><span class="p">]</span>
         <span class="n">observations</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;observations&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]}</span>
         <span class="n">actions</span> <span class="o">=</span> <span class="p">{</span><span class="n">a</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;actions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]}</span>
@@ -816,6 +829,18 @@
         <span class="n">reward_function</span> <span class="o">=</span> <span class="n">reward_function_constructor</span><span class="p">(</span><span class="n">agent_count</span><span class="o">=</span><span class="n">agent_count</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">,</span> <span class="n">central_agent</span><span class="p">,</span> <span class="n">shared_observations</span></div>
+
+<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for other exceptions.&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="UnknownSchemaError"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.UnknownSchemaError">[docs]</a><span class="k">class</span> <span class="nc">UnknownSchemaError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised when a schema is not a data set name, dict nor filepath.&quot;&quot;&quot;</span>
+    <span class="n">__MESSAGE</span> <span class="o">=</span> <span class="s1">&#39;Unknown schema parsed into constructor. Schema must be name of CityLearn data set,&#39;</span>\
+        <span class="s1">&#39; a filepath to JSON representation or `dict` object of a CityLearn schema.&#39;</span>\
+        <span class="s1">&#39; Call citylearn.data.DataSet.get_names() for list of available CityLearn data sets.&#39;</span>
+  
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__MESSAGE</span> <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">message</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
