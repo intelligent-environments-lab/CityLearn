@@ -9,7 +9,7 @@ from citylearn.agents.base import Agent
 from citylearn.base import Environment
 from citylearn.building import Building
 from citylearn.cost_function import CostFunction
-from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
+from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.preprocessing import Encoder
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
@@ -21,7 +21,8 @@ class CityLearnEnv(Environment, Env):
         Parameters
         ----------
         schema: Union[str, Path, Mapping[str, Any]]
-            Filepath to JSON representation or `dict` object of CityLearn schema.
+            Name of CityLearn data set, filepath to JSON representation or `dict` object of a CityLearn schema.
+            Call :meth:`citylearn.data.DataSet.get_names()` for list of available CityLearn data sets.
 
         Other Parameters
         ----------------
@@ -577,6 +578,16 @@ class CityLearnEnv(Environment, Env):
                 }
             })
 
+    def evaluate(self):
+        """Only applies to the CityLearn Challenge 2022 setup."""
+        
+        price_cost = CostFunction.price(self.net_electricity_consumption_price)[-1]/\
+            CostFunction.price(self.net_electricity_consumption_without_storage_price)[-1]
+        emission_cost = CostFunction.carbon_emissions(self.net_electricity_consumption_emission)[-1]/\
+            CostFunction.carbon_emissions(self.net_electricity_consumption_without_storage_emission)[-1]
+
+        return price_cost, emission_cost
+
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
 
@@ -651,14 +662,16 @@ class CityLearnEnv(Environment, Env):
             Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
         """
 
-        if not isinstance(self.schema, dict):
-            root_directory = os.path.split(self.schema)[0]
+        if isinstance(self.schema, str) and self.schema in DataSet.get_names():
+            self.schema = DataSet.get_schema(self.schema)
+        elif os.path.isfile(self.schema):
             self.schema = read_json(self.schema)
-            # self.schema['root_directory'] = os.path.split(self.schema) if self.schema['root_directory'] is None else self.schema['root_directory'] # This feels completely wrong?
-            self.schema['root_directory'] = root_directory
+        elif isinstance(self.schema, dict):
+            pass
         else:
-            self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
+            raise UnknownSchemaError()
 
+        self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
         central_agent = self.schema['central_agent']
         observations = {s: v for s, v in self.schema['observations'].items() if v['active']}
         actions = {a: v for a, v in self.schema['actions'].items() if v['active']}
@@ -747,3 +760,15 @@ class CityLearnEnv(Environment, Env):
         reward_function = reward_function_constructor(agent_count=agent_count)
 
         return buildings, time_steps, seconds_per_time_step, reward_function, central_agent, shared_observations
+
+class Error(Exception):
+    """Base class for other exceptions."""
+
+class UnknownSchemaError(Error):
+    """Raised when a schema is not a data set name, dict nor filepath."""
+    __MESSAGE = 'Unknown schema parsed into constructor. Schema must be name of CityLearn data set,'\
+        ' a filepath to JSON representation or `dict` object of a CityLearn schema.'\
+        ' Call citylearn.data.DataSet.get_names() for list of available CityLearn data sets.'
+  
+    def __init__(self,message=None):
+        super().__init__(self.__MESSAGE if message is None else message)
