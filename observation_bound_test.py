@@ -1,7 +1,7 @@
 from citylearn.citylearn import CityLearnEnv
     
-schema_path = '/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/data/cc2022_d1/schema.json'
-env = CityLearnEnv(schema=schema_path)
+schema = 'citylearn_challenge_2022_phase_1'
+env = CityLearnEnv(schema=schema)
 print("Citylearn environment created")
 all_obs = env.reset()
 num_buildings = len(env.buildings)

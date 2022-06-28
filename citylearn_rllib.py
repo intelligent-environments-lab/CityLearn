@@ -7,8 +7,8 @@ from citylearn.citylearn_pettingzoo import make_citylearn_env
 
 if __name__ == "__main__":
     def env_creator(args):
-        schema_path = '/home/dipam/aicrowd/citylearn/cc2022_d1/schema.json'
-        return PettingZooEnv(make_citylearn_env(schema_path))
+        schema = 'citylearn_challenge_2022_phase_1'
+        return PettingZooEnv(make_citylearn_env(schema))
 
     env = env_creator({})
     register_env("citylearn", env_creator)
