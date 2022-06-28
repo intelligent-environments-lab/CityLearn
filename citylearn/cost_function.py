@@ -201,7 +201,7 @@ class CostFunction:
         [100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]
         """
 
-        data = pd.DataFrame({'price':price})
+        data = pd.DataFrame({'price':np.array(price).clip(min=0)})
         data['price'] = data['price'].rolling(window=data.shape[0],min_periods=1).sum()
         return data['price'].tolist()
 
