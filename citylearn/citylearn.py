@@ -580,7 +580,7 @@ class CityLearnEnv(Environment, Env):
 
     def evaluate(self):
         """Only applies to the CityLearn Challenge 2022 setup."""
-        
+
         price_cost = CostFunction.price(self.net_electricity_consumption_price)[-1]/\
             CostFunction.price(self.net_electricity_consumption_without_storage_price)[-1]
         emission_cost = CostFunction.carbon_emissions(self.net_electricity_consumption_emission)[-1]/\
@@ -640,11 +640,6 @@ class CityLearnEnv(Environment, Env):
 
     def __load(self) -> Tuple[List[Building], int, float, RewardFunction, bool, List[str]]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
-
-        Parameters
-        ----------
-        schema: Union[str, Path, Mapping[str, Any]]
-            Filepath to JSON representation or `dict` object of CityLearn schema.
         
         Returns
         -------

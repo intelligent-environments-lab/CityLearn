@@ -386,14 +386,14 @@ class ElectricHeater(ElectricDevice):
         safety_factor = 1.0 if safety_factor is None else safety_factor
         self.nominal_power = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
 
-class PV(Device):
-    def __init__(self, capacity: float, **kwargs):
+class PV(ElectricDevice):
+    def __init__(self, nominal_power: float, **kwargs):
         r"""Initialize `PV`.
 
         Parameters
         ----------
-        capacity : float
-            PV array capacity in [kW]. Must be >= 0.
+        nominal_power : float
+            PV array output power in [kW]. Must be >= 0.
 
         Other Parameters
         ----------------
@@ -401,26 +401,15 @@ class PV(Device):
             Other keyword arguments used to initialize super class.
         """
 
-        super().__init__(**kwargs)
-        self.capacity = capacity
+        super().__init__(nominal_power=nominal_power,**kwargs)
 
-    @property
-    def capacity(self) -> float:
-        r"""PV array capacity in [kW]."""
 
-        return self.__capacity
-
-    @capacity.setter
-    def capacity(self, capacity: float):
-        assert capacity >= 0, 'capacity must be >= 0.'
-        self.__capacity = capacity
-
-    def get_generation(self, inverter_ac_power_per_w: Union[float, Iterable[float]]) -> Union[float, Iterable[float]]:
+    def get_generation(self, inverter_ac_power_per_kw: Union[float, Iterable[float]]) -> Union[float, Iterable[float]]:
         r"""Get solar generation output.
 
         Parameters
         ----------
-        inverter_ac_power_per_w : Union[float, Iterable[float]]
+        inverter_ac_power_perk_w : Union[float, Iterable[float]]
             Inverter AC power output per kW of PV capacity in [W/kW].
 
         Returns
@@ -434,27 +423,27 @@ class PV(Device):
             \textrm{generation} = \frac{\textrm{capacity} \times \textrm{inverter_ac_power_per_w}}{1000}
         """
 
-        return self.capacity*np.array(inverter_ac_power_per_w)/1000
+        return self.nominal_power*np.array(inverter_ac_power_per_kw)/1000
 
     def autosize(self, demand: Iterable[float], safety_factor: float = None):
-        r"""Autosize `capacity`.
+        r"""Autosize `nominal_power`.
 
-        Set `capacity` to the minimum capacity needed to always meet `demand`.
+        Set `nominal_power` to the minimum nominal_power needed to always meet `demand`.
 
         Parameters
         ----------
         demand : Union[float, Iterable[float]], optional
             Heating emand in [kWh].
         safety_factor : float, default: 1.0
-            The `capacity` is oversized by factor of `safety_factor`.
+            The `nominal_power` is oversized by factor of `safety_factor`.
 
         Notes
         -----
-        `capacity` = max(demand/`efficiency`)*safety_factor
+        `nominal_power` = max(demand/`efficiency`)*safety_factor
         """
 
         safety_factor = 1.0 if safety_factor is None else safety_factor
-        self.capacity = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
+        self.nominal_power = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
 
 class StorageDevice(Device):
     def __init__(self, capacity: float, efficiency: float = None, loss_coefficient: float = None, initial_soc: float = None, efficiency_scaling: float = None, **kwargs):

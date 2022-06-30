@@ -196,7 +196,7 @@ class Building(Environment):
             'diffuse_solar_irradiance_predicted_12h', 'diffuse_solar_irradiance_predicted_24h',
             'direct_solar_irradiance', 'direct_solar_irradiance_predicted_6h',
             'direct_solar_irradiance_predicted_12h', 'direct_solar_irradiance_predicted_24h',
-        ] if self.pv.capacity == 0 else []
+        ] if self.pv.nominal_power == 0 else []
         demand_observations = {
             'dhw_storage_soc': np.nansum(self.energy_simulation.dhw_demand),
             'cooling_storage_soc': np.nansum(self.energy_simulation.cooling_demand),
@@ -883,7 +883,7 @@ class Building(Environment):
         self.electrical_storage.autosize(self.pv.get_generation(self.energy_simulation.solar_generation), **kwargs)
 
     def autosize_pv(self, **kwargs):
-        """Autosize `PV` `capacity` to minimum capacity needed to store maximum `solar_generation`.
+        """Autosize `PV` `nominal_pwer` to minimum nominal_power needed to output maximum `solar_generation`.
         
         Other Parameters
         ----------------
