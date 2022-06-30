@@ -659,10 +659,10 @@ class CityLearnEnv(Environment, Env):
 
         if isinstance(self.schema, str) and self.schema in DataSet.get_names():
             self.schema = DataSet.get_schema(self.schema)
-        elif os.path.isfile(self.schema):
-            self.schema = read_json(self.schema)
         elif isinstance(self.schema, dict):
             pass
+        elif os.path.isfile(self.schema):
+            self.schema = read_json(self.schema)
         else:
             raise UnknownSchemaError()
 

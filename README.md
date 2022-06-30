@@ -14,7 +14,7 @@ CityLearn allows the easy implementation of reinforcement learning agents in a m
 ## Installation
 Install stable version from PyPi:
 ```console
-pip intstall citylearn
+pip install citylearn
 ```
 
 ## API Documentation
