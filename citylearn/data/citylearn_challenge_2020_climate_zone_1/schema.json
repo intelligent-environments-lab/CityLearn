@@ -1,5 +1,5 @@
 {
-  "root_directory": null,
+  "root_directory": "/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/citylearn/data/citylearn_challenge_2020_climate_zone_1",
   "central_agent": false,
   "simulation_start_time_step": 0,
   "simulation_end_time_step": 8760,
@@ -197,8 +197,8 @@
         "attributes": {
           "nominal_power": null,
           "efficiency": 0.2,
-          "target_cooling_temperature": 8,
-          "target_heating_temperature": 45
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
         }
       },
       "dhw_device": {
@@ -213,7 +213,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 2
+          "safety_factor": 2.0
         },
         "attributes": {
           "capacity": null,
@@ -224,7 +224,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 2
+          "safety_factor": 2.0
         },
         "attributes": {
           "capacity": null,
@@ -235,11 +235,11 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 140,
+          "capacity": 140.0,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0,
-          "nominal_power": 100,
+          "loss_coefficient": 0.0,
+          "nominal_power": 100.0,
           "power_efficiency_curve": [
             [
               0,
@@ -282,7 +282,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "capacity": 120
+          "nominal_power": 120.0
         }
       }
     },
@@ -302,8 +302,8 @@
         "attributes": {
           "nominal_power": null,
           "efficiency": 0.21,
-          "target_cooling_temperature": 9,
-          "target_heating_temperature": 45
+          "target_cooling_temperature": 9.0,
+          "target_heating_temperature": 45.0
         }
       },
       "dhw_device": {
@@ -318,7 +318,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 3
+          "safety_factor": 3.0
         },
         "attributes": {
           "capacity": null,
@@ -329,7 +329,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 3
+          "safety_factor": 3.0
         },
         "attributes": {
           "capacity": null,
@@ -340,11 +340,11 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 80,
+          "capacity": 80.0,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0,
-          "nominal_power": 40,
+          "loss_coefficient": 0.0,
+          "nominal_power": 40.0,
           "power_efficiency_curve": [
             [
               0,
@@ -403,8 +403,8 @@
         "attributes": {
           "nominal_power": null,
           "efficiency": 0.23,
-          "target_cooling_temperature": 8,
-          "target_heating_temperature": 45
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
         }
       },
       "dhw_device": {
@@ -419,7 +419,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 2
+          "safety_factor": 2.0
         },
         "attributes": {
           "capacity": null,
@@ -430,11 +430,11 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 50,
+          "capacity": 50.0,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0,
-          "nominal_power": 20,
+          "loss_coefficient": 0.0,
+          "nominal_power": 20.0,
           "power_efficiency_curve": [
             [
               0,
@@ -492,8 +492,8 @@
         "attributes": {
           "nominal_power": null,
           "efficiency": 0.22,
-          "target_cooling_temperature": 9,
-          "target_heating_temperature": 45
+          "target_cooling_temperature": 9.0,
+          "target_heating_temperature": 45.0
         }
       },
       "dhw_device": {
@@ -519,11 +519,11 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 75,
+          "capacity": 75.0,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0,
-          "nominal_power": 30,
+          "loss_coefficient": 0.0,
+          "nominal_power": 30.0,
           "power_efficiency_curve": [
             [
               0,
@@ -566,7 +566,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "capacity": 40
+          "nominal_power": 40.0
         }
       }
     },
@@ -584,8 +584,8 @@
         "attributes": {
           "nominal_power": null,
           "efficiency": 0.24,
-          "target_cooling_temperature": 8,
-          "target_heating_temperature": 45
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
         }
       },
       "dhw_device": {
@@ -622,11 +622,11 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 50,
+          "capacity": 50.0,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0,
-          "nominal_power": 25,
+          "loss_coefficient": 0.0,
+          "nominal_power": 25.0,
           "power_efficiency_curve": [
             [
               0,
@@ -669,7 +669,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "capacity": 25
+          "nominal_power": 25.0
         }
       }
     },
@@ -687,8 +687,8 @@
         "attributes": {
           "nominal_power": null,
           "efficiency": 0.2,
-          "target_cooling_temperature": 9,
-          "target_heating_temperature": 45
+          "target_cooling_temperature": 9.0,
+          "target_heating_temperature": 45.0
         }
       },
       "dhw_device": {
@@ -714,7 +714,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 3
+          "safety_factor": 3.0
         },
         "attributes": {
           "capacity": null,
@@ -725,11 +725,11 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 30,
+          "capacity": 30.0,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0,
-          "nominal_power": 10,
+          "loss_coefficient": 0.0,
+          "nominal_power": 10.0,
           "power_efficiency_curve": [
             [
               0,
@@ -772,7 +772,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "capacity": 20
+          "nominal_power": 20.0
         }
       }
     },
@@ -792,8 +792,8 @@
         "attributes": {
           "nominal_power": null,
           "efficiency": 0.22,
-          "target_cooling_temperature": 8,
-          "target_heating_temperature": 45
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
         }
       },
       "dhw_device": {
@@ -808,7 +808,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 2
+          "safety_factor": 2.0
         },
         "attributes": {
           "capacity": null,
@@ -819,7 +819,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 2
+          "safety_factor": 2.0
         },
         "attributes": {
           "capacity": null,
@@ -830,11 +830,11 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 40,
+          "capacity": 40.0,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0,
-          "nominal_power": 15,
+          "loss_coefficient": 0.0,
+          "nominal_power": 15.0,
           "power_efficiency_curve": [
             [
               0,
@@ -890,8 +890,8 @@
         "attributes": {
           "nominal_power": null,
           "efficiency": 0.24,
-          "target_cooling_temperature": 9,
-          "target_heating_temperature": 45
+          "target_cooling_temperature": 9.0,
+          "target_heating_temperature": 45.0
         }
       },
       "dhw_device": {
@@ -906,7 +906,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 3
+          "safety_factor": 3.0
         },
         "attributes": {
           "capacity": null,
@@ -917,7 +917,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 3
+          "safety_factor": 3.0
         },
         "attributes": {
           "capacity": null,
@@ -928,11 +928,11 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 30,
+          "capacity": 30.0,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0,
-          "nominal_power": 10,
+          "loss_coefficient": 0.0,
+          "nominal_power": 10.0,
           "power_efficiency_curve": [
             [
               0,
@@ -988,8 +988,8 @@
         "attributes": {
           "nominal_power": null,
           "efficiency": 0.22,
-          "target_cooling_temperature": 8,
-          "target_heating_temperature": 45
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
         }
       },
       "dhw_device": {
@@ -1004,7 +1004,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 3
+          "safety_factor": 3.0
         },
         "attributes": {
           "capacity": null,
@@ -1015,7 +1015,7 @@
         "type": "citylearn.energy_model.StorageTank",
         "autosize": true,
         "autosize_attributes": {
-          "safety_factor": 3
+          "safety_factor": 3.0
         },
         "attributes": {
           "capacity": null,
@@ -1026,11 +1026,11 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 35,
+          "capacity": 35.0,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
-          "loss_coefficient": 0,
-          "nominal_power": 20,
+          "loss_coefficient": 0.0,
+          "nominal_power": 20.0,
           "power_efficiency_curve": [
             [
               0,

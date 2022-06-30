@@ -195,7 +195,7 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 13.5,
+          "capacity": 6.4,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
           "loss_coefficient": 0.0,
@@ -206,7 +206,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "capacity": 4.0
+          "nominal_power": 4.0
         }
       }
     },
@@ -222,7 +222,7 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 13.5,
+          "capacity": 6.4,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
           "loss_coefficient": 0.0,
@@ -233,7 +233,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "capacity": 4.0
+          "nominal_power": 4.0
         }
       }
     },
@@ -249,7 +249,7 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 13.5,
+          "capacity": 6.4,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
           "loss_coefficient": 0.0,
@@ -260,7 +260,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "capacity": 4.0
+          "nominal_power": 4.0
         }
       }
     },
@@ -276,7 +276,7 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 13.5,
+          "capacity": 6.4,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
           "loss_coefficient": 0.0,
@@ -287,7 +287,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "capacity": 5.0
+          "nominal_power": 5.0
         }
       }
     },
@@ -303,7 +303,7 @@
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
-          "capacity": 13.5,
+          "capacity": 6.4,
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
           "loss_coefficient": 0.0,
@@ -314,7 +314,7 @@
         "type": "citylearn.energy_model.PV",
         "autosize": false,
         "attributes": {
-          "capacity": 4.0
+          "nominal_power": 4.0
         }
       }
     }
