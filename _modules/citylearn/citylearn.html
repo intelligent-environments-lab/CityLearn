@@ -649,7 +649,7 @@
 
 <div class="viewcode-block" id="CityLearnEnv.evaluate"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Only applies to the CityLearn Challenge 2022 setup.&quot;&quot;&quot;</span>
-        
+
         <span class="n">price_cost</span> <span class="o">=</span> <span class="n">CostFunction</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_price</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span>\
             <span class="n">CostFunction</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_price</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">emission_cost</span> <span class="o">=</span> <span class="n">CostFunction</span><span class="o">.</span><span class="n">carbon_emissions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span>\
@@ -709,11 +709,6 @@
 
     <span class="k">def</span> <span class="nf">__load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">RewardFunction</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        schema: Union[str, Path, Mapping[str, Any]]</span>
-<span class="sd">            Filepath to JSON representation or `dict` object of CityLearn schema.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>

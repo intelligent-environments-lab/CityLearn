@@ -455,14 +455,14 @@
         <span class="n">safety_factor</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">safety_factor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">safety_factor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">demand</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">)</span><span class="o">*</span><span class="n">safety_factor</span></div></div>
 
-<div class="viewcode-block" id="PV"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV">[docs]</a><span class="k">class</span> <span class="nc">PV</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="PV"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV">[docs]</a><span class="k">class</span> <span class="nc">PV</span><span class="p">(</span><span class="n">ElectricDevice</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `PV`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        capacity : float</span>
-<span class="sd">            PV array capacity in [kW]. Must be &gt;= 0.</span>
+<span class="sd">        nominal_power : float</span>
+<span class="sd">            PV array output power in [kW]. Must be &gt;= 0.</span>
 
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -470,26 +470,15 @@
 <span class="sd">            Other keyword arguments used to initialize super class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">=</span> <span class="n">capacity</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">nominal_power</span><span class="o">=</span><span class="n">nominal_power</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;PV array capacity in [kW].&quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__capacity</span>
-
-    <span class="nd">@capacity</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">capacity</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;capacity must be &gt;= 0.&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__capacity</span> <span class="o">=</span> <span class="n">capacity</span>
-
-<div class="viewcode-block" id="PV.get_generation"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV.get_generation">[docs]</a>    <span class="k">def</span> <span class="nf">get_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inverter_ac_power_per_w</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<div class="viewcode-block" id="PV.get_generation"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV.get_generation">[docs]</a>    <span class="k">def</span> <span class="nf">get_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inverter_ac_power_per_kw</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get solar generation output.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        inverter_ac_power_per_w : Union[float, Iterable[float]]</span>
+<span class="sd">        inverter_ac_power_perk_w : Union[float, Iterable[float]]</span>
 <span class="sd">            Inverter AC power output per kW of PV capacity in [W/kW].</span>
 
 <span class="sd">        Returns</span>
@@ -503,27 +492,27 @@
 <span class="sd">            \textrm{generation} = \frac{\textrm{capacity} \times \textrm{inverter_ac_power_per_w}}{1000}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inverter_ac_power_per_w</span><span class="p">)</span><span class="o">/</span><span class="mi">1000</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inverter_ac_power_per_kw</span><span class="p">)</span><span class="o">/</span><span class="mi">1000</span></div>
 
 <div class="viewcode-block" id="PV.autosize"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV.autosize">[docs]</a>    <span class="k">def</span> <span class="nf">autosize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">safety_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Autosize `capacity`.</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Autosize `nominal_power`.</span>
 
-<span class="sd">        Set `capacity` to the minimum capacity needed to always meet `demand`.</span>
+<span class="sd">        Set `nominal_power` to the minimum nominal_power needed to always meet `demand`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        demand : Union[float, Iterable[float]], optional</span>
 <span class="sd">            Heating emand in [kWh].</span>
 <span class="sd">        safety_factor : float, default: 1.0</span>
-<span class="sd">            The `capacity` is oversized by factor of `safety_factor`.</span>
+<span class="sd">            The `nominal_power` is oversized by factor of `safety_factor`.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        `capacity` = max(demand/`efficiency`)*safety_factor</span>
+<span class="sd">        `nominal_power` = max(demand/`efficiency`)*safety_factor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">safety_factor</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">safety_factor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">safety_factor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">demand</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">)</span><span class="o">*</span><span class="n">safety_factor</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">demand</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">)</span><span class="o">*</span><span class="n">safety_factor</span></div></div>
 
 <div class="viewcode-block" id="StorageDevice"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice">[docs]</a><span class="k">class</span> <span class="nc">StorageDevice</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">loss_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">initial_soc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">efficiency_scaling</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

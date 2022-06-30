@@ -265,7 +265,7 @@
             <span class="s1">&#39;diffuse_solar_irradiance_predicted_12h&#39;</span><span class="p">,</span> <span class="s1">&#39;diffuse_solar_irradiance_predicted_24h&#39;</span><span class="p">,</span>
             <span class="s1">&#39;direct_solar_irradiance&#39;</span><span class="p">,</span> <span class="s1">&#39;direct_solar_irradiance_predicted_6h&#39;</span><span class="p">,</span>
             <span class="s1">&#39;direct_solar_irradiance_predicted_12h&#39;</span><span class="p">,</span> <span class="s1">&#39;direct_solar_irradiance_predicted_24h&#39;</span><span class="p">,</span>
-        <span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pv</span><span class="o">.</span><span class="n">capacity</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pv</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="n">demand_observations</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;dhw_storage_soc&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">dhw_demand</span><span class="p">),</span>
             <span class="s1">&#39;cooling_storage_soc&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">cooling_demand</span><span class="p">),</span>
@@ -952,7 +952,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">autosize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pv</span><span class="o">.</span><span class="n">get_generation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">solar_generation</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Building.autosize_pv"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.autosize_pv">[docs]</a>    <span class="k">def</span> <span class="nf">autosize_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Autosize `PV` `capacity` to minimum capacity needed to store maximum `solar_generation`.</span>
+        <span class="sd">&quot;&quot;&quot;Autosize `PV` `nominal_pwer` to minimum nominal_power needed to output maximum `solar_generation`.</span>
 <span class="sd">        </span>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
