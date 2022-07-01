@@ -47,7 +47,7 @@ class EnergySimulation:
     month : np.array
         Month time series value ranging from 1 - 12.
     hour : np.array
-        Hour time series value ranging from 0 - 23.
+        Hour time series value ranging from 1 - 24.
     day_type : np.array
         Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.
     daylight_savings_status : np.array
