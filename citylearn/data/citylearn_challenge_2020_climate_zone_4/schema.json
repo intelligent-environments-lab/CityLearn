@@ -162,7 +162,7 @@
     }
   },
   "agent": {
-    "type": "citylearn.agents.rlc.SAC",
+    "type": "citylearn.agents.sac.SAC",
     "attributes": {
       "hidden_dimension": [
         256,

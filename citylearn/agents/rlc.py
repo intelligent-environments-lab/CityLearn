@@ -230,5 +230,5 @@ class RLC(Agent):
     @seed.setter
     def seed(self, seed: int):
         self.__seed = 0 if seed is None else seed
-        torch.manual_seed(seed)
-        np.random.seed(seed)
+        torch.manual_seed(self.seed)
+        np.random.seed(self.seed)
