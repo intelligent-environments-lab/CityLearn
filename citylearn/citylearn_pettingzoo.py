@@ -3,7 +3,9 @@ import warnings
 from gym.spaces import Discrete
 from pettingzoo import ParallelEnv
 from pettingzoo.utils import wrappers
-from pettingzoo.utils import parallel_to_aec
+from pettingzoo.utils import parallel_to_aec, aec_to_parallel
+import supersuit
+
 
 from citylearn.citylearn import CityLearnEnv
 
@@ -14,11 +16,11 @@ def make_citylearn_env(schema):
     elsewhere in the developer documentation.
     """
     env = raw_env(schema)
-    # This wrapper is only for environments which print results to the terminal
-    env = wrappers.CaptureStdoutWrapper(env)
-    # Provides a wide vareity of helpful user errors
-    # Strongly recommended
-    env = wrappers.OrderEnforcingWrapper(env)
+    # # This wrapper is only for environments which print results to the terminal
+    # env = wrappers.CaptureStdoutWrapper(env)
+    # # Provides a wide vareity of helpful user errors
+    # # Strongly recommended
+    # env = wrappers.OrderEnforcingWrapper(env)
     return env
 
 
@@ -28,12 +30,14 @@ def raw_env(schema):
     function to convert from a ParallelEnv to an AEC env
     """
     env = CityLearnPettingZooEnv(schema)
-    env = parallel_to_aec(env)
+    # env = supersuit.aec_wrappers.pad_observations(env)
+    # env = aec_to_parallel(env)
+    # env = parallel_to_aec(env)
     return env
 
 
 class CityLearnPettingZooEnv(ParallelEnv):
-    metadata = {"render_modes": []}
+    metadata = {"render_modes": [], "is_parallelizable": True}
 
     def __init__(self, schema):
         """
