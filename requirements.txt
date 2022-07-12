@@ -11,3 +11,4 @@ simplejson==3.17.6
 six==1.15.0
 torch>=1.10.0
 opencv-python==4.6.0.66
+Pillow==9.1.1
