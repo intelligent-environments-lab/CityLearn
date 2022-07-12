@@ -1,11 +1,13 @@
 from PIL import Image, ImageDraw
 import math
 import numpy as np
+import os
 
 def get_background():
     canvas_size = 720
     grid_size = canvas_size//5
-    grid = Image.open('citylearn/assets/grid.png')
+    folder_path = os.path.dirname(__file__)
+    grid = Image.open(os.path.join(folder_path, 'assets/grid.png'))
     grid = grid.resize((grid_size, grid_size))
     grid_coord = canvas_size//2-grid_size//2
 
@@ -41,7 +43,9 @@ class RenderBuilding:
     def read_image(self, charge):
         charge_quartile = int(min(charge*100//25, 3))
 #         assert charge_quartile in range(4)
-        im_name = f'citylearn/assets/building-{self.building_type}-charge-{charge_quartile}.png'
+        folder_path = os.path.dirname(__file__)
+        im_name = f'assets/building-{self.building_type}-charge-{charge_quartile}.png'
+        im_name = os.path.join(folder_path, im_name)
         img = Image.open(im_name)
         img = img.resize((self.building_size, self.building_size))
 #         img = img.rotate(-self.angle) # Looks weird and has cropping issue
@@ -56,7 +60,8 @@ class RenderBuilding:
     
     def read_glow_image(self, energy):
         energy_quartile = int(min(energy*100//25, 3))
-        glow_image = Image.open('citylearn/assets/glow.png')
+        folder_path = os.path.dirname(__file__)
+        glow_image = Image.open(os.path.join(folder_path, 'assets/glow.png'))
         glow_size = int(self.max_glow_size * self.glow_scales[energy_quartile])
         glow_image = glow_image.resize((glow_size, glow_size))
         return glow_image, glow_size

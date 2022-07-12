@@ -642,16 +642,16 @@ class CityLearnEnv(Environment, Env):
         shared_observations : List[str], optional
             Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
         """
-
-        if isinstance(self.schema, str) and self.schema in DataSet.get_names():
+        
+        if os.path.isfile(self.schema):
+            fullpath = os.path.abspath(self.schema)
+            self.schema = read_json(self.schema)
+            self.schema['root_directory'] = fullpath[:fullpath.rindex('/')+1]
+        elif isinstance(self.schema, str) and self.schema in DataSet.get_names():
             self.schema = DataSet.get_schema(self.schema)
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
         elif isinstance(self.schema, dict):
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
-        elif os.path.isfile(self.schema):
-            fullpath = os.path.abspath(self.schema)
-            self.schema = read_json(self.schema)
-            self.schema['root_directory'] = fullpath[:fullpath.rindex('/')+1]
         else:
             raise UnknownSchemaError()
 
