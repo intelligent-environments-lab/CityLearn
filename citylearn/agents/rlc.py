@@ -225,7 +225,9 @@ class RLC(Agent):
 
     @update_per_time_step.setter
     def update_per_time_step(self, update_per_time_step: int):
-        self.__update_per_time_step = 2 if update_per_time_step is None else update_per_time_step
+        update_per_time_step = 2 if update_per_time_step is None else update_per_time_step
+        assert isinstance(update_per_time_step,int), f'update_per_time_step mut be int type. {update_per_time_step} is of {type(update_per_time_step)} type'
+        self.__update_per_time_step = update_per_time_step
 
     @seed.setter
     def seed(self, seed: int):
