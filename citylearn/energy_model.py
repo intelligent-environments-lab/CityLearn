@@ -496,7 +496,7 @@ class StorageDevice(Device):
     def soc(self) -> List[float]:
         r"""State of charge time series in [kWh]."""
 
-        return self.__soc[1:]
+        return self.__soc
 
     @property
     def soc_init(self) -> float:
@@ -520,7 +520,8 @@ class StorageDevice(Device):
 
         # actual energy charged/discharged irrespective of what is determined in the step function after 
         # taking into account storage design limits e.g. maximum power input/output, capacity
-        energy_balance = np.array(self.soc, dtype = float) - np.array(self.__soc[0:-1], dtype = float)*(1 - self.loss_coefficient)
+        energy_balance = np.array(self.soc, dtype = float) -\
+            np.array([self.initial_soc] + self.__soc[0:-1], dtype = float)*(1 - self.loss_coefficient)
         energy_balance[energy_balance >= 0.0] /= self.efficiency
         energy_balance[energy_balance < 0.0] *= self.efficiency
         return energy_balance
@@ -762,7 +763,7 @@ class Battery(ElectricDevice, StorageDevice):
         """
 
         energy_balance = np.array(super().energy_balance, dtype = float)
-        efficiency_history = np.array(self.efficiency_history[1:], dtype = float)
+        efficiency_history = np.array(self.efficiency_history, dtype = float)
         energy_balance[energy_balance >= 0.0] *= self.efficiency/efficiency_history[energy_balance >= 0.0]
         energy_balance[energy_balance < 0.0] /= self.efficiency*efficiency_history[energy_balance < 0.0]
         return energy_balance
