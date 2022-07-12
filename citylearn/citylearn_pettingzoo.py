@@ -1,11 +1,6 @@
 import functools
 import warnings
-from gym.spaces import Discrete
 from pettingzoo import ParallelEnv
-from pettingzoo.utils import wrappers
-from pettingzoo.utils import parallel_to_aec, aec_to_parallel
-import supersuit
-
 
 from citylearn.citylearn import CityLearnEnv
 

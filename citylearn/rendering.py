@@ -1,6 +1,5 @@
 from PIL import Image, ImageDraw
 import math
-import numpy as np
 import os
 
 def get_background():
