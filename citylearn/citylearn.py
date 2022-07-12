@@ -465,12 +465,12 @@ class CityLearnEnv(Environment, Env):
             Reward for current observations. If `central_agent` is True, `reward` is a list of length = 1 else, `reward` has same length as `buildings`.
         """
 
-        self.reward_function.electricity_consumption = [self.net_electricity_consumption[self.time_step - 1]] if self.central_agent\
-            else [b.net_electricity_consumption[self.time_step - 1] for b in self.buildings]
-        self.reward_function.carbon_emission = [self.net_electricity_consumption_emission[self.time_step - 1]] if self.central_agent\
-            else [b.net_electricity_consumption_emission[self.time_step - 1] for b in self.buildings]
-        self.reward_function.electricity_price = [self.net_electricity_consumption_price[self.time_step - 1]] if self.central_agent\
-            else [b.net_electricity_consumption_price[self.time_step - 1] for b in self.buildings]
+        self.reward_function.electricity_consumption = [self.net_electricity_consumption[self.time_step]] if self.central_agent\
+            else [b.net_electricity_consumption[self.time_step] for b in self.buildings]
+        self.reward_function.carbon_emission = [self.net_electricity_consumption_emission[self.time_step]] if self.central_agent\
+            else [b.net_electricity_consumption_emission[self.time_step] for b in self.buildings]
+        self.reward_function.electricity_price = [self.net_electricity_consumption_price[self.time_step]] if self.central_agent\
+            else [b.net_electricity_consumption_price[self.time_step] for b in self.buildings]
         reward = self.reward_function.calculate()
         return reward
 
@@ -496,7 +496,7 @@ class CityLearnEnv(Environment, Env):
 
         active_actions = [[k for k, v in b.action_metadata.items() if v] for b in self.buildings]
         actions = [{k:a for k, a in zip(active_actions[i],building_actions[i])} for i in range(len(active_actions))]
-        actions = [{f'{k}_action':actions[i].get(k, 0.0) for k in b.action_metadata}  for i, b in enumerate(self.buildings)]
+        actions = [{f'{k}_action':actions[i].get(k, 0.0) for k in b.action_metadata} for i, b in enumerate(self.buildings)]
         return actions
     
     def get_building_information(self) -> Mapping[str, Any]:
@@ -546,55 +546,24 @@ class CityLearnEnv(Environment, Env):
     def render(self):
         """Only applies to the CityLearn Challenge 2022 setup."""
 
-        # data = {
-        #     'reward':{
-        #         'cumulative':pd.DataFrame(self.rewards).sum(axis=1).rolling(window=len(self.rewards),min_periods=1).sum(), # rewards rolling sum
-        #         'average':pd.DataFrame(self.rewards).mean(axis=1).to_numpy(), # average reward per time step
-        #     },
-        #     'cost':{
-        #         'net_electricity_consumption':CostFunction.net_electricity_consumption(self.net_electricity_consumption),
-        #         'carbon_emissions':CostFunction.carbon_emissions(self.net_electricity_consumption_emission),
-        #         'price':CostFunction.price(self.net_electricity_consumption_price),
-        #     },
-        #     'building':[]
-        # }
-
-        # for b in self.buildings:
-        #     data['building'].append({
-        #         'name':b.name, # building name
-        #         'connection':{
-        #             'electrical_storage':b.electrical_storage_electricity_consumption[b.time_step - 1], # if (-) flow left, else right
-        #             'pv':abs(b.solar_generation[b.time_step - 1]), # unidirectional
-        #             'grid':b.net_electricity_consumption[b.time_step - 1] # if (-) flow down, else up
-        #         },
-        #         'graph':{
-        #             'bar':{
-        #                 'electrical_storage_soc':b.electrical_storage.soc[b.time_step - 1]/b.electrical_storage.capacity_history[-2]
-        #             },
-        #             'line':{
-        #                 'net_electricity_consumption':b.net_electricity_consumption[-24:],
-        #                 'net_electricity_consumption_without_storage':b.net_electricity_consumption_without_storage[-24:],
-        #                 'net_electricity_consumption_without_storage_and_pv':b.net_electricity_consumption_without_storage_and_pv[-24:],
-        #             },
-        #         }
-        #     })
-
         canvas, canvas_size, draw_obj, color = get_background()
-
         num_buildings = len(self.buildings)
-        for i in range(num_buildings):
+
+        for i, b in enumerate(self.buildings):
+            net_electricity_consumption_obs_ix = b.active_observations.index('net_electricity_consumption')
+            energy = b.net_electricity_consumption[b.time_step]/(b.observation_space.high[net_electricity_consumption_obs_ix])
+            charge = b.electrical_storage.soc[b.time_step]/b.electrical_storage.capacity_history[b.time_step - 1]
             rbuilding = RenderBuilding(index=i, 
                                 canvas_size=canvas_size, 
                                 num_buildings=num_buildings, 
                                 line_color=color)
             rbuilding.draw_line(canvas, draw_obj, 
-                                energy=np.random.rand(), 
+                                energy=energy, 
                                 color=color)
-            rbuilding.draw_building(canvas, charge=np.random.rand())
+            rbuilding.draw_building(canvas, charge=charge)
         
         return np.asarray(canvas)
     
-
     def evaluate(self):
         """Only applies to the CityLearn Challenge 2022 setup."""
 
