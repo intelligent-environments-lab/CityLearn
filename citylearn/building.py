@@ -760,7 +760,7 @@ class Building(Environment):
 
         low_limit = [v - self.__epsilon for v in low_limit]
         high_limit = [v + self.__epsilon for v in high_limit]
-        return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
+        return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
     
     def estimate_action_space(self) -> spaces.Box:
         r"""Get estimate of action spaces.
@@ -801,7 +801,7 @@ class Building(Environment):
 
         low_limit = [v - self.__epsilon for v in low_limit]
         high_limit = [v + self.__epsilon for v in high_limit]  
-        return spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)
+        return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
 
     def autosize_cooling_device(self, **kwargs):
         """Autosize `cooling_device` `nominal_power` to minimum power needed to always meet `cooling_demand`.
