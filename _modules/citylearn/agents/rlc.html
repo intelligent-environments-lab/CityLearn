@@ -294,13 +294,15 @@
 
     <span class="nd">@update_per_time_step</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">update_per_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_per_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__update_per_time_step</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">update_per_time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">update_per_time_step</span>
+        <span class="n">update_per_time_step</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">update_per_time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">update_per_time_step</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">update_per_time_step</span><span class="p">,</span><span class="nb">int</span><span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;update_per_time_step mut be int type. </span><span class="si">{</span><span class="n">update_per_time_step</span><span class="si">}</span><span class="s1"> is of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">update_per_time_step</span><span class="p">)</span><span class="si">}</span><span class="s1"> type&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__update_per_time_step</span> <span class="o">=</span> <span class="n">update_per_time_step</span>
 
     <span class="nd">@seed</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__seed</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">seed</span>
-        <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
+        <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

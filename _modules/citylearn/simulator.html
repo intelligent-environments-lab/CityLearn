@@ -141,7 +141,6 @@
             <span class="n">observations_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
             <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
-                <span class="c1"># logging.debug(f&#39;Time step: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1}, Episode: {episode}&#39;)</span>
                 <span class="n">actions_list</span> <span class="o">=</span> <span class="p">[]</span>
 
                 <span class="c1"># select actions</span>
@@ -165,7 +164,6 @@
                         <span class="k">continue</span>
 
                 <span class="n">observations_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">next_observations_list</span><span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
 
                 <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s1">&#39;Time step: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_step</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="si">}</span><span class="s1">,&#39;</span>\
