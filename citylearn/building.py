@@ -242,12 +242,12 @@ class Building(Environment):
             **{k: v[self.time_step] for k, v in vars(self.pricing).items()},
             'solar_generation':self.pv.get_generation(self.energy_simulation.solar_generation[self.time_step]),
             **{
-                'cooling_storage_soc':self.cooling_storage.soc[-1]/self.cooling_storage.capacity if self.time_step > 0 else self.cooling_storage.initial_soc/self.cooling_storage.capacity,
-                'heating_storage_soc':self.heating_storage.soc[-1]/self.heating_storage.capacity if self.time_step > 0 else self.heating_storage.initial_soc/self.heating_storage.capacity,
-                'dhw_storage_soc':self.dhw_storage.soc[-1]/self.dhw_storage.capacity if self.time_step > 0 else self.dhw_storage.initial_soc/self.dhw_storage.capacity,
-                'electrical_storage_soc':self.electrical_storage.soc[-1]/self.electrical_storage.capacity if self.time_step > 0 else self.electrical_storage.initial_soc/self.electrical_storage.capacity,
+                'cooling_storage_soc':self.cooling_storage.soc[self.time_step]/self.cooling_storage.capacity,
+                'heating_storage_soc':self.heating_storage.soc[self.time_step]/self.heating_storage.capacity,
+                'dhw_storage_soc':self.dhw_storage.soc[self.time_step]/self.dhw_storage.capacity,
+                'electrical_storage_soc':self.electrical_storage.soc[self.time_step]/self.electrical_storage.capacity,
             },
-            'net_electricity_consumption': self.net_electricity_consumption[-1] if self.time_step > 0 else 0.0,
+            'net_electricity_consumption': self.net_electricity_consumption[self.time_step],
             **{k: v[self.time_step] for k, v in vars(self.carbon_intensity).items()},
         }
         observations = {k: data[k] for k in self.active_observations if k in data.keys()}
@@ -272,14 +272,14 @@ class Building(Environment):
         """Carbon dioxide emmission from `net_electricity_consumption_without_storage_and_pv` time series, in [kg_co2]."""
 
         return (
-            self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption_without_storage_and_pv
+            self.carbon_intensity.carbon_intensity[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_pv
         ).clip(min=0)
 
     @property
     def net_electricity_consumption_without_storage_and_pv_price(self) -> np.ndarray:
         """net_electricity_consumption_without_storage_and_pv` cost time series, in [$]."""
 
-        return self.pricing.electricity_pricing[0:self.time_step]*self.net_electricity_consumption_without_storage_and_pv
+        return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_pv
 
     @property
     def net_electricity_consumption_without_storage_and_pv(self) -> np.ndarray:
@@ -296,13 +296,13 @@ class Building(Environment):
     def net_electricity_consumption_without_storage_emission(self) -> np.ndarray:
         """Carbon dioxide emmission from `net_electricity_consumption_without_storage` time series, in [kg_co2]."""
 
-        return (self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption_without_storage).clip(min=0)
+        return (self.carbon_intensity.carbon_intensity[0:self.time_step + 1]*self.net_electricity_consumption_without_storage).clip(min=0)
 
     @property
     def net_electricity_consumption_without_storage_price(self) -> np.ndarray:
         """`net_electricity_consumption_without_storage` cost time series, in [$]."""
 
-        return self.pricing.electricity_pricing[0:self.time_step]*self.net_electricity_consumption_without_storage
+        return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption_without_storage
 
     @property
     def net_electricity_consumption_without_storage(self) -> np.ndarray:
@@ -324,13 +324,13 @@ class Building(Environment):
     def net_electricity_consumption_emission(self) -> np.ndarray:
         """Carbon dioxide emmission from `net_electricity_consumption` time series, in [kg_co2]."""
 
-        return (self.carbon_intensity.carbon_intensity[0:self.time_step]*self.net_electricity_consumption).clip(min=0)
+        return (self.carbon_intensity.carbon_intensity[0:self.time_step + 1]*self.net_electricity_consumption).clip(min=0)
 
     @property
     def net_electricity_consumption_price(self) -> np.ndarray:
         """`net_electricity_consumption` cost time series, in [$]."""
 
-        return self.pricing.electricity_pricing[0:self.time_step]*self.net_electricity_consumption
+        return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption
 
     @property
     def net_electricity_consumption(self) -> np.ndarray:
@@ -359,7 +359,7 @@ class Building(Environment):
         """
 
         demand = np.sum([self.cooling_demand, self.cooling_storage.energy_balance], axis = 0)
-        return self.cooling_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step], False)
+        return self.cooling_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step + 1], False)
 
     @property
     def heating_electricity_consumption(self) -> np.ndarray:
@@ -372,7 +372,7 @@ class Building(Environment):
         demand = np.sum([self.heating_demand, self.heating_storage.energy_balance], axis = 0)
 
         if isinstance(self.heating_device, HeatPump):
-            consumption = self.heating_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step], True)
+            consumption = self.heating_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step + 1], True)
         else:
             consumption = self.dhw_device.get_input_power(demand)
 
@@ -389,7 +389,7 @@ class Building(Environment):
         demand = np.sum([self.dhw_demand, self.dhw_storage.energy_balance], axis = 0)
 
         if isinstance(self.dhw_device, HeatPump):
-            consumption = self.dhw_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step], True)
+            consumption = self.dhw_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step + 1], True)
         else:
             consumption = self.dhw_device.get_input_power(demand)
 
@@ -403,7 +403,7 @@ class Building(Environment):
         electricity consumption by discharging `cooling_storage` to meet `cooling_demand`.
         """
 
-        return self.cooling_device.get_input_power(self.cooling_storage.energy_balance, self.weather.outdoor_dry_bulb_temperature[:self.time_step], False)
+        return self.cooling_device.get_input_power(self.cooling_storage.energy_balance, self.weather.outdoor_dry_bulb_temperature[:self.time_step + 1], False)
 
     @property
     def heating_storage_electricity_consumption(self) -> np.ndarray:
@@ -414,7 +414,7 @@ class Building(Environment):
         """
 
         if isinstance(self.heating_device, HeatPump):
-            consumption = self.heating_device.get_input_power(self.heating_storage.energy_balance, self.weather.outdoor_dry_bulb_temperature[:self.time_step], True)
+            consumption = self.heating_device.get_input_power(self.heating_storage.energy_balance, self.weather.outdoor_dry_bulb_temperature[:self.time_step + 1], True)
         else:
             consumption = self.heating_device.get_input_power(self.heating_storage.energy_balance)
 
@@ -429,7 +429,7 @@ class Building(Environment):
         """
 
         if isinstance(self.dhw_device, HeatPump):
-            consumption = self.dhw_device.get_input_power(self.dhw_storage.energy_balance, self.weather.outdoor_dry_bulb_temperature[:self.time_step], True)
+            consumption = self.dhw_device.get_input_power(self.dhw_storage.energy_balance, self.weather.outdoor_dry_bulb_temperature[:self.time_step + 1], True)
         else:
             consumption = self.dhw_device.get_input_power(self.dhw_storage.energy_balance)
 
@@ -511,31 +511,31 @@ class Building(Environment):
     def cooling_demand(self) -> np.ndarray:
         """Space cooling demand to be met by `cooling_device` and/or `cooling_storage` time series, in [kWh]."""
 
-        return self.energy_simulation.cooling_demand[0:self.time_step]
+        return self.energy_simulation.cooling_demand[0:self.time_step + 1]
 
     @property
     def heating_demand(self) -> np.ndarray:
         """Space heating demand to be met by `heating_device` and/or `heating_storage` time series, in [kWh]."""
 
-        return self.energy_simulation.heating_demand[0:self.time_step]
+        return self.energy_simulation.heating_demand[0:self.time_step + 1]
 
     @property
     def dhw_demand(self) -> np.ndarray:
         """Domestic hot water demand to be met by `dhw_device` and/or `dhw_storage` time series, in [kWh]."""
 
-        return self.energy_simulation.dhw_demand[0:self.time_step]
+        return self.energy_simulation.dhw_demand[0:self.time_step + 1]
 
     @property
     def non_shiftable_load_demand(self) -> np.ndarray:
         """Electricity load that must be met by the grid, or `PV` and/or `electrical_storage` if available time series, in [kWh]."""
 
-        return self.energy_simulation.non_shiftable_load[0:self.time_step]
+        return self.energy_simulation.non_shiftable_load[0:self.time_step + 1]
 
     @property
     def solar_generation(self) -> np.ndarray:
         """`PV` solar generation (negative value) time series, in [kWh]."""
 
-        return self.pv.get_generation(self.energy_simulation.solar_generation[0:self.time_step])*-1
+        return self.pv.get_generation(self.energy_simulation.solar_generation[0:self.time_step + 1])*-1
 
     @energy_simulation.setter
     def energy_simulation(self, energy_simulation: EnergySimulation):
