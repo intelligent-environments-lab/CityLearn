@@ -1,6 +1,11 @@
 from citylearn.citylearn import CityLearnEnv
 # from gym.wrappers.monitoring.video_recorder import VideoRecorder
-import cv2
+
+# conditional imports
+try:
+    import cv2
+except ImportError:
+    raise ("This functionality requires you to install opencv-python. You can install opencv-python by : pip install opencv-python, or for more detailed instructions please visit https://pypi.org/project/opencv-python/.")
 
 if __name__ == '__main__':
     schema = './citylearn/data/citylearn_challenge_2022_phase_1/schema.json'
