@@ -645,7 +645,7 @@ class CityLearnEnv(Environment, Env):
             Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
         """
         
-        if os.path.isfile(self.schema):
+        if isinstance(self.schema, (str, Path)) and os.path.isfile(self.schema):
             fullpath = os.path.abspath(self.schema)
             self.schema = read_json(self.schema)
             self.schema['root_directory'] = fullpath[:fullpath.rindex('/')+1]
