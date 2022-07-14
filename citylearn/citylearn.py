@@ -553,6 +553,8 @@ class CityLearnEnv(Environment, Env):
             net_electricity_consumption_obs_ix = b.active_observations.index('net_electricity_consumption')
             energy = b.net_electricity_consumption[b.time_step]/(b.observation_space.high[net_electricity_consumption_obs_ix])
             charge = b.electrical_storage.soc[b.time_step]/b.electrical_storage.capacity_history[b.time_step - 1]
+            energy = max(min(energy, 1.0), 0.0)
+            charge = max(min(energy, 1.0), 0.0)
             rbuilding = RenderBuilding(index=i, 
                                 canvas_size=canvas_size, 
                                 num_buildings=num_buildings, 
