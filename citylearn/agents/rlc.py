@@ -1,9 +1,14 @@
 from typing import List
 from gym import spaces
 import numpy as np
-import torch
 from citylearn.agents.base import Agent
 from citylearn.preprocessing import Encoder
+
+# conditional imports
+try:
+    import torch
+except ImportError:
+    raise ("This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org.")
 
 class RLC(Agent):
     def __init__(
