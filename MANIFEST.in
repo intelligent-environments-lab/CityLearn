@@ -1,2 +1,2 @@
 include citylearn/assets/*
-include citylearn/data/*
+recursive-include citylearn/data *
