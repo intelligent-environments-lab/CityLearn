@@ -1,11 +1,6 @@
 import math
 import os
-
-# conditional imports
-try:
-    from PIL import Image, ImageDraw
-except ImportError:
-    raise ("This functionality requires you to install opencv-python. You can install opencv-python by : pip install opencv-python, or for more detailed instructions please visit https://pypi.org/project/opencv-python/.")
+from PIL import Image, ImageDraw
 
 def get_background():
     canvas_size = 720
