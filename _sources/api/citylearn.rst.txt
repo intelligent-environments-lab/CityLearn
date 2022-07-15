@@ -23,10 +23,12 @@ Submodules
    citylearn.base
    citylearn.building
    citylearn.citylearn
+   citylearn.citylearn_pettingzoo
    citylearn.cost_function
    citylearn.data
    citylearn.energy_model
    citylearn.preprocessing
+   citylearn.rendering
    citylearn.reward_function
    citylearn.rl
    citylearn.simulator

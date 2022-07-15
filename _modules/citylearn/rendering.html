@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citylearn.rendering &mdash; CityLearn 1.1.2 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment.html">Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citylearn_challenge/years.html">CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>citylearn.rendering</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for citylearn.rendering</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageDraw</span>
+
+<div class="viewcode-block" id="get_background"><a class="viewcode-back" href="../../api/citylearn.rendering.html#citylearn.rendering.get_background">[docs]</a><span class="k">def</span> <span class="nf">get_background</span><span class="p">():</span>
+    <span class="n">canvas_size</span> <span class="o">=</span> <span class="mi">720</span>
+    <span class="n">grid_size</span> <span class="o">=</span> <span class="n">canvas_size</span><span class="o">//</span><span class="mi">5</span>
+    <span class="n">folder_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="s1">&#39;assets/grid.png&#39;</span><span class="p">))</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">grid_size</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">))</span>
+    <span class="n">grid_coord</span> <span class="o">=</span> <span class="n">canvas_size</span><span class="o">//</span><span class="mi">2</span><span class="o">-</span><span class="n">grid_size</span><span class="o">//</span><span class="mi">2</span>
+
+    <span class="n">canvas</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">canvas_size</span><span class="p">,</span> <span class="n">canvas_size</span><span class="p">),</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="n">grid_coord</span><span class="p">,</span> <span class="n">grid_coord</span><span class="p">),</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">grid</span><span class="p">)</span>
+
+    <span class="n">draw_obj</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">canvas</span><span class="p">)</span>
+    <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span> <span class="o">=</span> <span class="n">canvas_size</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">canvas_size</span><span class="o">//</span><span class="mi">2</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">grid_size</span><span class="o">//</span><span class="mi">4</span>
+    <span class="n">circle_coords</span> <span class="o">=</span> <span class="n">cx</span> <span class="o">-</span> <span class="n">r</span><span class="p">,</span> <span class="n">cy</span> <span class="o">-</span> <span class="n">r</span><span class="p">,</span> <span class="n">cx</span> <span class="o">+</span> <span class="n">r</span><span class="p">,</span>  <span class="n">cy</span> <span class="o">+</span> <span class="n">r</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">draw_obj</span><span class="o">.</span><span class="n">ellipse</span><span class="p">(</span><span class="n">circle_coords</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">color</span><span class="p">,</span> <span class="n">outline</span> <span class="o">=</span> <span class="n">color</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_size</span><span class="p">,</span> <span class="n">draw_obj</span><span class="p">,</span> <span class="n">color</span></div>
+    
+    
+<div class="viewcode-block" id="RenderBuilding"><a class="viewcode-back" href="../../api/citylearn.rendering.html#citylearn.rendering.RenderBuilding">[docs]</a><span class="k">class</span> <span class="nc">RenderBuilding</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">canvas_size</span><span class="p">,</span> <span class="n">num_buildings</span><span class="p">,</span> <span class="n">line_color</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas_size</span> <span class="o">=</span> <span class="n">canvas_size</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">building_radius</span> <span class="o">=</span> <span class="n">canvas_size</span><span class="o">//</span><span class="mi">3</span> <span class="c1"># Can change this for size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">building_size</span> <span class="o">=</span> <span class="n">canvas_size</span><span class="o">//</span><span class="mi">7</span> <span class="c1"># Can change this for size</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_glow_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">building_size</span><span class="o">//</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">glow_scales</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">building_type</span> <span class="o">=</span> <span class="n">index</span><span class="o">%</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_buildings</span> <span class="o">=</span> <span class="n">num_buildings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_color</span> <span class="o">=</span> <span class="n">line_color</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">=</span> <span class="n">index</span><span class="o">*</span><span class="mi">360</span><span class="o">//</span><span class="n">num_buildings</span>
+        
+<div class="viewcode-block" id="RenderBuilding.read_image"><a class="viewcode-back" href="../../api/citylearn.rendering.html#citylearn.rendering.RenderBuilding.read_image">[docs]</a>    <span class="k">def</span> <span class="nf">read_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge</span><span class="p">):</span>
+        <span class="n">charge_quartile</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">charge</span><span class="o">*</span><span class="mi">100</span><span class="o">//</span><span class="mi">25</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="c1">#         assert charge_quartile in range(4)</span>
+        <span class="n">folder_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="n">im_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;assets/building-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">building_type</span><span class="si">}</span><span class="s1">-charge-</span><span class="si">{</span><span class="n">charge_quartile</span><span class="si">}</span><span class="s1">.png&#39;</span>
+        <span class="n">im_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">im_name</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">im_name</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">building_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">building_size</span><span class="p">))</span>
+<span class="c1">#         img = img.rotate(-self.angle) # Looks weird and has cropping issue</span>
+        <span class="k">return</span> <span class="n">img</span></div>
+    
+<div class="viewcode-block" id="RenderBuilding.get_coords"><a class="viewcode-back" href="../../api/citylearn.rendering.html#citylearn.rendering.RenderBuilding.get_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">building_radius</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span>
+        <span class="n">xd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span><span class="o">*</span><span class="n">x</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span><span class="o">*</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">yd</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span><span class="o">*</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xd</span><span class="p">,</span> <span class="n">yd</span></div>
+    
+<div class="viewcode-block" id="RenderBuilding.read_glow_image"><a class="viewcode-back" href="../../api/citylearn.rendering.html#citylearn.rendering.RenderBuilding.read_glow_image">[docs]</a>    <span class="k">def</span> <span class="nf">read_glow_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+        <span class="n">energy_quartile</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">energy</span><span class="o">*</span><span class="mi">100</span><span class="o">//</span><span class="mi">25</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">folder_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="n">glow_image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="s1">&#39;assets/glow.png&#39;</span><span class="p">))</span>
+        <span class="n">glow_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_glow_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">glow_scales</span><span class="p">[</span><span class="n">energy_quartile</span><span class="p">])</span>
+        <span class="n">glow_image</span> <span class="o">=</span> <span class="n">glow_image</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="n">glow_size</span><span class="p">,</span> <span class="n">glow_size</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">glow_image</span><span class="p">,</span> <span class="n">glow_size</span></div>
+    
+<div class="viewcode-block" id="RenderBuilding.draw_line"><a class="viewcode-back" href="../../api/citylearn.rendering.html#citylearn.rendering.RenderBuilding.draw_line">[docs]</a>    <span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">draw_obj</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coords</span><span class="p">()</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas_size</span><span class="o">//</span><span class="mi">2</span>
+        <span class="n">line_coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas_size</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas_size</span><span class="o">//</span><span class="mi">2</span>
+        <span class="n">draw_obj</span><span class="o">.</span><span class="n">line</span><span class="p">((</span><span class="n">center</span><span class="p">,</span> <span class="n">line_coords</span><span class="p">),</span> <span class="n">fill</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        
+        <span class="n">glow_image</span><span class="p">,</span> <span class="n">glow_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_glow_image</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+        <span class="n">glow_coords</span> <span class="o">=</span> <span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">line_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">//</span><span class="mi">2</span> <span class="o">-</span> <span class="n">glow_size</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> \
+                      <span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">line_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">//</span><span class="mi">2</span> <span class="o">-</span> <span class="n">glow_size</span><span class="o">//</span><span class="mi">2</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">glow_image</span><span class="p">,</span> <span class="n">glow_coords</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">glow_image</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="RenderBuilding.draw_building"><a class="viewcode-back" href="../../api/citylearn.rendering.html#citylearn.rendering.RenderBuilding.draw_building">[docs]</a>    <span class="k">def</span> <span class="nf">draw_building</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">charge</span><span class="p">):</span>
+        <span class="n">building_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_image</span><span class="p">(</span><span class="n">charge</span><span class="p">)</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coords</span><span class="p">()</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas_size</span><span class="o">//</span><span class="mi">2</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">building_size</span><span class="o">//</span><span class="mi">2</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">building_image</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">building_image</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

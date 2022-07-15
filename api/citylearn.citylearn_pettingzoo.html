@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citylearn.citylearn_pettingzoo module &mdash; CityLearn 1.1.2 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="citylearn.cost_function module" href="citylearn.cost_function.html" />
+    <link rel="prev" title="citylearn.citylearn module" href="citylearn.citylearn.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environment.html">Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/years.html">CityLearn Challenge</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="citylearn.html">citylearn package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="citylearn.html#subpackages">Subpackages</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="citylearn.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="citylearn.base.html">citylearn.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.building.html">citylearn.building module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.citylearn.html">citylearn.citylearn module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.citylearn_pettingzoo module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.cost_function.html">citylearn.cost_function module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.rendering.html">citylearn.rendering module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.rl.html">citylearn.rl module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.simulator.html">citylearn.simulator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.utilities.html">citylearn.utilities module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">citylearn</a> &raquo;</li>
+          <li><a href="citylearn.html">citylearn package</a> &raquo;</li>
+      <li>citylearn.citylearn_pettingzoo module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/citylearn.citylearn_pettingzoo.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-citylearn.citylearn_pettingzoo">
+<span id="citylearn-citylearn-pettingzoo-module"></span><h1>citylearn.citylearn_pettingzoo module<a class="headerlink" href="#module-citylearn.citylearn_pettingzoo" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.citylearn_pettingzoo.</span></span><span class="sig-name descname"><span class="pre">CityLearnPettingZooEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn_pettingzoo.html#CityLearnPettingZooEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pettingzoo.utils.env.ParallelEnv</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.action_space">
+<span class="sig-name descname"><span class="pre">action_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn_pettingzoo.html#CityLearnPettingZooEnv.action_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.action_space" title="Permalink to this definition"></a></dt>
+<dd><p>Takes in agent and returns the action space for that agent.</p>
+<p>MUST return the same value for the same agent name</p>
+<p>Default implementation is to return the action_spaces dict</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.agents">
+<span class="sig-name descname"><span class="pre">agents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">AgentID</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.agents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn_pettingzoo.html#CityLearnPettingZooEnv.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.close" title="Permalink to this definition"></a></dt>
+<dd><p>Close should release any graphical displays, subprocesses, network connections
+or any other environment data which should not be kept around after the
+user is no longer using the environment.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'is_parallelizable':</span> <span class="pre">True,</span> <span class="pre">'render_modes':</span> <span class="pre">[]}</span></em><a class="headerlink" href="#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.metadata" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.observation_space">
+<span class="sig-name descname"><span class="pre">observation_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn_pettingzoo.html#CityLearnPettingZooEnv.observation_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.observation_space" title="Permalink to this definition"></a></dt>
+<dd><p>Takes in agent and returns the observation space for that agent.</p>
+<p>MUST return the same value for the same agent name</p>
+<p>Default implementation is to return the observation_spaces dict</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.possible_agents">
+<span class="sig-name descname"><span class="pre">possible_agents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">AgentID</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.possible_agents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'human'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn_pettingzoo.html#CityLearnPettingZooEnv.render"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.render" title="Permalink to this definition"></a></dt>
+<dd><p>Displays a rendered frame from the environment, if supported.
+Alternate render modes in the default environments are <cite>‘rgb_array’</cite>
+which returns a numpy array and is supported by all environments outside
+of classic, and <cite>‘ansi’</cite> which returns the strings printed
+(specific to classic environments).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn_pettingzoo.html#CityLearnPettingZooEnv.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset needs to initialize the <cite>agents</cite> attribute and must set up the
+environment so that render(), and step() can be called without issues.</p>
+<p>Here it initializes the <cite>num_moves</cite> variable which counts the number of
+hands that are played.</p>
+<p>Returns the observations for each agent</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn_pettingzoo.html#CityLearnPettingZooEnv.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.step" title="Permalink to this definition"></a></dt>
+<dd><p>step(action) takes in an action for each agent and should return the
+- observations
+- rewards
+- dones
+- infos
+dicts where each dict looks like {agent_1: item_1, agent_2: item_2}</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.main">
+<span class="sig-prename descclassname"><span class="pre">citylearn.citylearn_pettingzoo.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn_pettingzoo.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn_pettingzoo.main" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.make_citylearn_env">
+<span class="sig-prename descclassname"><span class="pre">citylearn.citylearn_pettingzoo.</span></span><span class="sig-name descname"><span class="pre">make_citylearn_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn_pettingzoo.html#make_citylearn_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn_pettingzoo.make_citylearn_env" title="Permalink to this definition"></a></dt>
+<dd><p>The env function often wraps the environment in wrappers by default.
+You can find full documentation for these methods
+elsewhere in the developer documentation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="citylearn.citylearn_pettingzoo.raw_env">
+<span class="sig-prename descclassname"><span class="pre">citylearn.citylearn_pettingzoo.</span></span><span class="sig-name descname"><span class="pre">raw_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn_pettingzoo.html#raw_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn_pettingzoo.raw_env" title="Permalink to this definition"></a></dt>
+<dd><p>To support the AEC API, the raw_env() function just uses the from_parallel
+function to convert from a ParallelEnv to an AEC env</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="citylearn.citylearn.html" class="btn btn-neutral float-left" title="citylearn.citylearn module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="citylearn.cost_function.html" class="btn btn-neutral float-right" title="citylearn.cost_function module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
