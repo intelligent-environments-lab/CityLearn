@@ -178,7 +178,7 @@ class RLC(Agent):
 
     @encoders.setter
     def encoders(self, encoders: List[Encoder]):
-        self.__encoders = [NoNormalization for _ in range(self.observation_dimension)] if encoders is None else encoders
+        self.__encoders = [NoNormalization() for _ in range(self.observation_space.shape[0])] if encoders is None else encoders
 
     @observation_space.setter
     def observation_space(self, observation_space: spaces.Box):
