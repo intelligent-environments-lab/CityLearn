@@ -75,8 +75,8 @@ class RewardFunction:
 
     
 class MARL(RewardFunction):
-    def __init__(self, electricity_consumption: List[float] = None, **kwargs):
-        super().__init__(electricity_consumption=electricity_consumption, **kwargs)
+    def __init__(self, agent_count: int, electricity_consumption: List[float] = None, **kwargs):
+        super().__init__(agent_count, electricity_consumption=electricity_consumption, **kwargs)
 
     def calculate(self) -> List[float]:
         r"""Calculates MARL reward.
@@ -98,8 +98,8 @@ class MARL(RewardFunction):
         return reward.tolist()
 
 class IndependentSACReward(RewardFunction):
-    def __init__(self, electricity_consumption: List[float] = None, **kwargs):
-        super().__init__(electricity_consumption=electricity_consumption, **kwargs)
+    def __init__(self, agent_count: int, electricity_consumption: List[float] = None, **kwargs):
+        super().__init__(agent_count, electricity_consumption=electricity_consumption, **kwargs)
 
     def calculate(self) -> List[float]:
         r"""Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.
