@@ -2,7 +2,7 @@ from typing import List
 from gym import spaces
 import numpy as np
 from citylearn.agents.base import Agent
-from citylearn.preprocessing import Encoder
+from citylearn.preprocessing import Encoder, NoNormalization
 
 # conditional imports
 try:
@@ -12,7 +12,7 @@ except ImportError:
 
 class RLC(Agent):
     def __init__(
-        self, *args, encoders: List[Encoder], observation_space: spaces.Box, hidden_dimension: List[float] = None, 
+        self, *args, observation_space: spaces.Box, encoders: List[Encoder], hidden_dimension: List[float] = None, 
         discount: float = None, tau: float = None, lr: float = None, batch_size: int = None,
         replay_buffer_capacity: int = None, start_training_time_step: int = None, end_exploration_time_step: int = None, 
         deterministic_start_time_step: int = None, action_scaling_coefficienct: float = None, reward_scaling: float = None, 
@@ -26,33 +26,33 @@ class RLC(Agent):
         ----------
         *args : tuple
             `Agent` positional arguments.
-        encoders : List[Encoder]
-            Observation value transformers/encoders.
         observation_space : spaces.Box
             Format of valid observations.
-        hidden_dimension : List[float]
+        encoders : List[Encoder], optional
+            Observation value transformers/encoders.
+        hidden_dimension : List[float], default: [256, 256]
             Hidden dimension.
-        discount : float
+        discount : float, default: 0.99
             Discount factor.
-        tau : float
-            Decay rate.
-        lr : float
+        tau : float, default: 5e-3
+            Exploration-exploitation trade-off.
+        lr : float, default: 3e-4
             Learning rate.
-        batch_size : int
+        batch_size : int, default: 256
             Batch size.
-        replay_buffer_capacity : int
+        replay_buffer_capacity : int, default: 1e5
             Replay buffer capacity.
-        start_training_time_step : int
+        start_training_time_step : int, default: 6000
             Time step to begin training regression model.
-        end_exploration_time_step : int
+        end_exploration_time_step : int, default: 7000
             Time step to stop exploration.
-        deterministic_start_time_step : int
+        deterministic_start_time_step : int, default: 7500
             Time step to begin taking deterministic actions.
-        action_scaling_coefficient : float
+        action_scaling_coefficient : float, default: 0.5
             Action scaling coefficient.
-        reward_scaling : float
+        reward_scaling : float, default: 5.0
             Reward scaling.
-        update_per_time_step : int
+        update_per_time_step : int, default: 2
             Number of updates per time step.
         seed : int
             Pseudorandom number generator seed for repeatable results.
@@ -64,8 +64,8 @@ class RLC(Agent):
         """
 
         super().__init__(*args, **kwargs)
-        self.encoders = encoders
         self.observation_space = observation_space
+        self.encoders = encoders
         self.hidden_dimension = hidden_dimension
         self.discount = discount
         self.tau = tau
@@ -112,7 +112,7 @@ class RLC(Agent):
 
     @property
     def tau(self) -> float:
-        """Decay rate."""
+        """Exploration-exploitation trade-off."""
 
         return self.__tau
     
@@ -178,7 +178,7 @@ class RLC(Agent):
 
     @encoders.setter
     def encoders(self, encoders: List[Encoder]):
-        self.__encoders = encoders
+        self.__encoders = [NoNormalization for _ in range(self.observation_dimension)] if encoders is None else encoders
 
     @observation_space.setter
     def observation_space(self, observation_space: spaces.Box):
