@@ -8,7 +8,7 @@ try:
     import torch.nn as nn
     import torch.nn.functional as F
 except ImportError:
-    raise ("This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org.")
+    raise Exception("This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org.")
 
 class PolicyNetwork(nn.Module):
     def __init__(self, 
