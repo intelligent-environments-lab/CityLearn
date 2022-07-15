@@ -8,7 +8,7 @@ try:
     import torch
     import torch.nn as nn
     import torch.optim as optim
-except ImportError:
+except (ModuleNotFoundError, ImportError):
     raise Exception("This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org.")
 
 
