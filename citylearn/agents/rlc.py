@@ -12,7 +12,7 @@ except ImportError:
 
 class RLC(Agent):
     def __init__(
-        self, *args, observation_space: spaces.Box, encoders: List[Encoder], hidden_dimension: List[float] = None, 
+        self, *args, observation_space: spaces.Box, encoders: List[Encoder] = None, hidden_dimension: List[float] = None, 
         discount: float = None, tau: float = None, lr: float = None, batch_size: int = None,
         replay_buffer_capacity: int = None, start_training_time_step: int = None, end_exploration_time_step: int = None, 
         deterministic_start_time_step: int = None, action_scaling_coefficienct: float = None, reward_scaling: float = None, 
