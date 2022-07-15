@@ -7,7 +7,7 @@ from citylearn.preprocessing import Encoder, NoNormalization
 # conditional imports
 try:
     import torch
-except (ModuleNotFoundError, ImportError):
+except (ModuleNotFoundError, ImportError) as e:
     raise Exception("This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org.")
 
 class RLC(Agent):

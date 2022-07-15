@@ -21,6 +21,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install flake8
         pip install -r requirements.txt
+        pip install -r test_requirements.txt
         pip install -r docs/requirements.txt
     - name: Build HTML
       run: |
