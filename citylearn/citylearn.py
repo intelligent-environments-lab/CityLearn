@@ -737,12 +737,14 @@ class CityLearnEnv(Environment, Env):
             else:
                 continue
 
-        reward_function_type = self.schema['reward_function']
+        reward_function_type = self.schema['reward_function']['type']
+        reward_function_attributes = self.schema['reward_function'].get('attributes',None)
+        reward_function_attributes = {} if reward_function_attributes is None else reward_function_attributes
         reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
         reward_function_name = reward_function_type.split('.')[-1]
         reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
         agent_count = 1 if central_agent else len(buildings)
-        reward_function = reward_function_constructor(agent_count=agent_count)
+        reward_function = reward_function_constructor(agent_count=agent_count,**reward_function_attributes)
 
         return buildings, time_steps, seconds_per_time_step, reward_function, central_agent, shared_observations
 

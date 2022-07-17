@@ -181,7 +181,10 @@
       "update_per_time_step": 2
     }
   },
-  "reward_function": "citylearn.reward_function.IndependentSACReward",
+  "reward_function": {
+    "type": "citylearn.reward_function.IndependentSACReward",
+    "attributes": null
+  },
   "buildings": {
     "Building_1": {
       "include": true,

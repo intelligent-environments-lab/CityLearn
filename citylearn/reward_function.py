@@ -1,8 +1,8 @@
-from typing import List
+from typing import Any, List, Mapping
 import numpy as np
 
 class RewardFunction:
-    def __init__(self, agent_count: int, electricity_consumption: List[float] = None, carbon_emission: List[float] = None, electricity_price: List[float] = None):
+    def __init__(self, agent_count: int, electricity_consumption: List[float] = None, carbon_emission: List[float] = None, electricity_price: List[float] = None, **kwargs):
         r"""Initialize `Reward`.
 
         Parameters
@@ -15,12 +15,15 @@ class RewardFunction:
             Buildings' carbon emissions in [kg_co2].
         electricity_price: List[float], optional
             Buildings' electricty prices in [$].
+        **kwargs : dict
+            Other keyword arguments for custom reward calculation.
         """
 
         self.agent_count = agent_count
         self.electricty_consumption = electricity_consumption
         self.carbon_emission = carbon_emission
         self.electricity_price = electricity_price
+        self.kwargs = kwargs
 
     @property
     def agent_count(self) -> int:
@@ -46,6 +49,10 @@ class RewardFunction:
 
         return self.__electricity_price
 
+    @property
+    def kwargs(self) ->Mapping[Any,Any]:
+        return self.__kwargs
+
     @agent_count.setter
     def agent_count(self, agent_count: int):
         self.__agent_count = agent_count
@@ -61,6 +68,10 @@ class RewardFunction:
     @electricity_price.setter
     def electricity_price(self, electricity_price: List[float]):
         self.__electricity_price = [np.nan]*self.agent_count if electricity_price is None else electricity_price
+
+    @kwargs.setter
+    def kwargs(self, kwargs: Mapping[Any, Any]):
+        self.__kwargs = kwargs
 
     def calculate(self) -> List[float]:
         r"""Calculates default reward.
