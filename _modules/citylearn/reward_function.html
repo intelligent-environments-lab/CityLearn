@@ -67,11 +67,11 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.reward_function</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <div class="viewcode-block" id="RewardFunction"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction">[docs]</a><span class="k">class</span> <span class="nc">RewardFunction</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">carbon_emission</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">electricity_price</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">carbon_emission</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">electricity_price</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Reward`.</span>
 
 <span class="sd">        Parameters</span>
@@ -84,12 +84,15 @@
 <span class="sd">            Buildings&#39; carbon emissions in [kg_co2].</span>
 <span class="sd">        electricity_price: List[float], optional</span>
 <span class="sd">            Buildings&#39; electricty prices in [$].</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Other keyword arguments for custom reward calculation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_count</span> <span class="o">=</span> <span class="n">agent_count</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">electricty_consumption</span> <span class="o">=</span> <span class="n">electricity_consumption</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">carbon_emission</span> <span class="o">=</span> <span class="n">carbon_emission</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">electricity_price</span> <span class="o">=</span> <span class="n">electricity_price</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">agent_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -115,6 +118,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_price</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span><span class="n">Mapping</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span>
+
     <span class="nd">@agent_count</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">agent_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__agent_count</span> <span class="o">=</span> <span class="n">agent_count</span>
@@ -130,6 +137,10 @@
     <span class="nd">@electricity_price</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">electricity_price</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electricity_price</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_price</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_count</span> <span class="k">if</span> <span class="n">electricity_price</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">electricity_price</span>
+
+    <span class="nd">@kwargs</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
 
 <div class="viewcode-block" id="RewardFunction.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates default reward.</span>
