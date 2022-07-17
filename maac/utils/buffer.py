@@ -1,19 +1,31 @@
 import numpy as np
+import random
 from torch import Tensor
 from torch.autograd import Variable
 
 class ReplayBuffer(object):
-    def __init__(self):
-        pass
+    """
+    Replay buffer
+    """
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.buffer = []
+        self.position = 0
+
+    def push(self, state, action, reward, next_state, done):
+        if len(self.buffer) < self.capacity:
+            self.buffer.append(None)
+
+        self.buffer[self.position] = (state, action, reward, next_state, done)
+        self.position = (self.position + 1) % self.capacity
+
+    def sample(self, batch_size):
+        batch = random.sample(self.buffer, batch_size)
+        state, action, reward, next_state, done = map(np.stack, zip(*batch))
+        return state, action, reward, next_state, done
 
     def __len__(self):
-        pass
+        return len(self.buffer)
 
-    def push(self):
-        pass
-
-    def sample(self):
-        pass
-
-    def get_average_rewards(self):
-        pass
+    def norm(self):
+        print("norm")
