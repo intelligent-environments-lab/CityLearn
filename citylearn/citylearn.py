@@ -550,26 +550,6 @@ class CityLearnEnv(Environment, Env):
         num_buildings = len(self.buildings)
 
         for i, b in enumerate(self.buildings):
-            # time series data
-            net_electricity_consumption = b.net_electricity_consumption[-24:]
-            net_electricity_consumption_without_storage = b.net_electricity_consumption_without_storage[-24:]
-            net_electricity_consumption_without_storage_and_pv = b.net_electricity_consumption_without_storage_and_pv[-24:]
-
-            # time series data y limits
-            all_time_net_electricity_consumption_without_storage = b.energy_simulation.non_shiftable_load - b.pv.get_generation(b.energy_simulation.solar_generation)
-            net_electricity_consumption_y_lim = (
-                min(all_time_net_electricity_consumption_without_storage - b.electrical_storage.nominal_power), 
-                max(all_time_net_electricity_consumption_without_storage + b.electrical_storage.nominal_power)
-            )
-            net_electricity_consumption_without_storage_y_lim = (
-                min(all_time_net_electricity_consumption_without_storage), 
-                max(all_time_net_electricity_consumption_without_storage)
-            )
-            net_electricity_consumption_without_storage_and_pv_y_lim = (
-                0, 
-                max(b.energy_simulation.non_shiftable_load)
-            )
-
             # current time step net electricity consumption and battery state or charge data
             net_electricity_consumption_obs_ix = b.active_observations.index('net_electricity_consumption')
             energy = b.net_electricity_consumption[b.time_step]/(b.observation_space.high[net_electricity_consumption_obs_ix])
@@ -587,10 +567,30 @@ class CityLearnEnv(Environment, Env):
                                 color=color)
             rbuilding.draw_building(canvas, charge=charge)
 
-        values = [np.random.rand(len(net_electricity_consumption)), 
-                  np.random.rand(len(net_electricity_consumption)), 
-                  np.random.rand(len(net_electricity_consumption))]
-        limits = [(0, 1), (0, 1), (0, 1)]
+        # time series data
+        net_electricity_consumption = self.net_electricity_consumption[-24:]
+        net_electricity_consumption_without_storage = self.net_electricity_consumption_without_storage[-24:]
+        net_electricity_consumption_without_storage_and_pv = self.net_electricity_consumption_without_storage_and_pv[-24:]
+
+        # time series data y limits
+        all_time_net_electricity_consumption_without_storage = np.sum([
+            b.energy_simulation.non_shiftable_load - b.pv.get_generation(b.energy_simulation.solar_generation) for b in self.buildings
+        ],axis=0)
+        net_electricity_consumption_y_lim = (
+            min(all_time_net_electricity_consumption_without_storage - (self.buildings[0].electrical_storage.nominal_power)*len(self.buildings)), 
+            max(all_time_net_electricity_consumption_without_storage + (self.buildings[0].electrical_storage.nominal_power)*len(self.buildings))
+        )
+        net_electricity_consumption_without_storage_y_lim = (
+            min(all_time_net_electricity_consumption_without_storage), 
+            max(all_time_net_electricity_consumption_without_storage)
+        )
+        net_electricity_consumption_without_storage_and_pv_y_lim = (
+            0, 
+            max(np.sum([b.energy_simulation.non_shiftable_load for b in self.buildings], axis=0))
+        )
+
+        values = [net_electricity_consumption, net_electricity_consumption_without_storage, net_electricity_consumption_without_storage_and_pv]
+        limits = [net_electricity_consumption_y_lim, net_electricity_consumption_without_storage_y_lim, net_electricity_consumption_without_storage_and_pv_y_lim]
         plot_image = get_plots(values, limits)
         graphic_image = np.asarray(canvas)
         
