@@ -287,7 +287,7 @@
 
     <span class="nd">@deterministic_start_time_step</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">deterministic_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deterministic_start_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__deterministic_start_time_step</span> <span class="o">=</span> <span class="mi">7500</span> <span class="k">if</span> <span class="n">deterministic_start_time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">deterministic_start_time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__deterministic_start_time_step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">deterministic_start_time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">deterministic_start_time_step</span>
 
     <span class="nd">@action_scaling_coefficient</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">action_scaling_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_scaling_coefficient</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
