@@ -84,6 +84,18 @@ class SquashedGaussianActor(nn.Module):
         return pi_action, logp_pi
 
     def choose_action(self, obs, action_spaces, encoder, norm_mean, norm_std, device, explore=True):
+        """
+        Agent chooses an action to take a step. If explore, we just sample from the action spaces; if deterministic,
+        we first normalize the states and pass through the policy net to get an action base on the network output
+        :param obs:
+        :param action_spaces:
+        :param encoder:
+        :param norm_mean:
+        :param norm_std:
+        :param device:
+        :param explore:
+        :return:
+        """
         if explore:
             act = ACT_SCALE * action_spaces.sample()
             return act
@@ -94,5 +106,5 @@ class SquashedGaussianActor(nn.Module):
             obs_ = torch.FloatTensor(obs_).unsqueeze(0).to(device)
 
             with torch.no_grad():
-                act, _ = self.forward(obs_, explore, False)
+                act, _ = self.forward(obs_, explore)
                 return act.numpy()
