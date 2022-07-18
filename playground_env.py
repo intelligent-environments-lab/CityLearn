@@ -12,8 +12,8 @@ if __name__ == '__main__':
     env = CityLearnEnv(schema=schema)
     
     video_path='./videos/test_render.mp4'
-    fourcc = cv2.VideoWriter_fourcc(*'mjpg')
-    writer = cv2.VideoWriter(video_path, fourcc, 20, (720, 720))
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    writer = cv2.VideoWriter(video_path, fourcc, 20, (1440, 720))
     print("Citylearn environment created")
     for _ in range(1):
         all_obs = env.reset()
@@ -25,13 +25,10 @@ if __name__ == '__main__':
             frame = env.render()
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             writer.write(frame)
-            # video_recorder.capture_frame()
             all_obs, all_rew, done, all_info = env.step(actions)
             tsteps += 1
             if tsteps % 50 == 0:
                 print(f"Time steps: {tsteps}")
-        # video_recorder.close()
-        # video_recorder.enabled = False
         print(f"Episode completed in {tsteps} time steps")
 
     writer.release()

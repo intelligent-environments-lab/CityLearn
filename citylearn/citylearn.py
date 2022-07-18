@@ -13,7 +13,7 @@ from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, 
 from citylearn.preprocessing import Encoder
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
-from citylearn.rendering import get_background, RenderBuilding
+from citylearn.rendering import get_background, RenderBuilding, get_plots
 
 class CityLearnEnv(Environment, Env):
     def __init__(self, schema: Union[str, Path, Mapping[str, Any]], **kwargs):
@@ -575,7 +575,7 @@ class CityLearnEnv(Environment, Env):
             energy = b.net_electricity_consumption[b.time_step]/(b.observation_space.high[net_electricity_consumption_obs_ix])
             charge = b.electrical_storage.soc[b.time_step]/b.electrical_storage.capacity_history[b.time_step - 1]
             energy = max(min(energy, 1.0), 0.0)
-            charge = max(min(energy, 1.0), 0.0)
+            charge = max(min(charge, 1.0), 0.0)
 
             # render
             rbuilding = RenderBuilding(index=i, 
@@ -586,8 +586,15 @@ class CityLearnEnv(Environment, Env):
                                 energy=energy, 
                                 color=color)
             rbuilding.draw_building(canvas, charge=charge)
+
+        values = [np.random.rand(len(net_electricity_consumption)), 
+                  np.random.rand(len(net_electricity_consumption)), 
+                  np.random.rand(len(net_electricity_consumption))]
+        limits = [(0, 1), (0, 1), (0, 1)]
+        plot_image = get_plots(values, limits)
+        graphic_image = np.asarray(canvas)
         
-        return np.asarray(canvas)
+        return np.concatenate([graphic_image, plot_image], axis=1)
     
     def evaluate(self):
         """Only applies to the CityLearn Challenge 2022 setup."""
