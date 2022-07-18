@@ -546,15 +546,56 @@ class CityLearnEnv(Environment, Env):
     def render(self):
         """Only applies to the CityLearn Challenge 2022 setup."""
 
+        data = {
+            'reward':{
+                'cumulative':pd.DataFrame(self.rewards).sum(axis=1).rolling(window=len(self.rewards),min_periods=1).sum(), # rewards rolling sum
+                'average':pd.DataFrame(self.rewards).mean(axis=1).to_numpy(), # average reward per time step
+            },
+            'cost':{
+                'net_electricity_consumption':CostFunction.net_electricity_consumption(self.net_electricity_consumption),
+                'carbon_emissions':CostFunction.carbon_emissions(self.net_electricity_consumption_emission),
+                'price':CostFunction.price(self.net_electricity_consumption_price),
+            },
+            'building':[]
+        }
+
+        for b in self.buildings:
+            data['building'].append({
+                'name':b.name, # building name
+                'connection':{
+                    'electrical_storage':b.electrical_storage_electricity_consumption[b.time_step - 1], # if (-) flow left, else right
+                    'pv':abs(b.solar_generation[b.time_step - 1]), # unidirectional
+                    'grid':b.net_electricity_consumption[b.time_step - 1] # if (-) flow down, else up
+                },
+                'graph':{
+                    'bar':{
+                        'electrical_storage_soc':b.electrical_storage.soc[b.time_step - 1]/b.electrical_storage.capacity_history[-2]
+                    },
+                    'line':{
+                        'net_electricity_consumption':b.net_electricity_consumption[-24:],
+                        'net_electricity_consumption_without_storage':b.net_electricity_consumption_without_storage[-24:],
+                        'net_electricity_consumption_without_storage_and_pv':b.net_electricity_consumption_without_storage_and_pv[-24:],
+                    },
+                }
+            })
+
         canvas, canvas_size, draw_obj, color = get_background()
         num_buildings = len(self.buildings)
 
         for i, b in enumerate(self.buildings):
+            # time series data
+            net_electricity_consumption = b.net_electricity_consumption[-24:]
+            net_electricity_consumption_without_storage = b.net_electricity_consumption_without_storage[-24:]
+            net_electricity_consumption_without_storage_and_pv = b.net_electricity_consumption_without_storage_and_pv[-24:]
+
+            # current time step net electricity consumption and battery state or charge data
             net_electricity_consumption_obs_ix = b.active_observations.index('net_electricity_consumption')
             energy = b.net_electricity_consumption[b.time_step]/(b.observation_space.high[net_electricity_consumption_obs_ix])
             charge = b.electrical_storage.soc[b.time_step]/b.electrical_storage.capacity_history[b.time_step - 1]
             energy = max(min(energy, 1.0), 0.0)
             charge = max(min(energy, 1.0), 0.0)
+
+            # render
             rbuilding = RenderBuilding(index=i, 
                                 canvas_size=canvas_size, 
                                 num_buildings=num_buildings, 
