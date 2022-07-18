@@ -624,6 +624,21 @@
             <span class="n">net_electricity_consumption_without_storage</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:]</span>
             <span class="n">net_electricity_consumption_without_storage_and_pv</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_pv</span><span class="p">[</span><span class="o">-</span><span class="mi">24</span><span class="p">:]</span>
 
+            <span class="c1"># time series data y limits</span>
+            <span class="n">all_time_net_electricity_consumption_without_storage</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">non_shiftable_load</span> <span class="o">-</span> <span class="n">b</span><span class="o">.</span><span class="n">pv</span><span class="o">.</span><span class="n">get_generation</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">solar_generation</span><span class="p">)</span>
+            <span class="n">net_electricity_consumption_y_lim</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">min</span><span class="p">(</span><span class="n">all_time_net_electricity_consumption_without_storage</span> <span class="o">-</span> <span class="n">b</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">nominal_power</span><span class="p">),</span> 
+                <span class="nb">max</span><span class="p">(</span><span class="n">all_time_net_electricity_consumption_without_storage</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">nominal_power</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">net_electricity_consumption_without_storage_y_lim</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">min</span><span class="p">(</span><span class="n">all_time_net_electricity_consumption_without_storage</span><span class="p">),</span> 
+                <span class="nb">max</span><span class="p">(</span><span class="n">all_time_net_electricity_consumption_without_storage</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">net_electricity_consumption_without_storage_and_pv_y_lim</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span> 
+                <span class="nb">max</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">non_shiftable_load</span><span class="p">)</span>
+            <span class="p">)</span>
+
             <span class="c1"># current time step net electricity consumption and battery state or charge data</span>
             <span class="n">net_electricity_consumption_obs_ix</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">active_observations</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">)</span>
             <span class="n">energy</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">high</span><span class="p">[</span><span class="n">net_electricity_consumption_obs_ix</span><span class="p">])</span>
