@@ -83,6 +83,8 @@ def run(config):
                     samples = model.sample(config.batch_size)
 
                     # 14 -- 20. UpdateCritic(B) ...
+                    for a in model.agents:
+                        assert(a.norm_flag == 1)
                     model.update_critics(samples)
                     model.update_policies(samples)
                     model.update_all_targets()
@@ -103,9 +105,9 @@ if __name__ == "__main__":
     parser.add_argument("--climate_zone", default=5, type=int)
     parser.add_argument("--episode_length", default=25, type=int)
     parser.add_argument("--batch_size",
-                        default=5, type=int,
+                        default=6, type=int,
                         help="Batch size for training")
-    parser.add_argument("--update_every", default=10, type=int)
+    parser.add_argument("--update_every", default=7, type=int)
     parser.add_argument("--num_updates", default=4, type=int,
                         help="Number of updates per update cycle")
     parser.add_argument("--exploration", default=7, type=int)
