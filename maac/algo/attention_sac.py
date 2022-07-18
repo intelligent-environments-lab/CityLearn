@@ -7,14 +7,6 @@ from maac.utils.agents import AttentionAgent
 from maac.utils.critic import AttentionCritic
 from typing import List, Tuple
 
-GAMMA = 0.96
-TAU = 0.01
-LR_ACTOR = 0.01
-LR_CRITIC = 0.01
-HIDDEN_DIM_ACTOR = 128
-HIDDEN_DIM_CRITIC = 128
-ATTENTION_HEADS = 4
-
 MSELoss = torch.nn.MSELoss()
 
 
@@ -74,6 +66,13 @@ class AttentionSAC(object):
         return [a.target_policy for a in self.agents]
 
     def step(self, observations, encoder, explore=False):
+        """
+        Each agent takes a step in the environment
+        :param observations:
+        :param encoder:
+        :param explore:
+        :return:
+        """
         return [a.step(obs, a.action_spaces, e, device=self.device, explore=explore)
                 for a, e, obs in zip(self.agents, encoder.values(), observations)]
 
@@ -199,13 +198,32 @@ class AttentionSAC(object):
         return [a.normalize_buffer() for a in self.agents]
 
     def add_to_buffer(self, encoder, observations, actions, rewards, next_observations, done):
+        """
+        Add the observation encoder, obs, act, rew, next_obs into the replay buffer of each agent.
+        :param encoder:
+        :param observations:
+        :param actions:
+        :param rewards:
+        :param next_observations:
+        :param done:
+        :return:
+        """
         [a.add_to_buffer(e, obs, act, rew, next_obs, done) for a, e, obs, act, rew, next_obs
          in zip(self.agents, encoder.values(), observations, actions, rewards, next_observations)]
 
     def replay_buffer_length(self):
+        """
+        Get the 1st agent's buffer length for simplicity.
+        :return:
+        """
         return len(self.agents[0].replay_buffer)
 
     def sample(self, batch_size):
+        """
+        Sample a batch of length batch_size from the replay buffer of each agent.
+        :param batch_size:
+        :return:
+        """
         return [a.replay_buffer.sample(batch_size) for a in self.agents]
 
     @classmethod
