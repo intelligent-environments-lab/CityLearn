@@ -64,8 +64,6 @@ class AttentionAgent(object):
     def update_critic(self, sample, soft=True):
         obs, acts, rews, next_obs, dones = sample
         # Q loss
-        next_act = []
-        next_log_pi = []
         pi = self.policy
         # in SAC, next action comes from current policy
         curr_next_act, curr_next_log_pi = pi(obs, with_logprob=True)
@@ -94,7 +92,6 @@ class AttentionAgent(object):
             self.replay_buffer.buffer = new_buffer
             self.norm_flag = 1
 
-            return self.replay_buffer
 
     def add_to_buffer(self, encoder, state, act, reward, next_state, done):
         # Run once the regression model has been fitted. Normalize all the states using periodical normalization,
