@@ -555,6 +555,21 @@ class CityLearnEnv(Environment, Env):
             net_electricity_consumption_without_storage = b.net_electricity_consumption_without_storage[-24:]
             net_electricity_consumption_without_storage_and_pv = b.net_electricity_consumption_without_storage_and_pv[-24:]
 
+            # time series data y limits
+            all_time_net_electricity_consumption_without_storage = b.energy_simulation.non_shiftable_load - b.pv.get_generation(b.energy_simulation.solar_generation)
+            net_electricity_consumption_y_lim = (
+                min(all_time_net_electricity_consumption_without_storage - b.electrical_storage.nominal_power), 
+                max(all_time_net_electricity_consumption_without_storage + b.electrical_storage.nominal_power)
+            )
+            net_electricity_consumption_without_storage_y_lim = (
+                min(all_time_net_electricity_consumption_without_storage), 
+                max(all_time_net_electricity_consumption_without_storage)
+            )
+            net_electricity_consumption_without_storage_and_pv_y_lim = (
+                0, 
+                max(b.energy_simulation.non_shiftable_load)
+            )
+
             # current time step net electricity consumption and battery state or charge data
             net_electricity_consumption_obs_ix = b.active_observations.index('net_electricity_consumption')
             energy = b.net_electricity_consumption[b.time_step]/(b.observation_space.high[net_electricity_consumption_obs_ix])
