@@ -1,6 +1,36 @@
 import math
 import os
 from PIL import Image, ImageDraw
+import numpy as np
+
+def get_plots(values, limits):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    fig, axs = plt.subplots(nrows=3, sharex=True)
+    fig.set_size_inches((10, 10))
+    fig.set_dpi(72)
+
+    fig.suptitle('District level energy consumption')
+
+    names = ['Electricty consumption', 
+            'Electricy consumption \n without Storage', 
+            'Electricty without \n Storage & PV']
+    colors = ['green',  'orange', 'blue']
+    for ax, color, data, limit, name in zip(axs, colors, values, limits, names):
+        ax.margins(0)
+        ax.set_xlim(24)
+        ax.grid('on')
+        ax.set_ylabel(name)
+        ax.plot(np.arange(1, len(data)+1), data, '-o', ms=5, color=color)
+    ax.set_xlabel('Value before (x) hours')
+
+    fig.set_frameon(False)
+    fig.canvas.draw()
+    img = np.array(fig.canvas.buffer_rgba())[..., :3]
+    plt.close(fig)
+    return img
 
 def get_background():
     canvas_size = 720
