@@ -107,10 +107,9 @@ class AttentionSAC(object):
 
         # Q loss
         next_acts, next_log_pis = zip(*[a.update_critic(sample) for a, sample in zip(self.agents, samples)])
-
         obs, acts, rews, next_obs, dones = zip(*samples)
-        trgt_critic_in = list(zip(next_obs, next_acts))
-        critic_in = list(zip(obs, acts))
+        trgt_critic_in = list(zip(next_obs, next_acts))  # next_acts come from agents' current policy net
+        critic_in = list(zip(obs, acts))  # acts are from the replay buffer
         next_qs = self.target_critic(trgt_critic_in)
         critic_rets = self.critic(critic_in, regularize=True)
 
@@ -131,6 +130,13 @@ class AttentionSAC(object):
         self.critic_optimizer.zero_grad()
 
     def update_policies(self, samples, soft=True, **kwargs):
+        """
+        Update the policy network of each agent
+        :param samples:
+        :param soft:
+        :param kwargs:
+        :return:
+        """
         for i in range(len(samples)):
             state = samples[i][0]
             action = samples[i][1]
@@ -184,7 +190,7 @@ class AttentionSAC(object):
     def update_all_targets(self):
         """
         Update all target networks (called after normal updates have been
-        performed for each agent)
+        performed for each agent) using polyak
         """
         soft_update(self.target_critic, self.critic, self.tau)
         for a in self.agents:
@@ -231,6 +237,8 @@ class AttentionSAC(object):
         """
         Instantiate instance of this class from CityLearn environment
         :param env:
+        :param state_dim
+        :param buffer_length
         :return:
         """
         print("AttentionSAC initialized from environment")
