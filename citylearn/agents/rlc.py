@@ -218,7 +218,7 @@ class RLC(Agent):
 
     @deterministic_start_time_step.setter
     def deterministic_start_time_step(self, deterministic_start_time_step: int):
-        self.__deterministic_start_time_step = 7500 if deterministic_start_time_step is None else deterministic_start_time_step
+        self.__deterministic_start_time_step = np.nan if deterministic_start_time_step is None else deterministic_start_time_step
 
     @action_scaling_coefficient.setter
     def action_scaling_coefficient(self, action_scaling_coefficient: float):
