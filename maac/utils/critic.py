@@ -100,11 +100,12 @@ class AttentionCritic(nn.Module):
         for p in self.shared_parameters():
             p.grad.data.mul_(1. / self.num_agents)
 
-    def forward(self, inps, agents=None,
-                return_q=True, regularize=False, return_attend=False):
+    def forward(self, inps, agents=None, return_q=True, regularize=False, return_attend=False):
         """
         Inputs:
         :param inps (list of PyTorch matrices): Inputs to each agent's encoder (batch of obs + ac)
+                for the target critic network, the actions are sampled from the *current* policy;
+                for the critic network, the actions come from a batch of replay buffer.
         :param agents: indices of agents
         :param return_q: return Q-value
         :param regularize: return values to add to loss function for regularization
@@ -115,19 +116,19 @@ class AttentionCritic(nn.Module):
         if agents is None:
             agents = range(len(self.q_encoders))
         states = [s for s, _ in inps]
-        actions = [a for _, a in inps]
         inps = [torch.cat((s, a), dim=1) for s, a in inps]
         # extract state-action encoding for each agent
         sa_encodings = [q_encoder(inp) for q_encoder, inp in zip(self.q_encoders, inps)]
-        # extract state encoding for each agent that we are returning Q for
-        s_encodings = [self.state_encoders[a_i](states[a_i]) for a_i in agents]
+        # extract state encoding for each agent that we are returning Q for, which I don't think is necessary for
+        # continuous actions spaces because we need to pass in state + act instead of state alone
+        # s_encodings = [self.state_encoders[a_i](states[a_i]) for a_i in agents]
         # extract keys for each head for each agent
         all_head_keys = [[k_ext(enc) for enc in sa_encodings] for k_ext in self.key_extractors]
         # extract sa values for each head for each agent
         all_head_values = [[v_ext(enc) for enc in sa_encodings] for v_ext in self.value_extractors]
-        # extract queries for each head for each agent that we are returning Q for
+        # extract queries for each head for each agent
         all_head_selectors = [[sel_ext(enc) for i, enc in enumerate(sa_encodings) if i in agents]
-                              for sel_ext in self.selector_extractors]  # TODO
+                              for sel_ext in self.selector_extractors]
 
         other_all_values = [[] for _ in range(len(agents))]
         all_attend_logits = [[] for _ in range(len(agents))]
@@ -155,8 +156,6 @@ class AttentionCritic(nn.Module):
         # calculate Q per agent
         all_rets = []
         for i, a_i in enumerate(agents):
-            head_entropies = [(-((probs + 1e-8).log() * probs).squeeze().sum(1)
-                               .mean()) for probs in all_attend_probs[i]]
             agent_rets = []
             critic_in = torch.cat((sa_encodings[i], *other_all_values[i]), dim=1)
             one_q = self.critics[a_i](critic_in)
