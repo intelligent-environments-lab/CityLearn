@@ -93,8 +93,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="citylearn-simulator-module">
-<h1>citylearn.simulator module<a class="headerlink" href="#citylearn-simulator-module" title="Permalink to this headline"></a></h1>
+  <section id="module-citylearn.simulator">
+<span id="citylearn-simulator-module"></span><h1>citylearn.simulator module<a class="headerlink" href="#module-citylearn.simulator" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.simulator.Simulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.simulator.</span></span><span class="sig-name descname"><span class="pre">Simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">citylearn_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">agents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent"><span class="pre">citylearn.agents.base.Agent</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">episodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/simulator.html#Simulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.simulator.Simulator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.simulator.Simulator.agents">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">agents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent"><span class="pre">citylearn.agents.base.Agent</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.simulator.Simulator.agents" title="Permalink to this definition"></a></dt>
+<dd><p>Simulation agents for <cite>citylearn_env.buildings</cite> energy storage charging/discharging management.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.simulator.Simulator.citylearn_env">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">citylearn_env</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></em><a class="headerlink" href="#citylearn.simulator.Simulator.citylearn_env" title="Permalink to this definition"></a></dt>
+<dd><p>Simulation environment.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.simulator.Simulator.episodes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">episodes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.simulator.Simulator.episodes" title="Permalink to this definition"></a></dt>
+<dd><p>Number of times to simulate until terminal state is reached.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.simulator.Simulator.simulate">
+<span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/simulator.html#Simulator.simulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.simulator.Simulator.simulate" title="Permalink to this definition"></a></dt>
+<dd><p>traditional simulation.</p>
+<p>Runs central or multi agent simulation.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
