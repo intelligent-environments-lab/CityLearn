@@ -245,7 +245,7 @@ class Building(Environment):
                 'cooling_storage_soc':self.cooling_storage.soc[self.time_step]/self.cooling_storage.capacity,
                 'heating_storage_soc':self.heating_storage.soc[self.time_step]/self.heating_storage.capacity,
                 'dhw_storage_soc':self.dhw_storage.soc[self.time_step]/self.dhw_storage.capacity,
-                'electrical_storage_soc':self.electrical_storage.soc[self.time_step]/self.electrical_storage.capacity,
+                'electrical_storage_soc':self.electrical_storage.soc[self.time_step]/self.electrical_storage.capacity_history[self.time_step - 1],
             },
             'net_electricity_consumption': self.net_electricity_consumption[self.time_step],
             **{k: v[self.time_step] for k, v in vars(self.carbon_intensity).items()},
