@@ -69,7 +69,7 @@ class Building(Environment):
         self.pv = pv
         self.observation_metadata = observation_metadata
         self.action_metadata = action_metadata
-        self.__epsilon = 1.0 # to avoid out of bound observations
+        self.__observation_epsilon = 1.0 # to avoid out of bound observations
         self.observation_space = self.estimate_observation_space()
         self.action_space = self.estimate_action_space()
         super().__init__(**kwargs)
@@ -750,16 +750,14 @@ class Building(Environment):
 
             elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc']:
                 low_limit.append(0.0)
-                storage_key = '_'.join(key.split('_')[0:-1])
-                capacity = vars(self)[f'_{self.__class__.__name__}__{storage_key}'].capacity
-                high_limit.append(capacity)
+                high_limit.append(1.0)
 
             else:
                 low_limit.append(min(data[key]))
                 high_limit.append(max(data[key]))
 
-        low_limit = [v - self.__epsilon for v in low_limit]
-        high_limit = [v + self.__epsilon for v in high_limit]
+        low_limit = [v - self.__observation_epsilon for v in low_limit]
+        high_limit = [v + self.__observation_epsilon for v in high_limit]
         return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
     
     def estimate_action_space(self) -> spaces.Box:
@@ -791,16 +789,15 @@ class Building(Environment):
                 capacity = vars(self)[f'_{self.__class__.__name__}__{key}'].capacity
                 energy_simulation = vars(self)[f'_{self.__class__.__name__}__energy_simulation']
                 maximum_demand = vars(energy_simulation)[f'{key.split("_")[0]}_demand'].max()
+                maximum_demand_ratio = maximum_demand/capacity
 
                 try:
-                    low_limit.append(max([-1.0/(maximum_demand/capacity), -1.0]))
-                    high_limit.append(min([1.0/(maximum_demand/capacity), 1.0]))
+                    low_limit.append(max(-maximum_demand_ratio, -1.0))
+                    high_limit.append(min(maximum_demand_ratio, 1.0))
                 except ZeroDivisionError:
                     low_limit.append(-1.0)
                     high_limit.append(1.0)
-
-        low_limit = [v - self.__epsilon for v in low_limit]
-        high_limit = [v + self.__epsilon for v in high_limit]  
+ 
         return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
 
     def autosize_cooling_device(self, **kwargs):
