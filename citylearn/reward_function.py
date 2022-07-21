@@ -14,13 +14,13 @@ class RewardFunction:
         carbon_emission: List[float], optional
             Buildings' carbon emissions in [kg_co2].
         electricity_price: List[float], optional
-            Buildings' electricty prices in [$].
+            Buildings' electricity prices in [$].
         **kwargs : dict
             Other keyword arguments for custom reward calculation.
         """
 
         self.agent_count = agent_count
-        self.electricty_consumption = electricity_consumption
+        self.electricity_consumption = electricity_consumption
         self.carbon_emission = carbon_emission
         self.electricity_price = electricity_price
         self.kwargs = kwargs
@@ -45,7 +45,7 @@ class RewardFunction:
 
     @property
     def electricity_price(self) -> List[float]:
-        """Buildings' electricty prices in [$]."""
+        """Buildings' electricity prices in [$]."""
 
         return self.__electricity_price
 

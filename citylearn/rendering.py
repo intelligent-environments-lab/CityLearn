@@ -14,9 +14,9 @@ def get_plots(values, limits):
 
     fig.suptitle('District level energy consumption')
 
-    names = ['Electricty consumption', 
-            'Electricy consumption \n without Storage', 
-            'Electricty without \n Storage & PV']
+    names = ['Electricity consumption', 
+            'Electricity consumption \n without Storage', 
+            'Electricity without \n Storage & PV']
     colors = ['green',  'orange', 'blue']
     for ax, color, data, limit, name in zip(axs, colors, values, limits, names):
         ax.margins(0)
