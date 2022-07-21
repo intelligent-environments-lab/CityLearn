@@ -86,7 +86,7 @@ def run(config):
                     for a in model.agents:
                         assert(a.norm_flag == 1)
                     model.update_critics(samples)
-                    model.update_policies(samples)
+                    model.update_policies(samples, soft=True)
                     model.update_all_targets()
             # EndFor
     # 21. T_update <- 0

@@ -11,13 +11,13 @@ def make_env(climate_zone):
         :return:
         """
     params = {'data_path': Path(
-        "/Users/xiejiahan/PycharmProjects/RLinDR/CityLearn/data/Climate_Zone_" + str(climate_zone)),
+        "/Users/xiejiahan/PycharmProjects/CityLearn/data/Climate_Zone_" + str(climate_zone)),
         'building_attributes': 'building_attributes.json',
         'weather_file': 'weather_data.csv',
         'solar_profile': 'solar_generation_1kW.csv',
         'carbon_intensity': 'carbon_intensity.csv',
         'building_ids': ["Building_" + str(i) for i in [1, 2, 3, 4, 5, 6, 7, 8, 9]],
-        'buildings_states_actions': '/Users/xiejiahan/PycharmProjects/RLinDR/CityLearn/buildings_state_action_space'
+        'buildings_states_actions': '/Users/xiejiahan/PycharmProjects/CityLearn/buildings_state_action_space'
                                     '.json',
         'simulation_period': (0, HOURS_PER_YEAR * 4 - 1),
         'cost_function': ['ramping', '1-load_factor', 'average_daily_peak', 'peak_demand',
