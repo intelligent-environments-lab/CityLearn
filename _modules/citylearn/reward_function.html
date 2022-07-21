@@ -83,13 +83,13 @@
 <span class="sd">        carbon_emission: List[float], optional</span>
 <span class="sd">            Buildings&#39; carbon emissions in [kg_co2].</span>
 <span class="sd">        electricity_price: List[float], optional</span>
-<span class="sd">            Buildings&#39; electricty prices in [$].</span>
+<span class="sd">            Buildings&#39; electricity prices in [$].</span>
 <span class="sd">        **kwargs : dict</span>
 <span class="sd">            Other keyword arguments for custom reward calculation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_count</span> <span class="o">=</span> <span class="n">agent_count</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">electricty_consumption</span> <span class="o">=</span> <span class="n">electricity_consumption</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electricity_consumption</span> <span class="o">=</span> <span class="n">electricity_consumption</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">carbon_emission</span> <span class="o">=</span> <span class="n">carbon_emission</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">electricity_price</span> <span class="o">=</span> <span class="n">electricity_price</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
@@ -114,7 +114,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">electricity_price</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Buildings&#39; electricty prices in [$].&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Buildings&#39; electricity prices in [$].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_price</span>
 
