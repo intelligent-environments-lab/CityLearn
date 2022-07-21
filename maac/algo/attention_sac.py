@@ -106,7 +106,8 @@ class AttentionSAC(object):
                 samples[i] = (state, action, reward, next_state, done)
 
         # Q loss
-        next_acts, next_log_pis = zip(*[a.update_critic(sample) for a, sample in zip(self.agents, samples)])
+        with torch.inference_mode():
+            next_acts, next_log_pis = zip(*[a.update_critic(sample) for a, sample in zip(self.agents, samples)])
         obs, acts, rews, next_obs, dones = zip(*samples)
         trgt_critic_in = list(zip(next_obs, next_acts))  # next_acts come from agents' current policy net
         critic_in = list(zip(obs, acts))  # acts are from the replay buffer
@@ -172,6 +173,7 @@ class AttentionSAC(object):
         critic_rets = self.critic(critic_in)
 
         for a_i, log_pi, q in zip(range(self.num_agents), all_log_pis, critic_rets):
+            print(a_i, log_pi)
             if len(log_pi.shape) == 1:
                 log_pi = log_pi.unsqueeze(dim=-1)
             curr_agent = self.agents[a_i]
@@ -180,9 +182,9 @@ class AttentionSAC(object):
             else:
                 loss_pi = (-q).mean()
 
-            disable_gradients(self.critic)
+            # disable_gradients(self.critic)
             loss_pi.backward()
-            enable_gradients(self.critic)
+            # enable_gradients(self.critic)
 
             curr_agent.policy_optimizer.step()
             curr_agent.policy_optimizer.zero_grad()
