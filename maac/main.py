@@ -95,22 +95,23 @@ def run(config):
     # EndFor
 
     print("run")
+    print(env.cost())
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Experimenting Actor-Attention-Critic")
     parser.add_argument("--env_id", default="1", help="Name of environment")
     parser.add_argument("--buffer_length", default=int(1e6), type=int)
-    parser.add_argument("--n_episodes", default=50000, type=int)
+    parser.add_argument("--n_episodes", default=1, type=int)
     parser.add_argument("--climate_zone", default=5, type=int)
-    parser.add_argument("--episode_length", default=25, type=int)
+    parser.add_argument("--episode_length", default=8760*2, type=int)
     parser.add_argument("--batch_size",
-                        default=6, type=int,
+                        default=128, type=int,
                         help="Batch size for training")
-    parser.add_argument("--update_every", default=7, type=int)
-    parser.add_argument("--num_updates", default=4, type=int,
+    parser.add_argument("--update_every", default=50, type=int)
+    parser.add_argument("--num_updates", default=40, type=int,
                         help="Number of updates per update cycle")
-    parser.add_argument("--exploration", default=7, type=int)
+    parser.add_argument("--exploration", default=3000, type=int)
 
     config = parser.parse_args()
 
