@@ -107,4 +107,4 @@ class SquashedGaussianActor(nn.Module):
 
             with torch.no_grad():
                 act, _ = self.forward(obs_, explore)
-                return act.numpy()
+                return act.numpy()[0]
