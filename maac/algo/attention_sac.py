@@ -173,18 +173,17 @@ class AttentionSAC(object):
         critic_rets = self.critic(critic_in)
 
         for a_i, log_pi, q in zip(range(self.num_agents), all_log_pis, critic_rets):
-            print(a_i, log_pi)
             if len(log_pi.shape) == 1:
                 log_pi = log_pi.unsqueeze(dim=-1)
             curr_agent = self.agents[a_i]
             if soft:
-                loss_pi = (log_pi / self.reward_scale - q).mean()
+                loss_pi = (log_pi / self.reward_scale - q.detach()).mean()
             else:
                 loss_pi = (-q).mean()
 
-            # disable_gradients(self.critic)
+            disable_gradients(self.critic)
             loss_pi.backward()
-            # enable_gradients(self.critic)
+            enable_gradients(self.critic)
 
             curr_agent.policy_optimizer.step()
             curr_agent.policy_optimizer.zero_grad()
