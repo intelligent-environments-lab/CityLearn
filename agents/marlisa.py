@@ -175,11 +175,11 @@ class MARLISA:
             if self.information_sharing:
                 state_dim = int((pca_compression) * (2 + len(
                     [j for j in np.hstack(self.encoder[uid] * np.ones(len(self.observation_spaces[uid].low))) if
-                     j != None])))
+                     j is not None])))
             else:
                 state_dim = int((pca_compression) * (
                     len([j for j in np.hstack(self.encoder[uid] * np.ones(len(self.observation_spaces[uid].low))) if
-                         j != None])))
+                         j is not None])))
 
             action_dim = self.action_spaces[uid].shape[0]
             self.alpha[uid] = 0.2
@@ -325,7 +325,7 @@ class MARLISA:
                             k += 1
 
                         x_reg = np.hstack(np.concatenate(([j for j in np.hstack(self.encoder_reg[uid] * state) if
-                                                           j != None][:-1], act.detach().squeeze(0).cpu().numpy())))
+                                                           j is not None][:-1], act.detach().squeeze(0).cpu().numpy())))
                         expected_demand[uid] = self.state_estimator[uid].predict(x_reg.reshape(1, -1))
 
                         if n == n_iterations - 1 and uid == _building_ids[-1]:
@@ -375,8 +375,8 @@ class MARLISA:
                 # Normalize all the states using periodical normalization, one-hot encoding, or -1, 1 scaling. It
                 # also removes states that are not necessary (solar radiation if there are no solar PV panels).
                 x_reg = np.hstack(
-                    np.concatenate(([j for j in np.hstack(self.encoder_reg[uid] * o) if j != None][:-1], a)))
-                y_reg = [j for j in np.hstack(self.encoder_reg[uid] * o2) if j != None][-1]
+                    np.concatenate(([j for j in np.hstack(self.encoder_reg[uid] * o) if j is not None][:-1], a)))
+                y_reg = [j for j in np.hstack(self.encoder_reg[uid] * o2) if j is not None][-1]
 
                 # Push inputs and targets to the regression buffer. The targets are the net electricity consumption.
                 self.reg_buffer[uid].push(x_reg, y_reg)
@@ -385,8 +385,8 @@ class MARLISA:
             if self.regression_flag[uid] > 1:
                 # Normalize all the states using periodical normalization, one-hot encoding, or -1, 1 scaling. It
                 # also removes states that are not necessary (solar radiation if there are no solar PV panels).
-                o = np.array([j for j in np.hstack(self.encoder[uid] * o) if j != None])
-                o2 = np.array([j for j in np.hstack(self.encoder[uid] * o2) if j != None])
+                o = np.array([j for j in np.hstack(self.encoder[uid] * o) if j is not None])
+                o2 = np.array([j for j in np.hstack(self.encoder[uid] * o2) if j is not None])
 
                 # Only executed during the random exploration phase. Pushes unnormalized tuples into the replay buffer.
 
