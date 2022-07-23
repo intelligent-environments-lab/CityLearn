@@ -33,11 +33,9 @@ class AttentionCritic(nn.Module):
         self.num_agents = len(sa_sizes)
         self.attend_heads = attend_heads
 
+        # extract/embed the features
         self.q_encoders = nn.ModuleList()
         self.critics = nn.ModuleList()
-
-        # extract/embed the features
-        self.state_encoders = nn.ModuleList()
 
         # iterate over agents
         for state_dim, action_dim in sa_sizes:
@@ -53,16 +51,6 @@ class AttentionCritic(nn.Module):
             q_encoder.add_module('critic encoder fc 1', nn.Linear(input_dim, hidden_dim))
             q_encoder.add_module('critic encoder activation', nn.LeakyReLU())
             self.q_encoders.append(q_encoder)
-
-            state_encoder = nn.Sequential()
-            if norm_in:
-                pass
-                # state_encoder.add_module('state encoder batch norm', nn.BatchNorm1d(
-                #     state_dim, affine=False))
-            state_encoder.add_module('state encoder fc1', nn.Linear(state_dim,
-                                                                    hidden_dim))
-            state_encoder.add_module('state encoder activation', nn.LeakyReLU())
-            self.state_encoders.append(state_encoder)
 
             critic = nn.Sequential()
             critic.add_module('critic fc 1', nn.Linear(2 * hidden_dim, hidden_dim))
@@ -115,7 +103,6 @@ class AttentionCritic(nn.Module):
         # TODO: state, reward normalization
         if agents is None:
             agents = range(len(self.q_encoders))
-        states = [s for s, _ in inps]
         inps = [torch.cat((s, a), dim=1) for s, a in inps]
         # extract state-action encoding for each agent
         sa_encodings = [q_encoder(inp) for q_encoder, inp in zip(self.q_encoders, inps)]
