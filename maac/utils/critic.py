@@ -100,15 +100,11 @@ class AttentionCritic(nn.Module):
         :param return_attend: return attention weights per agent
         :return:
         """
-        # TODO: state, reward normalization
         if agents is None:
             agents = range(len(self.q_encoders))
         inps = [torch.cat((s, a), dim=1) for s, a in inps]
         # extract state-action encoding for each agent
         sa_encodings = [q_encoder(inp) for q_encoder, inp in zip(self.q_encoders, inps)]
-        # extract state encoding for each agent that we are returning Q for, which I don't think is necessary for
-        # continuous actions spaces because we need to pass in state + act instead of state alone
-        # s_encodings = [self.state_encoders[a_i](states[a_i]) for a_i in agents]
         # extract keys for each head for each agent
         all_head_keys = [[k_ext(enc) for enc in sa_encodings] for k_ext in self.key_extractors]
         # extract sa values for each head for each agent
