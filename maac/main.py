@@ -5,6 +5,7 @@ from torch.autograd import Variable
 from algo.attention_sac import AttentionSAC
 from utils.make_env import make_env
 from utils.encoder import encode
+import matplotlib.pyplot as plt
 
 
 def make_parallel_env(env_id, climate_zone):
@@ -25,9 +26,9 @@ def run(config):
     """
     The main loop.
     Input:
-    :param config: TODO
+    :param config: configuration of the program setup
     Output:
-    :return: TODO
+    :return:
     """
     # 1. Initialize E parallel environments with N agents, including # 2. replay buffer
     # => env = make_parallel_env(some parameters)
@@ -42,9 +43,6 @@ def run(config):
         # 4. T_update <- 0
         t = 0
         explore = True
-
-        if ep_i % 10000 == 0:
-            print("Episodes %i of %i" % (ep_i + 1, config.n_episodes))
 
         # 5. Reset environments, and get initial o_{i}^{e} for each agent, i
         # => model.prep_rollouts()
@@ -73,8 +71,8 @@ def run(config):
 
         # 11. IF T_update >= min steps per update THEN:
         # => normalize the replay buffer
-            if model.replay_buffer_length() >= config.batch_size and (t % config.update_every) == 0:
-                # TODO: gpu
+            if t >= config.update_after and model.replay_buffer_length() >= config.batch_size \
+                    and (t % config.update_every) == 0:
                 model.norm_buffer()
 
             # 12. FOR j = 1...num critic updates DO:
@@ -96,6 +94,17 @@ def run(config):
 
     print("run")
     print(env.cost())
+    sim_period = (0, config.episode_length)
+    interval = range(sim_period[0], sim_period[1])
+    plt.figure(figsize=(16, 5))
+    plt.plot(env.net_electric_consumption_no_pv_no_storage[interval])
+    plt.plot(env.net_electric_consumption_no_storage[interval])
+    plt.plot(env.net_electric_consumption[interval], '--')
+    plt.xlabel('time (hours)')
+    plt.ylabel('kW')
+    plt.legend(['Electricity demand without storage or generation (kW)',
+                'Electricity demand with PV generation and without storage(kW)',
+                'Electricity demand with PV generation and using SAC for storage control (kW)'])
 
 
 if __name__ == "__main__":
@@ -104,14 +113,15 @@ if __name__ == "__main__":
     parser.add_argument("--buffer_length", default=int(1e6), type=int)
     parser.add_argument("--n_episodes", default=1, type=int)
     parser.add_argument("--climate_zone", default=5, type=int)
-    parser.add_argument("--episode_length", default=8760*2, type=int)
+    parser.add_argument("--episode_length", default=25, type=int)
     parser.add_argument("--batch_size",
-                        default=128, type=int,
+                        default=6, type=int,
                         help="Batch size for training")
-    parser.add_argument("--update_every", default=50, type=int)
-    parser.add_argument("--num_updates", default=40, type=int,
+    parser.add_argument("--update_after", default=7)
+    parser.add_argument("--update_every", default=2, type=int)
+    parser.add_argument("--num_updates", default=5, type=int,
                         help="Number of updates per update cycle")
-    parser.add_argument("--exploration", default=3000, type=int)
+    parser.add_argument("--exploration", default=8, type=int)
 
     config = parser.parse_args()
 
