@@ -31,7 +31,6 @@ class SAC(RLC):
 
         # internally defined
         self.__normalized = False
-        self.__alpha = 0.2
         self.__soft_q_criterion = nn.SmoothL1Loss()
         self.__device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.__replay_buffer = ReplayBuffer(int(self.replay_buffer_capacity))

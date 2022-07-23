@@ -13,7 +13,7 @@ except (ModuleNotFoundError, ImportError) as e:
 class RLC(Agent):
     def __init__(
         self, *args, observation_space: spaces.Box, encoders: List[Encoder] = None, hidden_dimension: List[float] = None, 
-        discount: float = None, tau: float = None, lr: float = None, batch_size: int = None,
+        discount: float = None, tau: float = None, alpha: float = None, lr: float = None, batch_size: int = None,
         replay_buffer_capacity: int = None, start_training_time_step: int = None, end_exploration_time_step: int = None, 
         deterministic_start_time_step: int = None, action_scaling_coefficienct: float = None, reward_scaling: float = None, 
         update_per_time_step: int = None, seed: int = None, **kwargs
@@ -35,7 +35,9 @@ class RLC(Agent):
         discount : float, default: 0.99
             Discount factor.
         tau : float, default: 5e-3
-            Exploration-exploitation trade-off.
+            Decay rate.
+        alpha: float, default: 0.2
+            Temperature; exploration-exploitation balance term.
         lr : float, default: 3e-4
             Learning rate.
         batch_size : int, default: 256
@@ -69,6 +71,7 @@ class RLC(Agent):
         self.hidden_dimension = hidden_dimension
         self.discount = discount
         self.tau = tau
+        self.alpha = alpha
         self.lr = lr
         self.batch_size = batch_size
         self.replay_buffer_capacity = replay_buffer_capacity
@@ -112,9 +115,15 @@ class RLC(Agent):
 
     @property
     def tau(self) -> float:
-        """Exploration-exploitation trade-off."""
+        """Decay rate."""
 
         return self.__tau
+
+    @property
+    def alpha(self) -> float:
+        """Temperature; exploration-exploitation balance term."""
+
+        return self.__alpha
     
     @property
     def lr(self) -> float:
@@ -195,6 +204,10 @@ class RLC(Agent):
     @tau.setter
     def tau(self, tau: float):
         self.__tau = 5e-3 if tau is None else tau
+    
+    @alpha.setter
+    def alpha(self, alpha: float):
+        self.__alpha = 0.2 if alpha is None else alpha
     
     @lr.setter
     def lr(self, lr: float):
