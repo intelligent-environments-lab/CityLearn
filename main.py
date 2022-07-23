@@ -19,11 +19,13 @@ params = {'data_path':Path("data/Climate_Zone_"+str(climate_zone)),
         'central_agent': False,
         'save_memory': False }
 
-# Contain the lower and upper bounds of the states and actions, to be provided to the agent to normalize the variables between 0 and 1.
+# Contain the lower and upper bounds of the states and actions, to be provided to the agent to normalize the
+# variables between 0 and 1.
 env = CityLearn(**params)
 observations_spaces, actions_spaces = env.get_state_action_spaces()
 
-# Provides information on Building type, Climate Zone, Annual DHW demand, Annual Cooling Demand, Annual Electricity Demand, Solar Capacity, and correllations among buildings
+# Provides information on Building type, Climate Zone, Annual DHW demand, Annual Cooling Demand, Annual Electricity
+# Demand, Solar Capacity, and correlations among buildings
 building_info = env.get_building_information()
 
 params_agent = {'building_ids':["Building_"+str(i) for i in [1,2,3,4,5,6,7,8,9]],
