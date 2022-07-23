@@ -106,8 +106,7 @@ class AttentionSAC(object):
                 samples[i] = (state, action, reward, next_state, done)
 
         # Q loss
-        with torch.inference_mode():
-            next_acts, next_log_pis = zip(*[a.update_critic(sample) for a, sample in zip(self.agents, samples)])
+        next_acts, next_log_pis = zip(*[a.update_critic(sample) for a, sample in zip(self.agents, samples)])
         obs, acts, rews, next_obs, dones = zip(*samples)
         trgt_critic_in = list(zip(next_obs, next_acts))  # next_acts come from agents' current policy net
         critic_in = list(zip(obs, acts))  # acts are from the replay buffer
