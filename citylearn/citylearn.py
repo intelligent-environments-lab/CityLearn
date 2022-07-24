@@ -676,9 +676,10 @@ class CityLearnEnv(Environment, Env):
         """
         
         if isinstance(self.schema, (str, Path)) and os.path.isfile(self.schema):
-            fullpath = os.path.abspath(self.schema)
+            schema_filepath = Path(self.schema) if isinstance(self.schema, str) else self.schema
             self.schema = read_json(self.schema)
-            self.schema['root_directory'] = fullpath[:fullpath.rindex('/')+1] if self.schema['root_directory'] is None else self.schema['root_directory']
+            self.schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if self.schema['root_directory'] is None\
+                else self.schema['root_directory']
         elif isinstance(self.schema, str) and self.schema in DataSet.get_names():
             self.schema = DataSet.get_schema(self.schema)
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
