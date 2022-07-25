@@ -514,7 +514,7 @@ class CityLearnEnv(Environment, Env):
 
         for building in self.buildings:
             building_info[building.uid] = {}
-            building_info[building.uid]['solar_power_capacity'] = round(building.pv.capacity, 3)
+            building_info[building.uid]['solar_power'] = round(building.pv.nominal_power, 3)
             building_info[building.uid]['annual_dhw_demand'] = round(sum(building.energy_simulation.dhw_demand)/n_years, 3)
             building_info[building.uid]['annual_cooling_demand'] = round(sum(building.energy_simulation.cooling_demand)/n_years, 3)
             building_info[building.uid]['annual_heating_demand'] = round(sum(building.energy_simulation.heating_demand)/n_years, 3)
