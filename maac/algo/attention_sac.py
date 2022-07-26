@@ -1,6 +1,4 @@
-import gym
 import torch
-import numpy as np
 from torch.optim import Adam
 from maac.utils.misc import soft_update, hard_update, enable_gradients, disable_gradients
 from maac.utils.agents import AttentionAgent
@@ -17,11 +15,11 @@ class AttentionSAC(object):
 
     def __init__(self, agent_init_params,
                  sa_size: List[Tuple[int, int]],
-                 gamma: float = 0.98,
+                 gamma: float = 0.99,
                  tau: float = 0.01,
                  reward_scale: float = 5.,
-                 actor_lr: float = 0.01,
-                 critic_lr: float = 0.01,
+                 actor_lr: float = 0.001,
+                 critic_lr: float = 0.001,
                  actor_hidden_dim: int = 128,
                  critic_hidden_dim: int = 128,
                  attend_heads: int = 4,
@@ -125,7 +123,7 @@ class AttentionSAC(object):
                 q_loss += reg  # regularizing attention
         q_loss.backward()
         self.critic.scale_shared_grads()
-        grad_norm = torch.nn.utils.clip_grad_norm(self.critic.parameters(), 10 * self.num_agents)
+        # grad_norm = torch.nn.utils.clip_grad_norm(self.critic.parameters(), 10 * self.num_agents)
         self.critic_optimizer.step()
         self.critic_optimizer.zero_grad()
 
