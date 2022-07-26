@@ -61,7 +61,7 @@ class AttentionAgent(object):
         """
         return self.policy.choose_action(obs, action_spaces, encoder, self.norm_mean, self.norm_std, device, explore)
 
-    def update_critic(self, sample, soft=True):
+    def update_critic(self, sample):
         obs, acts, rews, next_obs, dones = sample
         # Q loss
         pi = self.policy
