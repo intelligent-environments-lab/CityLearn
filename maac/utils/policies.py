@@ -15,8 +15,8 @@ class DummyPolicy:
 
 
 LOG_STD_MAX = 2
-LOG_STD_MIN = -20
-ACT_SCALE = 0.2
+LOG_STD_MIN = -10
+ACT_SCALE = 0.5
 
 
 class SquashedGaussianActor(nn.Module):
@@ -31,6 +31,9 @@ class SquashedGaussianActor(nn.Module):
                  nonlin,
                  hidden_dim,
                  act_limit,
+                 action_space,
+                 action_scaling_coef,
+                 init_w=3e-3
                  ):
         """
         Inputs:
@@ -43,10 +46,23 @@ class SquashedGaussianActor(nn.Module):
         self.fc1 = nn.Linear(state_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, hidden_dim)
         self.mu_layer = nn.Linear(hidden_dim, act_dim)
+        self.mu_layer.weight.data.uniform_(-init_w, init_w)
+        self.mu_layer.bias.data.uniform_(-init_w, init_w)
         self.log_std_layer = nn.Linear(hidden_dim, act_dim)
+        self.log_std_layer.weight.data.uniform_(-init_w, init_w)
+        self.log_std_layer.bias.data.uniform_(-init_w, init_w)
         # need to later refer to rl.py for normalization
         self.act_limit = act_limit
         self.nonlin = nonlin
+        self.reparam_noise = 1e-5
+
+        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        self.to(self.device)
+
+        self.action_scale = torch.FloatTensor(
+            action_scaling_coef * (action_space.high - action_space.low) / 2.)
+        # self.action_bias = torch.FloatTensor(
+        #     action_scaling_coef * (action_space.high + action_space.low) / 2.)
 
     def forward(self, obs, explore=True, with_logprob=False):
         """
@@ -57,8 +73,10 @@ class SquashedGaussianActor(nn.Module):
         """
         x = self.nonlin(self.fc1(obs))
         x = self.nonlin(self.fc2(x))
+
         mu = self.mu_layer(x)
         log_std = self.log_std_layer(x)
+
         log_std = torch.clamp(log_std, LOG_STD_MIN, LOG_STD_MAX)
         std = torch.exp(log_std)
 
@@ -66,20 +84,21 @@ class SquashedGaussianActor(nn.Module):
         pi_distribution = Normal(mu, std)
         if not explore:
             # only used for evaluating policy at test time
-            pi_action = mu
+            # pi_action = torch.tanh(mu) * self.action_scale + self.action_bias
+            pi_actions = mu
         else:
-            pi_action = pi_distribution.rsample()
+            pi_actions = pi_distribution.rsample()
+
+        pi_action = torch.tanh(pi_actions) * torch.tensor(self.action_scale).to(self.device)
 
         if with_logprob:
             # compute logprob from Gaussian, and then apply correction for tanh squashing
             # note: the correction formula is a trick from the paper, a numerically-stable equivalent
-            logp_pi = pi_distribution.log_prob(pi_action).sum(axis=-1)
-            logp_pi -= (2 * (np.log(2) - pi_action - F.softplus(-2 * pi_action))).sum(axis=1)
+            logp_pi = pi_distribution.log_prob(pi_actions)
+            logp_pi -= torch.log(self.action_scale - pi_action.pow(2) + self.reparam_noise)
+            logp_pi = logp_pi.sum(1, keepdim=True)
         else:
             logp_pi = None
-
-        pi_action = torch.tanh(pi_action)
-        pi_action = self.act_limit * pi_action
 
         return pi_action, logp_pi
 
