@@ -2,8 +2,8 @@ import torch
 import numpy as np
 from torch.optim import Adam
 import torch.nn.functional as F
-from .policies import SquashedGaussianActor
-from .buffer import ReplayBuffer
+from policies import SquashedGaussianActor
+from buffer import ReplayBuffer
 
 
 class AttentionAgent(object):
@@ -39,8 +39,8 @@ class AttentionAgent(object):
         self.replay_buffer = ReplayBuffer(self.buffer_length)
         self.action_spaces = action_spaces
         self.reward_scaling = reward_scaling
-        self.policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, activation, hidden_dim, act_limit)
-        self.target_policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, activation, hidden_dim, act_limit)
+        self.policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, activation, hidden_dim, act_limit, action_spaces, 0.5)
+        self.target_policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, activation, hidden_dim, act_limit, action_spaces, 0.5)
         self.policy_optimizer = Adam(self.policy.parameters(), lr=lr)
 
     def step(self,
