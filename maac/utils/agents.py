@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from torch.optim import Adam
 import torch.nn.functional as F
-from .policies import DummyPolicy, SquashedGaussianActor
+from .policies import SquashedGaussianActor
 from .buffer import ReplayBuffer
 
 
@@ -20,7 +20,7 @@ class AttentionAgent(object):
                  action_spaces,
                  hidden_dim=(256, 256),
                  activation=F.leaky_relu,
-                 reward_scaling=5.,
+                 reward_scaling=2.,
                  lr=0.01):
         """
         Inputs:
@@ -42,7 +42,6 @@ class AttentionAgent(object):
         self.policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, activation, hidden_dim, act_limit)
         self.target_policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, activation, hidden_dim, act_limit)
         self.policy_optimizer = Adam(self.policy.parameters(), lr=lr)
-        print("Attention agent created")
 
     def step(self,
              obs: torch.Tensor,
@@ -66,7 +65,8 @@ class AttentionAgent(object):
         # Q loss
         pi = self.policy
         # in SAC, next action comes from current policy
-        curr_next_act, curr_next_log_pi = pi(obs, with_logprob=True)
+        with torch.no_grad():
+            curr_next_act, curr_next_log_pi = pi(obs, with_logprob=True)
 
         return curr_next_act, curr_next_log_pi
 
@@ -75,12 +75,12 @@ class AttentionAgent(object):
             # normalizing the states in replay buffer
             S = np.array([j[0] for j in self.replay_buffer.buffer])
             self.norm_mean = np.mean(S, axis=0)
-            self.norm_std = np.std(S, axis=0) + 1e-5
+            self.norm_std = np.std(S, axis=0) + 1e-2
 
             # normalizing the rewards in replay buffer
             R = np.array([j[2] for j in self.replay_buffer.buffer])
             self.r_norm_mean = np.mean(R)
-            self.r_norm_std = np.std(R) / self.reward_scaling + 1e-5
+            self.r_norm_std = np.std(R) / self.reward_scaling + 1e-2
 
             new_buffer = []
             for s, a, r, s2, dones in self.replay_buffer.buffer:
@@ -91,7 +91,6 @@ class AttentionAgent(object):
 
             self.replay_buffer.buffer = new_buffer
             self.norm_flag = 1
-
 
     def add_to_buffer(self, encoder, state, act, reward, next_state, done):
         # Run once the regression model has been fitted. Normalize all the states using periodical normalization,
