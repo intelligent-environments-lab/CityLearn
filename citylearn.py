@@ -795,7 +795,7 @@ class CityLearn(gym.Env):
         # Average of all the daily peaks of the 365 day of the year. The peaks are calculated using the net energy
         # demand of the whole district of buildings.
         if 'average_daily_peak' in self.cost_function:
-            cost['average_daily_peak'] = np.mean([self.net_electric_consumption[i:i + 24].max() for i in
+            cost['average_daily_peak'] = np.mean([np.array(self.net_electric_consumption[i:i + 24]).max() for i in
                                                   range(0, len(self.net_electric_consumption), 24)]) / self.cost_rbc[
                                              'average_daily_peak']
             c_score.append(cost['average_daily_peak'])
@@ -809,11 +809,11 @@ class CityLearn(gym.Env):
 
         # Peak demand of the district for the whole year period.
         if 'peak_demand' in self.cost_function:
-            cost['peak_demand'] = self.net_electric_consumption.max() / self.cost_rbc['peak_demand']
+            cost['peak_demand'] = np.array(self.net_electric_consumption).max() / self.cost_rbc['peak_demand']
             c_score.append(cost['peak_demand'])
 
             if self.simulation_period[1] - self.simulation_period[0] > 8760:
-                cost_last_yr['peak_demand_last_yr'] = self.net_electric_consumption[-8760:].max() / \
+                cost_last_yr['peak_demand_last_yr'] = np.array(self.net_electric_consumption[-8760:]).max() / \
                                                       self.cost_rbc_last_yr['peak_demand_last_yr']
                 c_score_last_yr.append(cost_last_yr['peak_demand_last_yr'])
 
@@ -821,23 +821,23 @@ class CityLearn(gym.Env):
         # objective is to minimize the energy consumed in the district, not to profit from the excess generation. (
         # Island operation is therefore incentivized)
         if 'net_electricity_consumption' in self.cost_function:
-            cost['net_electricity_consumption'] = self.net_electric_consumption.clip(min=0).sum() / self.cost_rbc[
+            cost['net_electricity_consumption'] = np.array(self.net_electric_consumption).clip(min=0).sum() / self.cost_rbc[
                 'net_electricity_consumption']
 
             if self.simulation_period[1] - self.simulation_period[0] > 8760:
-                cost_last_yr['net_electricity_consumption_last_yr'] = self.net_electric_consumption[-8760:].clip(
+                cost_last_yr['net_electricity_consumption_last_yr'] = np.arraY(self.net_electric_consumption[-8760:]).clip(
                     min=0).sum() / self.cost_rbc_last_yr['net_electricity_consumption_last_yr']
 
         if 'carbon_emissions' in self.cost_function:
-            cost['carbon_emissions'] = self.carbon_emissions.sum() / self.cost_rbc['carbon_emissions']
+            cost['carbon_emissions'] = np.array(self.carbon_emissions).sum() / self.cost_rbc['carbon_emissions']
 
             if self.simulation_period[1] - self.simulation_period[0] > 8760:
-                cost_last_yr['carbon_emissions_last_yr'] = self.carbon_emissions[-8760:].sum() / self.cost_rbc_last_yr[
+                cost_last_yr['carbon_emissions_last_yr'] = np.array(self.carbon_emissions[-8760:]).sum() / self.cost_rbc_last_yr[
                     'carbon_emissions_last_yr']
 
         # Not used for the challenge
         if 'quadratic' in self.cost_function:
-            cost['quadratic'] = (self.net_electric_consumption.clip(min=0) ** 2).sum() / self.cost_rbc['quadratic']
+            cost['quadratic'] = (np.array(self.net_electric_consumption).clip(min=0) ** 2).sum() / self.cost_rbc['quadratic']
             c_score.append(cost['quadratic'])
 
             if self.simulation_period[1] - self.simulation_period[0] > 8760:
