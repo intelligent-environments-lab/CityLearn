@@ -3,6 +3,7 @@ import random
 from torch import Tensor
 from torch.autograd import Variable
 
+
 class ReplayBuffer(object):
     """
     Replay buffer
