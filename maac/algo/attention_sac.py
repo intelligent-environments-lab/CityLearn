@@ -17,7 +17,7 @@ class AttentionSAC(object):
                  sa_size: List[Tuple[int, int]],
                  gamma: float = 0.99,
                  tau: float = 0.01,
-                 reward_scale: float = 5.,
+                 reward_scale: float = 2.,
                  actor_lr: float = 0.001,
                  critic_lr: float = 0.001,
                  actor_hidden_dim: int = 128,
@@ -74,11 +74,10 @@ class AttentionSAC(object):
         return [a.step(obs, a.action_spaces, e, device=self.device, explore=explore)
                 for a, e, obs in zip(self.agents, encoder.values(), observations)]
 
-    def update_critics(self, samples, soft=True):
+    def update_critics(self, samples):
         """
         Update central critic for all agents
         :param samples:
-        :param soft:
         :return:
         """
         for i in range(len(samples)):  # 9 agents, 9 samples
@@ -108,16 +107,17 @@ class AttentionSAC(object):
         obs, acts, rews, next_obs, dones = zip(*samples)
         trgt_critic_in = list(zip(next_obs, next_acts))  # next_acts come from agents' current policy net
         critic_in = list(zip(obs, acts))  # acts are from the replay buffer
-        next_qs = self.target_critic(trgt_critic_in)
+        with torch.no_grad():
+            next_qs = self.target_critic(trgt_critic_in)
         critic_rets = self.critic(critic_in, regularize=True)
 
         q_loss = 0
         for a_i, next_q, log_pi, (q, regs) in zip(range(self.num_agents), next_qs, next_log_pis, critic_rets):
             if len(log_pi.shape) == 1:
                 log_pi = log_pi.unsqueeze(dim=-1)
-            target_q = (rews[a_i].view(-1, 1) + self.gamma * next_q * (1 - dones[a_i].view(-1, 1)))
-            if soft:
-                target_q -= log_pi / self.reward_scale
+            with torch.no_grad():
+                target_q = (rews[a_i].view(-1, 1) +
+                            self.gamma * (next_q - log_pi / self.reward_scale) * (1 - dones[a_i].view(-1, 1)))
             q_loss += MSELoss(q, target_q.detach())
             for reg in regs:
                 q_loss += reg  # regularizing attention
@@ -127,11 +127,10 @@ class AttentionSAC(object):
         self.critic_optimizer.step()
         self.critic_optimizer.zero_grad()
 
-    def update_policies(self, samples, soft=True, **kwargs):
+    def update_policies(self, samples, **kwargs):
         """
         Update the policy network of each agent
         :param samples:
-        :param soft:
         :param kwargs:
         :return:
         """
@@ -173,10 +172,8 @@ class AttentionSAC(object):
             if len(log_pi.shape) == 1:
                 log_pi = log_pi.unsqueeze(dim=-1)
             curr_agent = self.agents[a_i]
-            if soft:
-                loss_pi = (log_pi / self.reward_scale - q.detach()).mean()
-            else:
-                loss_pi = (-q).mean()
+
+            loss_pi = (log_pi / self.reward_scale - q.detach()).mean()
 
             disable_gradients(self.critic)
             loss_pi.backward()
@@ -190,9 +187,10 @@ class AttentionSAC(object):
         Update all target networks (called after normal updates have been
         performed for each agent) using polyak
         """
-        soft_update(self.target_critic, self.critic, self.tau)
-        for a in self.agents:
-            soft_update(a.target_policy, a.policy, self.tau)
+        with torch.no_grad():
+            soft_update(self.target_critic, self.critic, self.tau)
+            for a in self.agents:
+                soft_update(a.target_policy, a.policy, self.tau)
 
     def norm_buffer(self):
         """
