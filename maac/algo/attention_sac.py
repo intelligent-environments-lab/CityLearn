@@ -1,3 +1,4 @@
+import itertools
 import torch
 from torch.optim import Adam
 from maac.utils.misc import soft_update, hard_update, enable_gradients, disable_gradients
@@ -16,12 +17,12 @@ class AttentionSAC(object):
     def __init__(self, agent_init_params,
                  sa_size: List[Tuple[int, int]],
                  gamma: float = 0.99,
-                 tau: float = 0.01,
+                 tau: float = 0.005,
                  reward_scale: float = 2.,
                  actor_lr: float = 0.001,
                  critic_lr: float = 0.001,
-                 actor_hidden_dim: int = 128,
-                 critic_hidden_dim: int = 128,
+                 actor_hidden_dim: int = 256,
+                 critic_hidden_dim: int = 256,
                  attend_heads: int = 4,
                  **kwargs):
         """
@@ -33,14 +34,27 @@ class AttentionSAC(object):
                                       hidden_dim=actor_hidden_dim,
                                       **params)
                        for params in agent_init_params]
-        self.critic = AttentionCritic(sa_size,
-                                      hidden_dim=critic_hidden_dim,
-                                      attend_heads=attend_heads)
-        self.target_critic = AttentionCritic(sa_size,
-                                             hidden_dim=critic_hidden_dim,
-                                             attend_heads=attend_heads)
-        hard_update(self.target_critic, self.critic)
-        self.critic_optimizer = Adam(self.critic.parameters(), lr=critic_lr, weight_decay=1e-3)
+        self.critic1 = AttentionCritic(sa_size,
+                                       hidden_dim=critic_hidden_dim,
+                                       attend_heads=attend_heads)
+        self.target_critic1 = AttentionCritic(sa_size,
+                                              hidden_dim=critic_hidden_dim,
+                                              attend_heads=attend_heads)
+        hard_update(self.target_critic1, self.critic1)
+        # Freeze target networks with respect to optimizers (only update via polyak averaging)
+        for p in self.target_critic1.parameters():
+            p.requires_grad = False
+        self.critic2 = AttentionCritic(sa_size,
+                                       hidden_dim=critic_hidden_dim,
+                                       attend_heads=attend_heads)
+        self.target_critic2 = AttentionCritic(sa_size,
+                                              hidden_dim=critic_hidden_dim,
+                                              attend_heads=attend_heads)
+        hard_update(self.target_critic2, self.critic2)
+        for p in self.target_critic2.parameters():
+            p.requires_grad = False
+        self.q_params = itertools.chain(self.critic1.parameters(), self.critic2.parameters())
+        self.critic_optimizer = Adam(self.q_params, lr=critic_lr, weight_decay=1e-3)
         self.gamma = gamma
         self.reward_scale = reward_scale
         self.tau = tau
@@ -71,7 +85,7 @@ class AttentionSAC(object):
         :param explore:
         :return:
         """
-        return [a.step(obs, a.action_spaces, e, device=self.device, explore=explore)
+        return [a.step(obs, a.action_spaces, e, explore=explore)
                 for a, e, obs in zip(self.agents, encoder.values(), observations)]
 
     def update_critics(self, samples):
@@ -101,29 +115,43 @@ class AttentionSAC(object):
                 reward = torch.FloatTensor(reward).unsqueeze(1).to(self.device)
                 done = torch.FloatTensor(done).unsqueeze(1).to(self.device)
                 samples[i] = (state, action, reward, next_state, done)
-
-        # Q loss
-        next_acts, next_log_pis = zip(*[a.update_critic(sample) for a, sample in zip(self.agents, samples)])
         obs, acts, rews, next_obs, dones = zip(*samples)
-        trgt_critic_in = list(zip(next_obs, next_acts))  # next_acts come from agents' current policy net
-        critic_in = list(zip(obs, acts))  # acts are from the replay buffer
-        with torch.no_grad():
-            next_qs = self.target_critic(trgt_critic_in)
-        critic_rets = self.critic(critic_in, regularize=True)
 
-        q_loss = 0
-        for a_i, next_q, log_pi, (q, regs) in zip(range(self.num_agents), next_qs, next_log_pis, critic_rets):
-            if len(log_pi.shape) == 1:
-                log_pi = log_pi.unsqueeze(dim=-1)
-            with torch.no_grad():
-                target_q = (rews[a_i].view(-1, 1) +
-                            self.gamma * (next_q - log_pi / self.reward_scale) * (1 - dones[a_i].view(-1, 1)))
-            q_loss += MSELoss(q, target_q.detach())
-            for reg in regs:
-                q_loss += reg  # regularizing attention
+        # Q-value
+        critic_in = list(zip(obs, acts))  # acts are from the replay buffer
+        critic_rets1 = self.critic1(critic_in, regularize=True)
+        critic_rets2 = self.critic2(critic_in, regularize=True)
+
+        # target-Q
+        with torch.no_grad():
+            next_acts, next_log_pis = zip(
+                *[a.compute_next_act_logpi(next_ob) for a, next_ob in zip(self.agents, next_obs)])
+            trgt_critic_in = list(zip(next_obs, next_acts))  # next_acts come from agents' current policy net
+            backups = torch.zeros(self.num_agents, len(samples[0][0]), 1)
+            target_qs1 = self.target_critic1(trgt_critic_in)
+            target_qs2 = self.target_critic2(trgt_critic_in)
+            target_qs = [torch.min(target_q1, target_q2) for target_q1, target_q2 in zip(target_qs1, target_qs2)]
+            for a_i, target_q, log_pi in zip(range(self.num_agents), target_qs, next_log_pis):
+                backups[a_i] = (rews[a_i].view(-1, 1) +
+                                self.gamma * (target_q - log_pi / self.reward_scale) * (1 - dones[a_i].view(-1, 1)))
+
+        # compute Q loss
+        loss_qs1 = torch.zeros(self.num_agents)
+        loss_qs2 = torch.zeros(self.num_agents)
+        loss_qs = torch.zeros(self.num_agents)
+        for a_i, (critic_ret1, reg1), (critic_ret2, reg2), backup in zip(range(self.num_agents),
+                                                                         critic_rets1, critic_rets2, backups):
+            loss_qs1[a_i] = ((critic_ret1 - backup.detach()) ** 2).mean()
+            loss_qs1[a_i] += reg1[0]
+            loss_qs2[a_i] = ((critic_ret2 - backup.detach()) ** 2).mean()
+            loss_qs2[a_i] += reg2[0]
+            loss_qs[a_i] = loss_qs1[a_i] + loss_qs2[a_i]
+
+        q_loss = torch.sum(loss_qs)
+
         q_loss.backward()
-        self.critic.scale_shared_grads()
-        # grad_norm = torch.nn.utils.clip_grad_norm(self.critic.parameters(), 10 * self.num_agents)
+        self.critic1.scale_shared_grads()
+        self.critic2.scale_shared_grads()
         self.critic_optimizer.step()
         self.critic_optimizer.zero_grad()
 
@@ -161,23 +189,28 @@ class AttentionSAC(object):
         samp_acts = []
         all_log_pis = []
         for a_i, pi, ob in zip(range(self.num_agents), self.policies, obs):
-            curr_act,  log_pi = pi(ob, with_logprob=True)
+            curr_act, log_pi = pi(ob, with_logprob=True)
             samp_acts.append(curr_act)
             all_log_pis.append(log_pi)
 
         critic_in = list(zip(obs, samp_acts))
-        critic_rets = self.critic(critic_in)
+        critic_rets1 = self.critic1(critic_in)
+        critic_rets2 = self.critic2(critic_in)
+        q_pis = [torch.min(critic_ret1, critic_ret2)
+                 for critic_ret1, critic_ret2 in zip(critic_rets1, critic_rets2)]
 
-        for a_i, log_pi, q in zip(range(self.num_agents), all_log_pis, critic_rets):
+        for a_i, log_pi, q_pi in zip(range(self.num_agents), all_log_pis, q_pis):
             if len(log_pi.shape) == 1:
                 log_pi = log_pi.unsqueeze(dim=-1)
             curr_agent = self.agents[a_i]
 
-            loss_pi = (log_pi / self.reward_scale - q.detach()).mean()
+            loss_pi = (log_pi / self.reward_scale - q_pi.detach()).mean()
 
-            disable_gradients(self.critic)
+            disable_gradients(self.critic1)
+            disable_gradients(self.critic2)
             loss_pi.backward()
-            enable_gradients(self.critic)
+            enable_gradients(self.critic1)
+            enable_gradients(self.critic2)
 
             curr_agent.policy_optimizer.step()
             curr_agent.policy_optimizer.zero_grad()
@@ -188,7 +221,8 @@ class AttentionSAC(object):
         performed for each agent) using polyak
         """
         with torch.no_grad():
-            soft_update(self.target_critic, self.critic, self.tau)
+            soft_update(self.target_critic1, self.critic1, self.tau)
+            soft_update(self.target_critic2, self.critic2, self.tau)
             for a in self.agents:
                 soft_update(a.target_policy, a.policy, self.tau)
 
