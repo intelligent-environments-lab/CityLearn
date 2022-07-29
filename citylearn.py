@@ -825,7 +825,7 @@ class CityLearn(gym.Env):
                 'net_electricity_consumption']
 
             if self.simulation_period[1] - self.simulation_period[0] > 8760:
-                cost_last_yr['net_electricity_consumption_last_yr'] = np.arraY(self.net_electric_consumption[-8760:]).clip(
+                cost_last_yr['net_electricity_consumption_last_yr'] = np.array(self.net_electric_consumption[-8760:]).clip(
                     min=0).sum() / self.cost_rbc_last_yr['net_electricity_consumption_last_yr']
 
         if 'carbon_emissions' in self.cost_function:
