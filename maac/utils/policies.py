@@ -89,7 +89,7 @@ class SquashedGaussianActor(nn.Module):
         else:
             pi_actions = pi_distribution.rsample()
 
-        pi_action = torch.tanh(pi_actions) * torch.tensor(self.action_scale).to(self.device)
+        pi_action = (self.action_scale * torch.tanh(pi_actions)).to(self.device)
 
         if with_logprob:
             # compute logprob from Gaussian, and then apply correction for tanh squashing
@@ -102,7 +102,7 @@ class SquashedGaussianActor(nn.Module):
 
         return pi_action, logp_pi
 
-    def choose_action(self, obs, action_spaces, encoder, norm_mean, norm_std, device, explore=True):
+    def choose_action(self, obs, action_spaces, encoder, norm_mean, norm_std, explore=True):
         """
         Agent chooses an action to take a step. If explore, we just sample from the action spaces; if deterministic,
         we first normalize the states and pass through the policy net to get an action base on the network output
@@ -111,18 +111,35 @@ class SquashedGaussianActor(nn.Module):
         :param encoder:
         :param norm_mean:
         :param norm_std:
-        :param device:
         :param explore:
         :return:
         """
         if explore:
-            act = ACT_SCALE * action_spaces.sample()
+            multiplier = 0.4
+            hour_day = obs[2]
+            a_dim = len(action_spaces.sample())
+
+            act = [0.0 for _ in range(a_dim)]
+            if 7 <= hour_day <= 11:
+                act = [-0.05 * multiplier for _ in range(a_dim)]
+            elif 12 <= hour_day <= 15:
+                act = [-0.05 * multiplier for _ in range(a_dim)]
+            elif 16 <= hour_day <= 18:
+                act = [-0.11 * multiplier for _ in range(a_dim)]
+            elif 19 <= hour_day <= 22:
+                act = [-0.06 * multiplier for _ in range(a_dim)]
+
+            # Early nighttime: store DHW and/or cooling energy
+            if 23 <= hour_day <= 24:
+                act = [0.085 * multiplier for _ in range(a_dim)]
+            elif 1 <= hour_day <= 6:
+                act = [0.1383 * multiplier for _ in range(a_dim)]
             return act
         else:
             state_normalizer = [norm_mean, norm_std]
             obs_ = np.array([j for j in np.hstack(encoder * obs.detach().numpy()) if j is not None])
             obs_ = normalize(obs_, state_normalizer)
-            obs_ = torch.FloatTensor(obs_).unsqueeze(0).to(device)
+            obs_ = torch.FloatTensor(obs_).unsqueeze(0).to(self.device)
 
             with torch.no_grad():
                 act, _ = self.forward(obs_, explore)
