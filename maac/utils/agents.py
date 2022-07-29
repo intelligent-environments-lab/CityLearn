@@ -2,8 +2,8 @@ import torch
 import numpy as np
 from torch.optim import Adam
 import torch.nn.functional as F
-from policies import SquashedGaussianActor
-from buffer import ReplayBuffer
+from .policies import SquashedGaussianActor
+from .buffer import ReplayBuffer
 
 
 class AttentionAgent(object):
@@ -41,34 +41,36 @@ class AttentionAgent(object):
         self.reward_scaling = reward_scaling
         self.policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, activation, hidden_dim, act_limit, action_spaces, 0.5)
         self.target_policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, activation, hidden_dim, act_limit, action_spaces, 0.5)
+        # Freeze target networks with respect to optimizers (only update via polyak averaging)
+        for p in self.target_policy.parameters():
+            p.requires_grad = False
         self.policy_optimizer = Adam(self.policy.parameters(), lr=lr)
 
     def step(self,
              obs: torch.Tensor,
              action_spaces,
              encoder,
-             device,
              explore: bool = False
              ) -> torch.Tensor:
         """
         Take a step forward in environment for a minibatch of observations
         Inputs:
+        :param encoder:
+        :param action_spaces:
         :param obs: Observations for this agent
         :param explore: Whether to sample or not
         Outputs:
         :return: action: Action for this agent
         """
-        return self.policy.choose_action(obs, action_spaces, encoder, self.norm_mean, self.norm_std, device, explore)
+        return self.policy.choose_action(obs, action_spaces, encoder, self.norm_mean, self.norm_std, explore)
 
-    def update_critic(self, sample):
-        obs, acts, rews, next_obs, dones = sample
-        # Q loss
+    def compute_next_act_logpi(self, next_obs_sample):
+        next_obs = next_obs_sample
         pi = self.policy
-        # in SAC, next action comes from current policy
-        with torch.no_grad():
-            curr_next_act, curr_next_log_pi = pi(obs, with_logprob=True)
+        # in SAC, next action comes from *current* policy
+        next_act, next_log_pi = pi(next_obs, with_logprob=True)
 
-        return curr_next_act, curr_next_log_pi
+        return next_act, next_log_pi
 
     def normalize_buffer(self):
         if self.norm_flag == 0:
