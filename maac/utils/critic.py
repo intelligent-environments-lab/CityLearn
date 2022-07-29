@@ -54,8 +54,10 @@ class AttentionCritic(nn.Module):
 
             critic = nn.Sequential()
             critic.add_module('critic fc 1', nn.Linear(2 * hidden_dim, hidden_dim))
-            critic.add_module('critic activation', nn.LeakyReLU())
-            critic.add_module('critic fc 2', nn.Linear(hidden_dim, output_dim))
+            critic.add_module('critic activation 1', nn.LeakyReLU())
+            critic.add_module('critic fc 2', nn.Linear(hidden_dim, hidden_dim))
+            critic.add_module('critic activation 2', nn.LeakyReLU())
+            critic.add_module('critic fc 3', nn.Linear(hidden_dim, output_dim))
             self.critics.append(critic)
 
             attend_dim = hidden_dim // attend_heads
@@ -71,7 +73,6 @@ class AttentionCritic(nn.Module):
 
             self.shared_modules = [self.key_extractors, self.selector_extractors,
                                    self.value_extractors, self.q_encoders]
-            # TODO: in the paper, each agent does not pay attention to itself
 
     def shared_parameters(self):
         """
@@ -91,7 +92,7 @@ class AttentionCritic(nn.Module):
     def forward(self, inps, agents=None, return_q=True, regularize=False, return_attend=False):
         """
         Inputs:
-        :param inps (list of PyTorch matrices): Inputs to each agent's encoder (batch of obs + ac)
+        :param inps: (list of PyTorch matrices) Inputs to each agent's encoder (batch of obs + ac)
                 for the target critic network, the actions are sampled from the *current* policy;
                 for the critic network, the actions come from a batch of replay buffer.
         :param agents: indices of agents
