@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 from torch.optim import Adam
-import torch.nn.functional as F
 from .policies import SquashedGaussianActor
 from .buffer import ReplayBuffer
 
@@ -14,20 +13,18 @@ class AttentionAgent(object):
     def __init__(self,
                  dim_in_actor,
                  dim_out_actor,
-                 act_limit,
+                 action_scaling_coef,
                  norm_flag,
                  buffer_length,
                  action_spaces,
-                 hidden_dim=(256, 256),
-                 activation=F.leaky_relu,
-                 reward_scaling=2.,
+                 hidden_dim=(400, 300),
+                 reward_scaling=5.,
                  lr=0.01):
         """
         Inputs:
         :param dim_in_actor: number of dimensions for policy input
         :param dim_out_actor: number of dimensions for policy output
         :param hidden_dim:
-        :param activation
         :param lr:
         """
         self.norm_mean = 0
@@ -39,8 +36,8 @@ class AttentionAgent(object):
         self.replay_buffer = ReplayBuffer(self.buffer_length)
         self.action_spaces = action_spaces
         self.reward_scaling = reward_scaling
-        self.policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, activation, hidden_dim, act_limit, action_spaces, 0.5)
-        self.target_policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, activation, hidden_dim, act_limit, action_spaces, 0.5)
+        self.policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, action_spaces, action_scaling_coef, hidden_dim)
+        self.target_policy = SquashedGaussianActor(dim_in_actor, dim_out_actor, action_spaces, action_scaling_coef, hidden_dim)
         # Freeze target networks with respect to optimizers (only update via polyak averaging)
         for p in self.target_policy.parameters():
             p.requires_grad = False
@@ -50,7 +47,8 @@ class AttentionAgent(object):
              obs: torch.Tensor,
              action_spaces,
              encoder,
-             explore: bool = False
+             explore: bool = False,
+             deterministic: bool = False
              ) -> torch.Tensor:
         """
         Take a step forward in environment for a minibatch of observations
@@ -59,18 +57,12 @@ class AttentionAgent(object):
         :param action_spaces:
         :param obs: Observations for this agent
         :param explore: Whether to sample or not
+                :param deterministic:
         Outputs:
         :return: action: Action for this agent
         """
-        return self.policy.choose_action(obs, action_spaces, encoder, self.norm_mean, self.norm_std, explore)
-
-    def compute_next_act_logpi(self, next_obs_sample):
-        next_obs = next_obs_sample
-        pi = self.policy
-        # in SAC, next action comes from *current* policy
-        next_act, next_log_pi = pi(next_obs, with_logprob=True)
-
-        return next_act, next_log_pi
+        return self.policy.choose_action(obs, action_spaces, encoder,
+                                         self.norm_mean, self.norm_std, explore, deterministic)
 
     def normalize_buffer(self):
         if self.norm_flag == 0:
