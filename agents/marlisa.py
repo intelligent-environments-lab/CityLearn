@@ -14,7 +14,7 @@ class MARLISA:
                  building_info,
                  observation_spaces=None,
                  action_spaces=None,
-                 hidden_dim=[400, 300],
+                 hidden_dim=None,
                  discount=0.99,
                  tau=5e-3,
                  lr=3e-4,
@@ -33,6 +33,8 @@ class MARLISA:
                  safe_exploration=False,
                  seed=0):
 
+        if hidden_dim is None:
+            hidden_dim = [400, 300]
         assert start_training > start_regression, 'start_training must be greater than start_regression'
 
         with open(buildings_states_actions) as json_file:
@@ -83,9 +85,15 @@ class MARLISA:
             self.total_coef += self.energy_size_coef[uid]
 
         for uid in self.energy_size_coef:
-            self.energy_size_coef[uid] = self.energy_size_coef[uid] / self.total_coef
+            self.energy_size_coef[uid] /= self.total_coef
 
-        self.replay_buffer, self.reg_buffer, self.soft_q_net1, self.soft_q_net2, self.target_soft_q_net1, self.target_soft_q_net2, self.policy_net, self.soft_q_optimizer1, self.soft_q_optimizer2, self.policy_optimizer, self.target_entropy, self.alpha, self.log_alpha, self.alpha_optimizer, self.pca, self.encoder, self.encoder_reg, self.state_estimator, self.norm_mean, self.norm_std, self.r_norm_mean, self.r_norm_std, self.log_pi_tracker = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+        self.replay_buffer, self.reg_buffer, self.soft_q_net1, self.soft_q_net2, self.target_soft_q_net1, \
+        self.target_soft_q_net2, self.policy_net, self.soft_q_optimizer1, self.soft_q_optimizer2, \
+        self.policy_optimizer, self.target_entropy, self.alpha, self.log_alpha, self.alpha_optimizer, self.pca, \
+        self.encoder, self.encoder_reg, self.state_estimator, self.norm_mean, self.norm_std, self.r_norm_mean, \
+        self.r_norm_std, self.log_pi_tracker = \
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+
         for uid in building_ids:
             self.state_estimator[uid] = LinearRegression()
             self.critic1_loss_[uid], self.critic2_loss_[uid], self.actor_loss_[uid], self.alpha_loss_[uid], self.alpha_[
@@ -173,11 +181,11 @@ class MARLISA:
 
             # PCA will reduce the number of dimensions of the state space to 2/3 of its the original size
             if self.information_sharing:
-                state_dim = int((pca_compression) * (2 + len(
+                state_dim = int(pca_compression * (2 + len(
                     [j for j in np.hstack(self.encoder[uid] * np.ones(len(self.observation_spaces[uid].low))) if
                      j is not None])))
             else:
-                state_dim = int((pca_compression) * (
+                state_dim = int(pca_compression * (
                     len([j for j in np.hstack(self.encoder[uid] * np.ones(len(self.observation_spaces[uid].low))) if
                          j is not None])))
 
@@ -264,7 +272,6 @@ class MARLISA:
                     elif 1 <= hour_day <= 6:
                         act = [0.1383 * multiplier for _ in range(a_dim)]
 
-
                 #                     # Daytime: release stored energy
                 #                     act = [0.0 for _ in range(a_dim)]
                 #                     if hour_day >= 9 and hour_day <= 21:
@@ -282,7 +289,8 @@ class MARLISA:
 
                 if self.time_step > self.start_regression and self.information_sharing:
                     x_reg = np.hstack(
-                        np.concatenate(([j for j in np.hstack(self.encoder_reg[uid] * state) if j != None][:-1], act)))
+                        np.concatenate(([j for j in np.hstack(
+                            self.encoder_reg[uid] * state) if j is not None][:-1], act)))
                     expected_demand[uid] = self.state_estimator[uid].predict(x_reg.reshape(1, -1))
                     _total_demand += expected_demand[uid]
 
@@ -304,7 +312,7 @@ class MARLISA:
                 while n < n_iterations:
                     capacity_dispatched = 0
                     for uid, uid_next, state in zip(_building_ids, _building_ids_next, _states):
-                        state_ = np.array([j for j in np.hstack(self.encoder[uid] * state) if j != None])
+                        state_ = np.array([j for j in np.hstack(self.encoder[uid] * state) if j is not None])
 
                         # Adding shared information to the state
                         if self.information_sharing:
@@ -350,7 +358,7 @@ class MARLISA:
                     k += 1
             else:
                 for uid, uid_next, state in zip(_building_ids, _building_ids_next, _states):
-                    state_ = np.array([j for j in np.hstack(self.encoder[uid] * state) if j != None])
+                    state_ = np.array([j for j in np.hstack(self.encoder[uid] * state) if j is not None])
 
                     state_ = (state_ - self.norm_mean[uid]) / self.norm_std[uid]
                     state_ = self.pca[uid].transform(state_.reshape(1, -1))[0]
