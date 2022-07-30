@@ -1,11 +1,14 @@
 import argparse
+import time
 import torch
 import numpy as np
 from torch.autograd import Variable
 from algo.attention_sac import AttentionSAC
+from logger.logx import EpochLogger
+from logger.plotting import EpisodeStats, plot_episode_stats
 from utils.make_env import make_env
 from utils.encoder import encode
-import matplotlib.pyplot as plt
+from utils.misc import count_vars
 
 
 def make_parallel_env(env_id, climate_zone):
@@ -22,7 +25,7 @@ def make_parallel_env(env_id, climate_zone):
     return env
 
 
-def run(config):
+def run(config, logger_kwargs=dict()):
     """
     The main loop.
     Input:
@@ -30,99 +33,127 @@ def run(config):
     Output:
     :return:
     """
-    # 1. Initialize E parallel environments with N agents, including # 2. replay buffer
-    # => env = make_parallel_env(some parameters)
+
+    # Logger
+    logger = EpochLogger(**logger_kwargs)
+    logger.save_config(locals())
+
+    torch.manual_seed(config.seed)
+    np.random.seed(config.seed)
+
+    # Initialize E parallel environments with N agents, including # 2. replay buffer
     env = make_parallel_env(config.env_id, config.climate_zone)
 
     encoder, state_dim = encode(env)
 
     model = AttentionSAC.init_from_env(env, state_dim, config.buffer_length)
 
-    # 3. FOR i_ep = 1 ... num_episode DO:
-    for ep_i in range(0, config.n_episodes):
-        # 4. T_update <- 0
-        t = 0
-        explore = True
+    # Count variables (protip: try to get a feel for how different size networks behave!)
+    var_counts = tuple(count_vars(module) for module in [model.critic1, model.critic2,
+                                                         model.agents[0].policy, model.agents[4].policy])
+    logger.log('\nNumber of parameters: \t critic1: %d, \t critic2: %d, \t pi[0]: %d, \t pi[4]: %d\n' % var_counts)
 
-        # 5. Reset environments, and get initial o_{i}^{e} for each agent, i
-        # => model.prep_rollouts()
+    # Set up model saving
+    logger.setup_pytorch_saver(model.critic1)
+    logger.setup_pytorch_saver(model.agents[0].policy)
+
+    start_time = time.time()
+
+    # Keeps track of useful statistics
+    stats = EpisodeStats(
+        episode_rewards=np.zeros(config.n_episodes),
+        episode_costs=np.zeros(config.n_episodes)
+    )
+
+    for ep_i in range(0, config.n_episodes):
+        print("Episodes %i of %i" % (ep_i + 1,
+                                     config.n_episodes))
+        t, ep_ret = 0, 0
+        explore = True
+        deterministic = False
+
         obs = env.reset()
 
-        # 6. FOR t = 1...steps per episode DO:
         for et_i in range(config.episode_length):
+            if et_i % 200 == 0:
+                print("Episode time %i of %i" % (et_i + 1, config.episode_length))
             torch_obs = [Variable(torch.Tensor(np.hstack(obs[i])),
                                   requires_grad=False)
                          for i in range(model.num_agents)]
 
-        # 7. Select actions a_{i}^{e} ~ pi_{i}(·|o_{i}^{e}) for each agent, i, in each environment, e
-            agent_actions = model.step(torch_obs, encoder, explore=explore)
+            # Select actions a_{i}^{e} ~ pi_{i}(·|o_{i}^{e}) for each agent, i, in each environment, e
+            agent_actions = model.step(torch_obs, encoder, explore=explore, deterministic=deterministic)
 
-        # 8. Send actions to all parallel environments and get o'_{i}^{e}, r'_{i}^{e} for all agents
+            # Send actions to all parallel environments and get o'_{i}^{e}, r'_{i}^{e} for all agents
             next_obs, rewards, dones, _ = env.step(agent_actions)
+            if (et_i + 1) % 200 == 0:
+                print(np.array(rewards).mean())
+            ep_ret += np.array(rewards).mean()
 
-        # 9. Store transitions for all environments in D
             model.add_to_buffer(encoder, obs, agent_actions, rewards, next_obs, dones)
 
             obs = next_obs
 
-        # 10. T_update
             t += 1
-            explore = t < config.exploration
+            explore = t <= config.exploration
+            deterministic = (t >= config.episode_length * 0.75)
 
-        # 11. IF T_update >= min steps per update THEN:
-        # => normalize the replay buffer
+            # Update statistics
+            stats.episode_rewards[ep_i] += np.array(rewards).mean()
+
+            # End of trajectory handling
+            if t == config.episode_length - 1:
+                stats.episode_costs[ep_i] = env.cost().get("total")
+                print("{}th episode reward is: {}".format(ep_i + 1, stats.episode_rewards[ep_i]))
+                print("{}th episode total cost is: {}".format(ep_i + 1, stats.episode_costs[ep_i]))
+                logger.store(EpRet=ep_ret, EpLen=t)
+                ep_ret, ep_len = 0, 0
+
             if t >= config.update_after and model.replay_buffer_length() >= config.batch_size \
                     and (t % config.update_every) == 0:
                 model.norm_buffer()
 
-            # 12. FOR j = 1...num critic updates DO:
                 for u_i in range(config.num_updates):
-                    # 13. Sample minibatch, B
                     samples = model.sample(config.batch_size)
 
-                    # 14 -- 20. UpdateCritic(B) ...
                     for a in model.agents:
-                        assert(a.norm_flag == 1)
+                        assert (a.norm_flag == 1)
                     model.update_critics(samples)
-                    model.update_policies(samples, soft=True)
+                    model.update_policies(samples)
                     model.update_all_targets()
-            # EndFor
-    # 21. T_update <- 0
-    # EndIf
-    # EndFor
-    # EndFor
+
+    logger.log_tabular('EpRet', with_min_and_max=True)
+    logger.log_tabular('EpLen', average_only=True)
+    logger.log_tabular('Time', time.time() - start_time)
+    logger.dump_tabular()
 
     print("run")
-    print(env.cost())
-    sim_period = (0, config.episode_length)
-    interval = range(sim_period[0], sim_period[1])
-    plt.figure(figsize=(16, 5))
-    plt.plot(env.net_electric_consumption_no_pv_no_storage[interval])
-    plt.plot(env.net_electric_consumption_no_storage[interval])
-    plt.plot(env.net_electric_consumption[interval], '--')
-    plt.xlabel('time (hours)')
-    plt.ylabel('kW')
-    plt.legend(['Electricity demand without storage or generation (kW)',
-                'Electricity demand with PV generation and without storage(kW)',
-                'Electricity demand with PV generation and using SAC for storage control (kW)'])
+    env.cost()
+    return env, stats
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Experimenting Actor-Attention-Critic")
-    parser.add_argument("--env_id", default="1", help="Name of environment")
+    parser = argparse.ArgumentParser(description="Multi-Agent Actor-Attention-Critic")
+    parser.add_argument("--env_id", default="5", help="Name of environment")
     parser.add_argument("--buffer_length", default=int(1e6), type=int)
     parser.add_argument("--n_episodes", default=1, type=int)
     parser.add_argument("--climate_zone", default=5, type=int)
-    parser.add_argument("--episode_length", default=25, type=int)
+    parser.add_argument("--episode_length", default=1000, type=int)
     parser.add_argument("--batch_size",
-                        default=6, type=int,
+                        default=200, type=int,
                         help="Batch size for training")
-    parser.add_argument("--update_after", default=7)
-    parser.add_argument("--update_every", default=2, type=int)
-    parser.add_argument("--num_updates", default=5, type=int,
+    parser.add_argument("--update_after", default=300)
+    parser.add_argument("--update_every", default=20, type=int)
+    parser.add_argument("--num_updates", default=1, type=int,
                         help="Number of updates per update cycle")
-    parser.add_argument("--exploration", default=8, type=int)
+    parser.add_argument("--exploration", default=400, type=int)
+    parser.add_argument("--exp_name", type=str, default="maac")
+    parser.add_argument("--seed", type=int, default=42)
 
     config = parser.parse_args()
 
-    run(config)
+    from maac.logger.run_utils import setup_logger_kwargs
+
+    logger_kwargs = setup_logger_kwargs(config.exp_name, config.seed)
+
+    run(config, logger_kwargs=logger_kwargs)
