@@ -1,12 +1,11 @@
 import itertools
 import torch
+import torch.nn as nn
 from torch.optim import Adam
 from maac.utils.misc import soft_update, hard_update, enable_gradients, disable_gradients
 from maac.utils.agents import AttentionAgent
 from maac.utils.critic import AttentionCritic
 from typing import List, Tuple
-
-MSELoss = torch.nn.MSELoss()
 
 
 class AttentionSAC(object):
@@ -18,10 +17,10 @@ class AttentionSAC(object):
                  sa_size: List[Tuple[int, int]],
                  gamma: float = 0.99,
                  tau: float = 0.005,
-                 reward_scale: float = 2.,
+                 alpha: float = 0.2,
                  actor_lr: float = 0.001,
                  critic_lr: float = 0.001,
-                 actor_hidden_dim: int = 256,
+                 actor_hidden_dim: Tuple = (400, 300),
                  critic_hidden_dim: int = 256,
                  attend_heads: int = 4,
                  **kwargs):
@@ -56,8 +55,10 @@ class AttentionSAC(object):
         self.q_params = itertools.chain(self.critic1.parameters(), self.critic2.parameters())
         self.critic_optimizer = Adam(self.q_params, lr=critic_lr, weight_decay=1e-3)
         self.gamma = gamma
-        self.reward_scale = reward_scale
+        self.alpha = alpha
         self.tau = tau
+        # Optimizers/Loss using the Huber loss
+        self.soft_q_criterion = nn.SmoothL1Loss()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print("Created algo - AttentionSAC ")
 
@@ -77,15 +78,16 @@ class AttentionSAC(object):
         """
         return [a.target_policy for a in self.agents]
 
-    def step(self, observations, encoder, explore=False):
+    def step(self, observations, encoder, explore=False, deterministic=False):
         """
         Each agent takes a step in the environment
         :param observations:
         :param encoder:
         :param explore:
+        :param deterministic
         :return:
         """
-        return [a.step(obs, a.action_spaces, e, explore=explore)
+        return [a.step(obs, a.action_spaces, e, explore=explore, deterministic=deterministic)
                 for a, e, obs in zip(self.agents, encoder.values(), observations)]
 
     def update_critics(self, samples):
@@ -124,8 +126,8 @@ class AttentionSAC(object):
 
         # target-Q
         with torch.no_grad():
-            next_acts, next_log_pis = zip(
-                *[a.compute_next_act_logpi(next_ob) for a, next_ob in zip(self.agents, next_obs)])
+            next_acts, next_log_pis, _ = zip(
+                *[a.policy.sample(next_ob) for a, next_ob in zip(self.agents, next_obs)])
             trgt_critic_in = list(zip(next_obs, next_acts))  # next_acts come from agents' current policy net
             backups = torch.zeros(self.num_agents, len(samples[0][0]), 1)
             target_qs1 = self.target_critic1(trgt_critic_in)
@@ -133,7 +135,7 @@ class AttentionSAC(object):
             target_qs = [torch.min(target_q1, target_q2) for target_q1, target_q2 in zip(target_qs1, target_qs2)]
             for a_i, target_q, log_pi in zip(range(self.num_agents), target_qs, next_log_pis):
                 backups[a_i] = (rews[a_i].view(-1, 1) +
-                                self.gamma * (target_q - log_pi / self.reward_scale) * (1 - dones[a_i].view(-1, 1)))
+                                self.gamma * (target_q - self.alpha * log_pi) * (1 - dones[a_i].view(-1, 1)))
 
         # compute Q loss
         loss_qs1 = torch.zeros(self.num_agents)
@@ -141,9 +143,9 @@ class AttentionSAC(object):
         loss_qs = torch.zeros(self.num_agents)
         for a_i, (critic_ret1, reg1), (critic_ret2, reg2), backup in zip(range(self.num_agents),
                                                                          critic_rets1, critic_rets2, backups):
-            loss_qs1[a_i] = ((critic_ret1 - backup.detach()) ** 2).mean()
+            loss_qs1[a_i] = self.soft_q_criterion(critic_ret1, backup)
             loss_qs1[a_i] += reg1[0]
-            loss_qs2[a_i] = ((critic_ret2 - backup.detach()) ** 2).mean()
+            loss_qs1[a_i] = self.soft_q_criterion(critic_ret2, backup)
             loss_qs2[a_i] += reg2[0]
             loss_qs[a_i] = loss_qs1[a_i] + loss_qs2[a_i]
 
@@ -189,7 +191,7 @@ class AttentionSAC(object):
         samp_acts = []
         all_log_pis = []
         for a_i, pi, ob in zip(range(self.num_agents), self.policies, obs):
-            curr_act, log_pi = pi(ob, with_logprob=True)
+            curr_act, log_pi, _ = pi.sample(ob)
             samp_acts.append(curr_act)
             all_log_pis.append(log_pi)
 
@@ -204,7 +206,7 @@ class AttentionSAC(object):
                 log_pi = log_pi.unsqueeze(dim=-1)
             curr_agent = self.agents[a_i]
 
-            loss_pi = (log_pi / self.reward_scale - q_pi.detach()).mean()
+            loss_pi = (self.alpha * log_pi - q_pi.detach()).mean()
 
             disable_gradients(self.critic1)
             disable_gradients(self.critic2)
@@ -283,8 +285,8 @@ class AttentionSAC(object):
             sa_size.append((obs_space, act_space.shape[0]))
             agent_init_params.append({"dim_in_actor": obs_space,
                                       "dim_out_actor": act_space.shape[0],
-                                      "act_limit": act_space.high[0],
                                       "action_spaces": act_space,
+                                      "action_scaling_coef": 1.,
                                       "buffer_length": buffer_length})
         init_dict = {
             "sa_size": sa_size,
