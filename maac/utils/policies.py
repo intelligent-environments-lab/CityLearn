@@ -3,20 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions.normal import Normal
-from maac.utils.buffer import ReplayBuffer
 from maac.utils.encoder import normalize
-
-
-class DummyPolicy:
-    """
-    It's just a dummy policy
-    """
-    pass
-
-
-LOG_STD_MAX = 2
-LOG_STD_MIN = -10
-ACT_SCALE = 0.5
 
 
 class SquashedGaussianActor(nn.Module):
@@ -28,12 +15,13 @@ class SquashedGaussianActor(nn.Module):
     def __init__(self,
                  state_dim: int,
                  act_dim: int,
-                 nonlin,
-                 hidden_dim,
-                 act_limit,
                  action_space,
                  action_scaling_coef,
-                 init_w=3e-3
+                 hidden_dim=None,
+                 init_w=3e-3,
+                 log_std_min=-10,
+                 log_std_max=2,
+                 reparam_noise=1e-5
                  ):
         """
         Inputs:
@@ -43,66 +31,66 @@ class SquashedGaussianActor(nn.Module):
             nonlin (PyTorch function): Nonlinearity to apply to hidden layers
         """
         super(SquashedGaussianActor, self).__init__()
-        self.fc1 = nn.Linear(state_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.mu_layer = nn.Linear(hidden_dim, act_dim)
+        if hidden_dim is None:
+            hidden_dim = [400, 300]
+
+        self.linear1 = nn.Linear(state_dim, hidden_dim[0])
+        self.linear2 = nn.Linear(hidden_dim[0], hidden_dim[1])
+
+        self.mu_layer = nn.Linear(hidden_dim[1], act_dim)
+        self.log_std_layer = nn.Linear(hidden_dim[1], act_dim)
+
         self.mu_layer.weight.data.uniform_(-init_w, init_w)
         self.mu_layer.bias.data.uniform_(-init_w, init_w)
-        self.log_std_layer = nn.Linear(hidden_dim, act_dim)
+
         self.log_std_layer.weight.data.uniform_(-init_w, init_w)
         self.log_std_layer.bias.data.uniform_(-init_w, init_w)
-        # need to later refer to rl.py for normalization
-        self.act_limit = act_limit
-        self.nonlin = nonlin
-        self.reparam_noise = 1e-5
+
+        self.log_std_min = log_std_min
+        self.log_std_max = log_std_max
+        self.reparam_noise = reparam_noise
+
+        self.action_scale = torch.FloatTensor(
+            action_scaling_coef * (action_space.high - action_space.low) / 2.)
+        self.action_bias = torch.FloatTensor(
+            action_scaling_coef * (action_space.high + action_space.low) / 2.)
 
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.to(self.device)
 
-        self.action_scale = torch.FloatTensor(
-            action_scaling_coef * (action_space.high - action_space.low) / 2.)
-        # self.action_bias = torch.FloatTensor(
-        #     action_scaling_coef * (action_space.high + action_space.low) / 2.)
-
-    def forward(self, obs, explore=True, with_logprob=False):
+    def forward(self, obs):
         """
         Inputs:
             obs (PyTorch Matrix): batch of observations
         Outputs:
             out (PyTorch Matrix): Actions
         """
-        x = self.nonlin(self.fc1(obs))
-        x = self.nonlin(self.fc2(x))
+        x = F.relu(self.linear1(obs))
+        x = F.relu(self.linear2(x))
 
         mu = self.mu_layer(x)
         log_std = self.log_std_layer(x)
 
-        log_std = torch.clamp(log_std, LOG_STD_MIN, LOG_STD_MAX)
+        log_std = torch.clamp(log_std, min=self.log_std_min, max=self.log_std_max)
+
+        return mu, log_std
+
+    def sample(self, obs):
+        mu, log_std = self.forward(obs)
         std = torch.exp(log_std)
 
         # pre-squash distribution and sample
         pi_distribution = Normal(mu, std)
-        if not explore:
-            # only used for evaluating policy at test time
-            # pi_action = torch.tanh(mu) * self.action_scale + self.action_bias
-            pi_actions = mu
-        else:
-            pi_actions = pi_distribution.rsample()
+        x_t = pi_distribution.rsample()  # for reparameterization trick (mean + std * N(0,1))
+        y_t = torch.tanh(x_t)
+        action = y_t * self.action_scale + self.action_bias
+        log_pi = pi_distribution.log_prob(x_t)
+        log_pi -= torch.log(self.action_scale * (1 - y_t.pow(2)) + self.reparam_noise)
+        log_pi = log_pi.sum(1, keepdim=True)
+        mu = torch.tanh(mu) * self.action_scale + self.action_bias
+        return action, log_pi, mu
 
-        pi_action = (self.action_scale * torch.tanh(pi_actions)).to(self.device)
-
-        if with_logprob:
-            # compute logprob from Gaussian, and then apply correction for tanh squashing
-            # note: the correction formula is a trick from the paper, a numerically-stable equivalent
-            logp_pi = pi_distribution.log_prob(pi_actions)
-            logp_pi -= torch.log(self.action_scale - pi_action.pow(2) + self.reparam_noise)
-            logp_pi = logp_pi.sum(1, keepdim=True)
-        else:
-            logp_pi = None
-
-        return pi_action, logp_pi
-
-    def choose_action(self, obs, action_spaces, encoder, norm_mean, norm_std, explore=True):
+    def choose_action(self, obs, action_spaces, encoder, norm_mean, norm_std, explore=True, deterministic=False):
         """
         Agent chooses an action to take a step. If explore, we just sample from the action spaces; if deterministic,
         we first normalize the states and pass through the policy net to get an action base on the network output
@@ -112,10 +100,11 @@ class SquashedGaussianActor(nn.Module):
         :param norm_mean:
         :param norm_std:
         :param explore:
+        :param deterministic:
         :return:
         """
         if explore:
-            multiplier = 0.4
+            multiplier = 0.32
             hour_day = obs[2]
             a_dim = len(action_spaces.sample())
 
@@ -141,6 +130,9 @@ class SquashedGaussianActor(nn.Module):
             obs_ = normalize(obs_, state_normalizer)
             obs_ = torch.FloatTensor(obs_).unsqueeze(0).to(self.device)
 
-            with torch.no_grad():
-                act, _ = self.forward(obs_, explore)
-                return act.numpy()[0]
+            if deterministic:
+                _, _, act = self.sample(obs_)
+            else:
+                act, _, _ = self.sample(obs_)
+
+            return act.detach().cpu().numpy()[0]
