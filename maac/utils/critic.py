@@ -62,17 +62,13 @@ class AttentionCritic(nn.Module):
             critic = nn.Sequential()
             critic.add_module('critic fc 1', nn.Linear(2 * hidden_dim, hidden_dim))
             critic.add_module('critic activation 1', nn.LeakyReLU())
-            critic.add_module('critic fc 2', nn.Linear(hidden_dim, hidden_dim))
-            critic.add_module('critic activation 2', nn.LeakyReLU())
-            critic.add_module('critic fc 3', nn.Linear(hidden_dim, output_dim))
+            critic.add_module('critic fc 2', nn.Linear(hidden_dim, output_dim))
             self.critics.append(critic)
 
             value = nn.Sequential()
             value.add_module('value fc 1', nn.Linear(2 * hidden_dim, hidden_dim))
             value.add_module('value activation 1', nn.LeakyReLU())
-            value.add_module('value fc 2', nn.Linear(hidden_dim, hidden_dim))
-            value.add_module('value activation 2', nn.LeakyReLU())
-            value.add_module('value fc 3', nn.Linear(hidden_dim, output_dim))
+            value.add_module('value fc 2', nn.Linear(hidden_dim, output_dim))
             self.values.append(value)
 
             attend_dim = hidden_dim // attend_heads
