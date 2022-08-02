@@ -206,46 +206,36 @@ class AttentionSAC(object):
 
             critic_in = list(zip(obs, samp_acts))
             # critic_rets1, critic_rets2, vals1, vals2 = [], [], [], []
-            #critic_rets1 = self.critic1(critic_in)
-            #critic_rets2 = self.critic2(critic_in)
+            critic_rets1 = self.critic1(critic_in)
+            critic_rets2 = self.critic2(critic_in)
             # for a_i in range(self.num_agents):
             #     critic_rets1.append(self.critic1(critic_in)[a_i][0])
             #     vals1.append(self.critic1(critic_in)[a_i][1])
             #     critic_rets2.append(self.critic2(critic_in)[a_i][0])
             #     vals2.append(self.critic2(critic_in)[a_i][1])
-            #q_pis = [torch.min(critic_ret1, critic_ret2)
-            #         for critic_ret1, critic_ret2 in zip(critic_rets1, critic_rets2)]
+            q_pis = [torch.min(critic_ret1, critic_ret2)
+                     for critic_ret1, critic_ret2 in zip(critic_rets1, critic_rets2)]
             # vals = [torch.min(val1, val2) for val1, val2 in zip(vals1, vals2)]
 
             loss_pi = []
-            for a_i, log_pi in zip(range(self.num_agents), all_log_pis):
+            for a_i, log_pi, q_pi in zip(range(self.num_agents), all_log_pis, q_pis):
                 if len(log_pi.shape) == 1:
                     log_pi = log_pi.unsqueeze(dim=-1)
                 # target_q = q_pi - val
-                critic_rets1 = self.critic1(critic_in)
-                critic_rets2 = self.critic2(critic_in)
-                q_pis = [torch.min(critic_ret1, critic_ret2)
-                         for critic_ret1, critic_ret2 in zip(critic_rets1, critic_rets2)]
-                q_pi = q_pis[a_i]
-
                 loss_pi.append((self.alpha * log_pi - q_pi).mean())
 
                 disable_gradients(self.critic1)
                 disable_gradients(self.critic2)
-                loss_pi[a_i].backward(
-                    #retain_graph=True
-                    )
+                loss_pi[a_i].backward(retain_graph=True)
                 enable_gradients(self.critic1)
                 enable_gradients(self.critic2)
+                # curr_agent.policy_optimizer.step()
+                # curr_agent.policy_optimizer.zero_grad()
 
+            for a_i in range(self.num_agents):
                 curr_agent = self.agents[a_i]
                 curr_agent.policy_optimizer.step()
                 curr_agent.policy_optimizer.zero_grad()
-
-            # for a_i in range(self.num_agents):
-            #     curr_agent = self.agents[a_i]
-            #     curr_agent.policy_optimizer.step()
-            #     curr_agent.policy_optimizer.zero_grad()
 
     def update_all_targets(self):
         """
