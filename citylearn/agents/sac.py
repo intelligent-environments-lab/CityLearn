@@ -110,12 +110,6 @@ class SAC(RLC):
         return self.__replay_buffer
 
     @property
-    def alpha(self) -> float:
-        """alpha."""
-
-        return self.__alpha
-
-    @property
     def soft_q_criterion(self) -> nn.SmoothL1Loss:
         """soft_q_criterion."""
         
