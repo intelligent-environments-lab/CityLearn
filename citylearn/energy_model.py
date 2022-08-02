@@ -156,11 +156,7 @@ class HeatPump(ElectricDevice):
 
     @ElectricDevice.efficiency.setter
     def efficiency(self, efficiency: float):
-        if efficiency is None:
-            efficiency = 0.2
-        else:
-            pass
-
+        efficiency = 0.2 if efficiency is None else efficiency
         ElectricDevice.efficiency.fset(self, efficiency)
 
     def get_cop(self, outdoor_dry_bulb_temperature: Union[float, Iterable[float]], heating: bool) -> Union[float, Iterable[float]]:
@@ -312,11 +308,7 @@ class ElectricHeater(ElectricDevice):
 
     @ElectricDevice.efficiency.setter
     def efficiency(self, efficiency: float):
-        if efficiency is None:
-            efficiency = 0.9
-        else:
-            pass
-
+        efficiency = 0.9 if efficiency is None else efficiency   
         ElectricDevice.efficiency.fset(self, efficiency)
 
     def get_max_output_power(self, max_electric_power: Union[float, Iterable[float]] = None) -> Union[float, Iterable[float]]:
@@ -528,11 +520,7 @@ class StorageDevice(Device):
 
     @Device.efficiency.setter
     def efficiency(self, efficiency: float):
-        if efficiency is None:
-            efficiency = 0.9
-        else:
-            pass
-
+        efficiency = 0.9 if efficiency is None else efficiency
         Device.efficiency.fset(self, efficiency**self.efficiency_scaling)
 
     @capacity.setter
@@ -768,18 +756,14 @@ class Battery(ElectricDevice, StorageDevice):
         energy_balance[energy_balance < 0.0] /= self.efficiency*efficiency_history[energy_balance < 0.0]
         return energy_balance
 
-    @StorageDevice.capacity.setter
+    @capacity.setter
     def capacity(self, capacity: float):
         StorageDevice.capacity.fset(self, capacity)
         self.__capacity_history.append(capacity)
 
-    @StorageDevice.efficiency.setter
+    @efficiency.setter
     def efficiency(self, efficiency: float):
-        if efficiency is None:
-            efficiency = 0.9
-        else:
-            pass
-
+        efficiency = 0.9 if efficiency is None else efficiency
         StorageDevice.efficiency.fset(self, efficiency)
         self.__efficiency_history.append(efficiency)
 
@@ -908,5 +892,5 @@ class Battery(ElectricDevice, StorageDevice):
         r"""Reset `Battery` to initial state."""
 
         super().reset()
-        self.__efficiency_history = self.efficiency_history[0:1]
-        self.__capacity_history = self.capacity_history[0:1]
+        self.__efficiency_history = self.__efficiency_history[0:1]
+        self.__capacity_history = self.__capacity_history[0:1]
