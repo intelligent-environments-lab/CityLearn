@@ -18,7 +18,7 @@ class SquashedGaussianActor(nn.Module):
                  action_space,
                  action_scaling_coef,
                  hidden_dim=None,
-                 init_w=3e-3,
+                 init_w=3e-2,
                  log_std_min=-10,
                  log_std_max=2,
                  reparam_noise=1e-5

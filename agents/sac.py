@@ -15,10 +15,10 @@ class SAC:
                  discount=0.99,
                  tau=5e-3,
                  lr=3e-4,
-                 batch_size=6,
+                 batch_size=128,
                  replay_buffer_capacity=1e5,
-                 start_training=5000,
-                 exploration_period=7000,
+                 start_training=200,
+                 exploration_period=250,
                  action_scaling_coef=0.5,
                  reward_scaling=5.,
                  update_per_step=2,
@@ -140,7 +140,7 @@ class SAC:
         actions = []
         k = 0
 
-        deterministic = (self.time_step > 3*8760)
+        deterministic = (self.time_step > 300)
 
         for uid, state in zip(self.building_ids, states):
             if explore:

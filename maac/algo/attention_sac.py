@@ -16,7 +16,7 @@ class AttentionSAC(object):
     def __init__(self, agent_init_params,
                  sa_size: List[Tuple[int, int]],
                  gamma: float = 0.99,
-                 tau: float = 0.005,
+                 tau: float = 0.008,
                  alpha: float = 0.2,
                  actor_lr: float = 0.001,
                  critic_lr: float = 0.001,
@@ -28,6 +28,7 @@ class AttentionSAC(object):
         Inputs:
         """
         self.num_agents = len(sa_size)
+        self.agent_init_params = agent_init_params
         self.agents = [AttentionAgent(lr=actor_lr,
                                       norm_flag=0,
                                       hidden_dim=actor_hidden_dim,
@@ -120,42 +121,47 @@ class AttentionSAC(object):
         obs, acts, rews, next_obs, dones = zip(*samples)
 
         # Q-value
-        critic_in = list(zip(obs, acts))  # acts are from the replay buffer
-        critic_rets1 = self.critic1(critic_in, regularize=True)
-        critic_rets2 = self.critic2(critic_in, regularize=True)
+        with torch.autograd.set_detect_anomaly(True):
+            critic_in = list(zip(obs, acts))  # acts are from the replay buffer
+            critic_rets1 = self.critic1(critic_in, regularize=True)
+            critic_rets2 = self.critic2(critic_in, regularize=True)
 
-        # target-Q
-        with torch.no_grad():
-            next_acts, next_log_pis, _ = zip(
-                *[a.policy.sample(next_ob) for a, next_ob in zip(self.agents, next_obs)])
-            trgt_critic_in = list(zip(next_obs, next_acts))  # next_acts come from agents' current policy net
-            backups = torch.zeros(self.num_agents, len(samples[0][0]), 1)
-            target_qs1 = self.target_critic1(trgt_critic_in)
-            target_qs2 = self.target_critic2(trgt_critic_in)
-            target_qs = [torch.min(target_q1, target_q2) for target_q1, target_q2 in zip(target_qs1, target_qs2)]
-            for a_i, target_q, log_pi in zip(range(self.num_agents), target_qs, next_log_pis):
-                backups[a_i] = (rews[a_i].view(-1, 1) +
-                                self.gamma * (target_q - self.alpha * log_pi) * (1 - dones[a_i].view(-1, 1)))
+            # target-Q
+            with torch.no_grad():
+                next_acts, next_log_pis, _ = zip(
+                    *[a.policy.sample(next_ob) for a, next_ob in zip(self.agents, next_obs)])
+                trgt_critic_in = list(zip(next_obs, next_acts))  # next_acts come from agents' current policy net
+                backups = torch.zeros(self.num_agents, len(samples[0][0]), 1)
+                # target_qs1, target_qs2 = [], []
+                # for a_i in range(self.num_agents):
+                #     target_qs1.append(self.target_critic1(trgt_critic_in)[a_i][0])
+                #     target_qs2.append(self.target_critic2(trgt_critic_in)[a_i][0])
+                target_qs1 = self.target_critic1(trgt_critic_in)
+                target_qs2 = self.target_critic2(trgt_critic_in)
+                target_qs = [torch.min(target_q1, target_q2) for target_q1, target_q2 in zip(target_qs1, target_qs2)]
+                for a_i, target_q, log_pi in zip(range(self.num_agents), target_qs, next_log_pis):
+                    backups[a_i] = (rews[a_i].view(-1, 1) +
+                                    self.gamma * (target_q - self.alpha * log_pi) * (1 - dones[a_i].view(-1, 1)))
 
-        # compute Q loss
-        loss_qs1 = torch.zeros(self.num_agents)
-        loss_qs2 = torch.zeros(self.num_agents)
-        loss_qs = torch.zeros(self.num_agents)
-        for a_i, (critic_ret1, reg1), (critic_ret2, reg2), backup in zip(range(self.num_agents),
-                                                                         critic_rets1, critic_rets2, backups):
-            loss_qs1[a_i] = self.soft_q_criterion(critic_ret1, backup)
-            loss_qs1[a_i] += reg1[0]
-            loss_qs1[a_i] = self.soft_q_criterion(critic_ret2, backup)
-            loss_qs2[a_i] += reg2[0]
-            loss_qs[a_i] = loss_qs1[a_i] + loss_qs2[a_i]
+            # compute Q loss
+            loss_qs1 = torch.zeros(self.num_agents)
+            loss_qs2 = torch.zeros(self.num_agents)
+            loss_qs = torch.zeros(self.num_agents)
+            for a_i, (critic_ret1, reg1), (critic_ret2, reg2), backup in zip(range(self.num_agents),
+                                                                             critic_rets1, critic_rets2, backups):
+                loss_qs1[a_i] = self.soft_q_criterion(critic_ret1, backup)
+                loss_qs1[a_i] += reg1[0]
+                loss_qs2[a_i] = self.soft_q_criterion(critic_ret2, backup)
+                loss_qs2[a_i] += reg2[0]
+                loss_qs[a_i] = loss_qs1[a_i] + loss_qs2[a_i]
 
-        q_loss = torch.sum(loss_qs)
+            q_loss = torch.sum(loss_qs)
 
-        q_loss.backward()
-        self.critic1.scale_shared_grads()
-        self.critic2.scale_shared_grads()
-        self.critic_optimizer.step()
-        self.critic_optimizer.zero_grad()
+            q_loss.backward()
+            self.critic1.scale_shared_grads()
+            self.critic2.scale_shared_grads()
+            self.critic_optimizer.step()
+            self.critic_optimizer.zero_grad()
 
     def update_policies(self, samples, **kwargs):
         """
@@ -190,32 +196,56 @@ class AttentionSAC(object):
 
         samp_acts = []
         all_log_pis = []
-        for a_i, pi, ob in zip(range(self.num_agents), self.policies, obs):
-            curr_act, log_pi, _ = pi.sample(ob)
-            samp_acts.append(curr_act)
-            all_log_pis.append(log_pi)
+        # curr_act = [torch.zeros(size=acts[i].size()) for i in range(self.num_agents)]
+        # log_pi = [torch.zeros(size=acts[i].size()) for i in range(self.num_agents)]
+        with torch.autograd.set_detect_anomaly(True):
+            for a_i, pi, ob in zip(range(self.num_agents), self.policies, obs):
+                curr_act, log_pi, _ = pi.sample(ob)
+                samp_acts.append(curr_act)
+                all_log_pis.append(log_pi)
 
-        critic_in = list(zip(obs, samp_acts))
-        critic_rets1 = self.critic1(critic_in)
-        critic_rets2 = self.critic2(critic_in)
-        q_pis = [torch.min(critic_ret1, critic_ret2)
-                 for critic_ret1, critic_ret2 in zip(critic_rets1, critic_rets2)]
+            critic_in = list(zip(obs, samp_acts))
+            # critic_rets1, critic_rets2, vals1, vals2 = [], [], [], []
+            #critic_rets1 = self.critic1(critic_in)
+            #critic_rets2 = self.critic2(critic_in)
+            # for a_i in range(self.num_agents):
+            #     critic_rets1.append(self.critic1(critic_in)[a_i][0])
+            #     vals1.append(self.critic1(critic_in)[a_i][1])
+            #     critic_rets2.append(self.critic2(critic_in)[a_i][0])
+            #     vals2.append(self.critic2(critic_in)[a_i][1])
+            #q_pis = [torch.min(critic_ret1, critic_ret2)
+            #         for critic_ret1, critic_ret2 in zip(critic_rets1, critic_rets2)]
+            # vals = [torch.min(val1, val2) for val1, val2 in zip(vals1, vals2)]
 
-        for a_i, log_pi, q_pi in zip(range(self.num_agents), all_log_pis, q_pis):
-            if len(log_pi.shape) == 1:
-                log_pi = log_pi.unsqueeze(dim=-1)
-            curr_agent = self.agents[a_i]
+            loss_pi = []
+            for a_i, log_pi in zip(range(self.num_agents), all_log_pis):
+                if len(log_pi.shape) == 1:
+                    log_pi = log_pi.unsqueeze(dim=-1)
+                # target_q = q_pi - val
+                critic_rets1 = self.critic1(critic_in)
+                critic_rets2 = self.critic2(critic_in)
+                q_pis = [torch.min(critic_ret1, critic_ret2)
+                         for critic_ret1, critic_ret2 in zip(critic_rets1, critic_rets2)]
+                q_pi = q_pis[a_i]
 
-            loss_pi = (self.alpha * log_pi - q_pi.detach()).mean()
+                loss_pi.append((self.alpha * log_pi - q_pi).mean())
 
-            disable_gradients(self.critic1)
-            disable_gradients(self.critic2)
-            loss_pi.backward()
-            enable_gradients(self.critic1)
-            enable_gradients(self.critic2)
+                disable_gradients(self.critic1)
+                disable_gradients(self.critic2)
+                loss_pi[a_i].backward(
+                    #retain_graph=True
+                    )
+                enable_gradients(self.critic1)
+                enable_gradients(self.critic2)
 
-            curr_agent.policy_optimizer.step()
-            curr_agent.policy_optimizer.zero_grad()
+                curr_agent = self.agents[a_i]
+                curr_agent.policy_optimizer.step()
+                curr_agent.policy_optimizer.zero_grad()
+
+            # for a_i in range(self.num_agents):
+            #     curr_agent = self.agents[a_i]
+            #     curr_agent.policy_optimizer.step()
+            #     curr_agent.policy_optimizer.zero_grad()
 
     def update_all_targets(self):
         """

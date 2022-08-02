@@ -65,12 +65,12 @@ def auto_size(buildings):
             # If the device is an electric heater
             elif isinstance(building.dhw_heating_device, ElectricHeater):
                 building.dhw_heating_device.nominal_power = (
-                            np.array(building.sim_results['dhw_demand']) / building.dhw_heating_device.efficiency).max()
+                        np.array(building.sim_results['dhw_demand']) / building.dhw_heating_device.efficiency).max()
 
         # Autosize guarantees that the cooling device is large enough to always satisfy the maximum DHW demand
         if building.cooling_device.nominal_power == 'autosize':
             building.cooling_device.nominal_power = (
-                        np.array(building.sim_results['cooling_demand']) / building.cooling_device.cop_cooling).max()
+                    np.array(building.sim_results['cooling_demand']) / building.cooling_device.cop_cooling).max()
 
         # Defining the capacity of the storage devices as a number of times the maximum demand
         building.dhw_storage.capacity = max(building.sim_results['dhw_demand']) * building.dhw_storage.capacity
@@ -284,16 +284,16 @@ def building_loader(data_path, building_attributes, weather_file, solar_profile,
         if isinstance(building.dhw_heating_device, HeatPump):
             # Calculating COPs of the heat pumps for every hour
             building.dhw_heating_device.cop_heating = building.dhw_heating_device.eta_tech * (
-                        building.dhw_heating_device.t_target_heating + 273.15) / (
-                                                                  building.dhw_heating_device.t_target_heating -
-                                                                  weather_data['Outdoor Drybulb Temperature [C]'])
+                    building.dhw_heating_device.t_target_heating + 273.15) / (
+                                                              building.dhw_heating_device.t_target_heating -
+                                                              weather_data['Outdoor Drybulb Temperature [C]'])
             building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating < 0] = 20.0
             building.dhw_heating_device.cop_heating[building.dhw_heating_device.cop_heating > 20] = 20.0
             building.dhw_heating_device.cop_heating = building.dhw_heating_device.cop_heating.to_numpy()
 
         building.cooling_device.cop_cooling = building.cooling_device.eta_tech * (
-                    building.cooling_device.t_target_cooling + 273.15) / (weather_data[
-                                                                              'Outdoor Drybulb Temperature [C]'] - building.cooling_device.t_target_cooling)
+                building.cooling_device.t_target_cooling + 273.15) / (weather_data[
+                                                                          'Outdoor Drybulb Temperature [C]'] - building.cooling_device.t_target_cooling)
         building.cooling_device.cop_cooling[building.cooling_device.cop_cooling < 0] = 20.0
         building.cooling_device.cop_cooling[building.cooling_device.cop_cooling > 20] = 20.0
         building.cooling_device.cop_cooling = building.cooling_device.cop_cooling.to_numpy()
@@ -543,9 +543,8 @@ class CityLearn(gym.Env):
 
                 # Adding loads from appliances and subtracting solar generation to the net electrical load of each
                 # building
-                building_electric_demand = round(
-                    _electric_demand_electrical_storage + _electric_demand_cooling + _electric_demand_dhw + _non_shiftable_load - _solar_generation,
-                    4)
+                building_electric_demand = round(_electric_demand_electrical_storage + _electric_demand_cooling +
+                                                 _electric_demand_dhw + _non_shiftable_load - _solar_generation, 4)
 
                 # Electricity consumed by every building
                 building.current_net_electricity_demand = building_electric_demand
@@ -821,23 +820,27 @@ class CityLearn(gym.Env):
         # objective is to minimize the energy consumed in the district, not to profit from the excess generation. (
         # Island operation is therefore incentivized)
         if 'net_electricity_consumption' in self.cost_function:
-            cost['net_electricity_consumption'] = np.array(self.net_electric_consumption).clip(min=0).sum() / self.cost_rbc[
-                'net_electricity_consumption']
+            cost['net_electricity_consumption'] = np.array(self.net_electric_consumption).clip(min=0).sum() / \
+                                                  self.cost_rbc[
+                                                      'net_electricity_consumption']
 
             if self.simulation_period[1] - self.simulation_period[0] > 8760:
-                cost_last_yr['net_electricity_consumption_last_yr'] = np.array(self.net_electric_consumption[-8760:]).clip(
+                cost_last_yr['net_electricity_consumption_last_yr'] = np.array(
+                    self.net_electric_consumption[-8760:]).clip(
                     min=0).sum() / self.cost_rbc_last_yr['net_electricity_consumption_last_yr']
 
         if 'carbon_emissions' in self.cost_function:
             cost['carbon_emissions'] = np.array(self.carbon_emissions).sum() / self.cost_rbc['carbon_emissions']
 
             if self.simulation_period[1] - self.simulation_period[0] > 8760:
-                cost_last_yr['carbon_emissions_last_yr'] = np.array(self.carbon_emissions[-8760:]).sum() / self.cost_rbc_last_yr[
-                    'carbon_emissions_last_yr']
+                cost_last_yr['carbon_emissions_last_yr'] = np.array(self.carbon_emissions[-8760:]).sum() / \
+                                                           self.cost_rbc_last_yr[
+                                                               'carbon_emissions_last_yr']
 
         # Not used for the challenge
         if 'quadratic' in self.cost_function:
-            cost['quadratic'] = (np.array(self.net_electric_consumption).clip(min=0) ** 2).sum() / self.cost_rbc['quadratic']
+            cost['quadratic'] = (np.array(self.net_electric_consumption).clip(min=0) ** 2).sum() / self.cost_rbc[
+                'quadratic']
             c_score.append(cost['quadratic'])
 
             if self.simulation_period[1] - self.simulation_period[0] > 8760:

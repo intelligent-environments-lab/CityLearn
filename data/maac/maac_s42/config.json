@@ -1,0 +1,38 @@
+{
+    "config":	{
+        "Namespace(batch_size=128, buffer_length=1000000, climate_zone=5, env_id='5', episode_length=1200, exp_name='maac', exploration=200, n_episodes=1, num_updates=1, seed=42, update_after=150, update_every=2)":	{
+            "batch_size":	128,
+            "buffer_length":	1000000,
+            "climate_zone":	5,
+            "env_id":	"5",
+            "episode_length":	1200,
+            "exp_name":	"maac",
+            "exploration":	200,
+            "n_episodes":	1,
+            "num_updates":	1,
+            "seed":	42,
+            "update_after":	150,
+            "update_every":	2
+        }
+    },
+    "exp_name":	"maac",
+    "logger":	{
+        "<logger.logx.EpochLogger object at 0x281d33220>":	{
+            "epoch_dict":	{},
+            "exp_name":	"maac",
+            "first_row":	true,
+            "log_current_row":	{},
+            "log_headers":	[],
+            "output_dir":	"/Users/xiejiahan/PycharmProjects/CityLearn/data/maac/maac_s42",
+            "output_file":	{
+                "<_io.TextIOWrapper name='/Users/xiejiahan/PycharmProjects/CityLearn/data/maac/maac_s42/progress.txt' mode='w' encoding='UTF-8'>":	{
+                    "mode":	"w"
+                }
+            }
+        }
+    },
+    "logger_kwargs":	{
+        "exp_name":	"maac",
+        "output_dir":	"/Users/xiejiahan/PycharmProjects/CityLearn/data/maac/maac_s42"
+    }
+}

@@ -19,7 +19,7 @@ class AttentionAgent(object):
                  action_spaces,
                  hidden_dim=(400, 300),
                  reward_scaling=5.,
-                 lr=0.01):
+                 lr=0.001):
         """
         Inputs:
         :param dim_in_actor: number of dimensions for policy input

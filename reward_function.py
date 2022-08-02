@@ -1,6 +1,7 @@
 """
 This function is intended to wrap the rewards returned by the CityLearn RL environment, and is meant to 
-be modified at will. This reward_function takes all the electrical demands and carbon intensity of all the buildings and turns them into one or multiple rewards for the agent(s)
+be modified at will. This reward_function takes all the electrical demands and carbon intensity of all the buildings and
+turns them into one or multiple rewards for the agent(s)
 """
 import numpy as np
 
@@ -9,6 +10,7 @@ class reward_function_ma:
     def __init__(self, n_agents, building_info):
         self.n_agents = n_agents
         self.building_info = building_info
+        self.net_electric_demand = []
 
     # electricity_demand contains negative values when the building consumes more electricity than it generates
     def get_rewards(self, electricity_demand, carbon_intensity):
@@ -20,6 +22,7 @@ class reward_function_ma:
             total_electricity_demand += e
             
         electricity_demand = np.array(electricity_demand)
+        self.net_electric_demand.append(total_electricity_demand)
         
         using_marlisa = False
         # Use this reward function when running the MARLISA example with information_sharing = True. The reward sent
@@ -28,15 +31,16 @@ class reward_function_ma:
             return list(np.sign(electricity_demand)*0.01*(np.array(np.abs(electricity_demand))**2 * max(0, total_electricity_demand)))
         
         else:
-            
             # Use this reward when running the SAC example. It assumes that the building-agents act independently of
             # each other, without sharing information through the reward.
             # reward_ = np.array(electricity_demand)**3.0
             # reward_[reward_ > 0] = 0
             # return list(reward_)
-            #
-            return list(-np.sign(electricity_demand) * 0.1 * (
-                        np.array(np.abs(electricity_demand)) ** 2 * min(0, total_electricity_demand)))
+            # ramping = np.abs((self.net_electric_demand - np.roll(self.net_electric_demand, 1))[1:]).sum() / len(self.net_electric_demand)
+            # return list(ramping*np.array(electricity_demand)**3.0)
+            return list(
+                500*np.float32(min(0, total_electricity_demand) * carbon_intensity) -
+                np.sign(electricity_demand) * 0.001 * (np.array(np.abs(electricity_demand)) * total_electricity_demand**3))
 
 
 # Do not use or delete

@@ -30,6 +30,7 @@ def run(config, logger_kwargs=dict()):
     The main loop.
     Input:
     :param config: configuration of the program setup
+    :param logger_kwargs:
     Output:
     :return:
     """
@@ -86,7 +87,7 @@ def run(config, logger_kwargs=dict()):
 
             # Send actions to all parallel environments and get o'_{i}^{e}, r'_{i}^{e} for all agents
             next_obs, rewards, dones, _ = env.step(agent_actions)
-            if (et_i + 1) % 200 == 0:
+            if (et_i + 1) % 50 == 0:
                 print(np.array(rewards).mean())
             ep_ret += np.array(rewards).mean()
 
@@ -138,15 +139,15 @@ if __name__ == "__main__":
     parser.add_argument("--buffer_length", default=int(1e6), type=int)
     parser.add_argument("--n_episodes", default=1, type=int)
     parser.add_argument("--climate_zone", default=5, type=int)
-    parser.add_argument("--episode_length", default=1000, type=int)
+    parser.add_argument("--episode_length", default=1200, type=int)
     parser.add_argument("--batch_size",
-                        default=200, type=int,
+                        default=128, type=int,
                         help="Batch size for training")
-    parser.add_argument("--update_after", default=300)
-    parser.add_argument("--update_every", default=20, type=int)
+    parser.add_argument("--update_after", default=150)
+    parser.add_argument("--update_every", default=2, type=int)
     parser.add_argument("--num_updates", default=1, type=int,
                         help="Number of updates per update cycle")
-    parser.add_argument("--exploration", default=400, type=int)
+    parser.add_argument("--exploration", default=200, type=int)
     parser.add_argument("--exp_name", type=str, default="maac")
     parser.add_argument("--seed", type=int, default=42)
 
