@@ -1,5 +1,11 @@
 import numpy as np
 from maac.utils.misc import PeriodicNorm, OnehotEncode, RemoveFeature, Normalize
+from collections import namedtuple
+
+
+Constants = namedtuple('Constants', ['diffuse_solar_rad', 'direct_solar_rad_pred_24h', 'solar_gen', 'dhw_storage_soc',
+                                     'cooling_storage_soc', 'non_shiftable_load'])
+constants = Constants(12, 20, 24, 26, 25, 23)
 
 
 def encode(env):
@@ -41,17 +47,18 @@ def encode(env):
 
         # If there is no solar PV installed, remove solar radiation variables
         if building_info[uid]['solar_power_capacity (kW)'] == 0:
-            for k in range(12, 20):
+            for k in range(constants.diffuse_solar_rad, constants.direct_solar_rad_pred_24h):
                 if encoder[uid][k] != 0:
                     encoder[uid][k] = -1
-            if encoder[uid][24] != 0:
-                encoder[uid][24] = -1
-        if building_info[uid]['Annual_DHW_demand (kWh)'] == 0 and encoder[uid][26] != 0:
-            encoder[uid][26] = -1
-        if building_info[uid]['Annual_cooling_demand (kWh)'] == 0 and encoder[uid][25] != 0:
-            encoder[uid][25] = -1
-        if building_info[uid]['Annual_nonshiftable_electrical_demand (kWh)'] == 0 and encoder[uid][23] != 0:
-            encoder[uid][23] = -1
+            if encoder[uid][constants.solar_gen] != 0:
+                encoder[uid][constants.solar_gen] = -1
+        if building_info[uid]['Annual_DHW_demand (kWh)'] == 0 and encoder[uid][constants.dhw_storage_soc] != 0:
+            encoder[uid][constants.dhw_storage_soc] = -1
+        if building_info[uid]['Annual_cooling_demand (kWh)'] == 0 and encoder[uid][constants.cooling_storage_soc] != 0:
+            encoder[uid][constants.cooling_storage_soc] = -1
+        if building_info[uid]['Annual_nonshiftable_electrical_demand (kWh)'] == 0 and \
+                encoder[uid][constants.non_shiftable_load] != 0:
+            encoder[uid][constants.non_shiftable_load] = -1
 
         encoder[uid] = encoder[uid][encoder[uid] != 0]
         encoder[uid][encoder[uid] == -1] = RemoveFeature()
