@@ -132,10 +132,6 @@ class AttentionSAC(object):
                     *[a.policy.sample(next_ob) for a, next_ob in zip(self.agents, next_obs)])
                 trgt_critic_in = list(zip(next_obs, next_acts))  # next_acts come from agents' current policy net
                 backups = torch.zeros(self.num_agents, len(samples[0][0]), 1)
-                # target_qs1, target_qs2 = [], []
-                # for a_i in range(self.num_agents):
-                #     target_qs1.append(self.target_critic1(trgt_critic_in)[a_i][0])
-                #     target_qs2.append(self.target_critic2(trgt_critic_in)[a_i][0])
                 target_qs1 = self.target_critic1(trgt_critic_in)
                 target_qs2 = self.target_critic2(trgt_critic_in)
                 target_qs = [torch.min(target_q1, target_q2) for target_q1, target_q2 in zip(target_qs1, target_qs2)]
@@ -196,8 +192,6 @@ class AttentionSAC(object):
 
         samp_acts = []
         all_log_pis = []
-        # curr_act = [torch.zeros(size=acts[i].size()) for i in range(self.num_agents)]
-        # log_pi = [torch.zeros(size=acts[i].size()) for i in range(self.num_agents)]
         with torch.autograd.set_detect_anomaly(True):
             for a_i, pi, ob in zip(range(self.num_agents), self.policies, obs):
                 curr_act, log_pi, _ = pi.sample(ob)
@@ -208,20 +202,13 @@ class AttentionSAC(object):
             # critic_rets1, critic_rets2, vals1, vals2 = [], [], [], []
             critic_rets1 = self.critic1(critic_in)
             critic_rets2 = self.critic2(critic_in)
-            # for a_i in range(self.num_agents):
-            #     critic_rets1.append(self.critic1(critic_in)[a_i][0])
-            #     vals1.append(self.critic1(critic_in)[a_i][1])
-            #     critic_rets2.append(self.critic2(critic_in)[a_i][0])
-            #     vals2.append(self.critic2(critic_in)[a_i][1])
             q_pis = [torch.min(critic_ret1, critic_ret2)
                      for critic_ret1, critic_ret2 in zip(critic_rets1, critic_rets2)]
-            # vals = [torch.min(val1, val2) for val1, val2 in zip(vals1, vals2)]
 
             loss_pi = []
             for a_i, log_pi, q_pi in zip(range(self.num_agents), all_log_pis, q_pis):
                 if len(log_pi.shape) == 1:
                     log_pi = log_pi.unsqueeze(dim=-1)
-                # target_q = q_pi - val
                 loss_pi.append((self.alpha * log_pi - q_pi).mean())
 
                 disable_gradients(self.critic1)
@@ -229,8 +216,6 @@ class AttentionSAC(object):
                 loss_pi[a_i].backward(retain_graph=True)
                 enable_gradients(self.critic1)
                 enable_gradients(self.critic2)
-                # curr_agent.policy_optimizer.step()
-                # curr_agent.policy_optimizer.zero_grad()
 
             for a_i in range(self.num_agents):
                 curr_agent = self.agents[a_i]
