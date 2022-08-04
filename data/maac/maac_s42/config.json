@@ -17,7 +17,7 @@
     },
     "exp_name":	"maac",
     "logger":	{
-        "<logger.logx.EpochLogger object at 0x281d33220>":	{
+        "<logger.logx.EpochLogger object at 0x16ca90550>":	{
             "epoch_dict":	{},
             "exp_name":	"maac",
             "first_row":	true,

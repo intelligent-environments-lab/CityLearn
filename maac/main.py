@@ -42,7 +42,6 @@ def run(config, logger_kwargs=dict()):
     torch.manual_seed(config.seed)
     np.random.seed(config.seed)
 
-    # Initialize E parallel environments with N agents, including # 2. replay buffer
     env = make_parallel_env(config.env_id, config.climate_zone)
 
     encoder, state_dim = encode(env)
