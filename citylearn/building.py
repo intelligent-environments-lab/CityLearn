@@ -72,6 +72,7 @@ class Building(Environment):
         self.__observation_epsilon = 1.0 # to avoid out of bound observations
         self.observation_space = self.estimate_observation_space()
         self.action_space = self.estimate_action_space()
+        self.__net_electricity_consumption = []
         super().__init__(**kwargs)
 
     @property
@@ -340,15 +341,17 @@ class Building(Environment):
         -----
         net_electricity_consumption = `cooling_electricity_consumption` + `heating_electricity_consumption` + `dhw_electricity_consumption` + `electrical_storage_electricity_consumption` + `non_shiftable_load_demand` + `solar_generation`
         """
+        if self.__net_electricity_consumption is None or len(self.solar_generation) > len(self.__net_electricity_consumption):
+            self.__net_electricity_consumption.append( np.sum([
+                                                        self.cooling_electricity_consumption[-1],
+                                                        self.heating_electricity_consumption[-1],
+                                                        self.dhw_electricity_consumption[-1],
+                                                        self.electrical_storage_electricity_consumption[-1],
+                                                        self.non_shiftable_load_demand[-1],
+                                                        self.solar_generation[-1],
+                                                        ], axis = 0))
 
-        return np.sum([
-            self.cooling_electricity_consumption,
-            self.heating_electricity_consumption,
-            self.dhw_electricity_consumption,
-            self.electrical_storage_electricity_consumption,
-            self.non_shiftable_load_demand,
-            self.solar_generation,
-        ], axis = 0)
+        return self.__net_electricity_consumption
 
     @property
     def cooling_electricity_consumption(self) -> np.ndarray:
@@ -915,3 +918,4 @@ class Building(Environment):
         self.heating_device.reset()
         self.dhw_device.reset()
         self.pv.reset()
+        self.__net_electricity_consumption = []

@@ -63,7 +63,7 @@ class ElectricDevice(Device):
     def electricity_consumption(self) -> np.ndarray:
         r"""Electricity consumption time series."""
 
-        return np.array(self.__electricity_consumption)
+        return self.__electricity_consumption
 
     @property
     def available_nominal_power(self) -> float:
@@ -512,11 +512,16 @@ class StorageDevice(Device):
 
         # actual energy charged/discharged irrespective of what is determined in the step function after 
         # taking into account storage design limits e.g. maximum power input/output, capacity
-        energy_balance = np.array(self.soc, dtype = float) -\
-            np.array([self.initial_soc] + self.__soc[0:-1], dtype = float)*(1 - self.loss_coefficient)
-        energy_balance[energy_balance >= 0.0] /= self.efficiency
-        energy_balance[energy_balance < 0.0] *= self.efficiency
-        return energy_balance
+        if self.__energy_balance is None or len(self.__soc) > len(self.__energy_balance):
+            energy_balance = self.soc - \
+                np.array([self.initial_soc] + self.__soc[0:-1], dtype = float)*(1 - self.loss_coefficient)
+            energy_balance[energy_balance >= 0.0] /= self.efficiency
+            energy_balance[energy_balance < 0.0] *= self.efficiency
+            self.__energy_balance = energy_balance
+
+        return self.__energy_balance
+
+    
 
     @Device.efficiency.setter
     def efficiency(self, efficiency: float):
@@ -597,6 +602,7 @@ class StorageDevice(Device):
 
         super().reset()
         self.__soc = [self.initial_soc]
+        self.__energy_balance = []
 
 class StorageTank(StorageDevice):
     def __init__(self, capacity: float, max_output_power: float = None, max_input_power: float = None, **kwargs):
@@ -750,11 +756,13 @@ class Battery(ElectricDevice, StorageDevice):
         for discharge or charge events respectively thus, thus accounts for energy losses to environment during charging and discharge.
         """
 
-        energy_balance = np.array(super().energy_balance, dtype = float)
-        efficiency_history = np.array(self.efficiency_history, dtype = float)
-        energy_balance[energy_balance >= 0.0] *= self.efficiency/efficiency_history[energy_balance >= 0.0]
-        energy_balance[energy_balance < 0.0] /= self.efficiency*efficiency_history[energy_balance < 0.0]
-        return energy_balance
+        if self.__energy_balance is None or len(self.soc) > len(self.__energy_balance):
+            energy_balance = super().energy_balance
+            efficiency_history = np.array(self.efficiency_history, dtype = float)
+            energy_balance[energy_balance >= 0.0] *= self.efficiency/efficiency_history[energy_balance >= 0.0]
+            energy_balance[energy_balance < 0.0] /= self.efficiency*efficiency_history[energy_balance < 0.0]
+            self.__energy_balance = energy_balance
+        return self.__energy_balance
 
     @capacity.setter
     def capacity(self, capacity: float):
@@ -894,3 +902,4 @@ class Battery(ElectricDevice, StorageDevice):
         super().reset()
         self.__efficiency_history = self.__efficiency_history[0:1]
         self.__capacity_history = self.__capacity_history[0:1]
+        self.__energy_balance = []
