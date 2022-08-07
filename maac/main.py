@@ -20,7 +20,7 @@ def make_parallel_env(env_id, climate_zone):
     Outputs:
     :return:
     """
-    print(f"The id of the environment is {env_id}; \n")
+    print(f"The id of the environment is {env_id};")
     env = make_env(climate_zone)
     return env
 
@@ -58,20 +58,22 @@ def run(config, logger_kwargs=dict()):
     logger.setup_pytorch_saver(model.agents[0].policy)
 
     start_time = time.time()
-
+    t = 0
+    n_envs = []
     # Keeps track of useful statistics
     stats = EpisodeStats(
         episode_rewards=np.zeros(config.n_episodes),
         episode_costs=np.zeros(config.n_episodes)
     )
 
+    explore = True
+    deterministic = False
+
     for ep_i in range(0, config.n_episodes):
         print("Episodes %i of %i" % (ep_i + 1,
                                      config.n_episodes))
-        t, ep_ret = 0, 0
-        explore = True
-        deterministic = False
-
+        ep_ret = 0
+        env = make_parallel_env(config.env_id, config.climate_zone)
         obs = env.reset()
 
         for et_i in range(config.episode_length):
@@ -94,15 +96,23 @@ def run(config, logger_kwargs=dict()):
 
             obs = next_obs
 
-            t += 1
-            explore = t <= config.exploration
+            explore = (t <= config.exploration)
             deterministic = (t >= config.episode_length * 0.75)
+
+            t += 1
+
+            if t <= 100:
+                assert explore
+            elif 101 <= t <= 150:
+                assert not deterministic
+            elif 151 <= t <= 600:
+                assert not explore and deterministic
 
             # Update statistics
             stats.episode_rewards[ep_i] += np.array(rewards).mean()
 
             # End of trajectory handling
-            if t == config.episode_length - 1:
+            if t % config.episode_length == 0 and t > 0:
                 stats.episode_costs[ep_i] = env.cost().get("total")
                 print("{}th episode reward is: {}".format(ep_i + 1, stats.episode_rewards[ep_i]))
                 print("{}th episode total cost is: {}".format(ep_i + 1, stats.episode_costs[ep_i]))
@@ -122,31 +132,32 @@ def run(config, logger_kwargs=dict()):
                     model.update_policies(samples)
                     model.update_all_targets()
 
+        print(f"ran {ep_i + 1}th episode \n")
+        n_envs.append(env)
+
     logger.log_tabular('EpRet', with_min_and_max=True)
     logger.log_tabular('EpLen', average_only=True)
     logger.log_tabular('Time', time.time() - start_time)
     logger.dump_tabular()
 
-    print("run")
-    env.cost()
-    return env, stats
+    return n_envs, stats
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Multi-Agent Actor-Attention-Critic")
     parser.add_argument("--env_id", default="5", help="Name of environment")
     parser.add_argument("--buffer_length", default=int(1e6), type=int)
-    parser.add_argument("--n_episodes", default=1, type=int)
+    parser.add_argument("--n_episodes", default=3, type=int)
     parser.add_argument("--climate_zone", default=5, type=int)
-    parser.add_argument("--episode_length", default=1200, type=int)
+    parser.add_argument("--episode_length", default=200, type=int)
     parser.add_argument("--batch_size",
-                        default=128, type=int,
+                        default=64, type=int,
                         help="Batch size for training")
-    parser.add_argument("--update_after", default=150)
-    parser.add_argument("--update_every", default=2, type=int)
+    parser.add_argument("--update_after", default=80)
+    parser.add_argument("--update_every", default=10, type=int)
     parser.add_argument("--num_updates", default=1, type=int,
                         help="Number of updates per update cycle")
-    parser.add_argument("--exploration", default=200, type=int)
+    parser.add_argument("--exploration", default=100, type=int)
     parser.add_argument("--exp_name", type=str, default="maac")
     parser.add_argument("--seed", type=int, default=42)
 
