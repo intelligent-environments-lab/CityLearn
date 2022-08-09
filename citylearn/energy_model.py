@@ -60,10 +60,10 @@ class ElectricDevice(Device):
         return self.__nominal_power
 
     @property
-    def electricity_consumption(self) -> np.ndarray:
+    def electricity_consumption(self) -> List[float]:
         r"""Electricity consumption time series."""
 
-        return np.array(self.__electricity_consumption)
+        return self.__electricity_consumption
 
     @property
     def available_nominal_power(self) -> float:
@@ -503,7 +503,7 @@ class StorageDevice(Device):
         return self.__efficiency_scaling
 
     @property
-    def energy_balance(self) -> np.ndarray:
+    def energy_balance(self) -> List[float]:
         r"""Charged/discharged energy time series in [kWh]."""
 
         return self.__energy_balance
