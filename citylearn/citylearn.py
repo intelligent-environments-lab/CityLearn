@@ -216,19 +216,19 @@ class CityLearnEnv(Environment, Env):
         return pd.DataFrame([b.net_electricity_consumption_without_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_emission(self) -> np.ndarray:
+    def net_electricity_consumption_emission(self) -> List[float]:
         """Summed `Building.net_electricity_consumption_emission` time series, in [kg_co2]."""
 
         return self.__net_electricity_consumption_emission
 
     @property
-    def net_electricity_consumption_price(self) -> np.ndarray:
+    def net_electricity_consumption_price(self) -> List[float]:
         """Summed `Building.net_electricity_consumption_price` time series, in [$]."""
 
         return self.__net_electricity_consumption_price
 
     @property
-    def net_electricity_consumption(self) -> np.ndarray:
+    def net_electricity_consumption(self) -> List[float]:
         """Summed `Building.net_electricity_consumption` time series, in [kWh]."""
 
         return self.__net_electricity_consumption
@@ -465,11 +465,11 @@ class CityLearnEnv(Environment, Env):
             Reward for current observations. If `central_agent` is True, `reward` is a list of length = 1 else, `reward` has same length as `buildings`.
         """
 
-        self.reward_function.electricity_consumption = [self.net_electricity_consumption[self.time_step]] if self.central_agent\
+        self.reward_function.electricity_consumption = [self.__net_electricity_consumption[self.time_step]] if self.central_agent\
             else [b.net_electricity_consumption[self.time_step] for b in self.buildings]
-        self.reward_function.carbon_emission = [self.net_electricity_consumption_emission[self.time_step]] if self.central_agent\
+        self.reward_function.carbon_emission = [self.__net_electricity_consumption_emission[self.time_step]] if self.central_agent\
             else [b.net_electricity_consumption_emission[self.time_step] for b in self.buildings]
-        self.reward_function.electricity_price = [self.net_electricity_consumption_price[self.time_step]] if self.central_agent\
+        self.reward_function.electricity_price = [self.__net_electricity_consumption_price[self.time_step]] if self.central_agent\
             else [b.net_electricity_consumption_price[self.time_step] for b in self.buildings]
         reward = self.reward_function.calculate()
         return reward
@@ -632,31 +632,22 @@ class CityLearnEnv(Environment, Env):
 
         # variable reset
         self.__rewards = [[]]
-        self.__net_electricity_consumption = np.array([], dtype=float)
-        self.__net_electricity_consumption_price = np.array([], dtype=float)
-        self.__net_electricity_consumption_emission = np.array([], dtype=float)
+        self.__net_electricity_consumption = []
+        self.__net_electricity_consumption_price = []
+        self.__net_electricity_consumption_emission = []
         self.update_variables()
 
         return self.observations
 
     def update_variables(self):
         # net electricity consumption
-        self.__net_electricity_consumption = np.append(
-            self.__net_electricity_consumption,
-            sum([b.net_electricity_consumption[self.time_step] for b in self.buildings])
-        )
+        self.__net_electricity_consumption.append(sum([b.net_electricity_consumption[self.time_step] for b in self.buildings]))
 
         # net electriciy consumption price
-        self.__net_electricity_consumption_price = np.append(
-            self.__net_electricity_consumption_price,
-            sum([b.net_electricity_consumption_price[self.time_step] for b in self.buildings])
-        )
+        self.__net_electricity_consumption_price.append(sum([b.net_electricity_consumption_price[self.time_step] for b in self.buildings]))
 
         # net electriciy consumption emission
-        self.__net_electricity_consumption_emission = np.append(
-            self.__net_electricity_consumption_emission,
-            sum([b.net_electricity_consumption_emission[self.time_step] for b in self.buildings])
-        )
+        self.__net_electricity_consumption_emission.append(sum([b.net_electricity_consumption_emission[self.time_step] for b in self.buildings]))
 
     def load_agents(self) -> List[Agent]:
         """Return :class:`Agent` or sub class objects as defined by the `schema`.
