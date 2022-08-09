@@ -504,19 +504,9 @@ class StorageDevice(Device):
 
     @property
     def energy_balance(self) -> np.ndarray:
-        r"""Charged/discharged energy time series in [kWh].
+        r"""Charged/discharged energy time series in [kWh]."""
 
-        The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and `efficiency`
-        for discharge or charge events respectively thus, thus accounts for energy losses to environment during charging and discharge.
-        """
-
-        # actual energy charged/discharged irrespective of what is determined in the step function after 
-        # taking into account storage design limits e.g. maximum power input/output, capacity
-        energy_balance = np.array(self.soc, dtype = float) -\
-            np.array([self.initial_soc] + self.__soc[0:-1], dtype = float)*(1 - self.loss_coefficient)
-        energy_balance[energy_balance >= 0.0] /= self.efficiency
-        energy_balance[energy_balance < 0.0] *= self.efficiency
-        return energy_balance
+        return self.__energy_balance
 
     @Device.efficiency.setter
     def efficiency(self, efficiency: float):
@@ -571,6 +561,21 @@ class StorageDevice(Device):
         # The initial State Of Charge (SOC) is the previous SOC minus the energy losses
         soc = min(self.soc_init + energy*self.efficiency, self.capacity) if energy >= 0 else max(0, self.soc_init + energy/self.efficiency)
         self.__soc.append(soc)
+        self.__energy_balance.append(self.set_energy_balance())
+
+    def set_energy_balance(self) -> float:
+        r"""Calculate energy balance
+
+        The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and `efficiency`
+        for discharge or charge events respectively thus, thus accounts for energy losses to environment during charging and discharge.
+        """
+
+        # actual energy charged/discharged irrespective of what is determined in the step function after 
+        # taking into account storage design limits e.g. maximum power input/output, capacity
+        previous_energy_balance = self.initial_soc if self.time_step == 0 else self.soc[-2]
+        energy_balance = self.soc[-1] - previous_energy_balance*(1 - self.loss_coefficient)
+        energy_balance = energy_balance/self.efficiency if energy_balance >= 0 else energy_balance*self.efficiency
+        return energy_balance
 
     def autosize(self, demand: Iterable[float], safety_factor: float = None):
         r"""Autosize `capacity`.
@@ -597,6 +602,7 @@ class StorageDevice(Device):
 
         super().reset()
         self.__soc = [self.initial_soc]
+        self.__energy_balance = [0.0]
 
 class StorageTank(StorageDevice):
     def __init__(self, capacity: float, max_output_power: float = None, max_input_power: float = None, **kwargs):
@@ -741,20 +747,6 @@ class Battery(ElectricDevice, StorageDevice):
         """Time series of maximum amount of energy the storage device can store in [kWh]."""
 
         return self.__capacity_history
-
-    @property
-    def energy_balance(self) -> np.ndarray:
-        r"""Charged/discharged energy time series in [kWh].
-
-        The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and `efficiency`
-        for discharge or charge events respectively thus, thus accounts for energy losses to environment during charging and discharge.
-        """
-
-        energy_balance = np.array(super().energy_balance, dtype = float)
-        efficiency_history = np.array(self.efficiency_history, dtype = float)
-        energy_balance[energy_balance >= 0.0] *= self.efficiency/efficiency_history[energy_balance >= 0.0]
-        energy_balance[energy_balance < 0.0] /= self.efficiency*efficiency_history[energy_balance < 0.0]
-        return energy_balance
 
     @capacity.setter
     def capacity(self, capacity: float):

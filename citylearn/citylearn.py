@@ -219,19 +219,19 @@ class CityLearnEnv(Environment, Env):
     def net_electricity_consumption_emission(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_emission` time series, in [kg_co2]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_emission for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
+        return self.__net_electricity_consumption_emission
 
     @property
     def net_electricity_consumption_price(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_price` time series, in [$]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_price for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
+        return self.__net_electricity_consumption_price
 
     @property
     def net_electricity_consumption(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption` time series, in [kWh]."""
 
-        return pd.DataFrame([b.net_electricity_consumption for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
+        return self.__net_electricity_consumption
 
     @property
     def cooling_electricity_consumption(self) -> np.ndarray:
@@ -611,8 +611,9 @@ class CityLearnEnv(Environment, Env):
 
         for building in self.buildings:
             building.next_time_step()
-            
+        
         super().next_time_step()
+        self.update_variables()
 
     def reset(self):
         r"""Reset `CityLearnEnv` to initial state.
@@ -623,13 +624,39 @@ class CityLearnEnv(Environment, Env):
             :attr:`observations`. 
         """
 
-        self.__rewards = [[]]
+        # object reset
         super().reset()
 
         for building in self.buildings:
             building.reset()
 
+        # variable reset
+        self.__rewards = [[]]
+        self.__net_electricity_consumption = np.array([], dtype=float)
+        self.__net_electricity_consumption_price = np.array([], dtype=float)
+        self.__net_electricity_consumption_emission = np.array([], dtype=float)
+        self.update_variables()
+
         return self.observations
+
+    def update_variables(self):
+        # net electricity consumption
+        self.__net_electricity_consumption = np.append(
+            self.__net_electricity_consumption,
+            sum([b.net_electricity_consumption[self.time_step] for b in self.buildings])
+        )
+
+        # net electriciy consumption price
+        self.__net_electricity_consumption_price = np.append(
+            self.__net_electricity_consumption_price,
+            sum([b.net_electricity_consumption_price[self.time_step] for b in self.buildings])
+        )
+
+        # net electriciy consumption emission
+        self.__net_electricity_consumption_emission = np.append(
+            self.__net_electricity_consumption_emission,
+            sum([b.net_electricity_consumption_emission[self.time_step] for b in self.buildings])
+        )
 
     def load_agents(self) -> List[Agent]:
         """Return :class:`Agent` or sub class objects as defined by the `schema`.

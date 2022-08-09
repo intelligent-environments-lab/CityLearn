@@ -324,13 +324,13 @@ class Building(Environment):
     def net_electricity_consumption_emission(self) -> np.ndarray:
         """Carbon dioxide emmission from `net_electricity_consumption` time series, in [kg_co2]."""
 
-        return (self.carbon_intensity.carbon_intensity[0:self.time_step + 1]*self.net_electricity_consumption).clip(min=0)
+        return self.__net_electricity_consumption_emission
 
     @property
     def net_electricity_consumption_price(self) -> np.ndarray:
         """`net_electricity_consumption` cost time series, in [$]."""
 
-        return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption
+        return self.__net_electricity_consumption_price
 
     @property
     def net_electricity_consumption(self) -> np.ndarray:
@@ -341,14 +341,7 @@ class Building(Environment):
         net_electricity_consumption = `cooling_electricity_consumption` + `heating_electricity_consumption` + `dhw_electricity_consumption` + `electrical_storage_electricity_consumption` + `non_shiftable_load_demand` + `solar_generation`
         """
 
-        return np.sum([
-            self.cooling_electricity_consumption,
-            self.heating_electricity_consumption,
-            self.dhw_electricity_consumption,
-            self.electrical_storage_electricity_consumption,
-            self.non_shiftable_load_demand,
-            self.solar_generation,
-        ], axis = 0)
+        return self.__net_electricity_consumption
 
     @property
     def cooling_electricity_consumption(self) -> np.ndarray:
@@ -358,8 +351,7 @@ class Building(Environment):
         electricity consumption by discharging `cooling_storage` to meet `cooling_demand`.
         """
 
-        demand = np.sum([self.cooling_demand, self.cooling_storage.energy_balance], axis = 0)
-        return self.cooling_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step + 1], False)
+        return self.__cooling_electricity_consumption
 
     @property
     def heating_electricity_consumption(self) -> np.ndarray:
@@ -369,14 +361,7 @@ class Building(Environment):
         electricity consumption by discharging `heating_storage` to meet `heating_demand`.
         """
 
-        demand = np.sum([self.heating_demand, self.heating_storage.energy_balance], axis = 0)
-
-        if isinstance(self.heating_device, HeatPump):
-            consumption = self.heating_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step + 1], True)
-        else:
-            consumption = self.dhw_device.get_input_power(demand)
-
-        return consumption
+        return self.__heating_electricity_consumption
 
     @property
     def dhw_electricity_consumption(self) -> np.ndarray:
@@ -386,14 +371,7 @@ class Building(Environment):
         electricity consumption by discharging `dhw_storage` to meet `dhw_demand`.
         """
 
-        demand = np.sum([self.dhw_demand, self.dhw_storage.energy_balance], axis = 0)
-
-        if isinstance(self.dhw_device, HeatPump):
-            consumption = self.dhw_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[:self.time_step + 1], True)
-        else:
-            consumption = self.dhw_device.get_input_power(demand)
-
-        return consumption
+        return self.__dhw_electricity_consumption
 
     @property
     def cooling_storage_electricity_consumption(self) -> np.ndarray:
@@ -535,7 +513,7 @@ class Building(Environment):
     def solar_generation(self) -> np.ndarray:
         """`PV` solar generation (negative value) time series, in [kWh]."""
 
-        return self.pv.get_generation(self.energy_simulation.solar_generation[0:self.time_step + 1])*-1
+        return self.__solar_generation[:self.time_step + 1]
 
     @energy_simulation.setter
     def energy_simulation(self, energy_simulation: EnergySimulation):
@@ -902,10 +880,12 @@ class Building(Environment):
         self.electrical_storage.next_time_step()
         self.pv.next_time_step()
         super().next_time_step()
+        self.update_variables()
 
     def reset(self):
         r"""Reset `Building` to initial state."""
 
+        # object reset
         super().reset()
         self.cooling_storage.reset()
         self.heating_storage.reset()
@@ -915,3 +895,59 @@ class Building(Environment):
         self.heating_device.reset()
         self.dhw_device.reset()
         self.pv.reset()
+
+        # variable reset
+        self.__cooling_electricity_consumption = np.array([], dtype=float)
+        self.__heating_electricity_consumption = np.array([], dtype=float)
+        self.__dhw_electricity_consumption = np.array([], dtype=float)
+        self.__solar_generation = self.pv.get_generation(self.energy_simulation.solar_generation)*-1
+        self.__net_electricity_consumption = np.array([], dtype=float)
+        self.__net_electricity_consumption_emission = np.array([], dtype=float)
+        self.__net_electricity_consumption_price = np.array([], dtype=float)
+        self.update_variables()
+
+    def update_variables(self):
+        # cooling electricity consumption
+        cooling_demand = self.energy_simulation.cooling_demand[self.time_step] + self.cooling_storage.energy_balance[self.time_step]
+        cooling_consumption = self.cooling_device.get_input_power(cooling_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], False)
+        self.__cooling_electricity_consumption = np.append(self.__cooling_electricity_consumption, cooling_consumption)
+
+        # heating electricity consumption
+        heating_demand = self.heating_demand[self.time_step] + self.heating_storage.energy_balance[self.time_step]
+
+        if isinstance(self.heating_device, HeatPump):
+            heating_consumption = self.heating_device.get_input_power(heating_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], True)
+        else:
+            heating_consumption = self.dhw_device.get_input_power(heating_demand)
+
+        self.__heating_electricity_consumption = np.append(self.__heating_electricity_consumption, heating_consumption)
+
+        # dhw electricity consumption
+        dhw_demand = self.dhw_demand[self.time_step] + self.dhw_storage.energy_balance[self.time_step]
+
+        if isinstance(self.dhw_device, HeatPump):
+            dhw_consumption = self.dhw_device.get_input_power(dhw_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], True)
+        else:
+            dhw_consumption = self.dhw_device.get_input_power(dhw_demand)
+
+        self.__dhw_electricity_consumption = np.append(self.__dhw_electricity_consumption, dhw_consumption)
+
+        # net electricity consumption
+        net_electricity_consumption = cooling_consumption \
+            + heating_consumption \
+                + dhw_consumption \
+                    + self.electrical_storage_electricity_consumption[self.time_step] \
+                        + self.non_shiftable_load_demand[self.time_step] + self.solar_generation[self.time_step]
+        self.__net_electricity_consumption = np.append(self.__net_electricity_consumption, net_electricity_consumption)
+
+        # net electriciy consumption price
+        self.__net_electricity_consumption_price = np.append(
+            self.__net_electricity_consumption_price, 
+            net_electricity_consumption*self.pricing.electricity_pricing[self.time_step]
+        )
+
+        # net electriciy consumption emission
+        self.__net_electricity_consumption_emission = np.append(
+            self.__net_electricity_consumption_emission,
+            max(0, self.carbon_intensity.carbon_intensity[self.time_step]*net_electricity_consumption)
+        )
