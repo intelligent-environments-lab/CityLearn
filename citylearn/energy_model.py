@@ -572,8 +572,8 @@ class StorageDevice(Device):
 
         # actual energy charged/discharged irrespective of what is determined in the step function after 
         # taking into account storage design limits e.g. maximum power input/output, capacity
-        previous_energy_balance = self.initial_soc if self.time_step == 0 else self.soc[-2]
-        energy_balance = self.soc[-1] - previous_energy_balance*(1 - self.loss_coefficient)
+        previous_soc = self.initial_soc if self.time_step == 0 else self.soc[-2]
+        energy_balance = self.soc[-1] - previous_soc*(1.0 - self.loss_coefficient)
         energy_balance = energy_balance/self.efficiency if energy_balance >= 0 else energy_balance*self.efficiency
         return energy_balance
 
