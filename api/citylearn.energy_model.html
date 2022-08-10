@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.energy_model module &mdash; CityLearn 1.3.4 documentation</title>
+  <title>citylearn.energy_model module &mdash; CityLearn 1.3.5 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -172,14 +172,6 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>efficiency</ci
 <dd><p>Electricity consumption time series.</p>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.energy_model.Battery.energy_balance">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_balance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.energy_model.Battery.energy_balance" title="Permalink to this definition"></a></dt>
-<dd><p>Charged/discharged energy time series in [kWh].</p>
-<p>The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and <cite>efficiency</cite>
-for discharge or charge events respectively thus, thus accounts for energy losses to environment during charging and discharge.</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.get_current_efficiency">
 <span class="sig-name descname"><span class="pre">get_current_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.get_current_efficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.get_current_efficiency" title="Permalink to this definition"></a></dt>
@@ -260,7 +252,7 @@ for discharge or charge events respectively thus, thus accounts for energy losse
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.ElectricDevice.electricity_consumption">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.energy_model.ElectricDevice.electricity_consumption" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.ElectricDevice.electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p>Electricity consumption time series.</p>
 </dd></dl>
 
@@ -577,10 +569,8 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>efficiency</ci
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.energy_balance">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_balance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.energy_model.StorageDevice.energy_balance" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_balance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.StorageDevice.energy_balance" title="Permalink to this definition"></a></dt>
 <dd><p>Charged/discharged energy time series in [kWh].</p>
-<p>The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and <cite>efficiency</cite>
-for discharge or charge events respectively thus, thus accounts for energy losses to environment during charging and discharge.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -599,6 +589,14 @@ for discharge or charge events respectively thus, thus accounts for energy losse
 <dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#StorageDevice.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.StorageDevice.reset" title="Permalink to this definition"></a></dt>
 <dd><p>Reset <cite>StorageDevice</cite> to initial state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.set_energy_balance">
+<span class="sig-name descname"><span class="pre">set_energy_balance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#StorageDevice.set_energy_balance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.StorageDevice.set_energy_balance" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate energy balance</p>
+<p>The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and <cite>efficiency</cite>
+for discharge or charge events respectively thus, thus accounts for energy losses to environment during charging and discharge.</p>
 </dd></dl>
 
 <dl class="py property">
