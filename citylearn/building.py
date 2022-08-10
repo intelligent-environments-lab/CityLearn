@@ -218,10 +218,10 @@ class Building(Environment):
                 encoders.append(PeriodicNormalization(self.observation_space.high[i]))
             
             elif observation == 'day_type':
-                encoders.append(OnehotEncoding([0, 1, 2, 3, 4, 5, 6, 7, 8]))
+                encoders.append(OnehotEncoding([1, 2, 3, 4, 5, 6, 7, 8]))
             
             elif observation == "daylight_savings_status":
-                encoders.append(OnehotEncoding([0, 1, 2]))
+                encoders.append(OnehotEncoding([0, 1]))
             
             elif observation in remove_features:
                 encoders.append(RemoveFeature())
