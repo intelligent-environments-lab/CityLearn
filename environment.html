@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Environment &mdash; CityLearn 1.3.5 documentation</title>
+  <title>CityLearn Environment &mdash; CityLearn 1.3.5 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -40,7 +40,14 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Environment</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CityLearn Environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#environment">Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#observations">Observations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#actions">Actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rewards">Rewards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cost-functions">Cost Functions</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/years.html">CityLearn Challenge</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">citylearn</a></li>
 </ul>
@@ -59,7 +66,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Environment</li>
+      <li>CityLearn Environment</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/environment.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -69,11 +76,346 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="environment">
-<h1>Environment<a class="headerlink" href="#environment" title="Permalink to this headline"></a></h1>
+  <section id="citylearn-environment">
+<h1>CityLearn Environment<a class="headerlink" href="#citylearn-environment" title="Permalink to this headline"></a></h1>
+<p>Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Flattening, smoothening, and reducing the overall curve of electrical demand helps reduce operational and capital costs of electricity generation, transmission, and distribution networks. Demand response is the coordination of electricity consuming agents (i.e. buildings) in order to reshape the overall curve of electrical demand. CityLearn is an OpenAI Gym Environment that allows the easy implementation of reinforcement learning agents in a single or multi-agent setting to reshape their aggregated curve of electrical demand by controlling the storage of energy by every agent. Below are details of the CityLearn <a class="reference external" href="#environment">environment</a>,
+<a class="reference external" href="#observations">observations</a>, <a class="reference external" href="#actions">actions</a> and
+<a class="reference external" href="#rewards">rewards</a>.</p>
+<section id="environment">
+<h2>Environment<a class="headerlink" href="#environment" title="Permalink to this headline"></a></h2>
+<p>CityLearn is an OpenAI Gym environment for the easy implementation of RL agents in a demand response setting to reshape the aggregated curve of electricity demand by controlling the energy storage of a diverse set of electrified buildings in a district. Its main objective is to facilitate and standardize the evaluation of RL agents, such that it enables benchmarking of different algorithms.</p>
 <a class="reference internal image-reference" href="_images/citylearn_diagram.png"><img alt="demand response" class="align-center" src="_images/citylearn_diagram.png" style="width: 370.2px; height: 309.59999999999997px;" /></a>
-<p>CityLearn allows controlling the storage of domestic hot water (DHW), chilled water (for sensible space cooling), hot water (for sensible space heating) and electrical energy. CityLearn also includes models of air-to-water heat pumps, electric heaters, solar photovoltaic arrays, batteries and the pre-computed energy loads of the buildings, which include space cooling, space heating, DHW, appliances, and solar generation.</p>
-<p>The models are grouped to form a building model and a cluster of buildings form a district which, demand response strategies may be evaluated upon.</p>
+<p>CityLearn includes energy models of buildings and electric devices including air-to-water heat pumps, electric heaters and batteries. A collection of buildings energy models make up a virtual district. In each building, an air-to-water heat pump may be used to meet the space cooling, space heating and domestic hot water demand. Alternatively, space heating and domestic hot water demand can be satisfied through electric heaters. Buildings may also possess a combination of water tanks and batteries to store energy for space cooling, space heating, domestic hot water and non-shiftable (plug) loads. These storage devices are charged by the same electric device that satisfies the end-use that the stored energy is for. All electric devices as well as plug loads consume electricity from the main grid.</p>
+<p>Photovoltaic (PV) arrays may be included in the buildings to offset all or part of the electricity consumption from the grid by allowing the buildings to generate their own electricity.</p>
+<p>The RL agents control the storage of chilled water, hot water and electricity by deciding how much cooling, heating and electrical energy to store or release at any given time. CityLearn guarantees that, at any time, the heating, cooling, domestic hot water and non-shiftable energy demand of the building are satisfied regardless of the actions of the controller by utilizing pre-computed or pre-measured demand of the buildings. An internal backup controller guarantees that the electric devices prioritize satisfying the energy demand of the building before storing energy in the storage devices.</p>
+</section>
+<section id="observations">
+<h2>Observations<a class="headerlink" href="#observations" title="Permalink to this headline"></a></h2>
+<p>The observations in the CityLearn environment are grouped into calendar, weather, district and building categories. The initial three categories of observations are common to all agents in the environment while the last is building specific. The observations may be pre-simulated/pre-measured and supplied to the environment through flat <code class="docutils literal notranslate"><span class="pre">.csv</span></code> files or are calculated during the simulation runtime.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 3%" />
+<col style="width: 13%" />
+<col style="width: 7%" />
+<col style="width: 5%" />
+<col style="width: 73%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Category</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Unit</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Calendar</p></td>
+<td><p>month</p></td>
+<td><p><cite>building_id.csv</cite></p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>Month of year ranging from 1 (January) through 12 (December).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Calendar</p></td>
+<td><p>day_type</p></td>
+<td><p><cite>building_id.csv</cite></p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>Day of week ranging from 1 (Monday) through 7 (Sunday).</p></td>
+</tr>
+<tr class="row-even"><td><p>Calendar</p></td>
+<td><p>hour</p></td>
+<td><p><cite>building_id.csv</cite></p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>Hour of day ranging from 1 to 24.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Calendar</p></td>
+<td><p>daylight_savings_status</p></td>
+<td><p><cite>building_id.csv</cite></p></td>
+<td><ul class="simple">
+<li></li>
+</ul>
+</td>
+<td><p>Boolean that indicates if the current day is daylight savings period. 0 indicates that the buildings have not changed its electricity consumption profiles due to daylight savings, while 1 indicates the period in which the buildings may have been affected.</p></td>
+</tr>
+<tr class="row-even"><td><p>Weather</p></td>
+<td><p>outdoor_dry_bulb_temperature</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>C</p></td>
+<td><p>Outdoor dry bulb temperature.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Weather</p></td>
+<td><p>outdoor_dry_bulb_temperature_predicted_6h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>C</p></td>
+<td><p>Outdoor dry bulb temperature predicted 6 hours ahead.</p></td>
+</tr>
+<tr class="row-even"><td><p>Weather</p></td>
+<td><p>outdoor_dry_bulb_temperature_predicted_12h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>C</p></td>
+<td><p>Outdoor dry bulb temperature predicted 12 hours ahead.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Weather</p></td>
+<td><p>outdoor_dry_bulb_temperature_predicted_24h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>C</p></td>
+<td><p>Outdoor dry bulb temperature predicted 24 hours ahead</p></td>
+</tr>
+<tr class="row-even"><td><p>Weather</p></td>
+<td><p>outdoor_relative_humidity</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>%</p></td>
+<td><p>Outdoor relative humidity.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Weather</p></td>
+<td><p>outdoor_relative_humidity_predicted_6h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>%</p></td>
+<td><p>Outdoor relative humidity predicted 6 hours ahead.</p></td>
+</tr>
+<tr class="row-even"><td><p>Weather</p></td>
+<td><p>outdoor_relative_humidity_predicted_12h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>%</p></td>
+<td><p>Outdoor dry bulb temperature predicted 12 hours ahead.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Weather</p></td>
+<td><p>outdoor_relative_humidity_predicted_24h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>%</p></td>
+<td><p>Outdoor dry bulb temperature predicted 24 hours ahead.</p></td>
+</tr>
+<tr class="row-even"><td><p>Weather</p></td>
+<td><p>diffuse_solar_irradiance</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>W/m2</p></td>
+<td><p>Diffuse solar irradiance.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Weather</p></td>
+<td><p>diffuse_solar_irradiance_predicted_6h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>W/m2</p></td>
+<td><p>Diffuse solar irradiance predicted 6 hours ahead.</p></td>
+</tr>
+<tr class="row-even"><td><p>Weather</p></td>
+<td><p>diffuse_solar_irradiance_predicted_12h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>W/m2</p></td>
+<td><p>Diffuse solar irradiance predicted 12 hours ahead.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Weather</p></td>
+<td><p>diffuse_solar_irradiance_predicted_24h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>W/m2</p></td>
+<td><p>Diffuse solar irradiance predicted 24 hours ahead.</p></td>
+</tr>
+<tr class="row-even"><td><p>Weather</p></td>
+<td><p>direct_solar_irradiance</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>W/m2</p></td>
+<td><p>Direct solar irradiance.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Weather</p></td>
+<td><p>direct_solar_irradiance_predicted_6h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>W/m2</p></td>
+<td><p>Direct solar irradiance predicted 6 hours ahead.</p></td>
+</tr>
+<tr class="row-even"><td><p>Weather</p></td>
+<td><p>direct_solar_irradiance_predicted_12h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>W/m2</p></td>
+<td><p>Direct solar irradiance predicted 12 hours ahead.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Weather</p></td>
+<td><p>direct_solar_irradiance_predicted_24h</p></td>
+<td><p><cite>weather.csv</cite></p></td>
+<td><p>W/m2</p></td>
+<td><p>Direct solar irradiance predicted 24 hours ahead.</p></td>
+</tr>
+<tr class="row-even"><td><p>District</p></td>
+<td><p>carbon_intensity</p></td>
+<td><p><cite>carbon_intensity.csv</cite></p></td>
+<td><p>kgCO2/kWh</p></td>
+<td><p>Grid carbon emission rate.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Building</p></td>
+<td><p>indoor_dry_bulb_temperature</p></td>
+<td><p><cite>building_id.csv</cite></p></td>
+<td><p>C</p></td>
+<td><p>Zone volume-weighted average building dry bulb temperature.</p></td>
+</tr>
+<tr class="row-even"><td><p>Building</p></td>
+<td><p>average_unmet_cooling_setpoint_difference</p></td>
+<td><p><cite>building_id.csv</cite></p></td>
+<td><p>C</p></td>
+<td><p>Zone volume-weighted average difference between <cite>indoor_dry_bulb_temperature</cite> and cooling temperature setpoints.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Building</p></td>
+<td><p>indoor_relative_humidity</p></td>
+<td><p><cite>building_id.csv</cite></p></td>
+<td><p>%</p></td>
+<td><p>Zone volume-weighted average building relative humidity.</p></td>
+</tr>
+<tr class="row-even"><td><p>Building</p></td>
+<td><p>non_shiftable_load</p></td>
+<td><p><cite>building_id.csv</cite></p></td>
+<td><p>kWh</p></td>
+<td><p>Total building non-shiftable plug and equipment loads.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Building</p></td>
+<td><p>solar_generation</p></td>
+<td><p><cite>building_id.csv</cite></p></td>
+<td><p>kWh</p></td>
+<td><p>PV electricity generation.</p></td>
+</tr>
+<tr class="row-even"><td><p>Building</p></td>
+<td><p>cooling_storage_soc</p></td>
+<td><p>Runtime calculation</p></td>
+<td><p>kWh/kWhcapacity</p></td>
+<td><p>State of the charge (SOC) of the <cite>cooling_storage</cite> from 0 (no energy stored) to 1 (at full capacity).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Building</p></td>
+<td><p>heating_storage_soc</p></td>
+<td><p>Runtime calculation</p></td>
+<td><p>kWh/kWhcapacity</p></td>
+<td><p>State of the charge (SOC) of the <cite>heating_storage</cite> from 0 (no energy stored) to 1 (at full capacity).</p></td>
+</tr>
+<tr class="row-even"><td><p>Building</p></td>
+<td><p>dhw_storage_soc</p></td>
+<td><p>Runtime calculation</p></td>
+<td><p>kWh/kWhcapacity</p></td>
+<td><p>State of the charge (SOC) of the <cite>dhw_storage</cite> (domestic hot water storage) from 0 (no energy stored) to 1 (at full capacity).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Building</p></td>
+<td><p>electrical_storage_soc</p></td>
+<td><p>Runtime calculation</p></td>
+<td><p>kWh/kWhcapacity</p></td>
+<td><p>State of the charge (SOC) of the <cite>electrical_storage</cite> from 0 (no energy stored) to 1 (at full capacity).</p></td>
+</tr>
+<tr class="row-even"><td><p>Building</p></td>
+<td><p>net_electricity_consumption</p></td>
+<td><p>Runtime calculation</p></td>
+<td><p>kWh</p></td>
+<td><p>Total building electricity consumption.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Building</p></td>
+<td><p>electricity_pricing</p></td>
+<td><p><cite>pricing.csv</cite></p></td>
+<td><p>$/kWh</p></td>
+<td><p>Electricity rate.</p></td>
+</tr>
+<tr class="row-even"><td><p>Building</p></td>
+<td><p>electricity_pricing_predicted_6h</p></td>
+<td><p><cite>pricing.csv</cite></p></td>
+<td><p>$/kWh</p></td>
+<td><p>Electricity rate predicted 6 hours ahead.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Building</p></td>
+<td><p>electricity_pricing_predicted_12h</p></td>
+<td><p><cite>pricing.csv</cite></p></td>
+<td><p>$/kWh</p></td>
+<td><p>Electricity rate predicted 12 hours ahead.</p></td>
+</tr>
+<tr class="row-even"><td><p>Building</p></td>
+<td><p>electricity_pricing_predicted_24h</p></td>
+<td><p><cite>pricing.csv</cite></p></td>
+<td><p>$/kWh</p></td>
+<td><p>Electricity rate predicted 24 hours ahead.</p></td>
+</tr>
+</tbody>
+</table>
+<p>These observations can be specified to be active/inactive during simulation in <code class="docutils literal notranslate"><span class="pre">schema.json</span></code>.</p>
+</section>
+<section id="actions">
+<h2>Actions<a class="headerlink" href="#actions" title="Permalink to this headline"></a></h2>
+<p>The actions specify the amount of energy by which the available storage devices in a building (multi-agent) or district of buildings (central agent) are charged/discharged. In a multi-agent setup, 1 agent controls all storage devices in 1 building i.e. provides as many actions as storage devices in 1 building whereas in a central agent setup, 1 agent controls all storage devices in all buildings i.e. provides as many actions as storage devices in the entire district.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 40%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Controlled Storage</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>cooling_storage</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cooling_storage</span></code></p></td>
+<td><p>kWh/kWhcapacity</p></td>
+</tr>
+<tr class="row-odd"><td><p>heating_storage</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">heating_storage</span></code></p></td>
+<td><p>kWh/kWhcapacity</p></td>
+</tr>
+<tr class="row-even"><td><p>dhw_storage</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dhw_storage</span></code></p></td>
+<td><p>kWh/kWhcapacity</p></td>
+</tr>
+<tr class="row-odd"><td><p>electrical_storage</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">electrical_storage</span></code></p></td>
+<td><p>kWh/kWhcapacity</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTE:</strong> The CityLearn Challenge 2022 only utilizes <code class="docutils literal notranslate"><span class="pre">electrical_storage</span></code>.</p>
+</section>
+<section id="rewards">
+<h2>Rewards<a class="headerlink" href="#rewards" title="Permalink to this headline"></a></h2>
+<p>CityLearn provides custom reward functions for multi-agent and central agent setups that are described in the <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/api/citylearn.reward_function.html">docs</a>. The path to the function for use in simulation is defined in <code class="docutils literal notranslate"><span class="pre">schema.json</span></code> e.g.:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;reward_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;citylearn.reward_function.RewardFunction&quot;</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>CityLearn also allows for custom reward functions by inheriting the <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction">citylearn.reward_function.RewardFunction</a> class. An example is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">citylearn.reward_function</span> <span class="kn">import</span> <span class="n">RewardFunction</span>
+
+<span class="k">class</span> <span class="nc">CustomReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">carbon_emission</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">electricity_price</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agent_count</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="o">=</span><span class="n">electricity_consumption</span><span class="p">,</span> <span class="n">carbon_emission</span><span class="o">=</span><span class="n">carbon_emission</span><span class="p">,</span> <span class="n">electricity_price</span><span class="o">=</span><span class="n">electricity_price</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Calculates custom user-defined multi-agent reward.</span>
+
+<span class="sd">        Reward is the `carbon_emission` for each building.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_emission</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">schema.json</span></code> must then be updated to reference the custom reward
+e.g.:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;reward_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;custom_module.CustomReward&quot;</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Each time the <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step">step function</a> is called during simulation, the <code class="docutils literal notranslate"><span class="pre">electricity_consumption</span></code>, <code class="docutils literal notranslate"><span class="pre">carbon_emission</span></code> and <code class="docutils literal notranslate"><span class="pre">electricity_price</span></code> properties of the reward class are updated and the custom reward is calculated.</p>
+</section>
+<section id="cost-functions">
+<h2>Cost Functions<a class="headerlink" href="#cost-functions" title="Permalink to this headline"></a></h2>
+<p>CityLearn provides a set of cost metrics that quantify the simulated district’s energy flexibility and performance while under the control of the agent(s). These metrics include the following and their detailed definitions are provided in the <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/api/citylearn.cost_function.html#module-citylearn.cost_function">docs</a>:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">average_daily_peak</span></code> - Rolling mean of daily net electricity consumption peaks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">carbon_emissions</span></code> - Rolling sum of carbon emissions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">load_factor</span></code> - Difference between 1 and the rolling mean ratio of rolling mean demand to rolling peak demand over a specified period.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">net_electricity_consumption</span></code> - Rolling sum of net electricity consumption.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">peak_demand</span></code> - Net electricity consumption peaks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">price</span></code> - Rolling sum of electricity price.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">quadratic</span></code> - Rolling sum of net electricity consumption raised to the power of 2.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ramping</span></code> - Rolling sum of absolute difference in net electric consumption between consecutive time steps.</p></li>
+</ol>
+<p><strong>NOTE:</strong> The CityLearn Challenge 2022 only utilizes <code class="docutils literal notranslate"><span class="pre">carbon_emissions</span></code> and <code class="docutils literal notranslate"><span class="pre">price</span></code> cost functions.</p>
+</section>
 </section>
 
 
