@@ -176,7 +176,7 @@ class CostFunction:
         [100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]
         """
 
-        data = pd.DataFrame({'carbon_emissions':carbon_emissions})
+        data = pd.DataFrame({'carbon_emissions':np.array(carbon_emissions).clip(min=0)})
         data['carbon_emissions'] = data['carbon_emissions'].rolling(window=data.shape[0],min_periods=1).sum()
         return data['carbon_emissions'].tolist()
 
