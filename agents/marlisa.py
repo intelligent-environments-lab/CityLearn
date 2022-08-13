@@ -1,11 +1,10 @@
-from ..common.preprocessing import *
-from ..common.rl import *
+from common.preprocessing import *
+from common.rl import *
 from sklearn.linear_model import LinearRegression
 from sklearn.decomposition import PCA
-from sklearn.ensemble import GradientBoostingRegressor
 import torch.optim as optim
-from torch.optim import Adam
 import json
+import time
 
 
 class MARLISA:
@@ -230,6 +229,7 @@ class MARLISA:
         n_iterations = self.iterations_as
 
         action_order = np.array(range(len(self.building_ids)))
+        # every time that the action selection function is called, a randomly sorted list of all agents, is created
         np.random.shuffle(action_order)
 
         _building_ids = [self.building_ids[i] for i in action_order]
@@ -284,6 +284,7 @@ class MARLISA:
                 else:
                     act = self.action_scaling_coef * self.action_spaces[uid].sample()
 
+                # the first agent on the list picks an action a_{i}^{k}
                 actions[action_order[k]] = act
                 k += 1
 
@@ -539,3 +540,83 @@ class MARLISA:
                         target_param.data.copy_(
                             target_param.data * (1.0 - self.tau) + param.data * self.tau
                         )
+
+
+from citylearn import CityLearn
+from pathlib import Path
+import numpy as np
+
+climate_zone = 5
+
+params = {'data_path': Path("/Users/xiejiahan/PycharmProjects/CityLearn/data/Climate_Zone_" + str(climate_zone)),
+          'building_attributes': 'building_attributes.json',
+          'weather_file': 'weather_data.csv',
+          'solar_profile': 'solar_generation_1kW.csv',
+          'carbon_intensity': 'carbon_intensity.csv',
+          'building_ids': ["Building_" + str(i) for i in [1, 2, 3, 4, 5, 6, 7, 8, 9]],
+          'buildings_states_actions': '/Users/xiejiahan/PycharmProjects/CityLearn/buildings_state_action_space'
+                                      '.json',
+          'simulation_period': (0, 8760 * 4 - 1),
+          'cost_function': ['ramping', '1-load_factor', 'average_daily_peak', 'peak_demand',
+                            'net_electricity_consumption', 'carbon_emissions'],
+          'central_agent': False,
+          'save_memory': False}
+
+env = CityLearn(**params)
+observations_spaces, actions_spaces = env.get_state_action_spaces()
+
+building_info = env.get_building_information()
+
+params_agent = {'building_ids': ["Building_" + str(i) for i in [1, 2, 3, 4, 5, 6, 7, 8, 9]],
+                'buildings_states_actions': '/Users/xiejiahan/PycharmProjects/CityLearn'
+                                            '/buildings_state_action_space.json',
+                'building_info': building_info,
+                'observation_spaces': observations_spaces,
+                'action_spaces': actions_spaces,
+                'hidden_dim': [256, 256],
+                'discount': 0.99,
+                'tau': 5e-3,
+                'lr': 3e-4,
+                'batch_size': 256,
+                'replay_buffer_capacity': 1e5,
+                'regression_buffer_capacity': 3e4,
+                'start_training': 600,  # Start updating actor-critic networks
+                'exploration_period': 7500,  # Just taking random actions
+                'start_regression': 500,  # Start training the regression model
+                'information_sharing': True,
+                # If True -> set the appropriate 'reward_function_ma' in reward_function.py
+                'pca_compression': .95,
+                'action_scaling_coef': 0.5,  # Actions are multiplied by this factor to prevent too aggressive actions
+                'reward_scaling': 5.,  # Rewards are normalized and multiplied by this factor
+                'update_per_step': 2,  # How many times the actor-critic networks are updated every hourly time-step
+                'iterations_as': 2,  # Iterations of the iterative action selection (see MARLISA paper for more info)
+                'safe_exploration': True}
+
+# Instantiating the control agent(s)
+agents = MARLISA(**params_agent)
+
+# We will use 1 episode if we intend to simulate a real-time RL controller (like in the CityLearn Challenge)
+# In climate zone 5, 1 episode contains 5 years of data, or 8760*5 time-steps.
+n_episodes = 1
+start = time.time()
+
+if __name__ == "__main__":
+    for e in range(n_episodes):
+        state = env.reset()
+        done = False
+
+        j = 0
+        is_evaluating = False
+        action, coordination_vars = agents.select_action(state, deterministic=is_evaluating)
+        while not done:
+            next_state, reward, done, _ = env.step(action)
+            action_next, coordination_vars_next = agents.select_action(next_state, deterministic=is_evaluating)
+            agents.add_to_buffer(state, action, reward, next_state, done, coordination_vars, coordination_vars_next)
+            coordination_vars = coordination_vars_next
+            state = next_state
+            action = action_next
+
+            is_evaluating = (j > 3 * 8760)
+            j += 1
+
+print('Loss -', env.cost(), 'Simulation time (min) -', (time.time() - start) / 60.0)
