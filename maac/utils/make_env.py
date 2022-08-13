@@ -19,7 +19,7 @@ def make_env(climate_zone):
         'building_ids': ["Building_" + str(i) for i in [1, 2, 3, 4, 5, 6, 7, 8, 9]],
         'buildings_states_actions': '/Users/xiejiahan/PycharmProjects/CityLearn/buildings_state_action_space'
                                     '.json',
-        'simulation_period': (0, 1200),
+        'simulation_period': (0, 200),
         'cost_function': ['ramping', '1-load_factor', 'average_daily_peak', 'peak_demand',
                           'net_electricity_consumption', 'carbon_emissions'],
         'central_agent': False,
