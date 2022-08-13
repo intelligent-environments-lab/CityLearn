@@ -1,7 +1,6 @@
 from common.preprocessing import *
 from common.rl import *
 import torch.optim as optim
-from torch.optim import Adam
 import json
 
 
@@ -276,7 +275,6 @@ class SAC:
 
 from citylearn import CityLearn
 from pathlib import Path
-from agent import Agent
 import numpy as np
 
 climate_zone = 5
