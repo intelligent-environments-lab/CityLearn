@@ -510,7 +510,7 @@ class CityLearnEnv(Environment, Env):
 
         np.seterr(divide='ignore', invalid='ignore')
         building_info = {}
-        n_years = max(1, self.time_steps*self.seconds_per_time_step/8760*3600)
+        n_years = max(1, (self.time_steps*self.seconds_per_time_step)/(8760*3600))
 
         for building in self.buildings:
             building_info[building.uid] = {}
