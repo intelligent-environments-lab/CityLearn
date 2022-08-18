@@ -45,7 +45,7 @@ class RLC(Agent):
         replay_buffer_capacity : int, default: 1e5
             Replay buffer capacity.
         start_training_time_step : int, default: 6000
-            Time step to begin training regression model.
+            Time step to end exploration phase.
         end_exploration_time_step : int, default: 7000
             Time step to stop exploration.
         deterministic_start_time_step : int, default: 7500
@@ -145,7 +145,7 @@ class RLC(Agent):
 
     @property
     def start_training_time_step(self) -> int:
-        """Time step to begin training regression model."""
+        """Time step to end exploration phase."""
 
         return self.__start_training_time_step
 
