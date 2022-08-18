@@ -1,6 +1,6 @@
 from typing import List
 import numpy as np
-from citylearn.agents.rbc import RBC, BasicRBC, OptimizedRBC
+from citylearn.agents.rbc import RBC, BasicRBC, OptimizedRBC, BasicBatteryRBC
 from citylearn.agents.rlc import RLC
 from citylearn.rl import PolicyNetwork, ReplayBuffer, SoftQNetwork
 
@@ -175,7 +175,7 @@ class SAC(RLC):
 
         if self.normalized:
             observations = np.array(self.__get_normalized_observations(observations), dtype = float)
-            next_observations = np.array(self.__get_normalized_observations(observations), dtype = float)
+            next_observations = np.array(self.__get_normalized_observations(next_observations), dtype = float)
             reward = self.__get_normalized_reward(reward)
         else:
             pass
@@ -184,20 +184,24 @@ class SAC(RLC):
 
         if self.time_step >= self.start_training_time_step and self.batch_size <= len(self.__replay_buffer):
             if not self.normalized:
+                # calculate normalized observations and rewards
                 X = np.array([j[0] for j in self.__replay_buffer.buffer], dtype = float)
-                self.__norm_mean = np.nanmean(X, axis = 0)
-                self.__norm_std = np.nanstd(X, axis = 0) + 1e-5
+                self.__norm_mean = np.nanmean(X, axis=0)
+                self.__norm_std = np.nanstd(X, axis=0) + 1e-5
                 R = np.array([j[2] for j in self.__replay_buffer.buffer], dtype = float)
                 self.__r_norm_mean = np.nanmean(R, dtype = float)
                 self.__r_norm_std = np.nanstd(R, dtype = float)/self.reward_scaling + 1e-5
+                
+                # update buffer with normalization
                 self.__replay_buffer.buffer = [(
-                    np.hstack((np.array(self.__get_normalized_observations(observations), dtype = float)).reshape(1,-1)[0]),
-                    actions,
-                    self.__get_normalized_reward(reward),
-                    np.hstack((np.array(self.__get_normalized_observations(next_observations), dtype = float)).reshape(1,-1)[0]),
-                    done
-                ) for observations, actions, reward, next_observations, done in self.__replay_buffer.buffer]
+                    np.hstack(np.array(self.__get_normalized_observations(o), dtype = float).reshape(1,-1)[0]),
+                    a,
+                    self.__get_normalized_reward(r),
+                    np.hstack(np.array(self.__get_normalized_observations(n_o), dtype = float).reshape(1,-1)[0]),
+                    d
+                ) for o, a, r, n_o, d in self.__replay_buffer.buffer]
                 self.__normalized = True
+            
             else:
                 pass
 
@@ -412,3 +416,25 @@ class SACOptimizedRBC(SACBasicRBC):
 
         super().__init__(*args, **kwargs)
         self.rbc = OptimizedRBC(action_space=self.action_space, hour_index=hour_index)
+
+class SACBasicBatteryRBC(SACBasicRBC):
+     def __init__(self,*args, hour_index: int = None, **kwargs):
+        r"""Initialize `SACOptimizedRBC`.
+
+        Uses :class:`OptimizedRBC` to select action during exploration before using :class:`SAC`.
+
+        Parameters
+        ----------
+        *args : tuple
+            :class:`SAC` positional arguments.
+        hour_index: int, default: 2
+            Expected position of hour observation when `observations` paramater is parsed into `select_actions` method (used in :class:`OptimizedRBC`).
+        
+        Other Parameters
+        ----------------
+        **kwargs : dict
+            Other keyword arguments used to initialize super class.
+        """
+
+        super().__init__(*args, **kwargs)
+        self.rbc = BasicBatteryRBC(action_space=self.action_space, hour_index=hour_index)
