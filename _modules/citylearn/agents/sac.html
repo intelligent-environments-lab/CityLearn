@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.sac &mdash; CityLearn 1.3.5 documentation</title>
+  <title>citylearn.agents.sac &mdash; CityLearn 1.3.6 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -69,7 +69,7 @@
   <h1>Source code for citylearn.agents.sac</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">citylearn.agents.rbc</span> <span class="kn">import</span> <span class="n">RBC</span><span class="p">,</span> <span class="n">BasicRBC</span><span class="p">,</span> <span class="n">OptimizedRBC</span>
+<span class="kn">from</span> <span class="nn">citylearn.agents.rbc</span> <span class="kn">import</span> <span class="n">RBC</span><span class="p">,</span> <span class="n">BasicRBC</span><span class="p">,</span> <span class="n">OptimizedRBC</span><span class="p">,</span> <span class="n">BasicBatteryRBC</span>
 <span class="kn">from</span> <span class="nn">citylearn.agents.rlc</span> <span class="kn">import</span> <span class="n">RLC</span>
 <span class="kn">from</span> <span class="nn">citylearn.rl</span> <span class="kn">import</span> <span class="n">PolicyNetwork</span><span class="p">,</span> <span class="n">ReplayBuffer</span><span class="p">,</span> <span class="n">SoftQNetwork</span>
 
@@ -244,7 +244,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized</span><span class="p">:</span>
             <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
-            <span class="n">next_observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="n">next_observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">next_observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
             <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_reward</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
@@ -253,20 +253,24 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_training_time_step</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized</span><span class="p">:</span>
+                <span class="c1"># calculate normalized observations and rewards</span>
                 <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">j</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">buffer</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__norm_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__norm_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-5</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__norm_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__norm_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-5</span>
                 <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">j</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">buffer</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__r_norm_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__r_norm_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">reward_scaling</span> <span class="o">+</span> <span class="mf">1e-5</span>
+                
+                <span class="c1"># update buffer with normalization</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="p">[(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span>
-                    <span class="n">actions</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_reward</span><span class="p">(</span><span class="n">reward</span><span class="p">),</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">next_observations</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span>
-                    <span class="n">done</span>
-                <span class="p">)</span> <span class="k">for</span> <span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_observations</span><span class="p">,</span> <span class="n">done</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">buffer</span><span class="p">]</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">o</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">a</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_reward</span><span class="p">(</span><span class="n">r</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_normalized_observations</span><span class="p">(</span><span class="n">n_o</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">d</span>
+                <span class="p">)</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">n_o</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer</span><span class="o">.</span><span class="n">buffer</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__normalized</span> <span class="o">=</span> <span class="kc">True</span>
+            
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">pass</span>
 
@@ -481,6 +485,28 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rbc</span> <span class="o">=</span> <span class="n">OptimizedRBC</span><span class="p">(</span><span class="n">action_space</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span> <span class="n">hour_index</span><span class="o">=</span><span class="n">hour_index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SACBasicBatteryRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SACBasicBatteryRBC">[docs]</a><span class="k">class</span> <span class="nc">SACBasicBatteryRBC</span><span class="p">(</span><span class="n">SACBasicRBC</span><span class="p">):</span>
+     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">hour_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `SACOptimizedRBC`.</span>
+
+<span class="sd">        Uses :class:`OptimizedRBC` to select action during exploration before using :class:`SAC`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : tuple</span>
+<span class="sd">            :class:`SAC` positional arguments.</span>
+<span class="sd">        hour_index: int, default: 2</span>
+<span class="sd">            Expected position of hour observation when `observations` paramater is parsed into `select_actions` method (used in :class:`OptimizedRBC`).</span>
+<span class="sd">        </span>
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Other keyword arguments used to initialize super class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rbc</span> <span class="o">=</span> <span class="n">BasicBatteryRBC</span><span class="p">(</span><span class="n">action_space</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span> <span class="n">hour_index</span><span class="o">=</span><span class="n">hour_index</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
