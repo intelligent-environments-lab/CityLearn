@@ -603,8 +603,13 @@ class CityLearnEnv(Environment, Env):
             CostFunction.price(self.net_electricity_consumption_without_storage_price)[-1]
         emission_cost = CostFunction.carbon_emissions(self.net_electricity_consumption_emission)[-1]/\
             CostFunction.carbon_emissions(self.net_electricity_consumption_without_storage_emission)[-1]
+        ramping_cost = CostFunction.ramping(self.net_electricity_consumption)[-1]/\
+            CostFunction.ramping(self.net_electricity_consumption_without_storage)[-1]
+        load_factor_cost = CostFunction.load_factor(self.net_electricity_consumption)[-1]/\
+            CostFunction.load_factor(self.net_electricity_consumption_without_storage)[-1]
+        grid_cost = np.mean([ramping_cost, load_factor_cost])
 
-        return price_cost, emission_cost
+        return price_cost, emission_cost, grid_cost
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
