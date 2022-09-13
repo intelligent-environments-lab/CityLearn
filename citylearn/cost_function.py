@@ -41,7 +41,7 @@ class CostFunction:
 
     @staticmethod
     def load_factor(net_electricity_consumption: List[float], window: int = None) -> List[float]:
-        r"""Difference between 1 and the rolling mean ratio of rolling mean demand to rolling peak demand over a specified period.
+        r"""Difference between 1 and the ratio of rolling mean demand to rolling peak demand over a specified period.
 
         Parameters
         ----------
@@ -54,26 +54,19 @@ class CostFunction:
         -------
         load_factor : List[float]
             Load factor cost.
-
-        Examples
-        --------
-        >>> net_electricity_consumption = [100.0, 200.0, 200.0, 600.0, 400.0]
-        >>> window = 2
-        >>> CostFunction.load_factor(net_electricity_consumption, window=window)
-        [nan, 0.25, 0.125, 0.19444444444444445, 0.1875]
         """
 
         window = 730 if window is None else window
         data = pd.DataFrame({'net_electricity_consumption':net_electricity_consumption})
-        data['mean_net_electricity_consumption'] = data['net_electricity_consumption'].rolling(window=window,min_periods=window).mean()
-        data['max_net_electricity_consumption'] = data['net_electricity_consumption'].rolling(window=window,min_periods=window).max()
-        data['load_factor'] = 1 - (data['mean_net_electricity_consumption']/data['max_net_electricity_consumption'])
+        data['group'] = (data.index/window).astype(int)
+        data = data.groupby(['group'])[['net_electricity_consumption']].agg(['mean','max'])
+        data['load_factor'] = 1 - (data[('net_electricity_consumption','mean')]/data[('net_electricity_consumption','max')])
         data['load_factor'] = data['load_factor'].rolling(window=data.shape[0],min_periods=1).mean()
         return data['load_factor'].tolist()
 
     @staticmethod
     def average_daily_peak(net_electricity_consumption: List[float], daily_time_step: int = None) -> List[float]:
-        r"""Rolling mean of daily net electricity consumption peaks.
+        r"""Mean of daily net electricity consumption peaks.
 
         Parameters
         ----------
@@ -86,24 +79,18 @@ class CostFunction:
         -------
         average_daily_peak : List[float]
             Average daily peak cost.
-
-        Examples
-        --------
-        >>> net_electricity_consumption = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]
-        >>> daily_time_step = 2
-        >>> CostFunction.average_daily_peak(net_electricity_consumption, daily_time_step=daily_time_step)
-        [nan, 200.0, 200.0, 333.3333333333333, 400.0, 400.0]
         """
 
         daily_time_step = 24 if daily_time_step is None else daily_time_step
         data = pd.DataFrame({'net_electricity_consumption':net_electricity_consumption})
-        data['average_daily_peak'] = data['net_electricity_consumption'].rolling(window=daily_time_step,min_periods=daily_time_step).max()
-        data['average_daily_peak'] = data['average_daily_peak'].rolling(window=data.shape[0],min_periods=1).mean()
-        return data['average_daily_peak'].tolist()
+        data['group'] = (data.index/daily_time_step).astype(int)
+        data = data.groupby(['group'])[['net_electricity_consumption']].max()
+        data['net_electricity_consumption'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).mean()
+        return data['net_electricity_consumption'].tolist()
 
     @staticmethod
     def peak_demand(net_electricity_consumption: List[float], window: int = None) -> List[float]:
-        r"""Net electricity consumption peaks.
+        r"""Net electricity consumption peak.
 
         Parameters
         ----------
@@ -116,19 +103,14 @@ class CostFunction:
         -------
         peak_demand : List[float]
             Peak demand cost.        
-
-        Examples
-        --------
-        >>> net_electricity_consumption = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]
-        >>> window = 2
-        >>> CostFunction.peak_demand(net_electricity_consumption, window=window)
-        [nan, 200.0, 200.0, 600.0, 600.0, 400.0]
         """
 
         window = 8760 if window is None else window
         data = pd.DataFrame({'net_electricity_consumption':net_electricity_consumption})
-        data['peak_demand'] = data['net_electricity_consumption'].rolling(window=window,min_periods=window).max()
-        return data['peak_demand'].tolist()
+        data['group'] = (data.index/window).astype(int)
+        data = data.groupby(['group'])[['net_electricity_consumption']].max()
+        data['net_electricity_consumption'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).mean()
+        return data['net_electricity_consumption'].tolist()
 
     @staticmethod
     def net_electricity_consumption(net_electricity_consumption: List[float]) -> List[float]:
