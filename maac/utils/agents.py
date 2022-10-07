@@ -3,6 +3,7 @@ import numpy as np
 from torch.optim import Adam
 from .policies import SquashedGaussianActor
 from .buffer import ReplayBuffer
+from sklearn.decomposition import PCA
 
 
 class AttentionAgent(object):
@@ -14,7 +15,6 @@ class AttentionAgent(object):
                  dim_in_actor,
                  dim_out_actor,
                  action_scaling_coef,
-                 norm_flag,
                  buffer_length,
                  action_spaces,
                  hidden_dim=(400, 300),
@@ -31,7 +31,8 @@ class AttentionAgent(object):
         self.norm_std = 0
         self.r_norm_mean = 0
         self.r_norm_std = 0
-        self.norm_flag = norm_flag
+        self.pca = PCA(n_components=dim_in_actor)
+        self.pca_flag = 0
         self.buffer_length = buffer_length
         self.replay_buffer = ReplayBuffer(self.buffer_length)
         self.action_spaces = action_spaces
@@ -62,10 +63,10 @@ class AttentionAgent(object):
         :return: action: Action for this agent
         """
         return self.policy.choose_action(obs, action_spaces, encoder,
-                                         self.norm_mean, self.norm_std, explore, deterministic)
+                                         self.norm_mean, self.norm_std, self.pca, explore, deterministic)
 
     def normalize_buffer(self):
-        if self.norm_flag == 0:
+        if self.pca_flag == 0:
             # normalizing the states in replay buffer
             S = np.array([j[0] for j in self.replay_buffer.buffer])
             self.norm_mean = np.mean(S, axis=0)
@@ -76,15 +77,17 @@ class AttentionAgent(object):
             self.r_norm_mean = np.mean(R)
             self.r_norm_std = np.std(R) / self.reward_scaling + 1e-2
 
+            self.pca.fit(S)
+
             new_buffer = []
             for s, a, r, s2, dones in self.replay_buffer.buffer:
-                s_buffer = np.hstack(((s - self.norm_mean) / self.norm_std).reshape(1, -1)[0])
-                s2_buffer = np.hstack(((s2 - self.norm_mean) / self.norm_std).reshape(1, -1)[0])
+                s_buffer = np.hstack(self.pca.transform(((s - self.norm_mean) / self.norm_std).reshape(1, -1))[0])
+                s2_buffer = np.hstack(self.pca.transform(((s2 - self.norm_mean) / self.norm_std).reshape(1, -1))[0])
                 new_buffer.append(
                     (s_buffer, a, (r - self.r_norm_mean) / self.r_norm_std, s2_buffer, dones))
 
             self.replay_buffer.buffer = new_buffer
-            self.norm_flag = 1
+            self.pca_flag = 1
 
     def add_to_buffer(self, encoder, state, act, reward, next_state, done):
         # Run once the regression model has been fitted. Normalize all the states using periodical normalization,
@@ -94,9 +97,11 @@ class AttentionAgent(object):
         o = np.array([j for j in np.hstack(encoder * state) if j is not None])
         o2 = np.array([j for j in np.hstack(encoder * next_state) if j is not None])
 
-        if self.norm_flag > 0:
+        if self.pca_flag > 0:
             o = (o - self.norm_mean) / self.norm_std
+            o = self.pca.transform(o.reshape(1, -1))[0]
             o2 = (o2 - self.norm_mean) / self.norm_std
+            o2 = self.pca.transform(o2.reshape(1, -1))[0]
             reward = (reward - self.r_norm_mean) / self.r_norm_std
 
         self.replay_buffer.push(o, act, reward, o2, done)

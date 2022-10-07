@@ -30,7 +30,6 @@ class AttentionSAC(object):
         self.num_agents = len(sa_size)
         self.agent_init_params = agent_init_params
         self.agents = [AttentionAgent(lr=actor_lr,
-                                      norm_flag=0,
                                       hidden_dim=actor_hidden_dim,
                                       **params)
                        for params in agent_init_params]

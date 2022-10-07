@@ -5,7 +5,7 @@ import numpy as np
 from torch.autograd import Variable
 from algo.attention_sac import AttentionSAC
 from logger.logx import EpochLogger
-from logger.plotting import EpisodeStats, plot_episode_stats
+from logger.plotting import EpisodeStats
 from utils.make_env import make_env
 from utils.encoder import encode
 from utils.misc import count_vars
@@ -127,7 +127,7 @@ def run(config, logger_kwargs=dict()):
                     samples = model.sample(config.batch_size)
 
                     for a in model.agents:
-                        assert (a.norm_flag == 1)
+                        assert (a.pca_flag == 1)
                     model.update_critics(samples)
                     model.update_policies(samples)
                     model.update_all_targets()
