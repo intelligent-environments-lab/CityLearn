@@ -98,7 +98,7 @@
 "electrical_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": false, "electrical_storage": true}},
+"actions": {"cooling_storage": true, "dhw_storage": true, "electrical_storage": false}},
 
 "Building_4": {
 "states": {
@@ -132,7 +132,7 @@
 "electrical_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": false, "electrical_storage": true}},
+"actions": {"cooling_storage": false, "dhw_storage": false, "electrical_storage": true}},
 
 "Building_5": {
 "states": {
@@ -200,7 +200,7 @@
 "electrical_storage_soc": true,
 "net_electricity_consumption": true,
 "carbon_intensity": true},
-"actions": {"cooling_storage": true, "dhw_storage": true, "electrical_storage": true}},
+"actions": {"cooling_storage": false, "dhw_storage": false, "electrical_storage": true}},
 
 "Building_7": {
 "states": {
