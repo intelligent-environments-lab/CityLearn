@@ -499,47 +499,46 @@ class CityLearnEnv(Environment, Env):
         actions = [{f'{k}_action':actions[i].get(k, 0.0) for k in b.action_metadata} for i, b in enumerate(self.buildings)]
         return actions
     
-    def get_building_information(self) -> Mapping[str, Any]:
+    def get_building_information(self) -> Tuple[Mapping[str, Any]]:
         """Get buildings PV capacity, end-use annual demands, and correlations with other buildings end-use annual demands.
 
         Returns
         -------
-        building_information: Mapping[str, Any]
+        building_information: List[Mapping[str, Any]]
             Building information summary.
         """
 
         np.seterr(divide='ignore', invalid='ignore')
-        building_info = {}
+        building_info = ()
         n_years = max(1, (self.time_steps*self.seconds_per_time_step)/(8760*3600))
 
         for building in self.buildings:
-            building_info[building.uid] = {}
-            building_info[building.uid]['solar_power'] = round(building.pv.nominal_power, 3)
-            building_info[building.uid]['annual_dhw_demand'] = round(sum(building.energy_simulation.dhw_demand)/n_years, 3)
-            building_info[building.uid]['annual_cooling_demand'] = round(sum(building.energy_simulation.cooling_demand)/n_years, 3)
-            building_info[building.uid]['annual_heating_demand'] = round(sum(building.energy_simulation.heating_demand)/n_years, 3)
-            building_info[building.uid]['annual_nonshiftable_electrical_demand'] = round(sum(building.energy_simulation.non_shiftable_load)/n_years, 3)
-            building_info[building.uid]['correlations_dhw'] = {}
-            building_info[building.uid]['correlations_cooling_demand'] = {}
-            building_info[building.uid]['correlations_heating_demand'] = {}
-            building_info[building.uid]['correlations_non_shiftable_load'] = {}
+            building_dict = {}
+            building_dict['solar_power'] = round(building.pv.nominal_power, 3)
+            building_dict['annual_dhw_demand'] = round(sum(building.energy_simulation.dhw_demand)/n_years, 3)
+            building_dict['annual_cooling_demand'] = round(sum(building.energy_simulation.cooling_demand)/n_years, 3)
+            building_dict['annual_heating_demand'] = round(sum(building.energy_simulation.heating_demand)/n_years, 3)
+            building_dict['annual_nonshiftable_electrical_demand'] = round(sum(building.energy_simulation.non_shiftable_load)/n_years, 3)
+            building_dict['correlations_dhw'] = ()
+            building_dict['correlations_cooling_demand'] = ()
+            building_dict['correlations_heating_demand'] = ()
+            building_dict['correlations_non_shiftable_load'] = ()
             
             for corr_building in self.buildings:
-                if building.uid != corr_building.uid:
-                    building_info[building.uid]['correlations_dhw'][corr_building.uid] = round((np.corrcoef(
-                        np.array(building.energy_simulation.dhw_demand), np.array(corr_building.energy_simulation.dhw_demand)
-                    ))[0][1], 3)
-                    building_info[building.uid]['correlations_cooling_demand'][corr_building.uid] = round((np.corrcoef(
-                        np.array(building.energy_simulation.cooling_demand), np.array(corr_building.energy_simulation.cooling_demand)
-                    ))[0][1], 3)
-                    building_info[building.uid]['correlations_heating_demand'][corr_building.uid] = round((np.corrcoef(
-                        np.array(building.energy_simulation.heating_demand), np.array(corr_building.energy_simulation.heating_demand)
-                    ))[0][1], 3)
-                    building_info[building.uid]['correlations_non_shiftable_load'][corr_building.uid] = round((np.corrcoef(
-                        np.array(building.energy_simulation.non_shiftable_load), np.array(corr_building.energy_simulation.non_shiftable_load)
-                    ))[0][1], 3)
-                else:
-                    continue
+                building_dict['correlations_dhw'] += (round((np.corrcoef(
+                    np.array(building.energy_simulation.dhw_demand), np.array(corr_building.energy_simulation.dhw_demand)
+                ))[0][1], 3),)
+                building_dict['correlations_cooling_demand'] += (round((np.corrcoef(
+                    np.array(building.energy_simulation.cooling_demand), np.array(corr_building.energy_simulation.cooling_demand)
+                ))[0][1], 3),)
+                building_dict['correlations_heating_demand'] += (round((np.corrcoef(
+                    np.array(building.energy_simulation.heating_demand), np.array(corr_building.energy_simulation.heating_demand)
+                ))[0][1], 3),)
+                building_dict['correlations_non_shiftable_load'] += (round((np.corrcoef(
+                    np.array(building.energy_simulation.non_shiftable_load), np.array(corr_building.energy_simulation.non_shiftable_load)
+                ))[0][1], 3),)
+
+            building_info += (building_dict ,)
         
         return building_info
 
