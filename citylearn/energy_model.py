@@ -827,7 +827,8 @@ class Battery(ElectricDevice, StorageDevice):
 
         #The initial State Of Charge (SOC) is the previous SOC minus the energy losses
         if self.capacity_power_curve is not None:
-            soc_normalized = self.soc_init/self.capacity
+            capacity = self.capacity_history[-2] if len(self.capacity_history) > 1 else self.capacity
+            soc_normalized = self.soc_init/capacity
             # Calculating the maximum power rate at which the battery can be charged or discharged
             idx = max(0, np.argmax(soc_normalized <= self.capacity_power_curve[0]) - 1)
             max_output_power = self.nominal_power*(
