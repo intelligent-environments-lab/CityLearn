@@ -167,6 +167,5 @@ cc2022_staging/*
 
 # do not track docs for now
 docs/build/*
-citylearn/agents/marlisa.py
 
 # test files
