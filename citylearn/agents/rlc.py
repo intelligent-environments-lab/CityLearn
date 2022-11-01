@@ -1,8 +1,5 @@
 from typing import List
-from gym import spaces
 import numpy as np
-from citylearn.agents.base import Agent
-from citylearn.preprocessing import Encoder, NoNormalization
 
 # conditional imports
 try:
@@ -10,9 +7,11 @@ try:
 except (ModuleNotFoundError, ImportError) as e:
     raise Exception("This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org.")
 
+from citylearn.agents.base import Agent
+
 class RLC(Agent):
     def __init__(
-        self, *args, observation_space: spaces.Box, encoders: List[Encoder] = None, hidden_dimension: List[float] = None, 
+        self, *args, hidden_dimension: List[float] = None, 
         discount: float = None, tau: float = None, alpha: float = None, lr: float = None, batch_size: int = None,
         replay_buffer_capacity: int = None, start_training_time_step: int = None, end_exploration_time_step: int = None, 
         deterministic_start_time_step: int = None, action_scaling_coefficienct: float = None, reward_scaling: float = None, 
@@ -26,10 +25,6 @@ class RLC(Agent):
         ----------
         *args : tuple
             `Agent` positional arguments.
-        observation_space : spaces.Box
-            Format of valid observations.
-        encoders : List[Encoder], optional
-            Observation value transformers/encoders.
         hidden_dimension : List[float], default: [256, 256]
             Hidden dimension.
         discount : float, default: 0.99
@@ -66,8 +61,6 @@ class RLC(Agent):
         """
 
         super().__init__(*args, **kwargs)
-        self.observation_space = observation_space
-        self.encoders = encoders
         self.hidden_dimension = hidden_dimension
         self.discount = discount
         self.tau = tau
@@ -84,22 +77,10 @@ class RLC(Agent):
         self.seed = seed
 
     @property
-    def encoders(self) -> List[Encoder]:
-        """Observation value transformers/encoders."""
-
-        return self.__encoders
-
-    @property
     def observation_dimension(self) -> int:
         """Number of observations after applying `encoders`."""
 
-        return len([j for j in np.hstack(self.encoders*np.ones(len(self.observation_space.low))) if j != None])
-
-    @property
-    def observation_space(self) -> spaces.Box:
-        """Format of valid observations."""
-
-        return self.__observation_space
+        return [len([j for j in np.hstack(e*np.ones(len(s.low))) if j != None]) for e, s in zip(self.encoders, self.observation_space)]
 
     @property
     def hidden_dimension(self) -> List[float]:
@@ -184,14 +165,6 @@ class RLC(Agent):
         """Pseudorandom number generator seed for repeatable results."""
 
         return self.__seed
-
-    @encoders.setter
-    def encoders(self, encoders: List[Encoder]):
-        self.__encoders = [NoNormalization() for _ in range(self.observation_space.shape[0])] if encoders is None else encoders
-
-    @observation_space.setter
-    def observation_space(self, observation_space: spaces.Box):
-        self.__observation_space = observation_space
 
     @hidden_dimension.setter
     def hidden_dimension(self,  hidden_dimension: List[float]):
