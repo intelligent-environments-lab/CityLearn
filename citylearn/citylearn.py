@@ -10,7 +10,6 @@ from citylearn.base import Environment
 from citylearn.building import Building
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
-from citylearn.preprocessing import Encoder
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 from citylearn.rendering import get_background, RenderBuilding, get_plots
@@ -86,30 +85,6 @@ class CityLearnEnv(Environment, Env):
         return self.time_step == self.time_steps - 1
 
     @property
-    def observation_encoders(self) -> Union[List[Encoder], List[List[Encoder]]]:
-        r"""Get observation value transformers/encoders for use in buildings' agent(s) algorithm.
-
-        See `Building.observation_encoders` documentation for more information.
-        
-        Returns
-        -------
-        encoders : Union[List[Encoder], List[List[Encoder]]
-            Encoder classes for observations ordered with respect to `active_observations` in each building.
-
-        Notes
-        -----
-        If `central_agent` is True, 1 list containing all buildings' encoders is returned in the same order as `buildings`. 
-        The `shared_observations` encoders are only included in the first building's listing.
-        If `central_agent` is False, a list of sublists is returned where each sublist is a list of 1 building's encoders 
-        and the sublist in the same order as `buildings`.
-        """
-
-        return [
-            k for i, b in enumerate(self.buildings) for k, s in zip(b.observation_encoders, b.active_observations) 
-            if i == 0 or s not in self.shared_observations
-        ] if self.central_agent else [b.observation_encoders for b in self.buildings]
-
-    @property
     def observation_space(self) -> List[spaces.Box]:
         """Controller(s) observation spaces.
 
@@ -178,6 +153,22 @@ class CityLearnEnv(Environment, Env):
         return [[
             v for i, b in enumerate(self.buildings) for k, v in b.observations.items() if i == 0 or k not in self.shared_observations
         ]] if self.central_agent else [list(b.observations.values()) for b in self.buildings]
+
+
+    @property
+    def observation_names(self) -> List[List[str]]:
+        """Names of returned observations.
+
+        Notes
+        -----
+        If `central_agent` is True, a list of 1 sublist containing all building observation names is returned in the same order as `buildings`. 
+        The `shared_observations` names are only included in the first building's observation names. If `central_agent` is False, a list of sublists 
+        is returned where each sublist is a list of 1 building's observation names and the sublist in the same order as `buildings`.
+        """
+
+        return [[
+            k for i, b in enumerate(self.buildings) for k, v in b.observations.items() if i == 0 or k not in self.shared_observations
+        ]] if self.central_agent else [list(b.observations.keys()) for b in self.buildings]
 
     @property
     def net_electricity_consumption_without_storage_and_pv_emission(self) -> np.ndarray:
@@ -519,6 +510,10 @@ class CityLearnEnv(Environment, Env):
             building_dict['annual_cooling_demand'] = round(sum(building.energy_simulation.cooling_demand)/n_years, 3)
             building_dict['annual_heating_demand'] = round(sum(building.energy_simulation.heating_demand)/n_years, 3)
             building_dict['annual_nonshiftable_electrical_demand'] = round(sum(building.energy_simulation.non_shiftable_load)/n_years, 3)
+            building_dict['dhw_storage_capacity'] = building.dhw_storage.capacity
+            building_dict['cooling_storage_capacity'] = building.cooling_storage.capacity
+            building_dict['heating_storage_capacity'] = building.heating_storage.capacity
+            building_dict['electrical_storage_capacity'] = building.electrical_storage.capacity
             building_dict['correlations_dhw'] = ()
             building_dict['correlations_cooling_demand'] = ()
             building_dict['correlations_heating_demand'] = ()
@@ -653,30 +648,30 @@ class CityLearnEnv(Environment, Env):
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission.append(sum([b.net_electricity_consumption_emission[self.time_step] for b in self.buildings]))
 
-    def load_agents(self) -> List[Agent]:
-        """Return :class:`Agent` or sub class objects as defined by the `schema`.
+    def load_agent(self) -> Agent:
+        """Return :class:`Agent` or sub class object as defined by the `schema`.
         
         Returns
         -------
-        agents: List[Agent]
-            Simulation agents for `citylearn_env.buildings` energy storage charging/discharging management.
+        agents: Agent
+            Simulation agent(s) for `citylearn_env.buildings` energy storage charging/discharging management.
         """
 
-        agent_count = 1 if self.central_agent else len(self.buildings)
         agent_type = self.schema['agent']['type']
         agent_module = '.'.join(agent_type.split('.')[0:-1])
         agent_name = agent_type.split('.')[-1]
         agent_constructor = getattr(importlib.import_module(agent_module), agent_name)
         agent_attributes = self.schema['agent'].get('attributes', {})
-        agent_attributes = [{
+        agent_attributes = {
             'building_ids':[b.uid for b in self.buildings],
-            'action_space':self.action_space[i],
-            'observation_space':self.observation_space[i],
-            'encoders':self.observation_encoders[i],
+            'action_space':self.action_space,
+            'observation_space':self.observation_space,
+            'building_information':self.get_building_information(),
+            'observation_names':self.observation_names,
             **agent_attributes
-        }  for i in range(agent_count)]
-        agents = [agent_constructor(**agent_attribute) for agent_attribute in agent_attributes]
-        return agents
+        }
+        agent = agent_constructor(**agent_attributes)
+        return agent
 
     def __load(self) -> Tuple[List[Building], int, float, RewardFunction, bool, List[str]]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
