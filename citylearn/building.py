@@ -5,7 +5,6 @@ import numpy as np
 from citylearn.base import Environment
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, StorageTank
-from citylearn.preprocessing import Encoder, PeriodicNormalization, OnehotEncoding, RemoveFeature, Normalize
 
 class Building(Environment):
     def __init__(
@@ -69,7 +68,7 @@ class Building(Environment):
         self.pv = pv
         self.observation_metadata = observation_metadata
         self.action_metadata = action_metadata
-        self.__observation_epsilon = 1.0 # to avoid out of bound observations
+        self.__observation_epsilon = 0.0 # to avoid out of bound observations
         self.observation_space = self.estimate_observation_space()
         self.action_space = self.estimate_action_space()
         super().__init__(**kwargs)
@@ -175,61 +174,6 @@ class Building(Environment):
         """Agent action spaces."""
 
         return self.__action_space
-
-    @property
-    def observation_encoders(self) -> List[Encoder]:
-        r"""Get observation value transformers/encoders for use in agent algorithm.
-
-        The encoder classes are defined in the `preprocessing.py` module and include `PeriodicNormalization` for cyclic observations,
-        `OnehotEncoding` for categorical obeservations, `RemoveFeature` for non-applicable observations given available storage systems and devices
-        and `Normalize` for observations with known mnimum and maximum boundaries.
-        
-        Returns
-        -------
-        encoders : List[Encoder]
-            Encoder classes for observations ordered with respect to `active_observations`.
-        """
-
-        remove_features = ['net_electricity_consumption']
-        remove_features += [
-            'solar_generation', 'diffuse_solar_irradiance', 'diffuse_solar_irradiance_predicted_6h',
-            'diffuse_solar_irradiance_predicted_12h', 'diffuse_solar_irradiance_predicted_24h',
-            'direct_solar_irradiance', 'direct_solar_irradiance_predicted_6h',
-            'direct_solar_irradiance_predicted_12h', 'direct_solar_irradiance_predicted_24h',
-        ] if self.pv.nominal_power == 0 else []
-        demand_observations = {
-            'dhw_storage_soc': np.nansum(self.energy_simulation.dhw_demand),
-            'cooling_storage_soc': np.nansum(self.energy_simulation.cooling_demand),
-            'heating_storage_soc': np.nansum(self.energy_simulation.heating_demand),
-            'electrical_storage_soc': np.nansum(np.nansum([
-                self.energy_simulation.dhw_demand,
-                self.energy_simulation.cooling_demand,
-                self.energy_simulation.heating_demand,
-                self.energy_simulation.non_shiftable_load
-            ], axis = 0)),
-            'non_shiftable_load': np.nansum(self.energy_simulation.non_shiftable_load),
-        }
-        remove_features += [k for k, v in demand_observations.items() if v == 0]
-        remove_features = [f for f in remove_features if f in self.active_observations]
-        encoders = []
-
-        for i, observation in enumerate(self.active_observations):
-            if observation in ['month', 'hour']:
-                encoders.append(PeriodicNormalization(self.observation_space.high[i]))
-            
-            elif observation == 'day_type':
-                encoders.append(OnehotEncoding([1, 2, 3, 4, 5, 6, 7, 8]))
-            
-            elif observation == "daylight_savings_status":
-                encoders.append(OnehotEncoding([0, 1]))
-            
-            elif observation in remove_features:
-                encoders.append(RemoveFeature())
-            
-            else:
-                encoders.append(Normalize(self.observation_space.low[i], self.observation_space.high[i]))
-
-        return encoders
 
     @property
     def observations(self) -> Mapping[str, float]:
