@@ -8,21 +8,21 @@ logging.getLogger('matplotlib.font_manager').disabled = True
 logging.getLogger('matplotlib.pyplot').disabled = True
 
 class Simulator:
-    def __init__(self, citylearn_env: CityLearnEnv, agents: List[Agent], episodes: int = None):
+    def __init__(self, citylearn_env: CityLearnEnv, agent: Agent, episodes: int = None):
         r"""Initialize `Simulator`.
 
         Parameters
         ----------
         citylearn_env : CityLearnEnv
             Simulation environment.
-        agents : List[Agent]
-            Simulation agents for `citylearn_env.buildings` energy storage charging/discharging management.
+        agent : Agent
+            Simulation agent(s) for `citylearn_env.buildings` energy storage charging/discharging management.
         episodes : int
             Number of times to simulate until terminal state is reached.
         """
 
         self.citylearn_env = citylearn_env
-        self.agents = agents
+        self.agent = agent
         self.episodes = episodes
 
     @property
@@ -32,10 +32,10 @@ class Simulator:
         return self.__citylearn_env
 
     @property
-    def agents(self) -> List[Agent]:
-        """Simulation agents for `citylearn_env.buildings` energy storage charging/discharging management."""
+    def agent(self) -> Agent:
+        """Simulation agent(s) for `citylearn_env.buildings` energy storage charging/discharging management."""
 
-        return self.__agents
+        return self.__agent
 
     @property
     def episodes(self) -> int:
@@ -47,14 +47,14 @@ class Simulator:
     def citylearn_env(self, citylearn_env: CityLearnEnv):
         self.__citylearn_env = citylearn_env
 
-    @agents.setter
-    def agents(self, agents: List[Agent]):
+    @agent.setter
+    def agent(self, agent: Agent):
         if self.citylearn_env.central_agent:
-            assert len(agents) == 1, 'Only 1 agent is expected when `citylearn_env.central_agent` = True.'
+            assert len(agent.action_space) == 1, 'Only 1 agent is expected when `CityLearnEnv.central_agent` = True.'
         else:
-            assert len(agents) == len(self.citylearn_env.buildings), 'Length of `agents` and `citylearn_env.buildings` must be equal when using `citylearn_env.central_agent` = False.'
+            assert len(agent.action_space) == len(self.citylearn_env.buildings), 'Length of `Simulator.agent` and `CityLearnEnv.buildings` must be equal when using `citylearn_env.central_agent` = False.'
 
-        self.__agents = agents
+        self.__agent = agent
 
     @episodes.setter
     def episodes(self, episodes: int):
@@ -69,36 +69,21 @@ class Simulator:
         """
 
         for episode in range(self.episodes):
-            observations_list = self.citylearn_env.reset()
+            observations = self.citylearn_env.reset()
 
             while not self.citylearn_env.done:
-                actions_list = []
-
-                # select actions
-                for agent, observations in zip(self.agents, observations_list):
-                    if agent.action_dimension > 0:
-                        actions = agent.select_actions(observations)
-                        
-                    else:
-                        actions = []
-                    
-                    actions_list.append(actions)
+                actions = self.agent.select_actions(observations)
 
                 # apply actions to citylearn_env
-                next_observations_list, reward_list, _, _ = self.citylearn_env.step(actions_list)
+                next_observations, rewards, _, _ = self.citylearn_env.step(actions)
 
                 # update
-                for agent, observations, actions, reward, next_observations in zip(self.agents, observations_list, actions_list, reward_list, next_observations_list):
-                    if agent.action_dimension > 0:
-                        agent.add_to_buffer(observations, actions, reward, next_observations, done = self.citylearn_env.done)
-                    else:
-                        continue
-
-                observations_list = [o for o in next_observations_list]
+                self.agent.add_to_buffer(observations, actions, rewards, next_observations, done=self.citylearn_env.done)
+                observations = [o for o in next_observations]
 
                 logging.debug(
                     f'Time step: {self.citylearn_env.time_step}/{self.citylearn_env.time_steps - 1},'\
                         f' Episode: {episode}/{self.episodes - 1},'\
-                            f' Actions: {actions_list},'\
-                                f' Rewards: {reward_list}'
+                            f' Actions: {actions},'\
+                                f' Rewards: {rewards}'
                 )
