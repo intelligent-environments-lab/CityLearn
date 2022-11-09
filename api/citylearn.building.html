@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.building module &mdash; CityLearn 1.3.6 documentation</title>
+  <title>citylearn.building module &mdash; CityLearn 1.4.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -533,23 +533,6 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 <dt class="sig sig-object py" id="citylearn.building.Building.non_shiftable_load_demand">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_shiftable_load_demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.non_shiftable_load_demand" title="Permalink to this definition"></a></dt>
 <dd><p>Electricity load that must be met by the grid, or <cite>PV</cite> and/or <cite>electrical_storage</cite> if available time series, in [kWh].</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.building.Building.observation_encoders">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observation_encoders</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.preprocessing.html#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder"><span class="pre">citylearn.preprocessing.Encoder</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.observation_encoders" title="Permalink to this definition"></a></dt>
-<dd><p>Get observation value transformers/encoders for use in agent algorithm.</p>
-<p>The encoder classes are defined in the <cite>preprocessing.py</cite> module and include <cite>PeriodicNormalization</cite> for cyclic observations,
-<cite>OnehotEncoding</cite> for categorical obeservations, <cite>RemoveFeature</cite> for non-applicable observations given available storage systems and devices
-and <cite>Normalize</cite> for observations with known mnimum and maximum boundaries.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>encoders</strong> – Encoder classes for observations ordered with respect to <cite>active_observations</cite>.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>List[<a class="reference internal" href="citylearn.preprocessing.html#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder">Encoder</a>]</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py property">

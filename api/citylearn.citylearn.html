@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.citylearn module &mdash; CityLearn 1.3.6 documentation</title>
+  <title>citylearn.citylearn module &mdash; CityLearn 1.4.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -250,14 +250,14 @@ If <cite>central_agent</cite> is False, a list of <cite>space.Box</cite> objects
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.get_building_information">
-<span class="sig-name descname"><span class="pre">get_building_information</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.get_building_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.get_building_information" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_building_information</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.get_building_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.get_building_information" title="Permalink to this definition"></a></dt>
 <dd><p>Get buildings PV capacity, end-use annual demands, and correlations with other buildings end-use annual demands.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>building_information</strong> – Building information summary.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Mapping[str, Any]</p>
+<dd class="field-even"><p>List[Mapping[str, Any]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -308,15 +308,15 @@ If <cite>central_agent</cite> is False, a list of <cite>space.Box</cite> objects
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.load_agents">
-<span class="sig-name descname"><span class="pre">load_agents</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent"><span class="pre">citylearn.agents.base.Agent</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.load_agents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.load_agents" title="Permalink to this definition"></a></dt>
-<dd><p>Return <code class="xref py py-class docutils literal notranslate"><span class="pre">Agent</span></code> or sub class objects as defined by the <cite>schema</cite>.</p>
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.load_agent">
+<span class="sig-name descname"><span class="pre">load_agent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent"><span class="pre">citylearn.agents.base.Agent</span></a></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.load_agent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.load_agent" title="Permalink to this definition"></a></dt>
+<dd><p>Return <code class="xref py py-class docutils literal notranslate"><span class="pre">Agent</span></code> or sub class object as defined by the <cite>schema</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>agents</strong> – Simulation agents for <cite>citylearn_env.buildings</cite> energy storage charging/discharging management.</p>
+<dd class="field-odd"><p><strong>agents</strong> – Simulation agent(s) for <cite>citylearn_env.buildings</cite> energy storage charging/discharging management.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>List[<a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent">Agent</a>]</p>
+<dd class="field-even"><p><a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent">Agent</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -388,23 +388,13 @@ If <cite>central_agent</cite> is False, a list of <cite>space.Box</cite> objects
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.observation_encoders">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observation_encoders</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.preprocessing.html#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder"><span class="pre">citylearn.preprocessing.Encoder</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.preprocessing.html#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder"><span class="pre">citylearn.preprocessing.Encoder</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.observation_encoders" title="Permalink to this definition"></a></dt>
-<dd><p>Get observation value transformers/encoders for use in buildings’ agent(s) algorithm.</p>
-<p>See <cite>Building.observation_encoders</cite> documentation for more information.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>encoders</strong> – Encoder classes for observations ordered with respect to <cite>active_observations</cite> in each building.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Union[List[<a class="reference internal" href="citylearn.preprocessing.html#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder">Encoder</a>], List[List[<a class="reference internal" href="citylearn.preprocessing.html#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder">Encoder</a>]]</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.observation_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observation_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.observation_names" title="Permalink to this definition"></a></dt>
+<dd><p>Names of returned observations.</p>
 <p class="rubric">Notes</p>
-<p>If <cite>central_agent</cite> is True, 1 list containing all buildings’ encoders is returned in the same order as <cite>buildings</cite>.
-The <cite>shared_observations</cite> encoders are only included in the first building’s listing.
-If <cite>central_agent</cite> is False, a list of sublists is returned where each sublist is a list of 1 building’s encoders
-and the sublist in the same order as <cite>buildings</cite>.</p>
+<p>If <cite>central_agent</cite> is True, a list of 1 sublist containing all building observation names is returned in the same order as <cite>buildings</cite>.
+The <cite>shared_observations</cite> names are only included in the first building’s observation names. If <cite>central_agent</cite> is False, a list of sublists
+is returned where each sublist is a list of 1 building’s observation names and the sublist in the same order as <cite>buildings</cite>.</p>
 </dd></dl>
 
 <dl class="py property">

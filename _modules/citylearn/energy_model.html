@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.energy_model &mdash; CityLearn 1.3.6 documentation</title>
+  <title>citylearn.energy_model &mdash; CityLearn 1.4.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -896,7 +896,8 @@
 
         <span class="c1">#The initial State Of Charge (SOC) is the previous SOC minus the energy losses</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity_power_curve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">soc_normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soc_init</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">capacity</span>
+            <span class="n">capacity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity_history</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">capacity_history</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span>
+            <span class="n">soc_normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soc_init</span><span class="o">/</span><span class="n">capacity</span>
             <span class="c1"># Calculating the maximum power rate at which the battery can be charged or discharged</span>
             <span class="n">idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">soc_normalized</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity_power_curve</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">max_output_power</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span><span class="o">*</span><span class="p">(</span>
