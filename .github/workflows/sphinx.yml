@@ -28,7 +28,7 @@ jobs:
         sphinx-build -b html docs/source/ docs/build/html
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/citylearn_2022'
+      if: github.ref == 'refs/heads/citylearn_v2'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: docs/build/html
