@@ -7,17 +7,17 @@ from citylearn.utilities import read_json
 
 RESULT_FILEPATH = 'simulation.pkl'
 schema = 'citylearn_challenge_2022_phase_1'
-# schema = read_json('/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/citylearn/data/citylearn_challenge_2022_phase_1/schema.json')
+schema = read_json('/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/citylearn/data/citylearn_challenge_2022_phase_1/schema.json')
 # schema['episodes'] = 1
 # schema['simulation_end_time_step'] = 100
-# schema['agent']['type'] = 'citylearn.agents.rbc.BasicRBC'
-# schema['root_directory'] = '/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/citylearn/data/citylearn_challenge_2022_phase_1/'
+schema['agent']['type'] = 'citylearn.agents.marlisa.MARLISA'
+schema['root_directory'] = '/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/citylearn/data/citylearn_challenge_2022_phase_1/'
 
 def main():
     # simulation
     citylearn_env = CityLearnEnv(schema)
-    agents = citylearn_env.load_agents()
-    simulator = Simulator(citylearn_env, agents, citylearn_env.schema['episodes'])
+    agent = citylearn_env.load_agent()
+    simulator = Simulator(citylearn_env, agent, citylearn_env.schema['episodes'])
     simulator.simulate()
 
     # post-simulation evaluation
@@ -35,7 +35,7 @@ def main():
     print('values:',values)
 
     # save simulator to file
-    with open(RESULT_FILEPATH,'wb') as f:
+    with open(RESULT_FILEPATH, 'wb') as f:
         pickle.dump(simulator,f)
 
 if __name__ == '__main__':
