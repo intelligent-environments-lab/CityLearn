@@ -54,7 +54,7 @@ class EnergySimulation:
         Daylight saving status time series signal of 0 or 1 indicating inactive  or active daylight saving respectively.
     indoor_dry_bulb_temperature : np.array
         Zone volume-weighted average building dry bulb temperature time series in [C].
-    average_unment_cooling_setpoint_difference : np.array
+    average_unmet_cooling_setpoint_difference : np.array
         Zone volume-weighted average difference between `indoor_dry_bulb_temperature` and cooling temperature setpoints time series in [C].
     indoor_relative_humidity : np.array
         Zone volume-weighted average building relative humidity time series in [%].
