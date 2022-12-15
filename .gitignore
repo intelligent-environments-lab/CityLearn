@@ -156,6 +156,7 @@ cython_debug/
 *.out
 
 # MacOS
+<<<<<<< HEAD
 .DS_Store
 
 # do not track data
@@ -169,3 +170,6 @@ cc2022_staging/*
 docs/build/*
 
 # test files
+=======
+.DS_Store
+>>>>>>> master
