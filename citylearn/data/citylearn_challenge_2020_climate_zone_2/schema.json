@@ -1,8 +1,8 @@
 {
-  "root_directory": "/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/citylearn/data/citylearn_challenge_2020_climate_zone_2",
+  "root_directory": null,
   "central_agent": false,
   "simulation_start_time_step": 0,
-  "simulation_end_time_step": 8760,
+  "simulation_end_time_step": 8759,
   "episodes": 1,
   "seconds_per_time_step": 3600.0,
   "observations": {
@@ -115,7 +115,7 @@
       "shared_in_central_agent": false
     },
     "heating_storage_soc": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": false
     },
     "dhw_storage_soc": {
@@ -189,7 +189,7 @@
     "Building_1": {
       "include": true,
       "energy_simulation": "Building_1.csv",
-      "weather": "weather_data.csv",
+      "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": null,
       "inactive_observations": [],
@@ -292,7 +292,7 @@
     "Building_2": {
       "include": true,
       "energy_simulation": "Building_2.csv",
-      "weather": "weather_data.csv",
+      "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": null,
       "inactive_observations": [
@@ -390,7 +390,7 @@
     "Building_3": {
       "include": true,
       "energy_simulation": "Building_3.csv",
-      "weather": "weather_data.csv",
+      "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": null,
       "inactive_observations": [
@@ -480,7 +480,7 @@
     "Building_4": {
       "include": true,
       "energy_simulation": "Building_4.csv",
-      "weather": "weather_data.csv",
+      "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": null,
       "inactive_observations": [
@@ -576,7 +576,7 @@
     "Building_5": {
       "include": true,
       "energy_simulation": "Building_5.csv",
-      "weather": "weather_data.csv",
+      "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": null,
       "inactive_observations": [],
@@ -679,7 +679,7 @@
     "Building_6": {
       "include": true,
       "energy_simulation": "Building_6.csv",
-      "weather": "weather_data.csv",
+      "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": null,
       "inactive_observations": [],
@@ -782,7 +782,7 @@
     "Building_7": {
       "include": true,
       "energy_simulation": "Building_7.csv",
-      "weather": "weather_data.csv",
+      "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": null,
       "inactive_observations": [
@@ -880,7 +880,7 @@
     "Building_8": {
       "include": true,
       "energy_simulation": "Building_8.csv",
-      "weather": "weather_data.csv",
+      "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": null,
       "inactive_observations": [
@@ -978,7 +978,7 @@
     "Building_9": {
       "include": true,
       "energy_simulation": "Building_9.csv",
-      "weather": "weather_data.csv",
+      "weather": "weather.csv",
       "carbon_intensity": "carbon_intensity.csv",
       "pricing": null,
       "inactive_observations": [
