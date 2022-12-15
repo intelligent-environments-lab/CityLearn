@@ -10,7 +10,7 @@ Environment
 
 CityLearn is an OpenAI Gym environment for the easy implementation of RL agents in a demand response setting to reshape the aggregated curve of electricity demand by controlling the energy storage of a diverse set of electrified buildings in a district. Its main objective is to facilitate and standardize the evaluation of RL agents, such that it enables benchmarking of different algorithms.
 
-.. image:: ../../images/citylearn_diagram.png
+.. image:: ../../assets/images/citylearn_diagram.png
    :scale: 30 %
    :alt: demand response
    :align: center
