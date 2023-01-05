@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.base &mdash; CityLearn 1.4.1 documentation</title>
+  <title>citylearn.base &mdash; CityLearn 1.4.2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -71,7 +71,7 @@
 
 <div class="viewcode-block" id="Environment"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment">[docs]</a><span class="k">class</span> <span class="nc">Environment</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialize `Environment`.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize `Environment`.</span>
 
 <span class="sd">        Attributes</span>
 <span class="sd">        ----------</span>
@@ -86,19 +86,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">uid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Unique environment ID.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Unique environment ID.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__uid</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Current environment time step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Current environment time step.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__time_step</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">seconds_per_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Number of seconds in 1 time step.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Number of seconds in 1 time step.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__seconds_per_time_step</span>
 
@@ -111,7 +111,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__seconds_per_time_step</span> <span class="o">=</span> <span class="n">seconds_per_time_step</span>
 
 <div class="viewcode-block" id="Environment.next_time_step"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.next_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Advance to next `time_step` value.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Advance to next `time_step` value.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -121,7 +121,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__time_step</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 <div class="viewcode-block" id="Environment.reset"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset environment to initial state.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset environment to initial state.</span>
 
 <span class="sd">        Calls `reset_time_step`.</span>
 
@@ -133,7 +133,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_time_step</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Environment.reset_time_step"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.reset_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">reset_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `time_step` to initial state.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `time_step` to initial state.</span>
 
 <span class="sd">        Sets `time_step` to 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>

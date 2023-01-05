@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.sac &mdash; CityLearn 1.4.1 documentation</title>
+  <title>citylearn.agents.sac &mdash; CityLearn 1.4.2 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -84,7 +84,7 @@
 
 <div class="viewcode-block" id="SAC"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC">[docs]</a><span class="k">class</span> <span class="nc">SAC</span><span class="p">(</span><span class="n">RLC</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize :class:`SAC`.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize :class:`SAC`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -120,7 +120,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_networks</span><span class="p">()</span>
 
 <div class="viewcode-block" id="SAC.add_to_buffer"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.add_to_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">reward</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">next_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">done</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update replay buffer.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update replay buffer.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -229,7 +229,7 @@
                 <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="SAC.select_actions"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.select_actions">[docs]</a>    <span class="k">def</span> <span class="nf">select_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
 
 <span class="sd">        Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` &gt;= :attr:`time_step` </span>
 <span class="sd">        else will use policy to sample actions.</span>
@@ -251,7 +251,7 @@
         <span class="k">return</span> <span class="n">actions</span></div>
 
 <div class="viewcode-block" id="SAC.get_post_exploration_actions"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_post_exploration_actions">[docs]</a>    <span class="k">def</span> <span class="nf">get_post_exploration_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Action sampling using policy, post-exploration time step&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Action sampling using policy, post-exploration time step&quot;&quot;&quot;</span>
 
         <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -267,7 +267,7 @@
         <span class="k">return</span> <span class="n">actions</span></div>
             
 <div class="viewcode-block" id="SAC.get_exploration_actions"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_exploration_actions">[docs]</a>    <span class="k">def</span> <span class="nf">get_exploration_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Return randomly sampled actions from `action_space` multiplied by :attr:`action_scaling_coefficient`.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return randomly sampled actions from `action_space` multiplied by :attr:`action_scaling_coefficient`.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -326,7 +326,7 @@
 
 <div class="viewcode-block" id="SACRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SACRBC">[docs]</a><span class="k">class</span> <span class="nc">SACRBC</span><span class="p">(</span><span class="n">SAC</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `SACRBC`.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `SACRBC`.</span>
 
 <span class="sd">        Uses :class:`RBC` to select action during exploration before using :class:`SAC`. </span>
 
@@ -346,7 +346,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rbc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RBC</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;:class:`RBC` or child class, used to select actions during exploration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;:class:`RBC` or child class, used to select actions during exploration.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rbc</span>
 
@@ -355,7 +355,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__rbc</span> <span class="o">=</span> <span class="n">rbc</span>
 
 <div class="viewcode-block" id="SACRBC.get_exploration_actions"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SACRBC.get_exploration_actions">[docs]</a>    <span class="k">def</span> <span class="nf">get_exploration_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Return actions using :class:`RBC`.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return actions using :class:`RBC`.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -367,7 +367,7 @@
 
 <div class="viewcode-block" id="SACBasicRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SACBasicRBC">[docs]</a><span class="k">class</span> <span class="nc">SACBasicRBC</span><span class="p">(</span><span class="n">SACRBC</span><span class="p">):</span>
      <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `SACRBC`.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `SACRBC`.</span>
 
 <span class="sd">        Uses :class:`BasicRBC` to select action during exploration before using :class:`SAC`.</span>
 
@@ -387,7 +387,7 @@
 
 <div class="viewcode-block" id="SACOptimizedRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SACOptimizedRBC">[docs]</a><span class="k">class</span> <span class="nc">SACOptimizedRBC</span><span class="p">(</span><span class="n">SACBasicRBC</span><span class="p">):</span>
      <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `SACOptimizedRBC`.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `SACOptimizedRBC`.</span>
 
 <span class="sd">        Uses :class:`OptimizedRBC` to select action during exploration before using :class:`SAC`.</span>
 
@@ -407,7 +407,7 @@
 
 <div class="viewcode-block" id="SACBasicBatteryRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SACBasicBatteryRBC">[docs]</a><span class="k">class</span> <span class="nc">SACBasicBatteryRBC</span><span class="p">(</span><span class="n">SACBasicRBC</span><span class="p">):</span>
      <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `SACOptimizedRBC`.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `SACOptimizedRBC`.</span>
 
 <span class="sd">        Uses :class:`OptimizedRBC` to select action during exploration before using :class:`SAC`.</span>
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CityLearn Environment &mdash; CityLearn 1.4.1 documentation</title>
+  <title>CityLearn Environment &mdash; CityLearn 1.4.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -374,7 +374,7 @@
 <section id="rewards">
 <h2>Rewards<a class="headerlink" href="#rewards" title="Permalink to this headline"></a></h2>
 <p>CityLearn provides custom reward functions for multi-agent and central agent setups that are described in the <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/api/citylearn.reward_function.html">docs</a>. The path to the function for use in simulation is defined in <code class="docutils literal notranslate"><span class="pre">schema.json</span></code> e.g.:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;reward_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;citylearn.reward_function.RewardFunction&quot;</span><span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;reward_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;citylearn.reward_function.RewardFunction&quot;</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>CityLearn also allows for custom reward functions by inheriting the <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction">citylearn.reward_function.RewardFunction</a> class. An example is:</p>
@@ -386,7 +386,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agent_count</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="o">=</span><span class="n">electricity_consumption</span><span class="p">,</span> <span class="n">carbon_emission</span><span class="o">=</span><span class="n">carbon_emission</span><span class="p">,</span> <span class="n">electricity_price</span><span class="o">=</span><span class="n">electricity_price</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Calculates custom user-defined multi-agent reward.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates custom user-defined multi-agent reward.</span>
 
 <span class="sd">        Reward is the `carbon_emission` for each building.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -396,7 +396,7 @@
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">schema.json</span></code> must then be updated to reference the custom reward
 e.g.:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;reward_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;custom_module.CustomReward&quot;</span><span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;reward_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;custom_module.CustomReward&quot;</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>Each time the <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step">step function</a> is called during simulation, the <code class="docutils literal notranslate"><span class="pre">electricity_consumption</span></code>, <code class="docutils literal notranslate"><span class="pre">carbon_emission</span></code> and <code class="docutils literal notranslate"><span class="pre">electricity_price</span></code> properties of the reward class are updated and the custom reward is calculated.</p>

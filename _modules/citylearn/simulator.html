@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.simulator &mdash; CityLearn 1.4.1 documentation</title>
+  <title>citylearn.simulator &mdash; CityLearn 1.4.2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -78,7 +78,7 @@
 
 <div class="viewcode-block" id="Simulator"><a class="viewcode-back" href="../../api/citylearn.simulator.html#citylearn.simulator.Simulator">[docs]</a><span class="k">class</span> <span class="nc">Simulator</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">citylearn_env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">episodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Simulator`.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Simulator`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -96,19 +96,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">citylearn_env</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CityLearnEnv</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Simulation environment.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Simulation environment.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__citylearn_env</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">agent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Simulation agent(s) for `citylearn_env.buildings` energy storage charging/discharging management.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Simulation agent(s) for `citylearn_env.buildings` energy storage charging/discharging management.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__agent</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">episodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Number of times to simulate until terminal state is reached.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of times to simulate until terminal state is reached.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__episodes</span>
 
@@ -132,7 +132,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__episodes</span> <span class="o">=</span> <span class="n">episodes</span>
 
 <div class="viewcode-block" id="Simulator.simulate"><a class="viewcode-back" href="../../api/citylearn.simulator.html#citylearn.simulator.Simulator.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;traditional simulation.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;traditional simulation.</span>
 <span class="sd">        </span>
 <span class="sd">        Runs central or multi agent simulation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -151,8 +151,8 @@
                 <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">next_observations</span><span class="p">]</span>
 
                 <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Time step: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_step</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="si">}</span><span class="s1">,&#39;</span>\
-                        <span class="sa">f</span><span class="s1">&#39; Episode: </span><span class="si">{</span><span class="n">episode</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">episodes</span> <span class="o">-</span> <span class="mi">1</span><span class="si">}</span><span class="s1">,&#39;</span>\
+                    <span class="sa">f</span><span class="s1">&#39;Time step: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_step</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">citylearn_env</span><span class="o">.</span><span class="n">time_steps</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">,&#39;</span>\
+                        <span class="sa">f</span><span class="s1">&#39; Episode: </span><span class="si">{</span><span class="n">episode</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">episodes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">,&#39;</span>\
                             <span class="sa">f</span><span class="s1">&#39; Actions: </span><span class="si">{</span><span class="n">actions</span><span class="si">}</span><span class="s1">,&#39;</span>\
                                 <span class="sa">f</span><span class="s1">&#39; Rewards: </span><span class="si">{</span><span class="n">rewards</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="p">)</span></div></div>

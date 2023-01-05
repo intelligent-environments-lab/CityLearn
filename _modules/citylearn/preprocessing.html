@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.preprocessing &mdash; CityLearn 1.4.1 documentation</title>
+  <title>citylearn.preprocessing &mdash; CityLearn 1.4.2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -72,7 +72,7 @@
 
 <div class="viewcode-block" id="Encoder"><a class="viewcode-back" href="../../api/citylearn.preprocessing.html#citylearn.preprocessing.Encoder">[docs]</a><span class="k">class</span> <span class="nc">Encoder</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize base `Encoder` class.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize base `Encoder` class.</span>
 
 <span class="sd">        Use to transform observation values in the replay buffer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -87,7 +87,7 @@
 
 <div class="viewcode-block" id="NoNormalization"><a class="viewcode-back" href="../../api/citylearn.preprocessing.html#citylearn.preprocessing.NoNormalization">[docs]</a><span class="k">class</span> <span class="nc">NoNormalization</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `NoNormalization` encoder class.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `NoNormalization` encoder class.</span>
 
 <span class="sd">        Use to return observation value as-is i.e. without any transformation.</span>
 
@@ -110,7 +110,7 @@
         
 <div class="viewcode-block" id="PeriodicNormalization"><a class="viewcode-back" href="../../api/citylearn.preprocessing.html#citylearn.preprocessing.PeriodicNormalization">[docs]</a><span class="k">class</span> <span class="nc">PeriodicNormalization</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_max</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `PeriodicNormalization` encoder class.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `PeriodicNormalization` encoder class.</span>
 
 <span class="sd">        Use to transform observations that are cyclical/periodic e.g. hour-of-day, day-of-week, e.t.c.</span>
 
@@ -153,7 +153,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">x_sin</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span> <span class="p">(</span><span class="n">x_cos</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="OnehotEncoding"><a class="viewcode-back" href="../../api/citylearn.preprocessing.html#citylearn.preprocessing.OnehotEncoding">[docs]</a><span class="k">class</span> <span class="nc">OnehotEncoding</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `PeriodicNormalization` encoder class.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `PeriodicNormalization` encoder class.</span>
 
 <span class="sd">    Use to transform unordered categorical observations e.g. boolean daylight savings e.t.c.</span>
 
@@ -186,7 +186,7 @@
     
 <div class="viewcode-block" id="Normalize"><a class="viewcode-back" href="../../api/citylearn.preprocessing.html#citylearn.preprocessing.Normalize">[docs]</a><span class="k">class</span> <span class="nc">Normalize</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_min</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">x_max</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Normalize` encoder class.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Normalize` encoder class.</span>
 
 <span class="sd">        Use to transform observations to a value between `x_min` and `x_max` using min-max normalization.</span>
 
@@ -232,7 +232,7 @@
         
 <div class="viewcode-block" id="RemoveFeature"><a class="viewcode-back" href="../../api/citylearn.preprocessing.html#citylearn.preprocessing.RemoveFeature">[docs]</a><span class="k">class</span> <span class="nc">RemoveFeature</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `RemoveFeature` encoder class.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `RemoveFeature` encoder class.</span>
 
 <span class="sd">        Use to exlude an observation by returning `None` type.</span>
 

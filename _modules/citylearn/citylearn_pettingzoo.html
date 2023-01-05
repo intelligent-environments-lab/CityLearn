@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.citylearn_pettingzoo &mdash; CityLearn 1.4.1 documentation</title>
+  <title>citylearn.citylearn_pettingzoo &mdash; CityLearn 1.4.2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -74,7 +74,7 @@
 <span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
 <div class="viewcode-block" id="make_citylearn_env"><a class="viewcode-back" href="../../api/citylearn.citylearn_pettingzoo.html#citylearn.citylearn_pettingzoo.make_citylearn_env">[docs]</a><span class="k">def</span> <span class="nf">make_citylearn_env</span><span class="p">(</span><span class="n">schema</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The env function often wraps the environment in wrappers by default.</span>
 <span class="sd">    You can find full documentation for these methods</span>
 <span class="sd">    elsewhere in the developer documentation.</span>
@@ -89,7 +89,7 @@
 
 
 <div class="viewcode-block" id="raw_env"><a class="viewcode-back" href="../../api/citylearn.citylearn_pettingzoo.html#citylearn.citylearn_pettingzoo.raw_env">[docs]</a><span class="k">def</span> <span class="nf">raw_env</span><span class="p">(</span><span class="n">schema</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    To support the AEC API, the raw_env() function just uses the from_parallel</span>
 <span class="sd">    function to convert from a ParallelEnv to an AEC env</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -104,7 +104,7 @@
     <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;render_modes&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;is_parallelizable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The init method takes in environment arguments and should define the following attributes:</span>
 <span class="sd">        - possible_agents</span>
 <span class="sd">        - action_spaces</span>
@@ -133,7 +133,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="CityLearnPettingZooEnv.close"><a class="viewcode-back" href="../../api/citylearn.citylearn_pettingzoo.html#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Close should release any graphical displays, subprocesses, network connections</span>
 <span class="sd">        or any other environment data which should not be kept around after the</span>
 <span class="sd">        user is no longer using the environment.</span>
@@ -141,7 +141,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="CityLearnPettingZooEnv.reset"><a class="viewcode-back" href="../../api/citylearn.citylearn_pettingzoo.html#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reset needs to initialize the `agents` attribute and must set up the</span>
 <span class="sd">        environment so that render(), and step() can be called without issues.</span>
 
@@ -157,7 +157,7 @@
         <span class="k">return</span> <span class="n">observations</span></div>
 
 <div class="viewcode-block" id="CityLearnPettingZooEnv.step"><a class="viewcode-back" href="../../api/citylearn.citylearn_pettingzoo.html#citylearn.citylearn_pettingzoo.CityLearnPettingZooEnv.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        step(action) takes in an action for each agent and should return the</span>
 <span class="sd">        - observations</span>
 <span class="sd">        - rewards</span>
