@@ -361,31 +361,31 @@ class Building(Environment):
     def electrical_storage_electricity_consumption(self) -> np.ndarray:
         """Energy supply from grid and/or `PV` to `electrical_storage` time series, in [kWh]."""
 
-        return self.electrical_storage.electricity_consumption
+        return np.array(self.electrical_storage.electricity_consumption, dtype=float)
 
     @property
     def energy_from_cooling_device_to_cooling_storage(self) -> np.ndarray:
         """Energy supply from `cooling_device` to `cooling_storage` time series, in [kWh]."""
 
-        return self.cooling_storage.energy_balance.clip(min=0)
+        return np.array(self.cooling_storage.energy_balance, dtype=float).clip(min=0)
 
     @property
     def energy_from_heating_device_to_heating_storage(self) -> np.ndarray:
         """Energy supply from `heating_device` to `heating_storage` time series, in [kWh]."""
 
-        return self.heating_storage.energy_balance.clip(min=0)
+        return np.array(self.heating_storage.energy_balance, dtype=float).clip(min=0)
 
     @property
     def energy_from_dhw_device_to_dhw_storage(self) -> np.ndarray:
         """Energy supply from `dhw_device` to `dhw_storage` time series, in [kWh]."""
 
-        return self.dhw_storage.energy_balance.clip(min=0)
+        return np.array(self.dhw_storage.energy_balance, dtype=float).clip(min=0)
 
     @property
     def energy_to_electrical_storage(self) -> np.ndarray:
         """Energy supply from `electrical_device` to building time series, in [kWh]."""
 
-        return self.electrical_storage.energy_balance.clip(min=0)
+        return np.array(self.electrical_storage.energy_balance, dtype=float).clip(min=0)
 
     @property
     def energy_from_cooling_device(self) -> np.ndarray:
@@ -409,25 +409,25 @@ class Building(Environment):
     def energy_from_cooling_storage(self) -> np.ndarray:
         """Energy supply from `cooling_storage` to building time series, in [kWh]."""
 
-        return self.cooling_storage.energy_balance.clip(max = 0)*-1
+        return np.array(self.cooling_storage.energy_balance, dtype=float).clip(max=0)*-1
 
     @property
     def energy_from_heating_storage(self) -> np.ndarray:
         """Energy supply from `heating_storage` to building time series, in [kWh]."""
 
-        return self.heating_storage.energy_balance.clip(max = 0)*-1
+        return np.array(self.heating_storage.energy_balance, dtype=float).clip(max=0)*-1
 
     @property
     def energy_from_dhw_storage(self) -> np.ndarray:
         """Energy supply from `dhw_storage` to building time series, in [kWh]."""
 
-        return self.dhw_storage.energy_balance.clip(max = 0)*-1
+        return np.array(self.dhw_storage.energy_balance, dtype=float).clip(max=0)*-1
 
     @property
     def energy_from_electrical_storage(self) -> np.ndarray:
         """Energy supply from `electrical_storage` to building time series, in [kWh]."""
 
-        return self.electrical_storage.energy_balance.clip(max = 0)*-1
+        return np.array(self.electrical_storage.energy_balance, dtype=float).clip(max=0)*-1
 
     @property
     def cooling_demand(self) -> np.ndarray:
