@@ -40,9 +40,9 @@ class RLC(Agent):
         replay_buffer_capacity : int, default: 1e5
             Replay buffer capacity.
         start_training_time_step : int, default: 6000
-            Time step to end exploration phase.
+            Time step to start training regression.
         end_exploration_time_step : int, default: 7000
-            Time step to stop exploration.
+            Time step to stop random or RBC-guided exploration.
         deterministic_start_time_step : int, default: 7500
             Time step to begin taking deterministic actions.
         action_scaling_coefficient : float, default: 0.5
