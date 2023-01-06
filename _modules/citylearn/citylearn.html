@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.citylearn &mdash; CityLearn 1.4.2 documentation</title>
+  <title>citylearn.citylearn &mdash; CityLearn 1.4.3 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -606,7 +606,7 @@
         
         <span class="k">return</span> <span class="n">building_info</span></div>
 
-<div class="viewcode-block" id="CityLearnEnv.render"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Only applies to the CityLearn Challenge 2022 setup.&quot;&quot;&quot;</span>
 
         <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_size</span><span class="p">,</span> <span class="n">draw_obj</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">get_background</span><span class="p">()</span>
@@ -657,7 +657,7 @@
         <span class="n">plot_image</span> <span class="o">=</span> <span class="n">get_plots</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">limits</span><span class="p">)</span>
         <span class="n">graphic_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">canvas</span><span class="p">)</span>
         
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">graphic_image</span><span class="p">,</span> <span class="n">plot_image</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">graphic_image</span><span class="p">,</span> <span class="n">plot_image</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     
 <div class="viewcode-block" id="CityLearnEnv.evaluate"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Only applies to the CityLearn Challenge 2022 setup.&quot;&quot;&quot;</span>
