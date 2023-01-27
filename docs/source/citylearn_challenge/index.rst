@@ -1,3 +1,5 @@
+.. _citylearn-challenge-page:
+
 =======================
 The CityLearn Challenge
 =======================
