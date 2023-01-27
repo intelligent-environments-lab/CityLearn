@@ -116,6 +116,8 @@ class CostFunction:
     def electricity_consumption(net_electricity_consumption: List[float]) -> List[float]:
         r"""Rolling sum of positive electricity consumption.
 
+        It is the sum of electricity that is consumed from the grid.
+
         Parameters
         ----------
         net_electricity_consumption : List[float]
@@ -141,6 +143,7 @@ class CostFunction:
     def zero_net_energy(net_electricity_consumption: List[float]) -> List[float]:
         r"""Rolling sum of net electricity consumption.
 
+        It is the net sum of electricty that is consumed from the grid and self-generated from renenewable sources.
         This calculation of zero net energy does not consider in TDV and all time steps are weighted equally.
 
         Parameters
@@ -160,7 +163,7 @@ class CostFunction:
         [100.0, -100.0, 100.0, 700.0, 1100.0, 1400.0]
         """
 
-        data = pd.DataFrame({'net_electricity_consumption':np.array(net_electricity_consumption).clip(min=0)})
+        data = pd.DataFrame({'net_electricity_consumption':np.array(net_electricity_consumption)})
         data['zero_net_energy'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).sum()
         return data['zero_net_energy'].tolist()
 
