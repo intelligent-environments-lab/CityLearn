@@ -35,7 +35,17 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx.ext.autodoc',
+    'sphinxcontrib.bibtex', # for citations
+    'sphinxemoji.sphinxemoji', # for emojis
+    'sphinx_copybutton', # to copy code block
 ]
+
+# source for bib references
+bibtex_bibfiles = ['references.bib']
+
+# citation style
+bibtex_default_style = 'plain'
+bibtex_reference_style = 'label'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
