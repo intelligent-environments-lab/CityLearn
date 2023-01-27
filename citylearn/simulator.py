@@ -88,7 +88,7 @@ class Simulator:
         self.__keep_env_history = False if keep_env_history is None else keep_env_history
 
         if self.__keep_env_history:
-            self.__env_history_directory = Path(f'.{self.env.uid}')
+            self.__env_history_directory = Path(f'.citylearn_simulator_{self.env.uid}')
             os.makedirs(self.__env_history_directory, exist_ok=True)
             self.__env_history = ()
         else:
