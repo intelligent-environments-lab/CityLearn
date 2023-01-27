@@ -7,12 +7,11 @@ import pickle
 import sys
 from citylearn.citylearn import CityLearnEnv
 from citylearn.simulator import Simulator
-from citylearn.utilities import read_json
 
 def simulate(schema: str, result_filepath: str = None):
     citylearn_env = CityLearnEnv(schema)
-    agents = citylearn_env.load_agents()
-    simulator = Simulator(citylearn_env,agents,schema['episodes'])
+    agents = citylearn_env.load_agent()
+    simulator = Simulator(citylearn_env, agents, schema['episodes'])
 
     try:
         simulator.simulate()
@@ -30,10 +29,10 @@ def main():
         Learning (RL) for building energy coordination and demand response in cities.'''
     ))
     parser.add_argument('--version', action='version', version='%(prog)s' + f' {__version__}')
-    subparsers = parser.add_subparsers(title='subcommands',required=True,dest='subcommands')
-    subparser_simulate = subparsers.add_parser('simulate',description='Run simulation.')
-    subparser_simulate.add_argument('schema',type=Path,help='CityLearn data set name or schema absolute filepath.')
-    subparser_simulate.add_argument('-f','--result_filepath',type=Path,dest='result_filepath',help='Filepath to write simulation pickle object to upon completion.')
+    subparsers = parser.add_subparsers(title='subcommands', required=True, dest='subcommands')
+    subparser_simulate = subparsers.add_parser('simulate', description='Run simulation.')
+    subparser_simulate.add_argument('schema', type=Path, help='CityLearn data set name or schema absolute filepath.')
+    subparser_simulate.add_argument('-f', '--result_filepath', type=Path, dest='result_filepath', help='Filepath to write simulation pickle object to upon completion.')
     subparser_simulate.set_defaults(func=simulate)
     args = parser.parse_args()
     arg_spec = inspect.getfullargspec(args.func)
