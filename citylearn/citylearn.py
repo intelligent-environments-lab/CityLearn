@@ -553,8 +553,13 @@ class CityLearnEnv(Environment, Env):
             building_level += [{
                 'name': b.name,
                 'cost_function': 'electricity_consumption',
-                'value': CostFunction.net_electricity_consumption(b.net_electricity_consumption)[-1]/\
-                    CostFunction.net_electricity_consumption(b.net_electricity_consumption_without_storage)[-1],
+                'value': CostFunction.electricity_consumption(b.net_electricity_consumption)[-1]/\
+                    CostFunction.electricity_consumption(b.net_electricity_consumption_without_storage)[-1],
+                }, {
+                'name': b.name,
+                'cost_function': 'zero_net_energy',
+                'value': CostFunction.zero_net_energy(b.net_electricity_consumption)[-1]/\
+                    CostFunction.zero_net_energy(b.net_electricity_consumption_without_storage)[-1],
                 }, {
                 'name': b.name,
                 'cost_function': 'carbon_emissions',

@@ -113,8 +113,8 @@ class CostFunction:
         return data['net_electricity_consumption'].tolist()
 
     @staticmethod
-    def net_electricity_consumption(net_electricity_consumption: List[float]) -> List[float]:
-        r"""Rolling sum of net electricity consumption.
+    def electricity_consumption(net_electricity_consumption: List[float]) -> List[float]:
+        r"""Rolling sum of positive electricity consumption.
 
         Parameters
         ----------
@@ -123,19 +123,46 @@ class CostFunction:
             
         Returns
         -------
-        net_electricity_consumption : List[float]
-            Net electricity consumption cost.        
+        electricity_consumption : List[float]
+            Electricity consumption cost.        
 
         Examples
         --------
-        >>> net_electricity_consumption = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]
+        >>> electricity_consumption = [100.0, -200.0, 200.0, 600.0, 400.0, 300.0]
         >>> CostFunction.net_electricity_consumption(net_electricity_consumption)
-        [100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]
+        [100.0, 100.0, 300.0, 900.0, 1300.0, 1600.0]
         """
 
         data = pd.DataFrame({'net_electricity_consumption':np.array(net_electricity_consumption).clip(min=0)})
-        data['net_electricity_consumption'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).sum()
-        return data['net_electricity_consumption'].tolist()
+        data['electricity_consumption'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).sum()
+        return data['electricity_consumption'].tolist()
+
+    @staticmethod
+    def zero_net_energy(net_electricity_consumption: List[float]) -> List[float]:
+        r"""Rolling sum of net electricity consumption.
+
+        This calculation of zero net energy does not consider in TDV and all time steps are weighted equally.
+
+        Parameters
+        ----------
+        net_electricity_consumption : List[float]
+            Electricity consumption time series.
+            
+        Returns
+        -------
+        zero_net_energy : List[float]
+            Zero net energy cost.        
+
+        Examples
+        --------
+        >>> net_electricity_consumption = [100.0, -200.0, 200.0, 600.0, 400.0, 300.0]
+        >>> CostFunction.zero_net_energy(net_electricity_consumption)
+        [100.0, -100.0, 100.0, 700.0, 1100.0, 1400.0]
+        """
+
+        data = pd.DataFrame({'net_electricity_consumption':np.array(net_electricity_consumption).clip(min=0)})
+        data['zero_net_energy'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).sum()
+        return data['zero_net_energy'].tolist()
 
     @staticmethod
     def carbon_emissions(carbon_emissions: List[float]) -> List[float]:
