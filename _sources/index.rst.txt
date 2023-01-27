@@ -21,6 +21,8 @@ CityLearn has been utilized in the following projects and publications:
    :header-rows: 1
 
 .. toctree::
+   :hidden:
+   
    installation
    overview/index
    usage
