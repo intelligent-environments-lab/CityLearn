@@ -1,6 +1,19 @@
-2022
-====
+============================
+The CityLearn Challenge 2022
+============================
 
-We are delighted to announce that the `CityLearn Challenge 2022 <https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge>`_ is accepted as a `NEURIPS 2022 Competition Track <https://neurips.cc/Conferences/2022/CompetitionTrack>`_ and will be hosted on `AIcrowd <https://www.aicrowd.com>`_.
+.. note::
 
-Please, visit the `competition page <https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge>`_ for more information!
+    The CityLearn Challenge 2022 has now concluded! The winners and the leaderboard have been announced at the `NEURIPS 2022 Competition - The CityLearn Challenge 2022 <https://youtu.be/Yel5zybmvwg>`_:
+
+.. note::
+
+    The CityLearn Challenge 2022 used The CityLearn Challenge 2022 dataset :cite:p:`T8/0YLJ6Q_2023` and `CityLearn v1.3.6 <https://github.com/intelligent-environments-lab/CityLearn/tree/v1.3.6>`_. To install this CityLearn version, run:
+
+    .. code-block:: bash
+
+        pip install CityLearn==1.3.6
+
+.. note::
+
+    Please, visit the `official competition page on AIcrowd <https://www.aicrowd.com/challenges/neurips-2022-citylearn-challenge>`_ for more information!
