@@ -7,8 +7,9 @@ CityLearn provides a set of cost functions (a.k.a key performance indicators) th
 1. :py:func:`citylearn.cost_function.CostFunction.average_daily_peak`
 2. :py:func:`citylearn.cost_function.CostFunction.carbon_emissions`
 3. :py:func:`citylearn.cost_function.CostFunction.load_factor`
-4. :py:func:`citylearn.cost_function.CostFunction.net_electricity_consumption`
+4. :py:func:`citylearn.cost_function.CostFunction.electricity_consumption`
 5. :py:func:`citylearn.cost_function.CostFunction.peak_demand`
 6. :py:func:`citylearn.cost_function.CostFunction.price`
 7. :py:func:`citylearn.cost_function.CostFunction.quadratic`
 8. :py:func:`citylearn.cost_function.CostFunction.ramping`
+9. :py:func:`citylearn.cost_function.CostFunction.zero_net_energy`
