@@ -68,11 +68,11 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-
+#html context
 html_context = {
   'display_github': True,
   'github_user': 'intelligent-environments-lab',
   'github_repo': 'CityLearn',
-  'github_version': 'master/docs/',
+  'github_version': 'master/docs/source/',
   'last_updated': True,
 }
