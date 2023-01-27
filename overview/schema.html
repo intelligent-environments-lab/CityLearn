@@ -81,7 +81,7 @@
           <li class="breadcrumb-item"><a href="index.html">Overview</a></li>
       <li class="breadcrumb-item active">Schema</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/overview/schema.rst.txt" rel="nofollow"> View page source</a>
+              <a href="https://github.com/intelligent-environments-lab/CityLearn/blob/master/docs/overview/schema.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -127,7 +127,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">root_directory</span></code></p></td>
-<td><p>Absolute path to directory that contains the data files including the schema. Can be <code class="code docutils literal notranslate"><span class="pre">null</span></code> if schema is supplied to <a class="reference internal" href="../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv()</span></code></a> constructor as a filepath.</p></td>
+<td><p>Absolute path to directory that contains the data files including the schema. Can be <code class="code docutils literal notranslate"><span class="pre">null</span></code> if schema is supplied to <a class="reference internal" href="../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> constructor as a filepath.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">central_agent</span></code></p></td>
 <td><p>Set to <code class="code docutils literal notranslate"><span class="pre">true</span></code> for centralized control architecture  else <code class="code docutils literal notranslate"><span class="pre">false</span></code>.</p></td>
@@ -217,7 +217,7 @@
 <td><p><code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> class in <a class="reference internal" href="../api/citylearn.energy_model.html#module-citylearn.energy_model" title="citylearn.energy_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.energy_model</span></code></a> or user-defined device class path.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:autosize</span></code></p></td>
-<td><p>Set to <code class="code docutils literal notranslate"><span class="pre">true</span></code> if the <code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> should be autosized for <code class="code docutils literal notranslate"><span class="pre">&lt;building_name&gt;</span></code> (see to <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.austosize_cooling_device()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.austosize_heating_device()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.austosize_dhw_device()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.austosize_cooling_storage()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.austosize_heating_storage()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.austosize_dhw_storage()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.austosize_electrical_storage()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.austosize_pv()</span></code>) else <code class="code docutils literal notranslate"><span class="pre">false</span></code>.</p></td>
+<td><p>Set to <code class="code docutils literal notranslate"><span class="pre">true</span></code> if the <code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> should be autosized for <code class="code docutils literal notranslate"><span class="pre">&lt;building_name&gt;</span></code> else <code class="code docutils literal notranslate"><span class="pre">false</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:autosize_attributes</span></code></p></td>
 <td><p>Used to define attributes that are used to autosize <code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> class specified in <code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:type</span></code>.</p></td>
@@ -236,7 +236,7 @@
 </section>
 <section id="an-example-schema">
 <h2>An Example Schema<a class="headerlink" href="#an-example-schema" title="Permalink to this headline"></a></h2>
-<p>The schema from The CityLearn Challenge 2021 is shown below:</p>
+<p>An example schema is shown below:</p>
 <div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="s2">&quot;root_directory&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
   <span class="s2">&quot;central_agent&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
@@ -1330,7 +1330,9 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.
+      <span class="lastupdated">Last updated on True.
+      </span></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

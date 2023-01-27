@@ -29,8 +29,6 @@ CityLearn has been utilized in the following projects and publications:
    api/modules
    citylearn_challenge/index
    references
-   :maxdepth: 1
-   :caption: Contents:
 
 Cite CityLearn
 ==============
