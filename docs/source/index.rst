@@ -23,9 +23,10 @@ CityLearn has been utilized in the following projects and publications:
 .. toctree::
    :hidden:
    
+   quickstart
    installation
    overview/index
-   usage
+   usage/index
    api/modules
    citylearn_challenge/index
    references
