@@ -15,7 +15,7 @@ The CityLearn Challenge 2020
         git clone -b v1.0.0 https://github.com/intelligent-environments-lab/CityLearn.git
 
 Objective
-=========
+*********
 
 The objective of the challenge is to explore the potential of reinforcement learning as a control approach for building energy coordination and demand response :cite:p:`10.1145/3408308.3431122`. In particular, participants will design, tune, and pre-train one central, or multiple decentralized, RL agents that minimize a multi-objective cost function of 5 equally weighted metrics in an entire district of buildings:
 
@@ -34,7 +34,7 @@ This multi-objective cost function is normalized by a baseline cost obtained fro
 To analyze the plug-and-play and adaptive potential of RL, the controllers will be evaluated on a different dataset than the one that will be shared for the design, tuning, and pre-training of the controllers.
 
 Rules and Instructions of the Challenge
-=======================================
+***************************************
 
 Participants were provided with a design data set comprised of four sets of data from nine buildings each. Each set will have been simulated in one of four anonymous climate zones in the US. The dataset contained year-long hourly information about the cooling and DHW demand of the building, electricity consumed by appliances, solar power generation, as well as weather data and other variables. The design dataset were made available in the CityLearn GitHub repository after January 15th 2020, teams could sign up anytime before of after that date.
 
@@ -47,7 +47,7 @@ At the challenge stage, participants submitted their agents and reward function 
 In the evaluation and challenge stages we will paste the files submitted (:file:`agent.py`, :file:`reward_function.py`, :file:`buildings_state_action_space.json`, and file with pre-trained policies, weights, or other parameters) to the CityLearn folder, and run the file :file:`main.py`` as it is. Therefore, it is important that any RL agents be coded within the class :class:`RL_Agents` in the :file:`agent.py` file.
 
 Submission
-==========
+**********
 
 The RL agents must be written in Python 3 and can use PyTorch or TensorFlow, as well as any other library that is already used in our GitHub repository. It must be able to run in both Windows and Linux OS, in either GPU (not necessary) or CPU (if GPU is not used or is not available). Files will be submitted by email to citylearn@utexas.edu under the subject "Submission StageOfChallenge Team_name", where the StageOfChallenge can be "Evaluation Stage" or "Challenge Stage".
 
@@ -56,24 +56,24 @@ At the evaluation and challenge stages, the agents will be simulated on a single
 Some basic information about the characteristics of the buildings is provided to the agents in the file :file:`main.py` using the CityLearn method :meth:`get_building_information()`. This method provides information about the type of building, climate zone, solar power capacity, total DHW, cooling, and non-shiftable energy consumption, and about the correlations of the demand profiles with the rest of the buildings. The agent(s) in the file :file:`agent.py` are not allowed to read any of the files in the folder :file:`data`.
 
 Team Members
-============
+************
 
 Each team can consist of maximum three members. The sign up link is `here <https://docs.google.com/forms/d/e/1FAIpQLSf8PeqKqw9lzI7xSmjXqdTzzqbYdl3GrgOb7hpPtXETjQVlSg/viewform>`_. 
 
 Submission Deadlines
-====================
+********************
 
 Please see the timeline below for the detailed timeline of the three stages of the challenge.
 
 Timeline
-========
+********
 
 .. image:: ../../../assets/images/citylearn_challenge_2020_timeline.jpeg
    :alt: The CityLearn Challenge 2020 timeline 
    :align: center
 
 Stages of the Challenge
-=======================
+***********************
 The challenge consisted of three stages:
 
 1. **Design Stage**: The participants received four sets of building data and models in 4 anonymized climate zones. Each set contained data from 9 different buildings. The participants designed, tuned and trained RL agents at their convenience and modified the files: :file:`agent.py`, :file:`buildings_state_action_space.json`, and :file:`reward_function.py`. A third optional file can be created and submitted with weights and policies to be read by the :file:`agent.py` file. 
@@ -83,7 +83,7 @@ The challenge consisted of three stages:
 3. **Challenge Stage**: This is the final stage of the competition where the participants submitted their final agent(s). The agent was tested on the challenge set which consists of four sets of building data and models in 4 anonymized climate zones. Each set contained data from 9 different buildings. The participants received scores and the leaderboard was updated for the final time revealing the top scorers in the challenge.
 
 Leaderboard
-===========
+***********
 
 The leader-board displays the score of the individual participant's agents within less than one week of the participant's submission. This will provide the participants feedback about how their agent is performing compared to other participants in the challenge. The participants can improve and re-submit their agents as many times as they want within the Evaluation Stage. This cycle of submission and score update will continue till the time frame of the evaluation stage which continues till the end of June 12th AoE. The final deadline for the submission of the agents to be run on the challenge data set is the end of June 21st AoE.
 

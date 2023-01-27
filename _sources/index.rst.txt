@@ -12,7 +12,7 @@ CityLearn is an open source OpenAI Gym environment for the implementation of Mul
 Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Flattening, smoothening, and reducing the overall curve of electrical demand helps reduce operational and capital costs of electricity generation, transmission, and distribution networks. CityLearn allows the easy implementation of reinforcement learning agents in a single or multi-agent setting to reshape their aggregated curve of electrical demand by controlling the storage of energy by every agent.
 
 Applications
-============
+************
 
 CityLearn has been utilized in the following projects and publications:
 
@@ -23,15 +23,16 @@ CityLearn has been utilized in the following projects and publications:
 .. toctree::
    :hidden:
    
+   quickstart
    installation
    overview/index
-   usage
+   usage/index
    api/modules
    citylearn_challenge/index
    references
 
 Cite CityLearn
-==============
+**************
 
 .. code-block:: bibtex
 
@@ -47,12 +48,12 @@ Cite CityLearn
    }
 
 Contributing
-============
+************
 
 CityLearn is an open-source project that continues to benefit from community-driven updates and suggestion. Please, visit the `CityLearn GitHub repository <https://github.com/intelligent-environments-lab/CityLearn>`_ to join the community and start contributing!
    
 Indices and tables
-==================
+******************
 
 * :ref:`genindex`
 * :ref:`modindex`

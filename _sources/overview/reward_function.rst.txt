@@ -13,7 +13,7 @@ CityLearn provides custom reward functions for centralized agent and/or decentra
 Where :math:`e` is a building's net electricity consumption while :math:`E` is the district's net electricity consumption. For rewards that work with bothe centralized and decentralized agents, :math:`e` is interchangeable with :math:`E` in their equation depending on the value of `citylearn.citylearn.CityLearnEnv.central_agent`.
 
 How to Point to the Reward Function
-===================================
+***********************************
 
 The reward function to use in a simulation is defined in the :code:`reward_function` key-value of the schema:
 
@@ -29,7 +29,7 @@ The reward function to use in a simulation is defined in the :code:`reward_funct
    }
 
 How to Define a Custom Reward Function
-======================================
+**************************************
 
 CityLearn also allows for custom reward functions by inheriting the base :py:class:`citylearn.reward_function.RewardFunction`:
 

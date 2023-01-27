@@ -22,7 +22,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Cost Function" href="cost_function.html" />
-    <link rel="prev" title="Data Files" href="data_files.html" /> 
+    <link rel="prev" title="Dataset" href="dataset.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,6 +41,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Overview</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="environment.html">Environment</a></li>
@@ -48,9 +49,8 @@
 <li class="toctree-l2"><a class="reference internal" href="actions.html">Actions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reward_function.html">Reward Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="agents.html">Agents</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data_files.html">Data Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataset.html">Dataset</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Schema</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#how-to-load-an-environment-using-the-schema">How to Load an Environment using the Schema</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#schema-definition">Schema Definition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#an-example-schema">An Example Schema</a></li>
 </ul>
@@ -58,7 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cost_function.html">Cost Function</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
@@ -92,26 +92,6 @@
   <section id="schema">
 <span id="schema-page"></span><h1>Schema<a class="headerlink" href="#schema" title="Permalink to this headline"></a></h1>
 <p>The schema is a <code class="file docutils literal notranslate"><span class="pre">.json</span></code> file containing key-value pairs that define the parameters to use in constructing a <a class="reference internal" href="../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> object (environment). The aim of the schema is to provide an interface that is analogous to the <code class="file docutils literal notranslate"><span class="pre">.idf</span></code> used to define an <a class="reference external" href="https://energyplus.net">EnergyPlus</a> model.</p>
-<section id="how-to-load-an-environment-using-the-schema">
-<h2>How to Load an Environment using the Schema<a class="headerlink" href="#how-to-load-an-environment-using-the-schema" title="Permalink to this headline"></a></h2>
-<p>To construct an environment, the schema can be supplied as a filepath:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
-
-<span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;path/to/schema.json&#39;</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Alternatively, the schema can be supplied as loaded <code class="file docutils literal notranslate"><span class="pre">.json</span></code> that has been converted to a <code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>. This approach can be used to edit the parameter values before constructing the environment. Using this approach, the <code class="code docutils literal notranslate"><span class="pre">root_directory</span></code> key-value must be explicitly set: See example below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
-<span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
-
-<span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;path/to/schema.json&#39;</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
-<span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;path/to&#39;</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
 <section id="schema-definition">
 <h2>Schema Definition<a class="headerlink" href="#schema-definition" title="Permalink to this headline"></a></h2>
 <p>The key-value pairs in the schema are summarized in the table:</p>
@@ -1323,7 +1303,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="data_files.html" class="btn btn-neutral float-left" title="Data Files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dataset.html" class="btn btn-neutral float-left" title="Dataset" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="cost_function.html" class="btn btn-neutral float-right" title="Cost Function" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

@@ -10,6 +10,6 @@ Overview
    actions
    reward_function
    agents
-   data_files
+   dataset
    schema
    cost_function
