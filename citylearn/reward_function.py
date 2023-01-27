@@ -78,7 +78,7 @@ class RewardFunction:
 
         Notes
         -----
-        Reward value is calculated as :math:`[\textrm{max}(-e_0, 0), \dots, \textrm{max}(-e_n, 0)]` 
+        Reward value is calculated as :math:`[\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]` 
         where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
         """
 
@@ -94,18 +94,13 @@ class MARL(RewardFunction):
 
         Notes
         -----
-        See [1]_ for more information.
-
-        References
-        ----------
-        .. [1] Vázquez-Canteli, José & Henze, Gregor & Nagy, Zoltán. (2020).
-            MARLISA: Multi-Agent Reinforcement Learning with Iterative Sequential
-            Action Selection for Load Shaping of Grid-Interactive Connected Buildings. 10.1145/3408308.3427604.
+        Reward value is calculated as :math:`\textrm{sign}(-e) \times 0.01(e^2) \times \textrm{max}(0, E)`
+        where :math:`e` is the building `electricity_consumption` and :math:`E` is the district `electricity_consumption`.
         """
 
-        electricity_consumption = np.array(electricity_consumption)*-1
         total_electricity_consumption = sum(electricity_consumption)
-        reward = np.sign(electricity_consumption)*0.01*electricity_consumption**2*np.nanmax(0, sum(total_electricity_consumption))
+        electricity_consumption = np.array(electricity_consumption)*-1
+        reward = np.sign(electricity_consumption)*0.01*electricity_consumption**2*np.nanmax(0, total_electricity_consumption)
         return reward.tolist()
 
 class IndependentSACReward(RewardFunction):
@@ -119,7 +114,7 @@ class IndependentSACReward(RewardFunction):
 
         Notes
         -----
-        Reward value is calculated as :math:`[\textrm{max}(-e_0^3, 0), \dots, \textrm{max}(-e_n^3, 0)]` 
+        Reward value is calculated as :math:`[\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]` 
         where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
         """
 
