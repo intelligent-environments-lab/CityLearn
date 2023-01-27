@@ -7,6 +7,7 @@
   <title>citylearn.reward_function module &mdash; CityLearn 1.4.4 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,6 +16,8 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -40,9 +43,9 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../environment.html">CityLearn Environment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/years.html">CityLearn Challenge</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="citylearn.html">citylearn package</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="citylearn.html#subpackages">Subpackages</a></li>
@@ -66,6 +69,8 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 
         </div>
@@ -81,10 +86,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">citylearn</a> &raquo;</li>
-          <li><a href="citylearn.html">citylearn package</a> &raquo;</li>
-      <li>citylearn.reward_function module</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">citylearn</a></li>
+          <li class="breadcrumb-item"><a href="citylearn.html">citylearn package</a></li>
+      <li class="breadcrumb-item active">citylearn.reward_function module</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/api/citylearn.reward_function.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -106,7 +111,7 @@
 <dd><p>Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.</p>
 <p>Recommended for use with the <cite>SAC</cite> controllers.</p>
 <p class="rubric">Notes</p>
-<p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{max}(-e_0^3, 0), \dots, \textrm{max}(-e_n^3, 0)]\)</span>
+<p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]\)</span>
 where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(n\)</span> is the number of agents.</p>
 </dd></dl>
 
@@ -121,15 +126,8 @@ where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electrici
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#MARL.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.MARL.calculate" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates MARL reward.</p>
 <p class="rubric">Notes</p>
-<p>See <a class="footnote-reference brackets" href="#id2" id="id1">1</a> for more information.</p>
-<p class="rubric">References</p>
-<dl class="footnote brackets">
-<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>Vázquez-Canteli, José &amp; Henze, Gregor &amp; Nagy, Zoltán. (2020).
-MARLISA: Multi-Agent Reinforcement Learning with Iterative Sequential
-Action Selection for Load Shaping of Grid-Interactive Connected Buildings. 10.1145/3408308.3427604.</p>
-</dd>
-</dl>
+<p>Reward value is calculated as <span class="math notranslate nohighlight">\(\textrm{sign}(-e) \times 0.01(e^2) \times \textrm{max}(0, E)\)</span>
+where <span class="math notranslate nohighlight">\(e\)</span> is the building <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(E\)</span> is the district <cite>electricity_consumption</cite>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -149,7 +147,7 @@ Action Selection for Load Shaping of Grid-Interactive Connected Buildings. 10.11
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#RewardFunction.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.RewardFunction.calculate" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates default reward.</p>
 <p class="rubric">Notes</p>
-<p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{max}(-e_0, 0), \dots, \textrm{max}(-e_n, 0)]\)</span>
+<p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]\)</span>
 where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(n\)</span> is the number of agents.</p>
 </dd></dl>
 

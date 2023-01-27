@@ -7,6 +7,7 @@
   <title>CityLearn &mdash; CityLearn 1.4.4 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,10 +16,12 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Usage" href="usage.html" /> 
+    <link rel="next" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,10 +41,12 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="environment.html">CityLearn Environment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/years.html">CityLearn Challenge</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">citylearn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 
         </div>
@@ -57,8 +62,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>CityLearn</li>
+      <li><a href="#" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">CityLearn</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -70,74 +75,89 @@
              
   <section id="citylearn">
 <h1>CityLearn<a class="headerlink" href="#citylearn" title="Permalink to this headline"></a></h1>
+<p>CityLearn is an open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities <span id="id1">[<a class="reference internal" href="references.html#id3" title="José R. Vázquez-Canteli, Jérôme Kämpf, Gregor Henze, and Zoltan Nagy. Citylearn v1.0: an openai gym environment for demand response with deep reinforcement learning. In Proceedings of the 6th ACM International Conference on Systems for Energy-Efficient Buildings, Cities, and Transportation, BuildSys '19, 356–357. New York, NY, USA, 2019. Association for Computing Machinery. URL: https://doi.org/10.1145/3360322.3360998, doi:10.1145/3360322.3360998.">15</a>, <a class="reference internal" href="references.html#id2" title="Jose R Vazquez-Canteli, Sourav Dey, Gregor Henze, and Zoltan Nagy. Citylearn: standardizing research in multi-agent reinforcement learning for demand response and urban energy management. 2020. URL: https://arxiv.org/abs/2012.10504, doi:10.48550/ARXIV.2012.10504.">17</a>]</span>. A major challenge for RL in demand response is the ability to compare algorithm performance <span id="id2">[<a class="reference internal" href="references.html#id7" title="José R. Vázquez-Canteli and Zoltán Nagy. Reinforcement learning for demand response: a review of algorithms and modeling techniques. Applied Energy, 235:1072-1089, 2019. URL: https://www.sciencedirect.com/science/article/pii/S0306261918317082, doi:https://doi.org/10.1016/j.apenergy.2018.11.002.">19</a>]</span>. Thus, CityLearn facilitates and standardizes the evaluation of RL agents such that different algorithms can be easily compared with each other.</p>
+<a class="reference internal image-reference" href="_images/dr.jpg"><img alt="demand response" class="align-center" src="_images/dr.jpg" style="width: 533.1px; height: 261.9px;" /></a>
+<p>Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Flattening, smoothening, and reducing the overall curve of electrical demand helps reduce operational and capital costs of electricity generation, transmission, and distribution networks. CityLearn allows the easy implementation of reinforcement learning agents in a single or multi-agent setting to reshape their aggregated curve of electrical demand by controlling the storage of energy by every agent.</p>
+<section id="applications">
+<h2>Applications<a class="headerlink" href="#applications" title="Permalink to this headline"></a></h2>
+<p>CityLearn has been utilized in the following projects and publications:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Application</p></th>
+<th class="head"><p>Examples</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Incentive based demand-response</p></td>
+<td><p><span id="id3">Deltetto <em>et al.</em> [<a class="reference internal" href="references.html#id8" title="Davide Deltetto, Davide Coraci, Giuseppe Pinto, Marco Savino Piscitelli, and Alfonso Capozzoli. Exploring the potentialities of deep reinforcement learning for incentive-based demand response in a cluster of small commercial buildings. Energies, 2021. doi:10.3390/en14102933.">1</a>]</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Collaborative demand-response</p></td>
+<td><p><span id="id4">Glatt <em>et al.</em> [<a class="reference internal" href="references.html#id9" title="Ruben Glatt, Felipe Leno da Silva, Braden Soper, William A. Dawson, Edward Rusu, and Ryan A. Goldhahn. Collaborative energy demand response with decentralized actor and centralized critic. In Proceedings of the 8th ACM International Conference on Systems for Energy-Efficient Buildings, Cities, and Transportation, 333–337. New York, NY, USA, 11 2021. ACM. URL: https://dl.acm.org/doi/10.1145/3486611.3488732, doi:10.1145/3486611.3488732.">3</a>]</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Independent energy management</p></td>
+<td><p><span id="id5">Nweye <em>et al.</em> [<a class="reference internal" href="references.html#id6" title="Kingsley Nweye, Siva Sankaranarayanan, and Zoltan Nagy. Merlin: multi-agent offline and transfer learning for occupant-centric energy flexible operation of grid-interactive communities using smart meter data and citylearn. 2023. URL: https://arxiv.org/abs/2301.01148, doi:10.48550/ARXIV.2301.01148.">7</a>]</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Coordinated energy management</p></td>
+<td><p><span id="id6">Kathirgamanathan <em>et al.</em> [<a class="reference internal" href="references.html#id11" title="Anjukan Kathirgamanathan, Kacper Twardowski, Eleni Mangina, and Donal P. Finn. A Centralised Soft Actor Critic Deep Reinforcement Learning Approach to District Demand Side Management through CityLearn. In Proceedings of the 1st International Workshop on Reinforcement Learning for Energy Management in Buildings &amp; Cities, 11–14. New York, NY, USA, 11 2020. ACM. URL: https://dl.acm.org/doi/10.1145/3427773.3427869, doi:10.1145/3427773.3427869.">4</a>], Pinto <em>et al.</em> [<a class="reference internal" href="references.html#id12" title="Giuseppe Pinto, Davide Deltetto, and Alfonso Capozzoli. Data-driven district energy management with surrogate models and deep reinforcement learning. Applied Energy, 304:117642, 2021. URL: https://www.sciencedirect.com/science/article/pii/S0306261921010096, doi:https://doi.org/10.1016/j.apenergy.2021.117642.">10</a>], Pinto <em>et al.</em> [<a class="reference internal" href="references.html#id10" title="Giuseppe Pinto, Marco Savino Piscitelli, José Ramón Vázquez-Canteli, Zoltán Nagy, and Alfonso Capozzoli. Coordinated energy management for a cluster of buildings through deep reinforcement learning. Energy, 2021. doi:10.1016/j.energy.2021.120725.">12</a>], Vazquez-Canteli <em>et al.</em> [<a class="reference internal" href="references.html#id4" title="Jose R. Vazquez-Canteli, Gregor Henze, and Zoltan Nagy. Marlisa: multi-agent reinforcement learning with iterative sequential action selection for load shaping of grid-interactive connected buildings. In Proceedings of the 7th ACM International Conference on Systems for Energy-Efficient Buildings, Cities, and Transportation, BuildSys '20, 170–179. New York, NY, USA, 2020. Association for Computing Machinery. URL: https://doi.org/10.1145/3408308.3427604, doi:10.1145/3408308.3427604.">18</a>]</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Benchmarking reinforcement learning algorithms</p></td>
+<td><p><span id="id7">Dhamankar <em>et al.</em> [<a class="reference internal" href="references.html#id15" title="Gauraang Dhamankar, Jose R. Vazquez-Canteli, and Zoltan Nagy. Benchmarking Multi-Agent Deep Reinforcement Learning Algorithms on a Building Energy Demand Coordination Task. RLEM 2020 - Proceedings of the 1st International Workshop on Reinforcement Learning for Energy Management in Buildings and Cities, pages 15–19, 2020. doi:10.1145/3427773.3427870.">2</a>], Nweye <em>et al.</em> [<a class="reference internal" href="references.html#id19" title="Kingsley Nweye, Bo Liu, Peter Stone, and Zoltan Nagy. Real-world challenges for multi-agent reinforcement learning in grid-interactive buildings. Energy and AI, 10:100202, 2022. URL: https://www.sciencedirect.com/science/article/pii/S2666546822000489, doi:https://doi.org/10.1016/j.egyai.2022.100202.">6</a>], Pinto <em>et al.</em> [<a class="reference internal" href="references.html#id13" title="Giuseppe Pinto, Anjukan Kathirgamanathan, Eleni Mangina, Donal P. Finn, and Alfonso Capozzoli. Enhancing energy management in grid-interactive buildings: a comparison among cooperative and coordinated architectures. Applied Energy, 310:118497, 2022. URL: https://www.sciencedirect.com/science/article/pii/S0306261921017128, doi:https://doi.org/10.1016/j.apenergy.2021.118497.">11</a>], Qin <em>et al.</em> [<a class="reference internal" href="references.html#id14" title="Rongjun Qin, Songyi Gao, Xingyuan Zhang, Zhen Xu, Shengkai Huang, Zewen Li, Weinan Zhang, and Yang Yu. Neorl: a near real-world benchmark for offline reinforcement learning. 2021. URL: https://arxiv.org/abs/2102.00714, doi:10.48550/ARXIV.2102.00714.">13</a>]</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Voltage regulation</p></td>
+<td><p><span id="id8">Pigott <em>et al.</em> [<a class="reference internal" href="references.html#id5" title="Aisling Pigott, Constance Crozier, Kyri Baker, and Zoltan Nagy. Gridlearn: multiagent reinforcement learning for grid-aware building energy management. Electric Power Systems Research, 213:108521, 2022. URL: https://www.sciencedirect.com/science/article/pii/S0378779622006320, doi:https://doi.org/10.1016/j.epsr.2022.108521.">9</a>]</span></p></td>
+</tr>
+</tbody>
+</table>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="environment.html">CityLearn Environment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/years.html">CityLearn Challenge</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">citylearn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 </div>
-<section id="description">
-<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline"></a></h2>
-<p>CityLearn is an open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities. Its objective is to facilitate and standardize the evaluation of RL agents such that different algorithms can be easily compared with each other.</p>
-<a class="reference internal image-reference" href="_images/dr.jpg"><img alt="demand response" class="align-center" src="_images/dr.jpg" style="width: 533.1px; height: 261.9px;" /></a>
-<p>Districts and cities have periods of high demand for electricity, which raise electricity prices and the overall cost of the power distribution networks. Flattening, smoothening, and reducing the overall curve of electrical demand helps reduce operational and capital costs of electricity generation, transmission, and distribution networks. Demand response is the coordination of electricity consuming agents (i.e. buildings) in order to reshape the overall curve of electrical demand.
-CityLearn allows the easy implementation of reinforcement learning agents in a multi-agent setting to reshape their aggregated curve of electrical demand by controlling the storage of energy by every agent.</p>
 </section>
 <section id="cite-citylearn">
 <h2>Cite CityLearn<a class="headerlink" href="#cite-citylearn" title="Permalink to this headline"></a></h2>
-<blockquote>
-<div><dl class="footnote brackets">
-<dt class="label" id="id1"><span class="brackets">1</span></dt>
-<dd><p>Vázquez-Canteli, J. R., Dey, S., Henze, G., &amp; Nagy, Z. (2020).
-<em>CityLearn: Standardizing Research in Multi-Agent Reinforcement Learning for Demand Response and Urban Energy Management.</em>
-<a class="reference external" href="https://doi.org/10.48550/arXiv.2012.10504">doi: 10.48550/arXiv.2012.10504</a></p>
-</dd>
-<dt class="label" id="id2"><span class="brackets">2</span></dt>
-<dd><p>José R. Vázquez-Canteli, Jérôme Kämpf, Gregor Henze, and Zoltan Nagy. (2019).
-<em>CityLearn v1.0: An OpenAI Gym Environment for Demand Response with Deep Reinforcement Learning.</em>
-In Proceedings of the 6th ACM International Conference on Systems for Energy-Efficient Buildings, Cities, and Transportation (BuildSys ‘19). Association for Computing Machinery, New York, NY, USA, 356–357.
-<a class="reference external" href="https://doi.org/10.1145/3360322.3360998">doi: 10.1145/3360322.3360998</a></p>
-</dd>
-</dl>
-</div></blockquote>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@misc</span><span class="p">{</span><span class="nl">https://doi.org/10.48550/arxiv.2012.10504</span><span class="p">,</span>
+<span class="w">   </span><span class="na">doi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{10.48550/ARXIV.2012.10504}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">url</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://arxiv.org/abs/2012.10504}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Vazquez-Canteli, Jose R and Dey, Sourav and Henze, Gregor and Nagy, Zoltan}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">keywords</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Machine Learning (cs.LG), Artificial Intelligence (cs.AI), FOS: Computer and information sciences, FOS: Computer and information sciences, I.2.1}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{CityLearn: Standardizing Research in Multi-Agent Reinforcement Learning for Demand Response and Urban Energy Management}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">publisher</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{arXiv}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2020}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">copyright</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Creative Commons Attribution 4.0 International}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </section>
-<section id="related-publications">
-<h2>Related Publications<a class="headerlink" href="#related-publications" title="Permalink to this headline"></a></h2>
-<blockquote>
-<div><dl class="footnote brackets">
-<dt class="label" id="id3"><span class="brackets">3</span></dt>
-<dd><p>Vazquez-Canteli, J. R., Henze, G., &amp; Nagy, Z. (2020, November).
-<em>MARLISA: Multi-agent reinforcement learning with iterative sequential action selection for load shaping of grid-interactive connected buildings.</em>
-In Proceedings of the 7th ACM international conference on systems for energy-efficient buildings, cities, and transportation (pp. 170-179).
-<a class="reference external" href="http://dx.doi.org/10.1145/3408308.3427604">doi: 10.1145/3408308.3427604</a></p>
-</dd>
-<dt class="label" id="id4"><span class="brackets">4</span></dt>
-<dd><p>Vázquez-Canteli, J. R., &amp; Nagy, Z. (2019).
-<em>Reinforcement learning for demand response: A review of algorithms and modeling techniques.</em>
-Applied energy, 235, 1072-1089.
-<a class="reference external" href="https://doi.org/10.1016/j.apenergy.2018.11.002">doi: 10.1016/j.apenergy.2018.11.002</a></p>
-</dd>
-</dl>
-</div></blockquote>
-</section>
+<section id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline"></a></h2>
+<p>CityLearn is an open-source project that continues to benefit from community-driven updates and suggestion. Please, visit the <a class="reference external" href="https://github.com/intelligent-environments-lab/CityLearn">CityLearn GitHub repository</a> to join the community and start contributing!</p>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
 </section>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="usage.html" class="btn btn-neutral float-right" title="Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

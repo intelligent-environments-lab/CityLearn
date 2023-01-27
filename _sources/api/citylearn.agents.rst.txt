@@ -13,6 +13,7 @@ Submodules
    :maxdepth: 4
 
    citylearn.agents.base
+   citylearn.agents.marlisa
    citylearn.agents.rbc
    citylearn.agents.rlc
    citylearn.agents.sac

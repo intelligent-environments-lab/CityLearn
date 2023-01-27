@@ -6,6 +6,7 @@
   <title>Index &mdash; CityLearn 1.4.4 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -14,6 +15,8 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -36,10 +39,12 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="environment.html">CityLearn Environment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/years.html">CityLearn Challenge</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">citylearn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 
         </div>
@@ -55,8 +60,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Index</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Index</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -120,6 +125,8 @@
       <li><a href="api/citylearn.agents.base.html#citylearn.agents.base.Agent.add_to_buffer">add_to_buffer() (citylearn.agents.base.Agent method)</a>
 
       <ul>
+        <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.add_to_buffer">(citylearn.agents.marlisa.MARLISA method)</a>
+</li>
         <li><a href="api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.add_to_buffer">(citylearn.agents.sac.SAC method)</a>
 </li>
       </ul></li>
@@ -179,8 +186,12 @@
 </li>
       <li><a href="api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicRBC">BasicRBC (class in citylearn.agents.rbc)</a>
 </li>
-      <li><a href="api/citylearn.agents.rlc.html#citylearn.agents.rlc.RLC.batch_size">batch_size (citylearn.agents.rlc.RLC property)</a>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.batch_size">batch_size (citylearn.agents.marlisa.MARLISA property)</a>
+
+      <ul>
+        <li><a href="api/citylearn.agents.rlc.html#citylearn.agents.rlc.RLC.batch_size">(citylearn.agents.rlc.RLC property)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.Battery">Battery (class in citylearn.energy_model)</a>
@@ -258,6 +269,13 @@
 
       <ul>
         <li><a href="api/citylearn.agents.base.html#module-citylearn.agents.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    citylearn.agents.marlisa
+
+      <ul>
+        <li><a href="api/citylearn.agents.marlisa.html#module-citylearn.agents.marlisa">module</a>
 </li>
       </ul></li>
       <li>
@@ -406,6 +424,8 @@
         <li><a href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.cooling_storage_electricity_consumption">(citylearn.citylearn.CityLearnEnv property)</a>
 </li>
       </ul></li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.coordination_variables_history">coordination_variables_history (citylearn.agents.marlisa.MARLISA property)</a>
+</li>
       <li><a href="api/citylearn.data.html#citylearn.data.DataSet.copy">copy() (citylearn.data.DataSet static method)</a>
 </li>
       <li><a href="api/citylearn.cost_function.html#citylearn.cost_function.CostFunction">CostFunction (class in citylearn.cost_function)</a>
@@ -652,24 +672,34 @@
 </li>
       <li><a href="api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_encoded_observations">get_encoded_observations() (citylearn.agents.sac.SAC method)</a>
 </li>
-      <li><a href="api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_exploration_actions">get_exploration_actions() (citylearn.agents.sac.SAC method)</a>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.get_encoded_regression_targets">get_encoded_regression_targets() (citylearn.agents.marlisa.MARLISA method)</a>
+</li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.get_encoded_regression_variables">get_encoded_regression_variables() (citylearn.agents.marlisa.MARLISA method)</a>
+</li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.get_exploration_actions">get_exploration_actions() (citylearn.agents.marlisa.MARLISA method)</a>
 
       <ul>
+        <li><a href="api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_exploration_actions">(citylearn.agents.sac.SAC method)</a>
+</li>
         <li><a href="api/citylearn.agents.sac.html#citylearn.agents.sac.SACRBC.get_exploration_actions">(citylearn.agents.sac.SACRBC method)</a>
 </li>
       </ul></li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.get_exploration_actions_with_information_sharing">get_exploration_actions_with_information_sharing() (citylearn.agents.marlisa.MARLISA method)</a>
+</li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.get_exploration_actions_without_information_sharing">get_exploration_actions_without_information_sharing() (citylearn.agents.marlisa.MARLISA method)</a>
+</li>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.PV.get_generation">get_generation() (citylearn.energy_model.PV method)</a>
 </li>
       <li><a href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_info">get_info() (citylearn.citylearn.CityLearnEnv method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.ElectricHeater.get_input_power">get_input_power() (citylearn.energy_model.ElectricHeater method)</a>
 
       <ul>
         <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.get_input_power">(citylearn.energy_model.HeatPump method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.Battery.get_max_input_power">get_max_input_power() (citylearn.energy_model.Battery method)</a>
 </li>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.Battery.get_max_output_power">get_max_output_power() (citylearn.energy_model.Battery method)</a>
@@ -688,7 +718,17 @@
 </li>
       <li><a href="api/citylearn.rendering.html#citylearn.rendering.get_plots">get_plots() (in module citylearn.rendering)</a>
 </li>
-      <li><a href="api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_post_exploration_actions">get_post_exploration_actions() (citylearn.agents.sac.SAC method)</a>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.get_post_exploration_actions">get_post_exploration_actions() (citylearn.agents.marlisa.MARLISA method)</a>
+
+      <ul>
+        <li><a href="api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_post_exploration_actions">(citylearn.agents.sac.SAC method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.get_post_exploration_actions_with_information_sharing">get_post_exploration_actions_with_information_sharing() (citylearn.agents.marlisa.MARLISA method)</a>
+</li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.get_post_exploration_actions_without_information_sharing">get_post_exploration_actions_without_information_sharing() (citylearn.agents.marlisa.MARLISA method)</a>
+</li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.get_regression_variables">get_regression_variables() (citylearn.agents.marlisa.MARLISA method)</a>
 </li>
       <li><a href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_reward">get_reward() (citylearn.citylearn.CityLearnEnv method)</a>
 </li>
@@ -728,8 +768,12 @@
       </ul></li>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.HeatPump">HeatPump (class in citylearn.energy_model)</a>
 </li>
-      <li><a href="api/citylearn.agents.rlc.html#citylearn.agents.rlc.RLC.hidden_dimension">hidden_dimension (citylearn.agents.rlc.RLC property)</a>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.hidden_dimension">hidden_dimension (citylearn.agents.marlisa.MARLISA property)</a>
+
+      <ul>
+        <li><a href="api/citylearn.agents.rlc.html#citylearn.agents.rlc.RLC.hidden_dimension">(citylearn.agents.rlc.RLC property)</a>
 </li>
+      </ul></li>
       <li><a href="api/citylearn.data.html#citylearn.data.EnergySimulation.hour">hour (citylearn.data.EnergySimulation attribute)</a>
 </li>
   </ul></td>
@@ -742,11 +786,15 @@
 </li>
       <li><a href="api/citylearn.data.html#citylearn.data.EnergySimulation.indoor_dry_bulb_temperature">indoor_dry_bulb_temperature (citylearn.data.EnergySimulation attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/citylearn.data.html#citylearn.data.EnergySimulation.indoor_relative_humidity">indoor_relative_humidity (citylearn.data.EnergySimulation attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.information_sharing">information_sharing (citylearn.agents.marlisa.MARLISA property)</a>
+</li>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.initial_soc">initial_soc (citylearn.energy_model.StorageDevice property)</a>
+</li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.iterations">iterations (citylearn.agents.marlisa.MARLISA property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -784,6 +832,8 @@
 </li>
       <li><a href="api/citylearn.reward_function.html#citylearn.reward_function.MARL">MARL (class in citylearn.reward_function)</a>
 </li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA">MARLISA (class in citylearn.agents.marlisa)</a>
+</li>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.StorageTank.max_input_power">max_input_power (citylearn.energy_model.StorageTank property)</a>
 </li>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.StorageTank.max_output_power">max_output_power (citylearn.energy_model.StorageTank property)</a>
@@ -799,6 +849,8 @@
         <li><a href="api/citylearn.agents.html#module-citylearn.agents">citylearn.agents</a>
 </li>
         <li><a href="api/citylearn.agents.base.html#module-citylearn.agents.base">citylearn.agents.base</a>
+</li>
+        <li><a href="api/citylearn.agents.marlisa.html#module-citylearn.agents.marlisa">citylearn.agents.marlisa</a>
 </li>
         <li><a href="api/citylearn.agents.rbc.html#module-citylearn.agents.rbc">citylearn.agents.rbc</a>
 </li>
@@ -989,6 +1041,8 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.pca_compression">pca_compression (citylearn.agents.marlisa.MARLISA property)</a>
+</li>
       <li><a href="api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.peak_demand">peak_demand() (citylearn.cost_function.CostFunction static method)</a>
 </li>
       <li><a href="api/citylearn.preprocessing.html#citylearn.preprocessing.PeriodicNormalization">PeriodicNormalization (class in citylearn.preprocessing)</a>
@@ -999,10 +1053,12 @@
 </li>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.Battery.power_efficiency_curve">power_efficiency_curve (citylearn.energy_model.Battery property)</a>
 </li>
-      <li><a href="api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.price">price() (citylearn.cost_function.CostFunction static method)</a>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.predict_demand">predict_demand() (citylearn.agents.marlisa.MARLISA method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.price">price() (citylearn.cost_function.CostFunction static method)</a>
+</li>
       <li><a href="api/citylearn.building.html#citylearn.building.Building.pricing">pricing (citylearn.building.Building property)</a>
 </li>
       <li><a href="api/citylearn.data.html#citylearn.data.Pricing">Pricing (class in citylearn.data)</a>
@@ -1045,6 +1101,10 @@
 </li>
       <li><a href="api/citylearn.utilities.html#citylearn.utilities.read_json">read_json() (in module citylearn.utilities)</a>
 </li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.regression_buffer_capacity">regression_buffer_capacity (citylearn.agents.marlisa.MARLISA property)</a>
+</li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.regression_frequency">regression_frequency (citylearn.agents.marlisa.MARLISA property)</a>
+</li>
       <li><a href="api/citylearn.rl.html#citylearn.rl.RegressionBuffer">RegressionBuffer (class in citylearn.rl)</a>
 </li>
       <li><a href="api/citylearn.preprocessing.html#citylearn.preprocessing.RemoveFeature">RemoveFeature (class in citylearn.preprocessing)</a>
@@ -1059,13 +1119,15 @@
 </li>
       <li><a href="api/citylearn.agents.rlc.html#citylearn.agents.rlc.RLC.replay_buffer_capacity">replay_buffer_capacity (citylearn.agents.rlc.RLC property)</a>
 </li>
-      <li><a href="api/citylearn.rl.html#citylearn.rl.ReplayBuffer">ReplayBuffer (class in citylearn.rl)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/citylearn.rl.html#citylearn.rl.ReplayBuffer">ReplayBuffer (class in citylearn.rl)</a>
+</li>
       <li><a href="api/citylearn.agents.base.html#citylearn.agents.base.Agent.reset">reset() (citylearn.agents.base.Agent method)</a>
 
       <ul>
+        <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.reset">(citylearn.agents.marlisa.MARLISA method)</a>
+</li>
         <li><a href="api/citylearn.base.html#citylearn.base.Environment.reset">(citylearn.base.Environment method)</a>
 </li>
         <li><a href="api/citylearn.building.html#citylearn.building.Building.reset">(citylearn.building.Building method)</a>
@@ -1139,11 +1201,21 @@
         <li><a href="api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.set_encoders">(citylearn.agents.sac.SAC method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.set_energy_balance">set_energy_balance() (citylearn.energy_model.StorageDevice method)</a>
 </li>
-      <li><a href="api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.set_networks">set_networks() (citylearn.agents.sac.SAC method)</a>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.set_energy_coefficients">set_energy_coefficients() (citylearn.agents.marlisa.MARLISA method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.set_networks">set_networks() (citylearn.agents.marlisa.MARLISA method)</a>
+
+      <ul>
+        <li><a href="api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.set_networks">(citylearn.agents.sac.SAC method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.set_pca">set_pca() (citylearn.agents.marlisa.MARLISA method)</a>
+</li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.set_regression_encoders">set_regression_encoders() (citylearn.agents.marlisa.MARLISA method)</a>
 </li>
       <li><a href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.shared_observations">shared_observations (citylearn.citylearn.CityLearnEnv property)</a>
 </li>
@@ -1165,6 +1237,8 @@
         <li><a href="api/citylearn.data.html#citylearn.data.EnergySimulation.solar_generation">(citylearn.data.EnergySimulation attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/citylearn.agents.marlisa.html#citylearn.agents.marlisa.MARLISA.start_regression_time_step">start_regression_time_step (citylearn.agents.marlisa.MARLISA property)</a>
+</li>
       <li><a href="api/citylearn.agents.rlc.html#citylearn.agents.rlc.RLC.start_training_time_step">start_training_time_step (citylearn.agents.rlc.RLC property)</a>
 </li>
       <li><a href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step">step() (citylearn.citylearn.CityLearnEnv method)</a>
