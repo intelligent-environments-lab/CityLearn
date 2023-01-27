@@ -40,7 +40,7 @@ The key-value pairs in the schema are summarized in the table:
 An Example Schema
 =================
 
-The schema from The CityLearn Challenge 2021 is shown below:
+An example schema is shown below:
 
 .. include:: ../../../citylearn/data/citylearn_challenge_2021/schema.json
     :code: json
