@@ -12,7 +12,6 @@ from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
-from citylearn.rendering import get_background, RenderBuilding, get_plots
 
 class CityLearnEnv(Environment, Env):
     def __init__(self, schema: Union[str, Path, Mapping[str, Any]], **kwargs):
@@ -536,74 +535,69 @@ class CityLearnEnv(Environment, Env):
             building_info += (building_dict ,)
         
         return building_info
-
-    def render(self):
-        """Only applies to the CityLearn Challenge 2022 setup."""
-
-        canvas, canvas_size, draw_obj, color = get_background()
-        num_buildings = len(self.buildings)
-
-        for i, b in enumerate(self.buildings):
-            # current time step net electricity consumption and battery state or charge data
-            net_electricity_consumption_obs_ix = b.active_observations.index('net_electricity_consumption')
-            energy = b.net_electricity_consumption[b.time_step]/(b.observation_space.high[net_electricity_consumption_obs_ix])
-            charge = b.electrical_storage.soc[b.time_step]/b.electrical_storage.capacity_history[b.time_step - 1]
-            energy = max(min(energy, 1.0), 0.0)
-            charge = max(min(charge, 1.0), 0.0)
-
-            # render
-            rbuilding = RenderBuilding(index=i, 
-                                canvas_size=canvas_size, 
-                                num_buildings=num_buildings, 
-                                line_color=color)
-            rbuilding.draw_line(canvas, draw_obj, 
-                                energy=energy, 
-                                color=color)
-            rbuilding.draw_building(canvas, charge=charge)
-
-        # time series data
-        net_electricity_consumption = self.net_electricity_consumption[-24:]
-        net_electricity_consumption_without_storage = self.net_electricity_consumption_without_storage[-24:]
-        net_electricity_consumption_without_storage_and_pv = self.net_electricity_consumption_without_storage_and_pv[-24:]
-
-        # time series data y limits
-        all_time_net_electricity_consumption_without_storage = np.sum([
-            b.energy_simulation.non_shiftable_load - b.pv.get_generation(b.energy_simulation.solar_generation) for b in self.buildings
-        ],axis=0)
-        net_electricity_consumption_y_lim = (
-            min(all_time_net_electricity_consumption_without_storage - (self.buildings[0].electrical_storage.nominal_power)*len(self.buildings)), 
-            max(all_time_net_electricity_consumption_without_storage + (self.buildings[0].electrical_storage.nominal_power)*len(self.buildings))
-        )
-        net_electricity_consumption_without_storage_y_lim = (
-            min(all_time_net_electricity_consumption_without_storage), 
-            max(all_time_net_electricity_consumption_without_storage)
-        )
-        net_electricity_consumption_without_storage_and_pv_y_lim = (
-            0, 
-            max(np.sum([b.energy_simulation.non_shiftable_load for b in self.buildings], axis=0))
-        )
-
-        values = [net_electricity_consumption, net_electricity_consumption_without_storage, net_electricity_consumption_without_storage_and_pv]
-        limits = [net_electricity_consumption_y_lim, net_electricity_consumption_without_storage_y_lim, net_electricity_consumption_without_storage_and_pv_y_lim]
-        plot_image = get_plots(values, limits)
-        graphic_image = np.asarray(canvas)
-        
-        return np.concatenate([graphic_image, plot_image], axis=1)
     
-    def evaluate(self):
-        """Only applies to the CityLearn Challenge 2022 setup."""
+    def evaluate(self) -> pd.DataFrame:
+        """Evaluate cost functions at current time step.
 
-        price_cost = CostFunction.price(self.net_electricity_consumption_price)[-1]/\
-            CostFunction.price(self.net_electricity_consumption_without_storage_price)[-1]
-        emission_cost = CostFunction.carbon_emissions(self.net_electricity_consumption_emission)[-1]/\
-            CostFunction.carbon_emissions(self.net_electricity_consumption_without_storage_emission)[-1]
-        ramping_cost = CostFunction.ramping(self.net_electricity_consumption)[-1]/\
-            CostFunction.ramping(self.net_electricity_consumption_without_storage)[-1]
-        load_factor_cost = CostFunction.load_factor(self.net_electricity_consumption)[-1]/\
-            CostFunction.load_factor(self.net_electricity_consumption_without_storage)[-1]
-        grid_cost = np.mean([ramping_cost, load_factor_cost])
+        Calculates and returns building-level and district-level cost functions
+        
+        Returns
+        -------
+        cost_functions: pd.DataFrame
+            Cost function summary.
+        """
 
-        return price_cost, emission_cost, grid_cost
+        building_level = []
+
+        for b in self.buildings:
+            building_level += [{
+                'name': b.name,
+                'cost_function': 'electricity_consumption',
+                'value': CostFunction.net_electricity_consumption(b.net_electricity_consumption)[-1]/\
+                    CostFunction.net_electricity_consumption(b.net_electricity_consumption_without_storage)[-1],
+                }, {
+                'name': b.name,
+                'cost_function': 'carbon_emissions',
+                'value': CostFunction.carbon_emissions(b.net_electricity_consumption_emission)[-1]/\
+                    CostFunction.carbon_emissions(b.net_electricity_consumption_without_storage_emission)[-1]\
+                        if sum(b.carbon_intensity.carbon_intensity) != 0 else None,
+                }, {
+                'name': b.name,
+                'cost_function': 'pricing',
+                'value': CostFunction.price(b.net_electricity_consumption_price)[-1]/\
+                    CostFunction.price(b.net_electricity_consumption_without_storage_price)[-1]\
+                        if sum(b.pricing.electricity_pricing) != 0 else None,
+                }]
+
+        building_level = pd.DataFrame(building_level)
+        building_level['level'] = 'building'
+
+        ## district level
+        district_level = pd.DataFrame([{
+            'cost_function': 'ramping',
+            'value': CostFunction.ramping(self.net_electricity_consumption)[-1]/\
+                CostFunction.ramping(self.net_electricity_consumption_without_storage)[-1],
+            }, {
+            'cost_function': '1 - load_factor',
+            'value': CostFunction.load_factor(self.net_electricity_consumption)[-1]/\
+                CostFunction.load_factor(self.net_electricity_consumption_without_storage)[-1],
+            }, {
+            'cost_function': 'average_daily_peak',
+            'value': CostFunction.average_daily_peak(self.net_electricity_consumption)[-1]/\
+                CostFunction.average_daily_peak(self.net_electricity_consumption_without_storage)[-1],
+            }, {
+            'cost_function': 'peak_demand',
+            'value': CostFunction.peak_demand(self.net_electricity_consumption)[-1]/\
+                CostFunction.peak_demand(self.net_electricity_consumption_without_storage)[-1],
+            }])
+
+        district_level = pd.concat([district_level, building_level], ignore_index=True, sort=False)
+        district_level = district_level.groupby(['cost_function'])[['value']].mean().reset_index()
+        district_level['name'] = 'District'
+        district_level['level'] = 'district'
+        cost_functions = pd.concat([district_level, building_level], ignore_index=True, sort=False)
+
+        return cost_functions
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
