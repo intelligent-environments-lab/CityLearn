@@ -168,5 +168,7 @@ cc2022_staging/*
 
 # do not track docs for now
 docs/build/*
+docs/_build/*
+docs/source/api/
 
 # test files
