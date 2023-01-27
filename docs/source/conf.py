@@ -74,5 +74,4 @@ html_context = {
   'github_user': 'intelligent-environments-lab',
   'github_repo': 'CityLearn',
   'github_version': 'master/docs/source/',
-  'last_updated': True,
 }
