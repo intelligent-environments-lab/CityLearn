@@ -1,0 +1,4 @@
+Control Algorithm,Agents,Centralized,Independent,Coordinated
+RBC,:py:mod:`citylearn.agents.rbc`,|:heavy_check_mark:|,|:heavy_check_mark:|,|:x:|
+RLC,:py:mod:`citylearn.agents.sac`,|:heavy_check_mark:|,|:heavy_check_mark:|,|:x:|
+RLC,:py:mod:`citylearn.agents.marlisa`,|:x:|,|:heavy_check_mark:|,|:heavy_check_mark:|
