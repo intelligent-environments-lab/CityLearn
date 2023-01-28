@@ -171,4 +171,9 @@ docs/build/*
 docs/_build/*
 docs/source/api/
 
+# only track code in examples
+examples/*
+!examples/*.py
+!examples/*.ipynb
+
 # test files
