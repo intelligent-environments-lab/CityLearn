@@ -590,14 +590,20 @@ class CityLearnEnv(Environment, Env):
         return building_info
     
     def evaluate(self) -> pd.DataFrame:
-        """Evaluate cost functions at current time step.
+        r"""Evaluate cost functions at current time step.
 
-        Calculates and returns building-level and district-level cost functions
+        Calculates and returns building-level and district-level cost functions normalized w.r.t. the no control scenario.
         
         Returns
         -------
         cost_functions: pd.DataFrame
             Cost function summary.
+
+        Notes
+        -----
+        The equation for the returned cost function values is :math:`\frac{C_{\textrm{control}}}{C_{\textrm{no control}}}` 
+        where :math:`C_{\textrm{control}}` is the value when the agent(s) control the environment and :math:`C_{\textrm{no control}}`
+        is the value when none of the flexible distributed energy resources in the environment are actively in use and controlled.
         """
 
         building_level = []
