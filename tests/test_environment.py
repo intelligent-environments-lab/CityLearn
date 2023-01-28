@@ -10,10 +10,14 @@ schema = 'citylearn_challenge_2020_climate_zone_1'
 
 def main():
     # simulation
-    citylearn_env = CityLearnEnv(schema)
-    agent = citylearn_env.load_agent()
-    simulator = Simulator(citylearn_env, agent, citylearn_env.schema['episodes'])
+    env = CityLearnEnv(schema)
+    agent = env.load_agent()
+    simulator = Simulator(env, agent, 2, 5)
     simulator.simulate()
+
+    print(simulator.env_history)
+    print(simulator.env.evaluate())
+    assert False
 
     # save simulator to file
     with open(RESULT_FILEPATH, 'wb') as f:
