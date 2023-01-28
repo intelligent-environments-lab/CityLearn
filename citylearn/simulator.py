@@ -2,17 +2,17 @@ import logging
 import os
 from pathlib import Path
 import pickle
-from typing import Tuple
+from typing import Tuple, Union
 import shutil
 from citylearn.citylearn import CityLearnEnv
 from citylearn.agents.base import Agent
 
-logging.basicConfig(level=logging.DEBUG)
+LOGGER = logging.getLogger()
 logging.getLogger('matplotlib.font_manager').disabled = True
 logging.getLogger('matplotlib.pyplot').disabled = True
 
 class Simulator:
-    def __init__(self, env: CityLearnEnv, agent: Agent, episodes: int = None, keep_env_history: bool = None):
+    def __init__(self, env: CityLearnEnv, agent: Agent, episodes: int = None, keep_env_history: bool = None, logging_level: int = None):
         r"""Initialize `Simulator`.
 
         Parameters
@@ -25,6 +25,8 @@ class Simulator:
             Number of times to simulate until terminal state is reached.
         keep_env_history : bool, default: False
             Indicator to store env state at the end of each episode.
+        logging_level: int, default: 30
+            Logging level where increasing the level silences lower level information.
         """
 
         self.env = env
@@ -33,6 +35,8 @@ class Simulator:
         self.__env_history_directory = None
         self.__env_history = None
         self.keep_env_history = keep_env_history
+        self.logging_level = logging_level
+        LOGGER.setLevel(self.logging_level)
 
     @property
     def env(self) -> CityLearnEnv:
@@ -64,6 +68,12 @@ class Simulator:
 
         return self.__env_history
 
+    @property
+    def logging_level(self) -> int:
+        """Logging level where increasing the level silences lower level information."""
+
+        return self.__logging_level
+
     @env.setter
     def env(self, env: CityLearnEnv):
         self.__env = env
@@ -93,6 +103,12 @@ class Simulator:
             self.__env_history = ()
         else:
             pass
+
+    @logging_level.setter
+    def logging_level(self, logging_level: int):
+        logging_level = 30 if logging_level is None else logging_level
+        assert logging_level >= 0, 'logging_level must be >= 0'
+        self.__logging_level = logging_level
 
     def simulate(self):
         """Run a CityLearn simulation.
@@ -151,3 +167,22 @@ class Simulator:
 
         with open(filepath, 'wb') as f:
             pickle.dump(self.env, f)
+
+def get_simulator(filepath: Union[str, Path]) -> Simulator:
+    r"""Read and return pickled `citylearn.simulator.Simulator` object.
+
+    Parameters
+    ----------
+    filepath : Union[str, Path]
+        Path to pickle file.
+
+    Returns
+    -------
+    simulator: Simulator
+        `citylearn.simulator.Simulator` object
+    """
+
+    with (open(filepath, 'rb')) as f:
+        simulator = pickle.load(f)
+
+    return simulator
