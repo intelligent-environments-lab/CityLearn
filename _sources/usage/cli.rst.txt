@@ -1,3 +1,3 @@
-=============
-CityLearn CLI
-=============
+{
+    "path": "../../../examples/cli.ipynb"
+}

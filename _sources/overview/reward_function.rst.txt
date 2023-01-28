@@ -33,22 +33,9 @@ How to Define a Custom Reward Function
 
 CityLearn also allows for custom reward functions by inheriting the base :py:class:`citylearn.reward_function.RewardFunction`:
 
-.. code:: python
-
-   from typing import List
-   from citylearn.reward_function import RewardFunction
-
-   class CustomReward(RewardFunction):
-       def __init__(self, agent_count: int, electricity_consumption: List[float], carbon_emission: List[float], electricity_price: List[float]):
-           super().__init__(agent_count, electricity_consumption=electricity_consumption, carbon_emission=carbon_emission, electricity_price=electricity_price)
-           
-       def calculate(self) -> List[float]:
-           """Calculates custom user-defined multi-agent reward.
-           
-           Reward is the `carbon_emission` for each building.
-           """
-
-           return list(self.carbon_emission)
+.. include:: ../../../examples/custom_reward_function.py
+    :code: python
+    :start-line: 11
 
 The schema must then be updated to reference the custom reward function:
 

@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -18,10 +19,11 @@
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="citylearn.citylearn_pettingzoo module" href="citylearn.citylearn_pettingzoo.html" />
+    <link rel="next" title="citylearn.cost_function module" href="citylearn.cost_function.html" />
     <link rel="prev" title="citylearn.building module" href="citylearn.building.html" /> 
 </head>
 
@@ -41,8 +43,8 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
@@ -52,12 +54,10 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.base.html">citylearn.base module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.building.html">citylearn.building module</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.citylearn module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="citylearn.citylearn_pettingzoo.html">citylearn.citylearn_pettingzoo module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.cost_function.html">citylearn.cost_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="citylearn.rendering.html">citylearn.rendering module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.rl.html">citylearn.rl module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.simulator.html">citylearn.simulator module</a></li>
@@ -98,11 +98,35 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-citylearn.citylearn">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-citylearn.citylearn">
 <span id="citylearn-citylearn-module"></span><h1>citylearn.citylearn module<a class="headerlink" href="#module-citylearn.citylearn" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.citylearn.</span></span><span class="sig-name descname"><span class="pre">CityLearnEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.citylearn.</span></span><span class="sig-name descname"><span class="pre">CityLearnEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buildings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.building.html#citylearn.building.Building" title="citylearn.building.Building"><span class="pre">citylearn.building.Building</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_start_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_end_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><span class="pre">citylearn.reward_function.RewardFunction</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="citylearn.base.html#citylearn.base.Environment" title="citylearn.base.Environment"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.base.Environment</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">gym.core.Env</span></code></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.action_space">
@@ -130,7 +154,7 @@ If <cite>central_agent</cite> is False, a list of <cite>space.Box</cite> objects
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.central_agent">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">central_agent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.central_agent" title="Permalink to this definition"></a></dt>
-<dd><p>Expect 1 central agent to control all building storage device.</p>
+<dd><p>Expect 1 central agent to control all buildings.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -249,8 +273,17 @@ If <cite>central_agent</cite> is False, a list of <cite>space.Box</cite> objects
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.evaluate" title="Permalink to this definition"></a></dt>
-<dd><p>Only applies to the CityLearn Challenge 2022 setup.</p>
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.evaluate" title="Permalink to this definition"></a></dt>
+<dd><p>Evaluate cost functions at current time step.</p>
+<p>Calculates and returns building-level and district-level cost functions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>cost_functions</strong> – Cost function summary.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -317,11 +350,14 @@ If <cite>central_agent</cite> is False, a list of <cite>space.Box</cite> objects
 <span class="sig-name descname"><span class="pre">load_agent</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent"><span class="pre">citylearn.agents.base.Agent</span></a></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.load_agent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.load_agent" title="Permalink to this definition"></a></dt>
 <dd><p>Return <code class="xref py py-class docutils literal notranslate"><span class="pre">Agent</span></code> or sub class object as defined by the <cite>schema</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>agents</strong> – Simulation agent(s) for <cite>citylearn_env.buildings</cite> energy storage charging/discharging management.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> (<em>dict</em>) – Parameters to override schema definitions. See <a class="reference internal" href="#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> initialization parameters for valid kwargs.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent">Agent</a></p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>agents</strong> – Simulation agent(s) for <cite>citylearn_env.buildings</cite> energy storage charging/discharging management.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent">Agent</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -431,11 +467,6 @@ is returned where each sublist is a list of 1 building’s observation values an
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.render">
-<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">gym.core.RenderFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">gym.core.RenderFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.render" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.reset" title="Permalink to this definition"></a></dt>
 <dd><p>Reset <cite>CityLearnEnv</cite> to initial state.</p>
@@ -452,13 +483,19 @@ is returned where each sublist is a list of 1 building’s observation values an
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.reward_function">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reward_function</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><span class="pre">citylearn.reward_function.RewardFunction</span></a></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.reward_function" title="Permalink to this definition"></a></dt>
-<dd><p>Reward function class instance</p>
+<dd><p>Reward function class instance.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.rewards">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rewards</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.rewards" title="Permalink to this definition"></a></dt>
 <dd><p>Reward time series</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.root_directory">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">root_directory</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.root_directory" title="Permalink to this definition"></a></dt>
+<dd><p>Absolute path to directory that contains the data files including the schema.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -471,6 +508,18 @@ is returned where each sublist is a list of 1 building’s observation values an
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.shared_observations">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shared_observations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.shared_observations" title="Permalink to this definition"></a></dt>
 <dd><p>Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.simulation_end_time_step">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">simulation_end_time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.simulation_end_time_step" title="Permalink to this definition"></a></dt>
+<dd><p>Time step to end reading from data files.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.simulation_start_time_step">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">simulation_start_time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.simulation_start_time_step" title="Permalink to this definition"></a></dt>
+<dd><p>Time step to start reading from data files.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -540,7 +589,7 @@ Override :meth”<cite>get_info</cite> to get custom key-value pairs in <cite>in
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="citylearn.building.html" class="btn btn-neutral float-left" title="citylearn.building module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="citylearn.citylearn_pettingzoo.html" class="btn btn-neutral float-right" title="citylearn.citylearn_pettingzoo module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="citylearn.cost_function.html" class="btn btn-neutral float-right" title="citylearn.cost_function module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
