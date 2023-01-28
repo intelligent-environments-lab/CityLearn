@@ -666,14 +666,20 @@
         <span class="k">return</span> <span class="n">building_info</span></div>
     
 <div class="viewcode-block" id="CityLearnEnv.evaluate"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate cost functions at current time step.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Evaluate cost functions at current time step.</span>
 
-<span class="sd">        Calculates and returns building-level and district-level cost functions</span>
+<span class="sd">        Calculates and returns building-level and district-level cost functions normalized w.r.t. the no control scenario.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        cost_functions: pd.DataFrame</span>
 <span class="sd">            Cost function summary.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The equation for the returned cost function values is :math:`\frac{C_{\textrm{control}}}{C_{\textrm{no control}}}` </span>
+<span class="sd">        where :math:`C_{\textrm{control}}` is the value when the agent(s) control the environment and :math:`C_{\textrm{no control}}`</span>
+<span class="sd">        is the value when none of the flexible distributed energy resources in the environment are actively in use and controlled.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">building_level</span> <span class="o">=</span> <span class="p">[]</span>

@@ -20,6 +20,8 @@
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -275,7 +277,7 @@ If <cite>central_agent</cite> is False, a list of <cite>space.Box</cite> objects
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.evaluate">
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.evaluate" title="Permalink to this definition"></a></dt>
 <dd><p>Evaluate cost functions at current time step.</p>
-<p>Calculates and returns building-level and district-level cost functions</p>
+<p>Calculates and returns building-level and district-level cost functions normalized w.r.t. the no control scenario.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>cost_functions</strong> – Cost function summary.</p>
@@ -284,6 +286,10 @@ If <cite>central_agent</cite> is False, a list of <cite>space.Box</cite> objects
 <dd class="field-even"><p>pd.DataFrame</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>The equation for the returned cost function values is <span class="math notranslate nohighlight">\(\frac{C_{\textrm{control}}}{C_{\textrm{no control}}}\)</span>
+where <span class="math notranslate nohighlight">\(C_{\textrm{control}}\)</span> is the value when the agent(s) control the environment and <span class="math notranslate nohighlight">\(C_{\textrm{no control}}\)</span>
+is the value when none of the flexible distributed energy resources in the environment are actively in use and controlled.</p>
 </dd></dl>
 
 <dl class="py method">
