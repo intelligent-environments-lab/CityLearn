@@ -38,6 +38,8 @@ extensions = [
     'sphinxcontrib.bibtex', # for citations
     'sphinxemoji.sphinxemoji', # for emojis
     'sphinx_copybutton', # to copy code block
+    'myst_nb', # jupyter notebook
+    'nbsphinx_link', # link jupyter notebook from dir that is not in docs/
 ]
 
 # source for bib references
