@@ -25,7 +25,7 @@ The building file is a :code:`csv` file that contains a building's temporal (cal
 Weather Data File
 =================
 
-The weather file is a :code:`.csv` file that contains outdoor weather variables time series for the desired simulation geographical location. It is used as the source for :py:attr:`citylearn.building.Building.weather`, which is the source for weather related observations. [Typical Meteorological Year (TMY)](https://energyplus.net/weather) or Actual Meteorological Year (AMY) data can be used. The file structure is shown in the snippet below:
+The weather file is a :code:`.csv` file that contains outdoor weather variables time series for the desired simulation geographical location. It is used as the source for :py:attr:`citylearn.building.Building.weather`, which is the source for weather related observations. `Typical Meteorological Year <https://energyplus.net/weather>`_ (TMY) or Actual Meteorological Year (AMY) data can be used. The file structure is shown in the snippet below:
 
 .. include:: ../../../citylearn/data/citylearn_challenge_2022_phase_1/weather.csv
     :code: text
@@ -34,7 +34,7 @@ The weather file is a :code:`.csv` file that contains outdoor weather variables 
 Carbon Intensity Data File
 ==========================
 
-The carbon intensity file is a :code:`.csv` file that contains CO<sub>2</sub> emission rate time series. It is used as the source for :py:attr:`citylearn.building.Building.carbon_intensity`, which is the source for the `carbon_intensity` observation. The data can be sourced from grid operators e.g. `ERCOT <https://www.ercot.com/gridinfo/generation>`_, `NYISO <http://mis.nyiso.com/public/P-63list.htm>`_ or third-party sources `WattTime <https://www.watttime.org>`_. The file structure is shown in the snippet below:
+The carbon intensity file is a :code:`.csv` file that contains CO:sub:`2` emission rate time series. It is used as the source for :py:attr:`citylearn.building.Building.carbon_intensity`, which is the source for the `carbon_intensity` observation. The data can be sourced from grid operators e.g. `ERCOT <https://www.ercot.com/gridinfo/generation>`_, `NYISO <http://mis.nyiso.com/public/P-63list.htm>`_ or third-party sources `WattTime <https://www.watttime.org>`_. The file structure is shown in the snippet below:
 
 .. include:: ../../../citylearn/data/citylearn_challenge_2022_phase_1/carbon_intensity.csv
     :code: text
