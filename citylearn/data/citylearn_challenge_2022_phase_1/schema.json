@@ -162,7 +162,7 @@
     }
   },
   "agent": {
-    "type": "citylearn.agents.sac.SAC",
+    "type": "citylearn.agents.rbc.BasicRBC",
     "attributes": {
       "hidden_dimension": [
         256,
@@ -182,7 +182,7 @@
     }
   },
   "reward_function": {
-    "type": "citylearn.reward_function.IndependentSACReward",
+    "type": "citylearn.reward_function.RewardFunction",
     "attributes": null
   },
   "buildings": {

@@ -5,7 +5,8 @@ on: push
 jobs:
   update:
 
-    runs-on: ubuntu-latest
+    environment: github-pages
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: [3.7.7]
@@ -18,6 +19,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: | 
+        sudo apt install pandoc
         python -m pip install --upgrade pip
         python -m pip install flake8
         pip install -r requirements.txt
@@ -25,10 +27,14 @@ jobs:
         pip install -r docs/requirements.txt
     - name: Build HTML
       run: |
+        sphinx-apidoc citylearn -o docs/source/api -e -M
         sphinx-build -b html docs/source/ docs/build/html
+    - name: Add CNAME
+      run: |
+        echo ${{ secrets.CUSTOM_DOMAIN }} > docs/build/html/CNAME
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/citylearn_v2'
+      if: github.ref == 'refs/heads/master'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: docs/build/html

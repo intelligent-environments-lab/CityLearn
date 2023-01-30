@@ -12,17 +12,34 @@ from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
-from citylearn.rendering import get_background, RenderBuilding, get_plots
 
 class CityLearnEnv(Environment, Env):
-    def __init__(self, schema: Union[str, Path, Mapping[str, Any]], **kwargs):
+    def __init__(self, 
+        schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: List[Building] = None, simulation_start_time_step: int = None, simulation_end_time_step: int = None, 
+        reward_function: RewardFunction = None, central_agent: bool = None, shared_observations: List[str] = None, **kwargs
+    ):
         r"""Initialize `CityLearnEnv`.
 
         Parameters
         ----------
         schema: Union[str, Path, Mapping[str, Any]]
-            Name of CityLearn data set, filepath to JSON representation or `dict` object of a CityLearn schema.
-            Call :meth:`citylearn.data.DataSet.get_names()` for list of available CityLearn data sets.
+            Name of CityLearn data set, filepath to JSON representation or :code:`dict` object of a CityLearn schema.
+            Call :py:meth:`citylearn.data.DataSet.get_names` for list of available CityLearn data sets.
+        root_directory: Union[str, Path]
+            Absolute path to directory that contains the data files including the schema. If provided, will override :code:`root_directory` definition in schema.
+        buildings: List[Building], optional
+            Buildings in CityLearn environment. If provided, will override :code:`buildings` definition in schema.
+        simulation_start_time_step: int, optional
+            Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.
+        end_time_step: int, optional
+            Time step to end reading from data files. If provided, will override :code:`simulation_end_time_step` definition in schema.
+        reward_function: RewardFunction, optional
+            Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
+        central_agent: bool, optional
+            Expect 1 central agent to control all buildings. If provided, will override :code:`central` definition in schema.
+        shared_observations: List[str], optional
+            Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
+            If provided, will override :code:`observations:<observation>:shared_in_central_agent` definitions in schema.
 
         Other Parameters
         ----------------
@@ -32,8 +49,16 @@ class CityLearnEnv(Environment, Env):
 
         self.schema = schema
         self.__rewards = None
-        self.buildings, self.time_steps, self.seconds_per_time_step,\
-            self.reward_function, self.central_agent, self.shared_observations = self.__load()
+        self.root_directory, self.buildings, self.simulation_start_time_step, self.simulation_end_time_step, self.seconds_per_time_step,\
+            self.reward_function, self.central_agent, self.shared_observations = self.__load(
+                root_directory=root_directory,
+                buildings=buildings,
+                simulation_start_time_step=simulation_start_time_step,
+                simulation_end_time_step=simulation_end_time_step,
+                reward_function=reward_function,
+                central_agent=central_agent,
+                shared_observations=shared_observations,
+            )
         super().__init__(**kwargs)
 
     @property
@@ -43,20 +68,38 @@ class CityLearnEnv(Environment, Env):
         return self.__schema
 
     @property
+    def root_directory(self) -> Union[str, Path]:
+        """Absolute path to directory that contains the data files including the schema."""
+
+        return self.__root_directory
+
+    @property
     def buildings(self) -> List[Building]:
         """Buildings in CityLearn environment."""
 
         return self.__buildings
 
     @property
+    def simulation_start_time_step(self) -> int:
+        """Time step to start reading from data files."""
+
+        return self.__simulation_start_time_step
+
+    @property
+    def simulation_end_time_step(self) -> int:
+        """Time step to end reading from data files."""
+
+        return self.__simulation_end_time_step
+
+    @property
     def time_steps(self) -> int:
         """Number of simulation time steps."""
 
-        return self.__time_steps
+        return (self.simulation_end_time_step - self.simulation_start_time_step) + 1
 
     @property
     def reward_function(self) -> RewardFunction:
-        """Reward function class instance"""
+        """Reward function class instance."""
 
         return self.__reward_function
 
@@ -68,7 +111,7 @@ class CityLearnEnv(Environment, Env):
 
     @property
     def central_agent(self) -> bool:
-        """Expect 1 central agent to control all building storage device."""
+        """Expect 1 central agent to control all buildings."""
 
         return self.__central_agent
 
@@ -366,14 +409,23 @@ class CityLearnEnv(Environment, Env):
     def schema(self, schema: Union[str, Path, Mapping[str, Any]]):
         self.__schema = schema
 
+    @root_directory.setter
+    def root_directory(self, root_directory: Union[str, Path]):
+        self.__root_directory = root_directory
+
     @buildings.setter
     def buildings(self, buildings: List[Building]):
         self.__buildings = buildings
 
-    @time_steps.setter
-    def time_steps(self, time_steps: int):
-        assert time_steps >= 1, 'time_steps must be >= 1'
-        self.__time_steps = time_steps
+    @simulation_start_time_step.setter
+    def simulation_start_time_step(self, simulation_start_time_step: int):
+        assert simulation_start_time_step >= 0, 'simulation_start_time_step must be >= 0'
+        self.__simulation_start_time_step = simulation_start_time_step
+
+    @simulation_end_time_step.setter
+    def simulation_end_time_step(self, simulation_end_time_step: int):
+        assert simulation_end_time_step >= 0, 'simulation_end_time_step must be >= 0'
+        self.__simulation_end_time_step = simulation_end_time_step
 
     @reward_function.setter
     def reward_function(self, reward_function: RewardFunction):
@@ -536,74 +588,80 @@ class CityLearnEnv(Environment, Env):
             building_info += (building_dict ,)
         
         return building_info
-
-    def render(self):
-        """Only applies to the CityLearn Challenge 2022 setup."""
-
-        canvas, canvas_size, draw_obj, color = get_background()
-        num_buildings = len(self.buildings)
-
-        for i, b in enumerate(self.buildings):
-            # current time step net electricity consumption and battery state or charge data
-            net_electricity_consumption_obs_ix = b.active_observations.index('net_electricity_consumption')
-            energy = b.net_electricity_consumption[b.time_step]/(b.observation_space.high[net_electricity_consumption_obs_ix])
-            charge = b.electrical_storage.soc[b.time_step]/b.electrical_storage.capacity_history[b.time_step - 1]
-            energy = max(min(energy, 1.0), 0.0)
-            charge = max(min(charge, 1.0), 0.0)
-
-            # render
-            rbuilding = RenderBuilding(index=i, 
-                                canvas_size=canvas_size, 
-                                num_buildings=num_buildings, 
-                                line_color=color)
-            rbuilding.draw_line(canvas, draw_obj, 
-                                energy=energy, 
-                                color=color)
-            rbuilding.draw_building(canvas, charge=charge)
-
-        # time series data
-        net_electricity_consumption = self.net_electricity_consumption[-24:]
-        net_electricity_consumption_without_storage = self.net_electricity_consumption_without_storage[-24:]
-        net_electricity_consumption_without_storage_and_pv = self.net_electricity_consumption_without_storage_and_pv[-24:]
-
-        # time series data y limits
-        all_time_net_electricity_consumption_without_storage = np.sum([
-            b.energy_simulation.non_shiftable_load - b.pv.get_generation(b.energy_simulation.solar_generation) for b in self.buildings
-        ],axis=0)
-        net_electricity_consumption_y_lim = (
-            min(all_time_net_electricity_consumption_without_storage - (self.buildings[0].electrical_storage.nominal_power)*len(self.buildings)), 
-            max(all_time_net_electricity_consumption_without_storage + (self.buildings[0].electrical_storage.nominal_power)*len(self.buildings))
-        )
-        net_electricity_consumption_without_storage_y_lim = (
-            min(all_time_net_electricity_consumption_without_storage), 
-            max(all_time_net_electricity_consumption_without_storage)
-        )
-        net_electricity_consumption_without_storage_and_pv_y_lim = (
-            0, 
-            max(np.sum([b.energy_simulation.non_shiftable_load for b in self.buildings], axis=0))
-        )
-
-        values = [net_electricity_consumption, net_electricity_consumption_without_storage, net_electricity_consumption_without_storage_and_pv]
-        limits = [net_electricity_consumption_y_lim, net_electricity_consumption_without_storage_y_lim, net_electricity_consumption_without_storage_and_pv_y_lim]
-        plot_image = get_plots(values, limits)
-        graphic_image = np.asarray(canvas)
-        
-        return np.concatenate([graphic_image, plot_image], axis=1)
     
-    def evaluate(self):
-        """Only applies to the CityLearn Challenge 2022 setup."""
+    def evaluate(self) -> pd.DataFrame:
+        r"""Evaluate cost functions at current time step.
 
-        price_cost = CostFunction.price(self.net_electricity_consumption_price)[-1]/\
-            CostFunction.price(self.net_electricity_consumption_without_storage_price)[-1]
-        emission_cost = CostFunction.carbon_emissions(self.net_electricity_consumption_emission)[-1]/\
-            CostFunction.carbon_emissions(self.net_electricity_consumption_without_storage_emission)[-1]
-        ramping_cost = CostFunction.ramping(self.net_electricity_consumption)[-1]/\
-            CostFunction.ramping(self.net_electricity_consumption_without_storage)[-1]
-        load_factor_cost = CostFunction.load_factor(self.net_electricity_consumption)[-1]/\
-            CostFunction.load_factor(self.net_electricity_consumption_without_storage)[-1]
-        grid_cost = np.mean([ramping_cost, load_factor_cost])
+        Calculates and returns building-level and district-level cost functions normalized w.r.t. the no control scenario.
+        
+        Returns
+        -------
+        cost_functions: pd.DataFrame
+            Cost function summary.
 
-        return price_cost, emission_cost, grid_cost
+        Notes
+        -----
+        The equation for the returned cost function values is :math:`\frac{C_{\textrm{control}}}{C_{\textrm{no control}}}` 
+        where :math:`C_{\textrm{control}}` is the value when the agent(s) control the environment and :math:`C_{\textrm{no control}}`
+        is the value when none of the flexible distributed energy resources in the environment are actively in use and controlled.
+        """
+
+        building_level = []
+
+        for b in self.buildings:
+            building_level += [{
+                'name': b.name,
+                'cost_function': 'electricity_consumption',
+                'value': CostFunction.electricity_consumption(b.net_electricity_consumption)[-1]/\
+                    CostFunction.electricity_consumption(b.net_electricity_consumption_without_storage)[-1],
+                }, {
+                'name': b.name,
+                'cost_function': 'zero_net_energy',
+                'value': CostFunction.zero_net_energy(b.net_electricity_consumption)[-1]/\
+                    CostFunction.zero_net_energy(b.net_electricity_consumption_without_storage)[-1],
+                }, {
+                'name': b.name,
+                'cost_function': 'carbon_emissions',
+                'value': CostFunction.carbon_emissions(b.net_electricity_consumption_emission)[-1]/\
+                    CostFunction.carbon_emissions(b.net_electricity_consumption_without_storage_emission)[-1]\
+                        if sum(b.carbon_intensity.carbon_intensity) != 0 else None,
+                }, {
+                'name': b.name,
+                'cost_function': 'pricing',
+                'value': CostFunction.price(b.net_electricity_consumption_price)[-1]/\
+                    CostFunction.price(b.net_electricity_consumption_without_storage_price)[-1]\
+                        if sum(b.pricing.electricity_pricing) != 0 else None,
+                }]
+
+        building_level = pd.DataFrame(building_level)
+        building_level['level'] = 'building'
+
+        ## district level
+        district_level = pd.DataFrame([{
+            'cost_function': 'ramping',
+            'value': CostFunction.ramping(self.net_electricity_consumption)[-1]/\
+                CostFunction.ramping(self.net_electricity_consumption_without_storage)[-1],
+            }, {
+            'cost_function': '1 - load_factor',
+            'value': CostFunction.load_factor(self.net_electricity_consumption)[-1]/\
+                CostFunction.load_factor(self.net_electricity_consumption_without_storage)[-1],
+            }, {
+            'cost_function': 'average_daily_peak',
+            'value': CostFunction.average_daily_peak(self.net_electricity_consumption)[-1]/\
+                CostFunction.average_daily_peak(self.net_electricity_consumption_without_storage)[-1],
+            }, {
+            'cost_function': 'peak_demand',
+            'value': CostFunction.peak_demand(self.net_electricity_consumption)[-1]/\
+                CostFunction.peak_demand(self.net_electricity_consumption_without_storage)[-1],
+            }])
+
+        district_level = pd.concat([district_level, building_level], ignore_index=True, sort=False)
+        district_level = district_level.groupby(['cost_function'])[['value']].mean().reset_index()
+        district_level['name'] = 'District'
+        district_level['level'] = 'district'
+        cost_functions = pd.concat([district_level, building_level], ignore_index=True, sort=False)
+
+        return cost_functions
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
@@ -650,6 +708,11 @@ class CityLearnEnv(Environment, Env):
 
     def load_agent(self) -> Agent:
         """Return :class:`Agent` or sub class object as defined by the `schema`.
+
+        Parameters
+        ----------
+        **kwargs : dict
+            Parameters to override schema definitions. See :py:class:`citylearn.citylearn.CityLearnEnv` initialization parameters for valid kwargs.
         
         Returns
         -------
@@ -673,7 +736,7 @@ class CityLearnEnv(Environment, Env):
         agent = agent_constructor(**agent_attributes)
         return agent
 
-    def __load(self) -> Tuple[List[Building], int, float, RewardFunction, bool, List[str]]:
+    def __load(self, **kwargs) -> Tuple[List[Building], int, float, RewardFunction, bool, List[str]]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
         
         Returns
@@ -705,96 +768,109 @@ class CityLearnEnv(Environment, Env):
         else:
             raise UnknownSchemaError()
 
-        central_agent = self.schema['central_agent']
+        root_directory = kwargs['root_directory'] if kwargs.get('root_directory') is not None else self.schema['root_directory']
+        central_agent =  kwargs['central_agent'] if kwargs.get('central_agent') is not None else self.schema['central_agent']
         observations = {s: v for s, v in self.schema['observations'].items() if v['active']}
         actions = {a: v for a, v in self.schema['actions'].items() if v['active']}
-        shared_observations = [k for k, v in observations.items() if v['shared_in_central_agent']]
-        simulation_start_time_step = self.schema['simulation_start_time_step']
-        simulation_end_time_step = self.schema['simulation_end_time_step']
-        time_steps = (simulation_end_time_step - simulation_start_time_step) + 1
+        shared_observations =  kwargs['shared_observations'] if kwargs.get('shared_observations') is not None else\
+            [k for k, v in observations.items() if v['shared_in_central_agent']]
+        simulation_start_time_step = kwargs['simulation_start_time_step'] if kwargs.get('simulation_start_time_step') is not None else\
+            self.schema['simulation_start_time_step']
+        simulation_end_time_step = kwargs['simulation_end_time_step'] if kwargs.get('simulation_end_time_step') is not None else\
+            self.schema['simulation_end_time_step']
         seconds_per_time_step = self.schema['seconds_per_time_step']
-        buildings = ()
+
+        if kwargs.get('buildings') is not None and len(kwargs['buildings']) > 0:
+            buildings = kwargs['buildings']
         
-        for building_name, building_schema in self.schema['buildings'].items():
-            if building_schema['include']:
-                # data
-                energy_simulation = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['energy_simulation'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
-                energy_simulation = EnergySimulation(*energy_simulation.values.T)
-                weather = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['weather'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
-                weather = Weather(*weather.values.T)
+        else:
+            buildings = ()
+            
+            for building_name, building_schema in self.schema['buildings'].items():
+                if building_schema['include']:
+                    # data
+                    energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+                    energy_simulation = EnergySimulation(*energy_simulation.values.T)
+                    weather = pd.read_csv(os.path.join(root_directory,building_schema['weather'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+                    weather = Weather(*weather.values.T)
 
-                if building_schema.get('carbon_intensity', None) is not None:
-                    carbon_intensity = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['carbon_intensity'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
-                    carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
-                    carbon_intensity = CarbonIntensity(carbon_intensity)
-                else:
-                    carbon_intensity = None
-
-                if building_schema.get('pricing', None) is not None:
-                    pricing = pd.read_csv(os.path.join(self.schema['root_directory'],building_schema['pricing'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
-                    pricing = Pricing(*pricing.values.T)
-                else:
-                    pricing = None
-                    
-                # observation and action metadata
-                inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
-                inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
-                observation_metadata = {s: False if s in inactive_observations else True for s in observations}
-                action_metadata = {a: False if a in inactive_actions else True for a in actions}
-
-                # construct building
-                building = Building(energy_simulation, weather, observation_metadata, action_metadata, carbon_intensity=carbon_intensity, pricing=pricing, name=building_name, seconds_per_time_step=seconds_per_time_step)
-
-                # update devices
-                device_metadata = {
-                    'dhw_storage': {'autosizer': building.autosize_dhw_storage},  
-                    'cooling_storage': {'autosizer': building.autosize_cooling_storage}, 
-                    'heating_storage': {'autosizer': building.autosize_heating_storage}, 
-                    'electrical_storage': {'autosizer': building.autosize_electrical_storage}, 
-                    'cooling_device': {'autosizer': building.autosize_cooling_device}, 
-                    'heating_device': {'autosizer': building.autosize_heating_device}, 
-                    'dhw_device': {'autosizer': building.autosize_dhw_device}, 
-                    'pv': {'autosizer': building.autosize_pv}
-                }
-
-                for name in device_metadata:
-                    if building_schema.get(name, None) is None:
-                        device = None
+                    if building_schema.get('carbon_intensity', None) is not None:
+                        carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+                        carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
+                        carbon_intensity = CarbonIntensity(carbon_intensity)
                     else:
-                        device_type = building_schema[name]['type']
-                        device_module = '.'.join(device_type.split('.')[0:-1])
-                        device_name = device_type.split('.')[-1]
-                        constructor = getattr(importlib.import_module(device_module),device_name)
-                        attributes = building_schema[name].get('attributes',{})
-                        attributes['seconds_per_time_step'] = seconds_per_time_step
-                        device = constructor(**attributes)
-                        autosize = False if building_schema[name].get('autosize', None) is None else building_schema[name]['autosize']
-                        building.__setattr__(name, device)
+                        carbon_intensity = None
 
-                        if autosize:
-                            autosizer = device_metadata[name]['autosizer']
-                            autosize_kwargs = {} if building_schema[name].get('autosize_attributes', None) is None else building_schema[name]['autosize_attributes']
-                            autosizer(**autosize_kwargs)
+                    if building_schema.get('pricing', None) is not None:
+                        pricing = pd.read_csv(os.path.join(root_directory,building_schema['pricing'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+                        pricing = Pricing(*pricing.values.T)
+                    else:
+                        pricing = None
+                        
+                    # observation and action metadata
+                    inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
+                    inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
+                    observation_metadata = {s: False if s in inactive_observations else True for s in observations}
+                    action_metadata = {a: False if a in inactive_actions else True for a in actions}
+
+                    # construct building
+                    building = Building(energy_simulation, weather, observation_metadata, action_metadata, carbon_intensity=carbon_intensity, pricing=pricing, name=building_name, seconds_per_time_step=seconds_per_time_step)
+
+                    # update devices
+                    device_metadata = {
+                        'dhw_storage': {'autosizer': building.autosize_dhw_storage},  
+                        'cooling_storage': {'autosizer': building.autosize_cooling_storage}, 
+                        'heating_storage': {'autosizer': building.autosize_heating_storage}, 
+                        'electrical_storage': {'autosizer': building.autosize_electrical_storage}, 
+                        'cooling_device': {'autosizer': building.autosize_cooling_device}, 
+                        'heating_device': {'autosizer': building.autosize_heating_device}, 
+                        'dhw_device': {'autosizer': building.autosize_dhw_device}, 
+                        'pv': {'autosizer': building.autosize_pv}
+                    }
+
+                    for name in device_metadata:
+                        if building_schema.get(name, None) is None:
+                            device = None
                         else:
-                            pass
-                
-                building.observation_space = building.estimate_observation_space()
-                building.action_space = building.estimate_action_space()
-                buildings += (building,)
-                
-            else:
-                continue
+                            device_type = building_schema[name]['type']
+                            device_module = '.'.join(device_type.split('.')[0:-1])
+                            device_name = device_type.split('.')[-1]
+                            constructor = getattr(importlib.import_module(device_module),device_name)
+                            attributes = building_schema[name].get('attributes',{})
+                            attributes['seconds_per_time_step'] = seconds_per_time_step
+                            device = constructor(**attributes)
+                            autosize = False if building_schema[name].get('autosize', None) is None else building_schema[name]['autosize']
+                            building.__setattr__(name, device)
 
-        reward_function_type = self.schema['reward_function']['type']
-        reward_function_attributes = self.schema['reward_function'].get('attributes',None)
-        reward_function_attributes = {} if reward_function_attributes is None else reward_function_attributes
-        reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
-        reward_function_name = reward_function_type.split('.')[-1]
-        reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
-        agent_count = 1 if central_agent else len(buildings)
-        reward_function = reward_function_constructor(agent_count=agent_count,**reward_function_attributes)
+                            if autosize:
+                                autosizer = device_metadata[name]['autosizer']
+                                autosize_kwargs = {} if building_schema[name].get('autosize_attributes', None) is None else building_schema[name]['autosize_attributes']
+                                autosizer(**autosize_kwargs)
+                            else:
+                                pass
+                    
+                    building.observation_space = building.estimate_observation_space()
+                    building.action_space = building.estimate_action_space()
+                    buildings += (building,)
+                    
+                else:
+                    continue
+        
+        buildings = list(buildings)
 
-        return buildings, time_steps, seconds_per_time_step, reward_function, central_agent, shared_observations
+        if kwargs.get('reward_function') is not None:
+            reward_function = kwargs['reward_function']
+        else:
+            reward_function_type = self.schema['reward_function']['type']
+            reward_function_attributes = self.schema['reward_function'].get('attributes',None)
+            reward_function_attributes = {} if reward_function_attributes is None else reward_function_attributes
+            reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
+            reward_function_name = reward_function_type.split('.')[-1]
+            reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
+            agent_count = 1 if central_agent else len(buildings)
+            reward_function = reward_function_constructor(agent_count=agent_count,**reward_function_attributes)
+
+        return root_directory, buildings, simulation_start_time_step, simulation_end_time_step, seconds_per_time_step, reward_function, central_agent, shared_observations
 
 class Error(Exception):
     """Base class for other exceptions."""

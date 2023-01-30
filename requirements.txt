@@ -1,6 +1,7 @@
-gym==0.24.1
-matplotlib
+gym==0.25.1
 numpy==1.21.6
 pandas==1.3.5
-Pillow==9.2.0
-simplejson==3.17.6
+scikit-learn==1.0.2
+simplejson
+torch==1.12.0
+torchvision==0.13.0

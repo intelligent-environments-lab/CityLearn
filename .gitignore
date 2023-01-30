@@ -115,6 +115,7 @@ celerybeat.pid
 .env
 .venv
 env/
+test_env/
 venv/
 ENV/
 env.bak/
@@ -156,7 +157,6 @@ cython_debug/
 *.out
 
 # MacOS
-<<<<<<< HEAD
 .DS_Store
 
 # do not track data
@@ -168,8 +168,12 @@ cc2022_staging/*
 
 # do not track docs for now
 docs/build/*
+docs/_build/*
+docs/source/api/
+
+# only track code in examples
+examples/*
+!examples/*.py
+!examples/*.ipynb
 
 # test files
-=======
-.DS_Store
->>>>>>> master

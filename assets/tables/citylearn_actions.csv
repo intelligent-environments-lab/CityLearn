@@ -1,0 +1,5 @@
+Name,Controlled Device,Unit
+cooling_storage,:code:`cooling_storage`,kWh/kWhcapacity
+heating_storage,:code:`heating_storage`,kWh/kWhcapacity
+dhw_storage,:code:`dhw_storage`,kWh/kWhcapacity
+electrical_storage,:code:`electrical_storage`,kWh/kWhcapacity
