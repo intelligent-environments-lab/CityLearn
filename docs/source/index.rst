@@ -36,15 +36,21 @@ Cite CityLearn
 
 .. code-block:: bibtex
 
-   @misc{https://doi.org/10.48550/arxiv.2012.10504,
-      doi = {10.48550/ARXIV.2012.10504},
-      url = {https://arxiv.org/abs/2012.10504},
-      author = {Vazquez-Canteli, Jose R and Dey, Sourav and Henze, Gregor and Nagy, Zoltan},
-      keywords = {Machine Learning (cs.LG), Artificial Intelligence (cs.AI), FOS: Computer and information sciences, FOS: Computer and information sciences, I.2.1},
-      title = {CityLearn: Standardizing Research in Multi-Agent Reinforcement Learning for Demand Response and Urban Energy Management},
-      publisher = {arXiv},
-      year = {2020},
-      copyright = {Creative Commons Attribution 4.0 International}
+   @inproceedings{10.1145/3360322.3360998,
+      author = {V\'{a}zquez-Canteli, Jos\'{e} R. and K\"{a}mpf, J\'{e}r\^{o}me and Henze, Gregor and Nagy, Zoltan},
+      title = {CityLearn v1.0: An OpenAI Gym Environment for Demand Response with Deep Reinforcement Learning},
+      year = {2019},
+      isbn = {9781450370059},
+      publisher = {Association for Computing Machinery},
+      address = {New York, NY, USA},
+      url = {https://doi.org/10.1145/3360322.3360998},
+      doi = {10.1145/3360322.3360998},
+      booktitle = {Proceedings of the 6th ACM International Conference on Systems for Energy-Efficient Buildings, Cities, and Transportation},
+      pages = {356–357},
+      numpages = {2},
+      keywords = {Smart Grid, Building Energy Control, Smart Buildings},
+      location = {New York, NY, USA},
+      series = {BuildSys '19}
    }
 
 Contributing
