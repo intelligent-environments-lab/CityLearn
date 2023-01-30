@@ -12,6 +12,6 @@ Editions
 .. toctree::
    :maxdepth: 1
 
-   2020
-   2021
    2022
+   2021
+   2020
