@@ -4,7 +4,7 @@ The CityLearn Challenge 2021
 
 .. note::
 
-    The CityLearn Challenge 2021 has now concluded! The winners and the leaderboard have been announced at the `RLEM Workshop 2021 <https://rlem-workshop.net/editions/2021/>`_:
+    The CityLearn Challenge 2021 has now concluded! The winners and the leaderboard have been announced at the `RLEM Workshop 2021 <https://rlem-workshop.net/editions/2021/>`_.
 
 .. note::
 
