@@ -5,6 +5,7 @@ on: push
 jobs:
   update:
 
+    environment: github-pages
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -28,6 +29,9 @@ jobs:
       run: |
         sphinx-apidoc citylearn -o docs/source/api -e -M
         sphinx-build -b html docs/source/ docs/build/html
+    - name: Add CNAME
+      run: |
+        echo ${{ secrets.CUSTOM_DOMAIN }} > docs/build/html/CNAME
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       if: github.ref == 'refs/heads/master'
