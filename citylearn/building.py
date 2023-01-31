@@ -4,6 +4,7 @@ from gym import spaces
 import numpy as np
 from citylearn.base import Environment
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
+from citylearn.dynamics import LSTMBuildingDynamics
 from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, StorageTank
 
 class Building(Environment):
@@ -890,3 +891,8 @@ class Building(Environment):
 
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission.append(max(0, net_electricity_consumption*self.carbon_intensity.carbon_intensity[self.time_step]))
+
+class LSTMBuilding(Building):
+    def __init__(self, *args, dynamics: LSTMBuildingDynamics, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dynamics = dynamics
