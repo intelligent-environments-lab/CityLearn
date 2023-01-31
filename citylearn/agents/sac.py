@@ -1,5 +1,6 @@
 from typing import List
 import numpy as np
+import numpy.typing as npt
 
 try:
     import torch
@@ -71,12 +72,12 @@ class SAC(RLC):
         # Normalize all the observations using periodical normalization, one-hot encoding, or -1, 1 scaling. It also removes observations that are not necessary (solar irradiance if there are no solar PV panels).
 
         for i, (o, a, r, n) in enumerate(zip(observations, actions, reward, next_observations)):
-            o = np.array(self.get_encoded_observations(i, o), dtype = float)
-            n = np.array(self.get_encoded_observations(i, n), dtype = float)
+            o = self.get_encoded_observations(i, o)
+            n = self.get_encoded_observations(i, n)
 
             if self.normalized[i]:
-                o = np.array(self.get_normalized_observations(i, o), dtype = float)
-                n = np.array(self.get_normalized_observations(i, n), dtype = float)
+                o = self.get_normalized_observations(i, o)
+                n = self.get_normalized_observations(i, n)
                 r = self.get_normalized_reward(i, r)
             else:
                 pass
@@ -95,10 +96,10 @@ class SAC(RLC):
                     
                     # update buffer with normalization
                     self.replay_buffer[i].buffer = [(
-                        np.hstack(np.array(self.get_normalized_observations(i, o), dtype = float).reshape(1,-1)[0]),
+                        np.hstack(self.get_normalized_observations(i, o).reshape(1,-1)[0]),
                         a,
                         self.get_normalized_reward(i, r),
-                        np.hstack(np.array(self.get_normalized_observations(i, n), dtype = float).reshape(1,-1)[0]),
+                        np.hstack(self.get_normalized_observations(i, n).reshape(1,-1)[0]),
                         d
                     ) for o, a, r, n, d in self.replay_buffer[i].buffer]
                     self.normalized[i] = True
@@ -187,13 +188,12 @@ class SAC(RLC):
         actions = []
 
         for i, o in enumerate(observations):
-            o = np.array(self.get_encoded_observations(i, o), dtype = float)
-            o = np.array(self.get_normalized_observations(i, o), dtype = float)
+            o = self.get_encoded_observations(i, o)
+            o = self.get_normalized_observations(i, o)
             o = torch.FloatTensor(o).unsqueeze(0).to(self.device)
             result = self.policy_net[i].sample(o)
             a = result[2] if self.time_step >= self.deterministic_start_time_step else result[0]
-            a = list(a.detach().cpu().numpy()[0])
-            actions.append(a)
+            actions.append(a.detach().cpu().numpy()[0])
 
         return actions
             
@@ -212,11 +212,11 @@ class SAC(RLC):
     def get_normalized_reward(self, index: int, reward: float) -> float:
         return (reward - self.r_norm_mean[index])/self.r_norm_std[index]
 
-    def get_normalized_observations(self, index: int, observations: List[float]) -> List[float]:
-        return ((np.array(observations, dtype = float) - self.norm_mean[index])/self.norm_std[index]).tolist()
+    def get_normalized_observations(self, index: int, observations: List[float]) -> npt.NDArray[np.float64]:
+        return (np.array(observations, dtype = float) - self.norm_mean[index])/self.norm_std[index]
 
-    def get_encoded_observations(self, index: int, observations: List[float]) -> List[float]:
-        return np.array([j for j in np.hstack(self.encoders[index]*np.array(observations, dtype=float)) if j != None], dtype = float).tolist()
+    def get_encoded_observations(self, index: int, observations: List[float]) -> npt.NDArray[np.float64]:
+        return np.array([j for j in np.hstack(self.encoders[index]*np.array(observations, dtype=float)) if j != None], dtype = float)
 
     def set_networks(self, internal_observation_count: int = None):
         internal_observation_count = 0 if internal_observation_count is None else internal_observation_count
@@ -242,6 +242,7 @@ class SAC(RLC):
             self.policy_optimizer[i] = optim.Adam(self.policy_net[i].parameters(), lr=self.lr)
             self.target_entropy[i] = -np.prod(self.action_space[i].shape).item()
 
+    # optimizations can be made here
     def set_encoders(self) -> List[List[Encoder]]:
         encoders = super().set_encoders()
 
