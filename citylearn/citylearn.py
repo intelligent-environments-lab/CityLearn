@@ -814,7 +814,33 @@ class CityLearnEnv(Environment, Env):
                     action_metadata = {a: False if a in inactive_actions else True for a in actions}
 
                     # construct building
-                    building = Building(energy_simulation, weather, observation_metadata, action_metadata, carbon_intensity=carbon_intensity, pricing=pricing, name=building_name, seconds_per_time_step=seconds_per_time_step)
+                    building_type = building_schema['type']
+                    building_module = '.'.join(building_type.split('.')[0:-1])
+                    building_name = building_type.split('.')[-1]
+                    building_constructor = getattr(importlib.import_module(building_module),building_name)
+                    
+                    # set dynamics
+                    if building_schema.get('dynamics', None) is not None:
+                        dynamics_type = building_schema['dynamics']['type']
+                        dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
+                        dynamics_name = dynamics_type.split('.')[-1]
+                        dynamics_constructor = getattr(importlib.import_module(dynamics_module),dynamics_name)
+                        attributes = building_schema['dynamics'].get('attributes',{})
+                        dynamics = dynamics_constructor(root_directory, **attributes)
+                    else:
+                        dynamics = None
+
+                    building: Building = building_constructor(
+                        energy_simulation=energy_simulation, 
+                        weather=weather, 
+                        observation_metadata=observation_metadata, 
+                        action_metadata=action_metadata, 
+                        carbon_intensity=carbon_intensity, 
+                        pricing=pricing,
+                        name=building_name, 
+                        seconds_per_time_step=seconds_per_time_step,
+                        dynamics=dynamics,
+                    )
 
                     # update devices
                     device_metadata = {
