@@ -815,9 +815,9 @@ class CityLearnEnv(Environment, Env):
 
                     # construct building
                     building_type = building_schema['type']
-                    building_module = '.'.join(building_type.split('.')[0:-1])
-                    building_name = building_type.split('.')[-1]
-                    building_constructor = getattr(importlib.import_module(building_module),building_name)
+                    building_type_module = '.'.join(building_type.split('.')[0:-1])
+                    building_type_name = building_type.split('.')[-1]
+                    building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
                     
                     # set dynamics
                     if building_schema.get('dynamics', None) is not None:
