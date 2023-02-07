@@ -1018,41 +1018,34 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
 
     def update_dynamics(self):
         # implemented for cooling only for now
-        indoor_dry_bulb_temperature_lag = np.roll(np.concatenate([
-            self.energy_simulation.indoor_dry_bulb_temperature, self.energy_simulation.indoor_dry_bulb_temperature[-self.dynamics.lookback:],
-        ]), self.dynamics.lookback)[self.time_step:self.time_step + self.dynamics.lookback]
-        q_hvac_lag = np.roll(np.concatenate([
-            self.energy_simulation.cooling_demand, self.energy_simulation.cooling_demand[-self.dynamics.lookback:],
-        ]), self.dynamics.lookback - 1)[self.time_step:self.time_step + self.dynamics.lookback]
-
-        self.update_indoor_dry_bulb_temperature(q_hvac_lag, indoor_dry_bulb_temperature_lag)
-
-    def update_indoor_dry_bulb_temperature(self, q_hvac_lag, indoor_dry_bulb_temperature_lag):
         columns = [
             'direct_solar_irradiance', 'outdoor_dry_bulb_temperature', 'occupant_count', 'q_hvac',
             'hour_sin', 'hour_cos', 'day_type_sin', 'day_type_cos', 'month_sin', 'month_cos', 'indoor_dry_bulb_temperature'
         ]
         shape = (self.dynamics.lookback, self.dynamics.input_size)
         model_input = pd.DataFrame(np.zeros(shape), columns=columns)
-        model_input['q_hvac'] = q_hvac_lag
-        model_input['indoor_dry_bulb_temperature'] = indoor_dry_bulb_temperature_lag
+        
+        model_input['q_hvac'] = np.roll(np.concatenate([
+            self.energy_simulation.cooling_demand, self.energy_simulation.cooling_demand[-self.dynamics.lookback:],
+        ]), self.dynamics.lookback - 1)[self.time_step:self.time_step + self.dynamics.lookback]
+        model_input['indoor_dry_bulb_temperature'] = np.roll(np.concatenate([
+            self.energy_simulation.indoor_dry_bulb_temperature, self.energy_simulation.indoor_dry_bulb_temperature[-self.dynamics.lookback:],
+        ]), self.dynamics.lookback)[self.time_step:self.time_step + self.dynamics.lookback]
         columns.remove('q_hvac')
         columns.remove('indoor_dry_bulb_temperature')
-        pn = PeriodicNormalization(0)
-        periodic_columns = ['hour', 'day_type', 'month']
-
+        
         data = {
             **vars(self.energy_simulation),
             **vars(self.weather),
         }
+
+        pn = PeriodicNormalization(0)
+        periodic_columns = ['hour', 'day_type', 'month']
         
         for c in periodic_columns:
             values = np.roll(np.concatenate([
                 data[c], data[c][-self.dynamics.lookback:],
             ]), self.dynamics.lookback)[self.time_step:self.time_step + self.dynamics.lookback]
-
-            # if c == 'hour':
-            #     print(self.time_step, len(np.roll(data[c], self.dynamics.lookback + 1)), len(values))
             pn.x_max = values.max()
             values = pn*values
             model_input[f'{c}_sin'] = values[0]
@@ -1105,20 +1098,31 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
     def update_cooling_device(self, action: float):
         # need to revist this function implementation because 
         # not sure if the action is a proportion of calculated ideal load or heatpump nominal power
-        electric_power = min(action*self.cooling_device.nominal_power, self.cooling_device.nominal_power)
-        self.energy_simulation.cooling_demand[self.time_step] = self.cooling_device.get_max_output_power(
-            self.weather.outdoor_dry_bulb_temperature[self.time_step], 
-            heating=False, 
-            max_electric_power=electric_power
-        )
+        
+        if self.energy_simulation.cooling_device_demand_schedule > 0:
+            electric_power = min(action*self.cooling_device.nominal_power, self.cooling_device.nominal_power)
+            demand = self.cooling_device.get_max_output_power(
+                self.weather.outdoor_dry_bulb_temperature[self.time_step], 
+                heating=False, 
+                max_electric_power=electric_power
+            )
+        else:
+            demand = 0.0
+
+        self.energy_simulation.cooling_demand[self.time_step] = demand 
 
     def update_heating_device(self, action: float):
-        electric_power = min(action*self.heating_device.nominal_power, self.heating_device.nominal_power)
-        self.energy_simulation.heating_demand[self.time_step] = self.heating_device.get_max_output_power(
-            self.weather.outdoor_dry_bulb_temperature[self.time_step], 
-            heating=True,
-            max_electric_power=electric_power
-        ) if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power()
+        if self.energy_simulation.heating_device_demand_schedule > 0:
+            electric_power = min(action*self.heating_device.nominal_power, self.heating_device.nominal_power)
+            demand = self.heating_device.get_max_output_power(
+                self.weather.outdoor_dry_bulb_temperature[self.time_step], 
+                heating=True,
+                max_electric_power=electric_power
+            ) if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power()
+        else:
+            demand = 0.0
+
+        self.energy_simulation.heating_demand[self.time_step] = demand
         
     def __set_ideal_variables(self):
         self.__ideal_cooling_demand = self.energy_simulation.cooling_demand
