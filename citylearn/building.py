@@ -1018,27 +1018,12 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
 
     def update_dynamics(self):
         # implemented for cooling only for now
-        indoor_dry_bulb_temperature = np.roll(self.__ideal_indoor_dry_bulb_temperature, self.dynamics.lookback)[self.time_step:self.time_step + self.dynamics.lookback]
-        q_hvac = np.roll(self.__ideal_cooling_demand, self.dynamics.lookback - 1)[self.time_step:self.time_step + self.dynamics.lookback]
-
-        if self.time_step < self.dynamics.lookback:
-            q_hvac_lag = np.concatenate([
-                q_hvac[0:self.dynamics.lookback - 1 - self.time_step], 
-                self.energy_simulation.cooling_demand[0:self.time_step + 1]
-            ])
-
-            if self.time_step == 0:
-                indoor_dry_bulb_temperature_lag = indoor_dry_bulb_temperature
-
-            else:
-                indoor_dry_bulb_temperature_lag = np.concatenate([
-                    indoor_dry_bulb_temperature[0: self.dynamics.lookback - self.time_step],
-                    self.energy_simulation.indoor_dry_bulb_temperature[0:self.time_step]
-                ])
-
-        else:
-            q_hvac_lag = self.energy_simulation.cooling_demand[self.time_step - self.dynamics.lookback + 1:self.time_step + 1]
-            indoor_dry_bulb_temperature_lag = self.energy_simulation.indoor_dry_bulb_temperature[self.time_step - self.dynamics.lookback:self.time_step]
+        indoor_dry_bulb_temperature_lag = np.roll(np.concatenate([
+            self.energy_simulation.indoor_dry_bulb_temperature, self.energy_simulation.indoor_dry_bulb_temperature[-self.dynamics.lookback:],
+        ]), self.dynamics.lookback)[self.time_step:self.time_step + self.dynamics.lookback]
+        q_hvac_lag = np.roll(np.concatenate([
+            self.energy_simulation.cooling_demand, self.energy_simulation.cooling_demand[-self.dynamics.lookback:],
+        ]), self.dynamics.lookback - 1)[self.time_step:self.time_step + self.dynamics.lookback]
 
         self.update_indoor_dry_bulb_temperature(q_hvac_lag, indoor_dry_bulb_temperature_lag)
 
@@ -1062,7 +1047,12 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         }
         
         for c in periodic_columns:
-            values = np.roll(data[c], self.dynamics.lookback - 1)[self.time_step:self.time_step + self.dynamics.lookback]
+            values = np.roll(np.concatenate([
+                data[c], data[c][-self.dynamics.lookback:],
+            ]), self.dynamics.lookback)[self.time_step:self.time_step + self.dynamics.lookback]
+
+            # if c == 'hour':
+            #     print(self.time_step, len(np.roll(data[c], self.dynamics.lookback + 1)), len(values))
             pn.x_max = values.max()
             values = pn*values
             model_input[f'{c}_sin'] = values[0]
@@ -1071,7 +1061,9 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
             columns.remove(f'{c}_cos')
 
         for c in columns:
-            model_input[c] = np.roll(data[c], self.dynamics.lookback - 1)[self.time_step:self.time_step + self.dynamics.lookback]
+            model_input[c] = np.roll(np.concatenate([
+                data[c], data[c][-self.dynamics.lookback:],
+            ]), self.dynamics.lookback)[self.time_step:self.time_step + self.dynamics.lookback]
 
         # scale model input
         transformers = []
