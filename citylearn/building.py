@@ -1099,7 +1099,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         # need to revist this function implementation because 
         # not sure if the action is a proportion of calculated ideal load or heatpump nominal power
         
-        if self.energy_simulation.cooling_device_demand_schedule > 0:
+        if self.energy_simulation.cooling_device_demand_schedule[self.time_step] > 0:
             electric_power = min(action*self.cooling_device.nominal_power, self.cooling_device.nominal_power)
             demand = self.cooling_device.get_max_output_power(
                 self.weather.outdoor_dry_bulb_temperature[self.time_step], 
@@ -1112,7 +1112,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         self.energy_simulation.cooling_demand[self.time_step] = demand 
 
     def update_heating_device(self, action: float):
-        if self.energy_simulation.heating_device_demand_schedule > 0:
+        if self.energy_simulation.heating_device_demand_schedule[self.time_step] > 0:
             electric_power = min(action*self.heating_device.nominal_power, self.heating_device.nominal_power)
             demand = self.heating_device.get_max_output_power(
                 self.weather.outdoor_dry_bulb_temperature[self.time_step], 
