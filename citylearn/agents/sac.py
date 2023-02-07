@@ -242,7 +242,6 @@ class SAC(RLC):
             self.policy_optimizer[i] = optim.Adam(self.policy_net[i].parameters(), lr=self.lr)
             self.target_entropy[i] = -np.prod(self.action_space[i].shape).item()
 
-    # optimizations can be made here
     def set_encoders(self) -> List[List[Encoder]]:
         encoders = super().set_encoders()
 

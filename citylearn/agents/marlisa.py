@@ -143,8 +143,8 @@ class MARLISA(SAC):
                 pass
 
             if self.regression_flag[i] > 1:
-                o = np.array(self.get_encoded_observations(i, o), dtype=float)
-                n = np.array(self.get_encoded_observations(i, n), dtype=float)
+                o = self.get_encoded_observations(i, o)
+                n = self.get_encoded_observations(i, n)
 
                 # Only executed during the random exploration phase. Pushes unnormalized tuples into the replay buffer.
                 if self.information_sharing:
@@ -156,9 +156,9 @@ class MARLISA(SAC):
 
                 # Executed during the training phase. States and rewards pushed into the replay buffer are normalized and processed using PCA.
                 if self.pca_flag[i]:
-                    o = np.array(self.get_normalized_observations(i, o), dtype=float)
+                    o = self.get_normalized_observations(i, o)
                     o = self.pca[i].transform(o.reshape(1, -1))[0]
-                    n = np.array(self.get_normalized_observations(i, n), dtype=float)
+                    n = self.get_normalized_observations(i, n)
                     n = self.pca[i].transform(n.reshape(1, -1))[0]
                     r = self.get_normalized_reward(i, r)
                 else:
@@ -193,7 +193,7 @@ class MARLISA(SAC):
                     X = np.array([j[0] for j in self.replay_buffer[i].buffer], dtype=float)
                     self.norm_mean[i] = np.nanmean(X, axis=0)
                     self.norm_std[i] = np.nanstd(X, axis=0) + 1e-5
-                    X = np.array(self.get_normalized_observations(i, X), dtype=float)
+                    X = self.get_normalized_observations(i, X)
                     self.pca[i].fit(X)
 
                     R = np.array([j[2] for j in self.replay_buffer[i].buffer], dtype=float)
@@ -202,10 +202,10 @@ class MARLISA(SAC):
 
                     # update buffer with normalization
                     self.replay_buffer[i].buffer = [(
-                        np.hstack(self.pca[i].transform(np.array(self.get_normalized_observations(i, o), dtype=float).reshape(1,-1))[0]),
+                        np.hstack(self.pca[i].transform(self.get_normalized_observations(i, o).reshape(1,-1))[0]),
                         a,
                         self.get_normalized_reward(i, r),
-                        np.hstack(self.pca[i].transform(np.array(self.get_normalized_observations(i, n), dtype=float).reshape(1,-1))[0]),
+                        np.hstack(self.pca[i].transform(self.get_normalized_observations(i, n).reshape(1,-1))[0]),
                         d
                     ) for o, a, r, n, d in self.replay_buffer[i].buffer]
                     self.pca_flag[i] = True
@@ -302,9 +302,9 @@ class MARLISA(SAC):
             capacity_dispatched = 0.0
 
             for c, n, o, o_ in zip(action_order, next_agent_ixs, observations, observations):
-                o = np.array(self.get_encoded_observations(c, o), dtype=float)
+                o = self.get_encoded_observations(c, o)
                 o = np.hstack(np.concatenate((o, coordination_variables[c])))
-                o = np.array(self.get_normalized_observations(c, o), dtype=float)
+                o = self.get_normalized_observations(c, o)
                 o = self.pca[c].transform(o.reshape(1,-1))[0]
                 o = torch.FloatTensor(o).unsqueeze(0).to(self.device)
                 result = self.policy_net[i].sample(o)
@@ -330,8 +330,8 @@ class MARLISA(SAC):
         coordination_variables = [[0.0, 0.0] for _ in range(agent_count)]
 
         for i, o in enumerate(observations):
-            o = np.array(self.get_encoded_observations(i, o), dtype=float)
-            o = np.array(self.get_normalized_observations(i, o), dtype=float)
+            o = self.get_encoded_observations(i, o)
+            o = self.get_normalized_observations(i, o)
             o = self.pca[i].transform(o.reshape(1,-1))[0]
             o = torch.FloatTensor(o).unsqueeze(0).to(self.device)
             result = self.policy_net[i].sample(o)
