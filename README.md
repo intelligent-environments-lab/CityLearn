@@ -1,3 +1,9 @@
+# Annex 81 Subtask C3 Dataset Collection
+
+This repository contains source code to reproduce the CityLearn dataset submitted to the [Annex 81 Subtask C3 Dataset Collection](https://docs.google.com/forms/d/e/1FAIpQLSdqV6MxY0DiJUar9kdkXypXq7EhuhxLP9OzHaN7WjZ9xlFaOg/viewform?pli=1&pli=1) effort. It is a modification of [CityLearn v1.0.0](https://github.com/intelligent-environments-lab/CityLearn/releases/tag/v1.0.0) where the main change is the use of basic RBC for benchmarking instead of an optimized RBC.
+
+To reproduce the submitted dataset, install the requirements in [requirements.txt](requirements.txt), then run the [simulation.ipynb](annex81_subtask_c3_dataset/simulation.ipynb) notebook to simulate the CityLearn environment. Finally, run [dataset.ipynb] to output the dataset to the `annex81_subtask_c3_dataset/dataset` directory.
+
 # CityLearn
 CityLearn is an open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities. Its objective is to facilitiate and standardize the evaluation of RL agents such that different algorithms can be easily compared with each other. Try it out using our [example](https://drive.google.com/drive/folders/1oxdAMLTRA1qsLuwJbd5oo9yEmSjm6i64?usp=sharing) in Google Colab!
 ![Demand-response](https://github.com/intelligent-environments-lab/CityLearn/blob/master/images/dr.jpg)
