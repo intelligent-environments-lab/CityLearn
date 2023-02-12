@@ -279,8 +279,8 @@ class Building:
                 elec_consumption_cooling = np.array(self.electric_consumption_cooling)
                 elec_consumption_cooling_storage = np.array(self.electric_consumption_cooling_storage)
                 
-            self.net_electric_consumption = np.array(self.electric_consumption_appliances) + elec_consumption_cooling + elec_consumption_dhw - np.array(self.electric_generation) 
-            self.net_electric_consumption_no_storage = np.array(self.electric_consumption_appliances) + (elec_consumption_cooling - elec_consumption_cooling_storage) + (elec_consumption_dhw - elec_consumption_dhw_storage) - np.array(self.electric_generation)
+            self.net_electric_consumption = np.array(self.electric_consumption_appliances) + elec_consumption_cooling + elec_consumption_dhw + np.array(self.electrical_storage_electric_consumption) - np.array(self.electric_generation) 
+            self.net_electric_consumption_no_storage = np.array(self.electric_consumption_appliances) + (elec_consumption_cooling - elec_consumption_cooling_storage) + (elec_consumption_dhw - elec_consumption_dhw_storage) - np.array(self.electrical_storage_electric_consumption) - np.array(self.electric_generation)
             self.net_electric_consumption_no_pv_no_storage = np.array(self.net_electric_consumption_no_storage) + np.array(self.electric_generation)
                 
             self.cooling_demand_building = np.array(self.cooling_demand_building)
