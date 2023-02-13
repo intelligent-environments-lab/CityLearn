@@ -1,3 +1,4 @@
+import inspect
 import math
 from typing import List, Mapping, Union
 from gym import spaces
@@ -76,6 +77,12 @@ class Building(Environment):
         self.__observation_epsilon = 0.0 # to avoid out of bound observations
         self.observation_space = self.estimate_observation_space()
         self.action_space = self.estimate_action_space()
+
+        arg_spec = inspect.getfullargspec(super().__init__)
+        kwargs = {
+            key:value for (key, value) in kwargs.items()
+            if (key in arg_spec.args or (arg_spec.varkw is not None))
+        }
         super().__init__(**kwargs)
 
     @property
@@ -243,7 +250,7 @@ class Building(Environment):
 
     @property
     def net_electricity_consumption_without_storage_and_pv(self) -> np.ndarray:
-        """Net electricity consumption in the absence of flexibility provided by `cooling_storage` and self generation time series, in [kWh]. 
+        """Net electricity consumption in the absence of flexibility provided by storage devices and self generation time series, in [kWh]. 
         
         Notes
         -----
@@ -325,7 +332,7 @@ class Building(Environment):
 
     @property
     def dhw_electricity_consumption(self) -> List[float]:
-        """`dhw_device` net electricity consumption in meeting domestic hot water and `dhw_stoage` energy demand time series, in [kWh]. 
+        """`dhw_device` net electricity consumption in meeting domestic hot water and `dhw_storage` energy demand time series, in [kWh]. 
         
         Positive values indicate `dhw_device` electricity consumption to charge `dhw_storage` and/or meet `dhw_demand` while negative values indicate avoided `dhw_device` 
         electricity consumption by discharging `dhw_storage` to meet `dhw_demand`.
@@ -761,8 +768,8 @@ class Building(Environment):
             elif key in ['cooling_demand', 'heating_demand']:
                 low_limit.append(0.0)
                 energy_simulation = vars(self)[f'_Building__energy_simulation']
-                demand = vars(energy_simulation)[key].max()
-                high_limit.append(demand*2.5)
+                max_demand = vars(energy_simulation)[key].max()
+                high_limit.append(max_demand*2.5)
 
             else:
                 low_limit.append(min(data[key]))
@@ -951,7 +958,7 @@ class Building(Environment):
         self.__cooling_electricity_consumption.append(cooling_consumption)
 
         # heating electricity consumption
-        heating_demand = self.heating_demand[self.time_step] + self.heating_storage.energy_balance[self.time_step]
+        heating_demand = self.energy_simulation.heating_demand[self.time_step] + self.heating_storage.energy_balance[self.time_step]
 
         if isinstance(self.heating_device, HeatPump):
             heating_consumption = self.heating_device.get_input_power(heating_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], True)
@@ -961,7 +968,7 @@ class Building(Environment):
         self.__heating_electricity_consumption.append(heating_consumption)
 
         # dhw electricity consumption
-        dhw_demand = self.dhw_demand[self.time_step] + self.dhw_storage.energy_balance[self.time_step]
+        dhw_demand = self.energy_simulation.dhw_demand[self.time_step] + self.dhw_storage.energy_balance[self.time_step]
 
         if isinstance(self.dhw_device, HeatPump):
             dhw_consumption = self.dhw_device.get_input_power(dhw_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], True)
@@ -1100,7 +1107,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         # not sure if the action is a proportion of calculated ideal load or heatpump nominal power
         
         if self.energy_simulation.cooling_device_demand_schedule[self.time_step] > 0:
-            electric_power = min(action*self.cooling_device.nominal_power, self.cooling_device.nominal_power)
+            electric_power = action*self.cooling_device.nominal_power
             demand = self.cooling_device.get_max_output_power(
                 self.weather.outdoor_dry_bulb_temperature[self.time_step], 
                 heating=False, 
@@ -1113,19 +1120,19 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
 
     def update_heating_device(self, action: float):
         if self.energy_simulation.heating_device_demand_schedule[self.time_step] > 0:
-            electric_power = min(action*self.heating_device.nominal_power, self.heating_device.nominal_power)
+            electric_power = action*self.heating_device.nominal_power
             demand = self.heating_device.get_max_output_power(
                 self.weather.outdoor_dry_bulb_temperature[self.time_step], 
                 heating=True,
                 max_electric_power=electric_power
-            ) if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power()
+            ) if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power(max_electric_power=electric_power)
         else:
             demand = 0.0
 
         self.energy_simulation.heating_demand[self.time_step] = demand
         
     def __set_ideal_variables(self):
-        self.__ideal_cooling_demand = self.energy_simulation.cooling_demand
-        self.__ideal_heating_demand = self.energy_simulation.heating_demand
-        self.__ideal_dhw_demand = self.energy_simulation.dhw_demand
-        self.__ideal_indoor_dry_bulb_temperature = self.energy_simulation.indoor_dry_bulb_temperature
+        self.__ideal_cooling_demand = self.energy_simulation.cooling_demand.copy()
+        self.__ideal_heating_demand = self.energy_simulation.heating_demand.copy()
+        self.__ideal_dhw_demand = self.energy_simulation.dhw_demand.copy()
+        self.__ideal_indoor_dry_bulb_temperature = self.energy_simulation.indoor_dry_bulb_temperature.copy()
