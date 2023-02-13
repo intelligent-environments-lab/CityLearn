@@ -177,3 +177,5 @@ examples/*
 !examples/*.ipynb
 
 # test files
+annex81_subtask_c3_dataset/*
+!annex81_subtask_c3_dataset/*.ipynb
