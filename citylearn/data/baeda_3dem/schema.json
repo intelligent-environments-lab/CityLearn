@@ -2,7 +2,7 @@
   "root_directory": null,
   "central_agent": false,
   "simulation_start_time_step": 0,
-  "simulation_end_time_step": 2927,
+  "simulation_end_time_step": 2207,
   "episodes": 1,
   "seconds_per_time_step": 3600.0,
   "observations": {
@@ -204,23 +204,24 @@
     }
   },
   "agent": {
-    "type": "citylearn.agents.sac.SAC",
+    "type": "citylearn.agents.sac.SACBasicRBC",
     "attributes": {
       "hidden_dimension": [
         256,
         256
       ],
-      "discount": 0.99,
+      "discount": 0.9,
       "tau": 0.005,
-      "lr": 0.003,
-      "batch_size": 256,
+      "lr": 0.001,
+      "batch_size": 512,
       "replay_buffer_capacity": 100000.0,
-      "start_training_time_step": 6000,
-      "end_exploration_time_step": 7000,
-      "deterministic_start_time_step": 26280,
+      "start_training_time_step": 2208,
+      "end_exploration_time_step": 2209,
+      "deterministic_start_time_step": 44160,
       "action_scaling_coef": 0.5,
       "reward_scaling": 5.0,
-      "update_per_time_step": 2
+      "update_per_time_step": 2,
+      "alpha": 1.0
     }
   },
   "reward_function": {
@@ -234,7 +235,6 @@
       "weather": "weather.csv",
       "carbon_intensity": null,
       "pricing": "pricing.csv",
-      "type": "citylearn.building.LSTMDynamicsBuilding",
       "cooling_device": {
         "type": "citylearn.energy_model.HeatPump",
         "autosize": true,
@@ -304,12 +304,11 @@
       }
     },
     "Building_2": {
-      "include": true,
+      "include": false,
       "energy_simulation": "Building_2.csv",
       "weather": "weather.csv",
       "carbon_intensity": null,
       "pricing": "pricing.csv",
-      "type": "citylearn.building.LSTMDynamicsBuilding",
       "cooling_device": {
         "type": "citylearn.energy_model.HeatPump",
         "autosize": true,
@@ -379,12 +378,11 @@
       }
     },
     "Building_3": {
-      "include": true,
+      "include": false,
       "energy_simulation": "Building_3.csv",
       "weather": "weather.csv",
       "carbon_intensity": null,
       "pricing": "pricing.csv",
-      "type": "citylearn.building.LSTMDynamicsBuilding",
       "cooling_device": {
         "type": "citylearn.energy_model.HeatPump",
         "autosize": true,
@@ -454,12 +452,11 @@
       }
     },
     "Building_4": {
-      "include": true,
+      "include": false,
       "energy_simulation": "Building_4.csv",
       "weather": "weather.csv",
       "carbon_intensity": null,
       "pricing": "pricing.csv",
-      "type": "citylearn.building.LSTMDynamicsBuilding",
       "cooling_device": {
         "type": "citylearn.energy_model.HeatPump",
         "autosize": true,
