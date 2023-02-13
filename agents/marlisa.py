@@ -235,31 +235,31 @@ class MARLISA:
                     hour_day = state[2]
                     a_dim = len(self.action_spaces[uid].sample())
         
-                    act = [0.0 for _ in range(a_dim)]
-                    if hour_day >= 7 and hour_day <= 11:
-                        act = [-0.05 * multiplier for _ in range(a_dim)]
-                    elif hour_day >= 12 and hour_day <= 15:
-                        act = [-0.05 * multiplier for _ in range(a_dim)]
-                    elif hour_day >= 16 and hour_day <= 18:
-                        act = [-0.11 * multiplier for _ in range(a_dim)]
-                    elif hour_day >= 19 and hour_day <= 22:
-                        act = [-0.06 * multiplier for _ in range(a_dim)]
+                    # act = [0.0 for _ in range(a_dim)]
+                    # if hour_day >= 7 and hour_day <= 11:
+                    #     act = [-0.05 * multiplier for _ in range(a_dim)]
+                    # elif hour_day >= 12 and hour_day <= 15:
+                    #     act = [-0.05 * multiplier for _ in range(a_dim)]
+                    # elif hour_day >= 16 and hour_day <= 18:
+                    #     act = [-0.11 * multiplier for _ in range(a_dim)]
+                    # elif hour_day >= 19 and hour_day <= 22:
+                    #     act = [-0.06 * multiplier for _ in range(a_dim)]
 
-                    # Early nightime: store DHW and/or cooling energy
-                    if hour_day >= 23 and hour_day <= 24:
-                        act = [0.085 * multiplier for _ in range(a_dim)]
-                    elif hour_day >= 1 and hour_day <= 6:
-                        act = [0.1383 * multiplier for _ in range(a_dim)]
+                    # # Early nightime: store DHW and/or cooling energy
+                    # if hour_day >= 23 and hour_day <= 24:
+                    #     act = [0.085 * multiplier for _ in range(a_dim)]
+                    # elif hour_day >= 1 and hour_day <= 6:
+                    #     act = [0.1383 * multiplier for _ in range(a_dim)]
                         
 
-#                     # Daytime: release stored energy
-#                     act = [0.0 for _ in range(a_dim)]
-#                     if hour_day >= 9 and hour_day <= 21:
-#                         act = [-0.08 for _ in range(a_dim)]
+                    # Daytime: release stored energy
+                    act = [0.0 for _ in range(a_dim)]
+                    if hour_day >= 9 and hour_day <= 21:
+                        act = [-0.08 for _ in range(a_dim)]
                     
-#                     # Early nightime: store DHW and/or cooling energy
-#                     if (hour_day >= 1 and hour_day <= 8) or (hour_day >= 22 and hour_day <= 24):
-#                         act = [0.091 for _ in range(a_dim)]
+                    # Early nightime: store DHW and/or cooling energy
+                    if (hour_day >= 1 and hour_day <= 8) or (hour_day >= 22 and hour_day <= 24):
+                        act = [0.091 for _ in range(a_dim)]
                         
                 else:
                     act = self.action_scaling_coef*self.action_spaces[uid].sample()
