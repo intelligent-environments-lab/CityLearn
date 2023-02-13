@@ -1,77 +1,31 @@
 from typing import Any, List, Mapping
 import numpy as np
+from citylearn.citylearn import CityLearnEnv
 
 class RewardFunction:
-    def __init__(self, agent_count: int, electricity_consumption: List[float] = None, carbon_emission: List[float] = None, electricity_price: List[float] = None, **kwargs):
+    def __init__(self, env: CityLearnEnv, **kwargs):
         r"""Initialize `Reward`.
 
         Parameters
         ----------
-        agent_count: int
-            Number of agents.
-        electricity_consumption: List[float]
-            Buildings' electricity consumption in [kWh].
-        carbon_emission: List[float], optional
-            Buildings' carbon emissions in [kg_co2].
-        electricity_price: List[float], optional
-            Buildings' electricity prices in [$].
+        env: citylearn.citylearn.CityLearnEnv
+            Simulation environment.
         **kwargs : dict
             Other keyword arguments for custom reward calculation.
         """
 
-        self.agent_count = agent_count
-        self.electricity_consumption = electricity_consumption
-        self.carbon_emission = carbon_emission
-        self.electricity_price = electricity_price
+        self.env = env
         self.kwargs = kwargs
 
     @property
-    def agent_count(self) -> int:
-        """Number of agents."""
+    def env(self) -> CityLearnEnv:
+        """Simulation environment."""
 
-        return self.__agent_count
+        return self.__env
 
-    @property
-    def electricity_consumption(self) -> List[float]:
-        """Buildings' electricity consumption in [kWh]."""
-
-        return self.__electricity_consumption
-
-    @property
-    def carbon_emission(self) -> List[float]:
-        """Buildings' carbon emissions in [kg_co2]."""
-
-        return self.__carbon_emission
-
-    @property
-    def electricity_price(self) -> List[float]:
-        """Buildings' electricity prices in [$]."""
-
-        return self.__electricity_price
-
-    @property
-    def kwargs(self) ->Mapping[Any,Any]:
-        return self.__kwargs
-
-    @agent_count.setter
-    def agent_count(self, agent_count: int):
-        self.__agent_count = agent_count
-
-    @electricity_consumption.setter
-    def electricity_consumption(self, electricity_consumption: List[float]):
-        self.__electricity_consumption = [np.nan]*self.agent_count if electricity_consumption is None else electricity_consumption
-
-    @carbon_emission.setter
-    def carbon_emission(self, carbon_emission: List[float]):
-        self.__carbon_emission = [np.nan]*self.agent_count if carbon_emission is None else carbon_emission
-
-    @electricity_price.setter
-    def electricity_price(self, electricity_price: List[float]):
-        self.__electricity_price = [np.nan]*self.agent_count if electricity_price is None else electricity_price
-
-    @kwargs.setter
-    def kwargs(self, kwargs: Mapping[Any, Any]):
-        self.__kwargs = kwargs
+    @env.setter
+    def env(self, env: CityLearnEnv):
+        self.__env = env
 
     def calculate(self) -> List[float]:
         r"""Calculates default reward.
@@ -82,12 +36,16 @@ class RewardFunction:
         where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
         """
 
-        return (np.array(self.electricity_consumption)*-1).clip(max=0).tolist()
+        if self.env.central_agent:
+            reward = [min(self.env.net_electricity_consumption[self.env.time_step]*-1, 0)]
+        else:
+            reward = [min(b.net_electricity_consumption[b.time_step]*-1, 0) for b in self.env.buildings]
 
-    
+        return reward
+
 class MARL(RewardFunction):
-    def __init__(self, agent_count: int, electricity_consumption: List[float] = None, **kwargs):
-        super().__init__(agent_count, electricity_consumption=electricity_consumption, **kwargs)
+    def __init__(self, env: CityLearnEnv):
+        super().__init__(env)
 
     def calculate(self) -> List[float]:
         r"""Calculates MARL reward.
@@ -98,14 +56,14 @@ class MARL(RewardFunction):
         where :math:`e` is the building `electricity_consumption` and :math:`E` is the district `electricity_consumption`.
         """
 
-        total_electricity_consumption = sum(electricity_consumption)
-        electricity_consumption = np.array(electricity_consumption)*-1
-        reward = np.sign(electricity_consumption)*0.01*electricity_consumption**2*np.nanmax(0, total_electricity_consumption)
+        district_electricity_consumption = self.env.net_electricity_consumption[self.env.time_step]
+        building_electricity_consumption = np.array([b.net_electricity_consumption[b.time_step]*-1 for b in self.env.buildings])
+        reward = np.sign(building_electricity_consumption)*0.01*building_electricity_consumption**2*np.nanmax(0, district_electricity_consumption)
         return reward.tolist()
 
 class IndependentSACReward(RewardFunction):
-    def __init__(self, agent_count: int, electricity_consumption: List[float] = None, **kwargs):
-        super().__init__(agent_count, electricity_consumption=electricity_consumption, **kwargs)
+    def __init__(self, env: CityLearnEnv):
+        super().__init__(env)
 
     def calculate(self) -> List[float]:
         r"""Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.
@@ -118,5 +76,77 @@ class IndependentSACReward(RewardFunction):
         where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
         """
 
-        electricity_consumption = np.array(self.electricity_consumption)*-1**3
-        return electricity_consumption.clip(max=0).tolist()
+        return [min(b.net_electricity_consumption[b.time_step]*-1**3, 0) for b in self.env.buildings]
+
+class BuildingDynamicsReward(RewardFunction):
+    def __init__(self, env: CityLearnEnv):
+        super().__init__(env)
+
+    def calculate(self) -> List[float]:
+        r"""Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.
+
+        Recommended for use with the `SAC` controllers.
+
+        Notes
+        -----
+        Reward value is calculated as :math:`[\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]` 
+        where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
+        """
+
+        comfort_reward = self.calculate_comfort_reward()
+        storage_reward = self.calculate_storage_reward()
+        peak_reward = self.calculate_peak_reward()
+
+        if self.env.central_agent:
+            reward = [sum(comfort_reward) + sum(storage_reward) + sum(peak_reward)]
+        else:
+            reward = [sum([c, s, p]) for c, s, p in zip(comfort_reward, storage_reward, peak_reward)]
+
+        return reward
+
+    def calculate_comfort_reward(self) -> List[float]:
+        coefficient = 0.12
+        comfort_band = 2.0 # C
+        rewards = []
+
+        for b in self.env.buildings:
+            indoor_dry_bulb_temperature = b.energy_simulation.indoor_dry_bulb_temperature[b.time_step]
+            indoor_dry_bulb_temperature_set_point = b.energy_simulation.cooling_dry_bulb_temperature_set_point[b.time_step]
+            lower_bound_comfortable_indoor_dry_bulb_temperature = indoor_dry_bulb_temperature_set_point - comfort_band
+            upper_bound_comfortable_indoor_dry_bulb_temperature = indoor_dry_bulb_temperature_set_point + comfort_band
+            
+            if indoor_dry_bulb_temperature < lower_bound_comfortable_indoor_dry_bulb_temperature:
+                reward = -coefficient*(indoor_dry_bulb_temperature_set_point - indoor_dry_bulb_temperature)**3
+            
+            elif lower_bound_comfortable_indoor_dry_bulb_temperature <= indoor_dry_bulb_temperature < indoor_dry_bulb_temperature_set_point:
+                reward = -coefficient*(indoor_dry_bulb_temperature_set_point - indoor_dry_bulb_temperature)
+
+            elif indoor_dry_bulb_temperature_set_point <= indoor_dry_bulb_temperature < upper_bound_comfortable_indoor_dry_bulb_temperature:
+                reward = 0
+
+            else:
+                reward = -coefficient*(indoor_dry_bulb_temperature - indoor_dry_bulb_temperature_set_point)**2
+
+            rewards.append(reward)
+
+        return rewards
+
+    def calculate_storage_reward(self) -> List[float]:
+        cooling_storage_coefficient = 3
+        heating_storage_coefficient = 3
+        dhw_storage_coefficient = 2
+        electrical_storage_coefficient = 2
+        rewards = []
+
+        for b in self.env.buildings:
+            reward = 0
+            reward += max(0, (b.cooling_storage.soc[b.time_step] - b.cooling_storage.soc[b.time_step - 1])/b.cooling_storage.capacity)*cooling_storage_coefficient
+            reward += max(0, (b.heating_storage.soc[b.time_step] - b.heating_storage.soc[b.time_step - 1])/b.heating_storage.capacity)*heating_storage_coefficient
+            reward += max(0, (b.dhw_storage.soc[b.time_step] - b.dhw_storage.soc[b.time_step - 1])/b.dhw_storage.capacity)*dhw_storage_coefficient
+            reward += max(0, (b.electrical_storage.soc[b.time_step] - b.electrical_storage.soc[b.time_step - 1])/b.electrical_storage.capacity_history[0])*electrical_storage_coefficient
+            rewards.append(reward)
+
+        return rewards
+
+    def calculate_peak_reward(self) -> List[float]:
+        return [-b.net_electricity_consumption[b.time_step] for b in self.env.buildings]

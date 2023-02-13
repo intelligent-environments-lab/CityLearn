@@ -10,13 +10,12 @@ from citylearn.base import Environment
 from citylearn.building import Building
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
-from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 
 class CityLearnEnv(Environment, Env):
     def __init__(self, 
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: List[Building] = None, simulation_start_time_step: int = None, simulation_end_time_step: int = None, 
-        reward_function: RewardFunction = None, central_agent: bool = None, shared_observations: List[str] = None, **kwargs
+        reward_function: 'citylearn.reward_function.RewardFunction' = None, central_agent: bool = None, shared_observations: List[str] = None, **kwargs
     ):
         r"""Initialize `CityLearnEnv`.
 
@@ -33,7 +32,7 @@ class CityLearnEnv(Environment, Env):
             Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.
         end_time_step: int, optional
             Time step to end reading from data files. If provided, will override :code:`simulation_end_time_step` definition in schema.
-        reward_function: RewardFunction, optional
+        reward_function: citylearn.reward_function.RewardFunction, optional
             Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
         central_agent: bool, optional
             Expect 1 central agent to control all buildings. If provided, will override :code:`central` definition in schema.
@@ -98,7 +97,7 @@ class CityLearnEnv(Environment, Env):
         return (self.simulation_end_time_step - self.simulation_start_time_step) + 1
 
     @property
-    def reward_function(self) -> RewardFunction:
+    def reward_function(self) -> 'citylearn.reward_function.RewardFunction':
         """Reward function class instance."""
 
         return self.__reward_function
@@ -428,7 +427,7 @@ class CityLearnEnv(Environment, Env):
         self.__simulation_end_time_step = simulation_end_time_step
 
     @reward_function.setter
-    def reward_function(self, reward_function: RewardFunction):
+    def reward_function(self, reward_function: 'citylearn.reward_function.RewardFunction'):
         self.__reward_function = reward_function
 
     @central_agent.setter
@@ -462,7 +461,7 @@ class CityLearnEnv(Environment, Env):
         ]
 
 
-    def step(self, actions: List[List[float]]):
+    def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, Mapping[Any, Any]]:
         """Apply actions to `buildings` and advance to next time step.
         
         Parameters
@@ -495,27 +494,9 @@ class CityLearnEnv(Environment, Env):
             building.apply_actions(**building_actions)
 
         self.next_time_step()
-        reward = self.get_reward()
+        reward = self.reward_function.calculate()
         self.__rewards.append(reward)
         return self.observations, reward, self.done, self.get_info()
-
-    def get_reward(self) -> List[float]:
-        """Calculate agent(s) reward(s) using :attr:`reward_function`.
-        
-        Returns
-        -------
-        reward: List[float]
-            Reward for current observations. If `central_agent` is True, `reward` is a list of length = 1 else, `reward` has same length as `buildings`.
-        """
-
-        self.reward_function.electricity_consumption = [self.__net_electricity_consumption[self.time_step]] if self.central_agent\
-            else [b.net_electricity_consumption[self.time_step] for b in self.buildings]
-        self.reward_function.carbon_emission = [self.__net_electricity_consumption_emission[self.time_step]] if self.central_agent\
-            else [b.net_electricity_consumption_emission[self.time_step] for b in self.buildings]
-        self.reward_function.electricity_price = [self.__net_electricity_consumption_price[self.time_step]] if self.central_agent\
-            else [b.net_electricity_consumption_price[self.time_step] for b in self.buildings]
-        reward = self.reward_function.calculate()
-        return reward
 
     def get_info(self) -> Mapping[Any, Any]:
         return {}
@@ -736,7 +717,7 @@ class CityLearnEnv(Environment, Env):
         agent = agent_constructor(**agent_attributes)
         return agent
 
-    def __load(self, **kwargs) -> Tuple[List[Building], int, float, RewardFunction, bool, List[str]]:
+    def __load(self, **kwargs) -> Tuple[List[Building], int, float, 'citylearn.reward_function.RewardFunction', bool, List[str]]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
         
         Returns
@@ -814,7 +795,7 @@ class CityLearnEnv(Environment, Env):
                     action_metadata = {a: False if a in inactive_actions else True for a in actions}
 
                     # construct building
-                    building_type = building_schema['type']
+                    building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
                     building_type_module = '.'.join(building_type.split('.')[0:-1])
                     building_type_name = building_type.split('.')[-1]
                     building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
@@ -893,8 +874,7 @@ class CityLearnEnv(Environment, Env):
             reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
             reward_function_name = reward_function_type.split('.')[-1]
             reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
-            agent_count = 1 if central_agent else len(buildings)
-            reward_function = reward_function_constructor(agent_count=agent_count,**reward_function_attributes)
+            reward_function = reward_function_constructor(self,**reward_function_attributes)
 
         return root_directory, buildings, simulation_start_time_step, simulation_end_time_step, seconds_per_time_step, reward_function, central_agent, shared_observations
 
