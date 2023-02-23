@@ -1,8 +1,9 @@
 import importlib
+import logging
 import os
 from pathlib import Path
 from typing import Any, List, Mapping, Tuple, Union
-from gym import Env, spaces
+from gym import Env, spaces, Wrapper
 import numpy as np
 import pandas as pd
 from citylearn.agents.base import Agent
@@ -11,6 +12,10 @@ from citylearn.building import Building
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.utilities import read_json
+
+LOGGER = logging.getLogger()
+logging.getLogger('matplotlib.font_manager').disabled = True
+logging.getLogger('matplotlib.pyplot').disabled = True
 
 class CityLearnEnv(Environment, Env):
     def __init__(self, 
@@ -852,30 +857,36 @@ class CityLearnEnv(Environment, Env):
 
         return root_directory, buildings, simulation_start_time_step, simulation_end_time_step, seconds_per_time_step, reward_function, central_agent, shared_observations
 
-class CityLearnEnvStableBaselines3Wrapper(CityLearnEnv):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        assert self.central_agent, 'This wrapper is compatible only when env.central_agent=True.'\
-            ' Set central agent in schema.json to true and reinitialize the environment.'
+class StableBaselines3Wrapper(Wrapper):
+    def __init__(self, env: CityLearnEnv):
+        super().__init__(env)
 
+        if not self.env.central_agent:
+            logging.warning('The StableBaselines3Wrapper wrapper is compatible only when env.central_agent=True.'\
+                ' Note that env.central_agent has been set to True for compatibility.')
+            self.env.central_agent = True
+        
+        else:
+            pass
+        
     @CityLearnEnv.observation_space.getter
     def observation_space(self) -> spaces.Box:
-        return super().observation_space[0]
+        return self.env.observation_space[0]
 
     @CityLearnEnv.action_space.getter
     def action_space(self) -> spaces.Box:
-        return super().action_space[0]
+        return self.env.action_space[0]
 
     def step(self, actions: List[float]) -> Tuple[np.ndarray, float, bool, dict]:
         actions = [actions]
-        observations, reward, done, info = super().step(actions)
+        observations, reward, done, info = self.env.step(actions)
         observations = np.array(observations[0], dtype='float32')
         reward = reward[0]
 
         return observations, reward, done, info
 
     def reset(self) -> np.ndarray:
-        observations = np.array(super().reset()[0], dtype='float32')
+        observations = np.array(self.env.reset()[0], dtype='float32')
 
         return observations
 
