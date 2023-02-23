@@ -462,7 +462,7 @@ class CityLearnEnv(Environment, Env):
         ]
 
 
-    def step(self, actions: List[List[float]]):
+    def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, dict]:
         """Apply actions to `buildings` and advance to next time step.
         
         Parameters
@@ -483,7 +483,7 @@ class CityLearnEnv(Environment, Env):
             A boolean value for if the episode has ended, in which case further :meth:`step` calls will return undefined results.
             A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully,
             a certain timelimit was exceeded, or the physics simulation has entered an invalid observation.
-        info: Mapping[Any, Any]
+        info: dict
             A dictionary that may contain additional information regarding the reason for a ``done`` signal.
             `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
             Override :meth"`get_info` to get custom key-value pairs in `info`.
@@ -672,7 +672,7 @@ class CityLearnEnv(Environment, Env):
         super().next_time_step()
         self.update_variables()
 
-    def reset(self):
+    def reset(self) -> List[List[float]]:
         r"""Reset `CityLearnEnv` to initial state.
         
         Returns
@@ -871,6 +871,33 @@ class CityLearnEnv(Environment, Env):
             reward_function = reward_function_constructor(agent_count=agent_count,**reward_function_attributes)
 
         return root_directory, buildings, simulation_start_time_step, simulation_end_time_step, seconds_per_time_step, reward_function, central_agent, shared_observations
+
+class CityLearnEnvStableBaselines3Wrapper(CityLearnEnv):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert self.central_agent, 'This wrapper is compatible only when env.central_agent=True.'\
+            ' Set central agent in schema.json to true and reinitialize the environment.'
+
+    @CityLearnEnv.observation_space.getter
+    def observation_space(self) -> spaces.Box:
+        return super().observation_space[0]
+
+    @CityLearnEnv.action_space.getter
+    def action_space(self) -> spaces.Box:
+        return super().action_space[0]
+
+    def step(self, actions: List[float]) -> Tuple[np.ndarray, float, bool, dict]:
+        actions = [actions]
+        observations, reward, done, info = super().step(actions)
+        observations = np.array(observations[0], dtype='float32')
+        reward = reward[0]
+
+        return observations, reward, done, info
+
+    def reset(self) -> np.ndarray:
+        observations = np.array(super().reset()[0], dtype='float32')
+
+        return observations
 
 class Error(Exception):
     """Base class for other exceptions."""
