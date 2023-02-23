@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.citylearn &mdash; CityLearn 1.5.0 documentation</title>
+  <title>citylearn.citylearn &mdash; CityLearn 1.6.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -90,13 +90,12 @@
 <span class="kn">from</span> <span class="nn">citylearn.building</span> <span class="kn">import</span> <span class="n">Building</span>
 <span class="kn">from</span> <span class="nn">citylearn.cost_function</span> <span class="kn">import</span> <span class="n">CostFunction</span>
 <span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span><span class="p">,</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">Weather</span>
-<span class="kn">from</span> <span class="nn">citylearn.reward_function</span> <span class="kn">import</span> <span class="n">RewardFunction</span>
 <span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
 
 <div class="viewcode-block" id="CityLearnEnv"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv">[docs]</a><span class="k">class</span> <span class="nc">CityLearnEnv</span><span class="p">(</span><span class="n">Environment</span><span class="p">,</span> <span class="n">Env</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
         <span class="n">schema</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">root_directory</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">buildings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">simulation_start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">reward_function</span><span class="p">:</span> <span class="n">RewardFunction</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">central_agent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="n">reward_function</span><span class="p">:</span> <span class="s1">&#39;citylearn.reward_function.RewardFunction&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">central_agent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `CityLearnEnv`.</span>
 
@@ -113,7 +112,7 @@
 <span class="sd">            Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.</span>
 <span class="sd">        end_time_step: int, optional</span>
 <span class="sd">            Time step to end reading from data files. If provided, will override :code:`simulation_end_time_step` definition in schema.</span>
-<span class="sd">        reward_function: RewardFunction, optional</span>
+<span class="sd">        reward_function: citylearn.reward_function.RewardFunction, optional</span>
 <span class="sd">            Reward function class instance. If provided, will override :code:`reward_function` definition in schema.</span>
 <span class="sd">        central_agent: bool, optional</span>
 <span class="sd">            Expect 1 central agent to control all buildings. If provided, will override :code:`central` definition in schema.</span>
@@ -178,7 +177,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulation_end_time_step</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">reward_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RewardFunction</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">reward_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;citylearn.reward_function.RewardFunction&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reward function class instance.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__reward_function</span>
@@ -508,7 +507,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__simulation_end_time_step</span> <span class="o">=</span> <span class="n">simulation_end_time_step</span>
 
     <span class="nd">@reward_function</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">reward_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">:</span> <span class="n">RewardFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">reward_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">:</span> <span class="s1">&#39;citylearn.reward_function.RewardFunction&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__reward_function</span> <span class="o">=</span> <span class="n">reward_function</span>
 
     <span class="nd">@central_agent</span><span class="o">.</span><span class="n">setter</span>
@@ -542,7 +541,7 @@
         <span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="CityLearnEnv.step"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]):</span>
+<div class="viewcode-block" id="CityLearnEnv.step"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply actions to `buildings` and advance to next time step.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
@@ -563,7 +562,7 @@
 <span class="sd">            A boolean value for if the episode has ended, in which case further :meth:`step` calls will return undefined results.</span>
 <span class="sd">            A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully,</span>
 <span class="sd">            a certain timelimit was exceeded, or the physics simulation has entered an invalid observation.</span>
-<span class="sd">        info: Mapping[Any, Any]</span>
+<span class="sd">        info: dict</span>
 <span class="sd">            A dictionary that may contain additional information regarding the reason for a ``done`` signal.</span>
 <span class="sd">            `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).</span>
 <span class="sd">            Override :meth&quot;`get_info` to get custom key-value pairs in `info`.</span>
@@ -575,27 +574,9 @@
             <span class="n">building</span><span class="o">.</span><span class="n">apply_actions</span><span class="p">(</span><span class="o">**</span><span class="n">building_actions</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
-        <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reward</span><span class="p">()</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="CityLearnEnv.get_reward"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_reward">[docs]</a>    <span class="k">def</span> <span class="nf">get_reward</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate agent(s) reward(s) using :attr:`reward_function`.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        reward: List[float]</span>
-<span class="sd">            Reward for current observations. If `central_agent` is True, `reward` is a list of length = 1 else, `reward` has same length as `buildings`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span><span class="o">.</span><span class="n">electricity_consumption</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_agent</span>\
-            <span class="k">else</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span><span class="o">.</span><span class="n">carbon_emission</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption_emission</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_agent</span>\
-            <span class="k">else</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span><span class="o">.</span><span class="n">electricity_price</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption_price</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_agent</span>\
-            <span class="k">else</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_price</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
-        <span class="n">reward</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">reward</span></div>
 
 <div class="viewcode-block" id="CityLearnEnv.get_info"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{}</span></div>
@@ -752,7 +733,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_variables</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CityLearnEnv.reset"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CityLearnEnv.reset"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `CityLearnEnv` to initial state.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
@@ -816,7 +797,7 @@
         <span class="n">agent</span> <span class="o">=</span> <span class="n">agent_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">agent_attributes</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">agent</span></div>
 
-    <span class="k">def</span> <span class="nf">__load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">RewardFunction</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">__load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">],</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="s1">&#39;citylearn.reward_function.RewardFunction&#39;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
@@ -827,7 +808,7 @@
 <span class="sd">            Number of simulation time steps.</span>
 <span class="sd">        seconds_per_time_step: float</span>
 <span class="sd">            Number of seconds in 1 `time_step` and must be set to &gt;= 1.</span>
-<span class="sd">        reward_function : RewardFunction</span>
+<span class="sd">        reward_function : citylearn.reward_function.RewardFunction</span>
 <span class="sd">            Reward function class instance.</span>
 <span class="sd">        central_agent : bool, optional</span>
 <span class="sd">            Expect 1 central agent to control all building storage device.</span>
@@ -947,10 +928,36 @@
             <span class="n">reward_function_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reward_function_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">reward_function_name</span> <span class="o">=</span> <span class="n">reward_function_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">reward_function_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">reward_function_module</span><span class="p">),</span> <span class="n">reward_function_name</span><span class="p">)</span>
-            <span class="n">agent_count</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">central_agent</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">buildings</span><span class="p">)</span>
-            <span class="n">reward_function</span> <span class="o">=</span> <span class="n">reward_function_constructor</span><span class="p">(</span><span class="n">agent_count</span><span class="o">=</span><span class="n">agent_count</span><span class="p">,</span><span class="o">**</span><span class="n">reward_function_attributes</span><span class="p">)</span>
+            <span class="n">reward_function</span> <span class="o">=</span> <span class="n">reward_function_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">reward_function_attributes</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">root_directory</span><span class="p">,</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">simulation_start_time_step</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">,</span> <span class="n">central_agent</span><span class="p">,</span> <span class="n">shared_observations</span></div>
+
+<div class="viewcode-block" id="CityLearnEnvStableBaselines3Wrapper"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnvStableBaselines3Wrapper">[docs]</a><span class="k">class</span> <span class="nc">CityLearnEnvStableBaselines3Wrapper</span><span class="p">(</span><span class="n">CityLearnEnv</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_agent</span><span class="p">,</span> <span class="s1">&#39;This wrapper is compatible only when env.central_agent=True.&#39;</span>\
+            <span class="s1">&#39; Set central agent in schema.json to true and reinitialize the environment.&#39;</span>
+
+    <span class="nd">@CityLearnEnv</span><span class="o">.</span><span class="n">observation_space</span><span class="o">.</span><span class="n">getter</span>
+    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">observation_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@CityLearnEnv</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">getter</span>
+    <span class="k">def</span> <span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="CityLearnEnvStableBaselines3Wrapper.step"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnvStableBaselines3Wrapper.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">actions</span><span class="p">]</span>
+        <span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="n">reward</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">info</span></div>
+
+<div class="viewcode-block" id="CityLearnEnvStableBaselines3Wrapper.reset"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnvStableBaselines3Wrapper.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">observations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">observations</span></div></div>
 
 <div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for other exceptions.&quot;&quot;&quot;</span></div>
