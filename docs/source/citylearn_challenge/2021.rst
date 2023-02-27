@@ -8,7 +8,7 @@ The CityLearn Challenge 2021
 
 .. note::
 
-    The CityLearn Challenge 2021 used The CityLearn Challenge 2021 dataset :cite:p:`T8/Q2EIQC_2021` and `CityLearn v1.0.0 <https://github.com/intelligent-environments-lab/CityLearn/tree/v1.0.0>`_. To install this CityLearn version, run:
+    The CityLearn Challenge 2021 :cite:p:`10.1145/3486611.3492226` used The CityLearn Challenge 2021 dataset :cite:p:`T8/Q2EIQC_2021` and `CityLearn v1.0.0 <https://github.com/intelligent-environments-lab/CityLearn/tree/v1.0.0>`_. To install this CityLearn version, run:
 
     .. code-block:: bash
 
