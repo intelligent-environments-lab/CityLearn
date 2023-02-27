@@ -8,7 +8,7 @@ The CityLearn Challenge 2020
 
 .. note::
 
-    The CityLearn Challenge 2020 used The CityLearn Challenge 2020 dataset :cite:p:`T8/ZQKK6E_2020` and `CityLearn v1.0.0 <https://github.com/intelligent-environments-lab/CityLearn/tree/v1.0.0>`_. To install this CityLearn version, run:
+    The CityLearn Challenge 2020 :cite:p:`10.1145/3408308.3431122` used The CityLearn Challenge 2020 dataset :cite:p:`T8/ZQKK6E_2020` and `CityLearn v1.0.0 <https://github.com/intelligent-environments-lab/CityLearn/tree/v1.0.0>`_. To install this CityLearn version, run:
 
     .. code-block:: bash
 
