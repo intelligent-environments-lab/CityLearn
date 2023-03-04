@@ -25,7 +25,6 @@ Submodules
    citylearn.citylearn
    citylearn.cost_function
    citylearn.data
-   citylearn.dynamics
    citylearn.energy_model
    citylearn.preprocessing
    citylearn.reward_function
