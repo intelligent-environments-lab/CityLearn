@@ -750,6 +750,7 @@ class Battery(ElectricDevice, StorageDevice):
 
     @capacity.setter
     def capacity(self, capacity: float):
+        capacity = 0.00001 if capacity is None or capacity == 0 else capacity
         StorageDevice.capacity.fset(self, capacity)
         self.__capacity_history.append(capacity)
 
