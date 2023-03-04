@@ -3,6 +3,7 @@ from pathlib import Path
 import shutil
 from typing import Iterable, List, Union
 import numpy as np
+
 from citylearn.utilities import read_json
 
 class DataSet:
@@ -67,24 +68,13 @@ class EnergySimulation:
         Total building space heating demand time series in [kWh].
     solar_generation : np.array
         Inverter output per 1 kW of PV system time series in [W/kW].
-    occupant_count: np.array
-        Building occupant count time series in [people].
-    cooling_dry_bulb_temperature_set_point: np.array
-        Zone volume-weighted average building dry bulb temperature cooling set point time series in [C].
-    heating_dry_bulb_temperature_set_point: np.array
-        Zone volume-weighted average building dry bulb temperature heating set point time series in [C].
-    cooling_device_demand_schedule: np.array
-        Cooling device availability schedule for meeting cooling demand time series in [On/Off].
-    heating_device_demand_schedule: np.array
-        Heating device availability schedule for meeting heating demand time series in [On/Off].
     """
 
     def __init__(
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
         daylight_savings_status: Iterable[int], indoor_dry_bulb_temperature: Iterable[float], average_unmet_cooling_setpoint_difference: Iterable[float], indoor_relative_humidity: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float],
-        solar_generation: Iterable[float], occupant_count: Iterable[int], cooling_dry_bulb_temperature_set_point: Iterable[int],
-        heating_dry_bulb_temperature_set_point: Iterable[int], cooling_device_demand_schedule: Iterable[int], heating_device_demand_schedule: Iterable[int]
+        solar_generation: Iterable[float]
     ):
         r"""Initialize `EnergySimulation`."""
 
@@ -100,11 +90,6 @@ class EnergySimulation:
         self.cooling_demand = np.array(cooling_demand, dtype = float)
         self.heating_demand = np.array(heating_demand, dtype = float)
         self.solar_generation = np.array(solar_generation, dtype = float)
-        self.occupant_count = np.array(occupant_count, dtype=float)
-        self.cooling_dry_bulb_temperature_set_point = np.array(cooling_dry_bulb_temperature_set_point, dtype=float)
-        self.heating_dry_bulb_temperature_set_point = np.array(heating_dry_bulb_temperature_set_point, dtype=float)
-        self.cooling_device_demand_schedule = np.array(cooling_device_demand_schedule, dtype=int)
-        self.heating_device_demand_schedule = np.array(heating_device_demand_schedule, dtype=int)
 
 class Weather:
     """`Building` `weather` data class.
