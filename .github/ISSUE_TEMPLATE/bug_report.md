@@ -7,32 +7,32 @@ assignees: kingsleynweye
 
 ---
 
-**Issue Description**
+## Issue Description
 
 Please provide a brief description of the issue.
 
-**Expected Behavior**
+## Expected Behavior
 
 Please describe what you expected to happen.
 
-**Actual Behavior**
+## Actual Behavior
 
 Please describe what actually happened.
 
-**Steps to Reproduce**
+## Steps to Reproduce
 
 Please provide detailed steps to reproduce the issue.
 
-**Environment**
+## Environment
 
 - CityLearn version:
 - Operating System:
 - Python version:
 
-**Possible Solution**
+## Possible Solution
 
 If you have any ideas for how to fix the issue, please describe them here.
 
-**Additional Notes**
+## Additional Notes
 
 Please provide any additional information that may be helpful in resolving this issue.
