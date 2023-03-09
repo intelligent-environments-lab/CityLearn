@@ -10,7 +10,7 @@ Please provide the issue number or link to the related issue, if applicable.
 
 Please list the changes introduced by this pull request.
 
-## *Screenshots
+## Screenshots
 
 Please provide any relevant screenshots, if applicable.
 
