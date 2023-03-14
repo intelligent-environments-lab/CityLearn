@@ -91,31 +91,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="agents">
+  <section id="agents">
 <h1>Agents<a class="headerlink" href="#agents" title="Permalink to this headline"></a></h1>
 <p>CityLearn supports centralized, decentralized-independent and decentralized-coordinated control architectures. In the centralized architecture, 1 agent controls all storage devices i.e. provides as many actions as storage devices in the district. In the decentralized-independent architecture, each building has it’s own unique agent and building agents do not share information i.e. each agent acts in isolation and provides as many actions as storage devices in the building it controls. The decentralized-coordinated architecture is similar to the decentralized-independent architecture with the exception of information sharing amongst agents.</p>
 <p>CityLearn provides implementations of rule-based control (RBC) and reinforcement learning control (RLC) algorithms. The rule-based control algorithms are in the <a class="reference internal" href="../api/citylearn.agents.rbc.html#module-citylearn.agents.rbc" title="citylearn.agents.rbc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.rbc</span></code></a> module, while there are two reinforcement learning modules: <a class="reference internal" href="../api/citylearn.agents.sac.html#module-citylearn.agents.sac" title="citylearn.agents.sac"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.sac</span></code></a> and <a class="reference internal" href="../api/citylearn.agents.marlisa.html#module-citylearn.agents.marlisa" title="citylearn.agents.marlisa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.marlisa</span></code></a>. The table below summarizes which control architectures the control algorithms support:</p>
