@@ -41,17 +41,24 @@ class BasicRBC(RBC):
 
         super().__init__(*args, **kwargs)
 
-    def select_actions(self, observations: List[List[float]]) -> List[List[float]]:
+    def select_actions(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         """Provide actions for current time step.
 
-        Notes
-        -----
-        The actions are designed such that the agent charges the controlled storage system(s) by 9.1% of its maximum capacity every hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity at every other hour.
-        
+        Parameters
+        ----------
+        observations: List[List[float]]
+            Environment observations
+        deterministic: bool, default: False
+            Wether to return purely exploitatative deterministic actions.
+
         Returns
         -------
         actions: List[float]
             Action values
+
+        Notes
+        -----
+        The actions are designed such that the agent charges the controlled storage system(s) by 9.1% of its maximum capacity every hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity at every other hour.
         """
 
         actions = []
@@ -80,17 +87,24 @@ class OptimizedRBC(BasicRBC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def select_actions(self, observations: List[List[float]]) -> List[List[float]]:
+    def select_actions(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         """Provide actions for current time step.
 
-        Notes
-        -----
-        The actions are designed such that the agent discharges the controlled storage system(s) by 2.0% of its maximum capacity every hour between 07:00 AM and 03:00 PM, discharges by 4.4% of its maximum capacity between 04:00 PM and 06:00 PM, discharges by 2.4% of its maximum capacity between 07:00 PM and 10:00 PM, charges by 3.4% of its maximum capacity between 11:00 PM to midnight and charges by 5.532% of its maximum capacity at every other hour.
-        
+        Parameters
+        ----------
+        observations: List[List[float]]
+            Environment observations
+        deterministic: bool, default: False
+            Wether to return purely exploitatative deterministic actions.
+
         Returns
         -------
         actions: List[float]
             Action values
+
+        Notes
+        -----
+        The actions are designed such that the agent discharges the controlled storage system(s) by 2.0% of its maximum capacity every hour between 07:00 AM and 03:00 PM, discharges by 4.4% of its maximum capacity between 04:00 PM and 06:00 PM, discharges by 2.4% of its maximum capacity between 07:00 PM and 10:00 PM, charges by 3.4% of its maximum capacity between 11:00 PM to midnight and charges by 5.532% of its maximum capacity at every other hour.
         """
 
         actions = []
@@ -128,17 +142,24 @@ class BasicBatteryRBC(BasicRBC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def select_actions(self, observations: List[List[float]]) -> List[List[float]]:
+    def select_actions(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         """Provide actions for current time step.
 
-        Notes
-        -----
-        The actions are optimized for electrical storage (battery) such that the agent charges the controlled storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, and discharges 6.7% of its maximum capacity at every other hour.
-        
+        Parameters
+        ----------
+        observations: List[List[float]]
+            Environment observations
+        deterministic: bool, default: False
+            Wether to return purely exploitatative deterministic actions.
+
         Returns
         -------
         actions: List[float]
             Action values
+
+        Notes
+        -----
+        The actions are optimized for electrical storage (battery) such that the agent charges the controlled storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, and discharges 6.7% of its maximum capacity at every other hour.
         """
 
         actions = []

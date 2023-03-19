@@ -94,14 +94,21 @@ class Agent(Environment):
         for i in range(len(self.action_space)):
             self.__actions[i][self.time_step] = actions[i]
 
-    def select_actions(self,  observations: List[List[float]]) -> List[List[float]]:
+    def select_actions(self,  observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         """Provide actions for current time step.
 
         Return randomly sampled actions from `action_space`.
         
+        Parameters
+        ----------
+        observations: List[List[float]]
+            Environment observations
+        deterministic: bool, default: False
+            Wether to return purely exploitatative deterministic actions.
+
         Returns
         -------
-        actions: List[List[float]]
+        actions: List[float]
             Action values
         """
 

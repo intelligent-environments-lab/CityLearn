@@ -12,7 +12,7 @@ def main():
     # simulation
     env = CityLearnEnv(schema)
     agent = env.load_agent()
-    simulator = Simulator(env, agent, 2, 5)
+    simulator = Simulator(env, agent, 2, logging_level=5)
     simulator.simulate()
 
     print(simulator.env_history)

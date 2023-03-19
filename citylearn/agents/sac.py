@@ -160,29 +160,38 @@ class SAC(RLC):
             else:
                 pass
 
-    def select_actions(self, observations: List[List[float]]):
+    def select_actions(self, observations: List[List[float]], deterministic: bool = None):
         r"""Provide actions for current time step.
 
         Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` >= :attr:`time_step` 
         else will use policy to sample actions.
-        
+
+        Parameters
+        ----------
+        observations: List[List[float]]
+            Environment observations
+        deterministic: bool, default: False
+            Wether to return purely exploitatative deterministic actions.
+
         Returns
         -------
-        actions: List[List[float]]
+        actions: List[float]
             Action values
         """
 
-        if self.time_step <= self.end_exploration_time_step:
-            actions = self.get_exploration_actions(observations)
-        
+        deterministic = False if deterministic is None else deterministic
+
+        if self.time_step > self.end_exploration_time_step or deterministic:
+            actions = self.get_post_exploration_actions(observations, deterministic)
+            
         else:
-            actions = self.get_post_exploration_actions(observations)
+            actions = self.get_exploration_actions(observations)
 
         self.actions = actions
         self.next_time_step()
         return actions
 
-    def get_post_exploration_actions(self, observations: List[List[float]]) -> List[List[float]]:
+    def get_post_exploration_actions(self, observations: List[List[float]], deterministic: bool) -> List[List[float]]:
         """Action sampling using policy, post-exploration time step"""
 
         actions = []
@@ -192,7 +201,7 @@ class SAC(RLC):
             o = self.get_normalized_observations(i, o)
             o = torch.FloatTensor(o).unsqueeze(0).to(self.device)
             result = self.policy_net[i].sample(o)
-            a = result[2] if self.time_step >= self.deterministic_start_time_step else result[0]
+            a = result[2] if self.time_step >= self.deterministic_start_time_step or deterministic else result[0]
             actions.append(a.detach().cpu().numpy()[0])
 
         return actions
