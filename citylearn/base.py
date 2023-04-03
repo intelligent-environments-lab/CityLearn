@@ -1,17 +1,21 @@
+import random
 import uuid
 
 class Environment:
-    def __init__(self, seconds_per_time_step: float = None):
+    def __init__(self, seconds_per_time_step: float = None, random_seed: int = None):
         """Initialize `Environment`.
 
         Attributes
         ----------
         seconds_per_time_step: float, default: 3600.0
            Number of seconds in 1 `time_step` and must be set to >= 1.
+        random_seed : int
+            Pseudorandom number generator seed for repeatable results.
         """
 
         self.seconds_per_time_step = seconds_per_time_step
         self.__uid = uuid.uuid4().hex
+        self.random_seed = random_seed
         self.__time_step = None
         self.reset()
 
@@ -20,6 +24,12 @@ class Environment:
         r"""Unique environment ID."""
 
         return self.__uid
+    
+    @property
+    def random_seed(self) -> int:
+        """Pseudorandom number generator seed for repeatable results."""
+
+        return self.__random_seed
 
     @property
     def time_step(self) -> int:
@@ -32,6 +42,11 @@ class Environment:
         r"""Number of seconds in 1 time step."""
 
         return self.__seconds_per_time_step
+    
+    @random_seed.setter
+    def random_seed(self, random_seed: int):
+        random_seed = random.randint(0, 100_000_000) if random_seed is None else random_seed
+        self.__random_seed = random_seed
 
     @seconds_per_time_step.setter
     def seconds_per_time_step(self, seconds_per_time_step: float):
