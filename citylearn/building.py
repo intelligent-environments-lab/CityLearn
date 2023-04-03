@@ -1,10 +1,12 @@
+import inspect
 import math
-from typing import List, Mapping, Union
+from typing import List, Mapping, Tuple, Union
 from gym import spaces
 import numpy as np
 from citylearn.base import Environment
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, StorageTank
+from citylearn.preprocessing import Normalize, PeriodicNormalization
 
 class Building(Environment):
     def __init__(
@@ -69,8 +71,16 @@ class Building(Environment):
         self.observation_metadata = observation_metadata
         self.action_metadata = action_metadata
         self.__observation_epsilon = 0.0 # to avoid out of bound observations
+        self.unnormalized_observation_space_limits = None
+        self.normalized_observation_space_limits = None
         self.observation_space = self.estimate_observation_space()
         self.action_space = self.estimate_action_space()
+
+        arg_spec = inspect.getfullargspec(super().__init__)
+        kwargs = {
+            key:value for (key, value) in kwargs.items()
+            if (key in arg_spec.args or (arg_spec.varkw is not None))
+        }
         super().__init__(**kwargs)
 
     @property
@@ -176,30 +186,6 @@ class Building(Environment):
         return self.__action_space
 
     @property
-    def observations(self) -> Mapping[str, float]:
-        """Observations at current time step."""
-
-        observations = {}
-        data = {
-            **{k: v[self.time_step] for k, v in vars(self.energy_simulation).items()},
-            **{k: v[self.time_step] for k, v in vars(self.weather).items()},
-            **{k: v[self.time_step] for k, v in vars(self.pricing).items()},
-            'solar_generation':self.pv.get_generation(self.energy_simulation.solar_generation[self.time_step]),
-            **{
-                'cooling_storage_soc':self.cooling_storage.soc[self.time_step]/self.cooling_storage.capacity,
-                'heating_storage_soc':self.heating_storage.soc[self.time_step]/self.heating_storage.capacity,
-                'dhw_storage_soc':self.dhw_storage.soc[self.time_step]/self.dhw_storage.capacity,
-                'electrical_storage_soc':self.electrical_storage.soc[self.time_step]/self.electrical_storage.capacity_history[0],
-            },
-            'net_electricity_consumption': self.__net_electricity_consumption[self.time_step],
-            **{k: v[self.time_step] for k, v in vars(self.carbon_intensity).items()},
-        }
-        observations = {k: data[k] for k in self.active_observations if k in data.keys()}
-        unknown_observations = list(set([k for k in self.active_observations]).difference(observations.keys()))
-        assert len(unknown_observations) == 0, f'Unkown observations: {unknown_observations}'
-        return observations
-
-    @property
     def active_observations(self) -> List[str]:
         """Observations in `observation_metadata` with True value i.e. obeservable."""
 
@@ -220,14 +206,14 @@ class Building(Environment):
         ).clip(min=0)
 
     @property
-    def net_electricity_consumption_without_storage_and_pv_price(self) -> np.ndarray:
+    def net_electricity_consumption_without_storage_and_pv_cost(self) -> np.ndarray:
         """net_electricity_consumption_without_storage_and_pv` cost time series, in [$]."""
 
         return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_pv
 
     @property
     def net_electricity_consumption_without_storage_and_pv(self) -> np.ndarray:
-        """Net electricity consumption in the absence of flexibility provided by `cooling_storage` and self generation time series, in [kWh]. 
+        """Net electricity consumption in the absence of flexibility provided by storage devices and self generation time series, in [kWh]. 
         
         Notes
         -----
@@ -243,7 +229,7 @@ class Building(Environment):
         return (self.carbon_intensity.carbon_intensity[0:self.time_step + 1]*self.net_electricity_consumption_without_storage).clip(min=0)
 
     @property
-    def net_electricity_consumption_without_storage_price(self) -> np.ndarray:
+    def net_electricity_consumption_without_storage_cost(self) -> np.ndarray:
         """`net_electricity_consumption_without_storage` cost time series, in [$]."""
 
         return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption_without_storage
@@ -271,10 +257,10 @@ class Building(Environment):
         return self.__net_electricity_consumption_emission
 
     @property
-    def net_electricity_consumption_price(self) -> List[float]:
+    def net_electricity_consumption_cost(self) -> List[float]:
         """`net_electricity_consumption` cost time series, in [$]."""
 
-        return self.__net_electricity_consumption_price
+        return self.__net_electricity_consumption_cost
 
     @property
     def net_electricity_consumption(self) -> List[float]:
@@ -309,7 +295,7 @@ class Building(Environment):
 
     @property
     def dhw_electricity_consumption(self) -> List[float]:
-        """`dhw_device` net electricity consumption in meeting domestic hot water and `dhw_stoage` energy demand time series, in [kWh]. 
+        """`dhw_device` net electricity consumption in meeting domestic hot water and `dhw_storage` energy demand time series, in [kWh]. 
         
         Positive values indicate `dhw_device` electricity consumption to charge `dhw_storage` and/or meet `dhw_demand` while negative values indicate avoided `dhw_device` 
         electricity consumption by discharging `dhw_storage` to meet `dhw_demand`.
@@ -529,6 +515,8 @@ class Building(Environment):
     @observation_space.setter
     def observation_space(self, observation_space: spaces.Box):
         self.__observation_space = observation_space
+        self.unnormalized_observation_space_limits = self.estimate_observation_space_limits(normalize=False)
+        self.normalized_observation_space_limits = self.estimate_observation_space_limits(normalize=True)
 
     @action_space.setter
     def action_space(self, action_space: spaces.Box):
@@ -538,102 +526,14 @@ class Building(Environment):
     def name(self, name: str):
         self.__name = self.uid if name is None else name
 
-    def apply_actions(self, cooling_storage_action: float = 0, heating_storage_action: float = 0, dhw_storage_action: float = 0, electrical_storage_action: float = 0):
-        r"""Charge/discharge storage devices.
+    def observations(self, normalize: bool = None) -> Mapping[str, float]:
+        r"""Observations at current time step.
 
         Parameters
         ----------
-        cooling_storage_action : float, default: 0
-            Fraction of `cooling_storage` `capacity` to charge/discharge by.
-        heating_storage_action : float, default: 0
-            Fraction of `heating_storage` `capacity` to charge/discharge by.
-        dhw_storage_action : float, default: 0
-            Fraction of `dhw_storage` `capacity` to charge/discharge by.
-        electrical_storage_action : float, default: 0
-            Fraction of `electrical_storage` `capacity` to charge/discharge by.
-        """
-
-        self.update_cooling(cooling_storage_action)
-        self.update_heating(heating_storage_action)
-        self.update_dhw(dhw_storage_action)
-        self.update_electrical_storage(electrical_storage_action)
-
-    def update_cooling(self, action: float = 0):
-        r"""Charge/discharge `cooling_storage`.
-
-        Parameters
-        ----------
-        action : float, default: 0
-            Fraction of `cooling_storage` `capacity` to charge/discharge by.
-        """
-
-        energy = action*self.cooling_storage.capacity
-        space_demand = self.energy_simulation.cooling_demand[self.time_step]
-        space_demand = 0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
-        max_output = self.cooling_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], False)
-        energy = max(-space_demand, min(max_output - space_demand, energy))
-        self.cooling_storage.charge(energy)
-        input_power = self.cooling_device.get_input_power(space_demand + energy, self.weather.outdoor_dry_bulb_temperature[self.time_step], False)
-        self.cooling_device.update_electricity_consumption(input_power)
-
-    def update_heating(self, action: float = 0):
-        r"""Charge/discharge `heating_storage`.
-
-        Parameters
-        ----------
-        action : float, default: 0
-            Fraction of `heating_storage` `capacity` to charge/discharge by.
-        """
-
-        energy = action*self.heating_storage.capacity
-        space_demand = self.energy_simulation.heating_demand[self.time_step]
-        space_demand = 0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
-        max_output = self.heating_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], False)\
-            if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power()
-        energy = max(-space_demand, min(max_output - space_demand, energy))
-        self.heating_storage.charge(energy)
-        demand = space_demand + energy
-        input_power = self.heating_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], False)\
-            if isinstance(self.heating_device, HeatPump) else self.heating_device.get_input_power(demand)
-        self.heating_device.update_electricity_consumption(input_power)
-
-    def update_dhw(self, action: float = 0):
-        r"""Charge/discharge `dhw_storage`.
-
-        Parameters
-        ----------
-        action : float, default: 0
-            Fraction of `dhw_storage` `capacity` to charge/discharge by.
-        """
-
-        energy = action*self.dhw_storage.capacity
-        space_demand = self.energy_simulation.dhw_demand[self.time_step]
-        space_demand = 0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
-        max_output = self.dhw_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], False)\
-            if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_max_output_power()
-        energy = max(-space_demand, min(max_output - space_demand, energy))
-        self.dhw_storage.charge(energy)
-        demand = space_demand + energy
-        input_power = self.dhw_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], False)\
-            if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_input_power(demand)
-        self.dhw_device.update_electricity_consumption(input_power) 
-
-    def update_electrical_storage(self, action: float = 0):
-        r"""Charge/discharge `electrical_storage`.
-
-        Parameters
-        ----------
-        action : float, default: 0
-            Fraction of `electrical_storage` `capacity` to charge/discharge by.
-        """
-
-        energy = action*self.electrical_storage.capacity
-        self.electrical_storage.charge(energy)
-
-    def estimate_observation_space(self) -> spaces.Box:
-        r"""Get estimate of observation spaces.
-
-        Find minimum and maximum possible values of all the observations, which can then be used by the RL agent to scale the observations and train any function approximators more effectively.
+        normalize : bool, default: False
+            Whether to apply min-max normalization bounded between [0, 1]
+            and periodic normalization to cyclic observations including hour, day_type and month.
 
         Returns
         -------
@@ -645,8 +545,229 @@ class Building(Environment):
         Lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate hence,
         scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.
         """
+        
+        normalize = False if normalize is None else normalize
 
-        low_limit, high_limit = [], []
+        observations = {}
+        data = {
+            **{k: v[self.time_step] for k, v in vars(self.energy_simulation).items()},
+            **{k: v[self.time_step] for k, v in vars(self.weather).items()},
+            **{k: v[self.time_step] for k, v in vars(self.pricing).items()},
+            'solar_generation':self.pv.get_generation(self.energy_simulation.solar_generation[self.time_step]),
+            **{
+                'cooling_storage_soc':self.cooling_storage.soc[self.time_step]/self.cooling_storage.capacity,
+                'heating_storage_soc':self.heating_storage.soc[self.time_step]/self.heating_storage.capacity,
+                'dhw_storage_soc':self.dhw_storage.soc[self.time_step]/self.dhw_storage.capacity,
+                'electrical_storage_soc':self.electrical_storage.soc[self.time_step]/self.electrical_storage.capacity_history[0],
+            },
+            'net_electricity_consumption': self.__net_electricity_consumption[self.time_step],
+            **{k: v[self.time_step] for k, v in vars(self.carbon_intensity).items()},
+        }
+        observations = {k: data[k] for k in self.active_observations if k in data.keys()}
+        unknown_observations = list(set([k for k in self.active_observations]).difference(observations.keys()))
+        assert len(unknown_observations) == 0, f'Unknown observations: {unknown_observations}'
+        
+        
+        if normalize:
+            observations_copy = {k: v for k, v in observations.items()}
+            observations = {}
+            low_limit, high_limit = self.normalized_observation_space_limits
+            periodic_observations = self.get_periodic_observation_metadata()
+            pn = PeriodicNormalization(x_max=0)
+            nm = Normalize(0.0, 1.0)
+            i = 0
+
+            for k, v in observations_copy.items():
+                if k in periodic_observations:
+                    pn.x_max = max(periodic_observations[k])
+                    sin_x, cos_x = v*pn
+                    nm.x_min = low_limit[f'{k}_cos']
+                    nm.x_max = high_limit[f'{k}_cos']
+                    observations[f'{k}_cos'] = cos_x*nm
+                    nm.x_min = low_limit[f'{k}_sin']
+                    nm.x_max = high_limit[f'{k}_sin']
+                    observations[f'{k}_sin'] = sin_x*nm
+                    i += 2
+                
+                else:
+                    nm.x_min = low_limit[k]
+                    nm.x_max = high_limit[k]
+                    observations[k] = v*nm
+                    i += 1
+        else:
+            pass
+
+        return observations
+    
+    def get_periodic_observation_metadata(self) -> Mapping[str, int]:
+        r"""Get periodic observation names and their minimum and maximum values for periodic/cyclic normalization.
+
+        Returns
+        -------
+        periodic_observation_metadata : Mapping[str, int]
+            Observation low and high limits.
+        """
+
+        return {
+            'hour': range(1, 25), 
+            'day_type': range(1, 9), 
+            'month': range(1, 13)
+        }
+
+    def apply_actions(self, 
+        cooling_storage_action: float = None, heating_storage_action: float = None, 
+        dhw_storage_action: float = None, electrical_storage_action: float = None
+    ):
+        r"""Charge/discharge storage devices.
+
+        Parameters
+        ----------
+        cooling_storage_action : float, default: 0.0
+            Fraction of `cooling_storage` `capacity` to charge/discharge by.
+        heating_storage_action : float, default: 0.0
+            Fraction of `heating_storage` `capacity` to charge/discharge by.
+        dhw_storage_action : float, default: 0.0
+            Fraction of `dhw_storage` `capacity` to charge/discharge by.
+        electrical_storage_action : float, default: 0.0
+            Fraction of `electrical_storage` `capacity` to charge/discharge by.
+        """
+
+        cooling_storage_action = 0.0 if cooling_storage_action is None or math.isnan(cooling_storage_action) else cooling_storage_action
+        heating_storage_action = 0.0 if heating_storage_action is None or math.isnan(heating_storage_action) else heating_storage_action
+        dhw_storage_action = 0.0 if dhw_storage_action is None or math.isnan(dhw_storage_action) else dhw_storage_action
+        electrical_storage_action = 0.0 if electrical_storage_action is None or math.isnan(electrical_storage_action) else electrical_storage_action
+        self.update_cooling(cooling_storage_action)
+        self.update_heating(heating_storage_action)
+        self.update_dhw(dhw_storage_action)
+        self.update_electrical_storage(electrical_storage_action)
+
+    def update_cooling(self, action: float = 0):
+        r"""Charge/discharge `cooling_storage`.
+
+        Parameters
+        ----------
+        action : float
+            Fraction of `cooling_storage` `capacity` to charge/discharge by.
+        """
+
+        energy = action*self.cooling_storage.capacity
+        space_demand = self.energy_simulation.cooling_demand[self.time_step]
+        space_demand = 0.0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
+        max_output = self.cooling_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False)
+        energy = max(-space_demand, min(max_output - space_demand, energy))
+        self.cooling_storage.charge(energy)
+        input_power = self.cooling_device.get_input_power(space_demand + energy, self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False)
+        self.cooling_device.update_electricity_consumption(input_power)
+
+    def update_heating(self, action: float):
+        r"""Charge/discharge `heating_storage`.
+
+        Parameters
+        ----------
+        action : float
+            Fraction of `heating_storage` `capacity` to charge/discharge by.
+        """
+
+        energy = action*self.heating_storage.capacity
+        space_demand = self.energy_simulation.heating_demand[self.time_step]
+        space_demand = 0.0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
+        max_output = self.heating_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True)\
+            if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power()
+        energy = max(-space_demand, min(max_output - space_demand, energy))
+        self.heating_storage.charge(energy)
+        demand = space_demand + energy
+        input_power = self.heating_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True)\
+            if isinstance(self.heating_device, HeatPump) else self.heating_device.get_input_power(demand)
+        self.heating_device.update_electricity_consumption(input_power)
+
+    def update_dhw(self, action: float):
+        r"""Charge/discharge `dhw_storage`.
+
+        Parameters
+        ----------
+        action : float
+            Fraction of `dhw_storage` `capacity` to charge/discharge by.
+        """
+
+        energy = action*self.dhw_storage.capacity
+        space_demand = self.energy_simulation.dhw_demand[self.time_step]
+        space_demand = 0.0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
+        max_output = self.dhw_device.get_max_output_power(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True)\
+            if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_max_output_power()
+        energy = max(-space_demand, min(max_output - space_demand, energy))
+        self.dhw_storage.charge(energy)
+        demand = space_demand + energy
+        input_power = self.dhw_device.get_input_power(demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True)\
+            if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_input_power(demand)
+        self.dhw_device.update_electricity_consumption(input_power) 
+
+    def update_electrical_storage(self, action: float):
+        r"""Charge/discharge `electrical_storage`.
+
+        Parameters
+        ----------
+        action : float
+            Fraction of `electrical_storage` `capacity` to charge/discharge by.
+        """
+
+        energy = action*self.electrical_storage.capacity
+        self.electrical_storage.charge(energy)
+
+    def estimate_observation_space(self, normalize: bool = None) -> spaces.Box:
+        r"""Get estimate of observation spaces.
+
+        Parameters
+        ----------
+        normalize : bool, default: False
+            Whether to apply min-max normalization bounded between [0, 1]
+            and periodic normalization to cyclic observations including hour, day_type and month.
+
+        Returns
+        -------
+        observation_space : spaces.Box
+            Observation low and high limits.
+        """
+
+        normalize = False if normalize is None else normalize
+        normalized_observation_space_limits = self.estimate_observation_space_limits(normalize=True)
+        unnormalized_observation_space_limits = self.estimate_observation_space_limits(normalize=False)
+
+        if normalize:
+            low_limit, high_limit = normalized_observation_space_limits
+            low_limit = [0.0]*len(low_limit)
+            high_limit = [1.0]*len(high_limit)
+        else:
+            low_limit, high_limit = unnormalized_observation_space_limits
+            low_limit = list(low_limit.values())
+            high_limit = list(high_limit.values())
+        
+        return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
+    
+    def estimate_observation_space_limits(self, normalize: bool = None) -> Tuple[Mapping[str, float], Mapping[str, float]]:
+        r"""Get estimate of observation space limits.
+
+        Find minimum and maximum possible values of all the observations, which can then be used by the RL agent to scale the observations and train any function approximators more effectively.
+
+        Parameters
+        ----------
+        normalize : bool, default: False
+            Whether to apply min-max normalization bounded between [0, 1]
+            and periodic normalization to cyclic observations including hour, day_type and month.
+
+        Returns
+        -------
+        observation_space_limits : Tuple[Mapping[str, float], Mapping[str, float]]
+            Observation low and high limits.
+
+        Notes
+        -----
+        Lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate hence,
+        scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.
+        """
+
+        normalize = False if normalize is None else normalize
+        periodic_observations = self.get_periodic_observation_metadata()
+        low_limit, high_limit = {}, {}
         data = {
             'solar_generation':np.array(self.pv.get_generation(self.energy_simulation.solar_generation)),
             **vars(self.energy_simulation),
@@ -661,26 +782,33 @@ class Building(Environment):
                     + (self.energy_simulation.dhw_demand)\
                         + self.energy_simulation.cooling_demand\
                             + self.energy_simulation.heating_demand\
-                                + (self.dhw_storage.capacity/0.8)\
-                                    + (self.cooling_storage.capacity/0.8)\
-                                        + (self.heating_storage.capacity/0.8)\
-                                            + (self.electrical_storage.capacity/0.8)\
+                                + (self.energy_simulation.dhw_demand/self.dhw_storage.efficiency)\
+                                    + (self.energy_simulation.cooling_demand/self.cooling_storage.efficiency)\
+                                        + (self.energy_simulation.heating_demand/self.heating_storage.efficiency)\
+                                            + (self.electrical_storage.nominal_power/self.electrical_storage.efficiency_history[0])\
                                                 - data['solar_generation']
     
-                low_limit.append(-max(abs(net_electric_consumption)))
-                high_limit.append(max(abs(net_electric_consumption)))
+                low_limit[key] = -max(abs(net_electric_consumption))
+                high_limit[key] = max(abs(net_electric_consumption))
 
             elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc']:
-                low_limit.append(0.0)
-                high_limit.append(1.0)
+                low_limit[key] = 0.0
+                high_limit[key] = 1.0
+
+            elif key in periodic_observations and normalize:
+                pn = PeriodicNormalization(max(periodic_observations[key]))
+                x_sin, x_cos = pn*np.array(list(periodic_observations[key]))
+                low_limit[f'{key}_cos'], high_limit[f'{key}_cos'] = min(x_cos), max(x_cos)
+                low_limit[f'{key}_sin'], high_limit[f'{key}_sin'] = min(x_sin), max(x_sin)
 
             else:
-                low_limit.append(min(data[key]))
-                high_limit.append(max(data[key]))
+                low_limit[key] = min(data[key])
+                high_limit[key] = max(data[key])
 
-        low_limit = [v - self.__observation_epsilon for v in low_limit]
-        high_limit = [v + self.__observation_epsilon for v in high_limit]
-        return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
+        low_limit = {k: v - self.__observation_epsilon for k, v in low_limit.items()}
+        high_limit = {k: v + self.__observation_epsilon for k, v in high_limit.items()}
+
+        return low_limit, high_limit
     
     def estimate_action_space(self) -> spaces.Box:
         r"""Get estimate of action spaces.
@@ -704,12 +832,13 @@ class Building(Environment):
  
         for key in self.active_actions:
             if key == 'electrical_storage':
-                low_limit.append(-1.0)
-                high_limit.append(1.0)
+                limit = self.electrical_storage.nominal_power/self.electrical_storage.capacity
+                low_limit.append(-limit)
+                high_limit.append(limit)
             
             else:
-                capacity = vars(self)[f'_{self.__class__.__name__}__{key}'].capacity
-                energy_simulation = vars(self)[f'_{self.__class__.__name__}__energy_simulation']
+                capacity = vars(self)[f'_Building__{key}'].capacity
+                energy_simulation = vars(self)[f'_Building__energy_simulation']
                 maximum_demand = vars(energy_simulation)[f'{key.split("_")[0]}_demand'].max()
                 maximum_demand_ratio = maximum_demand/capacity
 
@@ -847,30 +976,30 @@ class Building(Environment):
         self.__solar_generation = self.pv.get_generation(self.energy_simulation.solar_generation)*-1
         self.__net_electricity_consumption = []
         self.__net_electricity_consumption_emission = []
-        self.__net_electricity_consumption_price = []
+        self.__net_electricity_consumption_cost = []
         self.update_variables()
 
     def update_variables(self):
         # cooling electricity consumption
         cooling_demand = self.energy_simulation.cooling_demand[self.time_step] + self.cooling_storage.energy_balance[self.time_step]
-        cooling_consumption = self.cooling_device.get_input_power(cooling_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], False)
+        cooling_consumption = self.cooling_device.get_input_power(cooling_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False)
         self.__cooling_electricity_consumption.append(cooling_consumption)
 
         # heating electricity consumption
-        heating_demand = self.heating_demand[self.time_step] + self.heating_storage.energy_balance[self.time_step]
+        heating_demand = self.energy_simulation.heating_demand[self.time_step] + self.heating_storage.energy_balance[self.time_step]
 
         if isinstance(self.heating_device, HeatPump):
-            heating_consumption = self.heating_device.get_input_power(heating_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], True)
+            heating_consumption = self.heating_device.get_input_power(heating_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True)
         else:
             heating_consumption = self.dhw_device.get_input_power(heating_demand)
 
         self.__heating_electricity_consumption.append(heating_consumption)
 
         # dhw electricity consumption
-        dhw_demand = self.dhw_demand[self.time_step] + self.dhw_storage.energy_balance[self.time_step]
+        dhw_demand = self.energy_simulation.dhw_demand[self.time_step] + self.dhw_storage.energy_balance[self.time_step]
 
         if isinstance(self.dhw_device, HeatPump):
-            dhw_consumption = self.dhw_device.get_input_power(dhw_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], True)
+            dhw_consumption = self.dhw_device.get_input_power(dhw_demand, self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True)
         else:
             dhw_consumption = self.dhw_device.get_input_power(dhw_demand)
 
@@ -885,8 +1014,8 @@ class Building(Environment):
                             + self.__solar_generation[self.time_step]
         self.__net_electricity_consumption.append(net_electricity_consumption)
 
-        # net electriciy consumption price
-        self.__net_electricity_consumption_price.append(net_electricity_consumption*self.pricing.electricity_pricing[self.time_step])
+        # net electriciy consumption cost
+        self.__net_electricity_consumption_cost.append(net_electricity_consumption*self.pricing.electricity_pricing[self.time_step])
 
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission.append(max(0, net_electricity_consumption*self.carbon_intensity.carbon_intensity[self.time_step]))
