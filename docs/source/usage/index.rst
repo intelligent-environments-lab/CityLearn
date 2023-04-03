@@ -7,7 +7,6 @@ Usage
 
    load_environment
    simulate
-   simulator
    cli
    examples
 
