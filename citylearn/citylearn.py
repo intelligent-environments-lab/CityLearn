@@ -3,10 +3,9 @@ import logging
 import os
 from pathlib import Path
 from typing import Any, List, Mapping, Tuple, Union
-from gym import Env, spaces, Wrapper
+from gym import Env, spaces
 import numpy as np
 import pandas as pd
-from citylearn.agents.base import Agent
 from citylearn.base import Environment
 from citylearn.building import Building
 from citylearn.cost_function import CostFunction
@@ -198,8 +197,8 @@ class CityLearnEnv(Environment, Env):
         """
 
         return [[
-            v for i, b in enumerate(self.buildings) for k, v in b.observations.items() if i == 0 or k not in self.shared_observations
-        ]] if self.central_agent else [list(b.observations.values()) for b in self.buildings]
+            v for i, b in enumerate(self.buildings) for k, v in b.observations().items() if i == 0 or k not in self.shared_observations
+        ]] if self.central_agent else [list(b.observations().values()) for b in self.buildings]
 
 
     @property
@@ -214,8 +213,8 @@ class CityLearnEnv(Environment, Env):
         """
 
         return [[
-            k for i, b in enumerate(self.buildings) for k, v in b.observations.items() if i == 0 or k not in self.shared_observations
-        ]] if self.central_agent else [list(b.observations.keys()) for b in self.buildings]
+            k for i, b in enumerate(self.buildings) for k, v in b.observations().items() if i == 0 or k not in self.shared_observations
+        ]] if self.central_agent else [list(b.observations().keys()) for b in self.buildings]
 
     @property
     def net_electricity_consumption_without_storage_and_pv_emission(self) -> np.ndarray:
@@ -224,10 +223,10 @@ class CityLearnEnv(Environment, Env):
         return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_emission for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_without_storage_and_pv_price(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_without_storage_and_pv_price` time series, in [$]."""
+    def net_electricity_consumption_without_storage_and_pv_cost(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_without_storage_and_pv_cost` time series, in [$]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_price for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
+        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_cost for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
     def net_electricity_consumption_without_storage_and_pv(self) -> np.ndarray:
@@ -242,10 +241,10 @@ class CityLearnEnv(Environment, Env):
         return pd.DataFrame([b.net_electricity_consumption_without_storage_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
 
     @property
-    def net_electricity_consumption_without_storage_price(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_without_storage_price` time series, in [$]."""
+    def net_electricity_consumption_without_storage_cost(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_without_storage_cost` time series, in [$]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_price for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
+        return pd.DataFrame([b.net_electricity_consumption_without_storage_cost for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
     def net_electricity_consumption_without_storage(self) -> np.ndarray:
@@ -260,10 +259,10 @@ class CityLearnEnv(Environment, Env):
         return self.__net_electricity_consumption_emission
 
     @property
-    def net_electricity_consumption_price(self) -> List[float]:
-        """Summed `Building.net_electricity_consumption_price` time series, in [$]."""
+    def net_electricity_consumption_cost(self) -> List[float]:
+        """Summed `Building.net_electricity_consumption_cost` time series, in [$]."""
 
-        return self.__net_electricity_consumption_price
+        return self.__net_electricity_consumption_cost
 
     @property
     def net_electricity_consumption(self) -> List[float]:
@@ -613,9 +612,9 @@ class CityLearnEnv(Environment, Env):
                         if sum(b.carbon_intensity.carbon_intensity) != 0 else None,
                 }, {
                 'name': b.name,
-                'cost_function': 'pricing',
-                'value': CostFunction.price(b.net_electricity_consumption_price)[-1]/\
-                    CostFunction.price(b.net_electricity_consumption_without_storage_price)[-1]\
+                'cost_function': 'cost',
+                'value': CostFunction.cost(b.net_electricity_consumption_cost)[-1]/\
+                    CostFunction.cost(b.net_electricity_consumption_without_storage_cost)[-1]\
                         if sum(b.pricing.electricity_pricing) != 0 else None,
                 }]
 
@@ -676,7 +675,7 @@ class CityLearnEnv(Environment, Env):
         # variable reset
         self.__rewards = [[]]
         self.__net_electricity_consumption = []
-        self.__net_electricity_consumption_price = []
+        self.__net_electricity_consumption_cost = []
         self.__net_electricity_consumption_emission = []
         self.update_variables()
 
@@ -686,13 +685,13 @@ class CityLearnEnv(Environment, Env):
         # net electricity consumption
         self.__net_electricity_consumption.append(sum([b.net_electricity_consumption[self.time_step] for b in self.buildings]))
 
-        # net electriciy consumption price
-        self.__net_electricity_consumption_price.append(sum([b.net_electricity_consumption_price[self.time_step] for b in self.buildings]))
+        # net electriciy consumption cost
+        self.__net_electricity_consumption_cost.append(sum([b.net_electricity_consumption_cost[self.time_step] for b in self.buildings]))
 
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission.append(sum([b.net_electricity_consumption_emission[self.time_step] for b in self.buildings]))
 
-    def load_agent(self) -> Agent:
+    def load_agent(self) -> 'citylearn.agents.base.Agent':
         """Return :class:`Agent` or sub class object as defined by the `schema`.
 
         Parameters
@@ -711,14 +710,7 @@ class CityLearnEnv(Environment, Env):
         agent_name = agent_type.split('.')[-1]
         agent_constructor = getattr(importlib.import_module(agent_module), agent_name)
         agent_attributes = self.schema['agent'].get('attributes', {})
-        agent_attributes = {
-            'building_ids':[b.uid for b in self.buildings],
-            'action_space':self.action_space,
-            'observation_space':self.observation_space,
-            'building_information':self.get_building_information(),
-            'observation_names':self.observation_names,
-            **agent_attributes
-        }
+        agent_attributes = {'env': self, **agent_attributes}
         agent = agent_constructor(**agent_attributes)
         return agent
 
@@ -800,7 +792,21 @@ class CityLearnEnv(Environment, Env):
                     action_metadata = {a: False if a in inactive_actions else True for a in actions}
 
                     # construct building
-                    building = Building(energy_simulation, weather, observation_metadata, action_metadata, carbon_intensity=carbon_intensity, pricing=pricing, name=building_name, seconds_per_time_step=seconds_per_time_step)
+                    building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
+                    building_type_module = '.'.join(building_type.split('.')[0:-1])
+                    building_type_name = building_type.split('.')[-1]
+                    building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
+
+                    building: Building = building_constructor(
+                        energy_simulation=energy_simulation, 
+                        weather=weather, 
+                        observation_metadata=observation_metadata, 
+                        action_metadata=action_metadata, 
+                        carbon_intensity=carbon_intensity, 
+                        pricing=pricing,
+                        name=building_name, 
+                        seconds_per_time_step=seconds_per_time_step,
+                    )
 
                     # update devices
                     device_metadata = {
@@ -856,40 +862,7 @@ class CityLearnEnv(Environment, Env):
             reward_function = reward_function_constructor(self,**reward_function_attributes)
 
         return root_directory, buildings, simulation_start_time_step, simulation_end_time_step, seconds_per_time_step, reward_function, central_agent, shared_observations
-
-class StableBaselines3Wrapper(Wrapper):
-    def __init__(self, env: CityLearnEnv):
-        super().__init__(env)
-
-        if not self.env.central_agent:
-            logging.warning('The StableBaselines3Wrapper wrapper is compatible only when env.central_agent=True.'\
-                ' Note that env.central_agent has been set to True for compatibility.')
-            self.env.central_agent = True
         
-        else:
-            pass
-        
-    @CityLearnEnv.observation_space.getter
-    def observation_space(self) -> spaces.Box:
-        return self.env.observation_space[0]
-
-    @CityLearnEnv.action_space.getter
-    def action_space(self) -> spaces.Box:
-        return self.env.action_space[0]
-
-    def step(self, actions: List[float]) -> Tuple[np.ndarray, float, bool, dict]:
-        actions = [actions]
-        observations, reward, done, info = self.env.step(actions)
-        observations = np.array(observations[0], dtype='float32')
-        reward = reward[0]
-
-        return observations, reward, done, info
-
-    def reset(self) -> np.ndarray:
-        observations = np.array(self.env.reset()[0], dtype='float32')
-
-        return observations
-
 class Error(Exception):
     """Base class for other exceptions."""
 
