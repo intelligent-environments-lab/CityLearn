@@ -1,5 +1,6 @@
 from typing import List
 import numpy as np
+from citylearn.preprocessing import Encoder, PeriodicNormalization, Normalize, OnehotEncoding
 
 # conditional imports
 try:
@@ -15,7 +16,7 @@ class RLC(Agent):
         discount: float = None, tau: float = None, alpha: float = None, lr: float = None, batch_size: int = None,
         replay_buffer_capacity: int = None, start_training_time_step: int = None, end_exploration_time_step: int = None, 
         deterministic_start_time_step: int = None, action_scaling_coefficienct: float = None, reward_scaling: float = None, 
-        update_per_time_step: int = None, seed: int = None, **kwargs
+        update_per_time_step: int = None, **kwargs
     ):
         r"""Initialize `RLC`.
 
@@ -51,8 +52,6 @@ class RLC(Agent):
             Reward scaling.
         update_per_time_step : int, default: 2
             Number of updates per time step.
-        seed : int
-            Pseudorandom number generator seed for repeatable results.
         
         Other Parameters
         ----------------
@@ -74,7 +73,7 @@ class RLC(Agent):
         self.action_scaling_coefficient = action_scaling_coefficienct
         self.reward_scaling = reward_scaling
         self.update_per_time_step = update_per_time_step
-        self.seed = seed
+        self.encoders = self.set_encoders()
 
     @property
     def observation_dimension(self) -> int:
@@ -160,12 +159,6 @@ class RLC(Agent):
 
         return self.__update_per_time_step
 
-    @property
-    def seed(self) -> int:
-        """Pseudorandom number generator seed for repeatable results."""
-
-        return self.__seed
-
     @hidden_dimension.setter
     def hidden_dimension(self,  hidden_dimension: List[float]):
         self.__hidden_dimension = [256, 256] if hidden_dimension is None else hidden_dimension
@@ -220,8 +213,43 @@ class RLC(Agent):
         assert isinstance(update_per_time_step,int), f'update_per_time_step mut be int type. {update_per_time_step} is of {type(update_per_time_step)} type'
         self.__update_per_time_step = update_per_time_step
 
-    @seed.setter
-    def seed(self, seed: int):
-        self.__seed = 0 if seed is None else seed
-        torch.manual_seed(self.seed)
-        np.random.seed(self.seed)
+    @Agent.random_seed.setter
+    def random_seed(self, seed: int):
+        Agent.random_seed.fset(self, seed)
+        np.random.seed(self.random_seed)
+        torch.manual_seed(self.random_seed)
+
+    def set_encoders(self) -> List[List[Encoder]]:
+        r"""Get observation value transformers/encoders for use in agent algorithm.
+
+        The encoder classes are defined in the `preprocessing.py` module and include `PeriodicNormalization` for cyclic observations,
+        `OnehotEncoding` for categorical obeservations, `RemoveFeature` for non-applicable observations given available storage systems and devices
+        and `Normalize` for observations with known minimum and maximum boundaries.
+        
+        Returns
+        -------
+        encoders : List[List[Encoder]]
+            Encoder classes for observations ordered with respect to `active_observations`.
+        """
+
+        encoders = []
+
+        for o, s in zip(self.observation_names, self.observation_space):
+            e = []
+
+            for i, n in enumerate(o):
+                if n in ['month', 'hour']:
+                    e.append(PeriodicNormalization(s.high[i]))
+            
+                elif n == 'day_type':
+                    e.append(OnehotEncoding([1, 2, 3, 4, 5, 6, 7, 8]))
+            
+                elif n == "daylight_savings_status":
+                    e.append(OnehotEncoding([0, 1]))
+            
+                else:
+                    e.append(Normalize(s.low[i], s.high[i]))
+
+            encoders.append(e)
+
+        return encoders

@@ -1,23 +1,25 @@
 import inspect
-from typing import Any, List, Mapping
+import logging
+import os
+from pathlib import Path
+import pickle
+from typing import Any, List, Mapping, Union
 from gym import spaces
 from citylearn.base import Environment
-from citylearn.preprocessing import Encoder, PeriodicNormalization, Normalize, OnehotEncoding
+from citylearn.citylearn import CityLearnEnv
+
+LOGGER = logging.getLogger()
+logging.getLogger('matplotlib.font_manager').disabled = True
+logging.getLogger('matplotlib.pyplot').disabled = True
 
 class Agent(Environment):
-    def __init__(self, observation_names: List[List[str]], observation_space: List[spaces.Box], action_space: List[spaces.Box], building_information: List[Mapping[str, Any]], **kwargs):
+    def __init__(self, env: CityLearnEnv, **kwargs):
         r"""Initialize `Agent`.
 
         Parameters
         ----------
-        observation_names: List[List[str]]
-            Names of active observations that can be used to map observation values.
-        observation_space : List[spaces.Box]
-            Format of valid observations.
-        action_space : List[spaces.Box]
-            Format of valid actions.
-         building_information : List[Mapping[str, Any]]
-            Building metadata.
+        env : CityLearnEnv
+            CityLearn environment.
 
         Other Parameters
         ----------------
@@ -25,16 +27,18 @@ class Agent(Environment):
             Other keyword arguments used to initialize super class.
         """
 
+        self.env = env
+        self.observation_names = self.env.observation_names
+        self.observation_space = self.env.observation_space
+        self.action_space = self.env.action_space
+        self.building_information = self.env.get_building_information()
+
         arg_spec = inspect.getfullargspec(super().__init__)
         kwargs = {
             key:value for (key, value) in kwargs.items()
             if (key in arg_spec.args or (arg_spec.varkw is not None))
+            
         }
-        self.observation_names = observation_names
-        self.observation_space = observation_space
-        self.action_space = action_space
-        self.building_information = building_information
-        self.encoders = self.set_encoders()
         super().__init__(**kwargs)
 
     @property
@@ -94,7 +98,76 @@ class Agent(Environment):
         for i in range(len(self.action_space)):
             self.__actions[i][self.time_step] = actions[i]
 
-    def select_actions(self,  observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
+    def learn(
+            self, episodes: int = None, keep_env_history: bool = None, env_history_directory: Union[str, Path] = None, 
+            deterministic: bool = None, deterministic_finish: bool = None, logging_level: int = None
+        ):
+        episodes = 1 if episodes is None else episodes
+        keep_env_history = False if keep_env_history is None else keep_env_history
+        deterministic_finish = False if deterministic_finish is None else deterministic_finish
+        deterministic = False if deterministic is None else deterministic
+        self.__set_logger(logging_level)
+
+        if keep_env_history:
+            env_history_directory = Path(f'citylearn_learning_{self.env.uid}') if env_history_directory is None else env_history_directory
+            os.makedirs(env_history_directory, exist_ok=True)
+            
+        else:
+            pass
+
+        for episode in range(episodes):
+            deterministic = deterministic or (deterministic_finish and episode >= episodes - 1)
+            observations = self.env.reset()
+
+            while not self.env.done:
+                actions = self.predict(observations, deterministic=deterministic)
+
+                # apply actions to citylearn_env
+                next_observations, rewards, _, _ = self.env.step(actions)
+
+                # update
+                if not deterministic:
+                    self.update(observations, actions, rewards, next_observations, done=self.env.done)
+                else:
+                    pass
+
+                observations = [o for o in next_observations]
+
+                logging.debug(
+                    f'Time step: {self.env.time_step}/{self.env.time_steps - 1},'\
+                        f' Episode: {episode}/{episodes - 1},'\
+                            f' Actions: {actions},'\
+                                f' Rewards: {rewards}'
+                )
+
+            # store episode's env to disk
+            if keep_env_history:
+                self.__save_env(episode, env_history_directory)
+            else:
+                pass
+
+    def get_env_history(self, directory: Path, episodes: List[int] = None):
+        env_history = ()
+        episodes = sorted([
+            int(f.split(directory)[-1].split('.')[0]) for f in os.listdir(directory) if f.endswith('.pkl')
+        ]) if episodes is None else episodes
+
+        for episode in episodes:
+            filepath = os.path.join(directory, f'{int(episode)}.pkl')
+
+            with (open(filepath, 'rb')) as f:
+                env_history += (pickle.load(f),)
+
+        return env_history
+
+    def __save_env(self, episode: int, directory: Path):
+        filepath = os.path.join(directory, f'{int(episode)}.pkl')
+
+        with open(filepath, 'wb') as f:
+            pickle.dump(self.env, f)
+
+
+    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         """Provide actions for current time step.
 
         Return randomly sampled actions from `action_space`.
@@ -111,14 +184,19 @@ class Agent(Environment):
         actions: List[float]
             Action values
         """
-
+        
         actions = [list(s.sample()) for s in self.action_space]
         self.actions = actions
         self.next_time_step()
         return actions
+    
+    def __set_logger(self, logging_level: int = None):
+        logging_level = 30 if logging_level is None else logging_level
+        assert logging_level >= 0, 'logging_level must be >= 0'
+        LOGGER.setLevel(logging_level)
 
-    def add_to_buffer(self, *args, **kwargs):
-        """Update replay buffer
+    def update(self, *args, **kwargs):
+        """Update replay buffer and networks.
         
         Notes
         -----
@@ -126,41 +204,6 @@ class Agent(Environment):
         """
 
         pass
-
-    def set_encoders(self) -> List[List[Encoder]]:
-        r"""Get observation value transformers/encoders for use in agent algorithm.
-
-        The encoder classes are defined in the `preprocessing.py` module and include `PeriodicNormalization` for cyclic observations,
-        `OnehotEncoding` for categorical obeservations, `RemoveFeature` for non-applicable observations given available storage systems and devices
-        and `Normalize` for observations with known minimum and maximum boundaries.
-        
-        Returns
-        -------
-        encoders : List[List[Encoder]]
-            Encoder classes for observations ordered with respect to `active_observations`.
-        """
-
-        encoders = []
-
-        for o, s in zip(self.observation_names, self.observation_space):
-            e = []
-
-            for i, n in enumerate(o):
-                if n in ['month', 'hour']:
-                    e.append(PeriodicNormalization(s.high[i]))
-            
-                elif n == 'day_type':
-                    e.append(OnehotEncoding([1, 2, 3, 4, 5, 6, 7, 8]))
-            
-                elif n == "daylight_savings_status":
-                    e.append(OnehotEncoding([0, 1]))
-            
-                else:
-                    e.append(Normalize(s.low[i], s.high[i]))
-
-            encoders.append(e)
-
-        return encoders
 
     def next_time_step(self):
         super().next_time_step()

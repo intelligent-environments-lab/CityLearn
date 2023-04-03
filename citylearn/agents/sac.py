@@ -51,7 +51,7 @@ class SAC(RLC):
         self.r_norm_std = [None for _ in self.action_space]
         self.set_networks()
 
-    def add_to_buffer(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], done: bool):
+    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], done: bool):
         r"""Update replay buffer.
 
         Parameters
@@ -160,7 +160,7 @@ class SAC(RLC):
             else:
                 pass
 
-    def select_actions(self, observations: List[List[float]], deterministic: bool = None):
+    def predict(self, observations: List[List[float]], deterministic: bool = None):
         r"""Provide actions for current time step.
 
         Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` >= :attr:`time_step` 
@@ -182,16 +182,16 @@ class SAC(RLC):
         deterministic = False if deterministic is None else deterministic
 
         if self.time_step > self.end_exploration_time_step or deterministic:
-            actions = self.get_post_exploration_actions(observations, deterministic)
+            actions = self.get_post_exploration_prediction(observations, deterministic)
             
         else:
-            actions = self.get_exploration_actions(observations)
+            actions = self.get_exploration_prediction(observations)
 
         self.actions = actions
         self.next_time_step()
         return actions
 
-    def get_post_exploration_actions(self, observations: List[List[float]], deterministic: bool) -> List[List[float]]:
+    def get_post_exploration_prediction(self, observations: List[List[float]], deterministic: bool) -> List[List[float]]:
         """Action sampling using policy, post-exploration time step"""
 
         actions = []
@@ -206,7 +206,7 @@ class SAC(RLC):
 
         return actions
             
-    def get_exploration_actions(self, observations: List[List[float]]) -> List[List[float]]:
+    def get_exploration_prediction(self, observations: List[List[float]]) -> List[List[float]]:
         """Return randomly sampled actions from `action_space` multiplied by :attr:`action_scaling_coefficient`.
         
         Returns
@@ -294,7 +294,7 @@ class SACRBC(SAC):
     def rbc(self, rbc: RBC):
         self.__rbc = rbc
 
-    def get_exploration_actions(self, states: List[float]) -> List[float]:
+    def get_exploration_prediction(self, states: List[float]) -> List[float]:
         """Return actions using :class:`RBC`.
         
         Returns
@@ -303,7 +303,7 @@ class SACRBC(SAC):
             Action values.
         """
 
-        return self.rbc.select_actions(states)
+        return self.rbc.predict(states)
 
 class SACBasicRBC(SACRBC):
      def __init__(self, *args, **kwargs):

@@ -111,7 +111,7 @@ class MARLISA(SAC):
     def iterations(self, iterations: int):
         self.__iterations = 2 if iterations is None else iterations
 
-    def add_to_buffer(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], done: bool):
+    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], done: bool):
         r"""Update replay buffer.
 
         Parameters
@@ -267,7 +267,7 @@ class MARLISA(SAC):
             else:
                 pass
 
-    def get_post_exploration_actions(self, observations: List[List[float]], deterministic: bool) -> List[List[float]]:
+    def get_post_exploration_prediction(self, observations: List[List[float]], deterministic: bool) -> List[List[float]]:
         func = {
             True: self.get_post_exploration_actions_with_information_sharing,
             False: self.get_post_exploration_actions_without_information_sharing
@@ -278,7 +278,7 @@ class MARLISA(SAC):
         
         return actions
 
-    def get_exploration_actions(self, observations: List[List[float]]) -> List[List[float]]:
+    def get_exploration_prediction(self, observations: List[List[float]]) -> List[List[float]]:
         func = {
             True: self.get_exploration_actions_with_information_sharing,
             False: self.get_exploration_actions_without_information_sharing
@@ -360,7 +360,7 @@ class MARLISA(SAC):
         return actions, coordination_variables
 
     def get_exploration_actions_without_information_sharing(self, observations: List[List[float]]) -> Tuple[List[List[float]], List[List[float]]]:
-        actions = super().get_exploration_actions(observations)
+        actions = super().get_exploration_prediction(observations)
         coordination_variables = [[0.0, 0.0] for _ in range(len(self.action_dimension))]
 
         return actions, coordination_variables
