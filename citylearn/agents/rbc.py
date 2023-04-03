@@ -1,4 +1,4 @@
-from typing import List
+from typing import Mapping, List
 from citylearn.agents.base import Agent
 
 class RBC(Agent):
@@ -41,7 +41,7 @@ class BasicRBC(RBC):
 
         super().__init__(*args, **kwargs)
 
-    def select_actions(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
+    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         """Provide actions for current time step.
 
         Parameters
@@ -87,7 +87,7 @@ class OptimizedRBC(BasicRBC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def select_actions(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
+    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         """Provide actions for current time step.
 
         Parameters
@@ -142,7 +142,7 @@ class BasicBatteryRBC(BasicRBC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def select_actions(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
+    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         """Provide actions for current time step.
 
         Parameters
@@ -179,4 +179,49 @@ class BasicBatteryRBC(BasicRBC):
 
         self.actions = actions
         self.next_time_step()
+        return actions
+    
+class HourRBC(BasicRBC):
+    def __init__(self, *args, action_map: Mapping[int, float] = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.action_map = action_map
+
+    @property
+    def action_map(self) -> Mapping[int, float]:
+        return self.__action_map
+    
+    @action_map.setter
+    def action_map(self, action_map: Mapping[int, float]):
+        self.__action_map = action_map
+
+    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
+        """Provide actions for current time step.
+
+        Parameters
+        ----------
+        observations: List[List[float]]
+            Environment observations
+        deterministic: bool, default: False
+            Wether to return purely exploitatative deterministic actions.
+
+        Returns
+        -------
+        actions: List[float]
+            Action values
+        """
+
+        actions = []
+
+        if self.action_map is None:
+            actions = super().predict(observations, deterministic=deterministic)
+        
+        else:
+            for n, o, d in zip(self.observation_names, observations, self.action_dimension):
+                hour = o[n.index('hour')]
+                a = [self.action_map[hour] for _ in range(d)]
+                actions.append(a)
+
+            self.actions = actions
+            self.next_time_step()
+        
         return actions
