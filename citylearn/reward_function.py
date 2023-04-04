@@ -1,6 +1,7 @@
 from typing import List
 import numpy as np
 from citylearn.citylearn import CityLearnEnv
+from citylearn.energy_model import ZERO_DIVISION_CAPACITY
 
 class RewardFunction:
     def __init__(self, env: CityLearnEnv, **kwargs):
@@ -29,6 +30,8 @@ class RewardFunction:
 
     def calculate(self) -> List[float]:
         r"""Calculates default reward.
+
+        The default reward is the electricity consumption from the grid at the current time step returned as a negative value.
 
         Notes
         -----
@@ -77,76 +80,35 @@ class IndependentSACReward(RewardFunction):
         """
 
         return [min(b.net_electricity_consumption[b.time_step]*-1**3, 0) for b in self.env.buildings]
-
-class BuildingDynamicsReward(RewardFunction):
+    
+class SolarPenaltyReward(RewardFunction):
     def __init__(self, env: CityLearnEnv):
         super().__init__(env)
 
     def calculate(self) -> List[float]:
-        r"""Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.
+        reward_list = []
 
-        Recommended for use with the `SAC` controllers.
+        for b in self.env.buildings:
+            e = b.net_electricity_consumption[-1]
+            cc = b.cooling_storage.capacity
+            hc = b.heating_storage.capacity
+            dc = b.dhw_storage.capacity
+            ec = b.electrical_storage.capacity_history[0]
+            cs = b.cooling_storage.soc[-1]/cc
+            hs = b.heating_storage.soc[-1]/hc
+            ds = b.dhw_storage.soc[-1]/dc
+            es = b.electrical_storage.soc[-1]/ec
+            reward = 0.0
+            reward += -(1.0 + np.sign(e)*cs)*abs(e) if cc > ZERO_DIVISION_CAPACITY else 0.0
+            reward += -(1.0 + np.sign(e)*hs)*abs(e) if hc > ZERO_DIVISION_CAPACITY else 0.0
+            reward += -(1.0 + np.sign(e)*ds)*abs(e) if dc > ZERO_DIVISION_CAPACITY else 0.0
+            reward += -(1.0 + np.sign(e)*es)*abs(e) if ec > ZERO_DIVISION_CAPACITY else 0.0
+            reward_list.append(reward)
 
-        Notes
-        -----
-        Reward value is calculated as :math:`[\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]` 
-        where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
-        """
-
-        comfort_reward = self.calculate_comfort_reward()
-        storage_reward = self.calculate_storage_reward()
-        peak_reward = self.calculate_peak_reward()
 
         if self.env.central_agent:
-            reward = [sum(comfort_reward) + sum(storage_reward) + sum(peak_reward)]
+            reward = [sum(reward_list)]
         else:
-            reward = [sum([c, s, p]) for c, s, p in zip(comfort_reward, storage_reward, peak_reward)]
-
+            reward = reward_list
+        
         return reward
-
-    def calculate_comfort_reward(self) -> List[float]:
-        coefficient = 0.12
-        comfort_band = 2.0 # C
-        rewards = []
-
-        for b in self.env.buildings:
-            indoor_dry_bulb_temperature = b.energy_simulation.indoor_dry_bulb_temperature[b.time_step]
-            indoor_dry_bulb_temperature_set_point = b.energy_simulation.cooling_dry_bulb_temperature_set_point[b.time_step]
-            lower_bound_comfortable_indoor_dry_bulb_temperature = indoor_dry_bulb_temperature_set_point - comfort_band
-            upper_bound_comfortable_indoor_dry_bulb_temperature = indoor_dry_bulb_temperature_set_point + comfort_band
-            
-            if indoor_dry_bulb_temperature < lower_bound_comfortable_indoor_dry_bulb_temperature:
-                reward = -coefficient*(indoor_dry_bulb_temperature_set_point - indoor_dry_bulb_temperature)**3
-            
-            elif lower_bound_comfortable_indoor_dry_bulb_temperature <= indoor_dry_bulb_temperature < indoor_dry_bulb_temperature_set_point:
-                reward = -coefficient*(indoor_dry_bulb_temperature_set_point - indoor_dry_bulb_temperature)
-
-            elif indoor_dry_bulb_temperature_set_point <= indoor_dry_bulb_temperature < upper_bound_comfortable_indoor_dry_bulb_temperature:
-                reward = 0
-
-            else:
-                reward = -coefficient*(indoor_dry_bulb_temperature - indoor_dry_bulb_temperature_set_point)**2
-
-            rewards.append(reward)
-
-        return rewards
-
-    def calculate_storage_reward(self) -> List[float]:
-        cooling_storage_coefficient = 3
-        heating_storage_coefficient = 3
-        dhw_storage_coefficient = 2
-        electrical_storage_coefficient = 2
-        rewards = []
-
-        for b in self.env.buildings:
-            reward = 0
-            reward += max(0, (b.cooling_storage.soc[b.time_step] - b.cooling_storage.soc[b.time_step - 1])/b.cooling_storage.capacity)*cooling_storage_coefficient
-            reward += max(0, (b.heating_storage.soc[b.time_step] - b.heating_storage.soc[b.time_step - 1])/b.heating_storage.capacity)*heating_storage_coefficient
-            reward += max(0, (b.dhw_storage.soc[b.time_step] - b.dhw_storage.soc[b.time_step - 1])/b.dhw_storage.capacity)*dhw_storage_coefficient
-            reward += max(0, (b.electrical_storage.soc[b.time_step] - b.electrical_storage.soc[b.time_step - 1])/b.electrical_storage.capacity_history[0])*electrical_storage_coefficient
-            rewards.append(reward)
-
-        return rewards
-
-    def calculate_peak_reward(self) -> List[float]:
-        return [-b.net_electricity_consumption[b.time_step] for b in self.env.buildings]
