@@ -2,6 +2,7 @@ from typing import Iterable, List, Union
 import numpy as np
 from citylearn.base import Environment
 np.seterr(divide = 'ignore', invalid = 'ignore')
+ZERO_DIVISION_CAPACITY = 0.00001
 
 class Device(Environment):
     def __init__(self, efficiency: float = None, **kwargs):
@@ -74,7 +75,7 @@ class ElectricDevice(Device):
     @nominal_power.setter
     def nominal_power(self, nominal_power: float):
         if nominal_power is None or nominal_power == 0:
-            self.__nominal_power = 0.00001
+            self.__nominal_power = ZERO_DIVISION_CAPACITY
         else:
             assert nominal_power >= 0, 'nominal_power must be >= 0.'
             self.__nominal_power = nominal_power
@@ -516,7 +517,7 @@ class StorageDevice(Device):
     @capacity.setter
     def capacity(self, capacity: float):
         if capacity is None or capacity == 0:
-            self.__capacity = 0.00001
+            self.__capacity = ZERO_DIVISION_CAPACITY
         else:
             assert capacity >= 0, 'capacity must be >= 0.'
             self.__capacity = capacity
@@ -664,9 +665,9 @@ class StorageTank(StorageDevice):
         """
 
         if energy >= 0:    
-            energy = energy if self.max_input_power is None else min(energy, self.max_input_power)
+            energy = energy if self.max_input_power is None else np.nanmin([energy, self.max_input_power])
         else:
-            energy = energy if self.max_output_power is None else max(-self.max_output_power, energy)
+            energy = energy if self.max_output_power is None else np.nanmax([-self.max_output_power, energy])
         
         super().charge(energy)
 
@@ -750,6 +751,7 @@ class Battery(ElectricDevice, StorageDevice):
 
     @capacity.setter
     def capacity(self, capacity: float):
+        capacity = ZERO_DIVISION_CAPACITY if capacity is None or capacity == 0 else capacity
         StorageDevice.capacity.fset(self, capacity)
         self.__capacity_history.append(capacity)
 
