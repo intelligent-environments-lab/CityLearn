@@ -46,6 +46,7 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
@@ -272,9 +273,9 @@
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;carbon_emissions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;carbon_emissions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;carbon_emissions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CostFunction.price"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.price">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">price</span><span class="p">(</span><span class="n">price</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling sum of electricity price.</span>
+<div class="viewcode-block" id="CostFunction.cost"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.cost">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">cost</span><span class="p">(</span><span class="n">price</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling sum of electricity monetary cost.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -288,14 +289,14 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; price = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]</span>
+<span class="sd">        &gt;&gt;&gt; cost = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]</span>
 <span class="sd">        &gt;&gt;&gt; CostFunction.price(carbon_emissions)</span>
 <span class="sd">        [100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;price&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">price</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)})</span>
-        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;cost&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">price</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)})</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="CostFunction.quadratic"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.quadratic">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">quadratic</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>

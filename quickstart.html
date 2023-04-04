@@ -57,6 +57,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#Decentralized-Cooperative-MARLISA">Decentralized-Cooperative MARLISA</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">citylearn</a></li>
@@ -88,7 +89,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="QuickStart">
+  <p><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></p>
+<section id="QuickStart">
 <h1>QuickStart<a class="headerlink" href="#QuickStart" title="Permalink to this headline"></a></h1>
 <p>Install the latest CityLearn version from PyPi with the :code:<code class="docutils literal notranslate"><span class="pre">pip</span></code> command:</p>
 <div class="nbinput nblast docutils container">
@@ -103,7 +105,7 @@
 <h2>Centralized RBC<a class="headerlink" href="#Centralized-RBC" title="Permalink to this headline"></a></h2>
 <p>Run the following to simulate an environment controlled by centralized RBC agent for a single episode:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
@@ -111,19 +113,8 @@
 
 <span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">agents</span> <span class="o">=</span> <span class="n">RBCAgent</span><span class="p">(</span>
-    <span class="n">action_space</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span>
-    <span class="n">observation_space</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span>
-    <span class="n">building_information</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">get_building_information</span><span class="p">(),</span>
-    <span class="n">observation_names</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_names</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">observations</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-
-<span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
-    <span class="n">actions</span> <span class="o">=</span> <span class="n">agents</span><span class="o">.</span><span class="n">select_actions</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
-
-    <span class="c1"># apply actions to env</span>
-    <span class="n">observations</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">RBCAgent</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># print cost functions at the end of episode</span>
 <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
@@ -137,12 +128,12 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Building_1 : [{&#39;carbon_emissions&#39;: 1.134, &#39;electricity_consumption&#39;: 1.184, &#39;pricing&#39;: 1.043, &#39;zero_net_energy&#39;: 1.118}]
-Building_2 : [{&#39;carbon_emissions&#39;: 1.158, &#39;electricity_consumption&#39;: 1.215, &#39;pricing&#39;: 1.063, &#39;zero_net_energy&#39;: 1.101}]
-Building_3 : [{&#39;carbon_emissions&#39;: 1.272, &#39;electricity_consumption&#39;: 1.346, &#39;pricing&#39;: 1.145, &#39;zero_net_energy&#39;: 1.294}]
-Building_4 : [{&#39;carbon_emissions&#39;: 1.181, &#39;electricity_consumption&#39;: 1.237, &#39;pricing&#39;: 1.097, &#39;zero_net_energy&#39;: 1.085}]
-Building_5 : [{&#39;carbon_emissions&#39;: 1.186, &#39;electricity_consumption&#39;: 1.262, &#39;pricing&#39;: 1.075, &#39;zero_net_energy&#39;: 1.145}]
-District : [{&#39;1 - load_factor&#39;: 0.987, &#39;average_daily_peak&#39;: 1.15, &#39;carbon_emissions&#39;: 1.186, &#39;electricity_consumption&#39;: 1.249, &#39;peak_demand&#39;: 1.052, &#39;pricing&#39;: 1.085, &#39;ramping&#39;: 1.162, &#39;zero_net_energy&#39;: 1.148}]
+Building_1 : [{&#39;carbon_emissions&#39;: 1.134, &#39;cost&#39;: 1.043, &#39;electricity_consumption&#39;: 1.184, &#39;zero_net_energy&#39;: 1.118}]
+Building_2 : [{&#39;carbon_emissions&#39;: 1.158, &#39;cost&#39;: 1.063, &#39;electricity_consumption&#39;: 1.215, &#39;zero_net_energy&#39;: 1.101}]
+Building_3 : [{&#39;carbon_emissions&#39;: 1.272, &#39;cost&#39;: 1.145, &#39;electricity_consumption&#39;: 1.346, &#39;zero_net_energy&#39;: 1.294}]
+Building_4 : [{&#39;carbon_emissions&#39;: 1.181, &#39;cost&#39;: 1.097, &#39;electricity_consumption&#39;: 1.237, &#39;zero_net_energy&#39;: 1.085}]
+Building_5 : [{&#39;carbon_emissions&#39;: 1.186, &#39;cost&#39;: 1.075, &#39;electricity_consumption&#39;: 1.262, &#39;zero_net_energy&#39;: 1.145}]
+District : [{&#39;1 - load_factor&#39;: 0.987, &#39;average_daily_peak&#39;: 1.15, &#39;carbon_emissions&#39;: 1.186, &#39;cost&#39;: 1.085, &#39;electricity_consumption&#39;: 1.249, &#39;peak_demand&#39;: 1.052, &#39;ramping&#39;: 1.162, &#39;zero_net_energy&#39;: 1.148}]
 </pre></div></div>
 </div>
 </section>
@@ -150,7 +141,7 @@ District : [{&#39;1 - load_factor&#39;: 0.987, &#39;average_daily_peak&#39;: 1.1
 <h2>Decentralized-Independent SAC<a class="headerlink" href="#Decentralized-Independent-SAC" title="Permalink to this headline"></a></h2>
 <p>Run the following to simulate an environment controlled by decentralized-independent SAC agents for 1 training episode:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
@@ -158,34 +149,12 @@ District : [{&#39;1 - load_factor&#39;: 0.987, &#39;average_daily_peak&#39;: 1.1
 
 <span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
-<span class="n">agents</span> <span class="o">=</span> <span class="n">RLAgent</span><span class="p">(</span>
-    <span class="n">action_space</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span>
-    <span class="n">observation_space</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span>
-    <span class="n">building_information</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">get_building_information</span><span class="p">(),</span>
-    <span class="n">observation_names</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_names</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">episodes</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># number of training episodes</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">RLAgent</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">deterministic_finish</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="c1"># train agents</span>
-<span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">episodes</span><span class="p">):</span>
-    <span class="n">observations</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-
-    <span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
-        <span class="n">actions</span> <span class="o">=</span> <span class="n">agents</span><span class="o">.</span><span class="n">select_actions</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
-
-        <span class="c1"># apply actions to env</span>
-        <span class="n">next_observations</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
-
-        <span class="c1"># update policies</span>
-        <span class="n">agents</span><span class="o">.</span><span class="n">add_to_buffer</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">next_observations</span><span class="p">,</span> <span class="n">done</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">done</span><span class="p">)</span>
-        <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">next_observations</span><span class="p">]</span>
-
-    <span class="c1"># print cost functions at the end of episode</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Episode: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
-        <span class="n">nd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">nd</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
+    <span class="n">nd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">nd</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -194,13 +163,12 @@ District : [{&#39;1 - load_factor&#39;: 0.987, &#39;average_daily_peak&#39;: 1.1
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Episode: 0
-Building_1 : [{&#39;carbon_emissions&#39;: 1.262, &#39;electricity_consumption&#39;: 1.277, &#39;pricing&#39;: 1.227, &#39;zero_net_energy&#39;: 1.195}]
-Building_2 : [{&#39;carbon_emissions&#39;: 1.303, &#39;electricity_consumption&#39;: 1.321, &#39;pricing&#39;: 1.273, &#39;zero_net_energy&#39;: 1.163}]
-Building_3 : [{&#39;carbon_emissions&#39;: 1.514, &#39;electricity_consumption&#39;: 1.534, &#39;pricing&#39;: 1.477, &#39;zero_net_energy&#39;: 1.474}]
-Building_4 : [{&#39;carbon_emissions&#39;: 1.399, &#39;electricity_consumption&#39;: 1.394, &#39;pricing&#39;: 1.406, &#39;zero_net_energy&#39;: 1.134}]
-Building_5 : [{&#39;carbon_emissions&#39;: 1.469, &#39;electricity_consumption&#39;: 1.494, &#39;pricing&#39;: 1.425, &#39;zero_net_energy&#39;: 1.224}]
-District : [{&#39;1 - load_factor&#39;: 1.007, &#39;average_daily_peak&#39;: 1.33, &#39;carbon_emissions&#39;: 1.389, &#39;electricity_consumption&#39;: 1.404, &#39;peak_demand&#39;: 1.343, &#39;pricing&#39;: 1.361, &#39;ramping&#39;: 2.178, &#39;zero_net_energy&#39;: 1.238}]
+Building_1 : [{&#39;carbon_emissions&#39;: 0.953, &#39;cost&#39;: 0.944, &#39;electricity_consumption&#39;: 0.951, &#39;zero_net_energy&#39;: 1.079}]
+Building_2 : [{&#39;carbon_emissions&#39;: 0.989, &#39;cost&#39;: 0.985, &#39;electricity_consumption&#39;: 0.987, &#39;zero_net_energy&#39;: 1.056}]
+Building_3 : [{&#39;carbon_emissions&#39;: 1.007, &#39;cost&#39;: 0.985, &#39;electricity_consumption&#39;: 0.989, &#39;zero_net_energy&#39;: 1.181}]
+Building_4 : [{&#39;carbon_emissions&#39;: 1.04, &#39;cost&#39;: 1.027, &#39;electricity_consumption&#39;: 1.024, &#39;zero_net_energy&#39;: 1.045}]
+Building_5 : [{&#39;carbon_emissions&#39;: 0.975, &#39;cost&#39;: 0.926, &#39;electricity_consumption&#39;: 0.983, &#39;zero_net_energy&#39;: 1.063}]
+District : [{&#39;1 - load_factor&#39;: 0.994, &#39;average_daily_peak&#39;: 0.951, &#39;carbon_emissions&#39;: 0.993, &#39;cost&#39;: 0.974, &#39;electricity_consumption&#39;: 0.987, &#39;peak_demand&#39;: 0.943, &#39;ramping&#39;: 1.049, &#39;zero_net_energy&#39;: 1.085}]
 </pre></div></div>
 </div>
 </section>
@@ -208,7 +176,7 @@ District : [{&#39;1 - load_factor&#39;: 1.007, &#39;average_daily_peak&#39;: 1.3
 <h2>Decentralized-Cooperative MARLISA<a class="headerlink" href="#Decentralized-Cooperative-MARLISA" title="Permalink to this headline"></a></h2>
 <p>Run the following to simulate an environment controlled by decentralized-cooperative MARLISA agents for 1 training episode:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
@@ -216,34 +184,12 @@ District : [{&#39;1 - load_factor&#39;: 1.007, &#39;average_daily_peak&#39;: 1.3
 
 <span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
-<span class="n">agents</span> <span class="o">=</span> <span class="n">RLAgent</span><span class="p">(</span>
-    <span class="n">action_space</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span>
-    <span class="n">observation_space</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span>
-    <span class="n">building_information</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">get_building_information</span><span class="p">(),</span>
-    <span class="n">observation_names</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">observation_names</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">episodes</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># number of training episodes</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">RLAgent</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">deterministic_finish</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="c1"># train agents</span>
-<span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">episodes</span><span class="p">):</span>
-    <span class="n">observations</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-
-    <span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
-        <span class="n">actions</span> <span class="o">=</span> <span class="n">agents</span><span class="o">.</span><span class="n">select_actions</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
-
-        <span class="c1"># apply actions to env</span>
-        <span class="n">next_observations</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
-
-        <span class="c1"># update policies</span>
-        <span class="n">agents</span><span class="o">.</span><span class="n">add_to_buffer</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">next_observations</span><span class="p">,</span> <span class="n">done</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">done</span><span class="p">)</span>
-        <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">next_observations</span><span class="p">]</span>
-
-    <span class="c1"># print cost functions at the end of episode</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Episode: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
-        <span class="n">nd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">nd</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
+    <span class="n">nd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">nd</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -252,16 +198,72 @@ District : [{&#39;1 - load_factor&#39;: 1.007, &#39;average_daily_peak&#39;: 1.3
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Episode: 0
-Building_1 : [{&#39;carbon_emissions&#39;: 1.271, &#39;electricity_consumption&#39;: 1.283, &#39;pricing&#39;: 1.236, &#39;zero_net_energy&#39;: 1.184}]
-Building_2 : [{&#39;carbon_emissions&#39;: 1.316, &#39;electricity_consumption&#39;: 1.33, &#39;pricing&#39;: 1.289, &#39;zero_net_energy&#39;: 1.158}]
-Building_3 : [{&#39;carbon_emissions&#39;: 1.524, &#39;electricity_consumption&#39;: 1.537, &#39;pricing&#39;: 1.511, &#39;zero_net_energy&#39;: 1.458}]
-Building_4 : [{&#39;carbon_emissions&#39;: 1.394, &#39;electricity_consumption&#39;: 1.395, &#39;pricing&#39;: 1.392, &#39;zero_net_energy&#39;: 1.131}]
-Building_5 : [{&#39;carbon_emissions&#39;: 1.481, &#39;electricity_consumption&#39;: 1.501, &#39;pricing&#39;: 1.441, &#39;zero_net_energy&#39;: 1.222}]
-District : [{&#39;1 - load_factor&#39;: 1.005, &#39;average_daily_peak&#39;: 1.342, &#39;carbon_emissions&#39;: 1.397, &#39;electricity_consumption&#39;: 1.409, &#39;peak_demand&#39;: 1.232, &#39;pricing&#39;: 1.374, &#39;ramping&#39;: 2.201, &#39;zero_net_energy&#39;: 1.23}]
+Building_1 : [{&#39;carbon_emissions&#39;: 1.025, &#39;cost&#39;: 1.016, &#39;electricity_consumption&#39;: 1.03, &#39;zero_net_energy&#39;: 1.019}]
+Building_2 : [{&#39;carbon_emissions&#39;: 1.0, &#39;cost&#39;: 1.0, &#39;electricity_consumption&#39;: 1.0, &#39;zero_net_energy&#39;: 1.0}]
+Building_3 : [{&#39;carbon_emissions&#39;: 0.998, &#39;cost&#39;: 0.995, &#39;electricity_consumption&#39;: 0.999, &#39;zero_net_energy&#39;: 1.016}]
+Building_4 : [{&#39;carbon_emissions&#39;: 1.0, &#39;cost&#39;: 0.999, &#39;electricity_consumption&#39;: 1.0, &#39;zero_net_energy&#39;: 1.002}]
+Building_5 : [{&#39;carbon_emissions&#39;: 1.0, &#39;cost&#39;: 1.0, &#39;electricity_consumption&#39;: 1.0, &#39;zero_net_energy&#39;: 1.0}]
+District : [{&#39;1 - load_factor&#39;: 1.0, &#39;average_daily_peak&#39;: 1.002, &#39;carbon_emissions&#39;: 1.005, &#39;cost&#39;: 1.002, &#39;electricity_consumption&#39;: 1.006, &#39;peak_demand&#39;: 1.0, &#39;ramping&#39;: 1.016, &#39;zero_net_energy&#39;: 1.007}]
 </pre></div></div>
 </div>
 </section>
+</section>
+<section id="Stable-Baselines3-Reinforcement-Learning-Algorithms">
+<h1>Stable Baselines3 Reinforcement Learning Algorithms<a class="headerlink" href="#Stable-Baselines3-Reinforcement-Learning-Algorithms" title="Permalink to this headline"></a></h1>
+<p>Install the latest version of Stable Baselines3:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">stable</span><span class="o">-</span><span class="n">baselines3</span>
+</pre></div>
+</div>
+</div>
+<p>Before the environment is ready for use in Stable Baselines3, it needs to be wrapped. Firstly, wrap the environment using the <code class="docutils literal notranslate"><span class="pre">NormalizedObservationWrapper</span></code> (see <a class="reference external" href="https://www.citylearn.net/api/citylearn.wrappers.html#citylearn.wrappers.NormalizedObservationWrapper">docs</a>) to ensure that observations served to the agent are min-max normalized between [0, 1] and cyclical observations e.g. hour, are encoded using the cosine transformation.</p>
+<p>Next, we wrap with the <code class="docutils literal notranslate"><span class="pre">StableBaselines3Wrapper</span></code> (see <a class="reference external" href="https://www.citylearn.net/api/citylearn.wrappers.html#citylearn.wrappers.StableBaselines3Wrapper">docs</a>) that ensures observations, actions and rewards are served in manner that is compatible with Stable Baselines3 interface.</p>
+<blockquote>
+<div><p>⚠️ <strong>NOTE</strong>: <code class="docutils literal notranslate"><span class="pre">central_agent</span></code> in the <code class="docutils literal notranslate"><span class="pre">env</span></code> must be <code class="docutils literal notranslate"><span class="pre">True</span></code> when using Stable Baselines3 as it does not support multi-agents.</p>
+</div></blockquote>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">stable_baselines3.sac</span> <span class="kn">import</span> <span class="n">SAC</span>
+<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
+<span class="kn">from</span> <span class="nn">citylearn.wrappers</span> <span class="kn">import</span> <span class="n">NormalizedObservationWrapper</span><span class="p">,</span> <span class="n">StableBaselines3Wrapper</span>
+
+<span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">NormalizedObservationWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">StableBaselines3Wrapper</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">SAC</span><span class="p">(</span><span class="s1">&#39;MlpPolicy&#39;</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">total_timesteps</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">time_steps</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">observations</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+    <span class="n">actions</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">observations</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
+    <span class="n">nd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">nd</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Building_1 : [{&#39;carbon_emissions&#39;: 1.107, &#39;cost&#39;: 1.104, &#39;electricity_consumption&#39;: 1.08, &#39;zero_net_energy&#39;: 1.129}]
+Building_2 : [{&#39;carbon_emissions&#39;: 1.078, &#39;cost&#39;: 0.998, &#39;electricity_consumption&#39;: 1.075, &#39;zero_net_energy&#39;: 1.087}]
+Building_3 : [{&#39;carbon_emissions&#39;: 1.211, &#39;cost&#39;: 1.191, &#39;electricity_consumption&#39;: 1.191, &#39;zero_net_energy&#39;: 1.235}]
+Building_4 : [{&#39;carbon_emissions&#39;: 1.269, &#39;cost&#39;: 1.402, &#39;electricity_consumption&#39;: 1.204, &#39;zero_net_energy&#39;: 1.087}]
+Building_5 : [{&#39;carbon_emissions&#39;: 1.273, &#39;cost&#39;: 1.205, &#39;electricity_consumption&#39;: 1.277, &#39;zero_net_energy&#39;: 1.12}]
+District : [{&#39;1 - load_factor&#39;: 1.012, &#39;average_daily_peak&#39;: 1.106, &#39;carbon_emissions&#39;: 1.188, &#39;cost&#39;: 1.18, &#39;electricity_consumption&#39;: 1.165, &#39;peak_demand&#39;: 1.261, &#39;ramping&#39;: 1.45, &#39;zero_net_energy&#39;: 1.132}]
+</pre></div></div>
+</div>
 </section>
 
 

@@ -46,6 +46,7 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
@@ -155,13 +156,13 @@
         <span class="n">x</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_max</span>
         <span class="n">x_sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">x_cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">x_sin</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span> <span class="p">(</span><span class="n">x_cos</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_sin</span><span class="p">,</span> <span class="n">x_cos</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]):</span>
         <span class="n">x</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_max</span>
         <span class="n">x_sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">x_cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">x_sin</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">,</span> <span class="p">(</span><span class="n">x_cos</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span><span class="p">])</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_sin</span><span class="p">,</span> <span class="n">x_cos</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="OnehotEncoding"><a class="viewcode-back" href="../../api/citylearn.preprocessing.html#citylearn.preprocessing.OnehotEncoding">[docs]</a><span class="k">class</span> <span class="nc">OnehotEncoding</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `PeriodicNormalization` encoder class.</span>

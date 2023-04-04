@@ -49,6 +49,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
@@ -64,8 +65,8 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.rl.html">citylearn.rl module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="citylearn.simulator.html">citylearn.simulator module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.utilities.html">citylearn.utilities module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.wrappers.html">citylearn.wrappers module</a></li>
 </ul>
 </li>
 </ul>
@@ -106,7 +107,7 @@
 <span id="citylearn-base-module"></span><h1>citylearn.base module<a class="headerlink" href="#module-citylearn.base" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.base.Environment">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.base.</span></span><span class="sig-name descname"><span class="pre">Environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds_per_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/base.html#Environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.base.Environment" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.base.</span></span><span class="sig-name descname"><span class="pre">Environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds_per_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/base.html#Environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.base.Environment" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.base.Environment.next_time_step">
@@ -114,6 +115,12 @@
 <dd><p>Advance to next <cite>time_step</cite> value.</p>
 <p class="rubric">Notes</p>
 <p>Override in subclass for custom implementation when advancing to next <cite>time_step</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.base.Environment.random_seed">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random_seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.base.Environment.random_seed" title="Permalink to this definition"></a></dt>
+<dd><p>Pseudorandom number generator seed for repeatable results.</p>
 </dd></dl>
 
 <dl class="py method">

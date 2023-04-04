@@ -29,5 +29,5 @@ Submodules
    citylearn.preprocessing
    citylearn.reward_function
    citylearn.rl
-   citylearn.simulator
    citylearn.utilities
+   citylearn.wrappers

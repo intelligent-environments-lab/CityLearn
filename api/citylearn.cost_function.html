@@ -51,6 +51,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
@@ -66,8 +67,8 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.rl.html">citylearn.rl module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="citylearn.simulator.html">citylearn.simulator module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.utilities.html">citylearn.utilities module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.wrappers.html">citylearn.wrappers module</a></li>
 </ul>
 </li>
 </ul>
@@ -155,6 +156,29 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.cost">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.cost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.cost" title="Permalink to this definition"></a></dt>
+<dd><p>Rolling sum of electricity monetary cost.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>price</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Price time series.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>price</strong> – Price cost.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[float]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">CostFunction</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">carbon_emissions</span><span class="p">)</span>
+<span class="go">[100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.electricity_consumption">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electricity_consumption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.electricity_consumption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p>Rolling sum of positive electricity consumption.</p>
@@ -216,29 +240,6 @@
 <dd class="field-odd"><p>List[float]</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.price">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.price"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.price" title="Permalink to this definition"></a></dt>
-<dd><p>Rolling sum of electricity price.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>price</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Price time series.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>price</strong> – Price cost.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>List[float]</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">price</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">CostFunction</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">carbon_emissions</span><span class="p">)</span>
-<span class="go">[100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py method">

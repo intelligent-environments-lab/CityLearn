@@ -51,6 +51,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Overview</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="environment.html">Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="observations.html">Observations</a></li>
@@ -158,19 +159,27 @@
 <h2>How to Define a Custom Reward Function<a class="headerlink" href="#how-to-define-a-custom-reward-function" title="Permalink to this headline"></a></h2>
 <p>CityLearn also allows for custom reward functions by inheriting the base <a class="reference internal" href="../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a>:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 <span class="kn">from</span> <span class="nn">citylearn.reward_function</span> <span class="kn">import</span> <span class="n">RewardFunction</span>
 
 <span class="k">class</span> <span class="nc">CustomReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">carbon_emission</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">electricity_price</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">agent_count</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="o">=</span><span class="n">electricity_consumption</span><span class="p">,</span> <span class="n">carbon_emission</span><span class="o">=</span><span class="n">carbon_emission</span><span class="p">,</span> <span class="n">electricity_price</span><span class="o">=</span><span class="n">electricity_price</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates custom user-defined multi-agent reward.</span>
 
-<span class="sd">        Reward is the `carbon_emission` for each building.</span>
+<span class="sd">        Reward is the :py:atter:`net_electricity_consumption_emission` for entire district if central agent setup</span>
+<span class="sd">        otherwise it is the :py:atter:`net_electricity_consumption_emission` each building.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_emission</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">reward</span>
 </pre></div>
 </div>
 <p>The schema must then be updated to reference the custom reward function:</p>

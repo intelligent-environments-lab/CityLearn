@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citylearn.wrappers &mdash; CityLearn 1.7.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">citylearn.wrappers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for citylearn.wrappers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span> <span class="nn">gym</span> <span class="kn">import</span> <span class="n">ActionWrapper</span><span class="p">,</span> <span class="n">ObservationWrapper</span><span class="p">,</span> <span class="n">RewardWrapper</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">Wrapper</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
+
+<div class="viewcode-block" id="NormalizedObservationWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.NormalizedObservationWrapper">[docs]</a><span class="k">class</span> <span class="nc">NormalizedObservationWrapper</span><span class="p">(</span><span class="n">ObservationWrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">]:</span>
+        <span class="n">low_limit</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">high_limit</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">):</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">estimate_observation_space</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">l</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">normalized_observation_space_limits</span>
+
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">lv</span><span class="p">,</span> <span class="n">hv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">high</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_sin&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_cos&#39;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span><span class="p">:</span>
+                        <span class="n">low_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lv</span><span class="p">)</span>
+                        <span class="n">high_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hv</span><span class="p">)</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+            
+            <span class="n">observation_space</span> <span class="o">=</span> <span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">low_limit</span><span class="p">),</span> <span class="n">high</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">high_limit</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">observation_space</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">estimate_observation_space</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="n">observation_space</span>
+
+<div class="viewcode-block" id="NormalizedObservationWrapper.observation"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.NormalizedObservationWrapper.observation">[docs]</a>    <span class="k">def</span> <span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">[[</span>
+            <span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> 
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_sin&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_cos&#39;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span>
+        <span class="p">]]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span> <span class="k">else</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span></div></div>
+    
+<div class="viewcode-block" id="DiscreteObservationWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.DiscreteObservationWrapper">[docs]</a><span class="k">class</span> <span class="nc">DiscreteObservationWrapper</span><span class="p">(</span><span class="n">ObservationWrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">bin_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default_bin_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">bin_sizes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">),</span> <span class="s1">&#39;length of bin_size must equal number of buildings.&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span> <span class="k">if</span> <span class="n">bin_sizes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">bin_sizes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_bin_size</span> <span class="o">=</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">default_bin_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default_bin_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="n">o</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_bin_size</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">active_observations</span><span class="p">}</span> 
+            <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span><span class="p">)</span>
+        <span class="p">]</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">MultiDiscrete</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
+            <span class="n">bin_sizes</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_sin&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_cos&#39;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span><span class="p">:</span>
+                        <span class="n">bin_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+            
+            <span class="n">observation_space</span> <span class="o">=</span> <span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">MultiDiscrete</span><span class="p">(</span><span class="n">bin_sizes</span><span class="p">)]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">observation_space</span> <span class="o">=</span> <span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">MultiDiscrete</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="n">observation_space</span>
+    
+<div class="viewcode-block" id="DiscreteObservationWrapper.observation"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.DiscreteObservationWrapper.observation">[docs]</a>    <span class="k">def</span> <span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">transformed_observations</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">observation_space</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="p">)):</span>
+            <span class="n">transformed_observations_</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="n">ll</span><span class="p">,</span> <span class="n">hl</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="n">cs</span><span class="o">.</span><span class="n">high</span><span class="p">,</span> <span class="n">ds</span><span class="p">)):</span>
+                <span class="n">o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ll</span><span class="p">,</span> <span class="n">hl</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">n</span><span class="p">),</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">transformed_observations_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+
+            <span class="n">transformed_observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transformed_observations_</span><span class="p">)</span>
+                
+        <span class="k">return</span> <span class="n">transformed_observations</span></div></div>
+    
+<div class="viewcode-block" id="DiscreteActionWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.DiscreteActionWrapper">[docs]</a><span class="k">class</span> <span class="nc">DiscreteActionWrapper</span><span class="p">(</span><span class="n">ActionWrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">bin_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default_bin_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">bin_sizes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">),</span> <span class="s1">&#39;length of bin_size must equal number of buildings.&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span> <span class="o">=</span> <span class="p">[{}</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span> <span class="k">if</span> <span class="n">bin_sizes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">bin_sizes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_bin_size</span> <span class="o">=</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">default_bin_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default_bin_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="n">a</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_bin_size</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">active_actions</span><span class="p">}</span> 
+            <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span><span class="p">)</span>
+        <span class="p">]</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">MultiDiscrete</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
+            <span class="n">bin_sizes</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">bin_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            
+            <span class="n">action_space</span> <span class="o">=</span> <span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">MultiDiscrete</span><span class="p">(</span><span class="n">bin_sizes</span><span class="p">)]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">action_space</span> <span class="o">=</span> <span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">MultiDiscrete</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">action_space</span>
+
+<div class="viewcode-block" id="DiscreteActionWrapper.action"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.DiscreteActionWrapper.action">[docs]</a>    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="n">transformed_actions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">action_space</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">)):</span>
+            <span class="n">transformed_actions_</span> <span class="o">=</span> <span class="p">[]</span>
+            
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="n">ll</span><span class="p">,</span> <span class="n">hl</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="n">cs</span><span class="o">.</span><span class="n">high</span><span class="p">,</span> <span class="n">ds</span><span class="p">)):</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ll</span><span class="p">,</span> <span class="n">hl</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">n</span><span class="p">)[</span><span class="n">actions</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]]</span>
+                <span class="n">transformed_actions_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            
+            <span class="n">transformed_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transformed_actions_</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">transformed_actions</span></div></div>
+    
+<div class="viewcode-block" id="DiscreteSpaceWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.DiscreteSpaceWrapper">[docs]</a><span class="k">class</span> <span class="nc">DiscreteSpaceWrapper</span><span class="p">(</span><span class="n">Wrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">observation_bin_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">action_bin_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">DiscreteObservationWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">bin_sizes</span><span class="o">=</span><span class="n">observation_bin_sizes</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">DiscreteActionWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">bin_sizes</span><span class="o">=</span><span class="n">action_bin_sizes</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TabularQLearningObservationWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.TabularQLearningObservationWrapper">[docs]</a><span class="k">class</span> <span class="nc">TabularQLearningObservationWrapper</span><span class="p">(</span><span class="n">ObservationWrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">bin_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">DiscreteObservationWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">bin_sizes</span><span class="o">=</span><span class="n">bin_sizes</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combinations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_combinations</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">]:</span>
+        <span class="n">observation_space</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">combinations</span><span class="p">:</span>
+            <span class="n">observation_space</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">observation_space</span>
+    
+<div class="viewcode-block" id="TabularQLearningObservationWrapper.observation"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.TabularQLearningObservationWrapper.observation">[docs]</a>    <span class="k">def</span> <span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">c</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">o</span><span class="p">))]</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">combinations</span><span class="p">)]</span></div>
+    
+<div class="viewcode-block" id="TabularQLearningObservationWrapper.set_combinations"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.TabularQLearningObservationWrapper.set_combinations">[docs]</a>    <span class="k">def</span> <span class="nf">set_combinations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+        <span class="n">combs_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">:</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+            <span class="n">combs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">options</span><span class="p">))</span>
+            <span class="n">combs_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">combs_list</span></div></div>
+    
+<div class="viewcode-block" id="TabularQLearningActionWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.TabularQLearningActionWrapper">[docs]</a><span class="k">class</span> <span class="nc">TabularQLearningActionWrapper</span><span class="p">(</span><span class="n">ActionWrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">bin_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">DiscreteActionWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">bin_sizes</span><span class="o">=</span><span class="n">bin_sizes</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combinations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_combinations</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">]:</span>
+        <span class="n">action_space</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">combinations</span><span class="p">:</span>
+            <span class="n">action_space</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)))</span>
+        
+        <span class="k">return</span> <span class="n">action_space</span>
+    
+<div class="viewcode-block" id="TabularQLearningActionWrapper.action"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.TabularQLearningActionWrapper.action">[docs]</a>    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">combinations</span><span class="p">)]</span></div>
+    
+<div class="viewcode-block" id="TabularQLearningActionWrapper.set_combinations"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.TabularQLearningActionWrapper.set_combinations">[docs]</a>    <span class="k">def</span> <span class="nf">set_combinations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+        <span class="n">combs_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">:</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">n</span><span class="p">))</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+            <span class="n">combs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">options</span><span class="p">))</span>
+            <span class="n">combs_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">combs_list</span></div></div>
+    
+<div class="viewcode-block" id="TabularQLearningWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.TabularQLearningWrapper">[docs]</a><span class="k">class</span> <span class="nc">TabularQLearningWrapper</span><span class="p">(</span><span class="n">Wrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">observation_bin_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">action_bin_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">TabularQLearningObservationWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">bin_sizes</span><span class="o">=</span><span class="n">observation_bin_sizes</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">TabularQLearningActionWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">bin_sizes</span><span class="o">=</span><span class="n">action_bin_sizes</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StableBaselines3ActionWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.StableBaselines3ActionWrapper">[docs]</a><span class="k">class</span> <span class="nc">StableBaselines3ActionWrapper</span><span class="p">(</span><span class="n">ActionWrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="StableBaselines3ActionWrapper.action"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.StableBaselines3ActionWrapper.action">[docs]</a>    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">actions</span><span class="p">]</span></div></div>
+    
+<div class="viewcode-block" id="StableBaselines3RewardWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.StableBaselines3RewardWrapper">[docs]</a><span class="k">class</span> <span class="nc">StableBaselines3RewardWrapper</span><span class="p">(</span><span class="n">RewardWrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StableBaselines3RewardWrapper.reward"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.StableBaselines3RewardWrapper.reward">[docs]</a>    <span class="k">def</span> <span class="nf">reward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">reward</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div></div>
+    
+<div class="viewcode-block" id="StableBaselines3ObservationWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.StableBaselines3ObservationWrapper">[docs]</a><span class="k">class</span> <span class="nc">StableBaselines3ObservationWrapper</span><span class="p">(</span><span class="n">ObservationWrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    
+<div class="viewcode-block" id="StableBaselines3ObservationWrapper.observation"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.StableBaselines3ObservationWrapper.observation">[docs]</a>    <span class="k">def</span> <span class="nf">observation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="StableBaselines3Wrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.StableBaselines3Wrapper">[docs]</a><span class="k">class</span> <span class="nc">StableBaselines3Wrapper</span><span class="p">(</span><span class="n">Wrapper</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">,</span> <span class="s1">&#39;The StableBaselines3Wrapper wrapper is compatible only when env.central_agent = True.&#39;</span>\
+            <span class="s1">&#39; First set env.central_agent = True to use this wrapper.&#39;</span>
+
+        <span class="n">env</span> <span class="o">=</span> <span class="n">StableBaselines3ActionWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">StableBaselines3RewardWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">StableBaselines3ObservationWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

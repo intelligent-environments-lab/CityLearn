@@ -46,6 +46,7 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
@@ -82,6 +83,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span>
 <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">divide</span> <span class="o">=</span> <span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span> <span class="o">=</span> <span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="n">ZERO_DIVISION_CAPACITY</span> <span class="o">=</span> <span class="mf">0.00001</span>
 
 <div class="viewcode-block" id="Device"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Device">[docs]</a><span class="k">class</span> <span class="nc">Device</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -154,7 +156,7 @@
     <span class="nd">@nominal_power</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">nominal_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">nominal_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">nominal_power</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__nominal_power</span> <span class="o">=</span> <span class="mf">0.00001</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__nominal_power</span> <span class="o">=</span> <span class="n">ZERO_DIVISION_CAPACITY</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">nominal_power</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;nominal_power must be &gt;= 0.&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nominal_power</span> <span class="o">=</span> <span class="n">nominal_power</span>
@@ -596,7 +598,7 @@
     <span class="nd">@capacity</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">capacity</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">capacity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__capacity</span> <span class="o">=</span> <span class="mf">0.00001</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__capacity</span> <span class="o">=</span> <span class="n">ZERO_DIVISION_CAPACITY</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">capacity</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;capacity must be &gt;= 0.&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__capacity</span> <span class="o">=</span> <span class="n">capacity</span>
@@ -744,9 +746,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">energy</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>    
-            <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_input_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_input_power</span><span class="p">)</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_input_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">([</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_input_power</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_output_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">max_output_power</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_output_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">max_output_power</span><span class="p">,</span> <span class="n">energy</span><span class="p">])</span>
         
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">charge</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div></div>
 
@@ -830,6 +832,7 @@
 
     <span class="nd">@capacity</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">capacity</span> <span class="o">=</span> <span class="n">ZERO_DIVISION_CAPACITY</span> <span class="k">if</span> <span class="n">capacity</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">capacity</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">capacity</span>
         <span class="n">StorageDevice</span><span class="o">.</span><span class="n">capacity</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">capacity</span><span class="p">)</span>
 

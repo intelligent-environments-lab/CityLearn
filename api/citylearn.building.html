@@ -49,6 +49,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
@@ -64,8 +65,8 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.rl.html">citylearn.rl module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="citylearn.simulator.html">citylearn.simulator module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.utilities.html">citylearn.utilities module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.wrappers.html">citylearn.wrappers module</a></li>
 </ul>
 </li>
 </ul>
@@ -134,15 +135,15 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.Building.apply_actions">
-<span class="sig-name descname"><span class="pre">apply_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cooling_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heating_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dhw_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electrical_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.apply_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.apply_actions" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">apply_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cooling_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heating_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dhw_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electrical_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.apply_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.apply_actions" title="Permalink to this definition"></a></dt>
 <dd><p>Charge/discharge storage devices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cooling_storage_action</strong> (<em>float</em><em>, </em><em>default: 0</em>) – Fraction of <cite>cooling_storage</cite> <cite>capacity</cite> to charge/discharge by.</p></li>
-<li><p><strong>heating_storage_action</strong> (<em>float</em><em>, </em><em>default: 0</em>) – Fraction of <cite>heating_storage</cite> <cite>capacity</cite> to charge/discharge by.</p></li>
-<li><p><strong>dhw_storage_action</strong> (<em>float</em><em>, </em><em>default: 0</em>) – Fraction of <cite>dhw_storage</cite> <cite>capacity</cite> to charge/discharge by.</p></li>
-<li><p><strong>electrical_storage_action</strong> (<em>float</em><em>, </em><em>default: 0</em>) – Fraction of <cite>electrical_storage</cite> <cite>capacity</cite> to charge/discharge by.</p></li>
+<li><p><strong>cooling_storage_action</strong> (<em>float</em><em>, </em><em>default: 0.0</em>) – Fraction of <cite>cooling_storage</cite> <cite>capacity</cite> to charge/discharge by.</p></li>
+<li><p><strong>heating_storage_action</strong> (<em>float</em><em>, </em><em>default: 0.0</em>) – Fraction of <cite>heating_storage</cite> <cite>capacity</cite> to charge/discharge by.</p></li>
+<li><p><strong>dhw_storage_action</strong> (<em>float</em><em>, </em><em>default: 0.0</em>) – Fraction of <cite>dhw_storage</cite> <cite>capacity</cite> to charge/discharge by.</p></li>
+<li><p><strong>electrical_storage_action</strong> (<em>float</em><em>, </em><em>default: 0.0</em>) – Fraction of <cite>electrical_storage</cite> <cite>capacity</cite> to charge/discharge by.</p></li>
 </ul>
 </dd>
 </dl>
@@ -291,7 +292,7 @@ electricity consumption by discharging <cite>cooling_storage</cite> to meet <cit
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.dhw_electricity_consumption">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dhw_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.dhw_electricity_consumption" title="Permalink to this definition"></a></dt>
-<dd><p><cite>dhw_device</cite> net electricity consumption in meeting domestic hot water and <cite>dhw_stoage</cite> energy demand time series, in [kWh].</p>
+<dd><p><cite>dhw_device</cite> net electricity consumption in meeting domestic hot water and <cite>dhw_storage</cite> energy demand time series, in [kWh].</p>
 <p>Positive values indicate <cite>dhw_device</cite> electricity consumption to charge <cite>dhw_storage</cite> and/or meet <cite>dhw_demand</cite> while negative values indicate avoided <cite>dhw_device</cite>
 electricity consumption by discharging <cite>dhw_storage</cite> to meet <cite>dhw_demand</cite>.</p>
 </dd></dl>
@@ -416,20 +417,56 @@ These boundaries should speed up the learning process of the agents and make the
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.Building.estimate_observation_space">
-<span class="sig-name descname"><span class="pre">estimate_observation_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">gym.spaces.box.Box</span></span></span><a class="reference internal" href="../_modules/citylearn/building.html#Building.estimate_observation_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.estimate_observation_space" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">estimate_observation_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">gym.spaces.box.Box</span></span></span><a class="reference internal" href="../_modules/citylearn/building.html#Building.estimate_observation_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.estimate_observation_space" title="Permalink to this definition"></a></dt>
 <dd><p>Get estimate of observation spaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Whether to apply min-max normalization bounded between [0, 1]
+and periodic normalization to cyclic observations including hour, day_type and month.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>observation_space</strong> – Observation low and high limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>spaces.Box</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.building.Building.estimate_observation_space_limits">
+<span class="sig-name descname"><span class="pre">estimate_observation_space_limits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/building.html#Building.estimate_observation_space_limits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.estimate_observation_space_limits" title="Permalink to this definition"></a></dt>
+<dd><p>Get estimate of observation space limits.</p>
 <p>Find minimum and maximum possible values of all the observations, which can then be used by the RL agent to scale the observations and train any function approximators more effectively.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>observation_space</strong> – Observation low and high limits.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Whether to apply min-max normalization bounded between [0, 1]
+and periodic normalization to cyclic observations including hour, day_type and month.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>spaces.Box</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>observation_space_limits</strong> – Observation low and high limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[Mapping[str, float], Mapping[str, float]]</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
 <p>Lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate hence,
 scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.building.Building.get_periodic_observation_metadata">
+<span class="sig-name descname"><span class="pre">get_periodic_observation_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/building.html#Building.get_periodic_observation_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.get_periodic_observation_metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Get periodic observation names and their minimum and maximum values for periodic/cyclic normalization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>periodic_observation_metadata</strong> – Observation low and high limits.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Mapping[str, int]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -481,15 +518,15 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_emission">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_emission" title="Permalink to this definition"></a></dt>
-<dd><p>Carbon dioxide emmission from <cite>net_electricity_consumption</cite> time series, in [kg_co2].</p>
+<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_cost">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_cost" title="Permalink to this definition"></a></dt>
+<dd><p><cite>net_electricity_consumption</cite> cost time series, in [$].</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_price">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_price" title="Permalink to this definition"></a></dt>
-<dd><p><cite>net_electricity_consumption</cite> cost time series, in [$].</p>
+<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_emission">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_emission" title="Permalink to this definition"></a></dt>
+<dd><p>Carbon dioxide emmission from <cite>net_electricity_consumption</cite> time series, in [kg_co2].</p>
 </dd></dl>
 
 <dl class="py property">
@@ -503,9 +540,15 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_and_pv">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_and_pv" title="Permalink to this definition"></a></dt>
-<dd><p>Net electricity consumption in the absence of flexibility provided by <cite>cooling_storage</cite> and self generation time series, in [kWh].</p>
+<dd><p>Net electricity consumption in the absence of flexibility provided by storage devices and self generation time series, in [kWh].</p>
 <p class="rubric">Notes</p>
 <p>net_electricity_consumption_without_storage_and_pv = <cite>net_electricity_consumption_without_storage</cite> - <cite>solar_generation</cite></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_and_pv_cost">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv_cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_and_pv_cost" title="Permalink to this definition"></a></dt>
+<dd><p>net_electricity_consumption_without_storage_and_pv` cost time series, in [$].</p>
 </dd></dl>
 
 <dl class="py property">
@@ -515,21 +558,15 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_and_pv_price">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_and_pv_price" title="Permalink to this definition"></a></dt>
-<dd><p>net_electricity_consumption_without_storage_and_pv` cost time series, in [$].</p>
+<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_cost">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_cost" title="Permalink to this definition"></a></dt>
+<dd><p><cite>net_electricity_consumption_without_storage</cite> cost time series, in [$].</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_emission">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_emission" title="Permalink to this definition"></a></dt>
 <dd><p>Carbon dioxide emmission from <cite>net_electricity_consumption_without_storage</cite> time series, in [kg_co2].</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_price">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_price" title="Permalink to this definition"></a></dt>
-<dd><p><cite>net_electricity_consumption_without_storage</cite> cost time series, in [$].</p>
 </dd></dl>
 
 <dl class="py method">
@@ -556,10 +593,25 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 <dd><p>Agent observation space.</p>
 </dd></dl>
 
-<dl class="py property">
+<dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.Building.observations">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.observations" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">observations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/building.html#Building.observations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.observations" title="Permalink to this definition"></a></dt>
 <dd><p>Observations at current time step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Whether to apply min-max normalization bounded between [0, 1]
+and periodic normalization to cyclic observations including hour, day_type and month.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>observation_space</strong> – Observation low and high limits.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>spaces.Box</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate hence,
+scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -592,40 +644,40 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 <dd><p>Charge/discharge <cite>cooling_storage</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>action</strong> (<em>float</em><em>, </em><em>default: 0</em>) – Fraction of <cite>cooling_storage</cite> <cite>capacity</cite> to charge/discharge by.</p>
+<dd class="field-odd"><p><strong>action</strong> (<em>float</em>) – Fraction of <cite>cooling_storage</cite> <cite>capacity</cite> to charge/discharge by.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.Building.update_dhw">
-<span class="sig-name descname"><span class="pre">update_dhw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.update_dhw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.update_dhw" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_dhw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.update_dhw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.update_dhw" title="Permalink to this definition"></a></dt>
 <dd><p>Charge/discharge <cite>dhw_storage</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>action</strong> (<em>float</em><em>, </em><em>default: 0</em>) – Fraction of <cite>dhw_storage</cite> <cite>capacity</cite> to charge/discharge by.</p>
+<dd class="field-odd"><p><strong>action</strong> (<em>float</em>) – Fraction of <cite>dhw_storage</cite> <cite>capacity</cite> to charge/discharge by.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.Building.update_electrical_storage">
-<span class="sig-name descname"><span class="pre">update_electrical_storage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.update_electrical_storage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.update_electrical_storage" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_electrical_storage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.update_electrical_storage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.update_electrical_storage" title="Permalink to this definition"></a></dt>
 <dd><p>Charge/discharge <cite>electrical_storage</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>action</strong> (<em>float</em><em>, </em><em>default: 0</em>) – Fraction of <cite>electrical_storage</cite> <cite>capacity</cite> to charge/discharge by.</p>
+<dd class="field-odd"><p><strong>action</strong> (<em>float</em>) – Fraction of <cite>electrical_storage</cite> <cite>capacity</cite> to charge/discharge by.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.Building.update_heating">
-<span class="sig-name descname"><span class="pre">update_heating</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.update_heating"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.update_heating" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_heating</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.update_heating"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.update_heating" title="Permalink to this definition"></a></dt>
 <dd><p>Charge/discharge <cite>heating_storage</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>action</strong> (<em>float</em><em>, </em><em>default: 0</em>) – Fraction of <cite>heating_storage</cite> <cite>capacity</cite> to charge/discharge by.</p>
+<dd class="field-odd"><p><strong>action</strong> (<em>float</em>) – Fraction of <cite>heating_storage</cite> <cite>capacity</cite> to charge/discharge by.</p>
 </dd>
 </dl>
 </dd></dl>

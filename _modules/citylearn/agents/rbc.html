@@ -46,6 +46,7 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">citylearn</a></li>
@@ -78,7 +79,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.agents.rbc</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">citylearn.agents.base</span> <span class="kn">import</span> <span class="n">Agent</span>
 
 <div class="viewcode-block" id="RBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.RBC">[docs]</a><span class="k">class</span> <span class="nc">RBC</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
@@ -121,7 +122,7 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BasicRBC.select_actions"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicRBC.select_actions">[docs]</a>    <span class="k">def</span> <span class="nf">select_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<div class="viewcode-block" id="BasicRBC.predict"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicRBC.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
 
 <span class="sd">        Parameters</span>
@@ -167,7 +168,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OptimizedRBC.select_actions"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.OptimizedRBC.select_actions">[docs]</a>    <span class="k">def</span> <span class="nf">select_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<div class="viewcode-block" id="OptimizedRBC.predict"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.OptimizedRBC.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
 
 <span class="sd">        Parameters</span>
@@ -222,7 +223,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BasicBatteryRBC.select_actions"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicBatteryRBC.select_actions">[docs]</a>    <span class="k">def</span> <span class="nf">select_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<div class="viewcode-block" id="BasicBatteryRBC.predict"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicBatteryRBC.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
 
 <span class="sd">        Parameters</span>
@@ -259,6 +260,51 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="n">actions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">actions</span></div></div>
+    
+<div class="viewcode-block" id="HourRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.HourRBC">[docs]</a><span class="k">class</span> <span class="nc">HourRBC</span><span class="p">(</span><span class="n">BasicRBC</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">action_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_map</span> <span class="o">=</span> <span class="n">action_map</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">action_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_map</span>
+    
+    <span class="nd">@action_map</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">action_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__action_map</span> <span class="o">=</span> <span class="n">action_map</span>
+
+<div class="viewcode-block" id="HourRBC.predict"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.HourRBC.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observations: List[List[float]]</span>
+<span class="sd">            Environment observations</span>
+<span class="sd">        deterministic: bool, default: False</span>
+<span class="sd">            Wether to return purely exploitatative deterministic actions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        actions: List[float]</span>
+<span class="sd">            Action values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="n">deterministic</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_names</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">):</span>
+                <span class="n">hour</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;hour&#39;</span><span class="p">)]</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">action_map</span><span class="p">[</span><span class="n">hour</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
+                <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="n">actions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
+        
         <span class="k">return</span> <span class="n">actions</span></div></div>
 </pre></div>
 

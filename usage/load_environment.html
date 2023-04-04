@@ -52,6 +52,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Usage</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">How to Load an Environment</a><ul>
@@ -61,7 +62,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="simulate.html">How to Setup a Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulator.html">How to Run a Simulation Using the Simulator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cli.html">CLI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples.html">Analysis Examples</a></li>
 </ul>
@@ -96,13 +96,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="How-to-Load-an-Environment">
+  <p><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></p>
+<section id="How-to-Load-an-Environment">
 <h1>How to Load an Environment<a class="headerlink" href="#How-to-Load-an-Environment" title="Permalink to this headline"></a></h1>
+<p>Install the latest CityLearn version from PyPi with the :code:<code class="docutils literal notranslate"><span class="pre">pip</span></code> command:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">CityLearn</span>
+</pre></div>
+</div>
+</div>
 <section id="Load-an-Environment-Using-Schema-Filepath">
 <h2>Load an Environment Using Schema Filepath<a class="headerlink" href="#Load-an-Environment-Using-Schema-Filepath" title="Permalink to this headline"></a></h2>
 <p>The <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/overview/schema.html">Schema</a> filepath can be use to initialize an environment:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
@@ -118,7 +128,7 @@
 <h2>Load an Environment Using Schema Dictionary Object<a class="headerlink" href="#Load-an-Environment-Using-Schema-Dictionary-Object" title="Permalink to this headline"></a></h2>
 <p>Alternatively, the schema can be supplied as a <code class="docutils literal notranslate"><span class="pre">dict</span></code> object. This approach can be used to edit the schema parameter values before constructing the environment. With this approach, the <code class="docutils literal notranslate"><span class="pre">root_directory</span></code> key-value must be explicitly set: See example below:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
@@ -133,7 +143,7 @@
 </div>
 <p>Some schema parameters can also be overriden by parsing them directly to the <code class="docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code> constructor:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
@@ -155,7 +165,7 @@
 <h2>Load an Environment Using Named Dataset<a class="headerlink" href="#Load-an-Environment-Using-Named-Dataset" title="Permalink to this headline"></a></h2>
 <p>CityLearn provides some data files that are contained in named datasets including those that have been used in <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/citylearn_challenge/index.html">The CityLearn Challenge</a>. These datasets names can be used in place of schema filepaths or <code class="docutils literal notranslate"><span class="pre">dict</span></code> objects to initialize an environment. To get the dataset names run:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span>
@@ -175,7 +185,7 @@
 </div>
 <p>Initialize the environment using any of the valid names:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
@@ -186,7 +196,7 @@
 </div>
 <p>The dataset can also be download to a path of choice for inspection. The following code copies a dataset to the current directory:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span>

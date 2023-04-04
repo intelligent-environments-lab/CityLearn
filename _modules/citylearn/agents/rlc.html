@@ -46,6 +46,7 @@
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html#Stable-Baselines3-Reinforcement-Learning-Algorithms">Stable Baselines3 Reinforcement Learning Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">citylearn</a></li>
@@ -80,6 +81,7 @@
   <h1>Source code for citylearn.agents.rlc</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">citylearn.preprocessing</span> <span class="kn">import</span> <span class="n">Encoder</span><span class="p">,</span> <span class="n">PeriodicNormalization</span><span class="p">,</span> <span class="n">Normalize</span><span class="p">,</span> <span class="n">OnehotEncoding</span>
 
 <span class="c1"># conditional imports</span>
 <span class="k">try</span><span class="p">:</span>
@@ -95,7 +97,7 @@
         <span class="n">discount</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tau</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">replay_buffer_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start_training_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_exploration_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
         <span class="n">deterministic_start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">action_scaling_coefficienct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_scaling</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">update_per_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="n">update_per_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `RLC`.</span>
 
@@ -131,8 +133,6 @@
 <span class="sd">            Reward scaling.</span>
 <span class="sd">        update_per_time_step : int, default: 2</span>
 <span class="sd">            Number of updates per time step.</span>
-<span class="sd">        seed : int</span>
-<span class="sd">            Pseudorandom number generator seed for repeatable results.</span>
 <span class="sd">        </span>
 <span class="sd">        Other Parameters</span>
 <span class="sd">        ----------------</span>
@@ -154,7 +154,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">action_scaling_coefficient</span> <span class="o">=</span> <span class="n">action_scaling_coefficienct</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reward_scaling</span> <span class="o">=</span> <span class="n">reward_scaling</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_per_time_step</span> <span class="o">=</span> <span class="n">update_per_time_step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_encoders</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">observation_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -240,12 +240,6 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__update_per_time_step</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pseudorandom number generator seed for repeatable results.&quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__seed</span>
-
     <span class="nd">@hidden_dimension</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">hidden_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">hidden_dimension</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__hidden_dimension</span> <span class="o">=</span> <span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">]</span> <span class="k">if</span> <span class="n">hidden_dimension</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hidden_dimension</span>
@@ -300,11 +294,46 @@
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">update_per_time_step</span><span class="p">,</span><span class="nb">int</span><span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;update_per_time_step mut be int type. </span><span class="si">{</span><span class="n">update_per_time_step</span><span class="si">}</span><span class="s1"> is of </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">update_per_time_step</span><span class="p">)</span><span class="si">}</span><span class="s1"> type&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__update_per_time_step</span> <span class="o">=</span> <span class="n">update_per_time_step</span>
 
-    <span class="nd">@seed</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__seed</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">seed</span>
-        <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span></div>
+    <span class="nd">@Agent</span><span class="o">.</span><span class="n">random_seed</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">Agent</span><span class="o">.</span><span class="n">random_seed</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RLC.set_encoders"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.RLC.set_encoders">[docs]</a>    <span class="k">def</span> <span class="nf">set_encoders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Encoder</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get observation value transformers/encoders for use in agent algorithm.</span>
+
+<span class="sd">        The encoder classes are defined in the `preprocessing.py` module and include `PeriodicNormalization` for cyclic observations,</span>
+<span class="sd">        `OnehotEncoding` for categorical obeservations, `RemoveFeature` for non-applicable observations given available storage systems and devices</span>
+<span class="sd">        and `Normalize` for observations with known minimum and maximum boundaries.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        encoders : List[List[Encoder]]</span>
+<span class="sd">            Encoder classes for observations ordered with respect to `active_observations`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">encoders</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span><span class="p">):</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="s1">&#39;hour&#39;</span><span class="p">]:</span>
+                    <span class="n">e</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PeriodicNormalization</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">high</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            
+                <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="s1">&#39;day_type&#39;</span><span class="p">:</span>
+                    <span class="n">e</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">OnehotEncoding</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]))</span>
+            
+                <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="s2">&quot;daylight_savings_status&quot;</span><span class="p">:</span>
+                    <span class="n">e</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">OnehotEncoding</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
+            
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">e</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Normalize</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">low</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">high</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+            <span class="n">encoders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">encoders</span></div></div>
 </pre></div>
 
            </div>
