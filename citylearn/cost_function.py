@@ -193,8 +193,8 @@ class CostFunction:
         return data['carbon_emissions'].tolist()
 
     @staticmethod
-    def price(price: List[float]) -> List[float]:
-        r"""Rolling sum of electricity price.
+    def cost(price: List[float]) -> List[float]:
+        r"""Rolling sum of electricity monetary cost.
 
         Parameters
         ----------
@@ -208,14 +208,14 @@ class CostFunction:
 
         Examples
         --------
-        >>> price = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]
+        >>> cost = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]
         >>> CostFunction.price(carbon_emissions)
         [100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]
         """
 
-        data = pd.DataFrame({'price':np.array(price).clip(min=0)})
-        data['price'] = data['price'].rolling(window=data.shape[0],min_periods=1).sum()
-        return data['price'].tolist()
+        data = pd.DataFrame({'cost':np.array(price).clip(min=0)})
+        data['cost'] = data['cost'].rolling(window=data.shape[0],min_periods=1).sum()
+        return data['cost'].tolist()
 
     @staticmethod
     def quadratic(net_electricity_consumption: List[float]) -> List[float]:
