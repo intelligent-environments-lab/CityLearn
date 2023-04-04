@@ -5,25 +5,23 @@ from pathlib import Path
 import pickle
 import sys
 from citylearn.citylearn import CityLearnEnv
-from citylearn.simulator import Simulator
 
-def simulate(schema: str, filepath: str = None, keep_env_history: bool = None, logging_level: int = None):
-    env = CityLearnEnv(schema)
-    agents = env.load_agent()
-    simulator = Simulator(
-        env, 
-        agents, 
-        episodes=env.schema['episodes'], 
-        keep_env_history=keep_env_history, 
-        logging_level=logging_level
-    )
-
+def __learn(**kwargs):
+    env = CityLearnEnv(kwargs['schema'])
+    model = env.load_agent()
+    
     try:
-        simulator.simulate()
+        model.learn(
+            episodes=kwargs.get('episodes', env.schema['episodes']),
+            keep_env_history=kwargs['keep_env_history'],
+            env_history_directory=kwargs['env_history_directory'],
+            deterministic_finish=kwargs['deterministic_finish'],
+            logging_level=kwargs['logging_level']
+        )
     
     finally:
-        with open(filepath, 'wb') as f:
-            pickle.dump(simulator, f)
+        with open(kwargs['filepath'], 'wb') as f:
+            pickle.dump(model, f)
 
 def main():
     parser = argparse.ArgumentParser(prog='citylearn', formatter_class=argparse.ArgumentDefaultsHelpFormatter, description=('''
@@ -32,16 +30,22 @@ def main():
     ))
     parser.add_argument('--version', action='version', version='%(prog)s' + f' {__version__}')
     subparsers = parser.add_subparsers(title='subcommands', required=True, dest='subcommands')
-    subparser_simulate = subparsers.add_parser('simulate', description='Run simulation.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    subparser_simulate = subparsers.add_parser('learn', description='Run simulation.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     subparser_simulate.add_argument('schema', type=str, help='CityLearn dataset name or schema path.')
-    subparser_simulate.add_argument('-f', '--filepath', type=Path, dest='filepath', default='citylearn_simulator.pkl', help='Filepath to write simulation pickle object to upon completion.')
+    subparser_simulate.add_argument('-e', '--episodes', type=int, dest='episodes', default=None, help='Number of training episodes.')
+    subparser_simulate.add_argument('-f', '--filepath', type=Path, dest='filepath', default='citylearn_learning.pkl', help='Filepath to write simulation pickle object to upon completion.')
     subparser_simulate.add_argument('-k', '--keep_env_history', action='store_true', dest='keep_env_history', help='Indicator to store environment state at the end of each episode.')
+    subparser_simulate.add_argument('-d', '--env_history_directory', type=str, dest='env_history_directory', help='Directory to save environment history to.')
+    subparser_simulate.add_argument('-n', '--deterministic_finish', action='store_true', dest='deterministic_finish', help='Simulate an extra episode with deterministic actions.')
     subparser_simulate.add_argument("-l", "--logging_level", type=int, default=50, dest='logging_level', help='Logging level where increasing the level silences lower level information.')
-    subparser_simulate.set_defaults(func=simulate)
+    subparser_simulate.set_defaults(func=__learn)
+    
     args = parser.parse_args()
     arg_spec = inspect.getfullargspec(args.func)
-    args_for_func = {k:getattr(args, k) for k in arg_spec.args}
-    args.func(**args_for_func)
+    kwargs = {key:value for (key, value) in args._get_kwargs() 
+        if (key in arg_spec.args or (arg_spec.varkw is not None and key not in ['func','subcommands']))
+    }
+    args.func(**kwargs)
 
 if __name__ == '__main__':
     sys.exit(main())
