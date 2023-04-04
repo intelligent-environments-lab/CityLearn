@@ -75,13 +75,13 @@ class PeriodicNormalization(Encoder):
         x = 2 * np.pi * x / self.x_max
         x_sin = np.sin(x)
         x_cos = np.cos(x)
-        return np.array([(x_sin+1)/2.0, (x_cos+1)/2.0])
+        return np.array([x_sin, x_cos])
 
     def __rmul__(self, x: Union[float, int]):
         x = 2 * np.pi * x / self.x_max
         x_sin = np.sin(x)
         x_cos = np.cos(x)
-        return np.array([(x_sin+1)/2.0, (x_cos+1)/2.0])
+        return np.array([x_sin, x_cos])
 
 class OnehotEncoding(Encoder):
     r"""Initialize `PeriodicNormalization` encoder class.
