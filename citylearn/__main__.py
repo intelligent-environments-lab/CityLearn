@@ -36,7 +36,7 @@ def main():
     subparser_simulate.add_argument('-f', '--filepath', type=Path, dest='filepath', default='citylearn_learning.pkl', help='Filepath to write simulation pickle object to upon completion.')
     subparser_simulate.add_argument('-k', '--keep_env_history', action='store_true', dest='keep_env_history', help='Indicator to store environment state at the end of each episode.')
     subparser_simulate.add_argument('-d', '--env_history_directory', type=str, dest='env_history_directory', help='Directory to save environment history to.')
-    subparser_simulate.add_argument('-n', '--deterministic_finish', action='store_true', dest='deterministic_finish', help='Simulate an extra episode with deterministic actions.')
+    subparser_simulate.add_argument('-n', '--deterministic_finish', action='store_true', dest='deterministic_finish', help='Take deterministic actions in the final episode.')
     subparser_simulate.add_argument("-l", "--logging_level", type=int, default=50, dest='logging_level', help='Logging level where increasing the level silences lower level information.')
     subparser_simulate.set_defaults(func=__learn)
     
