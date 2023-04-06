@@ -102,6 +102,24 @@ class Agent(Environment):
             self, episodes: int = None, keep_env_history: bool = None, env_history_directory: Union[str, Path] = None, 
             deterministic: bool = None, deterministic_finish: bool = None, logging_level: int = None
         ):
+        """Train agent.
+
+        Parameters
+        ----------
+        episodes: int, default: 1
+            Number of training episode greater :math:`\ge 1`.
+        keep_env_history: bool, default: False
+            Indicator to store environment state at the end of each episode.
+        env_history_directory: Union[str, Path], optional
+            Directory to save environment history to.
+        deterministic: bool, default: False
+            Indicator to take deterministic actions i.e. strictly exploit the learned policy.
+        deterministic_finish: bool, default: False
+            Indicator to take deterministic actions in the final episode.
+        logging_level: int, default: 30
+            Logging level where increasing the number silences lower level information.      
+        """
+        
         episodes = 1 if episodes is None else episodes
         keep_env_history = False if keep_env_history is None else keep_env_history
         deterministic_finish = False if deterministic_finish is None else deterministic_finish
