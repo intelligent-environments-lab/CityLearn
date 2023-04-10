@@ -115,6 +115,14 @@
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#IndependentSACReward.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.IndependentSACReward.calculate" title="Permalink to this definition"></a></dt>
 <dd><p>Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.</p>
 <p>Recommended for use with the <cite>SAC</cite> controllers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[float]</p>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]\)</span>
 where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(n\)</span> is the number of agents.</p>
@@ -130,6 +138,14 @@ where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electrici
 <dt class="sig sig-object py" id="citylearn.reward_function.MARL.calculate">
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#MARL.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.MARL.calculate" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates MARL reward.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[float]</p>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>Reward value is calculated as <span class="math notranslate nohighlight">\(\textrm{sign}(-e) \times 0.01(e^2) \times \textrm{max}(0, E)\)</span>
 where <span class="math notranslate nohighlight">\(e\)</span> is the building <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(E\)</span> is the district <cite>electricity_consumption</cite>.</p>
@@ -146,6 +162,14 @@ where <span class="math notranslate nohighlight">\(e\)</span> is the building <c
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#RewardFunction.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.RewardFunction.calculate" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates default reward.</p>
 <p>The default reward is the electricity consumption from the grid at the current time step returned as a negative value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[float]</p>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]\)</span>
 where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(n\)</span> is the number of agents.</p>
@@ -166,11 +190,25 @@ where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electrici
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.reward_function.SolarPenaltyReward.calculate">
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#SolarPenaltyReward.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.SolarPenaltyReward.calculate" title="Permalink to this definition"></a></dt>
-<dd><p>Calculates default reward.</p>
-<p>The default reward is the electricity consumption from the grid at the current time step returned as a negative value.</p>
-<p class="rubric">Notes</p>
-<p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]\)</span>
-where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(n\)</span> is the number of agents.</p>
+<dd><p>The reward is designed to minimize electricity consumption and maximize
+solar generation to charge energy storage systems.</p>
+<p>The reward is calculated for each building, i and summed to provide the agent
+with a reward that is representative of all the building or buildings (in centralized case)
+it controls. It encourages net-zero energy use by penalizing grid load satisfaction
+when there is energy in the enerygy storage systems as well as penalizing
+net export when the energy storage systems are not fully charged through the penalty
+term. There is neither penalty nor reward when the energy storage systems
+are fully charged during net export to the grid. Whereas, when the
+energy storage systems are charged to capacity and there is net import from the
+grid the penalty is maximized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[float]</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

@@ -113,6 +113,11 @@
 
 <span class="sd">        The default reward is the electricity consumption from the grid at the current time step returned as a negative value.</span>
 
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        reward: List[float]</span>
+<span class="sd">            Reward for transition to current timestep.</span>
+
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        Reward value is calculated as :math:`[\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]` </span>
@@ -132,6 +137,11 @@
 
 <div class="viewcode-block" id="MARL.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.MARL.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates MARL reward.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        reward: List[float]</span>
+<span class="sd">            Reward for transition to current timestep.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -153,6 +163,11 @@
 
 <span class="sd">        Recommended for use with the `SAC` controllers.</span>
 
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        reward: List[float]</span>
+<span class="sd">            Reward for transition to current timestep.</span>
+
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        Reward value is calculated as :math:`[\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]` </span>
@@ -166,6 +181,25 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SolarPenaltyReward.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyReward.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The reward is designed to minimize electricity consumption and maximize</span>
+<span class="sd">        solar generation to charge energy storage systems.</span>
+
+<span class="sd">        The reward is calculated for each building, i and summed to provide the agent</span>
+<span class="sd">        with a reward that is representative of all the building or buildings (in centralized case)</span>
+<span class="sd">        it controls. It encourages net-zero energy use by penalizing grid load satisfaction </span>
+<span class="sd">        when there is energy in the enerygy storage systems as well as penalizing </span>
+<span class="sd">        net export when the energy storage systems are not fully charged through the penalty </span>
+<span class="sd">        term. There is neither penalty nor reward when the energy storage systems</span>
+<span class="sd">        are fully charged during net export to the grid. Whereas, when the </span>
+<span class="sd">        energy storage systems are charged to capacity and there is net import from the </span>
+<span class="sd">        grid the penalty is maximized.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        reward: List[float]</span>
+<span class="sd">            Reward for transition to current timestep.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
         <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
