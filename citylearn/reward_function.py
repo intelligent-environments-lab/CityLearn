@@ -33,6 +33,11 @@ class RewardFunction:
 
         The default reward is the electricity consumption from the grid at the current time step returned as a negative value.
 
+        Returns
+        -------
+        reward: List[float]
+            Reward for transition to current timestep.
+
         Notes
         -----
         Reward value is calculated as :math:`[\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]` 
@@ -52,6 +57,11 @@ class MARL(RewardFunction):
 
     def calculate(self) -> List[float]:
         r"""Calculates MARL reward.
+
+        Returns
+        -------
+        reward: List[float]
+            Reward for transition to current timestep.
 
         Notes
         -----
@@ -73,6 +83,11 @@ class IndependentSACReward(RewardFunction):
 
         Recommended for use with the `SAC` controllers.
 
+        Returns
+        -------
+        reward: List[float]
+            Reward for transition to current timestep.
+
         Notes
         -----
         Reward value is calculated as :math:`[\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]` 
@@ -86,6 +101,25 @@ class SolarPenaltyReward(RewardFunction):
         super().__init__(env)
 
     def calculate(self) -> List[float]:
+        """The reward is designed to minimize electricity consumption and maximize
+        solar generation to charge energy storage systems.
+
+        The reward is calculated for each building, i and summed to provide the agent
+        with a reward that is representative of all the building or buildings (in centralized case)
+        it controls. It encourages net-zero energy use by penalizing grid load satisfaction 
+        when there is energy in the enerygy storage systems as well as penalizing 
+        net export when the energy storage systems are not fully charged through the penalty 
+        term. There is neither penalty nor reward when the energy storage systems
+        are fully charged during net export to the grid. Whereas, when the 
+        energy storage systems are charged to capacity and there is net import from the 
+        grid the penalty is maximized.
+
+        Returns
+        -------
+        reward: List[float]
+            Reward for transition to current timestep.
+        """
+        
         reward_list = []
 
         for b in self.env.buildings:
