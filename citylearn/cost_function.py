@@ -35,8 +35,9 @@ class CostFunction:
         return data['ramping'].tolist()
 
     @staticmethod
-    def load_factor(net_electricity_consumption: List[float], window: int = None) -> List[float]:
-        r"""Difference between 1 and the ratio of rolling mean demand to rolling peak demand over a specified period.
+    def one_minus_load_factor(net_electricity_consumption: List[float], window: int = None) -> List[float]:
+        r"""Difference between 1 and the load factor i.e., ratio of rolling mean demand 
+        to rolling peak demand over a specified period.
 
         Parameters
         ----------
@@ -47,8 +48,8 @@ class CostFunction:
 
         Returns
         -------
-        load_factor : List[float]
-            Load factor cost.
+        1 - load_factor : List[float]
+            1 - load factor cost.
         """
 
         window = 730 if window is None else window
@@ -61,48 +62,23 @@ class CostFunction:
         return data['load_factor'].tolist()
 
     @staticmethod
-    def average_daily_peak(net_electricity_consumption: List[float], daily_time_step: int = None) -> List[float]:
-        r"""Mean of daily net electricity consumption peaks.
-
-        Parameters
-        ----------
-        net_electricity_consumption : List[float]
-            Electricity consumption time series.
-        daily_time_step : int, default: 24
-            Number of time steps in a day.
-            
-        Returns
-        -------
-        average_daily_peak : List[float]
-            Average daily peak cost.
-        """
-
-        daily_time_step = 24 if daily_time_step is None else daily_time_step
-        data = pd.DataFrame({'net_electricity_consumption':net_electricity_consumption})
-        data['group'] = (data.index/daily_time_step).astype(int)
-        data = data.groupby(['group'])[['net_electricity_consumption']].max()
-        data['net_electricity_consumption'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).mean()
-        
-        return data['net_electricity_consumption'].tolist()
-
-    @staticmethod
-    def peak_demand(net_electricity_consumption: List[float], window: int = None) -> List[float]:
+    def peak(net_electricity_consumption: List[float], window: int = None) -> List[float]:
         r"""Net electricity consumption peak.
 
         Parameters
         ----------
         net_electricity_consumption : List[float]
             Electricity consumption time series.
-        window : int, default: 8760
+        window : int, default: 24
             Period window/time steps to find peaks.
             
         Returns
         -------
-        peak_demand : List[float]
-            Peak demand cost.        
+        peak : List[float]
+            Average daily peak cost.
         """
 
-        window = 8760 if window is None else window
+        window = 24 if window is None else window
         data = pd.DataFrame({'net_electricity_consumption':net_electricity_consumption})
         data['group'] = (data.index/window).astype(int)
         data = data.groupby(['group'])[['net_electricity_consumption']].max()
@@ -137,7 +113,7 @@ class CostFunction:
         r"""Rolling sum of net electricity consumption.
 
         It is the net sum of electricty that is consumed from the grid and self-generated from renenewable sources.
-        This calculation of zero net energy does not consider in TDV and all time steps are weighted equally.
+        This calculation of zero net energy does not consider TDV and all time steps are weighted equally.
 
         Parameters
         ----------
@@ -221,58 +197,62 @@ class CostFunction:
         return data['quadratic'].tolist()
     
     @staticmethod
-    def comfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_setpoint: List[float], band: float) -> tuple:
-        r"""Rolling count of unmet, too cold and too hot time steps as well as rolling minimum, maximum and average temperature delta.
+    def comfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_set_point: List[float], band: float = None, occupant_count: List[int] = None) -> tuple:
+        r"""Rolling percentage of unmet, too cold and too hot time steps as well as rolling minimum, maximum and average temperature delta.
 
         Parameters
         ----------
         indoor_dry_bulb_temperature: List[float]
             Average building dry bulb temperature time series.
-        dry_bulb_temperature_setpoint: List[float]
+        dry_bulb_temperature_set_point: List[float]
             Building thermostat setpoint time series.
-        band: float
-            Comfort band above and below dry_bulb_temperature_setpoint beyond 
+        band: float, default = 2.0
+            Comfort band above and below dry_bulb_temperature_set_point beyond 
             which occupant is assumed to be uncomfortable.
+        occupant_cunt: List[float], optional
+            Occupant count time series. If provided, the comfort cost is 
+            evaluated for occupied time steps only.
             
         Returns
         -------
         unmet: List[float]
-            Rolling count of timesteps where the condition 
-            (dry_bulb_temperature_setpoint - band) <= indoor_dry_bulb_temperature <= (dry_bulb_temperature_setpoint + band)
-            is not met.
+            Rolling proportion of timesteps where the condition 
+            (dry_bulb_temperature_set_point - band) <= indoor_dry_bulb_temperature <= (dry_bulb_temperature_set_point + band) is not met.
         too_cold: List[float]
-            Rolling count of timesteps where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_setpoint - band) 
-            is met.
+            Rolling proportion of timesteps where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
         too_hot: List[float]
-            Rolling count of timesteps where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_setpoint + band)
-            is met.
+            Rolling proportion of timesteps where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
         minimum_delta: List[float]
-            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_setpoint.
+            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
         maximum_delta: List[float]
-            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_setpoint.
+            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
         average_delta: List[float]
-            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_setpoint.
+            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
         """
+
+        band = 2.0 if band is None else band
 
         # unmet hours
         data = pd.DataFrame({
             'indoor_dry_bulb_temperature': indoor_dry_bulb_temperature, 
-            'dry_bulb_temperature_setpoint': dry_bulb_temperature_setpoint
+            'dry_bulb_temperature_set_point': dry_bulb_temperature_set_point,
+            'occupant_count': [1]*len(indoor_dry_bulb_temperature) if occupant_count is None else occupant_count
         })
-        data['delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_setpoint']
+        data['delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_set_point']
+        data.loc[data['occupant_count'] < 1.0, 'delta'] = 0.0
         data['unmet'] = 0
         data.loc[data['delta'].abs() > band, 'unmet'] = 1
-        data['unmet'] = data['unmet'].rolling(window=data.shape[0],min_periods=1).sum()
+        data['unmet'] = data['unmet'].rolling(window=data.shape[0],min_periods=1).sum()/data.shape[0]
 
         # too cold
         data['too_cold'] = 0
-        data[data['delta'] < -band, 'too_cold'] = 1
-        data['too_cold'] = data['too_cold'].rolling(window=data.shape[0],min_periods=1).sum()
+        data.loc[data['delta'] < -band, 'too_cold'] = 1
+        data['too_cold'] = data['too_cold'].rolling(window=data.shape[0],min_periods=1).sum()/data.shape[0]
 
         # too hot
         data['too_hot'] = 0
-        data[data['delta'] > band, 'too_hot'] = 1
-        data['too_hot'] = data['too_hot'].rolling(window=data.shape[0],min_periods=1).sum()
+        data.loc[data['delta'] > band, 'too_hot'] = 1
+        data['too_hot'] = data['too_hot'].rolling(window=data.shape[0],min_periods=1).sum()/data.shape[0]
 
         # minimum delta
         data['minimum_delta'] = data['delta'].rolling(window=data.shape[0],min_periods=1).min()
