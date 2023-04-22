@@ -7,16 +7,17 @@ from citylearn.citylearn import CityLearnEnv
 class NormalizedObservationWrapper(ObservationWrapper):
     def __init__(self, env: CityLearnEnv) -> None:
         super().__init__(env)
+        self.env: CityLearnEnv
+        self.observation_space = self.set_observation_space()
     
-    @property
-    def observation_space(self) -> List[spaces.Box]:
+    def set_observation_space(self) -> List[spaces.Box]:
         low_limit = []
         high_limit = []
 
         if self.env.central_agent:
             for i, b in enumerate(self.env.buildings):
-                s = b.estimate_observation_space(normalize=True)
-                l, _ = b.normalized_observation_space_limits
+                s = b.estimate_observation_space(normalize=True, periodic_normalization=True)
+                l, _ = b.periodic_normalized_observation_space_limits
 
                 for k, lv, hv in zip(l, s.low, s.high):
                     if i == 0 or k.rstrip('_sin').rstrip('_cos') not in self.env.shared_observations:
@@ -29,19 +30,20 @@ class NormalizedObservationWrapper(ObservationWrapper):
             observation_space = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
 
         else:
-            observation_space = [b.estimate_observation_space(normalize=True) for b in self.env.buildings]
+            observation_space = [b.estimate_observation_space(normalize=True, periodic_normalization=True) for b in self.env.buildings]
         
         return observation_space
 
     def observation(self, observations: List[List[float]]) -> List[List[float]]:
         return [[
-            v for i, b in enumerate(self.env.buildings) for k, v in b.observations(normalize=True).items() 
+            v for i, b in enumerate(self.env.buildings) for k, v in b.observations(normalize=True, periodic_normalization=True).items() 
             if i == 0 or k.rstrip('_sin').rstrip('_cos') not in self.env.shared_observations
-        ]] if self.env.central_agent else [list(b.observations(normalize=True).values()) for b in self.env.buildings]
+        ]] if self.env.central_agent else [list(b.observations(normalize=True, periodic_normalization=True).values()) for b in self.env.buildings]
     
 class DiscreteObservationWrapper(ObservationWrapper):
     def __init__(self, env: CityLearnEnv, bin_sizes: List[Mapping[str, int]] = None, default_bin_size: int = None):
         super().__init__(env)
+        self.env: CityLearnEnv
         assert bin_sizes is None or len(bin_sizes) == len(self.env.buildings), 'length of bin_size must equal number of buildings.'
         self.bin_sizes = [{} for _ in self.env.buildings] if bin_sizes is None else bin_sizes
         self.default_bin_size = 10 if default_bin_size is None else default_bin_size
@@ -87,6 +89,7 @@ class DiscreteObservationWrapper(ObservationWrapper):
 class DiscreteActionWrapper(ActionWrapper):
     def __init__(self, env: CityLearnEnv, bin_sizes: List[Mapping[str, int]] = None, default_bin_size: int = None):
         super().__init__(env)
+        self.env: CityLearnEnv
         assert bin_sizes is None or len(bin_sizes) == len(self.env.buildings), 'length of bin_size must equal number of buildings.'
         self.bin_sizes = [{} for _ in self.env.buildings] if bin_sizes is None else bin_sizes
         self.default_bin_size = 10 if default_bin_size is None else default_bin_size
@@ -130,11 +133,13 @@ class DiscreteSpaceWrapper(Wrapper):
         env = DiscreteObservationWrapper(env, bin_sizes=observation_bin_sizes)
         env = DiscreteActionWrapper(env, bin_sizes=action_bin_sizes)
         super().__init__(env)
+        self.env: CityLearnEnv
 
 class TabularQLearningObservationWrapper(ObservationWrapper):
     def __init__(self, env: CityLearnEnv, bin_sizes: List[Mapping[str, int]] = None) -> None:
         env = DiscreteObservationWrapper(env, bin_sizes=bin_sizes)
         super().__init__(env)
+        self.env: CityLearnEnv
         self.combinations = self.set_combinations()
 
     @property
@@ -163,6 +168,7 @@ class TabularQLearningActionWrapper(ActionWrapper):
     def __init__(self, env: CityLearnEnv, bin_sizes: List[Mapping[str, int]] = None) -> None:
         env = DiscreteActionWrapper(env, bin_sizes=bin_sizes)
         super().__init__(env)
+        self.env: CityLearnEnv
         self.combinations = self.set_combinations()
 
     @property
@@ -192,10 +198,12 @@ class TabularQLearningWrapper(Wrapper):
         env = TabularQLearningObservationWrapper(env, bin_sizes=observation_bin_sizes)
         env = TabularQLearningActionWrapper(env, bin_sizes=action_bin_sizes)
         super().__init__(env)
+        self.env: CityLearnEnv
 
 class StableBaselines3ActionWrapper(ActionWrapper):
     def __init__(self, env: CityLearnEnv):
         super().__init__(env)
+        self.env: CityLearnEnv
 
     @property
     def action_space(self) -> spaces.Box:
@@ -207,6 +215,7 @@ class StableBaselines3ActionWrapper(ActionWrapper):
 class StableBaselines3RewardWrapper(RewardWrapper):
     def __init__(self, env: CityLearnEnv):
         super().__init__(env)
+        self.env: CityLearnEnv
 
     def reward(self, reward: List[float]) -> float:
         return reward[0]
@@ -214,6 +223,7 @@ class StableBaselines3RewardWrapper(RewardWrapper):
 class StableBaselines3ObservationWrapper(ObservationWrapper):
     def __init__(self, env: CityLearnEnv):
         super().__init__(env)
+        self.env: CityLearnEnv
         
     @property
     def observation_space(self) -> spaces.Box:
@@ -231,3 +241,4 @@ class StableBaselines3Wrapper(Wrapper):
         env = StableBaselines3RewardWrapper(env)
         env = StableBaselines3ObservationWrapper(env)
         super().__init__(env)
+        self.env: CityLearnEnv
