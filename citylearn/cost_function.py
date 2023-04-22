@@ -25,23 +25,19 @@ class CostFunction:
             \textrm{ramping} = \sum_{i=1}^{n}{\lvert E_i - E_{i-1} \rvert}
             
         Where :math:`E_i` is the :math:`i^{\textrm{th}}` element in `net_electricity_consumption`, :math:`E`, that has a length of :math:`n`.
-
-        Examples
-        --------
-        >>> net_electricity_consumption = [100.0, 200.0, 200.0, 600.0, 400.0]
-        >>> CostFunction.ramping(net_electricity_consumption)
-        [nan, 100.0, 100.0, 500.0, 700.0]
         """
 
         data = pd.DataFrame({'net_electricity_consumption':net_electricity_consumption})
         data['ramping'] = data['net_electricity_consumption'] - data['net_electricity_consumption'].shift(1)
         data['ramping'] = data['ramping'].abs()
         data['ramping'] = data['ramping'].rolling(window=data.shape[0],min_periods=1).sum()
+        
         return data['ramping'].tolist()
 
     @staticmethod
-    def load_factor(net_electricity_consumption: List[float], window: int = None) -> List[float]:
-        r"""Difference between 1 and the ratio of rolling mean demand to rolling peak demand over a specified period.
+    def one_minus_load_factor(net_electricity_consumption: List[float], window: int = None) -> List[float]:
+        r"""Difference between 1 and the load factor i.e., ratio of rolling mean demand 
+        to rolling peak demand over a specified period.
 
         Parameters
         ----------
@@ -52,8 +48,8 @@ class CostFunction:
 
         Returns
         -------
-        load_factor : List[float]
-            Load factor cost.
+        1 - load_factor : List[float]
+            1 - load factor cost.
         """
 
         window = 730 if window is None else window
@@ -62,54 +58,32 @@ class CostFunction:
         data = data.groupby(['group'])[['net_electricity_consumption']].agg(['mean','max'])
         data['load_factor'] = 1 - (data[('net_electricity_consumption','mean')]/data[('net_electricity_consumption','max')])
         data['load_factor'] = data['load_factor'].rolling(window=data.shape[0],min_periods=1).mean()
+        
         return data['load_factor'].tolist()
 
     @staticmethod
-    def average_daily_peak(net_electricity_consumption: List[float], daily_time_step: int = None) -> List[float]:
-        r"""Mean of daily net electricity consumption peaks.
-
-        Parameters
-        ----------
-        net_electricity_consumption : List[float]
-            Electricity consumption time series.
-        daily_time_step : int, default: 24
-            Number of time steps in a day.
-            
-        Returns
-        -------
-        average_daily_peak : List[float]
-            Average daily peak cost.
-        """
-
-        daily_time_step = 24 if daily_time_step is None else daily_time_step
-        data = pd.DataFrame({'net_electricity_consumption':net_electricity_consumption})
-        data['group'] = (data.index/daily_time_step).astype(int)
-        data = data.groupby(['group'])[['net_electricity_consumption']].max()
-        data['net_electricity_consumption'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).mean()
-        return data['net_electricity_consumption'].tolist()
-
-    @staticmethod
-    def peak_demand(net_electricity_consumption: List[float], window: int = None) -> List[float]:
+    def peak(net_electricity_consumption: List[float], window: int = None) -> List[float]:
         r"""Net electricity consumption peak.
 
         Parameters
         ----------
         net_electricity_consumption : List[float]
             Electricity consumption time series.
-        window : int, default: 8760
+        window : int, default: 24
             Period window/time steps to find peaks.
             
         Returns
         -------
-        peak_demand : List[float]
-            Peak demand cost.        
+        peak : List[float]
+            Average daily peak cost.
         """
 
-        window = 8760 if window is None else window
+        window = 24 if window is None else window
         data = pd.DataFrame({'net_electricity_consumption':net_electricity_consumption})
         data['group'] = (data.index/window).astype(int)
         data = data.groupby(['group'])[['net_electricity_consumption']].max()
         data['net_electricity_consumption'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).mean()
+        
         return data['net_electricity_consumption'].tolist()
 
     @staticmethod
@@ -126,17 +100,12 @@ class CostFunction:
         Returns
         -------
         electricity_consumption : List[float]
-            Electricity consumption cost.        
-
-        Examples
-        --------
-        >>> electricity_consumption = [100.0, -200.0, 200.0, 600.0, 400.0, 300.0]
-        >>> CostFunction.net_electricity_consumption(net_electricity_consumption)
-        [100.0, 100.0, 300.0, 900.0, 1300.0, 1600.0]
+            Electricity consumption cost.
         """
 
         data = pd.DataFrame({'net_electricity_consumption':np.array(net_electricity_consumption).clip(min=0)})
         data['electricity_consumption'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).sum()
+        
         return data['electricity_consumption'].tolist()
 
     @staticmethod
@@ -144,7 +113,7 @@ class CostFunction:
         r"""Rolling sum of net electricity consumption.
 
         It is the net sum of electricty that is consumed from the grid and self-generated from renenewable sources.
-        This calculation of zero net energy does not consider in TDV and all time steps are weighted equally.
+        This calculation of zero net energy does not consider TDV and all time steps are weighted equally.
 
         Parameters
         ----------
@@ -154,17 +123,12 @@ class CostFunction:
         Returns
         -------
         zero_net_energy : List[float]
-            Zero net energy cost.        
-
-        Examples
-        --------
-        >>> net_electricity_consumption = [100.0, -200.0, 200.0, 600.0, 400.0, 300.0]
-        >>> CostFunction.zero_net_energy(net_electricity_consumption)
-        [100.0, -100.0, 100.0, 700.0, 1100.0, 1400.0]
+            Zero net energy cost.
         """
 
         data = pd.DataFrame({'net_electricity_consumption':np.array(net_electricity_consumption)})
         data['zero_net_energy'] = data['net_electricity_consumption'].rolling(window=data.shape[0],min_periods=1).sum()
+        
         return data['zero_net_energy'].tolist()
 
     @staticmethod
@@ -179,42 +143,32 @@ class CostFunction:
         Returns
         -------
         carbon_emissions : List[float]
-            Carbon emissions cost.        
-
-        Examples
-        --------
-        >>> carbon_emissions = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]
-        >>> CostFunction.carbon_emissions(carbon_emissions)
-        [100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]
+            Carbon emissions cost.
         """
 
         data = pd.DataFrame({'carbon_emissions':np.array(carbon_emissions).clip(min=0)})
         data['carbon_emissions'] = data['carbon_emissions'].rolling(window=data.shape[0],min_periods=1).sum()
+        
         return data['carbon_emissions'].tolist()
 
     @staticmethod
-    def cost(price: List[float]) -> List[float]:
+    def cost(cost: List[float]) -> List[float]:
         r"""Rolling sum of electricity monetary cost.
 
         Parameters
         ----------
-        price : List[float]
-            Price time series.
+        cost : List[float]
+            Cost time series.
             
         Returns
         -------
-        price : List[float]
-            Price cost.        
-
-        Examples
-        --------
-        >>> cost = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]
-        >>> CostFunction.price(carbon_emissions)
-        [100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]
+        cost : List[float]
+            Cost of electricity.
         """
 
-        data = pd.DataFrame({'cost':np.array(price).clip(min=0)})
+        data = pd.DataFrame({'cost':np.array(cost).clip(min=0)})
         data['cost'] = data['cost'].rolling(window=data.shape[0],min_periods=1).sum()
+        
         return data['cost'].tolist()
 
     @staticmethod
@@ -233,16 +187,88 @@ class CostFunction:
 
         Notes
         -----
-        Net electricity consumption values are clipped at a minimum of 0 before calculating the quadratic cost.      
-
-        Examples
-        --------
-        >>> net_electricity_consumption = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]
-        >>> CostFunction.quadratic(net_electricity_consumption)
-        [10000.0, 50000.0, 90000.0, 450000.0, 610000.0, 700000.0]
+        Net electricity consumption values are clipped at a minimum of 0 before calculating the quadratic cost.
         """
 
         data = pd.DataFrame({'net_electricity_consumption':np.array(net_electricity_consumption).clip(min=0)})
         data['quadratic'] = data['net_electricity_consumption']**2
         data['quadratic'] = data['quadratic'].rolling(window=data.shape[0],min_periods=1).sum()
+        
         return data['quadratic'].tolist()
+    
+    @staticmethod
+    def comfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_set_point: List[float], band: float = None, occupant_count: List[int] = None) -> tuple:
+        r"""Rolling percentage of unmet, too cold and too hot time steps as well as rolling minimum, maximum and average temperature delta.
+
+        Parameters
+        ----------
+        indoor_dry_bulb_temperature: List[float]
+            Average building dry bulb temperature time series.
+        dry_bulb_temperature_set_point: List[float]
+            Building thermostat setpoint time series.
+        band: float, default = 2.0
+            Comfort band above and below dry_bulb_temperature_set_point beyond 
+            which occupant is assumed to be uncomfortable.
+        occupant_cunt: List[float], optional
+            Occupant count time series. If provided, the comfort cost is 
+            evaluated for occupied time steps only.
+            
+        Returns
+        -------
+        unmet: List[float]
+            Rolling proportion of timesteps where the condition 
+            (dry_bulb_temperature_set_point - band) <= indoor_dry_bulb_temperature <= (dry_bulb_temperature_set_point + band) is not met.
+        too_cold: List[float]
+            Rolling proportion of timesteps where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
+        too_hot: List[float]
+            Rolling proportion of timesteps where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
+        minimum_delta: List[float]
+            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
+        maximum_delta: List[float]
+            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
+        average_delta: List[float]
+            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
+        """
+
+        band = 2.0 if band is None else band
+
+        # unmet hours
+        data = pd.DataFrame({
+            'indoor_dry_bulb_temperature': indoor_dry_bulb_temperature, 
+            'dry_bulb_temperature_set_point': dry_bulb_temperature_set_point,
+            'occupant_count': [1]*len(indoor_dry_bulb_temperature) if occupant_count is None else occupant_count
+        })
+        data['delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_set_point']
+        data.loc[data['occupant_count'] < 1.0, 'delta'] = 0.0
+        data['unmet'] = 0
+        data.loc[data['delta'].abs() > band, 'unmet'] = 1
+        data['unmet'] = data['unmet'].rolling(window=data.shape[0],min_periods=1).sum()/data.shape[0]
+
+        # too cold
+        data['too_cold'] = 0
+        data.loc[data['delta'] < -band, 'too_cold'] = 1
+        data['too_cold'] = data['too_cold'].rolling(window=data.shape[0],min_periods=1).sum()/data.shape[0]
+
+        # too hot
+        data['too_hot'] = 0
+        data.loc[data['delta'] > band, 'too_hot'] = 1
+        data['too_hot'] = data['too_hot'].rolling(window=data.shape[0],min_periods=1).sum()/data.shape[0]
+
+        # minimum delta
+        data['minimum_delta'] = data['delta'].rolling(window=data.shape[0],min_periods=1).min()
+
+        # maximum delta
+        data['maximum_delta'] = data['delta'].rolling(window=data.shape[0],min_periods=1).max()
+
+        # average delta
+        data['average_delta'] = data['delta'].rolling(window=data.shape[0],min_periods=1).mean()
+
+        return (
+            data['unmet'].tolist(),
+            data['too_cold'].tolist(),
+            data['too_hot'].tolist(),
+            data['minimum_delta'].tolist(),
+            data['maximum_delta'].tolist(),
+            data['average_delta'].tolist()
+        )
+        
