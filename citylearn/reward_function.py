@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 import numpy as np
 from citylearn.citylearn import CityLearnEnv
 from citylearn.energy_model import ZERO_DIVISION_CAPACITY
@@ -145,4 +145,99 @@ class SolarPenaltyReward(RewardFunction):
         else:
             reward = reward_list
         
+        return reward
+    
+class ComfortReward(RewardFunction):
+    def __init__(self, env: CityLearnEnv, band: float = None, lower_exponent: float = None, higher_exponent: float = None):
+        super().__init__(env)
+        self.band = band
+        self.lower_exponent = lower_exponent
+        self.higher_exponent = higher_exponent
+
+    @property
+    def band(self) -> float:
+        return self.__band
+    
+    @property
+    def lower_exponent(self) -> float:
+        return self.__lower_exponent
+    
+    @property
+    def higher_exponent(self) -> float:
+        return self.__higher_exponent
+    
+    @band.setter
+    def band(self, band: float):
+        self.__band = 2.0 if band is None else band
+
+    @lower_exponent.setter
+    def lower_exponent(self, lower_exponent: float):
+        self.__lower_exponent = 2.0 if lower_exponent is None else lower_exponent
+
+    @higher_exponent.setter
+    def higher_exponent(self, higher_exponent: float):
+        self.__higher_exponent = 3.0 if higher_exponent is None else higher_exponent
+
+    def calculate(self) -> List[float]:
+        reward_list = []
+
+        for b in self.env.buildings:
+            heating = b.energy_simulation.heating_demand[b.time_step] > 0\
+                and b.energy_simulation.heating_demand[b.time_step] > b.energy_simulation.cooling_demand[b.time_step]
+            indoor_dry_bulb_temperature = b.energy_simulation.indoor_dry_bulb_temperature[b.time_step]
+            set_point = b.energy_simulation.dry_bulb_temperature_set_point[b.time_step] if heating\
+                else b.energy_simulation.dry_bulb_temperature_set_point[b.time_step]
+            lower_bound_comfortable_indoor_dry_bulb_temperature = set_point - self.band
+            upper_bound_comfortable_indoor_dry_bulb_temperature = set_point + self.band
+            left_delta = set_point - indoor_dry_bulb_temperature
+            right_delta = indoor_dry_bulb_temperature - set_point
+            
+            if indoor_dry_bulb_temperature < lower_bound_comfortable_indoor_dry_bulb_temperature:
+                exponent = self.lower_exponent if heating else self.higher_exponent
+                reward = -(left_delta**exponent)
+            
+            elif lower_bound_comfortable_indoor_dry_bulb_temperature <= indoor_dry_bulb_temperature < set_point:
+                reward = 0.0 if heating else -left_delta
+
+            elif set_point <= indoor_dry_bulb_temperature < upper_bound_comfortable_indoor_dry_bulb_temperature:
+                reward = -right_delta if heating else 0.0
+
+            else:
+                exponent = self.higher_exponent if heating else self.lower_exponent
+                reward = -(right_delta**exponent)
+
+            reward_list.append(reward)
+
+        if self.env.central_agent:
+            reward = [sum(reward_list)]
+
+        else:
+            reward = reward_list
+
+        return reward
+    
+class SolarPenaltyAndComfortReward(RewardFunction):
+    def __init__(self, env: CityLearnEnv, band: float = None, lower_exponent: float = None, higher_exponent: float = None, coefficients: Tuple = None):
+        super().__init__(env)
+        self.__functions: List[RewardFunction] = [
+            SolarPenaltyReward(env),
+            ComfortReward(env, band=band, lower_exponent=lower_exponent, higher_exponent=higher_exponent)
+        ]
+        self.coefficients = coefficients
+
+    @property
+    def coefficients(self) -> Tuple:
+        return self.__coefficients
+    
+    @coefficients.setter
+    def coefficients(self, coefficients: Tuple):
+        coefficients = [1.0]*len(self.__functions) if coefficients is None else coefficients
+        assert len(coefficients) == len(self.__functions), f'{type(self).__name__} needs {len(self.__functions)} coefficients.' 
+        self.__coefficients = coefficients
+
+    def calculate(self) -> List[float]:
+        reward = np.array([f.calculate() for f in self.__functions], dtype='float32')
+        reward = reward*np.reshape(self.coefficients, (len(self.coefficients), 1))
+        reward = reward.sum(axis=0).tolist()
+
         return reward
