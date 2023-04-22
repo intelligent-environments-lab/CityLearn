@@ -1,3 +1,4 @@
+from enum import Enum, unique
 import importlib
 import logging
 import os
@@ -15,6 +16,18 @@ from citylearn.utilities import read_json
 LOGGER = logging.getLogger()
 logging.getLogger('matplotlib.font_manager').disabled = True
 logging.getLogger('matplotlib.pyplot').disabled = True
+
+@unique
+class EvaluationCondition(Enum):
+    """Evaluation conditions.
+    
+    Used in `citylearn.CityLearnEnv.calculate` method.
+    """
+
+    WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV = ''
+    WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV = '_without_storage'
+    WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV = '_without_storage_and_partial_load'
+    WITHOUT_STORAGE_AND_PARTIAL_LOAD_AND_PV = '_without_storage_and_partial_load_and_pv'
 
 class CityLearnEnv(Environment, Env):
     def __init__(self, 
@@ -217,40 +230,86 @@ class CityLearnEnv(Environment, Env):
         ]] if self.central_agent else [list(b.observations().keys()) for b in self.buildings]
 
     @property
-    def net_electricity_consumption_without_storage_and_pv_emission(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_without_storage_and_pv_emission` time series, in [kg_co2]."""
+    def net_electricity_consumption_emission_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv` time series, in [kg_co2]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_emission for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
-
-    @property
-    def net_electricity_consumption_without_storage_and_pv_cost(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_without_storage_and_pv_cost` time series, in [$]."""
-
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv_cost for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
+        return pd.DataFrame([
+            b.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv 
+            for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_without_storage_and_pv(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_without_storage_and_pv` time series, in [kWh]."""
+    def net_electricity_consumption_cost_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv` time series, in [$]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_and_pv for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
-
-    @property
-    def net_electricity_consumption_without_storage_emission(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_without_storage_emission` time series, in [kg_co2]."""
-
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_emission for b in self.buildings]).sum(axis = 0, min_count = 1).tolist()
+        return pd.DataFrame([
+            b.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv 
+            for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_without_storage_cost(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_without_storage_cost` time series, in [$]."""
+    def net_electricity_consumption_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_without_storage_and_partial_load_and_pv` time series, in [kWh]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage_cost for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
+        return pd.DataFrame([
+            b.net_electricity_consumption_without_storage_and_partial_load_and_pv 
+            for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+    
+
+    @property
+    def net_electricity_consumption_emission_without_storage_and_partial_load(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_emission_without_storage_and_partial_load` time series, in [kg_co2]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_emission_without_storage_and_partial_load 
+            for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_cost_without_storage_and_partial_load(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_cost_without_storage_and_partial_load` time series, in [$]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_cost_without_storage_and_partial_load 
+            for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_without_storage_and_partial_load(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_without_storage_and_partial_load` time series, in [kWh]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_without_storage_and_partial_load 
+            for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_emission_without_storage(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_emission_without_storage` time series, in [kg_co2]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_emission_without_storage 
+            for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).tolist()
+
+    @property
+    def net_electricity_consumption_cost_without_storage(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_cost_without_storage` time series, in [$]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_cost_without_storage 
+            for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
     def net_electricity_consumption_without_storage(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_without_storage` time series, in [kWh]."""
 
-        return pd.DataFrame([b.net_electricity_consumption_without_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
+        return pd.DataFrame([
+            b.net_electricity_consumption_without_storage 
+            for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
     def net_electricity_consumption_emission(self) -> List[float]:
@@ -503,6 +562,8 @@ class CityLearnEnv(Environment, Env):
         return self.observations, reward, self.done, self.get_info()
 
     def get_info(self) -> Mapping[Any, Any]:
+        """Other information to return from the `citylearn.CityLearnEnv.step` function."""
+
         return {}
 
     def __parse_actions(self, actions: List[List[float]]) -> List[Mapping[str, float]]:
@@ -574,48 +635,100 @@ class CityLearnEnv(Environment, Env):
         
         return building_info
     
-    def evaluate(self) -> pd.DataFrame:
+    def evaluate(self, control_condition: EvaluationCondition = None, baseline_condition: EvaluationCondition = None) -> pd.DataFrame:
         r"""Evaluate cost functions at current time step.
 
         Calculates and returns building-level and district-level cost functions normalized w.r.t. the no control scenario.
+
+        Parameters
+        ----------
+        control_condition: EvaluationCondition
+            Condition for net electricity consumption, cost and emission to use in calculating cost functions for the control/flexible scenario.
+        baseline_condition: EvaluationCondition
+            Condition for net electricity consumption, cost and emission to use in calculating cost functions for the baseline scenario 
+            that is used to normalize the control_condition scenario.
         
         Returns
         -------
         cost_functions: pd.DataFrame
-            Cost function summary.
+            Cost function summary including the following: electricity consumption, zero net energy, carbon emissions, cost,
+            comfort (unmet, too cold, too hot, minimum delta, maximum delta, average delta), ramping, 1 - load factor,
+            average daily peak and average annual peak.
 
         Notes
         -----
         The equation for the returned cost function values is :math:`\frac{C_{\textrm{control}}}{C_{\textrm{no control}}}` 
         where :math:`C_{\textrm{control}}` is the value when the agent(s) control the environment and :math:`C_{\textrm{no control}}`
-        is the value when none of the flexible distributed energy resources in the environment are actively in use and controlled.
+        is the value when none of the storages and partial load cooling and heating devices in the environment are actively controlled.
         """
 
-        building_level = []
+        # set default evaluation conditions
+        control_condition = EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV if control_condition is None else control_condition
+        baseline_condition = EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV if baseline_condition is None else baseline_condition
 
+        # lambda functions to get building or district level properties w.r.t. evaluation condition
+        control_net_electricity_consumption = lambda x: getattr(x, f'net_electricity_consumption{control_condition.value}')
+        control_net_electricity_consumption_cost = lambda x: getattr(x, f'net_electricity_consumption_cost{control_condition.value}')
+        control_net_electricity_consumption_emission = lambda x: getattr(x, f'net_electricity_consumption_emission{control_condition.value}')
+        baseline_net_electricity_consumption = lambda x: getattr(x, f'net_electricity_consumption{baseline_condition.value}')
+        baseline_net_electricity_consumption_cost = lambda x: getattr(x, f'net_electricity_consumption_cost{baseline_condition.value}')
+        baseline_net_electricity_consumption_emission = lambda x: getattr(x, f'net_electricity_consumption_emission{baseline_condition.value}')
+        
+        building_level = []
+        
         for b in self.buildings:
+            unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.comfort(
+                b.energy_simulation.indoor_dry_bulb_temperature, 
+                b.energy_simulation.dry_bulb_temperature_set_point,
+                band=2.0,
+                occupant_count=b.energy_simulation.occupant_count[:self.time_step + 1]
+            )
             building_level += [{
                 'name': b.name,
-                'cost_function': 'electricity_consumption',
-                'value': CostFunction.electricity_consumption(b.net_electricity_consumption)[-1]/\
-                    CostFunction.electricity_consumption(b.net_electricity_consumption_without_storage)[-1],
+                'cost_function': 'total_electricity_consumption',
+                'value': CostFunction.electricity_consumption(control_net_electricity_consumption(b))[-1]/\
+                    CostFunction.electricity_consumption(baseline_net_electricity_consumption(b))[-1],
                 }, {
                 'name': b.name,
                 'cost_function': 'zero_net_energy',
-                'value': CostFunction.zero_net_energy(b.net_electricity_consumption)[-1]/\
-                    CostFunction.zero_net_energy(b.net_electricity_consumption_without_storage)[-1],
+                'value': CostFunction.zero_net_energy(control_net_electricity_consumption(b))[-1]/\
+                    CostFunction.zero_net_energy(baseline_net_electricity_consumption(b))[-1],
                 }, {
                 'name': b.name,
-                'cost_function': 'carbon_emissions',
-                'value': CostFunction.carbon_emissions(b.net_electricity_consumption_emission)[-1]/\
-                    CostFunction.carbon_emissions(b.net_electricity_consumption_without_storage_emission)[-1]\
+                'cost_function': 'total_carbon_emissions',
+                'value': CostFunction.carbon_emissions(control_net_electricity_consumption_emission(b))[-1]/\
+                    CostFunction.carbon_emissions(baseline_net_electricity_consumption_emission(b))[-1]\
                         if sum(b.carbon_intensity.carbon_intensity) != 0 else None,
                 }, {
                 'name': b.name,
-                'cost_function': 'cost',
-                'value': CostFunction.cost(b.net_electricity_consumption_cost)[-1]/\
-                    CostFunction.cost(b.net_electricity_consumption_without_storage_cost)[-1]\
+                'cost_function': 'total_cost',
+                'value': CostFunction.cost(control_net_electricity_consumption_cost(b))[-1]/\
+                    CostFunction.cost(baseline_net_electricity_consumption_cost(b))[-1]\
                         if sum(b.pricing.electricity_pricing) != 0 else None,
+                }, {
+                'name': b.name,
+                'cost_function': 'proportion_unmet_comfort',
+                'value': unmet[-1],
+                }, {
+                'name': b.name,
+                'cost_function': 'proportion_too_cold_comfort',
+                'value': too_cold[-1],
+                }, {
+                'name': b.name,
+                'cost_function': 'proportion_too_hot_comfort',
+                'value': too_hot[-1],
+                }, {
+                'name': b.name,
+                'cost_function': 'minimum_delta_comfort',
+                'value': minimum_delta[-1],
+                }, {
+                'name': b.name,
+                'cost_function': 'maximum_delta_comfort',
+                'value': maximum_delta[-1],
+                }, {
+                'name': b.name,
+                'cost_function': 'average_delta_comfort',
+                'value': average_delta[-1],
                 }]
 
         building_level = pd.DataFrame(building_level)
@@ -623,21 +736,21 @@ class CityLearnEnv(Environment, Env):
 
         ## district level
         district_level = pd.DataFrame([{
-            'cost_function': 'ramping',
-            'value': CostFunction.ramping(self.net_electricity_consumption)[-1]/\
-                CostFunction.ramping(self.net_electricity_consumption_without_storage)[-1],
+            'cost_function': 'average_ramping',
+            'value': CostFunction.ramping(control_net_electricity_consumption(self))[-1]/\
+                CostFunction.ramping(baseline_net_electricity_consumption(self))[-1],
             }, {
-            'cost_function': '1 - load_factor',
-            'value': CostFunction.load_factor(self.net_electricity_consumption)[-1]/\
-                CostFunction.load_factor(self.net_electricity_consumption_without_storage)[-1],
+            'cost_function': 'average_one_minus_load_factor',
+            'value': CostFunction.one_minus_load_factor(control_net_electricity_consumption(self), window=730)[-1]/\
+                CostFunction.one_minus_load_factor(baseline_net_electricity_consumption(self), window=730)[-1],
             }, {
             'cost_function': 'average_daily_peak',
-            'value': CostFunction.average_daily_peak(self.net_electricity_consumption)[-1]/\
-                CostFunction.average_daily_peak(self.net_electricity_consumption_without_storage)[-1],
+            'value': CostFunction.peak(control_net_electricity_consumption(self), window=24)[-1]/\
+                CostFunction.peak(baseline_net_electricity_consumption(self), window=24)[-1],
             }, {
-            'cost_function': 'peak_demand',
-            'value': CostFunction.peak_demand(self.net_electricity_consumption)[-1]/\
-                CostFunction.peak_demand(self.net_electricity_consumption_without_storage)[-1],
+            'cost_function': 'average_annual_peak',
+            'value': CostFunction.peak(control_net_electricity_consumption(self), window=8760)[-1]/\
+                CostFunction.peak(baseline_net_electricity_consumption(self), window=8760)[-1],
             }])
 
         district_level = pd.concat([district_level, building_level], ignore_index=True, sort=False)
@@ -748,8 +861,8 @@ class CityLearnEnv(Environment, Env):
 
         root_directory = kwargs['root_directory'] if kwargs.get('root_directory') is not None else self.schema['root_directory']
         central_agent =  kwargs['central_agent'] if kwargs.get('central_agent') is not None else self.schema['central_agent']
-        observations = {s: v for s, v in self.schema['observations'].items() if v['active']}
-        actions = {a: v for a, v in self.schema['actions'].items() if v['active']}
+        observations = self.schema['observations']
+        actions = self.schema['actions']
         shared_observations =  kwargs['shared_observations'] if kwargs.get('shared_observations') is not None else\
             [k for k, v in observations.items() if v['shared_in_central_agent']]
         simulation_start_time_step = kwargs['simulation_start_time_step'] if kwargs.get('simulation_start_time_step') is not None else\
@@ -788,14 +901,27 @@ class CityLearnEnv(Environment, Env):
                     # observation and action metadata
                     inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
                     inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
-                    observation_metadata = {s: False if s in inactive_observations else True for s in observations}
-                    action_metadata = {a: False if a in inactive_actions else True for a in actions}
+                    observation_metadata = {k: False if k in inactive_observations else v['active'] for k, v in observations.items()}
+                    action_metadata = {k: False if k in inactive_actions else v['active'] for k, v in actions.items()}
 
                     # construct building
                     building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
                     building_type_module = '.'.join(building_type.split('.')[0:-1])
                     building_type_name = building_type.split('.')[-1]
                     building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
+                    
+                    # set dynamics
+                    if building_schema.get('dynamics', None) is not None:
+                        dynamics_type = building_schema['dynamics']['type']
+                        dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
+                        dynamics_name = dynamics_type.split('.')[-1]
+                        dynamics_constructor = getattr(importlib.import_module(dynamics_module), dynamics_name)
+                        attributes = building_schema['dynamics'].get('attributes', {})
+                        attributes['filepath'] = os.path.join(root_directory, attributes['filename'])
+                        _ = attributes.pop('filename')
+                        dynamics = dynamics_constructor(**attributes)
+                    else:
+                        dynamics = None
 
                     building: Building = building_constructor(
                         energy_simulation=energy_simulation, 
@@ -806,6 +932,7 @@ class CityLearnEnv(Environment, Env):
                         pricing=pricing,
                         name=building_name, 
                         seconds_per_time_step=seconds_per_time_step,
+                        dynamics=dynamics,
                     )
 
                     # update devices
