@@ -2,7 +2,7 @@
   "root_directory": null,
   "central_agent": false,
   "simulation_start_time_step": 0,
-  "simulation_end_time_step": 2207,
+  "simulation_end_time_step": 2927,
   "episodes": 1,
   "seconds_per_time_step": 3600.0,
   "observations": {
@@ -207,9 +207,9 @@
       "lr": 0.001,
       "batch_size": 512,
       "replay_buffer_capacity": 100000.0,
-      "start_training_time_step": 2208,
-      "end_exploration_time_step": 2209,
-      "deterministic_start_time_step": 44160,
+      "start_training_time_step": 2928,
+      "end_exploration_time_step": 2929,
+      "deterministic_start_time_step": 58560,
       "action_scaling_coef": 0.5,
       "reward_scaling": 5.0,
       "update_per_time_step": 2,
@@ -332,7 +332,7 @@
       }
     },
     "Building_2": {
-      "include": false,
+      "include": true,
       "energy_simulation": "Building_2.csv",
       "weather": "weather.csv",
       "carbon_intensity": null,
@@ -417,13 +417,13 @@
             -0.90097,
             -1.0,
             -1.0,
-            18.12067
+            22.63211
           ],
           "input_normalization_maximum": [
             1037.6663,
             36.90833,
-            30.81475,
-            24.73536719,
+            296.33365,
+            109.74094531,
             1.0,
             1.0,
             1.0,
@@ -431,7 +431,7 @@
             1.0,
             0.0,
             0.0,
-            29.89854
+            27.65767
           ],
           "input_observation_names": [
             "direct_solar_irradiance",
@@ -451,7 +451,7 @@
       }
     },
     "Building_3": {
-      "include": false,
+      "include": true,
       "energy_simulation": "Building_3.csv",
       "weather": "weather.csv",
       "carbon_intensity": null,
@@ -536,13 +536,13 @@
             -0.90097,
             -1.0,
             -1.0,
-            18.12067
+            18.22155
           ],
           "input_normalization_maximum": [
             1037.6663,
             36.90833,
-            30.81475,
-            24.73536719,
+            258.90265,
+            72.14350781,
             1.0,
             1.0,
             1.0,
@@ -550,7 +550,7 @@
             1.0,
             0.0,
             0.0,
-            29.89854
+            30.50947
           ],
           "input_observation_names": [
             "direct_solar_irradiance",
@@ -570,7 +570,7 @@
       }
     },
     "Building_4": {
-      "include": false,
+      "include": true,
       "energy_simulation": "Building_4.csv",
       "weather": "weather.csv",
       "carbon_intensity": null,
@@ -655,13 +655,13 @@
             -0.90097,
             -1.0,
             -1.0,
-            18.12067
+            23.36176
           ],
           "input_normalization_maximum": [
             1037.6663,
             36.90833,
-            30.81475,
-            24.73536719,
+            254.76593,
+            245.52803125,
             1.0,
             1.0,
             1.0,
@@ -669,7 +669,7 @@
             1.0,
             0.0,
             0.0,
-            29.89854
+            30.95352
           ],
           "input_observation_names": [
             "direct_solar_irradiance",
