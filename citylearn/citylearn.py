@@ -160,15 +160,26 @@ class CityLearnEnv(Environment, Env):
         """
 
         if self.central_agent:
-            low_limit = [
-                v for i, b in enumerate(self.buildings) for v, s in zip(b.observation_space.low, b.active_observations) 
-                if i == 0 or s not in self.shared_observations
-            ]
-            high_limit = [
-                v for i, b in enumerate(self.buildings) for v, s in zip(b.observation_space.high, b.active_observations) 
-                if i == 0 or s not in self.shared_observations
-            ]
+            low_limit = []
+            high_limit = []
+            shared_observations = []
+
+            for i, b in enumerate(self.buildings):
+                for l, h, s in zip(b.observation_space.low, b.observation_space.high, b.active_observations):
+                    if i == 0 or s not in self.shared_observations:
+                        low_limit.append(l)
+                        high_limit.append(h)
+                    
+                    elif s not in shared_observations:
+                        low_limit.append(l)
+                        high_limit.append(h)
+                        shared_observations.append(s)
+                    
+                    else:
+                        pass
+
             observation_space = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
+        
         else:
             observation_space = [b.observation_space for b in self.buildings]
         
@@ -209,10 +220,28 @@ class CityLearnEnv(Environment, Env):
         is returned where each sublist is a list of 1 building's observation values and the sublist in the same order as `buildings`.
         """
 
-        return [[
-            v for i, b in enumerate(self.buildings) for k, v in b.observations().items() if i == 0 or k not in self.shared_observations
-        ]] if self.central_agent else [list(b.observations().values()) for b in self.buildings]
+        if self.central_agent:
+            observations = []
+            shared_observations = []
 
+            for i, b in enumerate(self.buildings):
+                for k, v in b.observations(normalize=False, periodic_normalization=False).items():
+                    if i == 0 or k not in self.shared_observations:
+                        observations.append(v)
+                    
+                    elif k not in shared_observations:
+                        observations.append(v)
+                        shared_observations.append(k)
+                    
+                    else:
+                        pass
+
+            observations = [observations]
+        
+        else:
+            observations = [list(b.observations().values()) for b in self.buildings]
+        
+        return observations
 
     @property
     def observation_names(self) -> List[List[str]]:
@@ -225,9 +254,23 @@ class CityLearnEnv(Environment, Env):
         is returned where each sublist is a list of 1 building's observation names and the sublist in the same order as `buildings`.
         """
 
-        return [[
-            k for i, b in enumerate(self.buildings) for k, v in b.observations().items() if i == 0 or k not in self.shared_observations
-        ]] if self.central_agent else [list(b.observations().keys()) for b in self.buildings]
+        if self.central_agent:
+            observation_names = []
+
+            for i, b in enumerate(self.buildings):
+                for k, _ in b.observations(normalize=False, periodic_normalization=False).items():
+                    if i == 0 or k not in self.shared_observations or k not in observation_names:
+                        observation_names.append(k)
+                    
+                    else:
+                        pass
+
+            observation_names = [observation_names]
+        
+        else:
+            observation_names = [list(b.observations().keys()) for b in self.buildings]
+
+        return observation_names
 
     @property
     def net_electricity_consumption_emission_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
@@ -585,7 +628,8 @@ class CityLearnEnv(Environment, Env):
 
         active_actions = [[k for k, v in b.action_metadata.items() if v] for b in self.buildings]
         actions = [{k:a for k, a in zip(active_actions[i],building_actions[i])} for i in range(len(active_actions))]
-        actions = [{f'{k}_action':actions[i].get(k, 0.0) for k in b.action_metadata} for i, b in enumerate(self.buildings)]
+        actions = [{f'{k}_action':actions[i].get(k, np.nan) for k in b.action_metadata} for i, b in enumerate(self.buildings)]
+
         return actions
     
     def get_building_information(self) -> Tuple[Mapping[str, Any]]:
