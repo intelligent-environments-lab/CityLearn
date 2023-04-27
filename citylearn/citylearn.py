@@ -166,13 +166,14 @@ class CityLearnEnv(Environment, Env):
 
             for i, b in enumerate(self.buildings):
                 for l, h, s in zip(b.observation_space.low, b.observation_space.high, b.active_observations):
-                    if i == 0 or s not in self.shared_observations:
+                    if i == 0 or s not in self.shared_observations or s not in shared_observations:
                         low_limit.append(l)
                         high_limit.append(h)
                     
-                    elif s not in shared_observations:
-                        low_limit.append(l)
-                        high_limit.append(h)
+                    else:
+                        pass
+
+                    if s in self.shared_observations and s not in shared_observations:
                         shared_observations.append(s)
                     
                     else:
@@ -226,11 +227,13 @@ class CityLearnEnv(Environment, Env):
 
             for i, b in enumerate(self.buildings):
                 for k, v in b.observations(normalize=False, periodic_normalization=False).items():
-                    if i == 0 or k not in self.shared_observations:
+                    if i == 0 or k not in self.shared_observations or k not in shared_observations:
                         observations.append(v)
                     
-                    elif k not in shared_observations:
-                        observations.append(v)
+                    else:
+                        pass
+
+                    if k in self.shared_observations and k not in shared_observations:
                         shared_observations.append(k)
                     
                     else:
@@ -723,7 +726,7 @@ class CityLearnEnv(Environment, Env):
         for b in self.buildings:
             unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.comfort(
                 b.energy_simulation.indoor_dry_bulb_temperature, 
-                b.energy_simulation.dry_bulb_temperature_set_point,
+                b.energy_simulation.indoor_dry_bulb_temperature_set_point,
                 band=2.0,
                 occupant_count=b.energy_simulation.occupant_count[:self.time_step + 1]
             )
