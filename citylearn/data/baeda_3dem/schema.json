@@ -39,19 +39,19 @@
       "shared_in_central_agent": true
     },
     "outdoor_relative_humidity": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "outdoor_relative_humidity_predicted_6h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "outdoor_relative_humidity_predicted_12h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "outdoor_relative_humidity_predicted_24h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "diffuse_solar_irradiance": {
@@ -59,15 +59,15 @@
       "shared_in_central_agent": true
     },
     "diffuse_solar_irradiance_predicted_6h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "diffuse_solar_irradiance_predicted_12h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "diffuse_solar_irradiance_predicted_24h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "direct_solar_irradiance": {
@@ -99,7 +99,7 @@
       "shared_in_central_agent": false
     },
     "indoor_relative_humidity": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": false
     },
     "non_shiftable_load": {
@@ -127,27 +127,27 @@
       "shared_in_central_agent": false
     },
     "net_electricity_consumption": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": false
     },
     "electricity_pricing": {
-      "active": false,
-      "shared_in_central_agent": false
+      "active": true,
+      "shared_in_central_agent": true
     },
     "electricity_pricing_predicted_6h": {
-      "active": false,
-      "shared_in_central_agent": false
+      "active": true,
+      "shared_in_central_agent": true
     },
     "electricity_pricing_predicted_12h": {
-      "active": false,
-      "shared_in_central_agent": false
+      "active": true,
+      "shared_in_central_agent": true
     },
     "electricity_pricing_predicted_24h": {
-      "active": false,
-      "shared_in_central_agent": false
+      "active": true,
+      "shared_in_central_agent": true
     },
     "cooling_device_cop": {
-      "active": false,
+      "active": true,
       "shared_in_central_agent": false
     },
     "heating_device_cop": {
@@ -155,7 +155,7 @@
       "shared_in_central_agent": false
     },
     "cooling_demand": {
-      "active": false,
+      "active": true,
       "shared_in_central_agent": false
     },
     "heating_demand": {
@@ -166,11 +166,11 @@
       "active": true,
       "shared_in_central_agent": false
     },
-    "dry_bulb_temperature_set_point": {
+    "indoor_dry_bulb_temperature_set_point": {
       "active": true,
       "shared_in_central_agent": false
     },
-    "dry_bulb_temperature_delta": {
+    "indoor_dry_bulb_temperature_delta": {
       "active": true,
       "shared_in_central_agent": false
     }
@@ -262,6 +262,7 @@
       },
       "inactive_observations": [
         "dhw_storage_soc",
+        "solar_generation",
         "diffuse_solar_irradiance",
         "diffuse_solar_irradiance_predicted_6h",
         "diffuse_solar_irradiance_predicted_12h",
@@ -382,6 +383,7 @@
         }
       },
       "inactive_observations": [
+        "solar_generation",
         "diffuse_solar_irradiance",
         "diffuse_solar_irradiance_predicted_6h",
         "diffuse_solar_irradiance_predicted_12h",
@@ -501,6 +503,7 @@
         }
       },
       "inactive_observations": [
+        "solar_generation",
         "diffuse_solar_irradiance",
         "diffuse_solar_irradiance_predicted_6h",
         "diffuse_solar_irradiance_predicted_12h",
