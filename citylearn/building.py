@@ -649,8 +649,8 @@ class Building(Environment):
                     ) if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
             'cooling_demand': self.energy_simulation.cooling_demand[self.time_step],
             'heating_demand': self.energy_simulation.heating_demand[self.time_step],
-            'dry_bulb_temperature_set_point': self.energy_simulation.dry_bulb_temperature_set_point[self.time_step],
-            'dry_bulb_temperature_delta': self.energy_simulation.dry_bulb_temperature_set_point[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature[self.time_step],
+            'indoor_dry_bulb_temperature_set_point': self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step],
+            'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature[self.time_step]),
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
         }
 
@@ -952,8 +952,8 @@ class Building(Environment):
                 low_limit[key] = self.energy_simulation.indoor_dry_bulb_temperature.min() - self.__temperature_epsilon
                 high_limit[key] = self.energy_simulation.indoor_dry_bulb_temperature.max() + self.__temperature_epsilon
 
-            elif key == 'dry_bulb_temperature_delta':
-                low_limit[key] = -self.__temperature_epsilon
+            elif key == 'indoor_dry_bulb_temperature_delta':
+                low_limit[key] = 0
                 high_limit[key] = self.__temperature_epsilon
                 
             elif key in ['cooling_demand', 'heating_demand']:
@@ -1263,6 +1263,14 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
                 model_input[i] = model_input[i][1:]
         
         model_input = np.array(model_input, dtype='float32')
+
+        # for debugging
+        heating_demand_ix = self.dynamics.input_observation_names.index('heating_demand')
+        temp_data = pd.DataFrame(np.delete(model_input, heating_demand_ix, 0).T)
+        temp_data['index'] = temp_data.index
+        temp_data['tag'] = 'unorm'
+        temp_data['timestep'] = self.time_step
+        self.input_history.append(temp_data)
         
         for i, (k, nmin, nmax) in enumerate(zip(
             self.dynamics.input_observation_names, self.dynamics.input_normalization_minimum, self.dynamics.input_normalization_maximum
