@@ -2,7 +2,7 @@
   "root_directory": null,
   "central_agent": false,
   "simulation_start_time_step": 0,
-  "simulation_end_time_step": 2207,
+  "simulation_end_time_step": 2927,
   "episodes": 1,
   "seconds_per_time_step": 3600.0,
   "observations": {
@@ -39,19 +39,19 @@
       "shared_in_central_agent": true
     },
     "outdoor_relative_humidity": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "outdoor_relative_humidity_predicted_6h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "outdoor_relative_humidity_predicted_12h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "outdoor_relative_humidity_predicted_24h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "diffuse_solar_irradiance": {
@@ -59,15 +59,15 @@
       "shared_in_central_agent": true
     },
     "diffuse_solar_irradiance_predicted_6h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "diffuse_solar_irradiance_predicted_12h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "diffuse_solar_irradiance_predicted_24h": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "direct_solar_irradiance": {
@@ -99,7 +99,7 @@
       "shared_in_central_agent": false
     },
     "indoor_relative_humidity": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": false
     },
     "non_shiftable_load": {
@@ -127,27 +127,27 @@
       "shared_in_central_agent": false
     },
     "net_electricity_consumption": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": false
     },
     "electricity_pricing": {
-      "active": false,
-      "shared_in_central_agent": false
+      "active": true,
+      "shared_in_central_agent": true
     },
     "electricity_pricing_predicted_6h": {
-      "active": false,
-      "shared_in_central_agent": false
+      "active": true,
+      "shared_in_central_agent": true
     },
     "electricity_pricing_predicted_12h": {
-      "active": false,
-      "shared_in_central_agent": false
+      "active": true,
+      "shared_in_central_agent": true
     },
     "electricity_pricing_predicted_24h": {
-      "active": false,
-      "shared_in_central_agent": false
+      "active": true,
+      "shared_in_central_agent": true
     },
     "cooling_device_cop": {
-      "active": false,
+      "active": true,
       "shared_in_central_agent": false
     },
     "heating_device_cop": {
@@ -155,7 +155,7 @@
       "shared_in_central_agent": false
     },
     "cooling_demand": {
-      "active": false,
+      "active": true,
       "shared_in_central_agent": false
     },
     "heating_demand": {
@@ -166,11 +166,11 @@
       "active": true,
       "shared_in_central_agent": false
     },
-    "dry_bulb_temperature_set_point": {
+    "indoor_dry_bulb_temperature_set_point": {
       "active": true,
       "shared_in_central_agent": false
     },
-    "dry_bulb_temperature_delta": {
+    "indoor_dry_bulb_temperature_delta": {
       "active": true,
       "shared_in_central_agent": false
     }
@@ -207,9 +207,9 @@
       "lr": 0.001,
       "batch_size": 512,
       "replay_buffer_capacity": 100000.0,
-      "start_training_time_step": 2208,
-      "end_exploration_time_step": 2209,
-      "deterministic_start_time_step": 44160,
+      "start_training_time_step": 2928,
+      "end_exploration_time_step": 2929,
+      "deterministic_start_time_step": 58560,
       "action_scaling_coef": 0.5,
       "reward_scaling": 5.0,
       "update_per_time_step": 2,
@@ -262,6 +262,7 @@
       },
       "inactive_observations": [
         "dhw_storage_soc",
+        "solar_generation",
         "diffuse_solar_irradiance",
         "diffuse_solar_irradiance_predicted_6h",
         "diffuse_solar_irradiance_predicted_12h",
@@ -332,7 +333,7 @@
       }
     },
     "Building_2": {
-      "include": false,
+      "include": true,
       "energy_simulation": "Building_2.csv",
       "weather": "weather.csv",
       "carbon_intensity": null,
@@ -382,6 +383,7 @@
         }
       },
       "inactive_observations": [
+        "solar_generation",
         "diffuse_solar_irradiance",
         "diffuse_solar_irradiance_predicted_6h",
         "diffuse_solar_irradiance_predicted_12h",
@@ -417,13 +419,13 @@
             -0.90097,
             -1.0,
             -1.0,
-            18.12067
+            22.63211
           ],
           "input_normalization_maximum": [
             1037.6663,
             36.90833,
-            30.81475,
-            24.73536719,
+            296.33365,
+            109.74094531,
             1.0,
             1.0,
             1.0,
@@ -431,7 +433,7 @@
             1.0,
             0.0,
             0.0,
-            29.89854
+            27.65767
           ],
           "input_observation_names": [
             "direct_solar_irradiance",
@@ -451,7 +453,7 @@
       }
     },
     "Building_3": {
-      "include": false,
+      "include": true,
       "energy_simulation": "Building_3.csv",
       "weather": "weather.csv",
       "carbon_intensity": null,
@@ -501,6 +503,7 @@
         }
       },
       "inactive_observations": [
+        "solar_generation",
         "diffuse_solar_irradiance",
         "diffuse_solar_irradiance_predicted_6h",
         "diffuse_solar_irradiance_predicted_12h",
@@ -536,13 +539,13 @@
             -0.90097,
             -1.0,
             -1.0,
-            18.12067
+            18.22155
           ],
           "input_normalization_maximum": [
             1037.6663,
             36.90833,
-            30.81475,
-            24.73536719,
+            258.90265,
+            72.14350781,
             1.0,
             1.0,
             1.0,
@@ -550,7 +553,7 @@
             1.0,
             0.0,
             0.0,
-            29.89854
+            30.50947
           ],
           "input_observation_names": [
             "direct_solar_irradiance",
@@ -570,7 +573,7 @@
       }
     },
     "Building_4": {
-      "include": false,
+      "include": true,
       "energy_simulation": "Building_4.csv",
       "weather": "weather.csv",
       "carbon_intensity": null,
@@ -655,13 +658,13 @@
             -0.90097,
             -1.0,
             -1.0,
-            18.12067
+            23.36176
           ],
           "input_normalization_maximum": [
             1037.6663,
             36.90833,
-            30.81475,
-            24.73536719,
+            254.76593,
+            245.52803125,
             1.0,
             1.0,
             1.0,
@@ -669,7 +672,7 @@
             1.0,
             0.0,
             0.0,
-            29.89854
+            30.95352
           ],
           "input_observation_names": [
             "direct_solar_irradiance",

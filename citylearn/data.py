@@ -70,7 +70,7 @@ class EnergySimulation:
         Inverter output per 1 kW of PV system time series in [W/kW].
     occupant_count: np.array
         Building occupant count time series in [people].
-    dry_bulb_temperature_set_point: np.array
+    indoor_dry_bulb_temperature_set_point: np.array
         Average building dry bulb temperature set point time series in [C].
     cooling_device_demand_schedule: np.array
         Cooling device availability schedule for meeting cooling demand time series in [On/Off].
@@ -83,7 +83,7 @@ class EnergySimulation:
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
         daylight_savings_status: Iterable[int], indoor_dry_bulb_temperature: Iterable[float], average_unmet_cooling_setpoint_difference: Iterable[float], indoor_relative_humidity: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float],
-        solar_generation: Iterable[float], occupant_count: Iterable[int] = None, dry_bulb_temperature_set_point: Iterable[int] = None,
+        solar_generation: Iterable[float], occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_set_point: Iterable[int] = None,
         cooling_device_demand_schedule: Iterable[int] = None, heating_device_demand_schedule: Iterable[int] = None
     ):
         r"""Initialize `EnergySimulation`."""
@@ -103,7 +103,7 @@ class EnergySimulation:
 
         # optional
         self.occupant_count = np.zeros(len(solar_generation), dtype=float) if occupant_count is None else np.array(occupant_count, dtype=float)
-        self.dry_bulb_temperature_set_point = np.zeros(len(solar_generation), dtype=float) if dry_bulb_temperature_set_point is None else np.array(dry_bulb_temperature_set_point, dtype=float)
+        self.indoor_dry_bulb_temperature_set_point = np.zeros(len(solar_generation), dtype=float) if indoor_dry_bulb_temperature_set_point is None else np.array(indoor_dry_bulb_temperature_set_point, dtype=float)
         self.cooling_device_demand_schedule = np.zeros(len(solar_generation), dtype=float) if cooling_device_demand_schedule is None else np.array(cooling_device_demand_schedule, dtype=int)
         self.heating_device_demand_schedule = np.zeros(len(solar_generation), dtype=float) if heating_device_demand_schedule is None else np.array(heating_device_demand_schedule, dtype=int)
 

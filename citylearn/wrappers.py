@@ -8,22 +8,32 @@ class NormalizedObservationWrapper(ObservationWrapper):
     def __init__(self, env: CityLearnEnv) -> None:
         super().__init__(env)
         self.env: CityLearnEnv
-        self.observation_space = self.set_observation_space()
     
-    def set_observation_space(self) -> List[spaces.Box]:
+    @property
+    def observation_space(self) -> List[spaces.Box]:
         low_limit = []
         high_limit = []
 
         if self.env.central_agent:
+            shared_observations = []
+
             for i, b in enumerate(self.env.buildings):
                 s = b.estimate_observation_space(normalize=True, periodic_normalization=True)
-                l, _ = b.periodic_normalized_observation_space_limits
+                o = b.observations(normalize=True, periodic_normalization=True)
 
-                for k, lv, hv in zip(l, s.low, s.high):
-                    if i == 0 or k.rstrip('_sin').rstrip('_cos') not in self.env.shared_observations:
+                for k, lv, hv in zip(o, s.low, s.high):
+                    k_p = k.rstrip('_sin').rstrip('_cos')
+                    
+                    if i == 0 or k_p not in self.env.shared_observations or k not in shared_observations:
                         low_limit.append(lv)
                         high_limit.append(hv)
 
+                    else:
+                        pass
+
+                    if k_p in self.env.shared_observations and k not in shared_observations:
+                        shared_observations.append(k)
+                    
                     else:
                         pass
             
@@ -35,10 +45,32 @@ class NormalizedObservationWrapper(ObservationWrapper):
         return observation_space
 
     def observation(self, observations: List[List[float]]) -> List[List[float]]:
-        return [[
-            v for i, b in enumerate(self.env.buildings) for k, v in b.observations(normalize=True, periodic_normalization=True).items() 
-            if i == 0 or k.rstrip('_sin').rstrip('_cos') not in self.env.shared_observations
-        ]] if self.env.central_agent else [list(b.observations(normalize=True, periodic_normalization=True).values()) for b in self.env.buildings]
+        if self.env.central_agent:
+            norm_observations = []
+            shared_observations = []
+
+            for i, b in enumerate(self.env.buildings):
+                for k, v in b.observations(normalize=True, periodic_normalization=True).items():
+                    k_p = k.rstrip('_sin').rstrip('_cos')
+                    
+                    if i==0 or k_p not in self.env.shared_observations or k not in shared_observations:
+                        norm_observations.append(v)
+
+                    else:
+                        pass
+
+                    if k_p in self.env.shared_observations and k not in shared_observations:
+                        shared_observations.append(k)
+                    
+                    else:
+                        pass
+            
+            norm_observations = [norm_observations]
+
+        else:
+            norm_observations = [list(b.observations(normalize=True, periodic_normalization=True).values()) for b in self.env.buildings]
+        
+        return norm_observations
     
 class DiscreteObservationWrapper(ObservationWrapper):
     def __init__(self, env: CityLearnEnv, bin_sizes: List[Mapping[str, int]] = None, default_bin_size: int = None):
@@ -56,11 +88,21 @@ class DiscreteObservationWrapper(ObservationWrapper):
     def observation_space(self) -> List[spaces.MultiDiscrete]:
         if self.env.central_agent:
             bin_sizes = []
+            shared_observations = []
 
             for i, b in enumerate(self.bin_sizes):
                 for k, v in b.items():
-                    if i == 0 or k.rstrip('_sin').rstrip('_cos') not in self.env.shared_observations:
+                    
+                    k_p = k.rstrip('_sin').rstrip('_cos')
+                    
+                    if i == 0 or k_p not in self.env.shared_observations or k not in shared_observations:
                         bin_sizes.append(v)
+
+                    else:
+                        pass
+
+                    if k_p in self.env.shared_observations and k not in shared_observations:
+                        shared_observations.append(k)
 
                     else:
                         pass

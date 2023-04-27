@@ -649,8 +649,8 @@ class Building(Environment):
                     ) if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
             'cooling_demand': self.energy_simulation.cooling_demand[self.time_step],
             'heating_demand': self.energy_simulation.heating_demand[self.time_step],
-            'dry_bulb_temperature_set_point': self.energy_simulation.dry_bulb_temperature_set_point[self.time_step],
-            'dry_bulb_temperature_delta': self.energy_simulation.dry_bulb_temperature_set_point[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature[self.time_step],
+            'indoor_dry_bulb_temperature_set_point': self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step],
+            'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature[self.time_step]),
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
         }
 
@@ -718,9 +718,9 @@ class Building(Environment):
 
         Parameters
         ----------
-        cooling_device_action : float, default: 0.0
+        cooling_device_action : float, default: np.nan
             Fraction of `cooling_device` `nominal_power` to make available for space cooling.
-        heating_device_action : float, default: 0.0
+        heating_device_action : float, default: np.nan
             Fraction of `heating_device` `nominal_power` to make available for space heating.
         cooling_storage_action : float, default: 0.0
             Fraction of `cooling_storage` `capacity` to charge/discharge by.
@@ -732,8 +732,6 @@ class Building(Environment):
             Fraction of `electrical_storage` `capacity` to charge/discharge by.
         """
 
-        cooling_device_action = 0.0 if cooling_device_action is None or math.isnan(cooling_device_action) else cooling_device_action
-        heating_device_action = 0.0 if heating_device_action is None or math.isnan(heating_device_action) else heating_device_action
         cooling_storage_action = 0.0 if cooling_storage_action is None or math.isnan(cooling_storage_action) else cooling_storage_action
         heating_storage_action = 0.0 if heating_storage_action is None or math.isnan(heating_storage_action) else heating_storage_action
         dhw_storage_action = 0.0 if dhw_storage_action is None or math.isnan(dhw_storage_action) else dhw_storage_action
@@ -759,7 +757,11 @@ class Building(Environment):
             Fraction of `cooling_storage` `capacity` to charge/discharge by.
         """
 
-        self.update_cooling_demand(cooling_device_action)
+        if cooling_device_action is not None and not math.isnan(cooling_device_action):
+            self.update_cooling_demand(cooling_device_action)
+        else:
+            pass
+
         energy = cooling_storage_action*self.cooling_storage.capacity
         space_demand = self.energy_simulation.cooling_demand[self.time_step]
         space_demand = 0.0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
@@ -785,7 +787,11 @@ class Building(Environment):
             Fraction of `heating_storage` `capacity` to charge/discharge by.
         """
 
-        self.update_heating_demand(heating_device_action)
+        if heating_device_action is not None and not math.isnan(heating_device_action):
+            self.update_heating_demand(heating_device_action)
+        else:
+            pass
+
         energy = heating_storage_action*self.heating_storage.capacity
         space_demand = self.energy_simulation.heating_demand[self.time_step]
         space_demand = 0.0 if space_demand is None or math.isnan(space_demand) else space_demand # case where space demand is unknown
@@ -856,10 +862,10 @@ class Building(Environment):
 
         normalize = False if normalize is None else normalize
         normalized_observation_space_limits = self.estimate_observation_space_limits(
-            include_all=include_all, periodic_normalization=periodic_normalization
+            include_all=include_all, periodic_normalization=True
         )
         unnormalized_observation_space_limits = self.estimate_observation_space_limits(
-            include_all=include_all, periodic_normalization=periodic_normalization
+            include_all=include_all, periodic_normalization=False
         )
 
         if normalize:
@@ -946,8 +952,8 @@ class Building(Environment):
                 low_limit[key] = self.energy_simulation.indoor_dry_bulb_temperature.min() - self.__temperature_epsilon
                 high_limit[key] = self.energy_simulation.indoor_dry_bulb_temperature.max() + self.__temperature_epsilon
 
-            elif key == 'dry_bulb_temperature_delta':
-                low_limit[key] = -self.__temperature_epsilon
+            elif key == 'indoor_dry_bulb_temperature_delta':
+                low_limit[key] = 0
                 high_limit[key] = self.__temperature_epsilon
                 
             elif key in ['cooling_demand', 'heating_demand']:
@@ -1257,6 +1263,14 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
                 model_input[i] = model_input[i][1:]
         
         model_input = np.array(model_input, dtype='float32')
+
+        # for debugging
+        heating_demand_ix = self.dynamics.input_observation_names.index('heating_demand')
+        temp_data = pd.DataFrame(np.delete(model_input, heating_demand_ix, 0).T)
+        temp_data['index'] = temp_data.index
+        temp_data['tag'] = 'unorm'
+        temp_data['timestep'] = self.time_step
+        self.input_history.append(temp_data)
         
         for i, (k, nmin, nmax) in enumerate(zip(
             self.dynamics.input_observation_names, self.dynamics.input_normalization_minimum, self.dynamics.input_normalization_maximum
@@ -1274,7 +1288,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         model_input[cooling_demand_ix] = np.maximum(model_input[cooling_demand_ix], model_input[heating_demand_ix])
         model_input = np.delete(model_input, heating_demand_ix, 0)
 
-
+        # for debugging
         temp_data = pd.DataFrame(model_input.T)
         temp_data['index'] = temp_data.index
         temp_data['tag'] = 'norm'
@@ -1319,7 +1333,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         # but it complicates things and is not too realistic.
 
         if self.simulate_dynamics:
-            if self.energy_simulation.cooling_device_demand_schedule[self.time_step] > 0:
+            if self.energy_simulation.cooling_device_demand_schedule[self.time_step + 1] > 0:
                 electric_power = action*self.cooling_device.nominal_power
                 demand = self.cooling_device.get_max_output_power(
                     self.weather.outdoor_dry_bulb_temperature[self.time_step + 1],
@@ -1338,7 +1352,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
 
     def update_heating_demand(self, action: float):
         if self.simulate_dynamics:
-            if self.energy_simulation.heating_device_demand_schedule[self.time_step] > 0:
+            if self.energy_simulation.heating_device_demand_schedule[self.time_step + 1] > 0:
                 electric_power = action*self.heating_device.nominal_power
                 demand = self.heating_device.get_max_output_power(
                     self.weather.outdoor_dry_bulb_temperature[self.time_step + 1], 

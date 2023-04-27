@@ -439,7 +439,7 @@ class PV(ElectricDevice):
         self.nominal_power = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
 
 class StorageDevice(Device):
-    def __init__(self, capacity: float, efficiency: float = None, loss_coefficient: float = None, initial_soc: float = None, efficiency_scaling: float = None, **kwargs):
+    def __init__(self, capacity: float, efficiency: float = None, loss_coefficient: float = None, initial_soc: float = None, **kwargs):
         r"""Initialize `StorageDevice`.
 
         Parameters
@@ -452,8 +452,6 @@ class StorageDevice(Device):
             Standby hourly losses. Must be between 0 and 1 (this value is often 0 or really close to 0).
         initial_soc : float, default: 0.0
             State of charge when `time_step` = 0. Must be >= 0 and < `capacity`.
-        efficiency_scaling : float, default: 0.5
-            `efficiency` exponent scaling for `efficienct` such that `efficiency` **= `efficiency_scaling`
 
         Other Parameters
         ----------------
@@ -461,7 +459,6 @@ class StorageDevice(Device):
             Other keyword arguments used to initialize super class.
         """
 
-        self.efficiency_scaling = efficiency_scaling
         self.capacity = capacity
         self.loss_coefficient = loss_coefficient
         self.initial_soc = initial_soc
@@ -498,21 +495,16 @@ class StorageDevice(Device):
         return self.__soc[-1]*(1 - self.loss_coefficient)
 
     @property
-    def efficiency_scaling(self) -> float:
-        r"""`efficiency` exponent scaling."""
-
-        return self.__efficiency_scaling
-
-    @property
     def energy_balance(self) -> List[float]:
         r"""Charged/discharged energy time series in [kWh]."""
 
         return self.__energy_balance
+    
+    @property
+    def round_trip_efficiency(self) -> float:
+        """Efficiency square root."""
 
-    @Device.efficiency.setter
-    def efficiency(self, efficiency: float):
-        efficiency = 0.9 if efficiency is None else efficiency
-        Device.efficiency.fset(self, efficiency**self.efficiency_scaling)
+        return self.efficiency**0.5
 
     @capacity.setter
     def capacity(self, capacity: float):
@@ -538,15 +530,8 @@ class StorageDevice(Device):
             assert 0 <= initial_soc <= self.capacity, 'initial_soc must be >= 0 and <= capacity.'
             self.__initial_soc = initial_soc
 
-    @efficiency_scaling.setter
-    def efficiency_scaling(self, efficiency_scaling: float):
-        if efficiency_scaling is None:
-            self.__efficiency_scaling = 0.5
-        else:
-            self.__efficiency_scaling = efficiency_scaling
-
     def charge(self, energy: float):
-        """Charges or discharges storage with respect to specified energy while considering `capacity` and `soc_init` limitations and, energy losses to the environment quantified by `efficiency`.
+        """Charges or discharges storage with respect to specified energy while considering `capacity` and `soc_init` limitations and, energy losses to the environment quantified by `round_trip_efficiency`.
 
         Parameters
         ----------
@@ -555,19 +540,19 @@ class StorageDevice(Device):
 
         Notes
         -----
-        If charging, soc = min(`soc_init` + energy*`efficiency`, `capacity`)
-        If discharging, soc = max(0, `soc_init` + energy/`efficiency`)
+        If charging, soc = min(`soc_init` + energy*`round_trip_efficiency`, `capacity`)
+        If discharging, soc = max(0, `soc_init` + energy/`round_trip_efficiency`)
         """
         
         # The initial State Of Charge (SOC) is the previous SOC minus the energy losses
-        soc = min(self.soc_init + energy*self.efficiency, self.capacity) if energy >= 0 else max(0, self.soc_init + energy/self.efficiency)
+        soc = min(self.soc_init + energy*self.round_trip_efficiency, self.capacity) if energy >= 0 else max(0, self.soc_init + energy/self.round_trip_efficiency)
         self.__soc.append(soc)
         self.__energy_balance.append(self.set_energy_balance())
 
     def set_energy_balance(self) -> float:
         r"""Calculate energy balance
 
-        The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and `efficiency`
+        The energy balance is a derived quantity and is the product or quotient of the difference between consecutive SOCs and `round_trip_efficiency`
         for discharge or charge events respectively thus, thus accounts for energy losses to environment during charging and discharge.
         """
 
@@ -575,7 +560,7 @@ class StorageDevice(Device):
         # taking into account storage design limits e.g. maximum power input/output, capacity
         previous_soc = self.initial_soc if self.time_step == 0 else self.soc[-2]
         energy_balance = self.soc[-1] - previous_soc*(1.0 - self.loss_coefficient)
-        energy_balance = energy_balance/self.efficiency if energy_balance >= 0 else energy_balance*self.efficiency
+        energy_balance = energy_balance/self.round_trip_efficiency if energy_balance >= 0 else energy_balance*self.round_trip_efficiency
         return energy_balance
 
     def autosize(self, demand: Iterable[float], safety_factor: float = None):
@@ -860,7 +845,6 @@ class Battery(ElectricDevice, StorageDevice):
                 + (energy_normalized - self.power_efficiency_curve[0][idx]
                 )*(self.power_efficiency_curve[1][idx + 1] - self.power_efficiency_curve[1][idx]
                 )/(self.power_efficiency_curve[0][idx + 1] - self.power_efficiency_curve[0][idx])
-            efficiency = efficiency**self.efficiency_scaling
         else:
             efficiency = self.efficiency
 
