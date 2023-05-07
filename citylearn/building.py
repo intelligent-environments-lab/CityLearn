@@ -485,6 +485,15 @@ class Building(Environment):
         """Energy supply from `electrical_storage` to building time series, in [kWh]."""
 
         return np.array(self.electrical_storage.energy_balance, dtype=float).clip(max=0)*-1
+    
+    @property
+    def indoor_dry_bulb_temperature(self) -> np.ndarray:
+        """dry bulb temperature time series, in [C].
+        
+        This is the temperature when cooling_device and heating_device are controlled.
+        """
+
+        return self.energy_simulation.indoor_dry_bulb_temperature[0:self.time_step + 1]
 
     @property
     def cooling_demand(self) -> np.ndarray:
