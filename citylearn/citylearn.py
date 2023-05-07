@@ -31,7 +31,7 @@ class EvaluationCondition(Enum):
 
 class CityLearnEnv(Environment, Env):
     def __init__(self, 
-        schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: List[Building] = None, simulation_start_time_step: int = None, simulation_end_time_step: int = None, 
+        schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, simulation_start_time_step: int = None, simulation_end_time_step: int = None, 
         reward_function: 'citylearn.reward_function.RewardFunction' = None, central_agent: bool = None, shared_observations: List[str] = None, **kwargs
     ):
         r"""Initialize `CityLearnEnv`.
@@ -43,8 +43,10 @@ class CityLearnEnv(Environment, Env):
             Call :py:meth:`citylearn.data.DataSet.get_names` for list of available CityLearn data sets.
         root_directory: Union[str, Path]
             Absolute path to directory that contains the data files including the schema. If provided, will override :code:`root_directory` definition in schema.
-        buildings: List[Building], optional
-            Buildings in CityLearn environment. If provided, will override :code:`buildings` definition in schema.
+        buildings: Union[List[Building], List[str], List[int]], optional
+            Buildings to include in environment. If list of :code:`citylearn.building.Building` is provided, will override :code:`buildings` definition in schema.
+            If list of :str: is provided will include only schema :code:`buildings` keys that are contained in provided list of :code:`str`.
+            If list of :int: is provided will include only schema :code:`buildings` whose index is contained in provided list of :code:`int`.
         simulation_start_time_step: int, optional
             Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.
         end_time_step: int, optional
@@ -689,9 +691,9 @@ class CityLearnEnv(Environment, Env):
 
         Parameters
         ----------
-        control_condition: EvaluationCondition
+        control_condition: EvaluationCondition, default: :code:`EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV`
             Condition for net electricity consumption, cost and emission to use in calculating cost functions for the control/flexible scenario.
-        baseline_condition: EvaluationCondition
+        baseline_condition: EvaluationCondition, default: :code:`EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV`
             Condition for net electricity consumption, cost and emission to use in calculating cost functions for the baseline scenario 
             that is used to normalize the control_condition scenario.
         
@@ -725,8 +727,8 @@ class CityLearnEnv(Environment, Env):
         
         for b in self.buildings:
             unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.comfort(
-                b.energy_simulation.indoor_dry_bulb_temperature, 
-                b.energy_simulation.indoor_dry_bulb_temperature_set_point,
+                b.energy_simulation.indoor_dry_bulb_temperature[:self.time_step + 1], 
+                b.energy_simulation.indoor_dry_bulb_temperature_set_point[:self.time_step + 1],
                 band=2.0,
                 occupant_count=b.energy_simulation.occupant_count[:self.time_step + 1]
             )
@@ -917,110 +919,120 @@ class CityLearnEnv(Environment, Env):
         simulation_end_time_step = kwargs['simulation_end_time_step'] if kwargs.get('simulation_end_time_step') is not None else\
             self.schema['simulation_end_time_step']
         seconds_per_time_step = self.schema['seconds_per_time_step']
+        buildings_to_include = list(self.schema['buildings'].keys())
+        buildings = ()
 
         if kwargs.get('buildings') is not None and len(kwargs['buildings']) > 0:
-            buildings = kwargs['buildings']
-        
-        else:
-            buildings = ()
+            if isinstance(kwargs['buildings'][0], Building):
+                buildings = kwargs['buildings']
+                buildings_to_include = []
             
-            for building_name, building_schema in self.schema['buildings'].items():
-                if building_schema['include']:
-                    # data
-                    energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
-                    energy_simulation = EnergySimulation(*energy_simulation.values.T)
-                    weather = pd.read_csv(os.path.join(root_directory,building_schema['weather'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
-                    weather = Weather(*weather.values.T)
+            elif isinstance(kwargs['buildings'][0], str):
+                buildings_to_include = [b for b in buildings_to_include if b in kwargs['buildings']]
+            
+            elif isinstance(kwargs['buildings'][0], int):
+                buildings_to_include = [buildings_to_include[i] for i in kwargs['buildings']]
 
-                    if building_schema.get('carbon_intensity', None) is not None:
-                        carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
-                        carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
-                        carbon_intensity = CarbonIntensity(carbon_intensity)
-                    else:
-                        carbon_intensity = None
+            else:
+                raise Exception('Unknown buildings type. Allowed types are citylearn.building.Building, int and str.')
+            
+        else:
+            buildings_to_include = [b for b in buildings_to_include if self.schema['buildings'][b]['include']]
 
-                    if building_schema.get('pricing', None) is not None:
-                        pricing = pd.read_csv(os.path.join(root_directory,building_schema['pricing'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
-                        pricing = Pricing(*pricing.values.T)
-                    else:
-                        pricing = None
-                        
-                    # observation and action metadata
-                    inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
-                    inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
-                    observation_metadata = {k: False if k in inactive_observations else v['active'] for k, v in observations.items()}
-                    action_metadata = {k: False if k in inactive_actions else v['active'] for k, v in actions.items()}
+        for building_name in buildings_to_include:
+            building_schema = self.schema['buildings'][building_name]
+            # data
+            energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+            energy_simulation = EnergySimulation(*energy_simulation.values.T)
+            weather = pd.read_csv(os.path.join(root_directory,building_schema['weather'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+            weather = Weather(*weather.values.T)
 
-                    # construct building
-                    building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
-                    building_type_module = '.'.join(building_type.split('.')[0:-1])
-                    building_type_name = building_type.split('.')[-1]
-                    building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
-                    
-                    # set dynamics
-                    if building_schema.get('dynamics', None) is not None:
-                        dynamics_type = building_schema['dynamics']['type']
-                        dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
-                        dynamics_name = dynamics_type.split('.')[-1]
-                        dynamics_constructor = getattr(importlib.import_module(dynamics_module), dynamics_name)
-                        attributes = building_schema['dynamics'].get('attributes', {})
-                        attributes['filepath'] = os.path.join(root_directory, attributes['filename'])
-                        _ = attributes.pop('filename')
-                        dynamics = dynamics_constructor(**attributes)
-                    else:
-                        dynamics = None
+            if building_schema.get('carbon_intensity', None) is not None:
+                carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+                carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
+                carbon_intensity = CarbonIntensity(carbon_intensity)
+            else:
+                carbon_intensity = None
 
-                    building: Building = building_constructor(
-                        energy_simulation=energy_simulation, 
-                        weather=weather, 
-                        observation_metadata=observation_metadata, 
-                        action_metadata=action_metadata, 
-                        carbon_intensity=carbon_intensity, 
-                        pricing=pricing,
-                        name=building_name, 
-                        seconds_per_time_step=seconds_per_time_step,
-                        dynamics=dynamics,
-                    )
+            if building_schema.get('pricing', None) is not None:
+                pricing = pd.read_csv(os.path.join(root_directory,building_schema['pricing'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+                pricing = Pricing(*pricing.values.T)
+            else:
+                pricing = None
+                
+            # observation and action metadata
+            inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
+            inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
+            observation_metadata = {k: False if k in inactive_observations else v['active'] for k, v in observations.items()}
+            action_metadata = {k: False if k in inactive_actions else v['active'] for k, v in actions.items()}
 
-                    # update devices
-                    device_metadata = {
-                        'dhw_storage': {'autosizer': building.autosize_dhw_storage},  
-                        'cooling_storage': {'autosizer': building.autosize_cooling_storage}, 
-                        'heating_storage': {'autosizer': building.autosize_heating_storage}, 
-                        'electrical_storage': {'autosizer': building.autosize_electrical_storage}, 
-                        'cooling_device': {'autosizer': building.autosize_cooling_device}, 
-                        'heating_device': {'autosizer': building.autosize_heating_device}, 
-                        'dhw_device': {'autosizer': building.autosize_dhw_device}, 
-                        'pv': {'autosizer': building.autosize_pv}
-                    }
+            # construct building
+            building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
+            building_type_module = '.'.join(building_type.split('.')[0:-1])
+            building_type_name = building_type.split('.')[-1]
+            building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
+            
+            # set dynamics
+            if building_schema.get('dynamics', None) is not None:
+                dynamics_type = building_schema['dynamics']['type']
+                dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
+                dynamics_name = dynamics_type.split('.')[-1]
+                dynamics_constructor = getattr(importlib.import_module(dynamics_module), dynamics_name)
+                attributes = building_schema['dynamics'].get('attributes', {})
+                attributes['filepath'] = os.path.join(root_directory, attributes['filename'])
+                _ = attributes.pop('filename')
+                dynamics = dynamics_constructor(**attributes)
+            else:
+                dynamics = None
 
-                    for name in device_metadata:
-                        if building_schema.get(name, None) is None:
-                            device = None
-                        else:
-                            device_type = building_schema[name]['type']
-                            device_module = '.'.join(device_type.split('.')[0:-1])
-                            device_name = device_type.split('.')[-1]
-                            constructor = getattr(importlib.import_module(device_module),device_name)
-                            attributes = building_schema[name].get('attributes',{})
-                            attributes['seconds_per_time_step'] = seconds_per_time_step
-                            device = constructor(**attributes)
-                            autosize = False if building_schema[name].get('autosize', None) is None else building_schema[name]['autosize']
-                            building.__setattr__(name, device)
+            building: Building = building_constructor(
+                energy_simulation=energy_simulation, 
+                weather=weather, 
+                observation_metadata=observation_metadata, 
+                action_metadata=action_metadata, 
+                carbon_intensity=carbon_intensity, 
+                pricing=pricing,
+                name=building_name, 
+                seconds_per_time_step=seconds_per_time_step,
+                dynamics=dynamics,
+            )
 
-                            if autosize:
-                                autosizer = device_metadata[name]['autosizer']
-                                autosize_kwargs = {} if building_schema[name].get('autosize_attributes', None) is None else building_schema[name]['autosize_attributes']
-                                autosizer(**autosize_kwargs)
-                            else:
-                                pass
-                    
-                    building.observation_space = building.estimate_observation_space()
-                    building.action_space = building.estimate_action_space()
-                    buildings += (building,)
-                    
+            # update devices
+            device_metadata = {
+                'dhw_storage': {'autosizer': building.autosize_dhw_storage},  
+                'cooling_storage': {'autosizer': building.autosize_cooling_storage}, 
+                'heating_storage': {'autosizer': building.autosize_heating_storage}, 
+                'electrical_storage': {'autosizer': building.autosize_electrical_storage}, 
+                'cooling_device': {'autosizer': building.autosize_cooling_device}, 
+                'heating_device': {'autosizer': building.autosize_heating_device}, 
+                'dhw_device': {'autosizer': building.autosize_dhw_device}, 
+                'pv': {'autosizer': building.autosize_pv}
+            }
+
+            for name in device_metadata:
+                if building_schema.get(name, None) is None:
+                    device = None
                 else:
-                    continue
+                    device_type = building_schema[name]['type']
+                    device_module = '.'.join(device_type.split('.')[0:-1])
+                    device_name = device_type.split('.')[-1]
+                    constructor = getattr(importlib.import_module(device_module),device_name)
+                    attributes = building_schema[name].get('attributes',{})
+                    attributes['seconds_per_time_step'] = seconds_per_time_step
+                    device = constructor(**attributes)
+                    autosize = False if building_schema[name].get('autosize', None) is None else building_schema[name]['autosize']
+                    building.__setattr__(name, device)
+
+                    if autosize:
+                        autosizer = device_metadata[name]['autosizer']
+                        autosize_kwargs = {} if building_schema[name].get('autosize_attributes', None) is None else building_schema[name]['autosize_attributes']
+                        autosizer(**autosize_kwargs)
+                    else:
+                        pass
+            
+            building.observation_space = building.estimate_observation_space()
+            building.action_space = building.estimate_action_space()
+            buildings += (building,)
         
         buildings = list(buildings)
 
