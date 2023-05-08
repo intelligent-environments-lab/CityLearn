@@ -701,7 +701,7 @@ class CityLearnEnv(Environment, Env):
         -------
         cost_functions: pd.DataFrame
             Cost function summary including the following: electricity consumption, zero net energy, carbon emissions, cost,
-            comfort (unmet, too cold, too hot, minimum delta, maximum delta, average delta), ramping, 1 - load factor,
+            discomfort (total, too cold, too hot, minimum delta, maximum delta, average delta), ramping, 1 - load factor,
             average daily peak and average annual peak.
 
         Notes
@@ -726,7 +726,7 @@ class CityLearnEnv(Environment, Env):
         building_level = []
         
         for b in self.buildings:
-            unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.comfort(
+            unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.discomfort(
                 b.energy_simulation.indoor_dry_bulb_temperature[:self.time_step + 1], 
                 b.energy_simulation.indoor_dry_bulb_temperature_set_point[:self.time_step + 1],
                 band=2.0,
@@ -734,7 +734,7 @@ class CityLearnEnv(Environment, Env):
             )
             building_level += [{
                 'name': b.name,
-                'cost_function': 'total_electricity_consumption',
+                'cost_function': 'electricity_consumption_total',
                 'value': CostFunction.electricity_consumption(control_net_electricity_consumption(b))[-1]/\
                     CostFunction.electricity_consumption(baseline_net_electricity_consumption(b))[-1],
                 }, {
@@ -744,39 +744,39 @@ class CityLearnEnv(Environment, Env):
                     CostFunction.zero_net_energy(baseline_net_electricity_consumption(b))[-1],
                 }, {
                 'name': b.name,
-                'cost_function': 'total_carbon_emissions',
+                'cost_function': 'carbon_emissions_total',
                 'value': CostFunction.carbon_emissions(control_net_electricity_consumption_emission(b))[-1]/\
                     CostFunction.carbon_emissions(baseline_net_electricity_consumption_emission(b))[-1]\
                         if sum(b.carbon_intensity.carbon_intensity) != 0 else None,
                 }, {
                 'name': b.name,
-                'cost_function': 'total_cost',
+                'cost_function': 'cost_total',
                 'value': CostFunction.cost(control_net_electricity_consumption_cost(b))[-1]/\
                     CostFunction.cost(baseline_net_electricity_consumption_cost(b))[-1]\
                         if sum(b.pricing.electricity_pricing) != 0 else None,
                 }, {
                 'name': b.name,
-                'cost_function': 'proportion_unmet_comfort',
+                'cost_function': 'discomfort_proportion',
                 'value': unmet[-1],
                 }, {
                 'name': b.name,
-                'cost_function': 'proportion_too_cold_comfort',
+                'cost_function': 'discomfort_too_cold_proportion',
                 'value': too_cold[-1],
                 }, {
                 'name': b.name,
-                'cost_function': 'proportion_too_hot_comfort',
+                'cost_function': 'discomfort_too_hot_proportion',
                 'value': too_hot[-1],
                 }, {
                 'name': b.name,
-                'cost_function': 'minimum_delta_comfort',
+                'cost_function': 'discomfort_delta_minimum',
                 'value': minimum_delta[-1],
                 }, {
                 'name': b.name,
-                'cost_function': 'maximum_delta_comfort',
+                'cost_function': 'discomfort_delta_maximum',
                 'value': maximum_delta[-1],
                 }, {
                 'name': b.name,
-                'cost_function': 'average_delta_comfort',
+                'cost_function': 'dicomfort_delta_average',
                 'value': average_delta[-1],
                 }]
 
@@ -785,19 +785,19 @@ class CityLearnEnv(Environment, Env):
 
         ## district level
         district_level = pd.DataFrame([{
-            'cost_function': 'average_ramping',
+            'cost_function': 'ramping_average',
             'value': CostFunction.ramping(control_net_electricity_consumption(self))[-1]/\
                 CostFunction.ramping(baseline_net_electricity_consumption(self))[-1],
             }, {
-            'cost_function': 'average_one_minus_load_factor',
+            'cost_function': 'one_minus_load_factor_average',
             'value': CostFunction.one_minus_load_factor(control_net_electricity_consumption(self), window=730)[-1]/\
                 CostFunction.one_minus_load_factor(baseline_net_electricity_consumption(self), window=730)[-1],
             }, {
-            'cost_function': 'average_daily_peak',
+            'cost_function': 'daily_peak_average',
             'value': CostFunction.peak(control_net_electricity_consumption(self), window=24)[-1]/\
                 CostFunction.peak(baseline_net_electricity_consumption(self), window=24)[-1],
             }, {
-            'cost_function': 'average_annual_peak',
+            'cost_function': 'annual_peak_average',
             'value': CostFunction.peak(control_net_electricity_consumption(self), window=8760)[-1]/\
                 CostFunction.peak(baseline_net_electricity_consumption(self), window=8760)[-1],
             }])
