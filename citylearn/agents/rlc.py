@@ -32,8 +32,8 @@ class RLC(Agent):
         Batch size.
     replay_buffer_capacity : int, default: 1e5
         Replay buffer capacity.
-    start_training_time_step : int, default: 6000
-        Time step to start training regression.
+    standardize_start_time_step : int, default: 6000
+        Time step to calculate mean and standard deviation, and begin standardization of observations and rewards in replay buffer.
     end_exploration_time_step : int, default: 7000
         Time step to stop random or RBC-guided exploration.
     action_scaling_coefficient : float, default: 0.5
@@ -52,7 +52,7 @@ class RLC(Agent):
     def __init__(
         self, env: CityLearnEnv, hidden_dimension: List[float] = None, 
         discount: float = None, tau: float = None, alpha: float = None, lr: float = None, batch_size: int = None,
-        replay_buffer_capacity: int = None, start_training_time_step: int = None, end_exploration_time_step: int = None, 
+        replay_buffer_capacity: int = None, standardize_start_time_step: int = None, end_exploration_time_step: int = None, 
         action_scaling_coefficienct: float = None, reward_scaling: float = None, 
         update_per_time_step: int = None, **kwargs: Any
     ):
@@ -64,7 +64,7 @@ class RLC(Agent):
         self.lr = lr
         self.batch_size = batch_size
         self.replay_buffer_capacity = replay_buffer_capacity
-        self.start_training_time_step = start_training_time_step
+        self.standardize_start_time_step = standardize_start_time_step
         self.end_exploration_time_step = end_exploration_time_step
         self.action_scaling_coefficient = action_scaling_coefficienct
         self.reward_scaling = reward_scaling
@@ -120,10 +120,10 @@ class RLC(Agent):
         return self.__replay_buffer_capacity
 
     @property
-    def start_training_time_step(self) -> int:
-        """Time step to end exploration phase."""
+    def standardize_start_time_step(self) -> int:
+        """Time step to calculate mean and standard deviation, and begin standardization of observations and rewards in replay buffer."""
 
-        return self.__start_training_time_step
+        return self.__standardize_start_time_step
 
     @property
     def end_exploration_time_step(self) -> int:
@@ -177,9 +177,9 @@ class RLC(Agent):
     def replay_buffer_capacity(self, replay_buffer_capacity: int):
         self.__replay_buffer_capacity = 1e5 if replay_buffer_capacity is None else replay_buffer_capacity
 
-    @start_training_time_step.setter
-    def start_training_time_step(self, start_training_time_step: int):
-        self.__start_training_time_step = 6000 if start_training_time_step is None else start_training_time_step
+    @standardize_start_time_step.setter
+    def standardize_start_time_step(self, standardize_start_time_step: int):
+        self.__standardize_start_time_step = 6000 if standardize_start_time_step is None else standardize_start_time_step
 
     @end_exploration_time_step.setter
     def end_exploration_time_step(self, end_exploration_time_step: int):

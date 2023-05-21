@@ -173,7 +173,7 @@
       "lr": 0.003,
       "batch_size": 256,
       "replay_buffer_capacity": 100000.0,
-      "start_training_time_step": 6000,
+      "standardize_start_time_step": 6000,
       "end_exploration_time_step": 7000,
       "action_scaling_coef": 0.5,
       "reward_scaling": 5.0,
