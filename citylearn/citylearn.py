@@ -7,6 +7,7 @@ from typing import Any, List, Mapping, Tuple, Union
 from gym import Env, spaces
 import numpy as np
 import pandas as pd
+from citylearn import __version__ as citylearn_version
 from citylearn.base import Environment
 from citylearn.building import Building
 from citylearn.cost_function import CostFunction
@@ -974,16 +975,21 @@ class CityLearnEnv(Environment, Env):
             
             # set dynamics
             if building_schema.get('dynamics', None) is not None:
-                dynamics_type = building_schema['dynamics']['type']
-                dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
-                dynamics_name = dynamics_type.split('.')[-1]
-                dynamics_constructor = getattr(importlib.import_module(dynamics_module), dynamics_name)
-                attributes = building_schema['dynamics'].get('attributes', {})
-                attributes['filepath'] = os.path.join(root_directory, attributes['filename'])
-                _ = attributes.pop('filename')
-                dynamics = dynamics_constructor(**attributes)
+                assert int(citylearn_version.split('.')[0]) >= 2, 'Building dynamics is only supported in CityLearn>=2.x.x'
+                modes = ['cooling', 'heating']
+                dynamics = {m: None for m in modes}
+
+                for mode in modes:
+                    dynamics_type = building_schema['dynamics'][mode]['type']
+                    dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
+                    dynamics_name = dynamics_type.split('.')[-1]
+                    dynamics_constructor = getattr(importlib.import_module(dynamics_module), dynamics_name)
+                    attributes = building_schema['dynamics'][mode].get('attributes', {})
+                    attributes['filepath'] = os.path.join(root_directory, attributes['filename'])
+                    _ = attributes.pop('filename')
+                    dynamics[f'{mode}_dynamics'] = dynamics_constructor(**attributes)
             else:
-                dynamics = None
+                pass
 
             building: Building = building_constructor(
                 energy_simulation=energy_simulation, 
@@ -994,7 +1000,7 @@ class CityLearnEnv(Environment, Env):
                 pricing=pricing,
                 name=building_name, 
                 seconds_per_time_step=seconds_per_time_step,
-                dynamics=dynamics,
+                **dynamics,
             )
 
             # update devices

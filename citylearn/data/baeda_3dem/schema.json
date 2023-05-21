@@ -279,55 +279,103 @@
         "electrical_storage"
       ],
       "dynamics": {
-        "type": "citylearn.dynamics.LSTMDynamics",
-        "attributes": {
-          "input_size": 11,
-          "hidden_size": 8,
-          "num_layers": 2,
-          "lookback": 12,
-          "filename": "Building_1.pth",
-          "input_normalization_minimum": [
-            0.0,
-            10.80833,
-            0.0,
-            0.0,
-            0.0,
-            -1.0,
-            -1.0,
-            -0.97493,
-            -0.90097,
-            -1.0,
-            -1.0,
-            18.12067
-          ],
-          "input_normalization_maximum": [
-            1037.6663,
-            36.90833,
-            30.81475,
-            24.73536719,
-            1.0,
-            1.0,
-            1.0,
-            0.97493,
-            1.0,
-            0.0,
-            0.0,
-            29.89854
-          ],
-          "input_observation_names": [
-            "direct_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "cooling_demand",
-            "heating_demand",
-            "hour_sin",
-            "hour_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "month_sin",
-            "month_cos",
-            "indoor_dry_bulb_temperature"
-          ]
+        "cooling": {
+          "type": "citylearn.dynamics.LSTMDynamics",
+          "attributes": {
+            "input_size": 11,
+            "hidden_size": 8,
+            "num_layers": 2,
+            "lookback": 12,
+            "filename": "Building_1.pth",
+            "input_normalization_minimum": [
+              0.0,
+              10.80833,
+              0.0,
+              0.0,
+              -1.0,
+              -1.0,
+              -0.97493,
+              -0.90097,
+              -1.0,
+              -1.0,
+              18.12067
+            ],
+            "input_normalization_maximum": [
+              1037.6663,
+              36.90833,
+              30.81475,
+              24.73536719,
+              1.0,
+              1.0,
+              0.97493,
+              1.0,
+              0.0,
+              0.0,
+              29.89854
+            ],
+            "input_observation_names": [
+              "direct_solar_irradiance",
+              "outdoor_dry_bulb_temperature",
+              "occupant_count",
+              "cooling_demand",
+              "hour_sin",
+              "hour_cos",
+              "day_type_sin",
+              "day_type_cos",
+              "month_sin",
+              "month_cos",
+              "indoor_dry_bulb_temperature"
+            ]
+          }
+        },
+        "heating": {
+          "type": "citylearn.dynamics.LSTMDynamics",
+          "attributes": {
+            "input_size": 11,
+            "hidden_size": 8,
+            "num_layers": 2,
+            "lookback": 12,
+            "filename": "Building_1.pth",
+            "input_normalization_minimum": [
+              0.0,
+              10.80833,
+              0.0,
+              0.0,
+              -1.0,
+              -1.0,
+              -0.97493,
+              -0.90097,
+              -1.0,
+              -1.0,
+              18.12067
+            ],
+            "input_normalization_maximum": [
+              1037.6663,
+              36.90833,
+              30.81475,
+              24.73536719,
+              1.0,
+              1.0,
+              0.97493,
+              1.0,
+              0.0,
+              0.0,
+              29.89854
+            ],
+            "input_observation_names": [
+              "direct_solar_irradiance",
+              "outdoor_dry_bulb_temperature",
+              "occupant_count",
+              "heating_demand",
+              "hour_sin",
+              "hour_cos",
+              "day_type_sin",
+              "day_type_cos",
+              "month_sin",
+              "month_cos",
+              "indoor_dry_bulb_temperature"
+            ]
+          }
         }
       }
     },
@@ -399,55 +447,103 @@
         "electrical_storage"
       ],
       "dynamics": {
-        "type": "citylearn.dynamics.LSTMDynamics",
-        "attributes": {
-          "input_size": 11,
-          "hidden_size": 8,
-          "num_layers": 2,
-          "lookback": 12,
-          "filename": "Building_2.pth",
-          "input_normalization_minimum": [
-            0.0,
-            10.80833,
-            0.0,
-            0.0,
-            0.0,
-            -1.0,
-            -1.0,
-            -0.97493,
-            -0.90097,
-            -1.0,
-            -1.0,
-            22.63211
-          ],
-          "input_normalization_maximum": [
-            1037.6663,
-            36.90833,
-            296.33365,
-            109.74094531,
-            1.0,
-            1.0,
-            1.0,
-            0.97493,
-            1.0,
-            0.0,
-            0.0,
-            27.65767
-          ],
-          "input_observation_names": [
-            "direct_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "cooling_demand",
-            "heating_demand",
-            "hour_sin",
-            "hour_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "month_sin",
-            "month_cos",
-            "indoor_dry_bulb_temperature"
-          ]
+        "cooling": {
+          "type": "citylearn.dynamics.LSTMDynamics",
+          "attributes": {
+            "input_size": 11,
+            "hidden_size": 8,
+            "num_layers": 2,
+            "lookback": 12,
+            "filename": "Building_2.pth",
+            "input_normalization_minimum": [
+              0.0,
+              10.80833,
+              0.0,
+              0.0,
+              -1.0,
+              -1.0,
+              -0.97493,
+              -0.90097,
+              -1.0,
+              -1.0,
+              22.63211
+            ],
+            "input_normalization_maximum": [
+              1037.6663,
+              36.90833,
+              296.33365,
+              109.74094531,
+              1.0,
+              1.0,
+              0.97493,
+              1.0,
+              0.0,
+              0.0,
+              27.65767
+            ],
+            "input_observation_names": [
+              "direct_solar_irradiance",
+              "outdoor_dry_bulb_temperature",
+              "occupant_count",
+              "cooling_demand",
+              "hour_sin",
+              "hour_cos",
+              "day_type_sin",
+              "day_type_cos",
+              "month_sin",
+              "month_cos",
+              "indoor_dry_bulb_temperature"
+            ]
+          }
+        },
+        "heating": {
+          "type": "citylearn.dynamics.LSTMDynamics",
+          "attributes": {
+            "input_size": 11,
+            "hidden_size": 8,
+            "num_layers": 2,
+            "lookback": 12,
+            "filename": "Building_2.pth",
+            "input_normalization_minimum": [
+              0.0,
+              10.80833,
+              0.0,
+              0.0,
+              -1.0,
+              -1.0,
+              -0.97493,
+              -0.90097,
+              -1.0,
+              -1.0,
+              22.63211
+            ],
+            "input_normalization_maximum": [
+              1037.6663,
+              36.90833,
+              296.33365,
+              109.74094531,
+              1.0,
+              1.0,
+              0.97493,
+              1.0,
+              0.0,
+              0.0,
+              27.65767
+            ],
+            "input_observation_names": [
+              "direct_solar_irradiance",
+              "outdoor_dry_bulb_temperature",
+              "occupant_count",
+              "heating_demand",
+              "hour_sin",
+              "hour_cos",
+              "day_type_sin",
+              "day_type_cos",
+              "month_sin",
+              "month_cos",
+              "indoor_dry_bulb_temperature"
+            ]
+          }
         }
       }
     },
@@ -519,55 +615,103 @@
         "electrical_storage"
       ],
       "dynamics": {
-        "type": "citylearn.dynamics.LSTMDynamics",
-        "attributes": {
-          "input_size": 11,
-          "hidden_size": 8,
-          "num_layers": 2,
-          "lookback": 12,
-          "filename": "Building_3.pth",
-          "input_normalization_minimum": [
-            0.0,
-            10.80833,
-            0.0,
-            0.0,
-            0.0,
-            -1.0,
-            -1.0,
-            -0.97493,
-            -0.90097,
-            -1.0,
-            -1.0,
-            18.22155
-          ],
-          "input_normalization_maximum": [
-            1037.6663,
-            36.90833,
-            258.90265,
-            72.14350781,
-            1.0,
-            1.0,
-            1.0,
-            0.97493,
-            1.0,
-            0.0,
-            0.0,
-            30.50947
-          ],
-          "input_observation_names": [
-            "direct_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "cooling_demand",
-            "heating_demand",
-            "hour_sin",
-            "hour_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "month_sin",
-            "month_cos",
-            "indoor_dry_bulb_temperature"
-          ]
+        "cooling": {
+          "type": "citylearn.dynamics.LSTMDynamics",
+          "attributes": {
+            "input_size": 11,
+            "hidden_size": 8,
+            "num_layers": 2,
+            "lookback": 12,
+            "filename": "Building_3.pth",
+            "input_normalization_minimum": [
+              0.0,
+              10.80833,
+              0.0,
+              0.0,
+              -1.0,
+              -1.0,
+              -0.97493,
+              -0.90097,
+              -1.0,
+              -1.0,
+              18.22155
+            ],
+            "input_normalization_maximum": [
+              1037.6663,
+              36.90833,
+              258.90265,
+              72.14350781,
+              1.0,
+              1.0,
+              0.97493,
+              1.0,
+              0.0,
+              0.0,
+              30.50947
+            ],
+            "input_observation_names": [
+              "direct_solar_irradiance",
+              "outdoor_dry_bulb_temperature",
+              "occupant_count",
+              "cooling_demand",
+              "hour_sin",
+              "hour_cos",
+              "day_type_sin",
+              "day_type_cos",
+              "month_sin",
+              "month_cos",
+              "indoor_dry_bulb_temperature"
+            ]
+          }
+        },
+        "heating": {
+          "type": "citylearn.dynamics.LSTMDynamics",
+          "attributes": {
+            "input_size": 11,
+            "hidden_size": 8,
+            "num_layers": 2,
+            "lookback": 12,
+            "filename": "Building_3.pth",
+            "input_normalization_minimum": [
+              0.0,
+              10.80833,
+              0.0,
+              0.0,
+              -1.0,
+              -1.0,
+              -0.97493,
+              -0.90097,
+              -1.0,
+              -1.0,
+              18.22155
+            ],
+            "input_normalization_maximum": [
+              1037.6663,
+              36.90833,
+              258.90265,
+              72.14350781,
+              1.0,
+              1.0,
+              0.97493,
+              1.0,
+              0.0,
+              0.0,
+              30.50947
+            ],
+            "input_observation_names": [
+              "direct_solar_irradiance",
+              "outdoor_dry_bulb_temperature",
+              "occupant_count",
+              "heating_demand",
+              "hour_sin",
+              "hour_cos",
+              "day_type_sin",
+              "day_type_cos",
+              "month_sin",
+              "month_cos",
+              "indoor_dry_bulb_temperature"
+            ]
+          }
         }
       }
     },
@@ -638,55 +782,103 @@
         "electrical_storage"
       ],
       "dynamics": {
-        "type": "citylearn.dynamics.LSTMDynamics",
-        "attributes": {
-          "input_size": 11,
-          "hidden_size": 50,
-          "num_layers": 1,
-          "lookback": 12,
-          "filename": "Building_4.pth",
-          "input_normalization_minimum": [
-            0.0,
-            10.80833,
-            0.0,
-            0.0,
-            0.0,
-            -1.0,
-            -1.0,
-            -0.97493,
-            -0.90097,
-            -1.0,
-            -1.0,
-            23.36176
-          ],
-          "input_normalization_maximum": [
-            1037.6663,
-            36.90833,
-            254.76593,
-            245.52803125,
-            1.0,
-            1.0,
-            1.0,
-            0.97493,
-            1.0,
-            0.0,
-            0.0,
-            30.95352
-          ],
-          "input_observation_names": [
-            "direct_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "cooling_demand",
-            "heating_demand",
-            "hour_sin",
-            "hour_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "month_sin",
-            "month_cos",
-            "indoor_dry_bulb_temperature"
-          ]
+        "cooling": {
+          "type": "citylearn.dynamics.LSTMDynamics",
+          "attributes": {
+            "input_size": 11,
+            "hidden_size": 50,
+            "num_layers": 1,
+            "lookback": 12,
+            "filename": "Building_4.pth",
+            "input_normalization_minimum": [
+              0.0,
+              10.80833,
+              0.0,
+              0.0,
+              -1.0,
+              -1.0,
+              -0.97493,
+              -0.90097,
+              -1.0,
+              -1.0,
+              23.36176
+            ],
+            "input_normalization_maximum": [
+              1037.6663,
+              36.90833,
+              254.76593,
+              245.52803125,
+              1.0,
+              1.0,
+              0.97493,
+              1.0,
+              0.0,
+              0.0,
+              30.95352
+            ],
+            "input_observation_names": [
+              "direct_solar_irradiance",
+              "outdoor_dry_bulb_temperature",
+              "occupant_count",
+              "cooling_demand",
+              "hour_sin",
+              "hour_cos",
+              "day_type_sin",
+              "day_type_cos",
+              "month_sin",
+              "month_cos",
+              "indoor_dry_bulb_temperature"
+            ]
+          }
+        },
+        "heating": {
+          "type": "citylearn.dynamics.LSTMDynamics",
+          "attributes": {
+            "input_size": 11,
+            "hidden_size": 50,
+            "num_layers": 1,
+            "lookback": 12,
+            "filename": "Building_4.pth",
+            "input_normalization_minimum": [
+              0.0,
+              10.80833,
+              0.0,
+              0.0,
+              -1.0,
+              -1.0,
+              -0.97493,
+              -0.90097,
+              -1.0,
+              -1.0,
+              23.36176
+            ],
+            "input_normalization_maximum": [
+              1037.6663,
+              36.90833,
+              254.76593,
+              245.52803125,
+              1.0,
+              1.0,
+              0.97493,
+              1.0,
+              0.0,
+              0.0,
+              30.95352
+            ],
+            "input_observation_names": [
+              "direct_solar_irradiance",
+              "outdoor_dry_bulb_temperature",
+              "occupant_count",
+              "heating_demand",
+              "hour_sin",
+              "hour_cos",
+              "day_type_sin",
+              "day_type_cos",
+              "month_sin",
+              "month_cos",
+              "indoor_dry_bulb_temperature"
+            ]
+          }
         }
       }
     }

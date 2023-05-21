@@ -526,6 +526,15 @@ class Building(Environment):
         """`PV` solar generation (negative value) time series, in [kWh]."""
 
         return self.__solar_generation[:self.time_step + 1]
+    
+    @property
+    def hvac_mode_switch(self) -> bool:
+        """If HVAC has just switched from cooling to heating or vice versa at current `time_step`."""
+
+        previous_mode = self.energy_simulation.hvac_mode[self.time_step - 1]
+        current_mode = self.energy_simulation.hvac_mode[self.time_step]
+
+        return (previous_mode <= 1 and current_mode == 2) or (previous_mode == 2 and current_mode <= 1)
 
     @energy_simulation.setter
     def energy_simulation(self, energy_simulation: EnergySimulation):
@@ -1240,8 +1249,10 @@ class DynamicsBuilding(Building):
     ----------
     *args: Any
         Positional arguments in :py:class:`citylearn.building.Building`.
-    dynamics: Dynamics
-        Indoor dry-bulb temperature dynamics model.
+    cooling_dynamics: Dynamics
+        Indoor dry-bulb temperature dynamics model for cooling mode.
+    heating_dynamics: Dynamics
+        Indoor dry-bulb temperature dynamics model for heating mode.
 
     Other Parameters
     ----------------
@@ -1249,11 +1260,32 @@ class DynamicsBuilding(Building):
         Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.
     """
 
-    def __init__(self, *args: Any, dynamics: Dynamics, **kwargs: Any):
+    def __init__(self, *args: Any, cooling_dynamics: Dynamics, heating_dynamics: Dynamics, **kwargs: Any):
         """Intialize `DynamicsBuilding`"""
 
-        self.dynamics = dynamics
+        self.cooling_dynamics = cooling_dynamics
+        self.heating_dynamics = heating_dynamics
+        self.dynamics = None
         super().__init__(*args, **kwargs)
+        
+
+    def set_dynamics(self) -> Dynamics:
+        """Resets and returns `cooling_dynamics` if current time step HVAC mode is off or
+        cooling otherwise, resets and returns `heating dynamics`."""
+        
+        if self.energy_simulation.hvac_mode[self.time_step] <= 1:
+            self.cooling_dynamics.reset()
+            return self.cooling_dynamics
+        
+        else:
+            self.heating_dynamics.reset()
+            return self.heating_dynamics
+        
+    def reset(self):
+        """Reset Building to initial state and sets `dynamics`."""
+
+        super().reset()
+        self.dynamics = self.set_dynamics()
 
 class LSTMDynamicsBuilding(DynamicsBuilding):
     r"""Class for building with LSTM temperature dynamics model.
@@ -1262,8 +1294,10 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
     ----------
     *args: Any
         Positional arguments in :py:class:`citylearn.building.Building`.
-    dynamics: LSTMDynamics
-        Indoor dry-bulb temperature dynamics model.
+    cooling_dynamics: Dynamics
+        Indoor dry-bulb temperature dynamics model for cooling mode.
+    heating_dynamics: Dynamics
+        Indoor dry-bulb temperature dynamics model for heating mode.
 
     Other Parameters
     ----------------
@@ -1271,26 +1305,34 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.
     """
 
-    def __init__(self, *args, dynamics: LSTMDynamics, **kwargs):
-        super().__init__(*args, dynamics=dynamics, **kwargs)
-        assert isinstance(dynamics, LSTMDynamics), f'dynamics model must be {LSTMDynamics.__name__} type.'
-        self.dynamics = dynamics
+    def __init__(self, *args, cooling_dynamics: LSTMDynamics, heating_dynamics: LSTMDynamics, **kwargs):
+        super().__init__(*args, cooling_dynamics=cooling_dynamics, heating_dynamics=heating_dynamics, **kwargs)
+        self.dynamics: LSTMDynamics
 
     @property
     def simulate_dynamics(self) -> bool:
         """Whether to predict indoor dry-bulb temperature at current `time_step`."""
 
-        return self.time_step >= self.dynamics.lookback
+        return self.dynamics._model_input[0][0] is not None
     
     def next_time_step(self):
         """Update the dynamics model input time series, Advance all energy storage and electric devices,
         and PV to next `time_step` then predict and update indoor dry-bulb temperature for new `time_step`."""
 
-        self.__model_input = self.update_model_input()
+        self.dynamics._model_input = self.update_model_input()
         super().next_time_step()
 
         if self.simulate_dynamics:
             self.update_dynamics()
+        else:
+            pass
+
+        # Reset dynamics model if HVAC mode has swtiched since previous time step. Reason for doing this is 
+        # because the current model input and hidden states will no longer be valid later on if the mode
+        # switches back to it at a later time step since a different LSTM will be in use until the switch.
+        if self.hvac_mode_switch:
+            self.dynamics = self.set_dynamics()
+        
         else:
             pass
 
@@ -1336,29 +1378,18 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
             self.dynamics.input_observation_names, self.dynamics.input_normalization_minimum, self.dynamics.input_normalization_maximum
         )):
             model_input[i] = (model_input[i] - nmin)/(nmax - nmin)
-
-        # temporary hack since LSTM model only uses either cooling/heating demand not both as input parameter
-        # The LSTM model may need to include both cooling and heating demand as input parameters to consider
-        # situation where E+ simulation might have both cooling and heating at the same time step.
-        # Also, since CityLearn allows for both cooling and heating loads we need to start considering both series in
-        # model design.
-        
-        # if off or cooling mode, use cooling demand (cooling demand at current timestep would have been set to 0 if off) else use heating demand
-        if self.energy_simulation.hvac_mode[self.time_step] in [0, 1]:
-            model_input = np.delete(model_input, self.dynamics.input_observation_names.index('heating_demand'), 0)
-        else:
-            model_input = np.delete(model_input, self.dynamics.input_observation_names.index('cooling_demand'), 0)
         
         # predict
         model_input_tensor = torch.tensor(model_input.T)
         model_input_tensor = model_input_tensor[np.newaxis, :, :]
-        hidden_state = tuple([h.data for h in self.__hidden_state])
-        indoor_dry_bulb_temperature_norm, self.__hidden_state = self.dynamics(model_input_tensor.float(), hidden_state)
+        hidden_state = tuple([h.data for h in self.dynamics._hidden_state])
+        indoor_dry_bulb_temperature_norm, self.dynamics._hidden_state = self.dynamics(model_input_tensor.float(), hidden_state)
 
         # unnormalize temperature
         low_limit = self.dynamics.input_normalization_minimum[-1]
         high_limit = self.dynamics.input_normalization_maximum[-1]
         indoor_dry_bulb_temperature = indoor_dry_bulb_temperature_norm*(high_limit - low_limit) + low_limit
+        
         # update temperature
         # this function is called after advancing to next timestep 
         # so the cooling demand update and this temperature update are set at the same time step
@@ -1384,7 +1415,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         # where n is the lookback + 1 (to include current time step observations)
         model_input = [
             l[-self.dynamics.lookback:] + [observations[k]] 
-            for l, k in zip(self.__model_input, self.dynamics.input_observation_names)
+            for l, k in zip(self.dynamics._model_input, self.dynamics.input_observation_names)
         ]
         
         return model_input
@@ -1471,19 +1502,3 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
 
         else:
             pass
-
-    def reset(self):
-        """Reset Building to initial state.
-        
-        Loads dynamic model state dict, and initializes hidden states and model input.
-        """
-        
-        super().reset()
-
-        try:
-            self.dynamics.load_state_dict(torch.load(self.dynamics.filepath)['model_state_dict'])
-        except:
-            self.dynamics.load_state_dict(torch.load(self.dynamics.filepath))
-
-        self.__hidden_state = self.dynamics.init_hidden(1)
-        self.__model_input = [[None]*(self.dynamics.lookback + 1) for _ in self.dynamics.input_observation_names]
