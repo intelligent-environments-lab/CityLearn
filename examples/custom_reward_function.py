@@ -14,16 +14,21 @@ from citylearn.citylearn import CityLearnEnv
 from citylearn.reward_function import RewardFunction
 
 class CustomReward(RewardFunction):
+    """Calculates custom user-defined multi-agent reward.
+        
+    Reward is the :py:attr:`net_electricity_consumption_emission` for entire district if central agent setup 
+    otherwise it is the :py:attr:`net_electricity_consumption_emission` each building.
+
+    Parameters
+    ----------
+    env: citylearn.citylearn.CityLearnEnv
+        CityLearn environment.
+    """
+    
     def __init__(self, env: CityLearnEnv):
         super().__init__(env)
         
     def calculate(self) -> List[float]:
-        """Calculates custom user-defined multi-agent reward.
-        
-        Reward is the :py:atter:`net_electricity_consumption_emission` for entire district if central agent setup 
-        otherwise it is the :py:atter:`net_electricity_consumption_emission` each building.
-        """
-
         if self.env.central_agent:
             reward = [self.env.net_electricity_consumption_emission[-1]]
 
