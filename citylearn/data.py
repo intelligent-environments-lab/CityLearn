@@ -144,11 +144,15 @@ class EnergySimulation:
         
         else:
             unique = list(set(hvac_mode))
-            unique.remove(0)
-            unique.remove(1)
-            unique.remove(2)
+
+            for i in range(3):
+                try:
+                    unique.remove(i)
+                except ValueError:
+                    pass
+
             assert len(unique) == 0, f'Invalid hvac_mode values were found: {unique}. Valid values are 0, 1 and 2 to indicate off, cooling mode and heating mode.'
-            hvac_mode = np.array(hvac_mode, dtype=int)
+            self.hvac_mode = np.array(hvac_mode, dtype=int)
 
 class Weather:
     """`Building` `weather` data class.

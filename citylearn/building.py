@@ -1272,7 +1272,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
     """
 
     def __init__(self, *args, dynamics: LSTMDynamics, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, dynamics=dynamics, **kwargs)
         assert isinstance(dynamics, LSTMDynamics), f'dynamics model must be {LSTMDynamics.__name__} type.'
         self.dynamics = dynamics
 
