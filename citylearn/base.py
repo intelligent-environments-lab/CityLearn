@@ -4,7 +4,7 @@ import uuid
 class Environment:
     """Base class for all `citylearn` classes that have a spatio-temporal dimension.
 
-    Attributes
+    Parameters
     ----------
     seconds_per_time_step: float, default: 3600.0
         Number of seconds in 1 `time_step` and must be set to >= 1.
