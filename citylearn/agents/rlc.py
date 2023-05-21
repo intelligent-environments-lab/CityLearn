@@ -36,8 +36,6 @@ class RLC(Agent):
         Time step to start training regression.
     end_exploration_time_step : int, default: 7000
         Time step to stop random or RBC-guided exploration.
-    deterministic_start_time_step : int, default: 7500
-        Time step to begin taking deterministic actions.
     action_scaling_coefficient : float, default: 0.5
         Action scaling coefficient.
     reward_scaling : float, default: 5.0
@@ -55,7 +53,7 @@ class RLC(Agent):
         self, env: CityLearnEnv, hidden_dimension: List[float] = None, 
         discount: float = None, tau: float = None, alpha: float = None, lr: float = None, batch_size: int = None,
         replay_buffer_capacity: int = None, start_training_time_step: int = None, end_exploration_time_step: int = None, 
-        deterministic_start_time_step: int = None, action_scaling_coefficienct: float = None, reward_scaling: float = None, 
+        action_scaling_coefficienct: float = None, reward_scaling: float = None, 
         update_per_time_step: int = None, **kwargs: Any
     ):
         super().__init__(env, **kwargs)
@@ -68,7 +66,6 @@ class RLC(Agent):
         self.replay_buffer_capacity = replay_buffer_capacity
         self.start_training_time_step = start_training_time_step
         self.end_exploration_time_step = end_exploration_time_step
-        self.deterministic_start_time_step = deterministic_start_time_step
         self.action_scaling_coefficient = action_scaling_coefficienct
         self.reward_scaling = reward_scaling
         self.update_per_time_step = update_per_time_step
@@ -135,12 +132,6 @@ class RLC(Agent):
         return self.__end_exploration_time_step
 
     @property
-    def deterministic_start_time_step(self) -> int:
-        """Time step to begin taking deterministic actions."""
-
-        return self.__deterministic_start_time_step
-
-    @property
     def action_scaling_coefficient(self) -> float:
         """Action scaling coefficient."""
 
@@ -193,10 +184,6 @@ class RLC(Agent):
     @end_exploration_time_step.setter
     def end_exploration_time_step(self, end_exploration_time_step: int):
         self.__end_exploration_time_step = 7000 if end_exploration_time_step is None else end_exploration_time_step
-
-    @deterministic_start_time_step.setter
-    def deterministic_start_time_step(self, deterministic_start_time_step: int):
-        self.__deterministic_start_time_step = np.nan if deterministic_start_time_step is None else deterministic_start_time_step
 
     @action_scaling_coefficient.setter
     def action_scaling_coefficient(self, action_scaling_coefficient: float):

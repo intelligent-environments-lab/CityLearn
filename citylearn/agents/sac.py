@@ -202,7 +202,7 @@ class SAC(RLC):
             o = self.get_normalized_observations(i, o)
             o = torch.FloatTensor(o).unsqueeze(0).to(self.device)
             result = self.policy_net[i].sample(o)
-            a = result[2] if self.time_step >= self.deterministic_start_time_step or deterministic else result[0]
+            a = result[2] if deterministic else result[0]
             actions.append(a.detach().cpu().numpy()[0])
 
         return actions

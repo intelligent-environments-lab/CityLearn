@@ -308,7 +308,7 @@ class MARLISA(SAC):
                 o = self.pca[c].transform(o.reshape(1,-1))[0]
                 o = torch.FloatTensor(o).unsqueeze(0).to(self.device)
                 result = self.policy_net[i].sample(o)
-                a = result[2] if self.time_step >= self.deterministic_start_time_step or deterministic else result[0]
+                a = result[2] if deterministic else result[0]
                 a = list(a.detach().cpu().numpy()[0])
                 actions[c] = a
                 expected_demand[c] = self.predict_demand(c, o_, a)
@@ -335,7 +335,7 @@ class MARLISA(SAC):
             o = self.pca[i].transform(o.reshape(1,-1))[0]
             o = torch.FloatTensor(o).unsqueeze(0).to(self.device)
             result = self.policy_net[i].sample(o)
-            a = result[2] if self.time_step >= self.deterministic_start_time_step or deterministic else result[0]
+            a = result[2] if deterministic else result[0]
             a = list(a.detach().cpu().numpy()[0])
             actions[i] = a
         
