@@ -9,6 +9,9 @@ class Dynamics:
     def __init__(self):
         pass
 
+    def reset(self):
+        pass
+
 class LSTMDynamics(Dynamics, torch.nn.Module):
     """LSTM building dynamics model that predicts indoor temperature based on partial cooling/heating load and other weather variables.
     
@@ -52,6 +55,8 @@ class LSTMDynamics(Dynamics, torch.nn.Module):
             'input_observation_names, input_normalization_minimum and input_normalization_maximum must have the same length.'
         self.l_lstm = self.set_lstm()
         self.l_linear = self.set_linear()
+        self._hidden_state = None
+        self._input = None
     
     def set_lstm(self) -> torch.nn.LSTM:
         """Initialize LSTM model."""
@@ -89,7 +94,17 @@ class LSTMDynamics(Dynamics, torch.nn.Module):
         return hidden
 
     def reset(self):
-        return
+        """Load state dict, and initialize hidden states and input."""
+
+        super().reset()
+
+        try:
+            self.load_state_dict(torch.load(self.filepath)['model_state_dict'])
+        except:
+            self.load_state_dict(torch.load(self.filepath))
+
+        self._hidden_state = self.init_hidden(1)
+        self._input = [[None]*(self.lookback + 1) for _ in self.input_observation_names]
 
     def terminate(self):
         return
