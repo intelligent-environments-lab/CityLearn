@@ -7,10 +7,21 @@ import numpy as np
 from citylearn.utilities import read_json
 
 class DataSet:
+    """CityLearn input data set and schema class."""
+    
     __ROOT_DIRECTORY = os.path.join(os.path.dirname(__file__),'data')
 
     @staticmethod
     def get_names() -> List[str]:
+        """Returns list of internally stored CityLearn datasets that are `schema` 
+        names and can be used to initialize `citylearn.citylearn.CityLearnEnv`.
+        
+        Returns
+        -------
+        names: List[str]
+            schema names 
+        """
+        
         return sorted([
             d for d in os.listdir(DataSet.__ROOT_DIRECTORY) 
             if os.path.isdir(os.path.join(DataSet.__ROOT_DIRECTORY,d))
@@ -18,6 +29,14 @@ class DataSet:
 
     @staticmethod
     def copy(name: str, destination_directory: Union[Path, str] = None):
+        """Copies an internally stored CityLearn dataset to a location of choice.
+
+        Parameters
+        ----------
+        destination_directory: Union[Path, str], optional
+            Target directory to copy data set files to. Copies to current directory if not specifed.
+        """
+        
         source_directory = os.path.join(DataSet.__ROOT_DIRECTORY,name)
         destination_directory = '' if destination_directory is None else destination_directory
         destination_directory = os.path.join(destination_directory,name)
@@ -32,17 +51,31 @@ class DataSet:
                 continue
 
     @staticmethod
-    def get_schema(name: str):
+    def get_schema(name: str) -> dict:
+        """Returns a data set's schema.
+
+        Parameters
+        ----------
+        name: str
+            Name of data set.
+
+        Returns
+        -------
+        schema: dict
+            Data set schema.
+        """
+        
         root_directory = os.path.join(DataSet.__ROOT_DIRECTORY,name)
         filepath = os.path.join(root_directory,'schema.json')
         schema = read_json(filepath)
         schema['root_directory'] = root_directory
+        
         return schema
 
 class EnergySimulation:
     """`Building` `energy_simulation` data class.
 
-    Attributes
+    Parameters
     ----------
     month : np.array
         Month time series value ranging from 1 - 12.
@@ -72,22 +105,19 @@ class EnergySimulation:
         Building occupant count time series in [people].
     indoor_dry_bulb_temperature_set_point: np.array
         Average building dry bulb temperature set point time series in [C].
-    cooling_device_demand_schedule: np.array
-        Cooling device availability schedule for meeting cooling demand time series in [On/Off].
-    heating_device_demand_schedule: np.array
-        Heating device availability schedule for meeting heating demand time series in [On/Off].
-    
+    hvac_mode: np.array, default: 1
+        Heat pump and auxilliary electric heating availability. If 0, both HVAC devices are unavailable (off), if 1,
+        the heat pump is available for space cooling and if 2, the heat pump and auxilliary electric heating are available
+        for space heating only. The default is to set the mode to cooling at all times. The HVAC devices are always available
+        for cooling and heating storage charging irrespective of the hvac mode.
     """
 
     def __init__(
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
         daylight_savings_status: Iterable[int], indoor_dry_bulb_temperature: Iterable[float], average_unmet_cooling_setpoint_difference: Iterable[float], indoor_relative_humidity: Iterable[float], 
-        non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float],
-        solar_generation: Iterable[float], occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_set_point: Iterable[int] = None,
-        cooling_device_demand_schedule: Iterable[int] = None, heating_device_demand_schedule: Iterable[int] = None
+        non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float], solar_generation: Iterable[float], 
+        occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None
     ):
-        r"""Initialize `EnergySimulation`."""
-
         self.month = np.array(month, dtype = int)
         self.hour = np.array(hour, dtype = int)
         self.day_type = np.array(day_type, dtype = int)
@@ -97,20 +127,33 @@ class EnergySimulation:
         self.indoor_relative_humidity = np.array(indoor_relative_humidity, dtype = float)
         self.non_shiftable_load = np.array(non_shiftable_load, dtype = float)
         self.dhw_demand = np.array(dhw_demand, dtype = float)
+        
+        # set space demands and check there is not cooling and heating demand at same time step
         self.cooling_demand = np.array(cooling_demand, dtype = float)
         self.heating_demand = np.array(heating_demand, dtype = float)
+        assert (self.cooling_demand*self.heating_demand).sum() == 0, 'Cooling and heating in the same time step is not allowed.'
+
         self.solar_generation = np.array(solar_generation, dtype = float)
 
         # optional
         self.occupant_count = np.zeros(len(solar_generation), dtype=float) if occupant_count is None else np.array(occupant_count, dtype=float)
         self.indoor_dry_bulb_temperature_set_point = np.zeros(len(solar_generation), dtype=float) if indoor_dry_bulb_temperature_set_point is None else np.array(indoor_dry_bulb_temperature_set_point, dtype=float)
-        self.cooling_device_demand_schedule = np.zeros(len(solar_generation), dtype=float) if cooling_device_demand_schedule is None else np.array(cooling_device_demand_schedule, dtype=int)
-        self.heating_device_demand_schedule = np.zeros(len(solar_generation), dtype=float) if heating_device_demand_schedule is None else np.array(heating_device_demand_schedule, dtype=int)
+
+        if hvac_mode is None:
+            self.hvac_mode = np.zeros(len(solar_generation), dtype=float)*1 
+        
+        else:
+            unique = list(set(hvac_mode))
+            unique.remove(0)
+            unique.remove(1)
+            unique.remove(2)
+            assert len(unique) == 0, f'Invalid hvac_mode values were found: {unique}. Valid values are 0, 1 and 2 to indicate off, cooling mode and heating mode.'
+            hvac_mode = np.array(hvac_mode, dtype=int)
 
 class Weather:
     """`Building` `weather` data class.
 
-    Attributes
+    Parameters
     ----------
     outdoor_dry_bulb_temperature : np.array
         Outdoor dry bulb temperature time series in [C].
@@ -153,8 +196,6 @@ class Weather:
         diffuse_solar_irradiance_predicted_6h: Iterable[float], diffuse_solar_irradiance_predicted_12h: Iterable[float], diffuse_solar_irradiance_predicted_24h: Iterable[float],
         direct_solar_irradiance_predicted_6h: Iterable[float], direct_solar_irradiance_predicted_12h: Iterable[float], direct_solar_irradiance_predicted_24h: Iterable[float],
     ):
-        r"""Initialize `Weather`."""
-
         self.outdoor_dry_bulb_temperature = np.array(outdoor_dry_bulb_temperature, dtype = float)
         self.outdoor_relative_humidity = np.array(outdoor_relative_humidity, dtype = float)
         self.diffuse_solar_irradiance = np.array(diffuse_solar_irradiance, dtype = float)
@@ -175,7 +216,7 @@ class Weather:
 class Pricing:
     """`Building` `pricing` data class.
 
-    Attributes
+    Parameters
     ----------
     electricity_pricing : np.array
         Electricity pricing time series in [$].
@@ -191,8 +232,6 @@ class Pricing:
         self, electricity_pricing: Iterable[float], electricity_pricing_predicted_6h: Iterable[float], 
         electricity_pricing_predicted_12h: Iterable[float], electricity_pricing_predicted_24h: Iterable[float]
     ):
-        r"""Initialize `Pricing`."""
-
         self.electricity_pricing = np.array(electricity_pricing, dtype = float)
         self.electricity_pricing_predicted_6h = np.array(electricity_pricing_predicted_6h, dtype = float)
         self.electricity_pricing_predicted_12h = np.array(electricity_pricing_predicted_12h, dtype = float)
@@ -201,13 +240,11 @@ class Pricing:
 class CarbonIntensity:
     """`Building` `carbon_intensity` data class.
 
-    Attributes
+    Parameters
     ----------
     carbon_intensity : np.array
         Grid carbon emission rate time series in [kg_co2/kWh].
     """
 
     def __init__(self, carbon_intensity: Iterable[float]):
-        r"""Initialize `CarbonIntensity`."""
-
         self.carbon_intensity = np.array(carbon_intensity, dtype = float)
