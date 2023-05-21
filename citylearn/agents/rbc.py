@@ -1,199 +1,47 @@
-from typing import Mapping, List
+from typing import Any, Mapping, List
 from citylearn.agents.base import Agent
+from citylearn.citylearn import CityLearnEnv
+from citylearn.building import Building
 
 class RBC(Agent):
-    def __init__(self, *args, **kwargs):
-        r"""Initialize `RBC`.
+    r"""Base rule based controller class.
 
-        Base rule based controller class.
-
-        Parameters
-        ----------
-        *args : tuple
-            `Agent` positional arguments.
-        
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
-        super().__init__(*args, **kwargs)
-
-class BasicRBC(RBC):
-    def __init__(self, *args, **kwargs):
-        r"""Initialize `RBC`.
-
-        Base rule based controller class.
-
-        Parameters
-        ----------
-        *args : tuple
-            `Agent` positional arguments.
-        hour_index: int, default: 2
-            Expected position of hour observation when `observations` paramater is parsed into `select_actions` method.
-        
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
-        super().__init__(*args, **kwargs)
-
-    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
-        """Provide actions for current time step.
-
-        Parameters
-        ----------
-        observations: List[List[float]]
-            Environment observations
-        deterministic: bool, default: False
-            Wether to return purely exploitatative deterministic actions.
-
-        Returns
-        -------
-        actions: List[float]
-            Action values
-
-        Notes
-        -----
-        The actions are designed such that the agent charges the controlled storage system(s) by 9.1% of its maximum capacity every hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity at every other hour.
-        """
-
-        actions = []
-
-        for n, o, d in zip(self.observation_names, observations, self.action_dimension):
-            hour = o[n.index('hour')]
-
-            # Daytime: release stored energy
-            if hour >= 9 and hour <= 21:
-                a = [-0.08 for _ in range(d)]
-            
-            # Early nightime: store DHW and/or cooling energy
-            elif (hour >= 1 and hour <= 8) or (hour >= 22 and hour <= 24):
-                a = [0.091 for _ in range(d)]
-            
-            else:
-                a = [0.0 for _ in range(d)]
-
-            actions.append(a)
-
-        self.actions = actions
-        self.next_time_step()
-        return actions
-
-class OptimizedRBC(BasicRBC):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
-        """Provide actions for current time step.
-
-        Parameters
-        ----------
-        observations: List[List[float]]
-            Environment observations
-        deterministic: bool, default: False
-            Wether to return purely exploitatative deterministic actions.
-
-        Returns
-        -------
-        actions: List[float]
-            Action values
-
-        Notes
-        -----
-        The actions are designed such that the agent discharges the controlled storage system(s) by 2.0% of its maximum capacity every hour between 07:00 AM and 03:00 PM, discharges by 4.4% of its maximum capacity between 04:00 PM and 06:00 PM, discharges by 2.4% of its maximum capacity between 07:00 PM and 10:00 PM, charges by 3.4% of its maximum capacity between 11:00 PM to midnight and charges by 5.532% of its maximum capacity at every other hour.
-        """
-
-        actions = []
-
-        for n, o, d in zip(self.observation_names, observations, self.action_dimension):
-            hour = o[n.index('hour')]
-        
-            # Daytime: release stored energy  2*0.08 + 0.1*7 + 0.09
-            if hour >= 7 and hour <= 15:
-                a = [-0.02 for _ in range(d)]
-                
-            elif hour >= 16 and hour <= 18:
-                a = [-0.0044 for _ in range(d)]
-                
-            elif hour >= 19 and hour <= 22:
-                a = [-0.024 for _ in range(d)]
-                
-            # Early nightime: store DHW and/or cooling energy
-            elif hour >= 23 and hour <= 24:
-                a = [0.034 for _ in range(d)]
-                
-            elif hour >= 1 and hour <= 6:
-                a = [0.05532 for _ in range(d)]
-                
-            else:
-                a = [0.0 for _ in range(d)]
-            
-            actions.append(a)
-
-        self.actions = actions
-        self.next_time_step()
-        return actions
-
-class BasicBatteryRBC(BasicRBC):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
-        """Provide actions for current time step.
-
-        Parameters
-        ----------
-        observations: List[List[float]]
-            Environment observations
-        deterministic: bool, default: False
-            Wether to return purely exploitatative deterministic actions.
-
-        Returns
-        -------
-        actions: List[float]
-            Action values
-
-        Notes
-        -----
-        The actions are optimized for electrical storage (battery) such that the agent charges the controlled storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, and discharges 6.7% of its maximum capacity at every other hour.
-        """
-
-        actions = []
-
-        for n, o, d in zip(self.observation_names, observations, self.action_dimension):
-            hour = o[n.index('hour')]
-
-            # Late morning and early evening: store energy
-            if hour >= 6 and hour <= 14:
-                a = [0.11 for _ in range(d)]
-            
-            # Early morning and late evening: release energy
-            else:
-                a = [-0.067 for _ in range(d)]
-
-            actions.append(a)
-
-        self.actions = actions
-        self.next_time_step()
-        return actions
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
     
-class HourRBC(BasicRBC):
-    def __init__(self, *args, action_map: Mapping[int, float] = None, **kwargs):
-        super().__init__(*args, **kwargs)
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        super().__init__(env, **kwargs)
+
+class HourRBC(RBC):
+    r"""A time-of-use rule-based controller.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    action_map: Mapping[int, float], optional
+        A 24-hour action map where the key is the hour between 1-24 and the value is the action.
+        For storage systems, the value is negative for discharge and positive for charge. Will
+        return random actions if no map is provided.
+    
+    Other Parameters
+    ----------------
+    **kwargs: Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, env: CityLearnEnv, action_map: Mapping[int, float] = None, **kwargs: Any):
+        super().__init__(env, **kwargs)
         self.action_map = action_map
 
-    @property
-    def action_map(self) -> Mapping[int, float]:
-        return self.__action_map
-    
-    @action_map.setter
-    def action_map(self, action_map: Mapping[int, float]):
-        self.__action_map = action_map
-
     def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         """Provide actions for current time step.
 
@@ -206,7 +54,7 @@ class HourRBC(BasicRBC):
 
         Returns
         -------
-        actions: List[float]
+        actions: List[List[float]]
             Action values
         """
 
@@ -225,3 +73,117 @@ class HourRBC(BasicRBC):
             self.next_time_step()
         
         return actions
+
+class BasicRBC(HourRBC):
+    r"""A time-of-use rule-based controller for heat-pump charged thermal energy storage systems that charges when COP is high.
+
+    The actions are designed such that the agent charges the controlled storage system(s) by 9.1% of its maximum capacity every
+    hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity at every other hour.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    hour_index: int, default: 2
+        Expected position of hour observation when `observations` paramater is parsed into `select_actions` method.
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        super().__init__(env, **kwargs)
+        action_map = {}
+
+        for hour in Building.get_periodic_observation_metadata()['hour']:
+            if 9 <= hour <= 21:
+                value = -0.08
+            elif (1 <= hour <= 8) or (22 <= hour <= 24):
+                value = 0.091
+            else:
+                value = 0.0
+
+            action_map[hour] = value
+
+        self.action_map = action_map
+
+class OptimizedRBC(BasicRBC):
+    r"""A time-of-use rule-based controller that is an optimized version of :py:class:`citylearn.agents.rbc.BasicRBC`
+    where control actions have been selected through a search grid.
+
+    The actions are designed such that the agent discharges the controlled storage system(s) by 2.0% of its 
+    maximum capacity every hour between 07:00 AM and 03:00 PM, discharges by 4.4% of its maximum capacity 
+    between 04:00 PM and 06:00 PM, discharges by 2.4% of its maximum capacity between 07:00 PM and 10:00 PM, 
+    charges by 3.4% of its maximum capacity between 11:00 PM to midnight and charges by 5.532% of its maximum 
+    capacity at every other hour.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    hour_index: int, default: 2
+        Expected position of hour observation when `observations` paramater is parsed into `select_actions` method.
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        super().__init__(env, **kwargs)
+        action_map = {}
+
+        for hour in Building.get_periodic_observation_metadata()['hour']:
+            if 7 <= hour <= 15:
+                value = -0.02
+            elif 16 <= hour <= 18:
+                value = -0.0044
+            elif 19 <= hour <= 22:
+                value = -0.024
+            elif 23 <= hour <= 24:
+                value = 0.034
+            elif 1 <= hour <= 6:
+                value = 0.05532
+            else:
+                value = 0.0
+
+            action_map[hour] = value
+
+        self.action_map = action_map
+
+class BasicBatteryRBC(BasicRBC):
+    r"""A time-of-use rule-based controller that is designed to take advantage of solar generation for charging.
+
+    The actions are optimized for electrical storage (battery) such that the agent charges the controlled
+    storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, 
+    and discharges 6.7% of its maximum capacity at every other hour.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    hour_index: int, default: 2
+        Expected position of hour observation when `observations` paramater is parsed into `select_actions` method.
+    
+    Other Parameters
+    ----------------
+    **kwargs: Any
+        Other keyword arguments used to initialize super class.
+    """
+
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        super().__init__(env, **kwargs)
+        action_map = {}
+
+        for hour in Building.get_periodic_observation_metadata()['hour']:
+            if 6 <= hour <= 14:
+                value = 0.11
+            else:
+                value = -0.067
+
+            action_map[hour] = value
+        
+        self.action_map = action_map

@@ -1,24 +1,24 @@
-from typing import Iterable, List, Union
+from typing import Any, Iterable, List, Union
 import numpy as np
 from citylearn.base import Environment
-np.seterr(divide = 'ignore', invalid = 'ignore')
+np.seterr(divide='ignore', invalid='ignore')
 ZERO_DIVISION_CAPACITY = 0.00001
 
 class Device(Environment):
+    r"""Base device class.
+
+    Parameters
+    ----------
+    efficiency : float, default: 1.0
+        Technical efficiency. Must be set to > 0.
+
+    Other Parameters
+    ----------------
+    **kwargs : dict
+        Other keyword arguments used to initialize super class.
+    """
+    
     def __init__(self, efficiency: float = None, **kwargs):
-        r"""Initialize `Device`.
-
-        Parameters
-        ----------
-        efficiency : float, default: 1.0
-            Technical efficiency. Must be set to > 0.
-
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
         super().__init__(**kwargs)
         self.efficiency = efficiency
 
@@ -37,20 +37,20 @@ class Device(Environment):
             self.__efficiency = efficiency
 
 class ElectricDevice(Device):
-    def __init__(self, nominal_power: float, **kwargs):
-        r"""Initialize `Device`.
+    r"""Base electric device class.
 
-        Parameters
-        ----------
-        nominal_power : float
-            Electric device nominal power >= 0. If == 0, set to 0.00001 to avoid `ZeroDivisionError`.
+    Parameters
+    ----------
+    nominal_power : float
+        Electric device nominal power >= 0. If == 0, set to 0.00001 to avoid `ZeroDivisionError`.
 
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, nominal_power: float, **kwargs: Any):
         super().__init__(**kwargs)
         self.nominal_power = nominal_power
 
@@ -105,26 +105,26 @@ class ElectricDevice(Device):
         self.__electricity_consumption = [0.0]
 
 class HeatPump(ElectricDevice):
-    def __init__(self, nominal_power: float, efficiency: float = None, target_heating_temperature: float = None, target_cooling_temperature: float = None, **kwargs):
-        r"""Initialize `HeatPump`.
+    r"""Base heat pump class.
 
-        Parameters
-        ----------
-        nominal_power: float
-            Maximum amount of electric power that the heat pump can consume from the power grid (given by the nominal power of the compressor).
-        efficiency : float, default: 0.2
-            Technical efficiency.
-        target_heating_temperature : float, default: 45.0
-            Target heating supply dry bulb temperature in [C].
-        target_cooling_temperature : float, default: 8.0
-            Target cooling supply dry bulb temperature in [C].
+    Parameters
+    ----------
+    nominal_power: float
+        Maximum amount of electric power that the heat pump can consume from the power grid (given by the nominal power of the compressor).
+    efficiency : float, default: 0.2
+        Technical efficiency.
+    target_heating_temperature : float, default: 45.0
+        Target heating supply dry bulb temperature in [C].
+    target_cooling_temperature : float, default: 8.0
+        Target cooling supply dry bulb temperature in [C].
 
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, nominal_power: float, efficiency: float = None, target_heating_temperature: float = None, target_cooling_temperature: float = None, **kwargs: Any):
         super().__init__(nominal_power = nominal_power, efficiency = efficiency, **kwargs)
         self.target_heating_temperature = target_heating_temperature
         self.target_cooling_temperature = target_cooling_temperature
@@ -289,22 +289,22 @@ class HeatPump(ElectricDevice):
         self.nominal_power = np.nanmax(cooling_nominal_power + heating_nominal_power)*safety_factor
 
 class ElectricHeater(ElectricDevice):
-    def __init__(self, nominal_power: float, efficiency: float = None, **kwargs):
-        r"""Initialize `ElectricHeater`.
+    r"""Base electric heater class.
 
-        Parameters
-        ----------
-        nominal_power : float
-            Maximum amount of electric power that the electric heater can consume from the power grid.
-        efficiency : float, default: 0.9
-            Technical efficiency.
+    Parameters
+    ----------
+    nominal_power : float
+        Maximum amount of electric power that the electric heater can consume from the power grid.
+    efficiency : float, default: 0.9
+        Technical efficiency.
 
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, nominal_power: float, efficiency: float = None, **kwargs: Any):
         super().__init__(nominal_power = nominal_power, efficiency = efficiency, **kwargs)
 
     @ElectricDevice.efficiency.setter
@@ -380,20 +380,20 @@ class ElectricHeater(ElectricDevice):
         self.nominal_power = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
 
 class PV(ElectricDevice):
-    def __init__(self, nominal_power: float, **kwargs):
-        r"""Initialize `PV`.
+    r"""Base photovoltaic array class.
 
-        Parameters
-        ----------
-        nominal_power : float
-            PV array output power in [kW]. Must be >= 0.
+    Parameters
+    ----------
+    nominal_power : float
+        PV array output power in [kW]. Must be >= 0.
 
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, nominal_power: float, **kwargs: Any):
         super().__init__(nominal_power=nominal_power,**kwargs)
 
 
@@ -439,26 +439,26 @@ class PV(ElectricDevice):
         self.nominal_power = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
 
 class StorageDevice(Device):
-    def __init__(self, capacity: float, efficiency: float = None, loss_coefficient: float = None, initial_soc: float = None, **kwargs):
-        r"""Initialize `StorageDevice`.
+    r"""Base storage device class.
 
-        Parameters
-        ----------
-        capacity : float
-            Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
-        efficiency : float, default: 0.9
-            Technical efficiency.
-        loss_coefficient : float, default: 0.006
-            Standby hourly losses. Must be between 0 and 1 (this value is often 0 or really close to 0).
-        initial_soc : float, default: 0.0
-            State of charge when `time_step` = 0. Must be >= 0 and < `capacity`.
+    Parameters
+    ----------
+    capacity : float
+        Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
+    efficiency : float, default: 0.9
+        Technical efficiency.
+    loss_coefficient : float, default: 0.006
+        Standby hourly losses. Must be between 0 and 1 (this value is often 0 or really close to 0).
+    initial_soc : float, default: 0.0
+        State of charge when `time_step` = 0. Must be >= 0 and < `capacity`.
 
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, capacity: float, efficiency: float = None, loss_coefficient: float = None, initial_soc: float = None, **kwargs: Any):
         self.capacity = capacity
         self.loss_coefficient = loss_coefficient
         self.initial_soc = initial_soc
@@ -591,24 +591,24 @@ class StorageDevice(Device):
         self.__energy_balance = [0.0]
 
 class StorageTank(StorageDevice):
-    def __init__(self, capacity: float, max_output_power: float = None, max_input_power: float = None, **kwargs):
-        r"""Initialize `StorageTank`.
+    r"""Base thermal energy storage class.
 
-        Parameters
-        ----------
-        capacity : float
-            Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
-        max_output_power : float, optional
-            Maximum amount of power that the storage unit can output [kW].
-        max_input_power : float, optional
-            Maximum amount of power that the storage unit can use to charge [kW].
-        
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
+    Parameters
+    ----------
+    capacity : float
+        Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
+    max_output_power : float, optional
+        Maximum amount of power that the storage unit can output [kW].
+    max_input_power : float, optional
+        Maximum amount of power that the storage unit can use to charge [kW].
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, capacity: float, max_output_power: float = None, max_input_power: float = None, **kwargs: Any):
         super().__init__(capacity = capacity, **kwargs)
         self.max_output_power = max_output_power
         self.max_input_power = max_input_power
@@ -657,28 +657,28 @@ class StorageTank(StorageDevice):
         super().charge(energy)
 
 class Battery(ElectricDevice, StorageDevice):
-    def __init__(self, capacity: float, nominal_power: float, capacity_loss_coefficient: float = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, **kwargs):
-        r"""Initialize `Battery`.
+    r"""Base electricity storage class.
 
-        Parameters
-        ----------
-        capacity : float
-            Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
-        nominal_power: float
-            Maximum amount of electric power that the battery can use to charge or discharge.
-        capacity_loss_coefficient : float, default: 0.00001
-            Battery degradation; storage capacity lost in each charge and discharge cycle (as a fraction of the total capacity).
-        power_efficiency_curve: list, default: [[0, 0.83],[0.3, 0.83],[0.7, 0.9],[0.8, 0.9],[1, 0.85]]
-            Charging/Discharging efficiency as a function of the power released or consumed.
-        capacity_power_curve: list, default: [[0.0, 1],[0.8, 1],[1.0, 0.2]]   
-            Maximum power of the battery as a function of its current state of charge.
+    Parameters
+    ----------
+    capacity : float
+        Maximum amount of energy the storage device can store in [kWh]. Must be >= 0 and if == 0 or None, set to 0.00001 to avoid `ZeroDivisionError`.
+    nominal_power: float
+        Maximum amount of electric power that the battery can use to charge or discharge.
+    capacity_loss_coefficient : float, default: 0.00001
+        Battery degradation; storage capacity lost in each charge and discharge cycle (as a fraction of the total capacity).
+    power_efficiency_curve: list, default: [[0, 0.83],[0.3, 0.83],[0.7, 0.9],[0.8, 0.9],[1, 0.85]]
+        Charging/Discharging efficiency as a function of the power released or consumed.
+    capacity_power_curve: list, default: [[0.0, 1],[0.8, 1],[1.0, 0.2]]   
+        Maximum power of the battery as a function of its current state of charge.
 
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super classes.
-        """
-
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super classes.
+    """
+    
+    def __init__(self, capacity: float, nominal_power: float, capacity_loss_coefficient: float = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, **kwargs: Any):
         self.__efficiency_history = []
         self.__capacity_history = []
         super().__init__(capacity = capacity, nominal_power = nominal_power, **kwargs)

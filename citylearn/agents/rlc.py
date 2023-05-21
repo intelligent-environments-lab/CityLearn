@@ -1,5 +1,6 @@
-from typing import List
+from typing import Any, List
 import numpy as np
+from citylearn.citylearn import CityLearnEnv
 from citylearn.preprocessing import Encoder, PeriodicNormalization, Normalize, OnehotEncoding
 
 # conditional imports
@@ -11,55 +12,53 @@ except (ModuleNotFoundError, ImportError) as e:
 from citylearn.agents.base import Agent
 
 class RLC(Agent):
+    r"""Base reinforcement learning controller class.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    hidden_dimension : List[float], default: [256, 256]
+        Hidden dimension.
+    discount : float, default: 0.99
+        Discount factor.
+    tau : float, default: 5e-3
+        Decay rate.
+    alpha: float, default: 0.2
+        Temperature; exploration-exploitation balance term.
+    lr : float, default: 3e-4
+        Learning rate.
+    batch_size : int, default: 256
+        Batch size.
+    replay_buffer_capacity : int, default: 1e5
+        Replay buffer capacity.
+    start_training_time_step : int, default: 6000
+        Time step to start training regression.
+    end_exploration_time_step : int, default: 7000
+        Time step to stop random or RBC-guided exploration.
+    deterministic_start_time_step : int, default: 7500
+        Time step to begin taking deterministic actions.
+    action_scaling_coefficient : float, default: 0.5
+        Action scaling coefficient.
+    reward_scaling : float, default: 5.0
+        Reward scaling.
+    update_per_time_step : int, default: 2
+        Number of updates per time step.
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+            
     def __init__(
-        self, *args, hidden_dimension: List[float] = None, 
+        self, env: CityLearnEnv, hidden_dimension: List[float] = None, 
         discount: float = None, tau: float = None, alpha: float = None, lr: float = None, batch_size: int = None,
         replay_buffer_capacity: int = None, start_training_time_step: int = None, end_exploration_time_step: int = None, 
         deterministic_start_time_step: int = None, action_scaling_coefficienct: float = None, reward_scaling: float = None, 
-        update_per_time_step: int = None, **kwargs
+        update_per_time_step: int = None, **kwargs: Any
     ):
-        r"""Initialize `RLC`.
-
-        Base reinforcement learning controller class.
-
-        Parameters
-        ----------
-        *args : tuple
-            `Agent` positional arguments.
-        hidden_dimension : List[float], default: [256, 256]
-            Hidden dimension.
-        discount : float, default: 0.99
-            Discount factor.
-        tau : float, default: 5e-3
-            Decay rate.
-        alpha: float, default: 0.2
-            Temperature; exploration-exploitation balance term.
-        lr : float, default: 3e-4
-            Learning rate.
-        batch_size : int, default: 256
-            Batch size.
-        replay_buffer_capacity : int, default: 1e5
-            Replay buffer capacity.
-        start_training_time_step : int, default: 6000
-            Time step to start training regression.
-        end_exploration_time_step : int, default: 7000
-            Time step to stop random or RBC-guided exploration.
-        deterministic_start_time_step : int, default: 7500
-            Time step to begin taking deterministic actions.
-        action_scaling_coefficient : float, default: 0.5
-            Action scaling coefficient.
-        reward_scaling : float, default: 5.0
-            Reward scaling.
-        update_per_time_step : int, default: 2
-            Number of updates per time step.
-        
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
-        super().__init__(*args, **kwargs)
+        super().__init__(env, **kwargs)
         self.hidden_dimension = hidden_dimension
         self.discount = discount
         self.tau = tau

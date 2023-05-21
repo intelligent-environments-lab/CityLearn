@@ -30,41 +30,41 @@ class EvaluationCondition(Enum):
     WITHOUT_STORAGE_AND_PARTIAL_LOAD_AND_PV = '_without_storage_and_partial_load_and_pv'
 
 class CityLearnEnv(Environment, Env):
+    r"""CityLearn nvironment class.
+
+    Parameters
+    ----------
+    schema: Union[str, Path, Mapping[str, Any]]
+        Name of CityLearn data set, filepath to JSON representation or :code:`dict` object of a CityLearn schema.
+        Call :py:meth:`citylearn.data.DataSet.get_names` for list of available CityLearn data sets.
+    root_directory: Union[str, Path]
+        Absolute path to directory that contains the data files including the schema. If provided, will override :code:`root_directory` definition in schema.
+    buildings: Union[List[Building], List[str], List[int]], optional
+        Buildings to include in environment. If list of :code:`citylearn.building.Building` is provided, will override :code:`buildings` definition in schema.
+        If list of :str: is provided will include only schema :code:`buildings` keys that are contained in provided list of :code:`str`.
+        If list of :int: is provided will include only schema :code:`buildings` whose index is contained in provided list of :code:`int`.
+    simulation_start_time_step: int, optional
+        Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.
+    end_time_step: int, optional
+        Time step to end reading from data files. If provided, will override :code:`simulation_end_time_step` definition in schema.
+    reward_function: citylearn.reward_function.RewardFunction, optional
+        Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
+    central_agent: bool, optional
+        Expect 1 central agent to control all buildings. If provided, will override :code:`central` definition in schema.
+    shared_observations: List[str], optional
+        Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
+        If provided, will override :code:`observations:<observation>:shared_in_central_agent` definitions in schema.
+
+    Other Parameters
+    ----------------
+    **kwargs : dict
+        Other keyword arguments used to initialize super classes.
+    """
+    
     def __init__(self, 
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, simulation_start_time_step: int = None, simulation_end_time_step: int = None, 
-        reward_function: 'citylearn.reward_function.RewardFunction' = None, central_agent: bool = None, shared_observations: List[str] = None, **kwargs
+        reward_function: 'citylearn.reward_function.RewardFunction' = None, central_agent: bool = None, shared_observations: List[str] = None, **kwargs: Any
     ):
-        r"""Initialize `CityLearnEnv`.
-
-        Parameters
-        ----------
-        schema: Union[str, Path, Mapping[str, Any]]
-            Name of CityLearn data set, filepath to JSON representation or :code:`dict` object of a CityLearn schema.
-            Call :py:meth:`citylearn.data.DataSet.get_names` for list of available CityLearn data sets.
-        root_directory: Union[str, Path]
-            Absolute path to directory that contains the data files including the schema. If provided, will override :code:`root_directory` definition in schema.
-        buildings: Union[List[Building], List[str], List[int]], optional
-            Buildings to include in environment. If list of :code:`citylearn.building.Building` is provided, will override :code:`buildings` definition in schema.
-            If list of :str: is provided will include only schema :code:`buildings` keys that are contained in provided list of :code:`str`.
-            If list of :int: is provided will include only schema :code:`buildings` whose index is contained in provided list of :code:`int`.
-        simulation_start_time_step: int, optional
-            Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.
-        end_time_step: int, optional
-            Time step to end reading from data files. If provided, will override :code:`simulation_end_time_step` definition in schema.
-        reward_function: citylearn.reward_function.RewardFunction, optional
-            Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
-        central_agent: bool, optional
-            Expect 1 central agent to control all buildings. If provided, will override :code:`central` definition in schema.
-        shared_observations: List[str], optional
-            Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
-            If provided, will override :code:`observations:<observation>:shared_in_central_agent` definitions in schema.
-
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super classes.
-        """
-
         self.schema = schema
         self.__rewards = None
         self.root_directory, self.buildings, self.simulation_start_time_step, self.simulation_end_time_step, self.seconds_per_time_step,\

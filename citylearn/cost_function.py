@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 import numpy as np
 import pandas as pd
 
@@ -197,7 +197,7 @@ class CostFunction:
         return data['quadratic'].tolist()
     
     @staticmethod
-    def discomfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_set_point: List[float], band: float = None, occupant_count: List[int] = None) -> tuple:
+    def discomfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_set_point: List[float], band: float = None, occupant_count: List[int] = None) -> Tuple[list]:
         r"""Rolling percentage of discomfort (total, too cold, and too hot) time steps as well as rolling minimum, maximum and average temperature delta.
 
         Parameters

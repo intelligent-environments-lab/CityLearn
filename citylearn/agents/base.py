@@ -3,7 +3,7 @@ import logging
 import os
 from pathlib import Path
 import pickle
-from typing import Any, List, Mapping, Union
+from typing import Any, List, Mapping, Tuple, Union
 from gym import spaces
 from citylearn.base import Environment
 from citylearn.citylearn import CityLearnEnv
@@ -13,20 +13,20 @@ logging.getLogger('matplotlib.font_manager').disabled = True
 logging.getLogger('matplotlib.pyplot').disabled = True
 
 class Agent(Environment):
-    def __init__(self, env: CityLearnEnv, **kwargs):
-        r"""Initialize `Agent`.
+    r"""Base agent class.
 
-        Parameters
-        ----------
-        env : CityLearnEnv
-            CityLearn environment.
+    Parameters
+    ----------
+    env : CityLearnEnv
+        CityLearn environment.
 
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
+    Other Parameters
+    ----------------
+    **kwargs : dict
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
         self.env = env
         self.observation_names = self.env.observation_names
         self.observation_space = self.env.observation_space
@@ -164,7 +164,23 @@ class Agent(Environment):
             else:
                 pass
 
-    def get_env_history(self, directory: Path, episodes: List[int] = None):
+    def get_env_history(self, directory: Union[str, Path], episodes: List[int] = None) -> Tuple[CityLearnEnv]:
+        """Return tuple of :py:class:`citylearn.citylearn.CityLearnEnv` objects at terminal point for simulated episodes.
+
+        Parameters
+        ----------
+        directory: Union[str, Path]
+            Directory path where :py:class:`citylearn.citylearn.CityLearnEnv` pickled files are stored.
+        episodes: List[int], optional
+            Episodes whose environment should be returned. If None, all environments for all episodes
+            are returned.
+
+        Returns
+        -------
+        env_history: Tuple[CityLearnEnv]
+            :py:class:`citylearn.citylearn.CityLearnEnv` objects.
+        """
+        
         env_history = ()
         episodes = sorted([
             int(f.split(directory)[-1].split('.')[0]) for f in os.listdir(directory) if f.endswith('.pkl')
@@ -179,6 +195,8 @@ class Agent(Environment):
         return env_history
 
     def __save_env(self, episode: int, directory: Path):
+        """Save current environment state to pickle file."""
+
         filepath = os.path.join(directory, f'{int(episode)}.pkl')
 
         with open(filepath, 'wb') as f:
@@ -199,7 +217,7 @@ class Agent(Environment):
 
         Returns
         -------
-        actions: List[float]
+        actions: List[List[float]]
             Action values
         """
         
@@ -209,6 +227,8 @@ class Agent(Environment):
         return actions
     
     def __set_logger(self, logging_level: int = None):
+        """Set logging level."""
+
         logging_level = 30 if logging_level is None else logging_level
         assert logging_level >= 0, 'logging_level must be >= 0'
         LOGGER.setLevel(logging_level)
