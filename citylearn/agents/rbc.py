@@ -84,8 +84,6 @@ class BasicRBC(HourRBC):
     ----------
     env: CityLearnEnv
         CityLearn environment.
-    hour_index: int, default: 2
-        Expected position of hour observation when `observations` paramater is parsed into `select_actions` method.
     
     Other Parameters
     ----------------
@@ -123,8 +121,6 @@ class OptimizedRBC(BasicRBC):
     ----------
     env: CityLearnEnv
         CityLearn environment.
-    hour_index: int, default: 2
-        Expected position of hour observation when `observations` paramater is parsed into `select_actions` method.
     
     Other Parameters
     ----------------
@@ -165,8 +161,6 @@ class BasicBatteryRBC(BasicRBC):
     ----------
     env: CityLearnEnv
         CityLearn environment.
-    hour_index: int, default: 2
-        Expected position of hour observation when `observations` paramater is parsed into `select_actions` method.
     
     Other Parameters
     ----------------

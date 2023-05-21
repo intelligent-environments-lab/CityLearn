@@ -59,6 +59,8 @@ class MARL(RewardFunction):
     env: citylearn.citylearn.CityLearnEnv
         CityLearn environment.
     
+    Notes
+    -----
     Reward value is calculated as :math:`\textrm{sign}(-e) \times 0.01(e^2) \times \textrm{max}(0, E)`
     where :math:`e` is the building `electricity_consumption` and :math:`E` is the district `electricity_consumption`.
     """
