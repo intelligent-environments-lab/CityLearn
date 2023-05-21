@@ -1332,7 +1332,6 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         # switches back to it at a later time step since a different LSTM will be in use until the switch.
         if self.hvac_mode_switch:
             self.dynamics = self.set_dynamics()
-        
         else:
             pass
 
