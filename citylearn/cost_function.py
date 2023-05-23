@@ -238,9 +238,9 @@ class CostFunction:
             'dry_bulb_temperature_set_point': dry_bulb_temperature_set_point,
             'occupant_count': [1]*len(indoor_dry_bulb_temperature) if occupant_count is None else occupant_count
         })
-        occupied_time_step_count = data[data['occupant_count'] >= 1.0].shape[0]
+        occupied_time_step_count = data[data['occupant_count'] > 0.0].shape[0]
         data['delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_set_point']
-        data.loc[data['occupant_count'] < 1.0, 'delta'] = 0.0
+        data.loc[data['occupant_count'] == 0.0, 'delta'] = 0.0
         data['discomfort'] = 0
         data.loc[data['delta'].abs() > band, 'discomfort'] = 1
         data['discomfort'] = data['discomfort'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
