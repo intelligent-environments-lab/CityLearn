@@ -71,8 +71,14 @@ class MARL(RewardFunction):
     def calculate(self) -> List[float]:
         district_electricity_consumption = self.env.net_electricity_consumption[self.env.time_step]
         building_electricity_consumption = np.array([b.net_electricity_consumption[b.time_step]*-1 for b in self.env.buildings])
-        reward = np.sign(building_electricity_consumption)*0.01*building_electricity_consumption**2*np.nanmax(0, district_electricity_consumption)
-        return reward.tolist()
+        reward_list = np.sign(building_electricity_consumption)*0.01*building_electricity_consumption**2*np.nanmax(0, district_electricity_consumption)
+
+        if self.env.central_agent:
+            reward = [reward_list.sum()]
+        else:
+            reward = reward_list.tolist()
+        
+        return reward
 
 class IndependentSACReward(RewardFunction):
     """Recommended for use with the `SAC` controllers.
@@ -94,7 +100,14 @@ class IndependentSACReward(RewardFunction):
         super().__init__(env)
 
     def calculate(self) -> List[float]:
-        return [min(b.net_electricity_consumption[b.time_step]*-1**3, 0) for b in self.env.buildings]
+        reward_list = [min(b.net_electricity_consumption[b.time_step]*-1**3, 0) for b in self.env.buildings]
+
+        if self.env.central_agent:
+            reward = [sum(reward_list)]
+        else:
+            reward = reward_list
+
+        return reward
     
 class SolarPenaltyReward(RewardFunction):
     """The reward is designed to minimize electricity consumption and maximize solar generation to charge energy storage systems.
