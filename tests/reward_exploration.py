@@ -17,6 +17,26 @@ from citylearn.citylearn import CityLearnEnv
 from citylearn.reward_function import SolarPenaltyAndComfortReward
 from citylearn.wrappers import NormalizedObservationWrapper, StableBaselines3Wrapper
 
+def get_combined_data(key, directory):
+    data_list = []
+    simulation_ids = pd.read_csv(os.path.join(directory, 'reward_exploration_simulation_ids.csv'))
+
+    # environment
+    for d in os.listdir(directory):
+        if 'simulation' in d and os.path.isdir(os.path.join(directory, d)):
+            simulation_id = d
+            d = os.path.join(directory, d)
+            data = pd.read_csv(os.path.join(d, f'{simulation_id}-{key}.csv'))         
+            data_list.append(data)
+
+        else:
+            continue
+
+    data = pd.concat(data_list, ignore_index=True, sort=False)
+    data = data.merge(simulation_ids, on='simulation_id', how='left')
+
+    return data
+
 def run_work_order(work_order_filepath, max_workers=None, virtual_environment_path=None, windows_system=None):
     work_order_filepath = Path(work_order_filepath)
 
@@ -203,8 +223,8 @@ def set_work_order(schema, buildings, coefficient_start, coefficient_end, coeffi
     with open(filepath, 'w') as f:
         f.write(work_order)
 
-    simulation_ids = pd.DataFrame(coefficient_list)
-    simulation_ids['id'] = simulation_ids.index
+    simulation_ids = pd.DataFrame(coefficient_list, columns=['solar_penalty_coefficient', 'comfort_coefficient'])
+    simulation_ids['simulation_id'] = 'simulation_' + simulation_ids.index.astype(str)
     simulation_ids.to_csv(os.path.join(simulation_output_path, 'reward_exploration_simulation_ids.csv'), index=False)
 
 class SaveDataCallback(BaseCallback):
