@@ -777,7 +777,7 @@ class CityLearnEnv(Environment, Env):
                 'value': maximum_delta[-1],
                 }, {
                 'name': b.name,
-                'cost_function': 'dicomfort_delta_average',
+                'cost_function': 'discomfort_delta_average',
                 'value': average_delta[-1],
                 }]
 
@@ -972,14 +972,14 @@ class CityLearnEnv(Environment, Env):
             building_type_module = '.'.join(building_type.split('.')[0:-1])
             building_type_name = building_type.split('.')[-1]
             building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
+            dynamics = {}
+            dynamics_modes = ['cooling', 'heating']
             
             # set dynamics
             if building_schema.get('dynamics', None) is not None:
                 assert int(citylearn_version.split('.')[0]) >= 2, 'Building dynamics is only supported in CityLearn>=2.x.x'
-                modes = ['cooling', 'heating']
-                dynamics = {m: None for m in modes}
-
-                for mode in modes:
+                
+                for mode in dynamics_modes:
                     dynamics_type = building_schema['dynamics'][mode]['type']
                     dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
                     dynamics_name = dynamics_type.split('.')[-1]
@@ -989,7 +989,7 @@ class CityLearnEnv(Environment, Env):
                     _ = attributes.pop('filename')
                     dynamics[f'{mode}_dynamics'] = dynamics_constructor(**attributes)
             else:
-                pass
+                dynamics = {m: None for m in dynamics_modes}
 
             building: Building = building_constructor(
                 energy_simulation=energy_simulation, 
