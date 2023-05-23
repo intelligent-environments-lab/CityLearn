@@ -95,7 +95,9 @@ class MARLISA(SAC):
 
     @start_regression_time_step.setter
     def start_regression_time_step(self, start_regression_time_step: int):
-        start_regression_time_step = self.standardize_start_time_step - 1 if start_regression_time_step is None else start_regression_time_step
+        default_time_step = self.standardize_start_time_step - self.batch_size
+        start_regression_time_step = default_time_step if start_regression_time_step is None else start_regression_time_step
+        start_regression_time_step = max(min(default_time_step, start_regression_time_step), 2)
         assert start_regression_time_step < self.standardize_start_time_step, 'start_regression_time_step must be < standardize_start_time_step'
         self.__start_regression_time_step = start_regression_time_step
 
