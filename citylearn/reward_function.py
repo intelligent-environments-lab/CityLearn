@@ -217,7 +217,7 @@ class ComfortReward(RewardFunction):
             set_point = b.energy_simulation.indoor_dry_bulb_temperature_set_point[b.time_step]
             lower_bound_comfortable_indoor_dry_bulb_temperature = set_point - self.band
             upper_bound_comfortable_indoor_dry_bulb_temperature = set_point + self.band
-            delta = abs(set_point - indoor_dry_bulb_temperature)
+            delta = abs(indoor_dry_bulb_temperature - set_point)
             
             if indoor_dry_bulb_temperature < lower_bound_comfortable_indoor_dry_bulb_temperature:
                 exponent = self.lower_exponent if heating else self.higher_exponent
@@ -226,7 +226,7 @@ class ComfortReward(RewardFunction):
             elif lower_bound_comfortable_indoor_dry_bulb_temperature <= indoor_dry_bulb_temperature < set_point:
                 reward = 0.0 if heating else -delta
 
-            elif set_point <= indoor_dry_bulb_temperature < upper_bound_comfortable_indoor_dry_bulb_temperature:
+            elif set_point <= indoor_dry_bulb_temperature <= upper_bound_comfortable_indoor_dry_bulb_temperature:
                 reward = -delta if heating else 0.0
 
             else:
