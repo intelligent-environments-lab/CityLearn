@@ -16,9 +16,9 @@ The data files refer to flat files containing time series data that are used to 
 Building Data File
 ==================
 
-The building file is a :code:`csv` file that contains a building's temporal (calendar), end-use loads, solar generation and indoor environment variables time series data including. There are as many building files as buildings in the environment. The end-use loads, solar generation and indoor environment data may come from simulation in energy modeling software e.g. `EnergyPlus <https://energyplus.net>`_ or from smart meter or Building Automation System (BAS) measurements. The file structure is shown in the snippet below:
+The building file is a :code:`csv` file that contains a building's temporal (calendar), end-use loads, occupancy, solar generation and indoor environment variables time series data. There are as many building files as buildings in the environment. The end-use loads, occupancy, solar generation and indoor environment data may come from simulation in energy modeling software e.g., `EnergyPlus <https://energyplus.net>`_ or from smart meter or from a Building Automation System (BAS). The file structure is shown in the snippet below:
 
-.. include:: ../../../citylearn/data/citylearn_challenge_2021/Building_1.csv
+.. include:: ../../../citylearn/data/baeda_3dem/Building_1.csv
     :code: text
     :end-line: 6
 
@@ -48,6 +48,11 @@ The carbon intensity file is a :code:`.csv` file that contains current time-step
 .. include:: ../../../citylearn/data/citylearn_challenge_2022_phase_1/pricing.csv
     :code: text
     :end-line: 6
+
+LSTM Model File
+===============
+
+The LSTM model file is an optional PyTorch state dictionary used to initialize the :code:`cooling_dynamics` and :code:`heating_dynamics` temperature dynamics model attributes in :py:class:`citylearn.building.DynamicsBuilding` and its descendant classes.
 
 Schema Data File
 ================

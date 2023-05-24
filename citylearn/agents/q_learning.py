@@ -1,14 +1,42 @@
 import math
-from typing import List
+from typing import Any, List, Tuple
 import numpy as np
 from citylearn.agents.base import Agent
+from citylearn.citylearn import CityLearnEnv
 
 class TabularQLearning(Agent):
+    """Implementation of Tabular Q-Learning algorithm for discrete observation and action space and epsilon-greedy action selection.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    epsilon: float, default: 1.0
+        Exploration rate.
+    minimum_epsilon: float, default: 0.01
+        Minimum value exporation rate can decay to.
+    epsilon_decay: float, default: 0.0001
+        :code:`epsilon` exponential decay rate.
+    learning_rate: float, default: 0.05
+        Defines to what degree new knowledge overrides old knowledge: for :code:`learning_rate` = 0, no
+        learning happens, while for :code:`learning_rate` = 1, all prior knowledge is lost.
+    discount_factor: float, default: 0.90
+        Balance between an agent that considers only immediate rewards (:code:`discount_factor` = 0) and
+        one that strives towards long term rewards (:code:`discount_factor` = 1)
+    q_init_value: float, default: np.nan
+        Q-Table initialization value.
+
+    Other Parameters
+    ----------------
+    **kwargs: Any
+        Other keyword arguments used to initialize :py:class:`citylearn.agents.base.Agent` super class.
+    """
+    
     def __init__(
-        self, *args, epsilon: float = None, minimum_epsilon: float = None, epsilon_decay: float = None, 
-        learning_rate: float = None, discount_factor: float = None, q_init_value: float = None, **kwargs,
+        self, env: CityLearnEnv, epsilon: float = None, minimum_epsilon: float = None, epsilon_decay: float = None, 
+        learning_rate: float = None, discount_factor: float = None, q_init_value: float = None, **kwargs: Any,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(env, **kwargs)
         self.epsilon = 1.0 if epsilon is None else epsilon
         self.epsilon_init = self.epsilon
         self.minimum_epsilon = 0.01 if minimum_epsilon is None else minimum_epsilon
@@ -19,7 +47,26 @@ class TabularQLearning(Agent):
         self.q, self.q_exploration, self.q_exploitation = self.__initialize_q()
         self.__explored = False
 
-    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:    
+    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
+        """Provide actions for current time step.
+
+        If `deterministic` = True or, randomly generated number is greater than `epsilon`, return
+        deterministic action from Q-Table i.e. action with max Q-value for given observations 
+        otherwise, return randomly sampled action.
+        
+        Parameters
+        ----------
+        observations: List[List[float]]
+            Environment observations
+        deterministic: bool, default: False
+            Wether to return purely exploitatative deterministic actions.
+
+        Returns
+        -------
+        actions: List[List[float]]
+            Action values
+        """
+        
         deterministic = False if deterministic is None else deterministic
         actions = None
         seed = self.random_seed if self.random_seed is None else self.random_seed + self.time_step
@@ -28,7 +75,7 @@ class TabularQLearning(Agent):
 
         if deterministic or np.random.random() > self.epsilon:
             # Use q-function to decide action
-            actions = self.exploit(observations)
+            actions = self.__exploit(observations)
             self.__explored = False
         
         else:
@@ -44,7 +91,9 @@ class TabularQLearning(Agent):
         self.next_time_step()
         return actions
 
-    def exploit(self, observations: List[List[float]]) -> List[List[float]]:
+    def __exploit(self, observations: List[List[float]]) -> List[List[float]]:
+        """Select deterministic actions from Q-Table i.e. action with max Q-value for given observations."""
+        
         actions = []
 
         for i, o in enumerate(observations):
@@ -61,7 +110,21 @@ class TabularQLearning(Agent):
         
         return actions
 
-    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], done: bool):
+    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]]):
+        r"""Update Q-Table using Bellman equation.
+
+        Parameters
+        ----------
+        observations : List[List[float]]
+            Previous time step observations.
+        actions : List[List[float]]
+            Previous time step actions.
+        reward : List[float]
+            Current time step reward.
+        next_observations : List[List[float]]
+            Current time step observations.
+        """
+
         # Compute temporal difference target and error to udpate q-function
         
         for i, (o, a, r, n) in enumerate(zip(observations, actions, reward, next_observations)):
@@ -86,7 +149,9 @@ class TabularQLearning(Agent):
             else:
                 self.q_exploitation[i][o, a] += 1
 
-    def __initialize_q(self) -> np.ndarray:
+    def __initialize_q(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Initialize all values in Q-Table with `q_init_value`."""
+        
         q = [None for _ in self.env.observation_space]
         q_exploration = [None for _ in self.env.observation_space]
         q_exploitation = [None for _ in self.env.observation_space]

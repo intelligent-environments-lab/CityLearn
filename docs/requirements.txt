@@ -2,7 +2,8 @@ jinja2==3.0.0
 myst-nb
 nbsphinx-link
 Sphinx==4.5.0
+sphinxemoji
 sphinxcontrib-bibtex
 sphinx-copybutton
-sphinxemoji
+sphinx-panels
 sphinx-rtd-theme
