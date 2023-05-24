@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cost Function &mdash; CityLearn 1.8.0 documentation</title>
+  <title>Cost Function &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -63,6 +66,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 
@@ -93,13 +97,14 @@
              
   <section id="cost-function">
 <h1>Cost Function<a class="headerlink" href="#cost-function" title="Permalink to this headline"></a></h1>
-<p>CityLearn provides a set of cost functions (a.k.a key performance indicators) that can be used to quantify building-level or district-level energy, environmental and economic performance post-simulation. The implemented functions include the following:</p>
+<p>CityLearn provides a set of cost functions (a.k.a key performance indicators) that can be used to quantify building-level or district-level energy, comfort, environmental and economic performance post-simulation. The implemented functions include the following:</p>
 <ol class="arabic simple">
-<li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.average_daily_peak" title="citylearn.cost_function.CostFunction.average_daily_peak"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.average_daily_peak()</span></code></a></p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.average_daily_peak()</span></code></p></li>
 <li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.carbon_emissions" title="citylearn.cost_function.CostFunction.carbon_emissions"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.carbon_emissions()</span></code></a></p></li>
-<li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.load_factor" title="citylearn.cost_function.CostFunction.load_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.load_factor()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.discomfort" title="citylearn.cost_function.CostFunction.discomfort"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.discomfort()</span></code></a></p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.load_factor()</span></code></p></li>
 <li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.electricity_consumption" title="citylearn.cost_function.CostFunction.electricity_consumption"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.electricity_consumption()</span></code></a></p></li>
-<li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.peak_demand" title="citylearn.cost_function.CostFunction.peak_demand"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.peak_demand()</span></code></a></p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.peak_demand()</span></code></p></li>
 <li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.price()</span></code></p></li>
 <li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.quadratic" title="citylearn.cost_function.CostFunction.quadratic"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.quadratic()</span></code></a></p></li>
 <li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.ramping" title="citylearn.cost_function.CostFunction.ramping"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.ramping()</span></code></a></p></li>

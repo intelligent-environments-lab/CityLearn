@@ -4,13 +4,13 @@ Reward Function
 
 A reward is calculated and returned each time :py:meth:`citylearn.citylearn.CityLearnEnv.step` is called. The reward time series is also accessible through the :py:attr:`citylearn.citylearn.CityLearnEnv.rewards` property.
 
-CityLearn provides custom reward functions for centralized agent and/or decentralized control architectures:
+CityLearn provides custom reward functions:
 
 .. csv-table::
    :file: ../../../assets/tables/citylearn_reward_functions.csv
    :header-rows: 1
 
-Where :math:`e` is a building's net electricity consumption while :math:`E` is the district's net electricity consumption. For rewards that work with bothe centralized and decentralized agents, :math:`e` is interchangeable with :math:`E` in their equation depending on the value of `citylearn.citylearn.CityLearnEnv.central_agent`.
+Where :math:`e` is a building's net electricity consumption, :math:`T_{in}` is a building's indoor dry-bulb temperature, :math:`T_{spt}` is a building's indoor dry-bulb temperature setpoint, :math:`T_{b}` is a building's indoor dry-bulb temperature setpoint comfort band while :math:`E` is the district's net electricity consumption. These rewards are defined for a decentralized single building application and for a centralized agent controlling all buildings, the reward will be the sum of the decentralized values.
 
 How to Point to the Reward Function
 ***********************************
@@ -49,4 +49,3 @@ The schema must then be updated to reference the custom reward function:
       },
       ...
    }
-

@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.citylearn module &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.citylearn module &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -62,6 +65,7 @@
 <li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.citylearn module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.cost_function.html">citylearn.cost_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
@@ -75,6 +79,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 
@@ -108,8 +113,28 @@
 <span id="citylearn-citylearn-module"></span><h1>citylearn.citylearn module<a class="headerlink" href="#module-citylearn.citylearn" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.citylearn.</span></span><span class="sig-name descname"><span class="pre">CityLearnEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buildings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.building.html#citylearn.building.Building" title="citylearn.building.Building"><span class="pre">citylearn.building.Building</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_start_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_end_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><span class="pre">citylearn.reward_function.RewardFunction</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.citylearn.</span></span><span class="sig-name descname"><span class="pre">CityLearnEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buildings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.building.html#citylearn.building.Building" title="citylearn.building.Building"><span class="pre">citylearn.building.Building</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_start_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_end_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><span class="pre">citylearn.reward_function.RewardFunction</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shared_observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="citylearn.base.html#citylearn.base.Environment" title="citylearn.base.Environment"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.base.Environment</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">gym.core.Env</span></code></p>
+<p>CityLearn nvironment class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>schema</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Path</em><em>, </em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – Name of CityLearn data set, filepath to JSON representation or <code class="code docutils literal notranslate"><span class="pre">dict</span></code> object of a CityLearn schema.
+Call <a class="reference internal" href="citylearn.data.html#citylearn.data.DataSet.get_names" title="citylearn.data.DataSet.get_names"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.data.DataSet.get_names()</span></code></a> for list of available CityLearn data sets.</p></li>
+<li><p><strong>root_directory</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Path</em><em>]</em>) – Absolute path to directory that contains the data files including the schema. If provided, will override <code class="code docutils literal notranslate"><span class="pre">root_directory</span></code> definition in schema.</p></li>
+<li><p><strong>buildings</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><a class="reference internal" href="citylearn.building.html#citylearn.building.Building" title="citylearn.building.Building"><em>Building</em></a><em>]</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Buildings to include in environment. If list of <code class="code docutils literal notranslate"><span class="pre">citylearn.building.Building</span></code> is provided, will override <code class="code docutils literal notranslate"><span class="pre">buildings</span></code> definition in schema.
+If list of :str: is provided will include only schema <code class="code docutils literal notranslate"><span class="pre">buildings</span></code> keys that are contained in provided list of <code class="code docutils literal notranslate"><span class="pre">str</span></code>.
+If list of :int: is provided will include only schema <code class="code docutils literal notranslate"><span class="pre">buildings</span></code> whose index is contained in provided list of <code class="code docutils literal notranslate"><span class="pre">int</span></code>.</p></li>
+<li><p><strong>simulation_start_time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – Time step to start reading from data files. If provided, will override <code class="code docutils literal notranslate"><span class="pre">simulation_start_time_step</span></code> definition in schema.</p></li>
+<li><p><strong>end_time_step</strong> (<em>int</em><em>, </em><em>optional</em>) – Time step to end reading from data files. If provided, will override <code class="code docutils literal notranslate"><span class="pre">simulation_end_time_step</span></code> definition in schema.</p></li>
+<li><p><strong>reward_function</strong> (<a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><em>citylearn.reward_function.RewardFunction</em></a><em>, </em><em>optional</em>) – Reward function class instance. If provided, will override <code class="code docutils literal notranslate"><span class="pre">reward_function</span></code> definition in schema.</p></li>
+<li><p><strong>central_agent</strong> (<em>bool</em><em>, </em><em>optional</em>) – Expect 1 central agent to control all buildings. If provided, will override <code class="code docutils literal notranslate"><span class="pre">central</span></code> definition in schema.</p></li>
+<li><p><strong>shared_observations</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
+If provided, will override <code class="code docutils literal notranslate"><span class="pre">observations:&lt;observation&gt;:shared_in_central_agent</span></code> definitions in schema.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Other keyword arguments used to initialize super classes.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.action_space">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_space</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">gym.spaces.box.Box</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.action_space" title="Permalink to this definition"></a></dt>
@@ -255,21 +280,30 @@ If <cite>central_agent</cite> is False, a list of <cite>space.Box</cite> objects
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.evaluate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">control_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#citylearn.citylearn.EvaluationCondition" title="citylearn.citylearn.EvaluationCondition"><span class="pre">citylearn.citylearn.EvaluationCondition</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_condition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#citylearn.citylearn.EvaluationCondition" title="citylearn.citylearn.EvaluationCondition"><span class="pre">citylearn.citylearn.EvaluationCondition</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.evaluate" title="Permalink to this definition"></a></dt>
 <dd><p>Evaluate cost functions at current time step.</p>
 <p>Calculates and returns building-level and district-level cost functions normalized w.r.t. the no control scenario.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>cost_functions</strong> – Cost function summary.</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>control_condition</strong> (EvaluationCondition, default: <code class="code docutils literal notranslate"><span class="pre">EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV</span></code>) – Condition for net electricity consumption, cost and emission to use in calculating cost functions for the control/flexible scenario.</p></li>
+<li><p><strong>baseline_condition</strong> (EvaluationCondition, default: <code class="code docutils literal notranslate"><span class="pre">EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV</span></code>) – Condition for net electricity consumption, cost and emission to use in calculating cost functions for the baseline scenario
+that is used to normalize the control_condition scenario.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>pd.DataFrame</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>cost_functions</strong> – Cost function summary including the following: electricity consumption, zero net energy, carbon emissions, cost,
+discomfort (total, too cold, too hot, minimum delta, maximum delta, average delta), ramping, 1 - load factor,
+average daily peak and average annual peak.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
 <p>The equation for the returned cost function values is <span class="math notranslate nohighlight">\(\frac{C_{\textrm{control}}}{C_{\textrm{no control}}}\)</span>
 where <span class="math notranslate nohighlight">\(C_{\textrm{control}}\)</span> is the value when the agent(s) control the environment and <span class="math notranslate nohighlight">\(C_{\textrm{no control}}\)</span>
-is the value when none of the flexible distributed energy resources in the environment are actively in use and controlled.</p>
+is the value when none of the storages and partial load cooling and heating devices in the environment are actively controlled.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -297,7 +331,8 @@ is the value when none of the flexible distributed energy resources in the envir
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.get_info">
 <span class="sig-name descname"><span class="pre">get_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.get_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.get_info" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Other information to return from the <cite>citylearn.CityLearnEnv.step</cite> function.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.heating_demand">
@@ -347,9 +382,45 @@ is the value when none of the flexible distributed energy resources in the envir
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_cost_without_storage">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_cost_without_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_cost_without_storage" title="Permalink to this definition"></a></dt>
+<dd><p>Summed <cite>Building.net_electricity_consumption_cost_without_storage</cite> time series, in [$].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_cost_without_storage_and_partial_load">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_cost_without_storage_and_partial_load</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_cost_without_storage_and_partial_load" title="Permalink to this definition"></a></dt>
+<dd><p>Summed <cite>Building.net_electricity_consumption_cost_without_storage_and_partial_load</cite> time series, in [$].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_cost_without_storage_and_partial_load_and_pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv" title="Permalink to this definition"></a></dt>
+<dd><p>Summed <cite>Building.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv</cite> time series, in [$].</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_emission">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_emission" title="Permalink to this definition"></a></dt>
 <dd><p>Summed <cite>Building.net_electricity_consumption_emission</cite> time series, in [kg_co2].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_emission_without_storage">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_emission_without_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_emission_without_storage" title="Permalink to this definition"></a></dt>
+<dd><p>Summed <cite>Building.net_electricity_consumption_emission_without_storage</cite> time series, in [kg_co2].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_emission_without_storage_and_partial_load">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_emission_without_storage_and_partial_load</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_emission_without_storage_and_partial_load" title="Permalink to this definition"></a></dt>
+<dd><p>Summed <cite>Building.net_electricity_consumption_emission_without_storage_and_partial_load</cite> time series, in [kg_co2].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_emission_without_storage_and_partial_load_and_pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv" title="Permalink to this definition"></a></dt>
+<dd><p>Summed <cite>Building.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv</cite> time series, in [kg_co2].</p>
 </dd></dl>
 
 <dl class="py property">
@@ -359,33 +430,15 @@ is the value when none of the flexible distributed energy resources in the envir
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_and_pv">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_and_pv" title="Permalink to this definition"></a></dt>
-<dd><p>Summed <cite>Building.net_electricity_consumption_without_storage_and_pv</cite> time series, in [kWh].</p>
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_and_partial_load">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_partial_load</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_and_partial_load" title="Permalink to this definition"></a></dt>
+<dd><p>Summed <cite>Building.net_electricity_consumption_without_storage_and_partial_load</cite> time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_and_pv_cost">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv_cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_and_pv_cost" title="Permalink to this definition"></a></dt>
-<dd><p>Summed <cite>Building.net_electricity_consumption_without_storage_and_pv_cost</cite> time series, in [$].</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_and_pv_emission">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_and_pv_emission" title="Permalink to this definition"></a></dt>
-<dd><p>Summed <cite>Building.net_electricity_consumption_without_storage_and_pv_emission</cite> time series, in [kg_co2].</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_cost">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_cost" title="Permalink to this definition"></a></dt>
-<dd><p>Summed <cite>Building.net_electricity_consumption_without_storage_cost</cite> time series, in [$].</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_emission">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_emission" title="Permalink to this definition"></a></dt>
-<dd><p>Summed <cite>Building.net_electricity_consumption_without_storage_emission</cite> time series, in [kg_co2].</p>
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_and_partial_load_and_pv">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_partial_load_and_pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_without_storage_and_partial_load_and_pv" title="Permalink to this definition"></a></dt>
+<dd><p>Summed <cite>Building.net_electricity_consumption_without_storage_and_partial_load_and_pv</cite> time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py method">
@@ -545,6 +598,34 @@ Override :meth”<cite>get_info</cite> to get custom key-value pairs in <cite>in
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.citylearn.</span></span><span class="sig-name descname"><span class="pre">Error</span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#Error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.Error" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Base class for other exceptions.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.citylearn.EvaluationCondition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.citylearn.</span></span><span class="sig-name descname"><span class="pre">EvaluationCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/citylearn.html#EvaluationCondition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.EvaluationCondition" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Evaluation conditions.</p>
+<p>Used in <cite>citylearn.CityLearnEnv.calculate</cite> method.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.citylearn.EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_AND_PV">
+<span class="sig-name descname"><span class="pre">WITHOUT_STORAGE_AND_PARTIAL_LOAD_AND_PV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_without_storage_and_partial_load_and_pv'</span></em><a class="headerlink" href="#citylearn.citylearn.EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_AND_PV" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.citylearn.EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV">
+<span class="sig-name descname"><span class="pre">WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_without_storage_and_partial_load'</span></em><a class="headerlink" href="#citylearn.citylearn.EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.citylearn.EvaluationCondition.WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV">
+<span class="sig-name descname"><span class="pre">WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'_without_storage'</span></em><a class="headerlink" href="#citylearn.citylearn.EvaluationCondition.WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.citylearn.EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV">
+<span class="sig-name descname"><span class="pre">WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#citylearn.citylearn.EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py exception">

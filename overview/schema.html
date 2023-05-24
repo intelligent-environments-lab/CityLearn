@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Schema &mdash; CityLearn 1.8.0 documentation</title>
+  <title>Schema &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -67,6 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 
@@ -190,32 +194,47 @@
 <tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:pricing</span></code></p></td>
 <td><p>Filename of electricity pricing data file for <code class="code docutils literal notranslate"><span class="pre">&lt;building_name&gt;</span></code>. This file must be located in <code class="code docutils literal notranslate"><span class="pre">root_directory</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:inactive_observations</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:type</span></code></p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">&lt;building_name&gt;</span></code> class in <a class="reference internal" href="../api/citylearn.building.html#module-citylearn.building" title="citylearn.building"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.building</span></code></a> or user-defined building class path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:inactive_observations</span></code></p></td>
 <td><p>List of building-specific inactive observations that overrides <code class="code docutils literal notranslate"><span class="pre">observations:&lt;observation&gt;:active</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:inactive_actions</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:inactive_actions</span></code></p></td>
 <td><p>List of building-specific inactive actions that overrides <code class="code docutils literal notranslate"><span class="pre">actions:&lt;action&gt;:active</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;</span></code></p></td>
 <td><p>Used to define a &lt;device&gt; for <code class="code docutils literal notranslate"><span class="pre">&lt;building_name&gt;</span></code>. <code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> can be <code class="code docutils literal notranslate"><span class="pre">cooling_device</span></code>, <code class="code docutils literal notranslate"><span class="pre">heating_device</span></code>, <code class="code docutils literal notranslate"><span class="pre">dhw_device</span></code>, <code class="code docutils literal notranslate"><span class="pre">cooling_storage</span></code>, <code class="code docutils literal notranslate"><span class="pre">heating_storage</span></code>, <code class="code docutils literal notranslate"><span class="pre">dhw_storage</span></code>, <code class="code docutils literal notranslate"><span class="pre">electrical_storage</span></code> or <code class="code docutils literal notranslate"><span class="pre">pv</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:type</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:type</span></code></p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> class in <a class="reference internal" href="../api/citylearn.energy_model.html#module-citylearn.energy_model" title="citylearn.energy_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.energy_model</span></code></a> or user-defined device class path.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:autosize</span></code></p></td>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:autosize</span></code></p></td>
 <td><p>Set to <code class="code docutils literal notranslate"><span class="pre">true</span></code> if the <code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> should be autosized for <code class="code docutils literal notranslate"><span class="pre">&lt;building_name&gt;</span></code> else <code class="code docutils literal notranslate"><span class="pre">false</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:autosize_attributes</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:autosize_attributes</span></code></p></td>
 <td><p>Used to define attributes that are used to autosize <code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> class specified in <code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:type</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:autosize_attributes:&lt;attribute&gt;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:autosize_attributes:&lt;attribute&gt;</span></code></p></td>
 <td><p>Value to set named <code class="code docutils literal notranslate"><span class="pre">&lt;attribute&gt;</span></code> to autosize <code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> class specified in <code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:type</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:attributes</span></code></p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:attributes</span></code></p></td>
 <td><p>Used to define attributes that are used to construct <code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> class specified in <code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:type</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:attributes:&lt;attribute&gt;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:attributes:&lt;attribute&gt;</span></code></p></td>
 <td><p>Value to set named <code class="code docutils literal notranslate"><span class="pre">&lt;attribute&gt;</span></code> of <code class="code docutils literal notranslate"><span class="pre">&lt;device&gt;</span></code> class specified in <code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:&lt;device&gt;:type</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:dynamics</span></code></p></td>
+<td><p>Used to define building temperature dynamics LSTM models.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:dynamics:&lt;mode&gt;</span></code></p></td>
+<td><p>Used to define building temperature dynamics LSTM model for specific HVAC mode where <code class="code docutils literal notranslate"><span class="pre">&lt;mode&gt;</span></code> may be <code class="code docutils literal notranslate"><span class="pre">cooling</span></code> or <code class="code docutils literal notranslate"><span class="pre">heating</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:dynamics:&lt;mode&gt;:type</span></code></p></td>
+<td><p>temperature dynamics class in <a class="reference internal" href="../api/citylearn.dynamics.html#module-citylearn.dynamics" title="citylearn.dynamics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.dynamics</span></code></a> or user-defined dynamics class path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:dynamics:&lt;mode&gt;:attributes</span></code></p></td>
+<td><p>Used to define attributes that are used to construct <code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:dynamics:&lt;mode&gt;:type</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -227,7 +246,7 @@
   <span class="s2">&quot;root_directory&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
   <span class="s2">&quot;central_agent&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
   <span class="s2">&quot;simulation_start_time_step&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-  <span class="s2">&quot;simulation_end_time_step&quot;</span><span class="p">:</span> <span class="mi">35039</span><span class="p">,</span>
+  <span class="s2">&quot;simulation_end_time_step&quot;</span><span class="p">:</span> <span class="mi">2927</span><span class="p">,</span>
   <span class="s2">&quot;episodes&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
   <span class="s2">&quot;seconds_per_time_step&quot;</span><span class="p">:</span> <span class="mf">3600.0</span><span class="p">,</span>
   <span class="s2">&quot;observations&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -264,19 +283,19 @@
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;outdoor_relative_humidity&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;outdoor_relative_humidity_predicted_6h&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;outdoor_relative_humidity_predicted_12h&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;outdoor_relative_humidity_predicted_24h&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;diffuse_solar_irradiance&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -284,15 +303,15 @@
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;diffuse_solar_irradiance_predicted_6h&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;diffuse_solar_irradiance_predicted_12h&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;diffuse_solar_irradiance_predicted_24h&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;direct_solar_irradiance&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -324,7 +343,7 @@
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
     <span class="p">},</span>
     <span class="s2">&quot;indoor_relative_humidity&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
     <span class="p">},</span>
     <span class="s2">&quot;non_shiftable_load&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -352,23 +371,51 @@
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
     <span class="p">},</span>
     <span class="s2">&quot;net_electricity_consumption&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
     <span class="p">},</span>
     <span class="s2">&quot;electricity_pricing&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;electricity_pricing_predicted_6h&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;electricity_pricing_predicted_12h&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;electricity_pricing_predicted_24h&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">true</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;cooling_device_cop&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;heating_device_cop&quot;</span><span class="p">:</span> <span class="p">{</span>
       <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
     <span class="p">},</span>
-    <span class="s2">&quot;electricity_pricing_predicted_24h&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;cooling_demand&quot;</span><span class="p">:</span> <span class="p">{</span>
       <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;heating_demand&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;occupant_count&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;indoor_dry_bulb_temperature_set_point&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;indoor_dry_bulb_temperature_delta&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
     <span class="p">}</span>
   <span class="p">},</span>
@@ -383,31 +430,37 @@
       <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span>
     <span class="p">},</span>
     <span class="s2">&quot;electrical_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
       <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;heating_device&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span>
     <span class="p">}</span>
   <span class="p">},</span>
   <span class="s2">&quot;agent&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.agents.sac.SAC&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.agents.sac.SACBasicRBC&quot;</span><span class="p">,</span>
     <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
       <span class="s2">&quot;hidden_dimension&quot;</span><span class="p">:</span> <span class="p">[</span>
         <span class="mi">256</span><span class="p">,</span>
         <span class="mi">256</span>
       <span class="p">],</span>
-      <span class="s2">&quot;discount&quot;</span><span class="p">:</span> <span class="mf">0.99</span><span class="p">,</span>
+      <span class="s2">&quot;discount&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
       <span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
-      <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">0.003</span><span class="p">,</span>
-      <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+      <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+      <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">512</span><span class="p">,</span>
       <span class="s2">&quot;replay_buffer_capacity&quot;</span><span class="p">:</span> <span class="mf">100000.0</span><span class="p">,</span>
-      <span class="s2">&quot;start_training_time_step&quot;</span><span class="p">:</span> <span class="mi">6000</span><span class="p">,</span>
-      <span class="s2">&quot;end_exploration_time_step&quot;</span><span class="p">:</span> <span class="mi">7000</span><span class="p">,</span>
-      <span class="s2">&quot;deterministic_start_time_step&quot;</span><span class="p">:</span> <span class="mi">26280</span><span class="p">,</span>
+      <span class="s2">&quot;standardize_start_time_step&quot;</span><span class="p">:</span> <span class="mi">2928</span><span class="p">,</span>
+      <span class="s2">&quot;end_exploration_time_step&quot;</span><span class="p">:</span> <span class="mi">2929</span><span class="p">,</span>
       <span class="s2">&quot;action_scaling_coef&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
       <span class="s2">&quot;reward_scaling&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
-      <span class="s2">&quot;update_per_time_step&quot;</span><span class="p">:</span> <span class="mi">2</span>
+      <span class="s2">&quot;update_per_time_step&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
     <span class="p">}</span>
   <span class="p">},</span>
   <span class="s2">&quot;reward_function&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.reward_function.IndependentSACReward&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.reward_function.ComfortReward&quot;</span><span class="p">,</span>
     <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="n">null</span>
   <span class="p">},</span>
   <span class="s2">&quot;buildings&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -415,18 +468,20 @@
       <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
       <span class="s2">&quot;energy_simulation&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_1.csv&quot;</span><span class="p">,</span>
       <span class="s2">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;weather.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="s2">&quot;carbon_intensity.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[],</span>
-      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="s2">&quot;pricing.csv&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.building.LSTMDynamicsBuilding&quot;</span><span class="p">,</span>
       <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.HeatPump&quot;</span><span class="p">,</span>
         <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+        <span class="p">},</span>
         <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
           <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
           <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
-          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
-          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mf">45.0</span>
+          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mi">45</span>
         <span class="p">}</span>
       <span class="p">},</span>
       <span class="s2">&quot;dhw_device&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -441,76 +496,130 @@
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
         <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
         <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">2.0</span>
+          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.0</span>
         <span class="p">},</span>
         <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
           <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
           <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.006</span>
         <span class="p">}</span>
       <span class="p">},</span>
-      <span class="s2">&quot;dhw_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">2.0</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.008</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;electrical_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.Battery&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">140.0</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
-          <span class="s2">&quot;capacity_loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">1e-05</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">75.0</span><span class="p">,</span>
-          <span class="s2">&quot;power_efficiency_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
-              <span class="mi">0</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.3</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.7</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mi">1</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">]</span>
-          <span class="p">],</span>
-          <span class="s2">&quot;capacity_power_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
+      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;dhw_storage_soc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;solar_generation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance_predicted_6h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance_predicted_12h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance_predicted_24h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;direct_solar_irradiance_predicted_6h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;direct_solar_irradiance_predicted_12h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;direct_solar_irradiance_predicted_24h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;heating_storage_soc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electrical_storage_soc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;carbon_intensity&quot;</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;dhw_storage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;heating_storage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electrical_storage&quot;</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;dynamics&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;cooling&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.dynamics.LSTMDynamics&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_size&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;lookback&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_1.pth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input_normalization_minimum&quot;</span><span class="p">:</span> <span class="p">[</span>
               <span class="mf">0.0</span><span class="p">,</span>
-              <span class="mi">1</span>
+              <span class="mf">10.80833</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.97493</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.90097</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">18.12067</span>
             <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mi">1</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
+            <span class="s2">&quot;input_normalization_maximum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">1037.6663</span><span class="p">,</span>
+              <span class="mf">36.90833</span><span class="p">,</span>
+              <span class="mf">30.81475</span><span class="p">,</span>
+              <span class="mf">24.73536719</span><span class="p">,</span>
               <span class="mf">1.0</span><span class="p">,</span>
-              <span class="mf">0.2</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.97493</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">29.89854</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;input_observation_names&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="s2">&quot;direct_solar_irradiance&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;outdoor_dry_bulb_temperature&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;occupant_count&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;cooling_demand&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;indoor_dry_bulb_temperature&quot;</span>
             <span class="p">]</span>
-          <span class="p">]</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;pv&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.PV&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">120.0</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;heating&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.dynamics.LSTMDynamics&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_size&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;lookback&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_1.pth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input_normalization_minimum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">10.80833</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.97493</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.90097</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">18.12067</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;input_normalization_maximum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">1037.6663</span><span class="p">,</span>
+              <span class="mf">36.90833</span><span class="p">,</span>
+              <span class="mf">30.81475</span><span class="p">,</span>
+              <span class="mf">24.73536719</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.97493</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">29.89854</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;input_observation_names&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="s2">&quot;direct_solar_irradiance&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;outdoor_dry_bulb_temperature&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;occupant_count&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;heating_demand&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;indoor_dry_bulb_temperature&quot;</span>
+            <span class="p">]</span>
+          <span class="p">}</span>
         <span class="p">}</span>
       <span class="p">}</span>
     <span class="p">},</span>
@@ -518,20 +627,20 @@
       <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
       <span class="s2">&quot;energy_simulation&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_2.csv&quot;</span><span class="p">,</span>
       <span class="s2">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;weather.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="s2">&quot;carbon_intensity.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;solar_generation&quot;</span>
-      <span class="p">],</span>
-      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="s2">&quot;pricing.csv&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.building.LSTMDynamicsBuilding&quot;</span><span class="p">,</span>
       <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.HeatPump&quot;</span><span class="p">,</span>
         <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+        <span class="p">},</span>
         <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
           <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
           <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.21</span><span class="p">,</span>
-          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mf">9.0</span><span class="p">,</span>
-          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mf">45.0</span>
+          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mi">45</span>
         <span class="p">}</span>
       <span class="p">},</span>
       <span class="s2">&quot;dhw_device&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -564,51 +673,121 @@
           <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.008</span>
         <span class="p">}</span>
       <span class="p">},</span>
-      <span class="s2">&quot;electrical_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.Battery&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">80.0</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
-          <span class="s2">&quot;capacity_loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">1e-05</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">40.0</span><span class="p">,</span>
-          <span class="s2">&quot;power_efficiency_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
-              <span class="mi">0</span><span class="p">,</span>
-              <span class="mf">0.8</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.3</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.7</span><span class="p">,</span>
-              <span class="mf">0.92</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.91</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mi">1</span><span class="p">,</span>
-              <span class="mf">0.82</span>
-            <span class="p">]</span>
-          <span class="p">],</span>
-          <span class="s2">&quot;capacity_power_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
+      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;solar_generation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance_predicted_6h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance_predicted_12h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance_predicted_24h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;direct_solar_irradiance_predicted_6h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;direct_solar_irradiance_predicted_12h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;direct_solar_irradiance_predicted_24h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;heating_storage_soc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electrical_storage_soc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;carbon_intensity&quot;</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;heating_storage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electrical_storage&quot;</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;dynamics&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;cooling&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.dynamics.LSTMDynamics&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_size&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;lookback&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_2.pth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input_normalization_minimum&quot;</span><span class="p">:</span> <span class="p">[</span>
               <span class="mf">0.0</span><span class="p">,</span>
-              <span class="mi">1</span>
+              <span class="mf">10.80833</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.97493</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.90097</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">22.63211</span>
             <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.8</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
+            <span class="s2">&quot;input_normalization_maximum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">1037.6663</span><span class="p">,</span>
+              <span class="mf">36.90833</span><span class="p">,</span>
+              <span class="mf">296.33365</span><span class="p">,</span>
+              <span class="mf">109.74094531</span><span class="p">,</span>
               <span class="mf">1.0</span><span class="p">,</span>
-              <span class="mf">0.23</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.97493</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">27.65767</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;input_observation_names&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="s2">&quot;direct_solar_irradiance&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;outdoor_dry_bulb_temperature&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;occupant_count&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;cooling_demand&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;indoor_dry_bulb_temperature&quot;</span>
             <span class="p">]</span>
-          <span class="p">]</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;heating&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.dynamics.LSTMDynamics&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_size&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;lookback&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_2.pth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input_normalization_minimum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">10.80833</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.97493</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.90097</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">22.63211</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;input_normalization_maximum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">1037.6663</span><span class="p">,</span>
+              <span class="mf">36.90833</span><span class="p">,</span>
+              <span class="mf">296.33365</span><span class="p">,</span>
+              <span class="mf">109.74094531</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.97493</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">27.65767</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;input_observation_names&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="s2">&quot;direct_solar_irradiance&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;outdoor_dry_bulb_temperature&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;occupant_count&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;heating_demand&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;indoor_dry_bulb_temperature&quot;</span>
+            <span class="p">]</span>
+          <span class="p">}</span>
         <span class="p">}</span>
       <span class="p">}</span>
     <span class="p">},</span>
@@ -616,23 +795,20 @@
       <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
       <span class="s2">&quot;energy_simulation&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_3.csv&quot;</span><span class="p">,</span>
       <span class="s2">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;weather.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="s2">&quot;carbon_intensity.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;dhw_storage_soc&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;solar_generation&quot;</span>
-      <span class="p">],</span>
-      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;dhw_storage&quot;</span>
-      <span class="p">],</span>
+      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="s2">&quot;pricing.csv&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.building.LSTMDynamicsBuilding&quot;</span><span class="p">,</span>
       <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.HeatPump&quot;</span><span class="p">,</span>
         <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+        <span class="p">},</span>
         <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
           <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
           <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.23</span><span class="p">,</span>
-          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
-          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mf">45.0</span>
+          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mi">45</span>
         <span class="p">}</span>
       <span class="p">},</span>
       <span class="s2">&quot;dhw_device&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -647,58 +823,139 @@
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
         <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
         <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">2.0</span>
+          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.0</span>
         <span class="p">},</span>
         <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
           <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
           <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.006</span>
         <span class="p">}</span>
       <span class="p">},</span>
-      <span class="s2">&quot;electrical_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.Battery&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;dhw_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.0</span>
+        <span class="p">},</span>
         <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
-          <span class="s2">&quot;capacity_loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">1e-05</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">20.0</span><span class="p">,</span>
-          <span class="s2">&quot;power_efficiency_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
-              <span class="mi">0</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.3</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.7</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mi">1</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">]</span>
-          <span class="p">],</span>
-          <span class="s2">&quot;capacity_power_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
+          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.008</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;solar_generation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance_predicted_6h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance_predicted_12h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;diffuse_solar_irradiance_predicted_24h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;direct_solar_irradiance_predicted_6h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;direct_solar_irradiance_predicted_12h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;direct_solar_irradiance_predicted_24h&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;heating_storage_soc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electrical_storage_soc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;carbon_intensity&quot;</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;heating_storage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electrical_storage&quot;</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;dynamics&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;cooling&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.dynamics.LSTMDynamics&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_size&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;lookback&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_3.pth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input_normalization_minimum&quot;</span><span class="p">:</span> <span class="p">[</span>
               <span class="mf">0.0</span><span class="p">,</span>
-              <span class="mi">1</span>
+              <span class="mf">10.80833</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.97493</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.90097</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">18.22155</span>
             <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
+            <span class="s2">&quot;input_normalization_maximum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">1037.6663</span><span class="p">,</span>
+              <span class="mf">36.90833</span><span class="p">,</span>
+              <span class="mf">258.90265</span><span class="p">,</span>
+              <span class="mf">72.14350781</span><span class="p">,</span>
               <span class="mf">1.0</span><span class="p">,</span>
-              <span class="mf">0.27</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.97493</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">30.50947</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;input_observation_names&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="s2">&quot;direct_solar_irradiance&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;outdoor_dry_bulb_temperature&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;occupant_count&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;cooling_demand&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;indoor_dry_bulb_temperature&quot;</span>
             <span class="p">]</span>
-          <span class="p">]</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;heating&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.dynamics.LSTMDynamics&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_size&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;lookback&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_3.pth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input_normalization_minimum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">10.80833</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.97493</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.90097</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">18.22155</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;input_normalization_maximum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">1037.6663</span><span class="p">,</span>
+              <span class="mf">36.90833</span><span class="p">,</span>
+              <span class="mf">258.90265</span><span class="p">,</span>
+              <span class="mf">72.14350781</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.97493</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">30.50947</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;input_observation_names&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="s2">&quot;direct_solar_irradiance&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;outdoor_dry_bulb_temperature&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;occupant_count&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;heating_demand&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;indoor_dry_bulb_temperature&quot;</span>
+            <span class="p">]</span>
+          <span class="p">}</span>
         <span class="p">}</span>
       <span class="p">}</span>
     <span class="p">},</span>
@@ -706,595 +963,166 @@
       <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
       <span class="s2">&quot;energy_simulation&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_4.csv&quot;</span><span class="p">,</span>
       <span class="s2">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;weather.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="s2">&quot;carbon_intensity.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="s2">&quot;pricing.csv&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.building.LSTMDynamicsBuilding&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.HeatPump&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.22</span><span class="p">,</span>
+          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mi">45</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;dhw_device&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.ElectricHeater&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;cooling_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.0</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.006</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;dhw_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.0</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.008</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;pv&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.PV&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mi">120</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
       <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;dhw_storage_soc&quot;</span>
+        <span class="s2">&quot;heating_storage_soc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electrical_storage_soc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;carbon_intensity&quot;</span>
       <span class="p">],</span>
       <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;dhw_storage&quot;</span>
+        <span class="s2">&quot;heating_storage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;electrical_storage&quot;</span>
       <span class="p">],</span>
-      <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.HeatPump&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.22</span><span class="p">,</span>
-          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mf">9.0</span><span class="p">,</span>
-          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mf">45.0</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.ElectricHeater&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;cooling_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">1.5</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.006</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;electrical_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.Battery&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">75.0</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
-          <span class="s2">&quot;capacity_loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">1e-05</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
-          <span class="s2">&quot;power_efficiency_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
-              <span class="mi">0</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.3</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.7</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mi">1</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">]</span>
-          <span class="p">],</span>
-          <span class="s2">&quot;capacity_power_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
+      <span class="s2">&quot;dynamics&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;cooling&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.dynamics.LSTMDynamics&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_size&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+            <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;lookback&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_4.pth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input_normalization_minimum&quot;</span><span class="p">:</span> <span class="p">[</span>
               <span class="mf">0.0</span><span class="p">,</span>
-              <span class="mi">1</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.95</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">1.0</span><span class="p">,</span>
-              <span class="mf">0.2</span>
-            <span class="p">]</span>
-          <span class="p">]</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;pv&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.PV&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">40.0</span>
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;Building_5&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-      <span class="s2">&quot;energy_simulation&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_5.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;weather.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="s2">&quot;carbon_intensity.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[],</span>
-      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
-      <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.HeatPump&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.24</span><span class="p">,</span>
-          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
-          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mf">45.0</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.ElectricHeater&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;cooling_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.5</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.006</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">1.5</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.008</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;electrical_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.Battery&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
-          <span class="s2">&quot;capacity_loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">1e-05</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">25.0</span><span class="p">,</span>
-          <span class="s2">&quot;power_efficiency_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
-              <span class="mi">0</span><span class="p">,</span>
-              <span class="mf">0.8</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.3</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.7</span><span class="p">,</span>
-              <span class="mf">0.87</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mi">1</span><span class="p">,</span>
-              <span class="mf">0.8</span>
-            <span class="p">]</span>
-          <span class="p">],</span>
-          <span class="s2">&quot;capacity_power_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
+              <span class="mf">10.80833</span><span class="p">,</span>
               <span class="mf">0.0</span><span class="p">,</span>
-              <span class="mi">1</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">1.0</span><span class="p">,</span>
-              <span class="mf">0.35</span>
-            <span class="p">]</span>
-          <span class="p">]</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;pv&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.PV&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">25.0</span>
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;Building_6&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-      <span class="s2">&quot;energy_simulation&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_6.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;weather.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="s2">&quot;carbon_intensity.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[],</span>
-      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
-      <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.HeatPump&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
-          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mf">9.0</span><span class="p">,</span>
-          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mf">45.0</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.ElectricHeater&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.85</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;cooling_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">1.5</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.006</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.0</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.008</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;electrical_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.Battery&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
-          <span class="s2">&quot;capacity_loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">1e-05</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
-          <span class="s2">&quot;power_efficiency_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
-              <span class="mi">0</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.3</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.7</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mi">1</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">]</span>
-          <span class="p">],</span>
-          <span class="s2">&quot;capacity_power_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
               <span class="mf">0.0</span><span class="p">,</span>
-              <span class="mi">1</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.97493</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.90097</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">23.36176</span>
             <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mi">1</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
+            <span class="s2">&quot;input_normalization_maximum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">1037.6663</span><span class="p">,</span>
+              <span class="mf">36.90833</span><span class="p">,</span>
+              <span class="mf">254.76593</span><span class="p">,</span>
+              <span class="mf">245.52803125</span><span class="p">,</span>
               <span class="mf">1.0</span><span class="p">,</span>
-              <span class="mf">0.2</span>
-            <span class="p">]</span>
-          <span class="p">]</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;pv&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.PV&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">20.0</span>
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;Building_7&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-      <span class="s2">&quot;energy_simulation&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_7.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;weather.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="s2">&quot;carbon_intensity.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;solar_generation&quot;</span>
-      <span class="p">],</span>
-      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
-      <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.HeatPump&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.22</span><span class="p">,</span>
-          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
-          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mf">45.0</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.ElectricHeater&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;cooling_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">2.0</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.006</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">2.0</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.008</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;electrical_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.Battery&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">40.0</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
-          <span class="s2">&quot;capacity_loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">1e-05</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">15.0</span><span class="p">,</span>
-          <span class="s2">&quot;power_efficiency_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
-              <span class="mi">0</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.3</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.7</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mi">1</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">]</span>
-          <span class="p">],</span>
-          <span class="s2">&quot;capacity_power_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.97493</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
               <span class="mf">0.0</span><span class="p">,</span>
-              <span class="mi">1</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">1.0</span><span class="p">,</span>
-              <span class="mf">0.25</span>
-            <span class="p">]</span>
-          <span class="p">]</span>
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;Building_8&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-      <span class="s2">&quot;energy_simulation&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_8.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;weather.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="s2">&quot;carbon_intensity.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;solar_generation&quot;</span>
-      <span class="p">],</span>
-      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
-      <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.HeatPump&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.24</span><span class="p">,</span>
-          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mf">9.0</span><span class="p">,</span>
-          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mf">45.0</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.ElectricHeater&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.93</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;cooling_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.0</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.006</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.0</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.008</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;electrical_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.Battery&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
-          <span class="s2">&quot;capacity_loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">1e-05</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
-          <span class="s2">&quot;power_efficiency_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
-              <span class="mi">0</span><span class="p">,</span>
-              <span class="mf">0.8</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.3</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.7</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mi">1</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">]</span>
-          <span class="p">],</span>
-          <span class="s2">&quot;capacity_power_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
               <span class="mf">0.0</span><span class="p">,</span>
-              <span class="mi">1</span>
+              <span class="mf">30.95352</span>
             <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mi">1</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">1.0</span><span class="p">,</span>
-              <span class="mf">0.3</span>
+            <span class="s2">&quot;input_observation_names&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="s2">&quot;direct_solar_irradiance&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;outdoor_dry_bulb_temperature&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;occupant_count&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;cooling_demand&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;indoor_dry_bulb_temperature&quot;</span>
             <span class="p">]</span>
-          <span class="p">]</span>
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;Building_9&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-      <span class="s2">&quot;energy_simulation&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_9.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;weather&quot;</span><span class="p">:</span> <span class="s2">&quot;weather.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;carbon_intensity&quot;</span><span class="p">:</span> <span class="s2">&quot;carbon_intensity.csv&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;pricing&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-      <span class="s2">&quot;inactive_observations&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;solar_generation&quot;</span>
-      <span class="p">],</span>
-      <span class="s2">&quot;inactive_actions&quot;</span><span class="p">:</span> <span class="p">[],</span>
-      <span class="s2">&quot;cooling_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.HeatPump&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.22</span><span class="p">,</span>
-          <span class="s2">&quot;target_cooling_temperature&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
-          <span class="s2">&quot;target_heating_temperature&quot;</span><span class="p">:</span> <span class="mf">45.0</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_device&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.ElectricHeater&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;cooling_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.0</span>
+          <span class="p">}</span>
         <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.006</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;dhw_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.StorageTank&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
-        <span class="s2">&quot;autosize_attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;safety_factor&quot;</span><span class="p">:</span> <span class="mf">3.0</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.008</span>
-        <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="s2">&quot;electrical_storage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.energy_model.Battery&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;autosize&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="mf">35.0</span><span class="p">,</span>
-          <span class="s2">&quot;efficiency&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
-          <span class="s2">&quot;capacity_loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">1e-05</span><span class="p">,</span>
-          <span class="s2">&quot;loss_coefficient&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-          <span class="s2">&quot;nominal_power&quot;</span><span class="p">:</span> <span class="mf">20.0</span><span class="p">,</span>
-          <span class="s2">&quot;power_efficiency_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
-              <span class="mi">0</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.3</span><span class="p">,</span>
-              <span class="mf">0.83</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.7</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mf">0.9</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mi">1</span><span class="p">,</span>
-              <span class="mf">0.85</span>
-            <span class="p">]</span>
-          <span class="p">],</span>
-          <span class="s2">&quot;capacity_power_curve&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">[</span>
+        <span class="s2">&quot;heating&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;citylearn.dynamics.LSTMDynamics&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_size&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+            <span class="s2">&quot;num_layers&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;lookback&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+            <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s2">&quot;Building_4.pth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input_normalization_minimum&quot;</span><span class="p">:</span> <span class="p">[</span>
               <span class="mf">0.0</span><span class="p">,</span>
-              <span class="mi">1</span>
+              <span class="mf">10.80833</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.97493</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">0.90097</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">23.36176</span>
             <span class="p">],</span>
-            <span class="p">[</span>
-              <span class="mf">0.8</span><span class="p">,</span>
-              <span class="mi">1</span>
-            <span class="p">],</span>
-            <span class="p">[</span>
+            <span class="s2">&quot;input_normalization_maximum&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="mf">1037.6663</span><span class="p">,</span>
+              <span class="mf">36.90833</span><span class="p">,</span>
+              <span class="mf">254.76593</span><span class="p">,</span>
+              <span class="mf">245.52803125</span><span class="p">,</span>
               <span class="mf">1.0</span><span class="p">,</span>
-              <span class="mf">0.3</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.97493</span><span class="p">,</span>
+              <span class="mf">1.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">0.0</span><span class="p">,</span>
+              <span class="mf">30.95352</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;input_observation_names&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="s2">&quot;direct_solar_irradiance&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;outdoor_dry_bulb_temperature&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;occupant_count&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;heating_demand&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;hour_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;day_type_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_sin&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;month_cos&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;indoor_dry_bulb_temperature&quot;</span>
             <span class="p">]</span>
-          <span class="p">]</span>
+          <span class="p">}</span>
         <span class="p">}</span>
       <span class="p">}</span>
     <span class="p">}</span>

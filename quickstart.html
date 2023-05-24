@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QuickStart &mdash; CityLearn 1.8.0 documentation</title>
+  <title>QuickStart &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
       <link rel="stylesheet" href="_static/nbsphinx-code-cells.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -62,6 +65,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 
@@ -105,106 +109,497 @@
 <h2>Centralized RBC<a class="headerlink" href="#Centralized-RBC" title="Permalink to this headline"></a></h2>
 <p>Run the following to simulate an environment controlled by centralized RBC agent for a single episode:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 <span class="kn">from</span> <span class="nn">citylearn.agents.rbc</span> <span class="kn">import</span> <span class="n">BasicRBC</span> <span class="k">as</span> <span class="n">RBCAgent</span>
 
 <span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">RBCAgent</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># print cost functions at the end of episode</span>
-<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
-    <span class="n">nd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">nd</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Building_1 : [{&#39;carbon_emissions&#39;: 1.134, &#39;cost&#39;: 1.043, &#39;electricity_consumption&#39;: 1.184, &#39;zero_net_energy&#39;: 1.118}]
-Building_2 : [{&#39;carbon_emissions&#39;: 1.158, &#39;cost&#39;: 1.063, &#39;electricity_consumption&#39;: 1.215, &#39;zero_net_energy&#39;: 1.101}]
-Building_3 : [{&#39;carbon_emissions&#39;: 1.272, &#39;cost&#39;: 1.145, &#39;electricity_consumption&#39;: 1.346, &#39;zero_net_energy&#39;: 1.294}]
-Building_4 : [{&#39;carbon_emissions&#39;: 1.181, &#39;cost&#39;: 1.097, &#39;electricity_consumption&#39;: 1.237, &#39;zero_net_energy&#39;: 1.085}]
-Building_5 : [{&#39;carbon_emissions&#39;: 1.186, &#39;cost&#39;: 1.075, &#39;electricity_consumption&#39;: 1.262, &#39;zero_net_energy&#39;: 1.145}]
-District : [{&#39;1 - load_factor&#39;: 0.987, &#39;average_daily_peak&#39;: 1.15, &#39;carbon_emissions&#39;: 1.186, &#39;cost&#39;: 1.085, &#39;electricity_consumption&#39;: 1.249, &#39;peak_demand&#39;: 1.052, &#39;ramping&#39;: 1.162, &#39;zero_net_energy&#39;: 1.148}]
-</pre></div></div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>name</th>
+      <th>Building_1</th>
+      <th>Building_2</th>
+      <th>Building_3</th>
+      <th>Building_4</th>
+      <th>Building_5</th>
+      <th>District</th>
+    </tr>
+    <tr>
+      <th>cost_function</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>annual_peak_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.095001</td>
+    </tr>
+    <tr>
+      <th>carbon_emissions_total</th>
+      <td>1.102525</td>
+      <td>1.121603</td>
+      <td>1.160467</td>
+      <td>1.288898</td>
+      <td>1.156323</td>
+      <td>1.165963</td>
+    </tr>
+    <tr>
+      <th>cost_total</th>
+      <td>1.051627</td>
+      <td>1.049339</td>
+      <td>1.099391</td>
+      <td>1.238803</td>
+      <td>1.060591</td>
+      <td>1.099950</td>
+    </tr>
+    <tr>
+      <th>daily_peak_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.127063</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_average</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_maximum</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_minimum</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>electricity_consumption_total</th>
+      <td>1.154034</td>
+      <td>1.201578</td>
+      <td>1.221070</td>
+      <td>1.351636</td>
+      <td>1.251857</td>
+      <td>1.236035</td>
+    </tr>
+    <tr>
+      <th>one_minus_load_factor_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.995416</td>
+    </tr>
+    <tr>
+      <th>ramping_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.157388</td>
+    </tr>
+    <tr>
+      <th>zero_net_energy</th>
+      <td>1.069345</td>
+      <td>1.094054</td>
+      <td>1.096636</td>
+      <td>1.109870</td>
+      <td>1.110441</td>
+      <td>1.096069</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
 </div>
 </section>
 <section id="Decentralized-Independent-SAC">
 <h2>Decentralized-Independent SAC<a class="headerlink" href="#Decentralized-Independent-SAC" title="Permalink to this headline"></a></h2>
 <p>Run the following to simulate an environment controlled by decentralized-independent SAC agents for 1 training episode:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 <span class="kn">from</span> <span class="nn">citylearn.agents.sac</span> <span class="kn">import</span> <span class="n">SAC</span> <span class="k">as</span> <span class="n">RLAgent</span>
 
 <span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">RLAgent</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">deterministic_finish</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
-    <span class="n">nd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">nd</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
+<span class="c1"># print cost functions at the end of episode</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Building_1 : [{&#39;carbon_emissions&#39;: 0.953, &#39;cost&#39;: 0.944, &#39;electricity_consumption&#39;: 0.951, &#39;zero_net_energy&#39;: 1.079}]
-Building_2 : [{&#39;carbon_emissions&#39;: 0.989, &#39;cost&#39;: 0.985, &#39;electricity_consumption&#39;: 0.987, &#39;zero_net_energy&#39;: 1.056}]
-Building_3 : [{&#39;carbon_emissions&#39;: 1.007, &#39;cost&#39;: 0.985, &#39;electricity_consumption&#39;: 0.989, &#39;zero_net_energy&#39;: 1.181}]
-Building_4 : [{&#39;carbon_emissions&#39;: 1.04, &#39;cost&#39;: 1.027, &#39;electricity_consumption&#39;: 1.024, &#39;zero_net_energy&#39;: 1.045}]
-Building_5 : [{&#39;carbon_emissions&#39;: 0.975, &#39;cost&#39;: 0.926, &#39;electricity_consumption&#39;: 0.983, &#39;zero_net_energy&#39;: 1.063}]
-District : [{&#39;1 - load_factor&#39;: 0.994, &#39;average_daily_peak&#39;: 0.951, &#39;carbon_emissions&#39;: 0.993, &#39;cost&#39;: 0.974, &#39;electricity_consumption&#39;: 0.987, &#39;peak_demand&#39;: 0.943, &#39;ramping&#39;: 1.049, &#39;zero_net_energy&#39;: 1.085}]
-</pre></div></div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>name</th>
+      <th>Building_1</th>
+      <th>Building_2</th>
+      <th>Building_3</th>
+      <th>Building_4</th>
+      <th>Building_5</th>
+      <th>District</th>
+    </tr>
+    <tr>
+      <th>cost_function</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>annual_peak_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>carbon_emissions_total</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.005340</td>
+      <td>1.0</td>
+      <td>1.007307</td>
+      <td>1.002529</td>
+    </tr>
+    <tr>
+      <th>cost_total</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.004709</td>
+      <td>1.0</td>
+      <td>1.006140</td>
+      <td>1.002170</td>
+    </tr>
+    <tr>
+      <th>daily_peak_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.000939</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_average</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_maximum</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_minimum</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>electricity_consumption_total</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.005122</td>
+      <td>1.0</td>
+      <td>1.007551</td>
+      <td>1.002535</td>
+    </tr>
+    <tr>
+      <th>one_minus_load_factor_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.999170</td>
+    </tr>
+    <tr>
+      <th>ramping_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.999745</td>
+    </tr>
+    <tr>
+      <th>zero_net_energy</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.014362</td>
+      <td>1.0</td>
+      <td>1.016414</td>
+      <td>1.006155</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
 </div>
 </section>
 <section id="Decentralized-Cooperative-MARLISA">
 <h2>Decentralized-Cooperative MARLISA<a class="headerlink" href="#Decentralized-Cooperative-MARLISA" title="Permalink to this headline"></a></h2>
 <p>Run the following to simulate an environment controlled by decentralized-cooperative MARLISA agents for 1 training episode:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 <span class="kn">from</span> <span class="nn">citylearn.agents.marlisa</span> <span class="kn">import</span> <span class="n">MARLISA</span> <span class="k">as</span> <span class="n">RLAgent</span>
 
 <span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">RLAgent</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">deterministic_finish</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
-    <span class="n">nd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">nd</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Building_1 : [{&#39;carbon_emissions&#39;: 1.025, &#39;cost&#39;: 1.016, &#39;electricity_consumption&#39;: 1.03, &#39;zero_net_energy&#39;: 1.019}]
-Building_2 : [{&#39;carbon_emissions&#39;: 1.0, &#39;cost&#39;: 1.0, &#39;electricity_consumption&#39;: 1.0, &#39;zero_net_energy&#39;: 1.0}]
-Building_3 : [{&#39;carbon_emissions&#39;: 0.998, &#39;cost&#39;: 0.995, &#39;electricity_consumption&#39;: 0.999, &#39;zero_net_energy&#39;: 1.016}]
-Building_4 : [{&#39;carbon_emissions&#39;: 1.0, &#39;cost&#39;: 0.999, &#39;electricity_consumption&#39;: 1.0, &#39;zero_net_energy&#39;: 1.002}]
-Building_5 : [{&#39;carbon_emissions&#39;: 1.0, &#39;cost&#39;: 1.0, &#39;electricity_consumption&#39;: 1.0, &#39;zero_net_energy&#39;: 1.0}]
-District : [{&#39;1 - load_factor&#39;: 1.0, &#39;average_daily_peak&#39;: 1.002, &#39;carbon_emissions&#39;: 1.005, &#39;cost&#39;: 1.002, &#39;electricity_consumption&#39;: 1.006, &#39;peak_demand&#39;: 1.0, &#39;ramping&#39;: 1.016, &#39;zero_net_energy&#39;: 1.007}]
-</pre></div></div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>name</th>
+      <th>Building_1</th>
+      <th>Building_2</th>
+      <th>Building_3</th>
+      <th>Building_4</th>
+      <th>Building_5</th>
+      <th>District</th>
+    </tr>
+    <tr>
+      <th>cost_function</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>annual_peak_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.999291</td>
+    </tr>
+    <tr>
+      <th>carbon_emissions_total</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.001302</td>
+      <td>1.010642</td>
+      <td>1.005289</td>
+      <td>1.003447</td>
+    </tr>
+    <tr>
+      <th>cost_total</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.000672</td>
+      <td>1.009545</td>
+      <td>1.004885</td>
+      <td>1.003021</td>
+    </tr>
+    <tr>
+      <th>daily_peak_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.000670</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_average</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_maximum</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_minimum</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>electricity_consumption_total</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.002234</td>
+      <td>1.009856</td>
+      <td>1.004656</td>
+      <td>1.003349</td>
+    </tr>
+    <tr>
+      <th>one_minus_load_factor_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.998677</td>
+    </tr>
+    <tr>
+      <th>ramping_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.999372</td>
+    </tr>
+    <tr>
+      <th>zero_net_energy</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.005842</td>
+      <td>1.016329</td>
+      <td>1.016751</td>
+      <td>1.007784</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
 </div>
 </section>
 <section id="Stable-Baselines3-Reinforcement-Learning-Algorithms">
@@ -220,48 +615,183 @@ District : [{&#39;1 - load_factor&#39;: 1.0, &#39;average_daily_peak&#39;: 1.002
 </div>
 <p>Before the environment is ready for use in Stable Baselines3, it needs to be wrapped. Firstly, wrap the environment using the <code class="docutils literal notranslate"><span class="pre">NormalizedObservationWrapper</span></code> (see <a class="reference external" href="https://www.citylearn.net/api/citylearn.wrappers.html#citylearn.wrappers.NormalizedObservationWrapper">docs</a>) to ensure that observations served to the agent are min-max normalized between [0, 1] and cyclical observations e.g. hour, are encoded using the cosine transformation.</p>
 <p>Next, we wrap with the <code class="docutils literal notranslate"><span class="pre">StableBaselines3Wrapper</span></code> (see <a class="reference external" href="https://www.citylearn.net/api/citylearn.wrappers.html#citylearn.wrappers.StableBaselines3Wrapper">docs</a>) that ensures observations, actions and rewards are served in manner that is compatible with Stable Baselines3 interface.</p>
+<p>For the following Stable Baselines3 example, the <code class="docutils literal notranslate"><span class="pre">baeda_3dem</span></code> dataset that support building temperature dynamics is used.</p>
 <blockquote>
 <div><p>⚠️ <strong>NOTE</strong>: <code class="docutils literal notranslate"><span class="pre">central_agent</span></code> in the <code class="docutils literal notranslate"><span class="pre">env</span></code> must be <code class="docutils literal notranslate"><span class="pre">True</span></code> when using Stable Baselines3 as it does not support multi-agents.</p>
 </div></blockquote>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">stable_baselines3.sac</span> <span class="kn">import</span> <span class="n">SAC</span>
 <span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 <span class="kn">from</span> <span class="nn">citylearn.wrappers</span> <span class="kn">import</span> <span class="n">NormalizedObservationWrapper</span><span class="p">,</span> <span class="n">StableBaselines3Wrapper</span>
 
-<span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
-<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;baeda_3dem&#39;</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">NormalizedObservationWrapper</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">StableBaselines3Wrapper</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">SAC</span><span class="p">(</span><span class="s1">&#39;MlpPolicy&#39;</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">total_timesteps</span><span class="o">=</span><span class="n">env</span><span class="o">.</span><span class="n">time_steps</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
 
+<span class="c1"># evaluate</span>
 <span class="n">observations</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
 <span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
     <span class="n">actions</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">observations</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
 
-<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
-    <span class="n">nd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">nd</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Building_1 : [{&#39;carbon_emissions&#39;: 1.107, &#39;cost&#39;: 1.104, &#39;electricity_consumption&#39;: 1.08, &#39;zero_net_energy&#39;: 1.129}]
-Building_2 : [{&#39;carbon_emissions&#39;: 1.078, &#39;cost&#39;: 0.998, &#39;electricity_consumption&#39;: 1.075, &#39;zero_net_energy&#39;: 1.087}]
-Building_3 : [{&#39;carbon_emissions&#39;: 1.211, &#39;cost&#39;: 1.191, &#39;electricity_consumption&#39;: 1.191, &#39;zero_net_energy&#39;: 1.235}]
-Building_4 : [{&#39;carbon_emissions&#39;: 1.269, &#39;cost&#39;: 1.402, &#39;electricity_consumption&#39;: 1.204, &#39;zero_net_energy&#39;: 1.087}]
-Building_5 : [{&#39;carbon_emissions&#39;: 1.273, &#39;cost&#39;: 1.205, &#39;electricity_consumption&#39;: 1.277, &#39;zero_net_energy&#39;: 1.12}]
-District : [{&#39;1 - load_factor&#39;: 1.012, &#39;average_daily_peak&#39;: 1.106, &#39;carbon_emissions&#39;: 1.188, &#39;cost&#39;: 1.18, &#39;electricity_consumption&#39;: 1.165, &#39;peak_demand&#39;: 1.261, &#39;ramping&#39;: 1.45, &#39;zero_net_energy&#39;: 1.132}]
-</pre></div></div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>name</th>
+      <th>Building_1</th>
+      <th>Building_2</th>
+      <th>Building_3</th>
+      <th>Building_4</th>
+      <th>District</th>
+    </tr>
+    <tr>
+      <th>cost_function</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>annual_peak_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.652018</td>
+    </tr>
+    <tr>
+      <th>cost_total</th>
+      <td>0.559840</td>
+      <td>0.664455</td>
+      <td>0.694391</td>
+      <td>0.718245</td>
+      <td>0.659233</td>
+    </tr>
+    <tr>
+      <th>daily_peak_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.711316</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_average</th>
+      <td>0.023803</td>
+      <td>0.703250</td>
+      <td>3.912871</td>
+      <td>1.861718</td>
+      <td>1.625411</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_maximum</th>
+      <td>2.824947</td>
+      <td>2.618780</td>
+      <td>6.868706</td>
+      <td>7.118988</td>
+      <td>4.857855</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_minimum</th>
+      <td>-4.086712</td>
+      <td>-2.640570</td>
+      <td>-3.700124</td>
+      <td>-2.782747</td>
+      <td>-3.302538</td>
+    </tr>
+    <tr>
+      <th>discomfort_proportion</th>
+      <td>0.384314</td>
+      <td>0.446996</td>
+      <td>0.876979</td>
+      <td>0.637155</td>
+      <td>0.586361</td>
+    </tr>
+    <tr>
+      <th>discomfort_too_cold_proportion</th>
+      <td>0.247059</td>
+      <td>0.008834</td>
+      <td>0.003654</td>
+      <td>0.004354</td>
+      <td>0.065975</td>
+    </tr>
+    <tr>
+      <th>discomfort_too_hot_proportion</th>
+      <td>0.137255</td>
+      <td>0.438163</td>
+      <td>0.873325</td>
+      <td>0.632801</td>
+      <td>0.520386</td>
+    </tr>
+    <tr>
+      <th>electricity_consumption_total</th>
+      <td>0.651177</td>
+      <td>0.691996</td>
+      <td>0.750006</td>
+      <td>0.750259</td>
+      <td>0.710859</td>
+    </tr>
+    <tr>
+      <th>one_minus_load_factor_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.929786</td>
+    </tr>
+    <tr>
+      <th>ramping_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.036532</td>
+    </tr>
+    <tr>
+      <th>zero_net_energy</th>
+      <td>0.649800</td>
+      <td>0.691996</td>
+      <td>0.750006</td>
+      <td>0.695559</td>
+      <td>0.696840</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
 </div>
 </section>
 </section>

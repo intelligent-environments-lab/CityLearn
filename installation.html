@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; CityLearn 1.8.0 documentation</title>
+  <title>Installation &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -53,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
 </ul>
 
@@ -87,7 +91,7 @@
 </pre></div>
 </div>
 <p>Alternatively, install a specific version:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install CityLearn==1.4.4</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install CityLearn==1.8.0</span>
 </pre></div>
 </div>
 <div class="admonition warning">
@@ -96,6 +100,10 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>v1.1.0<span class="w"> </span>https://github.com/intelligent-environments-lab/CityLearn.git
 </pre></div>
 </div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Version <code class="docutils literal notranslate"><span class="pre">1.8.0</span></code> and earlier do not support temperature dynamic buildings class <a class="reference internal" href="api/citylearn.building.html#citylearn.building.DynamicsBuilding" title="citylearn.building.DynamicsBuilding"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.building.DynamicsBuilding</span></code></a> and its descendant classes. Thus, <cite>cooling_device</cite> and <cite>heating_device</cite> control for partial load is not supported by these versions.</p>
 </div>
 </section>
 

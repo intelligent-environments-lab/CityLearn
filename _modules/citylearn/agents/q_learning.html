@@ -3,11 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.q_learning &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.agents.q_learning &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -50,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references.html">References</a></li>
 </ul>
 
@@ -79,16 +83,44 @@
              
   <h1>Source code for citylearn.agents.q_learning</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">citylearn.agents.base</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
 <div class="viewcode-block" id="TabularQLearning"><a class="viewcode-back" href="../../../api/citylearn.agents.q_learning.html#citylearn.agents.q_learning.TabularQLearning">[docs]</a><span class="k">class</span> <span class="nc">TabularQLearning</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implementation of Tabular Q-Learning algorithm for discrete observation and action space and epsilon-greedy action selection.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    epsilon: float, default: 1.0</span>
+<span class="sd">        Exploration rate.</span>
+<span class="sd">    minimum_epsilon: float, default: 0.01</span>
+<span class="sd">        Minimum value exporation rate can decay to.</span>
+<span class="sd">    epsilon_decay: float, default: 0.0001</span>
+<span class="sd">        :code:`epsilon` exponential decay rate.</span>
+<span class="sd">    learning_rate: float, default: 0.05</span>
+<span class="sd">        Defines to what degree new knowledge overrides old knowledge: for :code:`learning_rate` = 0, no</span>
+<span class="sd">        learning happens, while for :code:`learning_rate` = 1, all prior knowledge is lost.</span>
+<span class="sd">    discount_factor: float, default: 0.90</span>
+<span class="sd">        Balance between an agent that considers only immediate rewards (:code:`discount_factor` = 0) and</span>
+<span class="sd">        one that strives towards long term rewards (:code:`discount_factor` = 1)</span>
+<span class="sd">    q_init_value: float, default: np.nan</span>
+<span class="sd">        Q-Table initialization value.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs: Any</span>
+<span class="sd">        Other keyword arguments used to initialize :py:class:`citylearn.agents.base.Agent` super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">minimum_epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">epsilon_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">discount_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">q_init_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">minimum_epsilon</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">epsilon_decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">discount_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">q_init_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">epsilon</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">epsilon</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">epsilon_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">minimum_epsilon</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="k">if</span> <span class="n">minimum_epsilon</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">minimum_epsilon</span>
@@ -99,7 +131,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_exploration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_exploitation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__initialize_q</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__explored</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="TabularQLearning.predict"><a class="viewcode-back" href="../../../api/citylearn.agents.q_learning.html#citylearn.agents.q_learning.TabularQLearning.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>    
+<div class="viewcode-block" id="TabularQLearning.predict"><a class="viewcode-back" href="../../../api/citylearn.agents.q_learning.html#citylearn.agents.q_learning.TabularQLearning.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
+
+<span class="sd">        If `deterministic` = True or, randomly generated number is greater than `epsilon`, return</span>
+<span class="sd">        deterministic action from Q-Table i.e. action with max Q-value for given observations </span>
+<span class="sd">        otherwise, return randomly sampled action.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observations: List[List[float]]</span>
+<span class="sd">            Environment observations</span>
+<span class="sd">        deterministic: bool, default: False</span>
+<span class="sd">            Wether to return purely exploitatative deterministic actions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        actions: List[List[float]]</span>
+<span class="sd">            Action values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
         <span class="n">deterministic</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">deterministic</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">deterministic</span>
         <span class="n">actions</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span>
@@ -108,7 +159,7 @@
 
         <span class="k">if</span> <span class="n">deterministic</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">:</span>
             <span class="c1"># Use q-function to decide action</span>
-            <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exploit</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exploit</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__explored</span> <span class="o">=</span> <span class="kc">False</span>
         
         <span class="k">else</span><span class="p">:</span>
@@ -124,7 +175,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">actions</span></div>
 
-<div class="viewcode-block" id="TabularQLearning.exploit"><a class="viewcode-back" href="../../../api/citylearn.agents.q_learning.html#citylearn.agents.q_learning.TabularQLearning.exploit">[docs]</a>    <span class="k">def</span> <span class="nf">exploit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">__exploit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Select deterministic actions from Q-Table i.e. action with max Q-value for given observations.&quot;&quot;&quot;</span>
+        
         <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">observations</span><span class="p">):</span>
@@ -139,9 +192,23 @@
 
             <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">a</span><span class="p">])</span>
         
-        <span class="k">return</span> <span class="n">actions</span></div>
+        <span class="k">return</span> <span class="n">actions</span>
 
-<div class="viewcode-block" id="TabularQLearning.update"><a class="viewcode-back" href="../../../api/citylearn.agents.q_learning.html#citylearn.agents.q_learning.TabularQLearning.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">reward</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">next_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">done</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<div class="viewcode-block" id="TabularQLearning.update"><a class="viewcode-back" href="../../../api/citylearn.agents.q_learning.html#citylearn.agents.q_learning.TabularQLearning.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">reward</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">next_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update Q-Table using Bellman equation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observations : List[List[float]]</span>
+<span class="sd">            Previous time step observations.</span>
+<span class="sd">        actions : List[List[float]]</span>
+<span class="sd">            Previous time step actions.</span>
+<span class="sd">        reward : List[float]</span>
+<span class="sd">            Current time step reward.</span>
+<span class="sd">        next_observations : List[List[float]]</span>
+<span class="sd">            Current time step observations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="c1"># Compute temporal difference target and error to udpate q-function</span>
         
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_observations</span><span class="p">)):</span>
@@ -166,7 +233,9 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">q_exploitation</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">o</span><span class="p">,</span> <span class="n">a</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
-    <span class="k">def</span> <span class="nf">__initialize_q</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__initialize_q</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize all values in Q-Table with `q_init_value`.&quot;&quot;&quot;</span>
+        
         <span class="n">q</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">]</span>
         <span class="n">q_exploration</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">]</span>
         <span class="n">q_exploitation</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span><span class="p">]</span>

@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CLI &mdash; CityLearn 1.8.0 documentation</title>
+  <title>CLI &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
       <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
@@ -26,7 +29,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Analysis Examples" href="examples.html" />
+    <link rel="next" title="Tutorials" href="tutorials.html" />
     <link rel="prev" title="How to Setup a Simulation" href="simulate.html" /> 
 </head>
 
@@ -58,14 +61,15 @@
 <li class="toctree-l2"><a class="reference internal" href="simulate.html">How to Setup a Simulation</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">CLI</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Running-a-Simulation-using-the-CLI">Running a Simulation using the CLI</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Reading-a-saved-Simulator">Reading a saved Simulator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Reading-a-Saved-Simulation">Reading a Saved Simulation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="examples.html">Analysis Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 
@@ -109,7 +113,7 @@
 <p>The CityLearn installation comes with a CLI for running simulations. The CLI is useful for use cases where multiple environment-agent setups that have been defined in schemas need to be submitted as 1 job for parallel running e.g. in an HPC.</p>
 <p>The CLI documentation is returned by executing the following in a Shell Terminal of Powershell:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
@@ -141,7 +145,7 @@ subcommands:
 <p>The <code class="docutils literal notranslate"><span class="pre">learn</span></code> command is used to run simulations and it has one positional argument, <code class="docutils literal notranslate"><span class="pre">schema</span></code> that is a named dataset or path to a schema. Other arguments are optional and have default values. The completed simulation is saved to a pickled object in a file that is specified by the optional argument <code class="docutils literal notranslate"><span class="pre">-f</span></code>. The <code class="docutils literal notranslate"><span class="pre">-k</span></code> argument is a flag to indicate that a list of the environment state at the end of each episode be saved as well. The <code class="docutils literal notranslate"><span class="pre">-l</span></code> argument is an integer that specifies the logging
 level. The output log includes action and reward values at each time step.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
@@ -177,7 +181,7 @@ optional arguments:
                         Directory to save environment history to. (default:
                         None)
   -n, --deterministic_finish
-                        Simulate an extra episode with deterministic actions.
+                        Take deterministic actions in the final episode.
                         (default: False)
   -l LOGGING_LEVEL, --logging_level LOGGING_LEVEL
                         Logging level where increasing the level silences
@@ -186,7 +190,7 @@ optional arguments:
 </div>
 <p>The example below runs a simulation using the <code class="docutils literal notranslate"><span class="pre">citylearn_challenge_2022_phase_1</span></code> dataset at a logging level of 100 and is set to store the environment history.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
@@ -195,11 +199,11 @@ python<span class="w"> </span>-m<span class="w"> </span>citylearn<span class="w"
 </div>
 </div>
 </section>
-<section id="Reading-a-saved-Simulator">
-<h2>Reading a saved Simulator<a class="headerlink" href="#Reading-a-saved-Simulator" title="Permalink to this headline"></a></h2>
+<section id="Reading-a-Saved-Simulation">
+<h2>Reading a Saved Simulation<a class="headerlink" href="#Reading-a-Saved-Simulation" title="Permalink to this headline"></a></h2>
 <p>After a CLI simulation completes, the pickled object can be read into memory and its <code class="docutils literal notranslate"><span class="pre">env</span></code> property can be utilized as would the <code class="docutils literal notranslate"><span class="pre">env</span></code> from a simulation that was run in a python script:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
@@ -209,24 +213,154 @@ python<span class="w"> </span>-m<span class="w"> </span>citylearn<span class="w"
 <span class="k">with</span> <span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">nd</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
-    <span class="n">nd</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">nd</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Building_1 : [{&#39;carbon_emissions&#39;: 1.134, &#39;cost&#39;: 1.043, &#39;electricity_consumption&#39;: 1.184, &#39;zero_net_energy&#39;: 1.118}]
-Building_2 : [{&#39;carbon_emissions&#39;: 1.158, &#39;cost&#39;: 1.063, &#39;electricity_consumption&#39;: 1.215, &#39;zero_net_energy&#39;: 1.101}]
-Building_3 : [{&#39;carbon_emissions&#39;: 1.272, &#39;cost&#39;: 1.145, &#39;electricity_consumption&#39;: 1.346, &#39;zero_net_energy&#39;: 1.294}]
-Building_4 : [{&#39;carbon_emissions&#39;: 1.181, &#39;cost&#39;: 1.097, &#39;electricity_consumption&#39;: 1.237, &#39;zero_net_energy&#39;: 1.085}]
-Building_5 : [{&#39;carbon_emissions&#39;: 1.186, &#39;cost&#39;: 1.075, &#39;electricity_consumption&#39;: 1.262, &#39;zero_net_energy&#39;: 1.145}]
-District : [{&#39;1 - load_factor&#39;: 0.987, &#39;average_daily_peak&#39;: 1.15, &#39;carbon_emissions&#39;: 1.186, &#39;cost&#39;: 1.085, &#39;electricity_consumption&#39;: 1.249, &#39;peak_demand&#39;: 1.052, &#39;ramping&#39;: 1.162, &#39;zero_net_energy&#39;: 1.148}]
-</pre></div></div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>name</th>
+      <th>Building_1</th>
+      <th>Building_2</th>
+      <th>Building_3</th>
+      <th>Building_4</th>
+      <th>Building_5</th>
+      <th>District</th>
+    </tr>
+    <tr>
+      <th>cost_function</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>annual_peak_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.051783</td>
+    </tr>
+    <tr>
+      <th>carbon_emissions_total</th>
+      <td>1.133795</td>
+      <td>1.157876</td>
+      <td>1.272483</td>
+      <td>1.181342</td>
+      <td>1.185891</td>
+      <td>1.186277</td>
+    </tr>
+    <tr>
+      <th>cost_total</th>
+      <td>1.043202</td>
+      <td>1.063490</td>
+      <td>1.145188</td>
+      <td>1.097198</td>
+      <td>1.074609</td>
+      <td>1.084738</td>
+    </tr>
+    <tr>
+      <th>daily_peak_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.149743</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_average</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_maximum</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>discomfort_delta_minimum</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>electricity_consumption_total</th>
+      <td>1.184364</td>
+      <td>1.214805</td>
+      <td>1.346096</td>
+      <td>1.236717</td>
+      <td>1.262303</td>
+      <td>1.248857</td>
+    </tr>
+    <tr>
+      <th>one_minus_load_factor_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.987430</td>
+    </tr>
+    <tr>
+      <th>ramping_average</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1.162248</td>
+    </tr>
+    <tr>
+      <th>zero_net_energy</th>
+      <td>1.117844</td>
+      <td>1.101070</td>
+      <td>1.293734</td>
+      <td>1.084827</td>
+      <td>1.144977</td>
+      <td>1.148490</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
 </div>
 </section>
 </section>
@@ -236,7 +370,7 @@ District : [{&#39;1 - load_factor&#39;: 0.987, &#39;average_daily_peak&#39;: 1.1
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="simulate.html" class="btn btn-neutral float-left" title="How to Setup a Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="examples.html" class="btn btn-neutral float-right" title="Analysis Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

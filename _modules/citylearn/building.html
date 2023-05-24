@@ -3,11 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.building &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.building &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -50,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
 </ul>
 
@@ -80,61 +84,64 @@
   <h1>Source code for citylearn.building</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">gym</span> <span class="kn">import</span> <span class="n">spaces</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span>
 <span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">Weather</span>
+<span class="kn">from</span> <span class="nn">citylearn.dynamics</span> <span class="kn">import</span> <span class="n">Dynamics</span><span class="p">,</span> <span class="n">LSTMDynamics</span>
 <span class="kn">from</span> <span class="nn">citylearn.energy_model</span> <span class="kn">import</span> <span class="n">Battery</span><span class="p">,</span> <span class="n">ElectricHeater</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">,</span> <span class="n">PV</span><span class="p">,</span> <span class="n">StorageTank</span>
 <span class="kn">from</span> <span class="nn">citylearn.preprocessing</span> <span class="kn">import</span> <span class="n">Normalize</span><span class="p">,</span> <span class="n">PeriodicNormalization</span>
 
 <div class="viewcode-block" id="Building"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building">[docs]</a><span class="k">class</span> <span class="nc">Building</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base class for building.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    energy_simulation : EnergySimulation</span>
+<span class="sd">        Temporal features, cooling, heating, dhw and plug loads, solar generation and indoor environment time series.</span>
+<span class="sd">    weather : Weather</span>
+<span class="sd">        Outdoor weather conditions and forecasts time sereis.</span>
+<span class="sd">    observation_metadata : dict</span>
+<span class="sd">        Mapping of active and inactive observations.</span>
+<span class="sd">    action_metadata : dict</span>
+<span class="sd">        Mapping od active and inactive actions.</span>
+<span class="sd">    carbon_intensity : CarbonIntensity, optional</span>
+<span class="sd">        Carbon dioxide emission rate time series.</span>
+<span class="sd">    pricing : Pricing, optional</span>
+<span class="sd">        Energy pricing and forecasts time series.</span>
+<span class="sd">    dhw_storage : StorageTank, optional</span>
+<span class="sd">        Hot water storage object for domestic hot water.</span>
+<span class="sd">    cooling_storage : StorageTank, optional</span>
+<span class="sd">        Cold water storage object for space cooling.</span>
+<span class="sd">    heating_storage : StorageTank, optional</span>
+<span class="sd">        Hot water storage object for space heating.</span>
+<span class="sd">    electrical_storage : Battery, optional</span>
+<span class="sd">        Electric storage object for meeting electric loads.</span>
+<span class="sd">    dhw_device : Union[HeatPump, ElectricHeater], optional</span>
+<span class="sd">        Electric device for meeting hot domestic hot water demand and charging `dhw_storage`.</span>
+<span class="sd">    cooling_device : HeatPump, optional</span>
+<span class="sd">        Electric device for meeting space cooling demand and charging `cooling_storage`.</span>
+<span class="sd">    heating_device : Union[HeatPump, ElectricHeater], optional</span>
+<span class="sd">        Electric device for meeting space heating demand and charging `heating_storage`.</span>
+<span class="sd">    pv : PV, optional</span>
+<span class="sd">        PV object for offsetting electricity demand from grid.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Unique building name.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        Other keyword arguments used to initialize super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">energy_simulation</span><span class="p">:</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">weather</span><span class="p">:</span> <span class="n">Weather</span><span class="p">,</span> <span class="n">observation_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">action_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">carbon_intensity</span><span class="p">:</span> <span class="n">CarbonIntensity</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
         <span class="n">pricing</span><span class="p">:</span> <span class="n">Pricing</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dhw_storage</span><span class="p">:</span> <span class="n">StorageTank</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cooling_storage</span><span class="p">:</span> <span class="n">StorageTank</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">heating_storage</span><span class="p">:</span> <span class="n">StorageTank</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">electrical_storage</span><span class="p">:</span> <span class="n">Battery</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">dhw_device</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">HeatPump</span><span class="p">,</span> <span class="n">ElectricHeater</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cooling_device</span><span class="p">:</span> <span class="n">HeatPump</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">heating_device</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">HeatPump</span><span class="p">,</span> <span class="n">ElectricHeater</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pv</span><span class="p">:</span> <span class="n">PV</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="n">dhw_device</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">HeatPump</span><span class="p">,</span> <span class="n">ElectricHeater</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cooling_device</span><span class="p">:</span> <span class="n">HeatPump</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">heating_device</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">HeatPump</span><span class="p">,</span> <span class="n">ElectricHeater</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pv</span><span class="p">:</span> <span class="n">PV</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Building`.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        energy_simulation : EnergySimulation</span>
-<span class="sd">            Temporal features, cooling, heating, dhw and plug loads, solar generation and indoor environment time series.</span>
-<span class="sd">        weather : Weather</span>
-<span class="sd">            Outdoor weather conditions and forecasts time sereis.</span>
-<span class="sd">        observation_metadata : dict</span>
-<span class="sd">            Mapping of active and inactive observations.</span>
-<span class="sd">        action_metadata : dict</span>
-<span class="sd">            Mapping od active and inactive actions.</span>
-<span class="sd">        carbon_intensity : CarbonIntensity, optional</span>
-<span class="sd">            Carbon dioxide emission rate time series.</span>
-<span class="sd">        pricing : Pricing, optional</span>
-<span class="sd">            Energy pricing and forecasts time series.</span>
-<span class="sd">        dhw_storage : StorageTank, optional</span>
-<span class="sd">            Hot water storage object for domestic hot water.</span>
-<span class="sd">        cooling_storage : StorageTank, optional</span>
-<span class="sd">            Cold water storage object for space cooling.</span>
-<span class="sd">        heating_storage : StorageTank, optional</span>
-<span class="sd">            Hot water storage object for space heating.</span>
-<span class="sd">        electrical_storage : Battery, optional</span>
-<span class="sd">            Electric storage object for meeting electric loads.</span>
-<span class="sd">        dhw_device : Union[HeatPump, ElectricHeater], optional</span>
-<span class="sd">            Electric device for meeting hot domestic hot water demand and charging `dhw_storage`.</span>
-<span class="sd">        cooling_device : HeatPump, optional</span>
-<span class="sd">            Electric device for meeting space cooling demand and charging `cooling_storage`.</span>
-<span class="sd">        heating_device : Union[HeatPump, ElectricHeater], optional</span>
-<span class="sd">            Electric device for meeting space heating demand and charging `heating_storage`.</span>
-<span class="sd">        pv : PV, optional</span>
-<span class="sd">            PV object for offsetting electricity demand from grid.</span>
-<span class="sd">        name : str, optional</span>
-<span class="sd">            Unique building name.</span>
-
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        **kwargs : dict</span>
-<span class="sd">            Other keyword arguments used to initialize super class.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span> <span class="o">=</span> <span class="n">energy_simulation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">weather</span> <span class="o">=</span> <span class="n">weather</span>
@@ -151,10 +158,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_metadata</span> <span class="o">=</span> <span class="n">observation_metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_metadata</span> <span class="o">=</span> <span class="n">action_metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__observation_epsilon</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># to avoid out of bound observations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">unnormalized_observation_space_limits</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_observation_space_limits</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__temperature_epsilon</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># C</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__thermal_load_factor</span> <span class="o">=</span> <span class="mf">1.15</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">non_periodic_normalized_observation_space_limits</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">periodic_normalized_observation_space_limits</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_action_space</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_without_partial_load_variables</span><span class="p">()</span>
 
         <span class="n">arg_spec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
@@ -273,43 +283,117 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">active_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actions in `action_metadata` with True value i.e. indicates which storage systems are to be controlled during simulation.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Actions in `action_metadata` with True value i.e. </span>
+<span class="sd">        indicates which storage systems are to be controlled during simulation.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">net_electricity_consumption_without_storage_and_pv_emission</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Carbon dioxide emmission from `net_electricity_consumption_without_storage_and_pv` time series, in [kg_co2].&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">net_electricity_consumption_emission_without_storage_and_partial_load_and_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Carbon dioxide emmission from `net_electricity_consumption_without_storage_and_partial_load_pv` time series, in [kg_co2].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_pv</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_partial_load_and_pv</span>
         <span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">net_electricity_consumption_without_storage_and_pv_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;net_electricity_consumption_without_storage_and_pv` cost time series, in [$].&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">net_electricity_consumption_cost_without_storage_and_partial_load_and_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;net_electricity_consumption_without_storage_and_partial_load_and_pv` cost time series, in [$].&quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="o">.</span><span class="n">electricity_pricing</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_pv</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="o">.</span><span class="n">electricity_pricing</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_partial_load_and_pv</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">net_electricity_consumption_without_storage_and_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Net electricity consumption in the absence of flexibility provided by storage devices and self generation time series, in [kWh]. </span>
+    <span class="k">def</span> <span class="nf">net_electricity_consumption_without_storage_and_partial_load_and_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Net electricity consumption in the absence of flexibility provided by storage devices, </span>
+<span class="sd">        partial load cooling and heating devices and self generation time series, in [kWh]. </span>
 <span class="sd">        </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        net_electricity_consumption_without_storage_and_pv = `net_electricity_consumption_without_storage` - `solar_generation`</span>
+<span class="sd">        net_electricity_consumption_without_storage_and_partial_load_and_pv = </span>
+<span class="sd">        `net_electricity_consumption_without_storage_and_partial_load` - `solar_generation`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">solar_generation</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_partial_load</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">solar_generation</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net_electricity_consumption_emission_without_storage_and_partial_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Carbon dioxide emmission from `net_electricity_consumption_without_storage_and_partial_load` time series, in [kg_co2].&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_partial_load</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">net_electricity_consumption_without_storage_emission</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">net_electricity_consumption_cost_without_storage_and_partial_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;`net_electricity_consumption_without_storage_and_partial_load` cost time series, in [$].&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="o">.</span><span class="n">electricity_pricing</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_partial_load</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net_electricity_consumption_without_storage_and_partial_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Net electricity consumption in the absence of flexibility provided by </span>
+<span class="sd">        storage devices and partial load cooling and heating devices time series, in [kWh].&quot;&quot;&quot;</span>
+
+        <span class="c1"># cooling electricity consumption</span>
+        <span class="n">cooling_demand_difference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_demand_without_partial_load</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_demand</span>
+        <span class="n">cooling_electricity_consumption_difference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">get_input_power</span><span class="p">(</span>
+            <span class="n">cooling_demand_difference</span><span class="p">,</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> 
+            <span class="n">heating</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="c1"># heating electricity consumption</span>
+        <span class="n">heating_demand_difference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_demand_without_partial_load</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_demand</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">):</span>
+            <span class="n">heating_electricity_consumption_difference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">get_input_power</span><span class="p">(</span>
+                <span class="n">heating_demand_difference</span><span class="p">,</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> 
+                <span class="n">heating</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">heating_electricity_consumption_difference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_device</span><span class="o">.</span><span class="n">get_input_power</span><span class="p">(</span><span class="n">heating_demand_difference</span><span class="p">)</span>
+        
+        <span class="c1"># net electricity consumption without storage and partial load</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span>
+            <span class="n">cooling_electricity_consumption_difference</span><span class="p">,</span>
+            <span class="n">heating_electricity_consumption_difference</span><span class="p">,</span>
+        <span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">heating_demand_without_partial_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total building space ideal heating demand time series in [kWh].</span>
+<span class="sd">        </span>
+<span class="sd">        This is the demand when heating_device is not controlled and always supplies ideal load.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__heating_demand_without_partial_load</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cooling_demand_without_partial_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total building space ideal cooling demand time series in [kWh].</span>
+<span class="sd">        </span>
+<span class="sd">        This is the demand when cooling_device is not controlled and always supplies ideal load.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cooling_demand_without_partial_load</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">indoor_dry_bulb_temperature_without_partial_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ideal load dry bulb temperature time series in [C].</span>
+<span class="sd">        </span>
+<span class="sd">        This is the temperature when cooling_device and heating_device</span>
+<span class="sd">        are not controlled and always supply ideal load.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__indoor_dry_bulb_temperature_without_partial_load</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">net_electricity_consumption_emission_without_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Carbon dioxide emmission from `net_electricity_consumption_without_storage` time series, in [kg_co2].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">net_electricity_consumption_without_storage_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">net_electricity_consumption_cost_without_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;`net_electricity_consumption_without_storage` cost time series, in [$].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="o">.</span><span class="n">electricity_pricing</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span>
@@ -320,7 +404,8 @@
 <span class="sd">        </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        net_electricity_consumption_without_storage = `net_electricity_consumption` - (`cooling_storage_electricity_consumption` + `heating_storage_electricity_consumption` + `dhw_storage_electricity_consumption` + `electrical_storage_electricity_consumption`)</span>
+<span class="sd">        net_electricity_consumption_without_storage = `net_electricity_consumption` - (`cooling_storage_electricity_consumption`</span>
+<span class="sd">        + `heating_storage_electricity_consumption` + `dhw_storage_electricity_consumption` + `electrical_storage_electricity_consumption`)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span>
@@ -348,27 +433,22 @@
 <span class="sd">        </span>
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        net_electricity_consumption = `cooling_electricity_consumption` + `heating_electricity_consumption` + `dhw_electricity_consumption` + `electrical_storage_electricity_consumption` + `non_shiftable_load_demand` + `solar_generation`</span>
+<span class="sd">        net_electricity_consumption = `cooling_electricity_consumption` + `heating_electricity_consumption` </span>
+<span class="sd">        + `dhw_electricity_consumption` + `electrical_storage_electricity_consumption` + `non_shiftable_load_demand` + `solar_generation`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cooling_electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;`cooling_device` net electricity consumption in meeting domestic hot water and `cooling_stoage` energy demand time series, in [kWh]. </span>
-<span class="sd">        </span>
-<span class="sd">        Positive values indicate `cooling_device` electricity consumption to charge `cooling_storage` and/or meet `cooling_demand` while negative values indicate avoided `cooling_device` </span>
-<span class="sd">        electricity consumption by discharging `cooling_storage` to meet `cooling_demand`.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;`cooling_device` net electricity consumption in meeting cooling demand and `cooling_stoage` energy demand time series, in [kWh]. </span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cooling_electricity_consumption</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">heating_electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;`heating_device` net electricity consumption in meeting domestic hot water and `heating_stoage` energy demand time series, in [kWh]. </span>
-<span class="sd">        </span>
-<span class="sd">        Positive values indicate `heating_device` electricity consumption to charge `heating_storage` and/or meet `heating_demand` while negative values indicate avoided `heating_device` </span>
-<span class="sd">        electricity consumption by discharging `heating_storage` to meet `heating_demand`.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;`heating_device` net electricity consumption in meeting heating demand and `heating_stoage` energy demand time series, in [kWh]. </span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__heating_electricity_consumption</span>
@@ -376,9 +456,6 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dhw_electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;`dhw_device` net electricity consumption in meeting domestic hot water and `dhw_storage` energy demand time series, in [kWh]. </span>
-<span class="sd">        </span>
-<span class="sd">        Positive values indicate `dhw_device` electricity consumption to charge `dhw_storage` and/or meet `dhw_demand` while negative values indicate avoided `dhw_device` </span>
-<span class="sd">        electricity consumption by discharging `dhw_storage` to meet `dhw_demand`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dhw_electricity_consumption</span>
@@ -494,6 +571,15 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Energy supply from `electrical_storage` to building time series, in [kWh].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">energy_balance</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">indoor_dry_bulb_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dry bulb temperature time series, in [C].</span>
+<span class="sd">        </span>
+<span class="sd">        This is the temperature when cooling_device and heating_device are controlled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cooling_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -524,10 +610,20 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;`PV` solar generation (negative value) time series, in [kWh].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__solar_generation</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hvac_mode_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;If HVAC has just switched from cooling to heating or vice versa at current `time_step`.&quot;&quot;&quot;</span>
+
+        <span class="n">previous_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">hvac_mode</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">current_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">hvac_mode</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">previous_mode</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">current_mode</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">previous_mode</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">current_mode</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="nd">@energy_simulation</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">energy_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy_simulation</span><span class="p">:</span> <span class="n">EnergySimulation</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__energy_simulation</span> <span class="o">=</span> <span class="n">energy_simulation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_without_partial_load_variables</span><span class="p">()</span>
 
     <span class="nd">@weather</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">weather</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weather</span><span class="p">:</span> <span class="n">Weather</span><span class="p">):</span>
@@ -595,8 +691,12 @@
     <span class="nd">@observation_space</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_space</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__observation_space</span> <span class="o">=</span> <span class="n">observation_space</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">unnormalized_observation_space_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space_limits</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_observation_space_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space_limits</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">non_periodic_normalized_observation_space_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space_limits</span><span class="p">(</span>
+            <span class="n">include_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">periodic_normalized_observation_space_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space_limits</span><span class="p">(</span>
+            <span class="n">include_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
 
     <span class="nd">@action_space</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_space</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
@@ -606,14 +706,17 @@
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
 
-<div class="viewcode-block" id="Building.observations"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.observations">[docs]</a>    <span class="k">def</span> <span class="nf">observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<div class="viewcode-block" id="Building.observations"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.observations">[docs]</a>    <span class="k">def</span> <span class="nf">observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Observations at current time step.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        include_all: bool, default: False,</span>
+<span class="sd">            Whether to estimate for all observations as listed in `observation_metadata` or only those that are active.</span>
 <span class="sd">        normalize : bool, default: False</span>
-<span class="sd">            Whether to apply min-max normalization bounded between [0, 1]</span>
-<span class="sd">            and periodic normalization to cyclic observations including hour, day_type and month.</span>
+<span class="sd">            Whether to apply min-max normalization bounded between [0, 1].</span>
+<span class="sd">        periodic_normalization: bool, default: False</span>
+<span class="sd">            Whether to apply sine-cosine normalization to cyclic observations including hour, day_type and month.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -627,6 +730,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         
         <span class="n">normalize</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">normalize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">normalize</span>
+        <span class="n">periodic_normalization</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">periodic_normalization</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">periodic_normalization</span>
+        <span class="n">include_all</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">include_all</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">include_all</span>
 
         <span class="n">observations</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
@@ -642,49 +747,64 @@
             <span class="p">},</span>
             <span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
             <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+            <span class="s1">&#39;cooling_device_cop&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;heating_device_cop&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">efficiency</span><span class="p">,</span>
+            <span class="s1">&#39;cooling_demand&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">cooling_demand</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;heating_demand&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">heating_demand</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;indoor_dry_bulb_temperature_set_point&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;indoor_dry_bulb_temperature_delta&#39;</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]),</span>
+            <span class="s1">&#39;occupant_count&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">occupant_count</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
         <span class="p">}</span>
-        <span class="n">observations</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_observations</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
-        <span class="n">unknown_observations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_observations</span><span class="p">])</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">observations</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="n">include_all</span><span class="p">:</span>
+            <span class="n">valid_observations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">valid_observations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_observations</span>
+        
+        <span class="n">observations</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">valid_observations</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+        <span class="n">unknown_observations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">valid_observations</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">observations</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">unknown_observations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Unknown observations: </span><span class="si">{</span><span class="n">unknown_observations</span><span class="si">}</span><span class="s1">&#39;</span>
-        
-        
-        <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+
+        <span class="n">low_limit</span><span class="p">,</span> <span class="n">high_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">periodic_normalized_observation_space_limits</span>
+        <span class="n">periodic_observations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_periodic_observation_metadata</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">periodic_normalization</span><span class="p">:</span>
             <span class="n">observations_copy</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">observations</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="n">observations</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">low_limit</span><span class="p">,</span> <span class="n">high_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_observation_space_limits</span>
-            <span class="n">periodic_observations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_periodic_observation_metadata</span><span class="p">()</span>
             <span class="n">pn</span> <span class="o">=</span> <span class="n">PeriodicNormalization</span><span class="p">(</span><span class="n">x_max</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">nm</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
 
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">observations_copy</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">periodic_observations</span><span class="p">:</span>
                     <span class="n">pn</span><span class="o">.</span><span class="n">x_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">periodic_observations</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
                     <span class="n">sin_x</span><span class="p">,</span> <span class="n">cos_x</span> <span class="o">=</span> <span class="n">v</span><span class="o">*</span><span class="n">pn</span>
-                    <span class="n">nm</span><span class="o">.</span><span class="n">x_min</span> <span class="o">=</span> <span class="n">low_limit</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_cos&#39;</span><span class="p">]</span>
-                    <span class="n">nm</span><span class="o">.</span><span class="n">x_max</span> <span class="o">=</span> <span class="n">high_limit</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_cos&#39;</span><span class="p">]</span>
-                    <span class="n">observations</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_cos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_x</span><span class="o">*</span><span class="n">nm</span>
-                    <span class="n">nm</span><span class="o">.</span><span class="n">x_min</span> <span class="o">=</span> <span class="n">low_limit</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_sin&#39;</span><span class="p">]</span>
-                    <span class="n">nm</span><span class="o">.</span><span class="n">x_max</span> <span class="o">=</span> <span class="n">high_limit</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_sin&#39;</span><span class="p">]</span>
-                    <span class="n">observations</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_sin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sin_x</span><span class="o">*</span><span class="n">nm</span>
-                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">2</span>
-                
+                    <span class="n">observations</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_cos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_x</span>
+                    <span class="n">observations</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_sin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sin_x</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">nm</span><span class="o">.</span><span class="n">x_min</span> <span class="o">=</span> <span class="n">low_limit</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-                    <span class="n">nm</span><span class="o">.</span><span class="n">x_max</span> <span class="o">=</span> <span class="n">high_limit</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-                    <span class="n">observations</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">*</span><span class="n">nm</span>
-                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">observations</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+        
+        <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+            <span class="n">nm</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">observations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">nm</span><span class="o">.</span><span class="n">x_min</span> <span class="o">=</span> <span class="n">low_limit</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">nm</span><span class="o">.</span><span class="n">x_max</span> <span class="o">=</span> <span class="n">high_limit</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">observations</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">*</span><span class="n">nm</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
 
         <span class="k">return</span> <span class="n">observations</span></div>
     
-<div class="viewcode-block" id="Building.get_periodic_observation_metadata"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.get_periodic_observation_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_periodic_observation_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<div class="viewcode-block" id="Building.get_periodic_observation_metadata"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.get_periodic_observation_metadata">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_periodic_observation_metadata</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get periodic observation names and their minimum and maximum values for periodic/cyclic normalization.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        periodic_observation_metadata : Mapping[str, int]</span>
+<span class="sd">        periodic_observation_metadata: Mapping[str, int]</span>
 <span class="sd">            Observation low and high limits.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -694,14 +814,19 @@
             <span class="s1">&#39;month&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Building.apply_actions"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.apply_actions">[docs]</a>    <span class="k">def</span> <span class="nf">apply_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+<div class="viewcode-block" id="Building.apply_actions"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.apply_actions">[docs]</a>    <span class="k">def</span> <span class="nf">apply_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+        <span class="n">cooling_device_action</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">heating_device_action</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cooling_storage_action</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">heating_storage_action</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
         <span class="n">dhw_storage_action</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">electrical_storage_action</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Charge/discharge storage devices.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update cooling and heating demand for next timestep and charge/discharge storage devices.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        cooling_device_action : float, default: np.nan</span>
+<span class="sd">            Fraction of `cooling_device` `nominal_power` to make available for space cooling.</span>
+<span class="sd">        heating_device_action : float, default: np.nan</span>
+<span class="sd">            Fraction of `heating_device` `nominal_power` to make available for space heating.</span>
 <span class="sd">        cooling_storage_action : float, default: 0.0</span>
 <span class="sd">            Fraction of `cooling_storage` `capacity` to charge/discharge by.</span>
 <span class="sd">        heating_storage_action : float, default: 0.0</span>
@@ -716,21 +841,33 @@
         <span class="n">heating_storage_action</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">heating_storage_action</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">heating_storage_action</span><span class="p">)</span> <span class="k">else</span> <span class="n">heating_storage_action</span>
         <span class="n">dhw_storage_action</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">dhw_storage_action</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">dhw_storage_action</span><span class="p">)</span> <span class="k">else</span> <span class="n">dhw_storage_action</span>
         <span class="n">electrical_storage_action</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">electrical_storage_action</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">electrical_storage_action</span><span class="p">)</span> <span class="k">else</span> <span class="n">electrical_storage_action</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_cooling</span><span class="p">(</span><span class="n">cooling_storage_action</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_heating</span><span class="p">(</span><span class="n">heating_storage_action</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_cooling</span><span class="p">(</span><span class="n">cooling_device_action</span><span class="p">,</span> <span class="n">cooling_storage_action</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_heating</span><span class="p">(</span><span class="n">heating_device_action</span><span class="p">,</span> <span class="n">heating_storage_action</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_dhw</span><span class="p">(</span><span class="n">dhw_storage_action</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_electrical_storage</span><span class="p">(</span><span class="n">electrical_storage_action</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Building.update_cooling"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_cooling">[docs]</a>    <span class="k">def</span> <span class="nf">update_cooling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Charge/discharge `cooling_storage`.</span>
+<div class="viewcode-block" id="Building.update_dynamics"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_dynamics">[docs]</a>    <span class="k">def</span> <span class="nf">update_dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update building dynamics e.g. space indoor temperature, relative humidity, etc.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="Building.update_cooling"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_cooling">[docs]</a>    <span class="k">def</span> <span class="nf">update_cooling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cooling_device_action</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cooling_storage_action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update cooling demand and charge/discharge `cooling_storage` for next time step.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        action : float</span>
+<span class="sd">        cooling_device_action : float</span>
+<span class="sd">            Fraction of `cooling_device` `nominal_power` to make available for space cooling.</span>
+<span class="sd">        cooling_storage_action : float</span>
 <span class="sd">            Fraction of `cooling_storage` `capacity` to charge/discharge by.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">energy</span> <span class="o">=</span> <span class="n">action</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">cooling_storage</span><span class="o">.</span><span class="n">capacity</span>
+        <span class="k">if</span> <span class="n">cooling_device_action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">cooling_device_action</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_cooling_demand</span><span class="p">(</span><span class="n">cooling_device_action</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">cooling_storage_action</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">cooling_storage</span><span class="o">.</span><span class="n">capacity</span>
         <span class="n">space_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">cooling_demand</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
         <span class="n">space_demand</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">space_demand</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">space_demand</span><span class="p">)</span> <span class="k">else</span> <span class="n">space_demand</span> <span class="c1"># case where space demand is unknown</span>
         <span class="n">max_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">get_max_output_power</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -739,16 +876,28 @@
         <span class="n">input_power</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">get_input_power</span><span class="p">(</span><span class="n">space_demand</span> <span class="o">+</span> <span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">update_electricity_consumption</span><span class="p">(</span><span class="n">input_power</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Building.update_heating"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_heating">[docs]</a>    <span class="k">def</span> <span class="nf">update_heating</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Charge/discharge `heating_storage`.</span>
+<div class="viewcode-block" id="Building.update_cooling_demand"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_cooling_demand">[docs]</a>    <span class="k">def</span> <span class="nf">update_cooling_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update space cooling demand for next time step.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="Building.update_heating"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_heating">[docs]</a>    <span class="k">def</span> <span class="nf">update_heating</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">heating_device_action</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">heating_storage_action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update heating demand and charge/discharge `heating_storage` for next time step.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        action : float</span>
+<span class="sd">        heating_device_action : float</span>
+<span class="sd">            Fraction of `heating_device` `nominal_power` to make available for space heating.</span>
+<span class="sd">        heating_storage_action : float</span>
 <span class="sd">            Fraction of `heating_storage` `capacity` to charge/discharge by.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">energy</span> <span class="o">=</span> <span class="n">action</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_storage</span><span class="o">.</span><span class="n">capacity</span>
+        <span class="k">if</span> <span class="n">heating_device_action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">heating_device_action</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_heating_demand</span><span class="p">(</span><span class="n">heating_device_action</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">heating_storage_action</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_storage</span><span class="o">.</span><span class="n">capacity</span>
         <span class="n">space_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">heating_demand</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
         <span class="n">space_demand</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">space_demand</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">space_demand</span><span class="p">)</span> <span class="k">else</span> <span class="n">space_demand</span> <span class="c1"># case where space demand is unknown</span>
         <span class="n">max_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">get_max_output_power</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>\
@@ -759,6 +908,11 @@
         <span class="n">input_power</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">get_input_power</span><span class="p">(</span><span class="n">demand</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>\
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">get_input_power</span><span class="p">(</span><span class="n">demand</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">update_electricity_consumption</span><span class="p">(</span><span class="n">input_power</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Building.update_heating_demand"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_heating_demand">[docs]</a>    <span class="k">def</span> <span class="nf">update_heating_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update space heating demand for next time step.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span></div>
 
 <div class="viewcode-block" id="Building.update_dhw"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_dhw">[docs]</a>    <span class="k">def</span> <span class="nf">update_dhw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Charge/discharge `dhw_storage`.</span>
@@ -793,14 +947,17 @@
         <span class="n">energy</span> <span class="o">=</span> <span class="n">action</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">capacity</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">charge</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Building.estimate_observation_space"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.estimate_observation_space">[docs]</a>    <span class="k">def</span> <span class="nf">estimate_observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
+<div class="viewcode-block" id="Building.estimate_observation_space"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.estimate_observation_space">[docs]</a>    <span class="k">def</span> <span class="nf">estimate_observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get estimate of observation spaces.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        include_all: bool, default: False,</span>
+<span class="sd">            Whether to estimate for all observations as listed in `observation_metadata` or only those that are active.</span>
 <span class="sd">        normalize : bool, default: False</span>
-<span class="sd">            Whether to apply min-max normalization bounded between [0, 1]</span>
-<span class="sd">            and periodic normalization to cyclic observations including hour, day_type and month.</span>
+<span class="sd">            Whether to apply min-max normalization bounded between [0, 1].</span>
+<span class="sd">        periodic_normalization: bool, default: False</span>
+<span class="sd">            Whether to apply sine-cosine normalization to cyclic observations including hour, day_type and month.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -809,8 +966,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">normalize</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">normalize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">normalize</span>
-        <span class="n">normalized_observation_space_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space_limits</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">unnormalized_observation_space_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space_limits</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">normalized_observation_space_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space_limits</span><span class="p">(</span>
+            <span class="n">include_all</span><span class="o">=</span><span class="n">include_all</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">unnormalized_observation_space_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space_limits</span><span class="p">(</span>
+            <span class="n">include_all</span><span class="o">=</span><span class="n">include_all</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
             <span class="n">low_limit</span><span class="p">,</span> <span class="n">high_limit</span> <span class="o">=</span> <span class="n">normalized_observation_space_limits</span>
@@ -823,16 +984,17 @@
         
         <span class="k">return</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">low_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span> <span class="n">high</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">high_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span></div>
     
-<div class="viewcode-block" id="Building.estimate_observation_space_limits"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.estimate_observation_space_limits">[docs]</a>    <span class="k">def</span> <span class="nf">estimate_observation_space_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<div class="viewcode-block" id="Building.estimate_observation_space_limits"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.estimate_observation_space_limits">[docs]</a>    <span class="k">def</span> <span class="nf">estimate_observation_space_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get estimate of observation space limits.</span>
 
 <span class="sd">        Find minimum and maximum possible values of all the observations, which can then be used by the RL agent to scale the observations and train any function approximators more effectively.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        normalize : bool, default: False</span>
-<span class="sd">            Whether to apply min-max normalization bounded between [0, 1]</span>
-<span class="sd">            and periodic normalization to cyclic observations including hour, day_type and month.</span>
+<span class="sd">        include_all: bool, default: False,</span>
+<span class="sd">            Whether to estimate for all observations as listed in `observation_metadata` or only those that are active.</span>
+<span class="sd">        periodic_normalization: bool, default: False</span>
+<span class="sd">            Whether to apply sine-cosine normalization to cyclic observations including hour, day_type and month.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -845,7 +1007,9 @@
 <span class="sd">        scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">normalize</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">normalize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">normalize</span>
+        <span class="n">include_all</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">include_all</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">include_all</span>
+        <span class="n">observation_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">include_all</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_observations</span>
+        <span class="n">periodic_normalization</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">periodic_normalization</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">periodic_normalization</span>
         <span class="n">periodic_observations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_periodic_observation_metadata</span><span class="p">()</span>
         <span class="n">low_limit</span><span class="p">,</span> <span class="n">high_limit</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
@@ -856,7 +1020,7 @@
             <span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="p">),</span>
         <span class="p">}</span>
 
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_observations</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">observation_names</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span>
                 <span class="n">net_electric_consumption</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">non_shiftable_load</span>\
                     <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">dhw_demand</span><span class="p">)</span>\
@@ -875,7 +1039,38 @@
                 <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
                 <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
 
-            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">periodic_observations</span> <span class="ow">and</span> <span class="n">normalize</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cooling_device_cop&#39;</span><span class="p">]:</span>
+                <span class="n">cop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">,</span> <span class="n">heating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cop</span><span class="p">)</span>
+                <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cop</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;heating_device_cop&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">):</span>
+                    <span class="n">cop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">,</span> <span class="n">heating</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">cop</span><span class="p">)</span>
+                    <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cop</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">efficiency</span>
+                    <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">efficiency</span>
+
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;indoor_dry_bulb_temperature&#39;</span><span class="p">:</span>
+                <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__temperature_epsilon</span>
+                <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__temperature_epsilon</span>
+
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;indoor_dry_bulb_temperature_delta&#39;</span><span class="p">:</span>
+                <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__temperature_epsilon</span>
+                
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cooling_demand&#39;</span><span class="p">,</span> <span class="s1">&#39;heating_demand&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;cooling_demand&#39;</span><span class="p">:</span>
+                    <span class="n">max_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">cooling_demand</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">max_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">heating_demand</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+                <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_demand</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">__thermal_load_factor</span>
+
+            <span class="k">elif</span> <span class="n">periodic_normalization</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">periodic_observations</span><span class="p">:</span>
                 <span class="n">pn</span> <span class="o">=</span> <span class="n">PeriodicNormalization</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">periodic_observations</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
                 <span class="n">x_sin</span><span class="p">,</span> <span class="n">x_cos</span> <span class="o">=</span> <span class="n">pn</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">periodic_observations</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
                 <span class="n">low_limit</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">_cos&#39;</span><span class="p">],</span> <span class="n">high_limit</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">_cos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">x_cos</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_cos</span><span class="p">)</span>
@@ -911,15 +1106,31 @@
         <span class="n">low_limit</span><span class="p">,</span> <span class="n">high_limit</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
  
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_actions</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;electrical_storage&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cooling_device&#39;</span><span class="p">,</span> <span class="s1">&#39;heating_device&#39;</span><span class="p">]:</span>
+                <span class="n">low_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+                <span class="n">high_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;electrical_storage&#39;</span><span class="p">:</span>
                 <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">nominal_power</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">capacity</span>
                 <span class="n">low_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">limit</span><span class="p">)</span>
                 <span class="n">high_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
             
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">capacity</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)[</span><span class="sa">f</span><span class="s1">&#39;_Building__</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">capacity</span>
-                <span class="n">energy_simulation</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)[</span><span class="sa">f</span><span class="s1">&#39;_Building__energy_simulation&#39;</span><span class="p">]</span>
-                <span class="n">maximum_demand</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">energy_simulation</span><span class="p">)[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">_demand&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;cooling_storage&#39;</span><span class="p">:</span>
+                    <span class="n">capacity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_storage</span><span class="o">.</span><span class="n">capacity</span>
+                    <span class="n">maximum_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">cooling_demand</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                
+                <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;heating_storage&#39;</span><span class="p">:</span>
+                    <span class="n">capacity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_storage</span><span class="o">.</span><span class="n">capacity</span>
+                    <span class="n">maximum_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">heating_demand</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+                <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;dhw_storage&#39;</span><span class="p">:</span>
+                    <span class="n">capacity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_storage</span><span class="o">.</span><span class="n">capacity</span>
+                    <span class="n">maximum_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">dhw_demand</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown action: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
                 <span class="n">maximum_demand_ratio</span> <span class="o">=</span> <span class="n">maximum_demand</span><span class="o">/</span><span class="n">capacity</span>
 
                 <span class="k">try</span><span class="p">:</span>
@@ -930,6 +1141,14 @@
                     <span class="n">high_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
  
         <span class="k">return</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">low_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span> <span class="n">high</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">high_limit</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span></div>
+    
+    <span class="k">def</span> <span class="nf">__set_without_partial_load_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set temperature and loads at their ideal state when neither </span>
+<span class="sd">        cooling nor heating device is controlled to affect temperature.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__cooling_demand_without_partial_load</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">cooling_demand</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__heating_demand_without_partial_load</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">heating_demand</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__indoor_dry_bulb_temperature_without_partial_load</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Building.autosize_cooling_device"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.autosize_cooling_device">[docs]</a>    <span class="k">def</span> <span class="nf">autosize_cooling_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Autosize `cooling_device` `nominal_power` to minimum power needed to always meet `cooling_demand`.</span>
@@ -1057,9 +1276,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption_emission</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption_cost</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_variables</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_variables</span><span class="p">()</span>
+
+        <span class="c1"># reset controlled variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">cooling_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cooling_demand_without_partial_load</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">heating_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__heating_demand_without_partial_load</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__indoor_dry_bulb_temperature_without_partial_load</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Building.update_variables"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_variables">[docs]</a>    <span class="k">def</span> <span class="nf">update_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update cooling, heating, dhw and net electricity consumption as well as net electricity consumption cost and carbon emissions.&quot;&quot;&quot;</span>
+
         <span class="c1"># cooling electricity consumption</span>
         <span class="n">cooling_demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">cooling_demand</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_storage</span><span class="o">.</span><span class="n">energy_balance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
         <span class="n">cooling_consumption</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">get_input_power</span><span class="p">(</span><span class="n">cooling_demand</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1099,6 +1325,266 @@
 
         <span class="c1"># net electriciy consumption emission</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption_emission</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">net_electricity_consumption</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]))</span></div></div>
+
+<div class="viewcode-block" id="DynamicsBuilding"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.DynamicsBuilding">[docs]</a><span class="k">class</span> <span class="nc">DynamicsBuilding</span><span class="p">(</span><span class="n">Building</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base class for temperature dynamic building.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *args: Any</span>
+<span class="sd">        Positional arguments in :py:class:`citylearn.building.Building`.</span>
+<span class="sd">    cooling_dynamics: Dynamics</span>
+<span class="sd">        Indoor dry-bulb temperature dynamics model for cooling mode.</span>
+<span class="sd">    heating_dynamics: Dynamics</span>
+<span class="sd">        Indoor dry-bulb temperature dynamics model for heating mode.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cooling_dynamics</span><span class="p">:</span> <span class="n">Dynamics</span><span class="p">,</span> <span class="n">heating_dynamics</span><span class="p">:</span> <span class="n">Dynamics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Intialize `DynamicsBuilding`&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cooling_dynamics</span> <span class="o">=</span> <span class="n">cooling_dynamics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heating_dynamics</span> <span class="o">=</span> <span class="n">heating_dynamics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+
+<div class="viewcode-block" id="DynamicsBuilding.set_dynamics"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.DynamicsBuilding.set_dynamics">[docs]</a>    <span class="k">def</span> <span class="nf">set_dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dynamics</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets and returns `cooling_dynamics` if current time step HVAC mode is off or</span>
+<span class="sd">        cooling otherwise, resets and returns `heating dynamics`.&quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">hvac_mode</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cooling_dynamics</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_dynamics</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">heating_dynamics</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_dynamics</span></div>
+        
+<div class="viewcode-block" id="DynamicsBuilding.reset"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.DynamicsBuilding.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset Building to initial state and sets `dynamics`.&quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_dynamics</span><span class="p">()</span></div></div>
+
+<div class="viewcode-block" id="LSTMDynamicsBuilding"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LSTMDynamicsBuilding">[docs]</a><span class="k">class</span> <span class="nc">LSTMDynamicsBuilding</span><span class="p">(</span><span class="n">DynamicsBuilding</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Class for building with LSTM temperature dynamics model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *args: Any</span>
+<span class="sd">        Positional arguments in :py:class:`citylearn.building.Building`.</span>
+<span class="sd">    cooling_dynamics: Dynamics</span>
+<span class="sd">        Indoor dry-bulb temperature dynamics model for cooling mode.</span>
+<span class="sd">    heating_dynamics: Dynamics</span>
+<span class="sd">        Indoor dry-bulb temperature dynamics model for heating mode.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cooling_dynamics</span><span class="p">:</span> <span class="n">LSTMDynamics</span><span class="p">,</span> <span class="n">heating_dynamics</span><span class="p">:</span> <span class="n">LSTMDynamics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">cooling_dynamics</span><span class="o">=</span><span class="n">cooling_dynamics</span><span class="p">,</span> <span class="n">heating_dynamics</span><span class="o">=</span><span class="n">heating_dynamics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="p">:</span> <span class="n">LSTMDynamics</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">simulate_dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether to predict indoor dry-bulb temperature at current `time_step`.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">_model_input</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    
+<div class="viewcode-block" id="LSTMDynamicsBuilding.next_time_step"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LSTMDynamicsBuilding.next_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the dynamics model input time series, Advance all energy storage and electric devices,</span>
+<span class="sd">        and PV to next `time_step` then predict and update indoor dry-bulb temperature for new `time_step`.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">_model_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_model_input</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate_dynamics</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_dynamics</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># Reset dynamics model if HVAC mode has swtiched since previous time step. Reason for doing this is </span>
+        <span class="c1"># because the current model input and hidden states will no longer be valid later on if the mode</span>
+        <span class="c1"># switches back to it at a later time step since a different LSTM will be in use until the switch.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hvac_mode_switch</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_dynamics</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="LSTMDynamicsBuilding.update_dynamics"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LSTMDynamicsBuilding.update_dynamics">[docs]</a>    <span class="k">def</span> <span class="nf">update_dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict and update indoor dry-bulb temperature for current `time_step`.</span>
+
+<span class="sd">        This method will first apply min-max normalization to the model input data where the input data</span>
+<span class="sd">        is made up of building and district level observations including the predicted </span>
+<span class="sd">        :py:attr:`citylearn.building.Building.energy_simulation.indoor_dry_bulb_temperature` </span>
+<span class="sd">        with all input variables having a length of :py:attr:`citylearn.dynamics.LSTMDynamics.lookback`.</span>
+<span class="sd">        asides the `indoor_dry_bulb_temperature` whose input includes all values from</span>
+<span class="sd">        `time_step` - (`lookback` + 1) to `time_step` - 1, other input variables have values from</span>
+<span class="sd">        `time_step` - `lookback` to `time_step`. The `indoor_dry_bulb_temperature` for the current `time_step`</span>
+<span class="sd">        is then predicted using the input data and current `hidden_state` and the predicted values replaces the</span>
+<span class="sd">        current `time_step` value in :py:attr:`citylearn.building.Building.energy_simulation.indoor_dry_bulb_temperature`.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        LSTM model only uses either cooling/heating demand not both as input variable. </span>
+<span class="sd">        Use :py:attr:`citylearn.building.Building.energy_simulation.hvac_mode` to specify whether to consider cooling </span>
+<span class="sd">        or heating demand at each `time_step`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># preprocess input</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;indoor_dry_bulb_temperature&#39;</span>
+        <span class="n">model_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_model_input</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_observation_names</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="n">key</span><span class="p">:</span>
+                <span class="c1"># indoor temperature values are t = (t - lookback - 1) : t = (t - 1)</span>
+                <span class="c1">#  i.e. use samples from previous time step to current time step</span>
+                <span class="n">model_input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_input</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># other values are t = (t - lookback) : t = (t)</span>
+                <span class="c1">#  i.e. use samples from previous time step to current time step</span>
+                <span class="n">model_input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_input</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
+        
+        <span class="n">model_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model_input</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># min-max normalize model input</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">nmin</span><span class="p">,</span> <span class="n">nmax</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_observation_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_normalization_minimum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_normalization_maximum</span>
+        <span class="p">)):</span>
+            <span class="n">model_input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">model_input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">nmin</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">nmax</span> <span class="o">-</span> <span class="n">nmin</span><span class="p">)</span>
+        
+        <span class="c1"># predict</span>
+        <span class="n">model_input_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">model_input</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">model_input_tensor</span> <span class="o">=</span> <span class="n">model_input_tensor</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">hidden_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">h</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">_hidden_state</span><span class="p">])</span>
+        <span class="n">indoor_dry_bulb_temperature_norm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">_hidden_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">model_input_tensor</span><span class="o">.</span><span class="n">float</span><span class="p">(),</span> <span class="n">hidden_state</span><span class="p">)</span>
+
+        <span class="c1"># unnormalize temperature</span>
+        <span class="n">low_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_normalization_minimum</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">high_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_normalization_maximum</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">indoor_dry_bulb_temperature_norm</span><span class="o">*</span><span class="p">(</span><span class="n">high_limit</span> <span class="o">-</span> <span class="n">low_limit</span><span class="p">)</span> <span class="o">+</span> <span class="n">low_limit</span>
+        
+        <span class="c1"># update temperature</span>
+        <span class="c1"># this function is called after advancing to next timestep </span>
+        <span class="c1"># so the cooling demand update and this temperature update are set at the same time step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">=</span> <span class="n">indoor_dry_bulb_temperature</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LSTMDynamicsBuilding.update_model_input"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LSTMDynamicsBuilding.update_model_input">[docs]</a>    <span class="k">def</span> <span class="nf">update_model_input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates and returns the input time series for the dynmaics prediction model.</span>
+
+<span class="sd">        Updates the model input with the input variables for the current time step. </span>
+<span class="sd">        The variables in the input will have length of lookback + 1.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        model_input: List[List[float]]</span>
+<span class="sd">            A list of sublists where each sublist is the time series of a specific input variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># get relevant observations for the current time step</span>
+        <span class="n">observations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">include_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># append current time step observations to model input</span>
+        <span class="c1"># leave out the oldest set of observations and keep only the previous n</span>
+        <span class="c1"># where n is the lookback + 1 (to include current time step observations)</span>
+        <span class="n">model_input</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">l</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">lookback</span><span class="p">:]</span> <span class="o">+</span> <span class="p">[</span><span class="n">observations</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span> 
+            <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">_model_input</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_observation_names</span><span class="p">)</span>
+        <span class="p">]</span>
+        
+        <span class="k">return</span> <span class="n">model_input</span></div>
+        
+<div class="viewcode-block" id="LSTMDynamicsBuilding.update_cooling_demand"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LSTMDynamicsBuilding.update_cooling_demand">[docs]</a>    <span class="k">def</span> <span class="nf">update_cooling_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update space cooling demand for next time step.</span>
+
+<span class="sd">        Sets the value of :py:attr:`citylearn.building.Building.energy_simulation.cooling_demand` for the next `time_step` to</span>
+<span class="sd">        the ouput energy of the cooling device where the proportion of its nominal power made available is defined by `action`.</span>
+<span class="sd">        If :py:attr:`citylearn.building.Building.energy_simulation.hvac_mode` at the next time step is = 0, i.e., off, or = 1, </span>
+<span class="sd">        i.e. cooling mode, the demand is set to 0.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        action: float</span>
+<span class="sd">            Proportion of cooling device nominal power that is made available.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Will only start controlling the heat pump when there are enough observations fo the LSTM lookback until then, maintains</span>
+<span class="sd">        ideal load. This will imply that the agent does not learn anything in the initial timesteps that are less than the</span>
+<span class="sd">        lookback. Taking this approach as a &#39;warm-up&#39; because realistically, there will be no preceding observations to use in </span>
+<span class="sd">        lookback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># only start controlling the heat pump when there are enough observations fo the LSTM lookback</span>
+        <span class="c1"># until then, maintain ideal load. This will imply that the agent does not learn anything in the</span>
+        <span class="c1"># initial timesteps that are less than the lookback. How does this affect learning longterm?</span>
+        <span class="c1"># Taking this approach as a &#39;warm-up&#39; because realistically, there will be no preceding observations</span>
+        <span class="c1"># to use in lookback. Alternatively, one can use the rolled observation values at the end of the time series</span>
+        <span class="c1"># but it complicates things and is not too realistic.</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate_dynamics</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">hvac_mode</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">electric_power</span> <span class="o">=</span> <span class="n">action</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">nominal_power</span>
+                <span class="n">demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">get_max_output_power</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                    <span class="n">heating</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">max_electric_power</span><span class="o">=</span><span class="n">electric_power</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">demand</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="c1"># it makes more sense that the effect of the action is seen in the next timestep and not current</span>
+            <span class="c1"># the agent made its decision based on the demand at the current timestep so the effect of that</span>
+            <span class="c1"># decision should be seen in the next timesteps&#39;s demand?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">cooling_demand</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">demand</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="LSTMDynamicsBuilding.update_heating_demand"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LSTMDynamicsBuilding.update_heating_demand">[docs]</a>    <span class="k">def</span> <span class="nf">update_heating_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update space heating demand for next time step.</span>
+
+<span class="sd">        Sets the value of :py:attr:`citylearn.building.Building.energy_simulation.heating_demand` for the next `time_step` to</span>
+<span class="sd">        the ouput energy of the heating device where the proportion of its nominal power made available is defined by `action`.</span>
+<span class="sd">        If :py:attr:`citylearn.building.Building.energy_simulation.hvac_mode` at the next time step is = 0, i.e., off, or = 1, </span>
+<span class="sd">        i.e. cooling mode, the demand is set to 0.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        action: float</span>
+<span class="sd">            Proportion of heating device nominal power that is made available.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Will only start controlling the heat pump when there are enough observations fo the LSTM lookback until then, maintains</span>
+<span class="sd">        ideal load. This will imply that the agent does not learn anything in the initial timesteps that are less than the</span>
+<span class="sd">        lookback. Taking this approach as a &#39;warm-up&#39; because realistically, there will be no preceding observations to use in </span>
+<span class="sd">        lookback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate_dynamics</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">hvac_mode</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">electric_power</span> <span class="o">=</span> <span class="n">action</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">nominal_power</span>
+                <span class="n">demand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">get_max_output_power</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> 
+                    <span class="n">heating</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">max_electric_power</span><span class="o">=</span><span class="n">electric_power</span>
+                <span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">get_max_output_power</span><span class="p">(</span><span class="n">max_electric_power</span><span class="o">=</span><span class="n">electric_power</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">demand</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">heating_demand</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">demand</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div></div>
 </pre></div>
 
            </div>

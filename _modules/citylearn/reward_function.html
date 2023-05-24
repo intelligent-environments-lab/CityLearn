@@ -3,11 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.reward_function &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.reward_function &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -50,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
 </ul>
 
@@ -78,23 +82,30 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.reward_function</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 <span class="kn">from</span> <span class="nn">citylearn.energy_model</span> <span class="kn">import</span> <span class="n">ZERO_DIVISION_CAPACITY</span>
 
 <div class="viewcode-block" id="RewardFunction"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction">[docs]</a><span class="k">class</span> <span class="nc">RewardFunction</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base and default reward function class.</span>
+
+<span class="sd">    The default reward is the electricity consumption from the grid at the current time step returned as a negative value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: citylearn.citylearn.CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    **kwargs : dict</span>
+<span class="sd">        Other keyword arguments for custom reward calculation.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Reward value is calculated as :math:`[\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]` </span>
+<span class="sd">    where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `Reward`.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        env: citylearn.citylearn.CityLearnEnv</span>
-<span class="sd">            Simulation environment.</span>
-<span class="sd">        **kwargs : dict</span>
-<span class="sd">            Other keyword arguments for custom reward calculation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
 
@@ -109,19 +120,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="n">env</span>
 
 <div class="viewcode-block" id="RewardFunction.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates default reward.</span>
-
-<span class="sd">        The default reward is the electricity consumption from the grid at the current time step returned as a negative value.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates reward.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        reward: List[float]</span>
 <span class="sd">            Reward for transition to current timestep.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Reward value is calculated as :math:`[\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]` </span>
-<span class="sd">        where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
@@ -132,74 +136,83 @@
         <span class="k">return</span> <span class="n">reward</span></div></div>
 
 <div class="viewcode-block" id="MARL"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.MARL">[docs]</a><span class="k">class</span> <span class="nc">MARL</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;MARL reward function class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: citylearn.citylearn.CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    </span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Reward value is calculated as :math:`\textrm{sign}(-e) \times 0.01(e^2) \times \textrm{max}(0, E)`</span>
+<span class="sd">    where :math:`e` is the building `electricity_consumption` and :math:`E` is the district `electricity_consumption`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MARL.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.MARL.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates MARL reward.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        reward: List[float]</span>
-<span class="sd">            Reward for transition to current timestep.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Reward value is calculated as :math:`\textrm{sign}(-e) \times 0.01(e^2) \times \textrm{max}(0, E)`</span>
-<span class="sd">        where :math:`e` is the building `electricity_consumption` and :math:`E` is the district `electricity_consumption`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">district_electricity_consumption</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
         <span class="n">building_electricity_consumption</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span><span class="o">*-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">])</span>
-        <span class="n">reward</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">building_electricity_consumption</span><span class="p">)</span><span class="o">*</span><span class="mf">0.01</span><span class="o">*</span><span class="n">building_electricity_consumption</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">district_electricity_consumption</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">reward</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div></div>
+        <span class="n">reward_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">building_electricity_consumption</span><span class="p">)</span><span class="o">*</span><span class="mf">0.01</span><span class="o">*</span><span class="n">building_electricity_consumption</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">district_electricity_consumption</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="n">reward_list</span><span class="o">.</span><span class="n">sum</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="n">reward_list</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="n">reward</span></div></div>
 
 <div class="viewcode-block" id="IndependentSACReward"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.IndependentSACReward">[docs]</a><span class="k">class</span> <span class="nc">IndependentSACReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recommended for use with the `SAC` controllers.</span>
+<span class="sd">    </span>
+<span class="sd">    Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: citylearn.citylearn.CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Reward value is calculated as :math:`[\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]` </span>
+<span class="sd">    where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 
 <div class="viewcode-block" id="IndependentSACReward.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.IndependentSACReward.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.</span>
+        <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span><span class="o">*-</span><span class="mi">1</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
 
-<span class="sd">        Recommended for use with the `SAC` controllers.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">reward_list</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="n">reward_list</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        reward: List[float]</span>
-<span class="sd">            Reward for transition to current timestep.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Reward value is calculated as :math:`[\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]` </span>
-<span class="sd">        where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span><span class="o">*-</span><span class="mi">1</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="n">reward</span></div></div>
     
 <div class="viewcode-block" id="SolarPenaltyReward"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyReward">[docs]</a><span class="k">class</span> <span class="nc">SolarPenaltyReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The reward is designed to minimize electricity consumption and maximize solar generation to charge energy storage systems.</span>
+
+<span class="sd">    The reward is calculated for each building, i and summed to provide the agent with a reward that is representative of all the</span>
+<span class="sd">    building or buildings (in centralized case)it controls. It encourages net-zero energy use by penalizing grid load satisfaction </span>
+<span class="sd">    when there is energy in the enerygy storage systems as well as penalizing net export when the energy storage systems are not</span>
+<span class="sd">    fully charged through the penalty term. There is neither penalty nor reward when the energy storage systems are fully charged</span>
+<span class="sd">    during net export to the grid. Whereas, when the energy storage systems are charged to capacity and there is net import from the </span>
+<span class="sd">    grid the penalty is maximized.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: citylearn.citylearn.CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SolarPenaltyReward.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyReward.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The reward is designed to minimize electricity consumption and maximize</span>
-<span class="sd">        solar generation to charge energy storage systems.</span>
-
-<span class="sd">        The reward is calculated for each building, i and summed to provide the agent</span>
-<span class="sd">        with a reward that is representative of all the building or buildings (in centralized case)</span>
-<span class="sd">        it controls. It encourages net-zero energy use by penalizing grid load satisfaction </span>
-<span class="sd">        when there is energy in the enerygy storage systems as well as penalizing </span>
-<span class="sd">        net export when the energy storage systems are not fully charged through the penalty </span>
-<span class="sd">        term. There is neither penalty nor reward when the energy storage systems</span>
-<span class="sd">        are fully charged during net export to the grid. Whereas, when the </span>
-<span class="sd">        energy storage systems are charged to capacity and there is net import from the </span>
-<span class="sd">        grid the penalty is maximized.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        reward: List[float]</span>
-<span class="sd">            Reward for transition to current timestep.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        
         <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
@@ -225,6 +238,137 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">reward</span> <span class="o">=</span> <span class="n">reward_list</span>
         
+        <span class="k">return</span> <span class="n">reward</span></div></div>
+    
+<div class="viewcode-block" id="ComfortReward"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.ComfortReward">[docs]</a><span class="k">class</span> <span class="nc">ComfortReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reward for occupant thermal comfort satisfaction.</span>
+
+<span class="sd">    The reward is the calculated as the negative delta between the setpoint and indoor dry-bulb temperature raised to some exponent</span>
+<span class="sd">    if outside the comfort band. If within the comfort band, the reward is the negative delta when in cooling mode and temperature</span>
+<span class="sd">    is below the setpoint or when in heating mode and temperature is above the setpoint. The reward is 0 if within the comfort band</span>
+<span class="sd">    and above the setpoint in cooling mode or below the setpoint and in heating mode.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: citylearn.citylearn.CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    band: float, default = 2.0</span>
+<span class="sd">        Setpoint comfort band (+/-).</span>
+<span class="sd">    lower_exponent: float, default = 2.0</span>
+<span class="sd">        Penalty exponent for when in cooling mode but temperature is above setpoint upper</span>
+<span class="sd">        boundary or heating mode but temperature is below setpoint lower boundary.</span>
+<span class="sd">    higher_exponent: float, default = 2.0</span>
+<span class="sd">        Penalty exponent for when in cooling mode but temperature is below setpoint lower</span>
+<span class="sd">        boundary or heating mode but temperature is above setpoint upper boundary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">band</span> <span class="o">=</span> <span class="n">band</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower_exponent</span> <span class="o">=</span> <span class="n">lower_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">higher_exponent</span> <span class="o">=</span> <span class="n">higher_exponent</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">band</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__band</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lower_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lower_exponent</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">higher_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__higher_exponent</span>
+    
+    <span class="nd">@band</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">band</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__band</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="k">if</span> <span class="n">band</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">band</span>
+
+    <span class="nd">@lower_exponent</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lower_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__lower_exponent</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="k">if</span> <span class="n">lower_exponent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">lower_exponent</span>
+
+    <span class="nd">@higher_exponent</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">higher_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__higher_exponent</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="k">if</span> <span class="n">higher_exponent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">higher_exponent</span>
+
+<div class="viewcode-block" id="ComfortReward.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.ComfortReward.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
+            <span class="n">heating</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">heating_demand</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">b</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">cooling_demand</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+            <span class="n">indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+            <span class="n">set_point</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+            <span class="n">lower_bound_comfortable_indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">set_point</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">band</span>
+            <span class="n">upper_bound_comfortable_indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">set_point</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">band</span>
+            <span class="n">delta</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature</span> <span class="o">-</span> <span class="n">set_point</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">indoor_dry_bulb_temperature</span> <span class="o">&lt;</span> <span class="n">lower_bound_comfortable_indoor_dry_bulb_temperature</span><span class="p">:</span>
+                <span class="n">exponent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_exponent</span> <span class="k">if</span> <span class="n">heating</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">higher_exponent</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">delta</span><span class="o">**</span><span class="n">exponent</span><span class="p">)</span>
+            
+            <span class="k">elif</span> <span class="n">lower_bound_comfortable_indoor_dry_bulb_temperature</span> <span class="o">&lt;=</span> <span class="n">indoor_dry_bulb_temperature</span> <span class="o">&lt;</span> <span class="n">set_point</span><span class="p">:</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">heating</span> <span class="k">else</span> <span class="o">-</span><span class="n">delta</span>
+
+            <span class="k">elif</span> <span class="n">set_point</span> <span class="o">&lt;=</span> <span class="n">indoor_dry_bulb_temperature</span> <span class="o">&lt;=</span> <span class="n">upper_bound_comfortable_indoor_dry_bulb_temperature</span><span class="p">:</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="o">-</span><span class="n">delta</span> <span class="k">if</span> <span class="n">heating</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">exponent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">higher_exponent</span> <span class="k">if</span> <span class="n">heating</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_exponent</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">delta</span><span class="o">**</span><span class="n">exponent</span><span class="p">)</span>
+
+            <span class="n">reward_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">reward_list</span><span class="p">)]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="n">reward_list</span>
+
+        <span class="k">return</span> <span class="n">reward</span></div></div>
+    
+<div class="viewcode-block" id="SolarPenaltyAndComfortReward"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyAndComfortReward">[docs]</a><span class="k">class</span> <span class="nc">SolarPenaltyAndComfortReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Addition of :py:class:`citylearn.reward_function.SolarPenaltyReward` and :py:class:`citylearn.reward_function.ComfortReward`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: citylearn.citylearn.CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    band: float, default = 2.0</span>
+<span class="sd">        Setpoint comfort band (+/-).</span>
+<span class="sd">    lower_exponent: float, default = 2.0</span>
+<span class="sd">        Penalty exponent for when in cooling mode but temperature is above setpoint upper</span>
+<span class="sd">        boundary or heating mode but temperature is below setpoint lower boundary.</span>
+<span class="sd">    higher_exponent: float, default = 2.0</span>
+<span class="sd">        Penalty exponent for when in cooling mode but temperature is below setpoint lower</span>
+<span class="sd">        boundary or heating mode but temperature is above setpoint upper boundary.</span>
+<span class="sd">    coefficients: Tuple, default = (1.0, 1.0)</span>
+<span class="sd">        Coefficents for `citylearn.reward_function.SolarPenaltyReward` and :py:class:`citylearn.reward_function.ComfortReward` values respectively.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">:</span> <span class="n">Tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RewardFunction</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SolarPenaltyReward</span><span class="p">(</span><span class="n">env</span><span class="p">),</span>
+            <span class="n">ComfortReward</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">band</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="o">=</span><span class="n">lower_exponent</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="o">=</span><span class="n">higher_exponent</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span> <span class="o">=</span> <span class="n">coefficients</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__coefficients</span>
+    
+    <span class="nd">@coefficients</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">):</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">)</span> <span class="k">if</span> <span class="n">coefficients</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">coefficients</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">coefficients</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> needs </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">)</span><span class="si">}</span><span class="s1"> coefficients.&#39;</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">__coefficients</span> <span class="o">=</span> <span class="n">coefficients</span>
+
+<div class="viewcode-block" id="SolarPenaltyAndComfortReward.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyAndComfortReward.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">f</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="n">reward</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="n">reward</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
         <span class="k">return</span> <span class="n">reward</span></div></div>
 </pre></div>
 

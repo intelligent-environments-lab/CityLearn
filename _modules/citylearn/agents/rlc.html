@@ -3,11 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.rlc &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.agents.rlc &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -50,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references.html">References</a></li>
 </ul>
 
@@ -78,8 +82,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.agents.rlc</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 <span class="kn">from</span> <span class="nn">citylearn.preprocessing</span> <span class="kn">import</span> <span class="n">Encoder</span><span class="p">,</span> <span class="n">PeriodicNormalization</span><span class="p">,</span> <span class="n">Normalize</span><span class="p">,</span> <span class="n">OnehotEncoding</span>
 
 <span class="c1"># conditional imports</span>
@@ -91,55 +96,51 @@
 <span class="kn">from</span> <span class="nn">citylearn.agents.base</span> <span class="kn">import</span> <span class="n">Agent</span>
 
 <div class="viewcode-block" id="RLC"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.RLC">[docs]</a><span class="k">class</span> <span class="nc">RLC</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base reinforcement learning controller class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    hidden_dimension : List[float], default: [256, 256]</span>
+<span class="sd">        Hidden dimension.</span>
+<span class="sd">    discount : float, default: 0.99</span>
+<span class="sd">        Discount factor.</span>
+<span class="sd">    tau : float, default: 5e-3</span>
+<span class="sd">        Decay rate.</span>
+<span class="sd">    alpha: float, default: 0.2</span>
+<span class="sd">        Temperature; exploration-exploitation balance term.</span>
+<span class="sd">    lr : float, default: 3e-4</span>
+<span class="sd">        Learning rate.</span>
+<span class="sd">    batch_size : int, default: 256</span>
+<span class="sd">        Batch size.</span>
+<span class="sd">    replay_buffer_capacity : int, default: 1e5</span>
+<span class="sd">        Replay buffer capacity.</span>
+<span class="sd">    standardize_start_time_step : int, optional</span>
+<span class="sd">        Time step to calculate mean and standard deviation, and begin standardization of observations and rewards in replay buffer. Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 2.</span>
+<span class="sd">    end_exploration_time_step : int, optional</span>
+<span class="sd">        Time step to stop random or RBC-guided exploration. Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 1.</span>
+<span class="sd">    action_scaling_coefficient : float, default: 0.5</span>
+<span class="sd">        Action scaling coefficient.</span>
+<span class="sd">    reward_scaling : float, default: 5.0</span>
+<span class="sd">        Reward scaling.</span>
+<span class="sd">    update_per_time_step : int, default: 2</span>
+<span class="sd">        Number of updates per time step.</span>
+<span class="sd">    </span>
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        Other keyword arguments used to initialize super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+            
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">hidden_dimension</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">hidden_dimension</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
         <span class="n">discount</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tau</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">replay_buffer_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start_training_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_exploration_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">deterministic_start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">action_scaling_coefficienct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_scaling</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">update_per_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="n">replay_buffer_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">standardize_start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_exploration_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">action_scaling_coefficienct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_scaling</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">update_per_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `RLC`.</span>
-
-<span class="sd">        Base reinforcement learning controller class.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *args : tuple</span>
-<span class="sd">            `Agent` positional arguments.</span>
-<span class="sd">        hidden_dimension : List[float], default: [256, 256]</span>
-<span class="sd">            Hidden dimension.</span>
-<span class="sd">        discount : float, default: 0.99</span>
-<span class="sd">            Discount factor.</span>
-<span class="sd">        tau : float, default: 5e-3</span>
-<span class="sd">            Decay rate.</span>
-<span class="sd">        alpha: float, default: 0.2</span>
-<span class="sd">            Temperature; exploration-exploitation balance term.</span>
-<span class="sd">        lr : float, default: 3e-4</span>
-<span class="sd">            Learning rate.</span>
-<span class="sd">        batch_size : int, default: 256</span>
-<span class="sd">            Batch size.</span>
-<span class="sd">        replay_buffer_capacity : int, default: 1e5</span>
-<span class="sd">            Replay buffer capacity.</span>
-<span class="sd">        start_training_time_step : int, default: 6000</span>
-<span class="sd">            Time step to start training regression.</span>
-<span class="sd">        end_exploration_time_step : int, default: 7000</span>
-<span class="sd">            Time step to stop random or RBC-guided exploration.</span>
-<span class="sd">        deterministic_start_time_step : int, default: 7500</span>
-<span class="sd">            Time step to begin taking deterministic actions.</span>
-<span class="sd">        action_scaling_coefficient : float, default: 0.5</span>
-<span class="sd">            Action scaling coefficient.</span>
-<span class="sd">        reward_scaling : float, default: 5.0</span>
-<span class="sd">            Reward scaling.</span>
-<span class="sd">        update_per_time_step : int, default: 2</span>
-<span class="sd">            Number of updates per time step.</span>
-<span class="sd">        </span>
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        **kwargs : dict</span>
-<span class="sd">            Other keyword arguments used to initialize super class.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dimension</span> <span class="o">=</span> <span class="n">hidden_dimension</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">discount</span> <span class="o">=</span> <span class="n">discount</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tau</span> <span class="o">=</span> <span class="n">tau</span>
@@ -147,9 +148,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">lr</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">replay_buffer_capacity</span> <span class="o">=</span> <span class="n">replay_buffer_capacity</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start_training_time_step</span> <span class="o">=</span> <span class="n">start_training_time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">standardize_start_time_step</span> <span class="o">=</span> <span class="n">standardize_start_time_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_exploration_time_step</span> <span class="o">=</span> <span class="n">end_exploration_time_step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deterministic_start_time_step</span> <span class="o">=</span> <span class="n">deterministic_start_time_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_scaling_coefficient</span> <span class="o">=</span> <span class="n">action_scaling_coefficienct</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reward_scaling</span> <span class="o">=</span> <span class="n">reward_scaling</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_per_time_step</span> <span class="o">=</span> <span class="n">update_per_time_step</span>
@@ -204,22 +204,16 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer_capacity</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">start_training_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time step to end exploration phase.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">standardize_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time step to calculate mean and standard deviation, and begin standardization of observations and rewards in replay buffer. Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 2.&quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__start_training_time_step</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__standardize_start_time_step</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">end_exploration_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time step to stop exploration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time step to stop exploration.  Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 1.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__end_exploration_time_step</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">deterministic_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time step to begin taking deterministic actions.&quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__deterministic_start_time_step</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">action_scaling_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -267,17 +261,13 @@
     <span class="k">def</span> <span class="nf">replay_buffer_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">replay_buffer_capacity</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__replay_buffer_capacity</span> <span class="o">=</span> <span class="mf">1e5</span> <span class="k">if</span> <span class="n">replay_buffer_capacity</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">replay_buffer_capacity</span>
 
-    <span class="nd">@start_training_time_step</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">start_training_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_training_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__start_training_time_step</span> <span class="o">=</span> <span class="mi">6000</span> <span class="k">if</span> <span class="n">start_training_time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">start_training_time_step</span>
+    <span class="nd">@standardize_start_time_step</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">standardize_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">standardize_start_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__standardize_start_time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">standardize_start_time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">standardize_start_time_step</span>
 
     <span class="nd">@end_exploration_time_step</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">end_exploration_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_exploration_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__end_exploration_time_step</span> <span class="o">=</span> <span class="mi">7000</span> <span class="k">if</span> <span class="n">end_exploration_time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">end_exploration_time_step</span>
-
-    <span class="nd">@deterministic_start_time_step</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">deterministic_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deterministic_start_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__deterministic_start_time_step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">deterministic_start_time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">deterministic_start_time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__end_exploration_time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">time_steps</span> <span class="k">if</span> <span class="n">end_exploration_time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">end_exploration_time_step</span>
 
     <span class="nd">@action_scaling_coefficient</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">action_scaling_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_scaling_coefficient</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>

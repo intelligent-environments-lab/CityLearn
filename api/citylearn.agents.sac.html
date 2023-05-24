@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.sac module &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.agents.sac module &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -63,6 +66,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 
@@ -97,7 +101,7 @@
 <span id="citylearn-agents-sac-module"></span><h1>citylearn.agents.sac module<a class="headerlink" href="#module-citylearn.agents.sac" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.agents.sac.SAC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SAC" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SAC" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="citylearn.agents.rlc.html#citylearn.agents.rlc.RLC" title="citylearn.agents.rlc.RLC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.rlc.RLC</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.agents.sac.SAC.get_encoded_observations">
@@ -199,26 +203,78 @@ and <cite>Normalize</cite> for observations with known minimum and maximum bound
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.agents.sac.SACBasicBatteryRBC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACBasicBatteryRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACBasicBatteryRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACBasicBatteryRBC" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#citylearn.agents.sac.SACBasicRBC" title="citylearn.agents.sac.SACBasicRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SACBasicRBC</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACBasicBatteryRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACBasicBatteryRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACBasicBatteryRBC" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.agents.sac.SACRBC" title="citylearn.agents.sac.SACRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SACRBC</span></code></a></p>
+<p>Uses <a class="reference internal" href="citylearn.agents.rbc.html#citylearn.agents.rbc.BasicBatteryRBC" title="citylearn.agents.rbc.BasicBatteryRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.rbc.BasicBatteryRBC</span></code></a> to select action during exploration before using <a class="reference internal" href="#citylearn.agents.sac.SAC" title="citylearn.agents.sac.SAC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SAC</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Other keyword arguments used to initialize super class.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.agents.sac.SACBasicRBC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACBasicRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACBasicRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACBasicRBC" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACBasicRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACBasicRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACBasicRBC" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.agents.sac.SACRBC" title="citylearn.agents.sac.SACRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SACRBC</span></code></a></p>
+<p>Uses <a class="reference internal" href="citylearn.agents.rbc.html#citylearn.agents.rbc.BasicRBC" title="citylearn.agents.rbc.BasicRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.rbc.BasicRBC</span></code></a> to select action during exploration before using <a class="reference internal" href="#citylearn.agents.sac.SAC" title="citylearn.agents.sac.SAC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SAC</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Other keyword arguments used to initialize super class.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.agents.sac.SACHourRBC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACHourRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACHourRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACHourRBC" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.agents.sac.SACRBC" title="citylearn.agents.sac.SACRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SACRBC</span></code></a></p>
+<p>Uses <a class="reference internal" href="citylearn.agents.rbc.html#citylearn.agents.rbc.HourRBC" title="citylearn.agents.rbc.HourRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.rbc.HourRBC</span></code></a> to select action during exploration before using <a class="reference internal" href="#citylearn.agents.sac.SAC" title="citylearn.agents.sac.SAC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SAC</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Other keyword arguments used to initialize super class.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.agents.sac.SACOptimizedRBC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACOptimizedRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACOptimizedRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACOptimizedRBC" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#citylearn.agents.sac.SACBasicRBC" title="citylearn.agents.sac.SACBasicRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SACBasicRBC</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACOptimizedRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACOptimizedRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACOptimizedRBC" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.agents.sac.SACRBC" title="citylearn.agents.sac.SACRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SACRBC</span></code></a></p>
+<p>Uses <a class="reference internal" href="citylearn.agents.rbc.html#citylearn.agents.rbc.OptimizedRBC" title="citylearn.agents.rbc.OptimizedRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.rbc.OptimizedRBC</span></code></a> to select action during exploration before using <a class="reference internal" href="#citylearn.agents.sac.SAC" title="citylearn.agents.sac.SAC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SAC</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Other keyword arguments used to initialize super class.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.agents.sac.SACRBC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACRBC" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.sac.</span></span><span class="sig-name descname"><span class="pre">SACRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rbc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.agents.rbc.html#citylearn.agents.rbc.RBC" title="citylearn.agents.rbc.RBC"><span class="pre">citylearn.agents.rbc.RBC</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACRBC" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.agents.sac.SAC" title="citylearn.agents.sac.SAC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SAC</span></code></a></p>
+<p>Uses <a class="reference internal" href="citylearn.agents.rbc.html#citylearn.agents.rbc.RBC" title="citylearn.agents.rbc.RBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.rbc.RBC</span></code></a> to select action during exploration before using <a class="reference internal" href="#citylearn.agents.sac.SAC" title="citylearn.agents.sac.SAC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.sac.SAC</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p></li>
+<li><p><strong>rbc</strong> (<a class="reference internal" href="citylearn.agents.rbc.html#citylearn.agents.rbc.RBC" title="citylearn.agents.rbc.RBC"><em>RBC</em></a>) – <a class="reference internal" href="citylearn.agents.rbc.html#citylearn.agents.rbc.RBC" title="citylearn.agents.rbc.RBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.rbc.RBC</span></code></a> or child class, used to select actions during exploration.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Other keyword arguments used to initialize super class.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.agents.sac.SACRBC.get_exploration_prediction">
 <span class="sig-name descname"><span class="pre">get_exploration_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/agents/sac.html#SACRBC.get_exploration_prediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.sac.SACRBC.get_exploration_prediction" title="Permalink to this definition"></a></dt>
@@ -231,12 +287,6 @@ and <cite>Normalize</cite> for observations with known minimum and maximum bound
 <dd class="field-even"><p>List[float]</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.agents.sac.SACRBC.rbc">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rbc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.agents.rbc.html#citylearn.agents.rbc.RBC" title="citylearn.agents.rbc.RBC"><span class="pre">citylearn.agents.rbc.RBC</span></a></em><a class="headerlink" href="#citylearn.agents.sac.SACRBC.rbc" title="Permalink to this definition"></a></dt>
-<dd><p><code class="xref py py-class docutils literal notranslate"><span class="pre">RBC</span></code> or child class, used to select actions during exploration.</p>
 </dd></dl>
 
 </dd></dl>

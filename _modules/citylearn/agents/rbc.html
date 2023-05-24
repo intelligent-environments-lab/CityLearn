@@ -3,11 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.rbc &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.agents.rbc &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -50,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../references.html">References</a></li>
 </ul>
 
@@ -78,201 +82,49 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.agents.rbc</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span> <span class="nn">citylearn.agents.base</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
+<span class="kn">from</span> <span class="nn">citylearn.building</span> <span class="kn">import</span> <span class="n">Building</span>
 
 <div class="viewcode-block" id="RBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.RBC">[docs]</a><span class="k">class</span> <span class="nc">RBC</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `RBC`.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base rule based controller class.</span>
 
-<span class="sd">        Base rule based controller class.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *args : tuple</span>
-<span class="sd">            `Agent` positional arguments.</span>
-<span class="sd">        </span>
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        **kwargs : dict</span>
-<span class="sd">            Other keyword arguments used to initialize super class.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="BasicRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicRBC">[docs]</a><span class="k">class</span> <span class="nc">BasicRBC</span><span class="p">(</span><span class="n">RBC</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Initialize `RBC`.</span>
-
-<span class="sd">        Base rule based controller class.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        *args : tuple</span>
-<span class="sd">            `Agent` positional arguments.</span>
-<span class="sd">        hour_index: int, default: 2</span>
-<span class="sd">            Expected position of hour observation when `observations` paramater is parsed into `select_actions` method.</span>
-<span class="sd">        </span>
-<span class="sd">        Other Parameters</span>
-<span class="sd">        ----------------</span>
-<span class="sd">        **kwargs : dict</span>
-<span class="sd">            Other keyword arguments used to initialize super class.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<div class="viewcode-block" id="BasicRBC.predict"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicRBC.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        observations: List[List[float]]</span>
-<span class="sd">            Environment observations</span>
-<span class="sd">        deterministic: bool, default: False</span>
-<span class="sd">            Wether to return purely exploitatative deterministic actions.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        actions: List[float]</span>
-<span class="sd">            Action values</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        The actions are designed such that the agent charges the controlled storage system(s) by 9.1% of its maximum capacity every hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity at every other hour.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_names</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">):</span>
-            <span class="n">hour</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;hour&#39;</span><span class="p">)]</span>
-
-            <span class="c1"># Daytime: release stored energy</span>
-            <span class="k">if</span> <span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">9</span> <span class="ow">and</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">21</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.08</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-            
-            <span class="c1"># Early nightime: store DHW and/or cooling energy</span>
-            <span class="k">elif</span> <span class="p">(</span><span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">22</span> <span class="ow">and</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">24</span><span class="p">):</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.091</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-            
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-
-            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="n">actions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">actions</span></div></div>
-
-<div class="viewcode-block" id="OptimizedRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.OptimizedRBC">[docs]</a><span class="k">class</span> <span class="nc">OptimizedRBC</span><span class="p">(</span><span class="n">BasicRBC</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<div class="viewcode-block" id="OptimizedRBC.predict"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.OptimizedRBC.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        observations: List[List[float]]</span>
-<span class="sd">            Environment observations</span>
-<span class="sd">        deterministic: bool, default: False</span>
-<span class="sd">            Wether to return purely exploitatative deterministic actions.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        actions: List[float]</span>
-<span class="sd">            Action values</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        The actions are designed such that the agent discharges the controlled storage system(s) by 2.0% of its maximum capacity every hour between 07:00 AM and 03:00 PM, discharges by 4.4% of its maximum capacity between 04:00 PM and 06:00 PM, discharges by 2.4% of its maximum capacity between 07:00 PM and 10:00 PM, charges by 3.4% of its maximum capacity between 11:00 PM to midnight and charges by 5.532% of its maximum capacity at every other hour.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_names</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">):</span>
-            <span class="n">hour</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;hour&#39;</span><span class="p">)]</span>
-        
-            <span class="c1"># Daytime: release stored energy  2*0.08 + 0.1*7 + 0.09</span>
-            <span class="k">if</span> <span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">7</span> <span class="ow">and</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">15</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.02</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-                
-            <span class="k">elif</span> <span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">16</span> <span class="ow">and</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">18</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.0044</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-                
-            <span class="k">elif</span> <span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">19</span> <span class="ow">and</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">22</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.024</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-                
-            <span class="c1"># Early nightime: store DHW and/or cooling energy</span>
-            <span class="k">elif</span> <span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">23</span> <span class="ow">and</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">24</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.034</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-                
-            <span class="k">elif</span> <span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">6</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05532</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-                
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-            
-            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="n">actions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">actions</span></div></div>
-
-<div class="viewcode-block" id="BasicBatteryRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicBatteryRBC">[docs]</a><span class="k">class</span> <span class="nc">BasicBatteryRBC</span><span class="p">(</span><span class="n">BasicRBC</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<div class="viewcode-block" id="BasicBatteryRBC.predict"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicBatteryRBC.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        observations: List[List[float]]</span>
-<span class="sd">            Environment observations</span>
-<span class="sd">        deterministic: bool, default: False</span>
-<span class="sd">            Wether to return purely exploitatative deterministic actions.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        actions: List[float]</span>
-<span class="sd">            Action values</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        The actions are optimized for electrical storage (battery) such that the agent charges the controlled storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, and discharges 6.7% of its maximum capacity at every other hour.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_names</span><span class="p">,</span> <span class="n">observations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">):</span>
-            <span class="n">hour</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;hour&#39;</span><span class="p">)]</span>
-
-            <span class="c1"># Late morning and early evening: store energy</span>
-            <span class="k">if</span> <span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">6</span> <span class="ow">and</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">14</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.11</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-            
-            <span class="c1"># Early morning and late evening: release energy</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.067</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span>
-
-            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="n">actions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">actions</span></div></div>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    </span>
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        Other keyword arguments used to initialize super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     
-<div class="viewcode-block" id="HourRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.HourRBC">[docs]</a><span class="k">class</span> <span class="nc">HourRBC</span><span class="p">(</span><span class="n">BasicRBC</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">action_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HourRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.HourRBC">[docs]</a><span class="k">class</span> <span class="nc">HourRBC</span><span class="p">(</span><span class="n">RBC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A time-of-use rule-based controller.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    action_map: Mapping[int, float], optional</span>
+<span class="sd">        A 24-hour action map where the key is the hour between 1-24 and the value is the action.</span>
+<span class="sd">        For storage systems, the value is negative for discharge and positive for charge. Will</span>
+<span class="sd">        return random actions if no map is provided.</span>
+<span class="sd">    </span>
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs: Any</span>
+<span class="sd">        Other keyword arguments used to initialize super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">action_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_map</span> <span class="o">=</span> <span class="n">action_map</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">action_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_map</span>
-    
-    <span class="nd">@action_map</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">action_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_map</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__action_map</span> <span class="o">=</span> <span class="n">action_map</span>
 
 <div class="viewcode-block" id="HourRBC.predict"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.HourRBC.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
@@ -286,7 +138,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        actions: List[float]</span>
+<span class="sd">        actions: List[List[float]]</span>
 <span class="sd">            Action values</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -305,6 +157,114 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
         
         <span class="k">return</span> <span class="n">actions</span></div></div>
+
+<div class="viewcode-block" id="BasicRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicRBC">[docs]</a><span class="k">class</span> <span class="nc">BasicRBC</span><span class="p">(</span><span class="n">HourRBC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A time-of-use rule-based controller for heat-pump charged thermal energy storage systems that charges when COP is high.</span>
+
+<span class="sd">    The actions are designed such that the agent charges the controlled storage system(s) by 9.1% of its maximum capacity every</span>
+<span class="sd">    hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity at every other hour.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    </span>
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        Other keyword arguments used to initialize super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">action_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">hour</span> <span class="ow">in</span> <span class="n">Building</span><span class="o">.</span><span class="n">get_periodic_observation_metadata</span><span class="p">()[</span><span class="s1">&#39;hour&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="mi">9</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">21</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.08</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">22</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">24</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="mf">0.091</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="n">action_map</span><span class="p">[</span><span class="n">hour</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_map</span> <span class="o">=</span> <span class="n">action_map</span></div>
+
+<div class="viewcode-block" id="OptimizedRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.OptimizedRBC">[docs]</a><span class="k">class</span> <span class="nc">OptimizedRBC</span><span class="p">(</span><span class="n">BasicRBC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A time-of-use rule-based controller that is an optimized version of :py:class:`citylearn.agents.rbc.BasicRBC`</span>
+<span class="sd">    where control actions have been selected through a search grid.</span>
+
+<span class="sd">    The actions are designed such that the agent discharges the controlled storage system(s) by 2.0% of its </span>
+<span class="sd">    maximum capacity every hour between 07:00 AM and 03:00 PM, discharges by 4.4% of its maximum capacity </span>
+<span class="sd">    between 04:00 PM and 06:00 PM, discharges by 2.4% of its maximum capacity between 07:00 PM and 10:00 PM, </span>
+<span class="sd">    charges by 3.4% of its maximum capacity between 11:00 PM to midnight and charges by 5.532% of its maximum </span>
+<span class="sd">    capacity at every other hour.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    </span>
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        Other keyword arguments used to initialize super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">action_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">hour</span> <span class="ow">in</span> <span class="n">Building</span><span class="o">.</span><span class="n">get_periodic_observation_metadata</span><span class="p">()[</span><span class="s1">&#39;hour&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="mi">7</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">15</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.02</span>
+            <span class="k">elif</span> <span class="mi">16</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">18</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.0044</span>
+            <span class="k">elif</span> <span class="mi">19</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">22</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.024</span>
+            <span class="k">elif</span> <span class="mi">23</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">24</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="mf">0.034</span>
+            <span class="k">elif</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="mf">0.05532</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="n">action_map</span><span class="p">[</span><span class="n">hour</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_map</span> <span class="o">=</span> <span class="n">action_map</span></div>
+
+<div class="viewcode-block" id="BasicBatteryRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicBatteryRBC">[docs]</a><span class="k">class</span> <span class="nc">BasicBatteryRBC</span><span class="p">(</span><span class="n">BasicRBC</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A time-of-use rule-based controller that is designed to take advantage of solar generation for charging.</span>
+
+<span class="sd">    The actions are optimized for electrical storage (battery) such that the agent charges the controlled</span>
+<span class="sd">    storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, </span>
+<span class="sd">    and discharges 6.7% of its maximum capacity at every other hour.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env: CityLearnEnv</span>
+<span class="sd">        CityLearn environment.</span>
+<span class="sd">    </span>
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs: Any</span>
+<span class="sd">        Other keyword arguments used to initialize super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">action_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">hour</span> <span class="ow">in</span> <span class="n">Building</span><span class="o">.</span><span class="n">get_periodic_observation_metadata</span><span class="p">()[</span><span class="s1">&#39;hour&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="mi">6</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">14</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="mf">0.11</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.067</span>
+
+            <span class="n">action_map</span><span class="p">[</span><span class="n">hour</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_map</span> <span class="o">=</span> <span class="n">action_map</span></div>
 </pre></div>
 
            </div>

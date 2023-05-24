@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.cost_function module &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.cost_function module &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -62,6 +65,7 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.citylearn.html">citylearn.citylearn module</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.cost_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
@@ -75,6 +79,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 
@@ -112,26 +117,6 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Cost and energy flexibility functions that may be used to evaluate environment performance.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.average_daily_peak">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">average_daily_peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daily_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.average_daily_peak"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.average_daily_peak" title="Permalink to this definition"></a></dt>
-<dd><p>Mean of daily net electricity consumption peaks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>net_electricity_consumption</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Electricity consumption time series.</p></li>
-<li><p><strong>daily_time_step</strong> (<em>int</em><em>, </em><em>default: 24</em>) – Number of time steps in a day.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>average_daily_peak</strong> – Average daily peak cost.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>List[float]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.carbon_emissions">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">carbon_emissions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">carbon_emissions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.carbon_emissions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.carbon_emissions" title="Permalink to this definition"></a></dt>
 <dd><p>Rolling sum of carbon emissions.</p>
@@ -146,35 +131,53 @@
 <dd class="field-odd"><p>List[float]</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">carbon_emissions</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">CostFunction</span><span class="o">.</span><span class="n">carbon_emissions</span><span class="p">(</span><span class="n">carbon_emissions</span><span class="p">)</span>
-<span class="go">[100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.cost">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.cost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.cost" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.cost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.cost" title="Permalink to this definition"></a></dt>
 <dd><p>Rolling sum of electricity monetary cost.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>price</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Price time series.</p>
+<dd class="field-odd"><p><strong>cost</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Cost time series.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>price</strong> – Price cost.</p>
+<dd class="field-even"><p><strong>cost</strong> – Cost of electricity.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[float]</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">CostFunction</span><span class="o">.</span><span class="n">price</span><span class="p">(</span><span class="n">carbon_emissions</span><span class="p">)</span>
-<span class="go">[100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]</span>
-</pre></div>
-</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.discomfort">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">discomfort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indoor_dry_bulb_temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_bulb_temperature_set_point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupant_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.discomfort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.discomfort" title="Permalink to this definition"></a></dt>
+<dd><p>Rolling percentage of discomfort (total, too cold, and too hot) time steps as well as rolling minimum, maximum and average temperature delta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indoor_dry_bulb_temperature</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Average building dry bulb temperature time series.</p></li>
+<li><p><strong>dry_bulb_temperature_set_point</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Building thermostat setpoint time series.</p></li>
+<li><p><strong>band</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Comfort band above and below dry_bulb_temperature_set_point beyond
+which occupant is assumed to be uncomfortable.</p></li>
+<li><p><strong>occupant_cunt</strong> (<em>List</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Occupant count time series. If provided, the comfort cost is
+evaluated for occupied time steps only.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>discomfort</strong> (<em>List[float]</em>) – Rolling proportion of occupied timesteps where the condition
+(dry_bulb_temperature_set_point - band) &lt;= indoor_dry_bulb_temperature &lt;= (dry_bulb_temperature_set_point + band) is not met.</p></li>
+<li><p><strong>discomfort_too_cold</strong> (<em>List[float]</em>) – Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature &lt; (dry_bulb_temperature_set_point - band) is met.</p></li>
+<li><p><strong>discomfort_too_hot</strong> (<em>List[float]</em>) – Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature &gt; (dry_bulb_temperature_set_point + band) is met.</p></li>
+<li><p><strong>discomfort_delta_minimum</strong> (<em>List[float]</em>) – Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.</p></li>
+<li><p><strong>discomfort_delta_maximum</strong> (<em>List[float]</em>) – Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.</p></li>
+<li><p><strong>discomfort_delta_average</strong> (<em>List[float]</em>) – Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -193,18 +196,13 @@
 <dd class="field-odd"><p>List[float]</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">electricity_consumption</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">CostFunction</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">)</span>
-<span class="go">[100.0, 100.0, 300.0, 900.0, 1300.0, 1600.0]</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.load_factor">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.load_factor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.load_factor" title="Permalink to this definition"></a></dt>
-<dd><p>Difference between 1 and the ratio of rolling mean demand to rolling peak demand over a specified period.</p>
+<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.one_minus_load_factor">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">one_minus_load_factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.one_minus_load_factor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.one_minus_load_factor" title="Permalink to this definition"></a></dt>
+<dd><p>Difference between 1 and the load factor i.e., ratio of rolling mean demand
+to rolling peak demand over a specified period.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -213,7 +211,7 @@
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>load_factor</strong> – Load factor cost.</p>
+<dd class="field-even"><p><strong>1 - load_factor</strong> – 1 - load factor cost.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[float]</p>
@@ -222,18 +220,18 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.peak_demand">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak_demand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.peak_demand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.peak_demand" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.peak">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.peak"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.peak" title="Permalink to this definition"></a></dt>
 <dd><p>Net electricity consumption peak.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>net_electricity_consumption</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Electricity consumption time series.</p></li>
-<li><p><strong>window</strong> (<em>int</em><em>, </em><em>default: 8760</em>) – Period window/time steps to find peaks.</p></li>
+<li><p><strong>window</strong> (<em>int</em><em>, </em><em>default: 24</em>) – Period window/time steps to find peaks.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>peak_demand</strong> – Peak demand cost.</p>
+<dd class="field-even"><p><strong>peak</strong> – Average daily peak cost.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[float]</p>
@@ -258,12 +256,6 @@
 </dl>
 <p class="rubric">Notes</p>
 <p>Net electricity consumption values are clipped at a minimum of 0 before calculating the quadratic cost.</p>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">net_electricity_consumption</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">CostFunction</span><span class="o">.</span><span class="n">quadratic</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">)</span>
-<span class="go">[10000.0, 50000.0, 90000.0, 450000.0, 610000.0, 700000.0]</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py method">
@@ -285,12 +277,6 @@
 <div class="math notranslate nohighlight">
 \[\textrm{ramping} = \sum_{i=1}^{n}{\lvert E_i - E_{i-1} \rvert}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(E_i\)</span> is the <span class="math notranslate nohighlight">\(i^{\textrm{th}}\)</span> element in <cite>net_electricity_consumption</cite>, <span class="math notranslate nohighlight">\(E\)</span>, that has a length of <span class="math notranslate nohighlight">\(n\)</span>.</p>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">net_electricity_consumption</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">CostFunction</span><span class="o">.</span><span class="n">ramping</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">)</span>
-<span class="go">[nan, 100.0, 100.0, 500.0, 700.0]</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py method">
@@ -298,7 +284,7 @@
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zero_net_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.zero_net_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.zero_net_energy" title="Permalink to this definition"></a></dt>
 <dd><p>Rolling sum of net electricity consumption.</p>
 <p>It is the net sum of electricty that is consumed from the grid and self-generated from renenewable sources.
-This calculation of zero net energy does not consider in TDV and all time steps are weighted equally.</p>
+This calculation of zero net energy does not consider TDV and all time steps are weighted equally.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>net_electricity_consumption</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Electricity consumption time series.</p>
@@ -310,12 +296,6 @@ This calculation of zero net energy does not consider in TDV and all time steps 
 <dd class="field-odd"><p>List[float]</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">net_electricity_consumption</span> <span class="o">=</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">200.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">600.0</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mf">300.0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">CostFunction</span><span class="o">.</span><span class="n">zero_net_energy</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">)</span>
-<span class="go">[100.0, -100.0, 100.0, 700.0, 1100.0, 1400.0]</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </dd></dl>

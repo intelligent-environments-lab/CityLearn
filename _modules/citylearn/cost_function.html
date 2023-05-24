@@ -3,11 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.cost_function &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.cost_function &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -50,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
 </ul>
 
@@ -78,7 +82,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.cost_function</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
@@ -105,23 +109,19 @@
 <span class="sd">            \textrm{ramping} = \sum_{i=1}^{n}{\lvert E_i - E_{i-1} \rvert}</span>
 <span class="sd">            </span>
 <span class="sd">        Where :math:`E_i` is the :math:`i^{\textrm{th}}` element in `net_electricity_consumption`, :math:`E`, that has a length of :math:`n`.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; net_electricity_consumption = [100.0, 200.0, 200.0, 600.0, 400.0]</span>
-<span class="sd">        &gt;&gt;&gt; CostFunction.ramping(net_electricity_consumption)</span>
-<span class="sd">        [nan, 100.0, 100.0, 500.0, 700.0]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span><span class="n">net_electricity_consumption</span><span class="p">})</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ramping&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ramping&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ramping&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ramping&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ramping&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ramping&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CostFunction.load_factor"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.load_factor">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">load_factor</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Difference between 1 and the ratio of rolling mean demand to rolling peak demand over a specified period.</span>
+<div class="viewcode-block" id="CostFunction.one_minus_load_factor"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.one_minus_load_factor">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">one_minus_load_factor</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Difference between 1 and the load factor i.e., ratio of rolling mean demand </span>
+<span class="sd">        to rolling peak demand over a specified period.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -132,8 +132,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        load_factor : List[float]</span>
-<span class="sd">            Load factor cost.</span>
+<span class="sd">        1 - load_factor : List[float]</span>
+<span class="sd">            1 - load factor cost.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">window</span> <span class="o">=</span> <span class="mi">730</span> <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">window</span>
@@ -142,54 +142,32 @@
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;group&#39;</span><span class="p">])[[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span><span class="s1">&#39;max&#39;</span><span class="p">])</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;load_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">data</span><span class="p">[(</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">,</span><span class="s1">&#39;mean&#39;</span><span class="p">)]</span><span class="o">/</span><span class="n">data</span><span class="p">[(</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">,</span><span class="s1">&#39;max&#39;</span><span class="p">)])</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;load_factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;load_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;load_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CostFunction.average_daily_peak"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.average_daily_peak">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">average_daily_peak</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">daily_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Mean of daily net electricity consumption peaks.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        net_electricity_consumption : List[float]</span>
-<span class="sd">            Electricity consumption time series.</span>
-<span class="sd">        daily_time_step : int, default: 24</span>
-<span class="sd">            Number of time steps in a day.</span>
-<span class="sd">            </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        average_daily_peak : List[float]</span>
-<span class="sd">            Average daily peak cost.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">daily_time_step</span> <span class="o">=</span> <span class="mi">24</span> <span class="k">if</span> <span class="n">daily_time_step</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">daily_time_step</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span><span class="n">net_electricity_consumption</span><span class="p">})</span>
-        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">/</span><span class="n">daily_time_step</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;group&#39;</span><span class="p">])[[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="CostFunction.peak_demand"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.peak_demand">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">peak_demand</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<div class="viewcode-block" id="CostFunction.peak"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.peak">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">peak</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Net electricity consumption peak.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        net_electricity_consumption : List[float]</span>
 <span class="sd">            Electricity consumption time series.</span>
-<span class="sd">        window : int, default: 8760</span>
+<span class="sd">        window : int, default: 24</span>
 <span class="sd">            Period window/time steps to find peaks.</span>
 <span class="sd">            </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        peak_demand : List[float]</span>
-<span class="sd">            Peak demand cost.        </span>
+<span class="sd">        peak : List[float]</span>
+<span class="sd">            Average daily peak cost.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">window</span> <span class="o">=</span> <span class="mi">8760</span> <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">window</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="mi">24</span> <span class="k">if</span> <span class="n">window</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">window</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span><span class="n">net_electricity_consumption</span><span class="p">})</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">/</span><span class="n">window</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;group&#39;</span><span class="p">])[[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="CostFunction.electricity_consumption"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.electricity_consumption">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -206,17 +184,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        electricity_consumption : List[float]</span>
-<span class="sd">            Electricity consumption cost.        </span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; electricity_consumption = [100.0, -200.0, 200.0, 600.0, 400.0, 300.0]</span>
-<span class="sd">        &gt;&gt;&gt; CostFunction.net_electricity_consumption(net_electricity_consumption)</span>
-<span class="sd">        [100.0, 100.0, 300.0, 900.0, 1300.0, 1600.0]</span>
+<span class="sd">            Electricity consumption cost.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)})</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;electricity_consumption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;electricity_consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="CostFunction.zero_net_energy"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.zero_net_energy">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -224,7 +197,7 @@
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling sum of net electricity consumption.</span>
 
 <span class="sd">        It is the net sum of electricty that is consumed from the grid and self-generated from renenewable sources.</span>
-<span class="sd">        This calculation of zero net energy does not consider in TDV and all time steps are weighted equally.</span>
+<span class="sd">        This calculation of zero net energy does not consider TDV and all time steps are weighted equally.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -234,17 +207,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        zero_net_energy : List[float]</span>
-<span class="sd">            Zero net energy cost.        </span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; net_electricity_consumption = [100.0, -200.0, 200.0, 600.0, 400.0, 300.0]</span>
-<span class="sd">        &gt;&gt;&gt; CostFunction.zero_net_energy(net_electricity_consumption)</span>
-<span class="sd">        [100.0, -100.0, 100.0, 700.0, 1100.0, 1400.0]</span>
+<span class="sd">            Zero net energy cost.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">)})</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;zero_net_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;zero_net_energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="CostFunction.carbon_emissions"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.carbon_emissions">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -259,42 +227,32 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        carbon_emissions : List[float]</span>
-<span class="sd">            Carbon emissions cost.        </span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; carbon_emissions = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]</span>
-<span class="sd">        &gt;&gt;&gt; CostFunction.carbon_emissions(carbon_emissions)</span>
-<span class="sd">        [100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]</span>
+<span class="sd">            Carbon emissions cost.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;carbon_emissions&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">carbon_emissions</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)})</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;carbon_emissions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;carbon_emissions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;carbon_emissions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="CostFunction.cost"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.cost">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">cost</span><span class="p">(</span><span class="n">price</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">cost</span><span class="p">(</span><span class="n">cost</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling sum of electricity monetary cost.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        price : List[float]</span>
-<span class="sd">            Price time series.</span>
+<span class="sd">        cost : List[float]</span>
+<span class="sd">            Cost time series.</span>
 <span class="sd">            </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        price : List[float]</span>
-<span class="sd">            Price cost.        </span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; cost = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]</span>
-<span class="sd">        &gt;&gt;&gt; CostFunction.price(carbon_emissions)</span>
-<span class="sd">        [100.0, 300.0, 500.0, 1100.0, 1500.0, 1800.0]</span>
+<span class="sd">        cost : List[float]</span>
+<span class="sd">            Cost of electricity.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;cost&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">price</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)})</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;cost&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)})</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="CostFunction.quadratic"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.quadratic">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -313,19 +271,92 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        Net electricity consumption values are clipped at a minimum of 0 before calculating the quadratic cost.      </span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; net_electricity_consumption = [100.0, 200.0, 200.0, 600.0, 400.0, 300.0]</span>
-<span class="sd">        &gt;&gt;&gt; CostFunction.quadratic(net_electricity_consumption)</span>
-<span class="sd">        [10000.0, 50000.0, 90000.0, 450000.0, 610000.0, 700000.0]</span>
+<span class="sd">        Net electricity consumption values are clipped at a minimum of 0 before calculating the quadratic cost.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)})</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;quadratic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;quadratic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;quadratic&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;quadratic&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div></div>
+        
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;quadratic&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="CostFunction.discomfort"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.discomfort">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">discomfort</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dry_bulb_temperature_set_point</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">occupant_count</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling percentage of discomfort (total, too cold, and too hot) time steps as well as rolling minimum, maximum and average temperature delta.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        indoor_dry_bulb_temperature: List[float]</span>
+<span class="sd">            Average building dry bulb temperature time series.</span>
+<span class="sd">        dry_bulb_temperature_set_point: List[float]</span>
+<span class="sd">            Building thermostat setpoint time series.</span>
+<span class="sd">        band: float, default = 2.0</span>
+<span class="sd">            Comfort band above and below dry_bulb_temperature_set_point beyond </span>
+<span class="sd">            which occupant is assumed to be uncomfortable.</span>
+<span class="sd">        occupant_cunt: List[float], optional</span>
+<span class="sd">            Occupant count time series. If provided, the comfort cost is </span>
+<span class="sd">            evaluated for occupied time steps only.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        discomfort: List[float]</span>
+<span class="sd">            Rolling proportion of occupied timesteps where the condition </span>
+<span class="sd">            (dry_bulb_temperature_set_point - band) &lt;= indoor_dry_bulb_temperature &lt;= (dry_bulb_temperature_set_point + band) is not met.</span>
+<span class="sd">        discomfort_too_cold: List[float]</span>
+<span class="sd">            Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature &lt; (dry_bulb_temperature_set_point - band) is met.</span>
+<span class="sd">        discomfort_too_hot: List[float]</span>
+<span class="sd">            Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature &gt; (dry_bulb_temperature_set_point + band) is met.</span>
+<span class="sd">        discomfort_delta_minimum: List[float]</span>
+<span class="sd">            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.</span>
+<span class="sd">        discomfort_delta_maximum: List[float]</span>
+<span class="sd">            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.</span>
+<span class="sd">        discomfort_delta_average: List[float]</span>
+<span class="sd">            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">band</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="k">if</span> <span class="n">band</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">band</span>
+
+        <span class="c1"># unmet hours</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s1">&#39;indoor_dry_bulb_temperature&#39;</span><span class="p">:</span> <span class="n">indoor_dry_bulb_temperature</span><span class="p">,</span> 
+            <span class="s1">&#39;dry_bulb_temperature_set_point&#39;</span><span class="p">:</span> <span class="n">dry_bulb_temperature_set_point</span><span class="p">,</span>
+            <span class="s1">&#39;occupant_count&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">)</span> <span class="k">if</span> <span class="n">occupant_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">occupant_count</span>
+        <span class="p">})</span>
+        <span class="n">occupied_time_step_count</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;occupant_count&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;indoor_dry_bulb_temperature&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;dry_bulb_temperature_set_point&#39;</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;occupant_count&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">band</span><span class="p">,</span> <span class="s1">&#39;discomfort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="n">occupied_time_step_count</span>
+
+        <span class="c1"># too cold</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_too_cold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">band</span><span class="p">,</span> <span class="s1">&#39;discomfort_too_cold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_too_cold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_too_cold&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="n">occupied_time_step_count</span>
+
+        <span class="c1"># too hot</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_too_hot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">band</span><span class="p">,</span> <span class="s1">&#39;discomfort_too_hot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_too_hot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_too_hot&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="n">occupied_time_step_count</span>
+
+        <span class="c1"># minimum delta</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_delta_minimum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+
+        <span class="c1"># maximum delta</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_delta_maximum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="c1"># average delta</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_delta_average&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_too_cold&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_too_hot&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_delta_minimum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_delta_maximum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_delta_average&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span></div></div>
+        
 </pre></div>
 
            </div>

@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agents &mdash; CityLearn 1.8.0 documentation</title>
+  <title>Agents &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -63,6 +66,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 
@@ -93,7 +97,7 @@
              
   <section id="agents">
 <h1>Agents<a class="headerlink" href="#agents" title="Permalink to this headline"></a></h1>
-<p>CityLearn supports centralized, decentralized-independent and decentralized-coordinated control architectures. In the centralized architecture, 1 agent controls all storage devices i.e. provides as many actions as storage devices in the district. In the decentralized-independent architecture, each building has it’s own unique agent and building agents do not share information i.e. each agent acts in isolation and provides as many actions as storage devices in the building it controls. The decentralized-coordinated architecture is similar to the decentralized-independent architecture with the exception of information sharing amongst agents.</p>
+<p>CityLearn supports centralized, decentralized-independent and decentralized-coordinated control architectures. In the centralized architecture, 1 agent controls all storage, cooling and heating devices i.e. provides as many actions as storage, cooling and heating devices in the district. In the decentralized-independent architecture, each building has it’s own unique agent and building agents do not share information i.e. each agent acts in isolation and provides as many actions as storage, cooling and heating devices in the building it controls. The decentralized-coordinated architecture is similar to the decentralized-independent architecture with the exception of information sharing amongst agents.</p>
 <p>CityLearn provides implementations of rule-based control (RBC) and reinforcement learning control (RLC) algorithms. The rule-based control algorithms are in the <a class="reference internal" href="../api/citylearn.agents.rbc.html#module-citylearn.agents.rbc" title="citylearn.agents.rbc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.rbc</span></code></a> module, while there are two reinforcement learning modules: <a class="reference internal" href="../api/citylearn.agents.sac.html#module-citylearn.agents.sac" title="citylearn.agents.sac"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.sac</span></code></a> and <a class="reference internal" href="../api/citylearn.agents.marlisa.html#module-citylearn.agents.marlisa" title="citylearn.agents.marlisa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.agents.marlisa</span></code></a>. The table below summarizes which control architectures the control algorithms support:</p>
 <table class="docutils align-default">
 <colgroup>

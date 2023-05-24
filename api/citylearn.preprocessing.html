@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.preprocessing module &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.preprocessing module &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -20,6 +23,8 @@
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -60,6 +65,7 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.citylearn.html">citylearn.citylearn module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.cost_function.html">citylearn.cost_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.preprocessing module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
@@ -73,6 +79,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 
@@ -108,25 +115,56 @@
 <dt class="sig sig-object py" id="citylearn.preprocessing.Encoder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.preprocessing.</span></span><span class="sig-name descname"><span class="pre">Encoder</span></span><a class="reference internal" href="../_modules/citylearn/preprocessing.html#Encoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.preprocessing.Encoder" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class to transform observations.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.preprocessing.NoNormalization">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.preprocessing.</span></span><span class="sig-name descname"><span class="pre">NoNormalization</span></span><a class="reference internal" href="../_modules/citylearn/preprocessing.html#NoNormalization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.preprocessing.NoNormalization" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.preprocessing.Encoder</span></code></a></p>
+<p>Use to return observation value as-is i.e. without any transformation.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x_max</span> <span class="o">=</span> <span class="mi">24</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encoder</span> <span class="o">=</span> <span class="n">NoNormalization</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observation</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encoder</span><span class="o">*</span><span class="n">observation</span>
+<span class="go">2</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.preprocessing.Normalize">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.preprocessing.</span></span><span class="sig-name descname"><span class="pre">Normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/preprocessing.html#Normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.preprocessing.Normalize" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.preprocessing.Encoder</span></code></a></p>
+<p>Use to transform observations to a value between <cite>x_min</cite> and <cite>x_max</cite> using min-max normalization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_min</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>int</em><em>]</em>) – Minimum observation value.</p></li>
+<li><p><strong>x_max</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>int</em><em>]</em>) – Maximum observation value.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The transformation returns two values <span class="math notranslate nohighlight">\(x_{sin}\)</span> and <span class="math notranslate nohighlight">\(x_{sin}\)</span> defined as:</p>
+<div class="math notranslate nohighlight">
+\[x = \frac{x - x_{min}}{x_{max} - x_{min}}\]</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x_min</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x_max</span> <span class="o">=</span> <span class="mi">24</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encoder</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observation</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encoder</span><span class="o">*</span><span class="n">observation</span>
+<span class="go">0.08333333333333333</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.preprocessing.OnehotEncoding">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.preprocessing.</span></span><span class="sig-name descname"><span class="pre">OnehotEncoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/preprocessing.html#OnehotEncoding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.preprocessing.OnehotEncoding" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.preprocessing.Encoder</span></code></a></p>
-<p>Initialize <cite>PeriodicNormalization</cite> encoder class.</p>
 <p>Use to transform unordered categorical observations e.g. boolean daylight savings e.t.c.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -148,12 +186,38 @@
 <dt class="sig sig-object py" id="citylearn.preprocessing.PeriodicNormalization">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.preprocessing.</span></span><span class="sig-name descname"><span class="pre">PeriodicNormalization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/preprocessing.html#PeriodicNormalization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.preprocessing.PeriodicNormalization" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.preprocessing.Encoder</span></code></a></p>
+<p>Use to transform observations that are cyclical/periodic e.g. hour-of-day, day-of-week, e.t.c.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x_max</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>int</em><em>]</em>) – Maximum observation value.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The transformation returns two values <span class="math notranslate nohighlight">\(x_{sin}\)</span> and <span class="math notranslate nohighlight">\(x_{sin}\)</span> defined as:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}x_{sin} = sin(\frac{2 \cdot \pi \cdot x}{x_{max}})\\x_{cos} = cos(\frac{2 \cdot \pi \cdot x}{x_{max}})\end{aligned}\end{align} \]</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x_max</span> <span class="o">=</span> <span class="mi">24</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encoder</span> <span class="o">=</span> <span class="n">PeriodicNormalization</span><span class="p">(</span><span class="n">x_max</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observation</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encoder</span><span class="o">*</span><span class="n">observation</span>
+<span class="go">array([0.75, 0.9330127])</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.preprocessing.RemoveFeature">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.preprocessing.</span></span><span class="sig-name descname"><span class="pre">RemoveFeature</span></span><a class="reference internal" href="../_modules/citylearn/preprocessing.html#RemoveFeature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.preprocessing.RemoveFeature" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.preprocessing.Encoder" title="citylearn.preprocessing.Encoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.preprocessing.Encoder</span></code></a></p>
+<p>Use to exlude an observation by returning <cite>None</cite> type.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">encoder</span> <span class="o">=</span> <span class="n">RemoveFeature</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">observation</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">encoder</span><span class="o">*</span><span class="n">observation</span>
+<span class="go">None</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

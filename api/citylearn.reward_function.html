@@ -4,11 +4,14 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.reward_function module &mdash; CityLearn 1.8.0 documentation</title>
+  <title>citylearn.reward_function module &mdash; CityLearn 2.0-beta1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -62,6 +65,7 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.citylearn.html">citylearn.citylearn module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.cost_function.html">citylearn.cost_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.reward_function module</a></li>
@@ -75,6 +79,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
 </ul>
 
@@ -107,14 +112,35 @@
   <section id="module-citylearn.reward_function">
 <span id="citylearn-reward-function-module"></span><h1>citylearn.reward_function module<a class="headerlink" href="#module-citylearn.reward_function" title="Permalink to this headline"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="citylearn.reward_function.IndependentSACReward">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">IndependentSACReward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#IndependentSACReward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.IndependentSACReward" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="citylearn.reward_function.ComfortReward">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">ComfortReward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_exponent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">higher_exponent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#ComfortReward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.ComfortReward" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a></p>
+<p>Reward for occupant thermal comfort satisfaction.</p>
+<p>The reward is the calculated as the negative delta between the setpoint and indoor dry-bulb temperature raised to some exponent
+if outside the comfort band. If within the comfort band, the reward is the negative delta when in cooling mode and temperature
+is below the setpoint or when in heating mode and temperature is above the setpoint. The reward is 0 if within the comfort band
+and above the setpoint in cooling mode or below the setpoint and in heating mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>citylearn.citylearn.CityLearnEnv</em></a>) – CityLearn environment.</p></li>
+<li><p><strong>band</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Setpoint comfort band (+/-).</p></li>
+<li><p><strong>lower_exponent</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Penalty exponent for when in cooling mode but temperature is above setpoint upper
+boundary or heating mode but temperature is below setpoint lower boundary.</p></li>
+<li><p><strong>higher_exponent</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Penalty exponent for when in cooling mode but temperature is below setpoint lower
+boundary or heating mode but temperature is above setpoint upper boundary.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.ComfortReward.band">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">band</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.reward_function.ComfortReward.band" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
-<dt class="sig sig-object py" id="citylearn.reward_function.IndependentSACReward.calculate">
-<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#IndependentSACReward.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.IndependentSACReward.calculate" title="Permalink to this definition"></a></dt>
-<dd><p>Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.</p>
-<p>Recommended for use with the <cite>SAC</cite> controllers.</p>
+<dt class="sig sig-object py" id="citylearn.reward_function.ComfortReward.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#ComfortReward.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.ComfortReward.calculate" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates reward.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
@@ -123,9 +149,46 @@
 <dd class="field-even"><p>List[float]</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.ComfortReward.higher_exponent">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">higher_exponent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.reward_function.ComfortReward.higher_exponent" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.ComfortReward.lower_exponent">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lower_exponent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.reward_function.ComfortReward.lower_exponent" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.reward_function.IndependentSACReward">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">IndependentSACReward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#IndependentSACReward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.IndependentSACReward" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a></p>
+<p>Recommended for use with the <cite>SAC</cite> controllers.</p>
+<p>Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>citylearn.citylearn.CityLearnEnv</em></a>) – CityLearn environment.</p>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
-<p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]\)</span>
+<p>Reward value is calculated as <span class="math notranslate nohighlight">\([      extrm{min}(-e_0^3, 0), \dots,   extrm{min}(-e_n^3, 0)]\)</span>
 where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(n\)</span> is the number of agents.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.reward_function.IndependentSACReward.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#IndependentSACReward.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.IndependentSACReward.calculate" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates reward.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[float]</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -134,10 +197,19 @@ where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electrici
 <dt class="sig sig-object py" id="citylearn.reward_function.MARL">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">MARL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#MARL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.MARL" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a></p>
+<p>MARL reward function class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>citylearn.citylearn.CityLearnEnv</em></a>) – CityLearn environment.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Reward value is calculated as :math:`       extrm{sign}(-e)         imes 0.01(e^2)  imes    extrm{max}(0, E)`
+where <span class="math notranslate nohighlight">\(e\)</span> is the building <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(E\)</span> is the district <cite>electricity_consumption</cite>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.reward_function.MARL.calculate">
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#MARL.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.MARL.calculate" title="Permalink to this definition"></a></dt>
-<dd><p>Calculates MARL reward.</p>
+<dd><p>Calculates reward.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
@@ -146,9 +218,6 @@ where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electrici
 <dd class="field-even"><p>List[float]</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>Reward value is calculated as <span class="math notranslate nohighlight">\(\textrm{sign}(-e) \times 0.01(e^2) \times \textrm{max}(0, E)\)</span>
-where <span class="math notranslate nohighlight">\(e\)</span> is the building <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(E\)</span> is the district <cite>electricity_consumption</cite>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -157,11 +226,23 @@ where <span class="math notranslate nohighlight">\(e\)</span> is the building <c
 <dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">RewardFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#RewardFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.RewardFunction" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base and default reward function class.</p>
+<p>The default reward is the electricity consumption from the grid at the current time step returned as a negative value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>citylearn.citylearn.CityLearnEnv</em></a>) – CityLearn environment.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Other keyword arguments for custom reward calculation.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]\)</span>
+where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(n\)</span> is the number of agents.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction.calculate">
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#RewardFunction.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.RewardFunction.calculate" title="Permalink to this definition"></a></dt>
-<dd><p>Calculates default reward.</p>
-<p>The default reward is the electricity consumption from the grid at the current time step returned as a negative value.</p>
+<dd><p>Calculates reward.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
@@ -170,9 +251,6 @@ where <span class="math notranslate nohighlight">\(e\)</span> is the building <c
 <dd class="field-even"><p>List[float]</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>Reward value is calculated as <span class="math notranslate nohighlight">\([\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]\)</span>
-where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electricity_consumption</cite> and <span class="math notranslate nohighlight">\(n\)</span> is the number of agents.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -184,23 +262,64 @@ where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electrici
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="citylearn.reward_function.SolarPenaltyAndComfortReward">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">SolarPenaltyAndComfortReward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_exponent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">higher_exponent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#SolarPenaltyAndComfortReward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.SolarPenaltyAndComfortReward" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a></p>
+<p>Addition of <a class="reference internal" href="#citylearn.reward_function.SolarPenaltyReward" title="citylearn.reward_function.SolarPenaltyReward"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.SolarPenaltyReward</span></code></a> and <a class="reference internal" href="#citylearn.reward_function.ComfortReward" title="citylearn.reward_function.ComfortReward"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.ComfortReward</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>citylearn.citylearn.CityLearnEnv</em></a>) – CityLearn environment.</p></li>
+<li><p><strong>band</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Setpoint comfort band (+/-).</p></li>
+<li><p><strong>lower_exponent</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Penalty exponent for when in cooling mode but temperature is above setpoint upper
+boundary or heating mode but temperature is below setpoint lower boundary.</p></li>
+<li><p><strong>higher_exponent</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Penalty exponent for when in cooling mode but temperature is below setpoint lower
+boundary or heating mode but temperature is above setpoint upper boundary.</p></li>
+<li><p><strong>coefficients</strong> (<em>Tuple</em><em>, </em><em>default =</em><em> (</em><em>1.0</em><em>, </em><em>1.0</em><em>)</em>) – Coefficents for <cite>citylearn.reward_function.SolarPenaltyReward</cite> and <a class="reference internal" href="#citylearn.reward_function.ComfortReward" title="citylearn.reward_function.ComfortReward"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.ComfortReward</span></code></a> values respectively.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.reward_function.SolarPenaltyAndComfortReward.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#SolarPenaltyAndComfortReward.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.SolarPenaltyAndComfortReward.calculate" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates reward.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.SolarPenaltyAndComfortReward.coefficients">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coefficients</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span></em><a class="headerlink" href="#citylearn.reward_function.SolarPenaltyAndComfortReward.coefficients" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="citylearn.reward_function.SolarPenaltyReward">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">SolarPenaltyReward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#SolarPenaltyReward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.SolarPenaltyReward" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a></p>
+<p>The reward is designed to minimize electricity consumption and maximize solar generation to charge energy storage systems.</p>
+<p>The reward is calculated for each building, i and summed to provide the agent with a reward that is representative of all the
+building or buildings (in centralized case)it controls. It encourages net-zero energy use by penalizing grid load satisfaction
+when there is energy in the enerygy storage systems as well as penalizing net export when the energy storage systems are not
+fully charged through the penalty term. There is neither penalty nor reward when the energy storage systems are fully charged
+during net export to the grid. Whereas, when the energy storage systems are charged to capacity and there is net import from the
+grid the penalty is maximized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>citylearn.citylearn.CityLearnEnv</em></a>) – CityLearn environment.</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.reward_function.SolarPenaltyReward.calculate">
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#SolarPenaltyReward.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.SolarPenaltyReward.calculate" title="Permalink to this definition"></a></dt>
-<dd><p>The reward is designed to minimize electricity consumption and maximize
-solar generation to charge energy storage systems.</p>
-<p>The reward is calculated for each building, i and summed to provide the agent
-with a reward that is representative of all the building or buildings (in centralized case)
-it controls. It encourages net-zero energy use by penalizing grid load satisfaction
-when there is energy in the enerygy storage systems as well as penalizing
-net export when the energy storage systems are not fully charged through the penalty
-term. There is neither penalty nor reward when the energy storage systems
-are fully charged during net export to the grid. Whereas, when the
-energy storage systems are charged to capacity and there is net import from the
-grid the penalty is maximized.</p>
+<dd><p>Calculates reward.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
