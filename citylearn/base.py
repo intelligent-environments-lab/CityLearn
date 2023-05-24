@@ -2,17 +2,17 @@ import random
 import uuid
 
 class Environment:
+    """Base class for all `citylearn` classes that have a spatio-temporal dimension.
+
+    Parameters
+    ----------
+    seconds_per_time_step: float, default: 3600.0
+        Number of seconds in 1 `time_step` and must be set to >= 1.
+    random_seed : int
+        Pseudorandom number generator seed for repeatable results.
+    """
+    
     def __init__(self, seconds_per_time_step: float = None, random_seed: int = None):
-        """Initialize `Environment`.
-
-        Attributes
-        ----------
-        seconds_per_time_step: float, default: 3600.0
-           Number of seconds in 1 `time_step` and must be set to >= 1.
-        random_seed : int
-            Pseudorandom number generator seed for repeatable results.
-        """
-
         self.seconds_per_time_step = seconds_per_time_step
         self.__uid = uuid.uuid4().hex
         self.random_seed = random_seed

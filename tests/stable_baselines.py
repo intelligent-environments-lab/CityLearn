@@ -6,7 +6,7 @@ from citylearn.citylearn import CityLearnEnv
 from citylearn.wrappers import NormalizedObservationWrapper, StableBaselines3Wrapper
 
 # Initialize environment
-dataset_name = 'citylearn_challenge_2022_phase_1'
+dataset_name = 'baeda_3dem'
 env = CityLearnEnv(dataset_name, central_agent=True)
 env.buildings = env.buildings[0:1]
 
@@ -24,8 +24,8 @@ finally:
     pass
 
 # Run simulation with SAC policy
-model = SAC('MlpPolicy', env, verbose=2, learning_starts=8760, seed=0)
-model.learn(total_timesteps=8760*2, log_interval=8760)
+model = SAC('MlpPolicy', env, verbose=2, learning_starts=env.time_steps, seed=0)
+model.learn(total_timesteps=env.time_steps*3, log_interval=1)
 
 # Evaluation
 print(env.evaluate())

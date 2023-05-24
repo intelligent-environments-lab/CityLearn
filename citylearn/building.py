@@ -1,6 +1,6 @@
 import inspect
 import math
-from typing import List, Mapping, Tuple, Union
+from typing import Any, List, Mapping, Tuple, Union
 from gym import spaces
 import numpy as np
 import pandas as pd
@@ -12,52 +12,52 @@ from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, Storag
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
 class Building(Environment):
+    r"""Base class for building.
+
+    Parameters
+    ----------
+    energy_simulation : EnergySimulation
+        Temporal features, cooling, heating, dhw and plug loads, solar generation and indoor environment time series.
+    weather : Weather
+        Outdoor weather conditions and forecasts time sereis.
+    observation_metadata : dict
+        Mapping of active and inactive observations.
+    action_metadata : dict
+        Mapping od active and inactive actions.
+    carbon_intensity : CarbonIntensity, optional
+        Carbon dioxide emission rate time series.
+    pricing : Pricing, optional
+        Energy pricing and forecasts time series.
+    dhw_storage : StorageTank, optional
+        Hot water storage object for domestic hot water.
+    cooling_storage : StorageTank, optional
+        Cold water storage object for space cooling.
+    heating_storage : StorageTank, optional
+        Hot water storage object for space heating.
+    electrical_storage : Battery, optional
+        Electric storage object for meeting electric loads.
+    dhw_device : Union[HeatPump, ElectricHeater], optional
+        Electric device for meeting hot domestic hot water demand and charging `dhw_storage`.
+    cooling_device : HeatPump, optional
+        Electric device for meeting space cooling demand and charging `cooling_storage`.
+    heating_device : Union[HeatPump, ElectricHeater], optional
+        Electric device for meeting space heating demand and charging `heating_storage`.
+    pv : PV, optional
+        PV object for offsetting electricity demand from grid.
+    name : str, optional
+        Unique building name.
+
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
     def __init__(
         self, energy_simulation: EnergySimulation, weather: Weather, observation_metadata: Mapping[str, bool], action_metadata: Mapping[str, bool], carbon_intensity: CarbonIntensity = None, 
         pricing: Pricing = None, dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, 
-        dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None, **kwargs
+        dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None, **kwargs: Any
     ):
-        r"""Initialize `Building`.
-
-        Parameters
-        ----------
-        energy_simulation : EnergySimulation
-            Temporal features, cooling, heating, dhw and plug loads, solar generation and indoor environment time series.
-        weather : Weather
-            Outdoor weather conditions and forecasts time sereis.
-        observation_metadata : dict
-            Mapping of active and inactive observations.
-        action_metadata : dict
-            Mapping od active and inactive actions.
-        carbon_intensity : CarbonIntensity, optional
-            Carbon dioxide emission rate time series.
-        pricing : Pricing, optional
-            Energy pricing and forecasts time series.
-        dhw_storage : StorageTank, optional
-            Hot water storage object for domestic hot water.
-        cooling_storage : StorageTank, optional
-            Cold water storage object for space cooling.
-        heating_storage : StorageTank, optional
-            Hot water storage object for space heating.
-        electrical_storage : Battery, optional
-            Electric storage object for meeting electric loads.
-        dhw_device : Union[HeatPump, ElectricHeater], optional
-            Electric device for meeting hot domestic hot water demand and charging `dhw_storage`.
-        cooling_device : HeatPump, optional
-            Electric device for meeting space cooling demand and charging `cooling_storage`.
-        heating_device : Union[HeatPump, ElectricHeater], optional
-            Electric device for meeting space heating demand and charging `heating_storage`.
-        pv : PV, optional
-            PV object for offsetting electricity demand from grid.
-        name : str, optional
-            Unique building name.
-
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
         self.name = name
         self.energy_simulation = energy_simulation
         self.weather = weather
@@ -320,7 +320,8 @@ class Building(Environment):
         
         Notes
         -----
-        net_electricity_consumption_without_storage = `net_electricity_consumption` - (`cooling_storage_electricity_consumption` + `heating_storage_electricity_consumption` + `dhw_storage_electricity_consumption` + `electrical_storage_electricity_consumption`)
+        net_electricity_consumption_without_storage = `net_electricity_consumption` - (`cooling_storage_electricity_consumption`
+        + `heating_storage_electricity_consumption` + `dhw_storage_electricity_consumption` + `electrical_storage_electricity_consumption`)
         """
 
         return self.net_electricity_consumption - np.sum([
@@ -348,7 +349,8 @@ class Building(Environment):
         
         Notes
         -----
-        net_electricity_consumption = `cooling_electricity_consumption` + `heating_electricity_consumption` + `dhw_electricity_consumption` + `electrical_storage_electricity_consumption` + `non_shiftable_load_demand` + `solar_generation`
+        net_electricity_consumption = `cooling_electricity_consumption` + `heating_electricity_consumption` 
+        + `dhw_electricity_consumption` + `electrical_storage_electricity_consumption` + `non_shiftable_load_demand` + `solar_generation`
         """
 
         return self.__net_electricity_consumption
@@ -485,6 +487,15 @@ class Building(Environment):
         """Energy supply from `electrical_storage` to building time series, in [kWh]."""
 
         return np.array(self.electrical_storage.energy_balance, dtype=float).clip(max=0)*-1
+    
+    @property
+    def indoor_dry_bulb_temperature(self) -> np.ndarray:
+        """dry bulb temperature time series, in [C].
+        
+        This is the temperature when cooling_device and heating_device are controlled.
+        """
+
+        return self.energy_simulation.indoor_dry_bulb_temperature[0:self.time_step + 1]
 
     @property
     def cooling_demand(self) -> np.ndarray:
@@ -515,6 +526,15 @@ class Building(Environment):
         """`PV` solar generation (negative value) time series, in [kWh]."""
 
         return self.__solar_generation[:self.time_step + 1]
+    
+    @property
+    def hvac_mode_switch(self) -> bool:
+        """If HVAC has just switched from cooling to heating or vice versa at current `time_step`."""
+
+        previous_mode = self.energy_simulation.hvac_mode[self.time_step - 1]
+        current_mode = self.energy_simulation.hvac_mode[self.time_step]
+
+        return (previous_mode <= 1 and current_mode == 2) or (previous_mode == 2 and current_mode <= 1)
 
     @energy_simulation.setter
     def energy_simulation(self, energy_simulation: EnergySimulation):
@@ -650,7 +670,7 @@ class Building(Environment):
             'cooling_demand': self.energy_simulation.cooling_demand[self.time_step],
             'heating_demand': self.energy_simulation.heating_demand[self.time_step],
             'indoor_dry_bulb_temperature_set_point': self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step],
-            'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature[self.time_step]),
+            'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step]),
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
         }
 
@@ -694,12 +714,13 @@ class Building(Environment):
 
         return observations
     
-    def get_periodic_observation_metadata(self) -> Mapping[str, int]:
+    @staticmethod
+    def get_periodic_observation_metadata() -> Mapping[str, int]:
         r"""Get periodic observation names and their minimum and maximum values for periodic/cyclic normalization.
 
         Returns
         -------
-        periodic_observation_metadata : Mapping[str, int]
+        periodic_observation_metadata: Mapping[str, int]
             Observation low and high limits.
         """
 
@@ -714,7 +735,7 @@ class Building(Environment):
         cooling_storage_action: float = None, heating_storage_action: float = None, 
         dhw_storage_action: float = None, electrical_storage_action: float = None
     ):
-        r"""Charge/discharge storage devices.
+        r"""Update cooling and heating demand for next timestep and charge/discharge storage devices.
 
         Parameters
         ----------
@@ -742,7 +763,7 @@ class Building(Environment):
         self.update_electrical_storage(electrical_storage_action)
 
     def update_dynamics(self):
-        r"""Update building dynamics e.g. space indoor temperature, relative humidity, e.t.c.."""
+        r"""Update building dynamics e.g. space indoor temperature, relative humidity, etc."""
 
         return
 
@@ -1222,23 +1243,83 @@ class Building(Environment):
         self.__net_electricity_consumption_emission.append(max(0, net_electricity_consumption*self.carbon_intensity.carbon_intensity[self.time_step]))
 
 class DynamicsBuilding(Building):
-    def __init__(self, *args, dynamics: Dynamics, **kwargs):
+    r"""Base class for temperature dynamic building.
+
+    Parameters
+    ----------
+    *args: Any
+        Positional arguments in :py:class:`citylearn.building.Building`.
+    cooling_dynamics: Dynamics
+        Indoor dry-bulb temperature dynamics model for cooling mode.
+    heating_dynamics: Dynamics
+        Indoor dry-bulb temperature dynamics model for heating mode.
+
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.
+    """
+
+    def __init__(self, *args: Any, cooling_dynamics: Dynamics, heating_dynamics: Dynamics, **kwargs: Any):
         """Intialize `DynamicsBuilding`"""
 
-        self.dynamics = dynamics
+        self.cooling_dynamics = cooling_dynamics
+        self.heating_dynamics = heating_dynamics
+        self.dynamics = None
         super().__init__(*args, **kwargs)
+        
+
+    def set_dynamics(self) -> Dynamics:
+        """Resets and returns `cooling_dynamics` if current time step HVAC mode is off or
+        cooling otherwise, resets and returns `heating dynamics`."""
+        
+        if self.energy_simulation.hvac_mode[self.time_step] <= 1:
+            self.cooling_dynamics.reset()
+            return self.cooling_dynamics
+        
+        else:
+            self.heating_dynamics.reset()
+            return self.heating_dynamics
+        
+    def reset(self):
+        """Reset Building to initial state and sets `dynamics`."""
+
+        super().reset()
+        self.dynamics = self.set_dynamics()
 
 class LSTMDynamicsBuilding(DynamicsBuilding):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    r"""Class for building with LSTM temperature dynamics model.
+
+    Parameters
+    ----------
+    *args: Any
+        Positional arguments in :py:class:`citylearn.building.Building`.
+    cooling_dynamics: Dynamics
+        Indoor dry-bulb temperature dynamics model for cooling mode.
+    heating_dynamics: Dynamics
+        Indoor dry-bulb temperature dynamics model for heating mode.
+
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.
+    """
+
+    def __init__(self, *args, cooling_dynamics: LSTMDynamics, heating_dynamics: LSTMDynamics, **kwargs):
+        super().__init__(*args, cooling_dynamics=cooling_dynamics, heating_dynamics=heating_dynamics, **kwargs)
         self.dynamics: LSTMDynamics
 
     @property
     def simulate_dynamics(self) -> bool:
-        return self.time_step >= self.dynamics.lookback
+        """Whether to predict indoor dry-bulb temperature at current `time_step`."""
+
+        return self.dynamics._model_input[0][0] is not None
     
     def next_time_step(self):
-        self.__model_input = self.update_model_input()
+        """Update the dynamics model input time series, Advance all energy storage and electric devices,
+        and PV to next `time_step` then predict and update indoor dry-bulb temperature for new `time_step`."""
+
+        self.dynamics._model_input = self.update_model_input()
         super().next_time_step()
 
         if self.simulate_dynamics:
@@ -1246,7 +1327,34 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         else:
             pass
 
+        # Reset dynamics model if HVAC mode has swtiched since previous time step. Reason for doing this is 
+        # because the current model input and hidden states will no longer be valid later on if the mode
+        # switches back to it at a later time step since a different LSTM will be in use until the switch.
+        if self.hvac_mode_switch:
+            self.dynamics = self.set_dynamics()
+        else:
+            pass
+
     def update_dynamics(self):
+        """Predict and update indoor dry-bulb temperature for current `time_step`.
+
+        This method will first apply min-max normalization to the model input data where the input data
+        is made up of building and district level observations including the predicted 
+        :py:attr:`citylearn.building.Building.energy_simulation.indoor_dry_bulb_temperature` 
+        with all input variables having a length of :py:attr:`citylearn.dynamics.LSTMDynamics.lookback`.
+        asides the `indoor_dry_bulb_temperature` whose input includes all values from
+        `time_step` - (`lookback` + 1) to `time_step` - 1, other input variables have values from
+        `time_step` - `lookback` to `time_step`. The `indoor_dry_bulb_temperature` for the current `time_step`
+        is then predicted using the input data and current `hidden_state` and the predicted values replaces the
+        current `time_step` value in :py:attr:`citylearn.building.Building.energy_simulation.indoor_dry_bulb_temperature`.
+
+        Notes
+        -----
+        LSTM model only uses either cooling/heating demand not both as input variable. 
+        Use :py:attr:`citylearn.building.Building.energy_simulation.hvac_mode` to specify whether to consider cooling 
+        or heating demand at each `time_step`.
+        """
+        
         # preprocess input
         key = 'indoor_dry_bulb_temperature'
         model_input = self.update_model_input()
@@ -1263,54 +1371,41 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
                 model_input[i] = model_input[i][1:]
         
         model_input = np.array(model_input, dtype='float32')
-
-        # for debugging
-        heating_demand_ix = self.dynamics.input_observation_names.index('heating_demand')
-        temp_data = pd.DataFrame(np.delete(model_input, heating_demand_ix, 0).T)
-        temp_data['index'] = temp_data.index
-        temp_data['tag'] = 'unorm'
-        temp_data['timestep'] = self.time_step
-        self.input_history.append(temp_data)
         
+        # min-max normalize model input
         for i, (k, nmin, nmax) in enumerate(zip(
             self.dynamics.input_observation_names, self.dynamics.input_normalization_minimum, self.dynamics.input_normalization_maximum
         )):
             model_input[i] = (model_input[i] - nmin)/(nmax - nmin)
-
-        # temporary hack since LSTM model only uses either cooling/heating demand not both as input parameter
-        # The LSTM model may need to include both cooling and heating demand as input parameters to consider
-        # situation where E+ simulation might have both cooling and heating at the same time step.
-        # Also, since CityLearn allows for both cooling and heating loads we need to start considering both series in
-        # model design.
         
-        cooling_demand_ix = self.dynamics.input_observation_names.index('cooling_demand')
-        heating_demand_ix = self.dynamics.input_observation_names.index('heating_demand')
-        model_input[cooling_demand_ix] = np.maximum(model_input[cooling_demand_ix], model_input[heating_demand_ix])
-        model_input = np.delete(model_input, heating_demand_ix, 0)
-
-        # for debugging
-        temp_data = pd.DataFrame(model_input.T)
-        temp_data['index'] = temp_data.index
-        temp_data['tag'] = 'norm'
-        temp_data['timestep'] = self.time_step
-        self.input_history.append(temp_data)
-
         # predict
         model_input_tensor = torch.tensor(model_input.T)
         model_input_tensor = model_input_tensor[np.newaxis, :, :]
-        hidden_state = tuple([h.data for h in self.__hidden_state])
-        indoor_dry_bulb_temperature_norm, self.__hidden_state = self.dynamics(model_input_tensor.float(), hidden_state)
+        hidden_state = tuple([h.data for h in self.dynamics._hidden_state])
+        indoor_dry_bulb_temperature_norm, self.dynamics._hidden_state = self.dynamics(model_input_tensor.float(), hidden_state)
 
         # unnormalize temperature
         low_limit = self.dynamics.input_normalization_minimum[-1]
         high_limit = self.dynamics.input_normalization_maximum[-1]
         indoor_dry_bulb_temperature = indoor_dry_bulb_temperature_norm*(high_limit - low_limit) + low_limit
+        
         # update temperature
         # this function is called after advancing to next timestep 
         # so the cooling demand update and this temperature update are set at the same time step
         self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] = indoor_dry_bulb_temperature.item()
 
     def update_model_input(self) -> List[List[float]]:
+        """Updates and returns the input time series for the dynmaics prediction model.
+
+        Updates the model input with the input variables for the current time step. 
+        The variables in the input will have length of lookback + 1.
+
+        Returns
+        -------
+        model_input: List[List[float]]
+            A list of sublists where each sublist is the time series of a specific input variable.
+        """
+
         # get relevant observations for the current time step
         observations = self.observations(include_all=True, normalize=False, periodic_normalization=True)
 
@@ -1319,12 +1414,32 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         # where n is the lookback + 1 (to include current time step observations)
         model_input = [
             l[-self.dynamics.lookback:] + [observations[k]] 
-            for l, k in zip(self.__model_input, self.dynamics.input_observation_names)
+            for l, k in zip(self.dynamics._model_input, self.dynamics.input_observation_names)
         ]
         
         return model_input
         
     def update_cooling_demand(self, action: float):
+        """Update space cooling demand for next time step.
+
+        Sets the value of :py:attr:`citylearn.building.Building.energy_simulation.cooling_demand` for the next `time_step` to
+        the ouput energy of the cooling device where the proportion of its nominal power made available is defined by `action`.
+        If :py:attr:`citylearn.building.Building.energy_simulation.hvac_mode` at the next time step is = 0, i.e., off, or = 1, 
+        i.e. cooling mode, the demand is set to 0.
+
+        Parameters
+        ----------
+        action: float
+            Proportion of cooling device nominal power that is made available.
+
+        Notes
+        -----
+        Will only start controlling the heat pump when there are enough observations fo the LSTM lookback until then, maintains
+        ideal load. This will imply that the agent does not learn anything in the initial timesteps that are less than the
+        lookback. Taking this approach as a 'warm-up' because realistically, there will be no preceding observations to use in 
+        lookback.
+        """
+
         # only start controlling the heat pump when there are enough observations fo the LSTM lookback
         # until then, maintain ideal load. This will imply that the agent does not learn anything in the
         # initial timesteps that are less than the lookback. How does this affect learning longterm?
@@ -1333,7 +1448,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         # but it complicates things and is not too realistic.
 
         if self.simulate_dynamics:
-            if self.energy_simulation.cooling_device_demand_schedule[self.time_step + 1] > 0:
+            if self.energy_simulation.hvac_mode[self.time_step + 1] == 1:
                 electric_power = action*self.cooling_device.nominal_power
                 demand = self.cooling_device.get_max_output_power(
                     self.weather.outdoor_dry_bulb_temperature[self.time_step + 1],
@@ -1351,8 +1466,28 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
             pass
 
     def update_heating_demand(self, action: float):
+        """Update space heating demand for next time step.
+
+        Sets the value of :py:attr:`citylearn.building.Building.energy_simulation.heating_demand` for the next `time_step` to
+        the ouput energy of the heating device where the proportion of its nominal power made available is defined by `action`.
+        If :py:attr:`citylearn.building.Building.energy_simulation.hvac_mode` at the next time step is = 0, i.e., off, or = 1, 
+        i.e. cooling mode, the demand is set to 0.
+
+        Parameters
+        ----------
+        action: float
+            Proportion of heating device nominal power that is made available.
+
+        Notes
+        -----
+        Will only start controlling the heat pump when there are enough observations fo the LSTM lookback until then, maintains
+        ideal load. This will imply that the agent does not learn anything in the initial timesteps that are less than the
+        lookback. Taking this approach as a 'warm-up' because realistically, there will be no preceding observations to use in 
+        lookback.
+        """
+        
         if self.simulate_dynamics:
-            if self.energy_simulation.heating_device_demand_schedule[self.time_step + 1] > 0:
+            if self.energy_simulation.hvac_mode[self.time_step + 1] == 2:
                 electric_power = action*self.heating_device.nominal_power
                 demand = self.heating_device.get_max_output_power(
                     self.weather.outdoor_dry_bulb_temperature[self.time_step + 1], 
@@ -1366,15 +1501,3 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
 
         else:
             pass
-
-    def reset(self):
-        super().reset()
-        self.input_history = []
-
-        try:
-            self.dynamics.load_state_dict(torch.load(self.dynamics.filepath)['model_state_dict'])
-        except:
-            self.dynamics.load_state_dict(torch.load(self.dynamics.filepath))
-
-        self.__hidden_state = self.dynamics.init_hidden(1)
-        self.__model_input = [[None]*(self.dynamics.lookback + 1) for _ in self.dynamics.input_observation_names]

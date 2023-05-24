@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 import numpy as np
 import pandas as pd
 
@@ -197,8 +197,8 @@ class CostFunction:
         return data['quadratic'].tolist()
     
     @staticmethod
-    def comfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_set_point: List[float], band: float = None, occupant_count: List[int] = None) -> tuple:
-        r"""Rolling percentage of unmet, too cold and too hot time steps as well as rolling minimum, maximum and average temperature delta.
+    def discomfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_set_point: List[float], band: float = None, occupant_count: List[int] = None) -> Tuple[list]:
+        r"""Rolling percentage of discomfort (total, too cold, and too hot) time steps as well as rolling minimum, maximum and average temperature delta.
 
         Parameters
         ----------
@@ -215,18 +215,18 @@ class CostFunction:
             
         Returns
         -------
-        unmet: List[float]
-            Rolling proportion of timesteps where the condition 
+        discomfort: List[float]
+            Rolling proportion of occupied timesteps where the condition 
             (dry_bulb_temperature_set_point - band) <= indoor_dry_bulb_temperature <= (dry_bulb_temperature_set_point + band) is not met.
-        too_cold: List[float]
-            Rolling proportion of timesteps where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
-        too_hot: List[float]
-            Rolling proportion of timesteps where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
-        minimum_delta: List[float]
+        discomfort_too_cold: List[float]
+            Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
+        discomfort_too_hot: List[float]
+            Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
+        discomfort_delta_minimum: List[float]
             Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
-        maximum_delta: List[float]
+        discomfort_delta_maximum: List[float]
             Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
-        average_delta: List[float]
+        discomfort_delta_average: List[float]
             Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
         """
 
@@ -238,37 +238,38 @@ class CostFunction:
             'dry_bulb_temperature_set_point': dry_bulb_temperature_set_point,
             'occupant_count': [1]*len(indoor_dry_bulb_temperature) if occupant_count is None else occupant_count
         })
+        occupied_time_step_count = data[data['occupant_count'] > 0.0].shape[0]
         data['delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_set_point']
-        data.loc[data['occupant_count'] < 1.0, 'delta'] = 0.0
-        data['unmet'] = 0
-        data.loc[data['delta'].abs() > band, 'unmet'] = 1
-        data['unmet'] = data['unmet'].rolling(window=data.shape[0],min_periods=1).sum()/data.shape[0]
+        data.loc[data['occupant_count'] == 0.0, 'delta'] = 0.0
+        data['discomfort'] = 0
+        data.loc[data['delta'].abs() > band, 'discomfort'] = 1
+        data['discomfort'] = data['discomfort'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # too cold
-        data['too_cold'] = 0
-        data.loc[data['delta'] < -band, 'too_cold'] = 1
-        data['too_cold'] = data['too_cold'].rolling(window=data.shape[0],min_periods=1).sum()/data.shape[0]
+        data['discomfort_too_cold'] = 0
+        data.loc[data['delta'] < -band, 'discomfort_too_cold'] = 1
+        data['discomfort_too_cold'] = data['discomfort_too_cold'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # too hot
-        data['too_hot'] = 0
-        data.loc[data['delta'] > band, 'too_hot'] = 1
-        data['too_hot'] = data['too_hot'].rolling(window=data.shape[0],min_periods=1).sum()/data.shape[0]
+        data['discomfort_too_hot'] = 0
+        data.loc[data['delta'] > band, 'discomfort_too_hot'] = 1
+        data['discomfort_too_hot'] = data['discomfort_too_hot'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # minimum delta
-        data['minimum_delta'] = data['delta'].rolling(window=data.shape[0],min_periods=1).min()
+        data['discomfort_delta_minimum'] = data['delta'].rolling(window=data.shape[0],min_periods=1).min()
 
         # maximum delta
-        data['maximum_delta'] = data['delta'].rolling(window=data.shape[0],min_periods=1).max()
+        data['discomfort_delta_maximum'] = data['delta'].rolling(window=data.shape[0],min_periods=1).max()
 
         # average delta
-        data['average_delta'] = data['delta'].rolling(window=data.shape[0],min_periods=1).mean()
+        data['discomfort_delta_average'] = data['delta'].rolling(window=data.shape[0],min_periods=1).mean()
 
         return (
-            data['unmet'].tolist(),
-            data['too_cold'].tolist(),
-            data['too_hot'].tolist(),
-            data['minimum_delta'].tolist(),
-            data['maximum_delta'].tolist(),
-            data['average_delta'].tolist()
+            data['discomfort'].tolist(),
+            data['discomfort_too_cold'].tolist(),
+            data['discomfort_too_hot'].tolist(),
+            data['discomfort_delta_minimum'].tolist(),
+            data['discomfort_delta_maximum'].tolist(),
+            data['discomfort_delta_average'].tolist()
         )
         

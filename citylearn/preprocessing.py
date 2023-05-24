@@ -2,12 +2,10 @@ from typing import Any, List, Union
 import numpy as np
 
 class Encoder:
+    r"""Base class to transform observations.
+    """
+    
     def __init__(self):
-        r"""Initialize base `Encoder` class.
-
-        Use to transform observation values in the replay buffer.
-        """
-
         pass
 
     def __mul__(self, x: Any):
@@ -17,20 +15,18 @@ class Encoder:
         raise NotImplementedError
 
 class NoNormalization(Encoder):
+    r"""Use to return observation value as-is i.e. without any transformation.
+
+    Examples
+    --------
+    >>> x_max = 24
+    >>> encoder = NoNormalization()
+    >>> observation = 2
+    >>> encoder*observation
+    2
+    """
+    
     def __init__(self):
-        r"""Initialize `NoNormalization` encoder class.
-
-        Use to return observation value as-is i.e. without any transformation.
-
-        Examples
-        --------
-        >>> x_max = 24
-        >>> encoder = NoNormalization()
-        >>> observation = 2
-        >>> encoder*observation
-        2
-        """
-
         super().__init__()
 
     def __mul__(self, x: Union[float, int]):
@@ -40,34 +36,32 @@ class NoNormalization(Encoder):
         return x
         
 class PeriodicNormalization(Encoder):
-    def __init__(self, x_max: Union[float, int]):
-        r"""Initialize `PeriodicNormalization` encoder class.
+    r"""Use to transform observations that are cyclical/periodic e.g. hour-of-day, day-of-week, e.t.c.
 
-        Use to transform observations that are cyclical/periodic e.g. hour-of-day, day-of-week, e.t.c.
+    Parameters
+    ----------
+    x_max : Union[float, int]
+        Maximum observation value.
 
-        Parameters
-        ----------
-        x_max : Union[float, int]
-            Maximum observation value.
-
-        Notes
-        -----
-        The transformation returns two values :math:`x_{sin}` and :math:`x_{sin}` defined as:
+    Notes
+    -----
+    The transformation returns two values :math:`x_{sin}` and :math:`x_{sin}` defined as:
+    
+    .. math:: 
+        x_{sin} = sin(\frac{2 \cdot \pi \cdot x}{x_{max}})
         
-        .. math:: 
-            x_{sin} = sin(\frac{2 \cdot \pi \cdot x}{x_{max}})
-            
-            x_{cos} = cos(\frac{2 \cdot \pi \cdot x}{x_{max}})
+        x_{cos} = cos(\frac{2 \cdot \pi \cdot x}{x_{max}})
 
-        Examples
-        --------
-        >>> x_max = 24
-        >>> encoder = PeriodicNormalization(x_max)
-        >>> observation = 2
-        >>> encoder*observation
-        array([0.75, 0.9330127])
-        """
-
+    Examples
+    --------
+    >>> x_max = 24
+    >>> encoder = PeriodicNormalization(x_max)
+    >>> observation = 2
+    >>> encoder*observation
+    array([0.75, 0.9330127])
+    """
+    
+    def __init__(self, x_max: Union[float, int]):
         super().__init__()
         self.x_max = x_max
 
@@ -84,9 +78,7 @@ class PeriodicNormalization(Encoder):
         return np.array([x_sin, x_cos])
 
 class OnehotEncoding(Encoder):
-    r"""Initialize `PeriodicNormalization` encoder class.
-
-    Use to transform unordered categorical observations e.g. boolean daylight savings e.t.c.
+    r"""Use to transform unordered categorical observations e.g. boolean daylight savings e.t.c.
 
     Parameters
     ----------
@@ -116,35 +108,33 @@ class OnehotEncoding(Encoder):
         return identity_mat[np.array(self.classes) == x][0]
     
 class Normalize(Encoder):
+    r"""Use to transform observations to a value between `x_min` and `x_max` using min-max normalization.
+
+    Parameters
+    ----------
+    x_min : Union[float, int]
+        Minimum observation value.
+    x_max : Union[float, int]
+        Maximum observation value.
+
+    Notes
+    -----
+    The transformation returns two values :math:`x_{sin}` and :math:`x_{sin}` defined as:
+    
+    .. math:: 
+        x = \frac{x - x_{min}}{x_{max} - x_{min}}
+
+    Examples
+    --------
+    >>> x_min = 0
+    >>> x_max = 24
+    >>> encoder = Normalize(x_min, x_max)
+    >>> observation = 2
+    >>> encoder*observation
+    0.08333333333333333
+    """
+    
     def __init__(self, x_min: Union[float, int], x_max: Union[float, int]):
-        r"""Initialize `Normalize` encoder class.
-
-        Use to transform observations to a value between `x_min` and `x_max` using min-max normalization.
-
-        Parameters
-        ----------
-        x_min : Union[float, int]
-            Minimum observation value.
-        x_max : Union[float, int]
-            Maximum observation value.
-
-        Notes
-        -----
-        The transformation returns two values :math:`x_{sin}` and :math:`x_{sin}` defined as:
-        
-        .. math:: 
-            x = \frac{x - x_{min}}{x_{max} - x_{min}}
-
-        Examples
-        --------
-        >>> x_min = 0
-        >>> x_max = 24
-        >>> encoder = Normalize(x_min, x_max)
-        >>> observation = 2
-        >>> encoder*observation
-        0.08333333333333333
-        """
-
         super().__init__()
         self.x_min = x_min
         self.x_max = x_max
@@ -162,19 +152,17 @@ class Normalize(Encoder):
             return (x - self.x_min)/(self.x_max - self.x_min)
         
 class RemoveFeature(Encoder):
+    r"""Use to exlude an observation by returning `None` type.
+
+    Examples
+    --------
+    >>> encoder = RemoveFeature()
+    >>> observation = 2
+    >>> encoder*observation
+    None
+    """
+    
     def __init__(self):
-        r"""Initialize `RemoveFeature` encoder class.
-
-        Use to exlude an observation by returning `None` type.
-
-        Examples
-        --------
-        >>> encoder = RemoveFeature()
-        >>> observation = 2
-        >>> encoder*observation
-        None
-        """
-
         super().__init__()
         pass
 

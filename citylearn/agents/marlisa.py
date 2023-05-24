@@ -95,8 +95,9 @@ class MARLISA(SAC):
 
     @start_regression_time_step.setter
     def start_regression_time_step(self, start_regression_time_step: int):
-        start_regression_time_step = self.start_training_time_step - 1 if start_regression_time_step is None else start_regression_time_step
-        assert start_regression_time_step < self.start_training_time_step, 'start_regression_time_step must be < start_training_time_step'
+        default_time_step = 2
+        start_regression_time_step = default_time_step if start_regression_time_step is None else start_regression_time_step
+        assert start_regression_time_step < self.standardize_start_time_step, 'start_regression_time_step must be < standardize_start_time_step'
         self.__start_regression_time_step = start_regression_time_step
 
     @information_sharing.setter
@@ -186,7 +187,7 @@ class MARLISA(SAC):
             else:
                 pass
 
-            if self.time_step >= self.start_training_time_step and self.batch_size <= len(self.replay_buffer[i]):
+            if self.time_step >= self.standardize_start_time_step and self.batch_size <= len(self.replay_buffer[i]):
                 # This code only runs once. Once the random exploration phase is over, we normalize all the states and rewards to make them have mean=0 and std=1, and apply PCA. We push the normalized compressed values back into the buffer, replacing the old buffer.
                 if not self.pca_flag[i]:
                     # calculate normalized observations and rewards
@@ -308,7 +309,7 @@ class MARLISA(SAC):
                 o = self.pca[c].transform(o.reshape(1,-1))[0]
                 o = torch.FloatTensor(o).unsqueeze(0).to(self.device)
                 result = self.policy_net[i].sample(o)
-                a = result[2] if self.time_step >= self.deterministic_start_time_step or deterministic else result[0]
+                a = result[2] if deterministic else result[0]
                 a = list(a.detach().cpu().numpy()[0])
                 actions[c] = a
                 expected_demand[c] = self.predict_demand(c, o_, a)
@@ -335,7 +336,7 @@ class MARLISA(SAC):
             o = self.pca[i].transform(o.reshape(1,-1))[0]
             o = torch.FloatTensor(o).unsqueeze(0).to(self.device)
             result = self.policy_net[i].sample(o)
-            a = result[2] if self.time_step >= self.deterministic_start_time_step or deterministic else result[0]
+            a = result[2] if deterministic else result[0]
             a = list(a.detach().cpu().numpy()[0])
             actions[i] = a
         

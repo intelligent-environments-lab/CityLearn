@@ -1,5 +1,6 @@
-from typing import List
+from typing import Any, List
 import numpy as np
+from citylearn.citylearn import CityLearnEnv
 from citylearn.preprocessing import Encoder, PeriodicNormalization, Normalize, OnehotEncoding
 
 # conditional imports
@@ -11,55 +12,51 @@ except (ModuleNotFoundError, ImportError) as e:
 from citylearn.agents.base import Agent
 
 class RLC(Agent):
+    r"""Base reinforcement learning controller class.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    hidden_dimension : List[float], default: [256, 256]
+        Hidden dimension.
+    discount : float, default: 0.99
+        Discount factor.
+    tau : float, default: 5e-3
+        Decay rate.
+    alpha: float, default: 0.2
+        Temperature; exploration-exploitation balance term.
+    lr : float, default: 3e-4
+        Learning rate.
+    batch_size : int, default: 256
+        Batch size.
+    replay_buffer_capacity : int, default: 1e5
+        Replay buffer capacity.
+    standardize_start_time_step : int, optional
+        Time step to calculate mean and standard deviation, and begin standardization of observations and rewards in replay buffer. Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 2.
+    end_exploration_time_step : int, optional
+        Time step to stop random or RBC-guided exploration. Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 1.
+    action_scaling_coefficient : float, default: 0.5
+        Action scaling coefficient.
+    reward_scaling : float, default: 5.0
+        Reward scaling.
+    update_per_time_step : int, default: 2
+        Number of updates per time step.
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+            
     def __init__(
-        self, *args, hidden_dimension: List[float] = None, 
+        self, env: CityLearnEnv, hidden_dimension: List[float] = None, 
         discount: float = None, tau: float = None, alpha: float = None, lr: float = None, batch_size: int = None,
-        replay_buffer_capacity: int = None, start_training_time_step: int = None, end_exploration_time_step: int = None, 
-        deterministic_start_time_step: int = None, action_scaling_coefficienct: float = None, reward_scaling: float = None, 
-        update_per_time_step: int = None, **kwargs
+        replay_buffer_capacity: int = None, standardize_start_time_step: int = None, end_exploration_time_step: int = None, 
+        action_scaling_coefficienct: float = None, reward_scaling: float = None, 
+        update_per_time_step: int = None, **kwargs: Any
     ):
-        r"""Initialize `RLC`.
-
-        Base reinforcement learning controller class.
-
-        Parameters
-        ----------
-        *args : tuple
-            `Agent` positional arguments.
-        hidden_dimension : List[float], default: [256, 256]
-            Hidden dimension.
-        discount : float, default: 0.99
-            Discount factor.
-        tau : float, default: 5e-3
-            Decay rate.
-        alpha: float, default: 0.2
-            Temperature; exploration-exploitation balance term.
-        lr : float, default: 3e-4
-            Learning rate.
-        batch_size : int, default: 256
-            Batch size.
-        replay_buffer_capacity : int, default: 1e5
-            Replay buffer capacity.
-        start_training_time_step : int, default: 6000
-            Time step to start training regression.
-        end_exploration_time_step : int, default: 7000
-            Time step to stop random or RBC-guided exploration.
-        deterministic_start_time_step : int, default: 7500
-            Time step to begin taking deterministic actions.
-        action_scaling_coefficient : float, default: 0.5
-            Action scaling coefficient.
-        reward_scaling : float, default: 5.0
-            Reward scaling.
-        update_per_time_step : int, default: 2
-            Number of updates per time step.
-        
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
-        super().__init__(*args, **kwargs)
+        super().__init__(env, **kwargs)
         self.hidden_dimension = hidden_dimension
         self.discount = discount
         self.tau = tau
@@ -67,9 +64,8 @@ class RLC(Agent):
         self.lr = lr
         self.batch_size = batch_size
         self.replay_buffer_capacity = replay_buffer_capacity
-        self.start_training_time_step = start_training_time_step
+        self.standardize_start_time_step = standardize_start_time_step
         self.end_exploration_time_step = end_exploration_time_step
-        self.deterministic_start_time_step = deterministic_start_time_step
         self.action_scaling_coefficient = action_scaling_coefficienct
         self.reward_scaling = reward_scaling
         self.update_per_time_step = update_per_time_step
@@ -124,22 +120,16 @@ class RLC(Agent):
         return self.__replay_buffer_capacity
 
     @property
-    def start_training_time_step(self) -> int:
-        """Time step to end exploration phase."""
+    def standardize_start_time_step(self) -> int:
+        """Time step to calculate mean and standard deviation, and begin standardization of observations and rewards in replay buffer. Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 2."""
 
-        return self.__start_training_time_step
+        return self.__standardize_start_time_step
 
     @property
     def end_exploration_time_step(self) -> int:
-        """Time step to stop exploration."""
+        """Time step to stop exploration.  Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 1."""
 
         return self.__end_exploration_time_step
-
-    @property
-    def deterministic_start_time_step(self) -> int:
-        """Time step to begin taking deterministic actions."""
-
-        return self.__deterministic_start_time_step
 
     @property
     def action_scaling_coefficient(self) -> float:
@@ -187,17 +177,13 @@ class RLC(Agent):
     def replay_buffer_capacity(self, replay_buffer_capacity: int):
         self.__replay_buffer_capacity = 1e5 if replay_buffer_capacity is None else replay_buffer_capacity
 
-    @start_training_time_step.setter
-    def start_training_time_step(self, start_training_time_step: int):
-        self.__start_training_time_step = 6000 if start_training_time_step is None else start_training_time_step
+    @standardize_start_time_step.setter
+    def standardize_start_time_step(self, standardize_start_time_step: int):
+        self.__standardize_start_time_step = self.env.time_steps - 1 if standardize_start_time_step is None else standardize_start_time_step
 
     @end_exploration_time_step.setter
     def end_exploration_time_step(self, end_exploration_time_step: int):
-        self.__end_exploration_time_step = 7000 if end_exploration_time_step is None else end_exploration_time_step
-
-    @deterministic_start_time_step.setter
-    def deterministic_start_time_step(self, deterministic_start_time_step: int):
-        self.__deterministic_start_time_step = np.nan if deterministic_start_time_step is None else deterministic_start_time_step
+        self.__end_exploration_time_step = self.env.time_steps if end_exploration_time_step is None else end_exploration_time_step
 
     @action_scaling_coefficient.setter
     def action_scaling_coefficient(self, action_scaling_coefficient: float):

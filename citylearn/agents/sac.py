@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 import numpy as np
 import numpy.typing as npt
 
@@ -9,27 +9,28 @@ try:
 except (ModuleNotFoundError, ImportError) as e:
     raise Exception("This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org.")
 
-from citylearn.agents.rbc import RBC, BasicRBC, OptimizedRBC, BasicBatteryRBC
+from citylearn.agents.rbc import RBC, BasicBatteryRBC, BasicRBC, HourRBC, OptimizedRBC
 from citylearn.agents.rlc import RLC
+from citylearn.citylearn import CityLearnEnv
 from citylearn.preprocessing import Encoder, RemoveFeature
 from citylearn.rl import PolicyNetwork, ReplayBuffer, SoftQNetwork
 
 class SAC(RLC):
-    def __init__(self, *args, **kwargs):
-        r"""Initialize :class:`SAC`.
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        r"""Custom soft actor-critic algorithm.
 
         Parameters
         ----------
-        *args : tuple
-            `RLC` positional arguments.
+        env: CityLearnEnv
+            CityLearn environment.
         
         Other Parameters
         ----------------
-        **kwargs : dict
+        **kwargs : Any
             Other keyword arguments used to initialize super class.
         """
 
-        super().__init__(*args, **kwargs)
+        super().__init__(env, **kwargs)
 
         # internally defined
         self.normalized = [False for _ in self.action_space]
@@ -84,7 +85,7 @@ class SAC(RLC):
         
             self.replay_buffer[i].push(o, a, r, n, done)
 
-            if self.time_step >= self.start_training_time_step and self.batch_size <= len(self.replay_buffer[i]):
+            if self.time_step >= self.standardize_start_time_step and self.batch_size <= len(self.replay_buffer[i]):
                 if not self.normalized[i]:
                     # calculate normalized observations and rewards
                     X = np.array([j[0] for j in self.replay_buffer[i].buffer], dtype = float)
@@ -201,7 +202,7 @@ class SAC(RLC):
             o = self.get_normalized_observations(i, o)
             o = torch.FloatTensor(o).unsqueeze(0).to(self.device)
             result = self.policy_net[i].sample(o)
-            a = result[2] if self.time_step >= self.deterministic_start_time_step or deterministic else result[0]
+            a = result[2] if deterministic else result[0]
             actions.append(a.detach().cpu().numpy()[0])
 
         return actions
@@ -222,7 +223,15 @@ class SAC(RLC):
         return (reward - self.r_norm_mean[index])/self.r_norm_std[index]
 
     def get_normalized_observations(self, index: int, observations: List[float]) -> npt.NDArray[np.float64]:
-        return (np.array(observations, dtype = float) - self.norm_mean[index])/self.norm_std[index]
+        try:
+            return (np.array(observations, dtype = float) - self.norm_mean[index])/self.norm_std[index]
+        except:
+            # self.time_step >= self.standardize_start_time_step and self.batch_size <= len(self.replay_buffer[i])
+            print('obs:',observations)
+            print('mean:',self.norm_mean[index])
+            print('std:',self.norm_std[index])
+            print(self.time_step, self.standardize_start_time_step, self.batch_size, len(self.replay_buffer[0]))
+            assert False
 
     def get_encoded_observations(self, index: int, observations: List[float]) -> npt.NDArray[np.float64]:
         return np.array([j for j in np.hstack(self.encoders[index]*np.array(observations, dtype=float)) if j != None], dtype = float)
@@ -265,34 +274,24 @@ class SAC(RLC):
         return encoders
 
 class SACRBC(SAC):
-    def __init__(self, *args, **kwargs):
-        r"""Initialize `SACRBC`.
+    r"""Uses :py:class:`citylearn.agents.rbc.RBC` to select action during exploration before using :py:class:`citylearn.agents.sac.SAC`.
 
-        Uses :class:`RBC` to select action during exploration before using :class:`SAC`. 
-
-        Parameters
-        ----------
-        *args : tuple
-            :class:`SAC` positional arguments.
-        
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
-        super().__init__(*args, **kwargs)
-        self.rbc = RBC(*args, **kwargs)
-
-    @property
-    def rbc(self) -> RBC:
-        """:class:`RBC` or child class, used to select actions during exploration."""
-
-        return self.__rbc
-
-    @rbc.setter
-    def rbc(self, rbc: RBC):
-        self.__rbc = rbc
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    rbc: RBC
+        :py:class:`citylearn.agents.rbc.RBC` or child class, used to select actions during exploration.
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, env: CityLearnEnv, rbc: RBC = None, **kwargs: Any):
+        super().__init__(env, **kwargs)
+        self.rbc = RBC(env, **kwargs) if rbc is None else rbc
 
     def get_exploration_prediction(self, states: List[float]) -> List[float]:
         """Return actions using :class:`RBC`.
@@ -304,63 +303,75 @@ class SACRBC(SAC):
         """
 
         return self.rbc.predict(states)
+    
+class SACHourRBC(SACRBC):
+    r"""Uses :py:class:`citylearn.agents.rbc.HourRBC` to select action during exploration before using :py:class:`citylearn.agents.sac.SAC`.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        super().__init__(env, **kwargs)
+        self.rbc = OptimizedRBC(env, **kwargs)
 
 class SACBasicRBC(SACRBC):
-     def __init__(self, *args, **kwargs):
-        r"""Initialize `SACRBC`.
+    r"""Uses :py:class:`citylearn.agents.rbc.BasicRBC` to select action during exploration before using :py:class:`citylearn.agents.sac.SAC`.
 
-        Uses :class:`BasicRBC` to select action during exploration before using :class:`SAC`.
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        super().__init__(env, **kwargs)
+        self.rbc = BasicRBC(env, **kwargs)
 
-        Parameters
-        ----------
-        *args : tuple
-            :class:`SAC` positional arguments.
-        
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
+class SACOptimizedRBC(SACRBC):
+    r"""Uses :py:class:`citylearn.agents.rbc.OptimizedRBC` to select action during exploration before using :py:class:`citylearn.agents.sac.SAC`.
 
-        super().__init__(*args, **kwargs)
-        self.rbc = BasicRBC(*args, **kwargs)
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        super().__init__(env, **kwargs)
+        self.rbc = OptimizedRBC(env, **kwargs)
 
-class SACOptimizedRBC(SACBasicRBC):
-     def __init__(self,*args, **kwargs):
-        r"""Initialize `SACOptimizedRBC`.
+class SACBasicBatteryRBC(SACRBC):
+    r"""Uses :py:class:`citylearn.agents.rbc.BasicBatteryRBC` to select action during exploration before using :py:class:`citylearn.agents.sac.SAC`.
 
-        Uses :class:`OptimizedRBC` to select action during exploration before using :class:`SAC`.
-
-        Parameters
-        ----------
-        *args : tuple
-            :class:`SAC` positional arguments.
-        
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
-        super().__init__(*args, **kwargs)
-        self.rbc = OptimizedRBC(*args, **kwargs)
-
-class SACBasicBatteryRBC(SACBasicRBC):
-     def __init__(self,*args, **kwargs):
-        r"""Initialize `SACOptimizedRBC`.
-
-        Uses :class:`OptimizedRBC` to select action during exploration before using :class:`SAC`.
-
-        Parameters
-        ----------
-        *args : tuple
-            :class:`SAC` positional arguments.
-        
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments used to initialize super class.
-        """
-
-        super().__init__(*args, **kwargs)
-        self.rbc = BasicBatteryRBC(*args, **kwargs)
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        super().__init__(env, **kwargs)
+        self.rbc = BasicBatteryRBC(env, **kwargs)
