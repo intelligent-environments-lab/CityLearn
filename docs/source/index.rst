@@ -2,6 +2,26 @@
 CityLearn
 =========
 
+.. panels::
+   :column: col-lg-12 p-2
+
+   This output is listed in the `Digital Public Goods Alliance Registry <https://digitalpublicgoods.net/registry/>`_ and contributes to the following UN `Sustainable Development Goals (SDGs) <https://sdgs.un.org/goals>`_:
+
+   .. image:: ../../assets/images/un_sdg_7.png
+      :alt: United Nations Sustainable Development Goal 7: Affordable and Clean Energy
+      :scale: 8 %
+      :target: https://sdgs.un.org/goals/goal7
+
+   .. image:: ../../assets/images/un_sdg_11.png
+      :alt: United Nations Sustainable Development Goal 11: Sustainable Cities and Communities
+      :scale: 8 %
+      :target: https://sdgs.un.org/goals/goal11
+      
+   .. image:: ../../assets/images/un_sdg_13.png
+      :alt: United Nations Sustainable Development Goal 13: Climate Action
+      :scale: 8 %
+      :target: https://sdgs.un.org/goals/goal13
+
 CityLearn is an open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities :cite:p:`https://doi.org/10.48550/arxiv.2012.10504, 10.1145/3360322.3360998`. A major challenge for RL in demand response is the ability to compare algorithm performance :cite:p:`VAZQUEZCANTELI20191072`. Thus, CityLearn facilitates and standardizes the evaluation of RL agents such that different algorithms can be easily compared with each other.
 
 .. image:: ../../assets/images/dr.jpg
@@ -29,6 +49,7 @@ CityLearn has been utilized in the following projects and publications:
    usage/index
    api/modules
    citylearn_challenge/index
+   contributing
    references
 
 Cite CityLearn
@@ -52,15 +73,6 @@ Cite CityLearn
       location = {New York, NY, USA},
       series = {BuildSys '19}
    }
-
-Contributing
-************
-
-CityLearn is an open-source project that continues to benefit from community-driven updates and suggestion. Before you begin contributing please, read our `Contributor Covenant Code of Covenant <https://github.com/intelligent-environments-lab/CityLearn/blob/master/CODE_OF_CONDUCT.md>`_.
-
-Visit the `CityLearn GitHub repository <https://github.com/intelligent-environments-lab/CityLearn>`_ to join the community and start contributing.
-
-Refer to our `bug report template <https://github.com/intelligent-environments-lab/CityLearn/blob/master/.github/ISSUE_TEMPLATE/bug_report.md>`_ for guidelines on how to report bugs or `feature request template <https://github.com/intelligent-environments-lab/CityLearn/blob/master/.github/ISSUE_TEMPLATE/feature_request.md>`_ to propose enhancements and functionalities that you will like to be implemented.
 
 Indices and tables
 ******************
