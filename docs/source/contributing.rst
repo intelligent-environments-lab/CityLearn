@@ -16,5 +16,5 @@ Main Contributors
 The main contributors to the CityLearn project include:
 
 .. csv-table::
-   :file: ../../assets/tables/contributors.csv
+   :file: ../../assets/tables/citylearn_contributors.csv
    :header-rows: 1
