@@ -40,6 +40,7 @@ extensions = [
     'sphinx_copybutton', # to copy code block
     'myst_nb', # jupyter notebook
     'nbsphinx_link', # link jupyter notebook from dir that is not in docs/
+    'sphinx_panels', # for backgrounds
 ]
 
 # source for bib references
