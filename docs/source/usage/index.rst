@@ -8,5 +8,5 @@ Usage
    load_environment
    simulate
    cli
-   examples
+   tutorials
 
