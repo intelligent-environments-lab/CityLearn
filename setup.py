@@ -3,7 +3,7 @@ import re
 import setuptools
 
 ROOT = os.path.dirname(__file__)
-VERSION_RE = re.compile(r'''__version__ = ['"]([0-9.]+)['"]''')
+VERSION_RE = re.compile(r"__version__\s*=\s*['\"]([\w\.-]+)['\"]")
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
