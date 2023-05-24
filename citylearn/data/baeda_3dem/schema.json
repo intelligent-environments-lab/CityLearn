@@ -155,7 +155,7 @@
       "shared_in_central_agent": false
     },
     "cooling_demand": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": false
     },
     "heating_demand": {
