@@ -16,8 +16,9 @@ from citylearn.reward_function import RewardFunction
 class CustomReward(RewardFunction):
     """Calculates custom user-defined multi-agent reward.
         
-    Reward is the :py:attr:`net_electricity_consumption_emission` for entire district if central agent setup 
-    otherwise it is the :py:attr:`net_electricity_consumption_emission` each building.
+    Reward is the :py:attr:`net_electricity_consumption_emission`
+    for entire district if central agent setup otherwise it is the
+    :py:attr:`net_electricity_consumption_emission` each building.
 
     Parameters
     ----------
