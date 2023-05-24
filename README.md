@@ -7,12 +7,7 @@ CityLearn is an open source OpenAI Gym environment for the implementation of Mul
 
 CityLearn includes energy models of buildings and distributed energy resources (DER) including air-to-water heat pumps, electric heaters and batteries. A collection of building energy models makes up a virtual district (a.k.a neighborhood or community). In each building, space cooling, space heating and domestic hot water end-use loads may be independently satisfied through air-to-water heat pumps. Alternatively, space heating and domestic hot water loads can be satisfied through electric heaters.
 
-![Citylearn]()
-<object data="https://github.com/intelligent-environments-lab/CityLearn/blob/master/assets/images/citylearn_systems.pdf" type="application/pdf">
-    <embed src="https://github.com/intelligent-environments-lab/CityLearn/blob/master/assets/images/citylearn_systems.pdf">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="https://github.com/intelligent-environments-lab/CityLearn/blob/master/assets/images/citylearn_systems.pdf">Download PDF</a>.</p>
-    </embed>
-</object>
+![Citylearn](https://github.com/intelligent-environments-lab/CityLearn/blob/master/assets/images/citylearn_systems.png)
 
 ## Installation
 Install latest release in PyPi with `pip`:

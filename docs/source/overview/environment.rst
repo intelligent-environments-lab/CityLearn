@@ -4,7 +4,7 @@ Environment
 
 CityLearn includes energy models of buildings and distributed energy resources (DER) including air-to-water heat pumps, electric heaters and batteries. A collection of building energy models makes up a virtual district (a.k.a neighborhood or community). In each building, space cooling, space heating and domestic hot water end-use loads may be independently satisfied through air-to-water heat pumps. Alternatively, space heating and domestic hot water loads can be satisfied through electric heaters. 
 
-.. image:: ../../../assets/images/citylearn_systems.pdf
+.. image:: ../../../assets/images/citylearn_systems.png
    :alt: demand response
    :align: center
 
