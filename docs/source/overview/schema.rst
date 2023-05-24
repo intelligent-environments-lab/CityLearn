@@ -20,5 +20,5 @@ An Example Schema
 
 An example schema is shown below:
 
-.. include:: ../../../citylearn/data/citylearn_challenge_2021/schema.json
+.. include:: ../../../citylearn/data/baeda_3dem/schema.json
     :code: json
