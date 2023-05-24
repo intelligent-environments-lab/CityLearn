@@ -32,10 +32,10 @@ class RLC(Agent):
         Batch size.
     replay_buffer_capacity : int, default: 1e5
         Replay buffer capacity.
-    standardize_start_time_step : int, default: 6000
-        Time step to calculate mean and standard deviation, and begin standardization of observations and rewards in replay buffer.
-    end_exploration_time_step : int, default: 7000
-        Time step to stop random or RBC-guided exploration.
+    standardize_start_time_step : int, optional
+        Time step to calculate mean and standard deviation, and begin standardization of observations and rewards in replay buffer. Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 2.
+    end_exploration_time_step : int, optional
+        Time step to stop random or RBC-guided exploration. Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 1.
     action_scaling_coefficient : float, default: 0.5
         Action scaling coefficient.
     reward_scaling : float, default: 5.0
@@ -121,13 +121,13 @@ class RLC(Agent):
 
     @property
     def standardize_start_time_step(self) -> int:
-        """Time step to calculate mean and standard deviation, and begin standardization of observations and rewards in replay buffer."""
+        """Time step to calculate mean and standard deviation, and begin standardization of observations and rewards in replay buffer. Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 2."""
 
         return self.__standardize_start_time_step
 
     @property
     def end_exploration_time_step(self) -> int:
-        """Time step to stop exploration."""
+        """Time step to stop exploration.  Defaults to :py:attr:`citylearn.citylearn.CityLearnEnv.time_steps` - 1."""
 
         return self.__end_exploration_time_step
 
@@ -179,11 +179,11 @@ class RLC(Agent):
 
     @standardize_start_time_step.setter
     def standardize_start_time_step(self, standardize_start_time_step: int):
-        self.__standardize_start_time_step = 6000 if standardize_start_time_step is None else standardize_start_time_step
+        self.__standardize_start_time_step = self.env.time_steps - 1 if standardize_start_time_step is None else standardize_start_time_step
 
     @end_exploration_time_step.setter
     def end_exploration_time_step(self, end_exploration_time_step: int):
-        self.__end_exploration_time_step = 7000 if end_exploration_time_step is None else end_exploration_time_step
+        self.__end_exploration_time_step = self.env.time_steps if end_exploration_time_step is None else end_exploration_time_step
 
     @action_scaling_coefficient.setter
     def action_scaling_coefficient(self, action_scaling_coefficient: float):
