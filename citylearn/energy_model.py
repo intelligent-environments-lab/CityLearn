@@ -790,7 +790,7 @@ class Battery(ElectricDevice, StorageDevice):
         energy = min(energy, self.get_max_input_power()) if energy >= 0 else max(-self.get_max_output_power(), energy)
         self.efficiency = self.get_current_efficiency(energy)
         super().charge(energy)
-        self.capacity = self.capacity - self.degrade()
+        self.capacity = self.capacity - min(self.degrade(), self.capacity)
 
     def get_max_output_power(self) -> float:
         r"""Get maximum output power while considering `capacity_power_curve` limitations if defined otherwise, returns `nominal_power`.
