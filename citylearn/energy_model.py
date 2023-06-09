@@ -679,8 +679,8 @@ class Battery(ElectricDevice, StorageDevice):
     """
     
     def __init__(self, capacity: float, nominal_power: float, capacity_loss_coefficient: float = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, **kwargs: Any):
-        self.__efficiency_history = []
-        self.__capacity_history = []
+        self._efficiency_history = []
+        self._capacity_history = []
         super().__init__(capacity = capacity, nominal_power = nominal_power, **kwargs)
         self.capacity_loss_coefficient = capacity_loss_coefficient
         self.power_efficiency_curve = power_efficiency_curve
@@ -726,25 +726,25 @@ class Battery(ElectricDevice, StorageDevice):
     def efficiency_history(self) -> List[float]:
         """Time series of technical efficiency."""
 
-        return self.__efficiency_history
+        return self._efficiency_history
 
     @property
     def capacity_history(self) -> List[float]:
         """Time series of maximum amount of energy the storage device can store in [kWh]."""
 
-        return self.__capacity_history
+        return self._capacity_history
 
     @capacity.setter
     def capacity(self, capacity: float):
         capacity = ZERO_DIVISION_CAPACITY if capacity is None or capacity == 0 else capacity
         StorageDevice.capacity.fset(self, capacity)
-        self.__capacity_history.append(capacity)
+        self._capacity_history.append(capacity)
 
     @efficiency.setter
     def efficiency(self, efficiency: float):
         efficiency = 0.9 if efficiency is None else efficiency
         StorageDevice.efficiency.fset(self, efficiency)
-        self.__efficiency_history.append(efficiency)
+        self._efficiency_history.append(efficiency)
 
     @capacity_loss_coefficient.setter
     def capacity_loss_coefficient(self, capacity_loss_coefficient: float):
@@ -871,5 +871,5 @@ class Battery(ElectricDevice, StorageDevice):
         r"""Reset `Battery` to initial state."""
 
         super().reset()
-        self.__efficiency_history = self.__efficiency_history[0:1]
-        self.__capacity_history = self.__capacity_history[0:1]
+        self._efficiency_history = self._efficiency_history[0:1]
+        self._capacity_history = self._capacity_history[0:1]
