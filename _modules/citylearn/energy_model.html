@@ -763,8 +763,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">capacity_loss_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">power_efficiency_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">capacity_power_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__efficiency_history</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_efficiency_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">capacity</span> <span class="o">=</span> <span class="n">capacity</span><span class="p">,</span> <span class="n">nominal_power</span> <span class="o">=</span> <span class="n">nominal_power</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">capacity_loss_coefficient</span> <span class="o">=</span> <span class="n">capacity_loss_coefficient</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">power_efficiency_curve</span> <span class="o">=</span> <span class="n">power_efficiency_curve</span>
@@ -810,25 +810,25 @@
     <span class="k">def</span> <span class="nf">efficiency_history</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Time series of technical efficiency.&quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__efficiency_history</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_efficiency_history</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">capacity_history</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Time series of maximum amount of energy the storage device can store in [kWh].&quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_history</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span>
 
     <span class="nd">@capacity</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="n">capacity</span> <span class="o">=</span> <span class="n">ZERO_DIVISION_CAPACITY</span> <span class="k">if</span> <span class="n">capacity</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">capacity</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">capacity</span>
         <span class="n">StorageDevice</span><span class="o">.</span><span class="n">capacity</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">capacity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">capacity</span><span class="p">)</span>
 
     <span class="nd">@efficiency</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="n">efficiency</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="k">if</span> <span class="n">efficiency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">efficiency</span>
         <span class="n">StorageDevice</span><span class="o">.</span><span class="n">efficiency</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__efficiency_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">efficiency</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_efficiency_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">efficiency</span><span class="p">)</span>
 
     <span class="nd">@capacity_loss_coefficient</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">capacity_loss_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity_loss_coefficient</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
@@ -955,8 +955,8 @@
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `Battery` to initial state.&quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__efficiency_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__efficiency_history</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_history</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_efficiency_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_efficiency_history</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span></div></div>
 </pre></div>
 
            </div>
