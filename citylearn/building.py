@@ -3,7 +3,6 @@ import math
 from typing import Any, List, Mapping, Tuple, Union
 from gym import spaces
 import numpy as np
-import pandas as pd
 import torch
 from citylearn.base import Environment
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
@@ -56,7 +55,8 @@ class Building(Environment):
     def __init__(
         self, energy_simulation: EnergySimulation, weather: Weather, observation_metadata: Mapping[str, bool], action_metadata: Mapping[str, bool], carbon_intensity: CarbonIntensity = None, 
         pricing: Pricing = None, dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, 
-        dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None, **kwargs: Any
+        dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None,
+        temperature_epsilon: float = None, **kwargs: Any
     ):
         self.name = name
         self.energy_simulation = energy_simulation
@@ -74,7 +74,7 @@ class Building(Environment):
         self.observation_metadata = observation_metadata
         self.action_metadata = action_metadata
         self.__observation_epsilon = 0.0 # to avoid out of bound observations
-        self.__temperature_epsilon = 5 # C
+        self.temperature_epsilon = 5.0 if temperature_epsilon is None else temperature_epsilon # C
         self.__thermal_load_factor = 1.15
         self.non_periodic_normalized_observation_space_limits = None
         self.periodic_normalized_observation_space_limits = None
@@ -970,12 +970,12 @@ class Building(Environment):
                     high_limit[key] = self.heating_device.efficiency
 
             elif key == 'indoor_dry_bulb_temperature':
-                low_limit[key] = self.energy_simulation.indoor_dry_bulb_temperature.min() - self.__temperature_epsilon
-                high_limit[key] = self.energy_simulation.indoor_dry_bulb_temperature.max() + self.__temperature_epsilon
+                low_limit[key] = self.energy_simulation.indoor_dry_bulb_temperature.min() - self.temperature_epsilon
+                high_limit[key] = self.energy_simulation.indoor_dry_bulb_temperature.max() + self.temperature_epsilon
 
             elif key == 'indoor_dry_bulb_temperature_delta':
                 low_limit[key] = 0
-                high_limit[key] = self.__temperature_epsilon
+                high_limit[key] = self.temperature_epsilon
                 
             elif key in ['cooling_demand', 'heating_demand']:
                 if key == 'cooling_demand':
