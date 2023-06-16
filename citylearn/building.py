@@ -1260,12 +1260,13 @@ class DynamicsBuilding(Building):
         Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.
     """
 
-    def __init__(self, *args: Any, cooling_dynamics: Dynamics, heating_dynamics: Dynamics, **kwargs: Any):
+    def __init__(self, *args: Any, cooling_dynamics: Dynamics, heating_dynamics: Dynamics, ignore_dynamics: bool = None, **kwargs: Any):
         """Intialize `DynamicsBuilding`"""
 
         self.cooling_dynamics = cooling_dynamics
         self.heating_dynamics = heating_dynamics
         self.dynamics = None
+        self.ignore_dynamics = False if ignore_dynamics is None else ignore_dynamics
         super().__init__(*args, **kwargs)
         
 
@@ -1313,7 +1314,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
     def simulate_dynamics(self) -> bool:
         """Whether to predict indoor dry-bulb temperature at current `time_step`."""
 
-        return self.dynamics._model_input[0][0] is not None
+        return not self.ignore_dynamics and self.dynamics._model_input[0][0] is not None
     
     def next_time_step(self):
         """Update the dynamics model input time series, Advance all energy storage and electric devices,
