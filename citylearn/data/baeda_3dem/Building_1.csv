@@ -1,4 +1,4 @@
-Month,Hour,Day Type,Daylight Savings Status,Indoor Temperature [C],Average Unmet Cooling Setpoint Difference [C],Indoor Relative Humidity [%],Equipment Electric Power [kWh],DHW Heating [kWh],Cooling Load [kWh],Heating Load [kWh],Solar Generation [W/kW],Occupant Count [people],Temperature Set Point [C],HVAC Mode [Off/Cooling/Heating
+Month,Hour,Day Type,Daylight Savings Status,Indoor Temperature [C],Average Unmet Cooling Setpoint Difference [C],Indoor Relative Humidity [%],Equipment Electric Power [kWh],DHW Heating [kWh],Cooling Load [kWh],Heating Load [kWh],Solar Generation [W/kW],Occupant Count [people],Temperature Set Point [C],HVAC Mode [Off/Cooling/Heating]
 6,1,1,1,28.1219624277523,0,49.774185554176,0.567641894272677,0,0.0,0,0.0,0.0,30.0,0
 6,2,1,1,27.9394669265402,0,49.8430953522941,0.567641894272677,0,0.0,0,0.0,0.0,30.0,0
 6,3,1,1,27.7802986138837,0,49.9654446181981,0.567641894272677,0,0.0,0,0.0,0.0,30.0,0
