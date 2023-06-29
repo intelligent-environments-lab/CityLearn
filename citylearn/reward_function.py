@@ -71,7 +71,7 @@ class MARL(RewardFunction):
     def calculate(self) -> List[float]:
         district_electricity_consumption = self.env.net_electricity_consumption[self.env.time_step]
         building_electricity_consumption = np.array([b.net_electricity_consumption[b.time_step]*-1 for b in self.env.buildings])
-        reward_list = np.sign(building_electricity_consumption)*0.01*building_electricity_consumption**2*np.nanmax(0, district_electricity_consumption)
+        reward_list = np.sign(building_electricity_consumption)*0.01*building_electricity_consumption**2*np.nanmax([0, district_electricity_consumption])
 
         if self.env.central_agent:
             reward = [reward_list.sum()]
