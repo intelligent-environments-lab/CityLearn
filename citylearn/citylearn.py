@@ -69,7 +69,7 @@ class CityLearnEnv(Environment, Env):
         self.schema = schema
         self.__rewards = None
         self.root_directory, self.buildings, self.simulation_start_time_step, self.simulation_end_time_step, self.seconds_per_time_step,\
-            self.reward_function, self.central_agent, self.shared_observations = self.__load(
+            self.reward_function, self.central_agent, self.shared_observations = self._load(
                 root_directory=root_directory,
                 buildings=buildings,
                 simulation_start_time_step=simulation_start_time_step,
@@ -877,7 +877,7 @@ class CityLearnEnv(Environment, Env):
         agent = agent_constructor(**agent_attributes)
         return agent
 
-    def __load(self, **kwargs) -> Tuple[List[Building], int, float, 'citylearn.reward_function.RewardFunction', bool, List[str]]:
+    def _load(self, **kwargs) -> Tuple[List[Building], int, float, 'citylearn.reward_function.RewardFunction', bool, List[str]]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
         
         Returns
