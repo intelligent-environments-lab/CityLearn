@@ -664,7 +664,7 @@ class Building(Environment):
             'net_electricity_consumption': self.__net_electricity_consumption[self.time_step],
             **{k: v[self.time_step] for k, v in vars(self.carbon_intensity).items()},
             'cooling_device_cop': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
-            'heating_device_cop': self.cooling_device.get_cop(
+            'heating_device_cop': self.heating_device.get_cop(
                 self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
                     ) if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
             'cooling_demand': self.energy_simulation.cooling_demand[self.time_step],
