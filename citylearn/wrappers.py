@@ -87,6 +87,78 @@ class NormalizedObservationWrapper(ObservationWrapper):
         
         return norm_observations
     
+class NormalizedActionWrapper(ActionWrapper):
+    """Wrapper for action min-max normalization.
+    
+    All observations are min-max normalized between 0 and 1.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    """
+
+    def __init__(self, env: CityLearnEnv) -> None:
+        super().__init__(env)
+        self.env: CityLearnEnv
+        
+    @property
+    def action_space(self) -> List[spaces.Box]:
+        """Returns action space for normalized actions."""
+
+        low_limit = []
+        high_limit = []
+
+        if self.env.central_agent:
+
+            for b in self.env.buildings:
+                low_limit += [0.0]*b.action_space.low.size
+                high_limit += [1.0]*b.action_space.high.size
+            
+            action_space = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
+
+        else:
+            action_space = [spaces.Box(
+                low=np.array([0.0]*b.action_space.low.size), 
+                high=np.array([1.0]*b.action_space.high.size), 
+                dtype=np.float32) 
+            for b in self.env.buildings]
+        
+        return action_space
+
+    def action(self, actions: List[float]) -> List[List[float]]:
+        """Returns denormalized actions."""
+
+        transformed_actions = []
+
+        for i, s in enumerate(self.env.unwrapped.action_space):
+            transformed_actions_ = []
+            
+            for j, (l, h) in enumerate(zip(s.low, s.high)):
+                a = actions[i][j]*(h - l) + l
+                transformed_actions_.append(a)
+            
+            transformed_actions.append(transformed_actions_)
+
+        return transformed_actions
+    
+class NormalizedSpaceWrapper(Wrapper):
+    """Wrapper for normalized observation and action spaces.
+
+    Wraps `env` in :py:class:`citylearn.wrappers.NormalizedObservationWrapper` and :py:class:`citylearn.wrappers.NormalizedActionWrapper`.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    """
+
+    def __init__(self, env: CityLearnEnv):
+        env = NormalizedObservationWrapper(env)
+        env = NormalizedActionWrapper(env)
+        super().__init__(env)
+        self.env: CityLearnEnv
+    
 class DiscreteObservationWrapper(ObservationWrapper):
     """Wrapper for observation space discretization.
 
@@ -202,7 +274,7 @@ class DiscreteActionWrapper(ActionWrapper):
         return action_space
 
     def action(self, actions: List[float]) -> List[List[float]]:
-        """Returns discretized actions."""
+        """Returns undiscretized actions."""
 
         transformed_actions = []
 
