@@ -609,7 +609,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">stable</span><span class="o">-</span><span class="n">baselines3</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">stable</span><span class="o">-</span><span class="n">baselines3</span><span class="o">==</span><span class="mf">1.8.0</span>
 </pre></div>
 </div>
 </div>
@@ -620,7 +620,7 @@
 <div><p>⚠️ <strong>NOTE</strong>: <code class="docutils literal notranslate"><span class="pre">central_agent</span></code> in the <code class="docutils literal notranslate"><span class="pre">env</span></code> must be <code class="docutils literal notranslate"><span class="pre">True</span></code> when using Stable Baselines3 as it does not support multi-agents.</p>
 </div></blockquote>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">stable_baselines3.sac</span> <span class="kn">import</span> <span class="n">SAC</span>
@@ -691,15 +691,15 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.652018</td>
+      <td>0.541730</td>
     </tr>
     <tr>
       <th>cost_total</th>
-      <td>0.559840</td>
-      <td>0.664455</td>
-      <td>0.694391</td>
-      <td>0.718245</td>
-      <td>0.659233</td>
+      <td>1.245469</td>
+      <td>1.000751</td>
+      <td>0.711903</td>
+      <td>0.412717</td>
+      <td>0.842710</td>
     </tr>
     <tr>
       <th>daily_peak_average</th>
@@ -707,63 +707,63 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.711316</td>
+      <td>0.607739</td>
     </tr>
     <tr>
       <th>discomfort_delta_average</th>
-      <td>0.023803</td>
-      <td>0.703250</td>
-      <td>3.912871</td>
-      <td>1.861718</td>
-      <td>1.625411</td>
+      <td>-0.842827</td>
+      <td>-0.322277</td>
+      <td>3.909362</td>
+      <td>3.932195</td>
+      <td>1.669113</td>
     </tr>
     <tr>
       <th>discomfort_delta_maximum</th>
-      <td>2.824947</td>
-      <td>2.618780</td>
-      <td>6.868706</td>
-      <td>7.118988</td>
-      <td>4.857855</td>
+      <td>1.074333</td>
+      <td>2.414923</td>
+      <td>6.870544</td>
+      <td>8.821621</td>
+      <td>4.795355</td>
     </tr>
     <tr>
       <th>discomfort_delta_minimum</th>
-      <td>-4.086712</td>
-      <td>-2.640570</td>
+      <td>-5.347965</td>
+      <td>-3.232851</td>
       <td>-3.700124</td>
       <td>-2.782747</td>
-      <td>-3.302538</td>
+      <td>-3.765922</td>
     </tr>
     <tr>
       <th>discomfort_proportion</th>
-      <td>0.384314</td>
-      <td>0.446996</td>
+      <td>0.378431</td>
+      <td>0.328622</td>
       <td>0.876979</td>
-      <td>0.637155</td>
-      <td>0.586361</td>
+      <td>0.865022</td>
+      <td>0.612264</td>
     </tr>
     <tr>
       <th>discomfort_too_cold_proportion</th>
-      <td>0.247059</td>
-      <td>0.008834</td>
+      <td>0.378431</td>
+      <td>0.287986</td>
       <td>0.003654</td>
       <td>0.004354</td>
-      <td>0.065975</td>
+      <td>0.168606</td>
     </tr>
     <tr>
       <th>discomfort_too_hot_proportion</th>
-      <td>0.137255</td>
-      <td>0.438163</td>
+      <td>0.000000</td>
+      <td>0.040636</td>
       <td>0.873325</td>
-      <td>0.632801</td>
-      <td>0.520386</td>
+      <td>0.860668</td>
+      <td>0.443657</td>
     </tr>
     <tr>
       <th>electricity_consumption_total</th>
-      <td>0.651177</td>
-      <td>0.691996</td>
-      <td>0.750006</td>
-      <td>0.750259</td>
-      <td>0.710859</td>
+      <td>1.258706</td>
+      <td>1.020562</td>
+      <td>0.743481</td>
+      <td>0.482500</td>
+      <td>0.876312</td>
     </tr>
     <tr>
       <th>one_minus_load_factor_average</th>
@@ -771,7 +771,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.929786</td>
+      <td>0.874115</td>
     </tr>
     <tr>
       <th>ramping_average</th>
@@ -779,19 +779,27 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>1.036532</td>
+      <td>0.857074</td>
     </tr>
     <tr>
       <th>zero_net_energy</th>
-      <td>0.649800</td>
-      <td>0.691996</td>
-      <td>0.750006</td>
-      <td>0.695559</td>
-      <td>0.696840</td>
+      <td>1.257572</td>
+      <td>1.020562</td>
+      <td>0.743481</td>
+      <td>0.264155</td>
+      <td>0.821442</td>
     </tr>
   </tbody>
 </table>
 </div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
 </div>
 </section>
 </section>
