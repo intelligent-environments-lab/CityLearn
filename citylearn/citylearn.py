@@ -615,7 +615,7 @@ class CityLearnEnv(Environment, Env):
 
         return {}
 
-    def __parse_actions(self, actions: List[List[float]]) -> List[Mapping[str, float]]:
+    def _parse_actions(self, actions: List[List[float]]) -> List[Mapping[str, float]]:
         """Return mapping of action name to action value for each building."""
 
         actions = list(actions)
