@@ -151,7 +151,7 @@
 <section id="pricing-data-file">
 <h3>Pricing Data File<a class="headerlink" href="#pricing-data-file" title="Permalink to this headline"></a></h3>
 <p>The carbon intensity file is a <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file that contains current time-step and forecasted electricity price time series. It is used as the source for <a class="reference internal" href="../api/citylearn.building.html#citylearn.building.Building.pricing" title="citylearn.building.Building.pricing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.building.Building.pricing</span></code></a>, which is the source for pricing related observations. The data can be sourced from specific utility providers for a desired location e.g. <a class="reference external" href="https://www.sce.com/residential/rates/Time-Of-Use-Residential-Rate-Plans">Edison</a>. The file structure is shown in the snippet below:</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span>Electricity Pricing [$],6h Prediction Electricity Pricing [$],12h Prediction Electricity Pricing [$],24h Prediction Electricity Pricing [$]
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span>Electricity Pricing [$/kWh],6h Prediction Electricity Pricing [$/kWh],12h Prediction Electricity Pricing [$/kWh],24h Prediction Electricity Pricing [$/kWh]
 0.22,0.22,0.22,0.22
 0.22,0.22,0.22,0.22
 0.22,0.22,0.22,0.22
