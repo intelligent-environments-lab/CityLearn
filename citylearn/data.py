@@ -223,13 +223,13 @@ class Pricing:
     Parameters
     ----------
     electricity_pricing : np.array
-        Electricity pricing time series in [$].
+        Electricity pricing time series in [$/kWh].
     electricity_pricing_predicted_6h : np.array
-        Electricity pricing 6 hours ahead prediction time series in [$].
+        Electricity pricing 6 hours ahead prediction time series in [$/kWh].
     electricity_pricing_predicted_12h : np.array
-        Electricity pricing 12 hours ahead prediction time series in [$].
+        Electricity pricing 12 hours ahead prediction time series in [$/kWh].
     electricity_pricing_predicted_24h : np.array
-        Electricity pricing 24 hours ahead prediction time series in [$].
+        Electricity pricing 24 hours ahead prediction time series in [$/kWh].
     """
 
     def __init__(
