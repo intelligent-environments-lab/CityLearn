@@ -255,7 +255,7 @@ class SolarPenaltyAndComfortReward(RewardFunction):
     lower_exponent: float, default = 2.0
         Penalty exponent for when in cooling mode but temperature is above setpoint upper
         boundary or heating mode but temperature is below setpoint lower boundary.
-    higher_exponent: float, default = 2.0
+    higher_exponent: float, default = 3.0
         Penalty exponent for when in cooling mode but temperature is below setpoint lower
         boundary or heating mode but temperature is above setpoint upper boundary.
     coefficients: Tuple, default = (1.0, 1.0)
