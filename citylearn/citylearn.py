@@ -600,7 +600,7 @@ class CityLearnEnv(Environment, Env):
             Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
 
-        actions = self.__parse_actions(actions)
+        actions = self._parse_actions(actions)
 
         for building, building_actions in zip(self.buildings, actions):
             building.apply_actions(**building_actions)
