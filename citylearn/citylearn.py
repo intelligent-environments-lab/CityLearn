@@ -1,3 +1,4 @@
+from copy import deepcopy
 from enum import Enum, unique
 import importlib
 import logging
@@ -905,6 +906,7 @@ class CityLearnEnv(Environment, Env):
             self.schema = DataSet.get_schema(self.schema)
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
         elif isinstance(self.schema, dict):
+            self.schema = deepcopy(self.schema)
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
         else:
             raise UnknownSchemaError()
