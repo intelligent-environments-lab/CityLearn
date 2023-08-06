@@ -13,8 +13,6 @@ def __learn(**kwargs):
     try:
         model.learn(
             episodes=kwargs.get('episodes', env.schema['episodes']),
-            keep_env_history=kwargs['keep_env_history'],
-            env_history_directory=kwargs['env_history_directory'],
             deterministic_finish=kwargs['deterministic_finish'],
             logging_level=kwargs['logging_level']
         )
@@ -33,9 +31,7 @@ def main():
     subparser_simulate = subparsers.add_parser('learn', description='Run simulation.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     subparser_simulate.add_argument('schema', type=str, help='CityLearn dataset name or schema path.')
     subparser_simulate.add_argument('-e', '--episodes', type=int, dest='episodes', default=None, help='Number of training episodes.')
-    subparser_simulate.add_argument('-f', '--filepath', type=Path, dest='filepath', default='citylearn_learning.pkl', help='Filepath to write simulation pickle object to upon completion.')
-    subparser_simulate.add_argument('-k', '--keep_env_history', action='store_true', dest='keep_env_history', help='Indicator to store environment state at the end of each episode.')
-    subparser_simulate.add_argument('-d', '--env_history_directory', type=str, dest='env_history_directory', help='Directory to save environment history to.')
+    subparser_simulate.add_argument('-f', '--filepath', type=Path, dest='filepath', default='citylearn_learning.pkl', help='Filepath to write model pickle object to upon completion.')
     subparser_simulate.add_argument('-n', '--deterministic_finish', action='store_true', dest='deterministic_finish', help='Take deterministic actions in the final episode.')
     subparser_simulate.add_argument("-l", "--logging_level", type=int, default=50, dest='logging_level', help='Logging level where increasing the level silences lower level information.')
     subparser_simulate.set_defaults(func=__learn)
