@@ -102,7 +102,7 @@ class MARLISA(SAC):
 
     @information_sharing.setter
     def information_sharing(self, information_sharing: bool):
-        self.__information_sharing = False if information_sharing is None else information_sharing
+        self.__information_sharing = True if information_sharing is None else information_sharing
 
     @pca_compression.setter
     def pca_compression(self, pca_compression: float):
