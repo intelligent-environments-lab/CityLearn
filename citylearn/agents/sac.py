@@ -208,13 +208,7 @@ class SAC(RLC):
         return actions
             
     def get_exploration_prediction(self, observations: List[List[float]]) -> List[List[float]]:
-        """Return randomly sampled actions from `action_space` multiplied by :attr:`action_scaling_coefficient`.
-        
-        Returns
-        -------
-        actions: List[List[float]]
-            Action values.
-        """
+        """Return randomly sampled actions from `action_space` multiplied by :attr:`action_scaling_coefficient`."""
 
         # random actions
         return [list(self.action_scaling_coefficient*s.sample()) for s in self.action_space]
@@ -291,18 +285,30 @@ class SACRBC(SAC):
     
     def __init__(self, env: CityLearnEnv, rbc: RBC = None, **kwargs: Any):
         super().__init__(env, **kwargs)
-        self.rbc = RBC(env, **kwargs) if rbc is None else rbc
+        self.__set_rbc(rbc, **kwargs)
 
-    def get_exploration_prediction(self, states: List[float]) -> List[float]:
-        """Return actions using :class:`RBC`.
+    @property
+    def rbc(self) -> RBC:
+        """:py:class:`citylearn.agents.rbc.RBC` or child class, used to select actions during exploration."""
+
+        return self.__rbc
+    
+    def __set_rbc(self, rbc: RBC, **kwargs):
+        if rbc is None:
+            rbc = RBC(self.env, **kwargs)
         
-        Returns
-        -------
-        actions: List[float]
-            Action values.
-        """
+        elif isinstance(rbc, RBC):
+            pass
 
-        return self.rbc.predict(states)
+        else:
+            rbc = rbc(self.env, **kwargs)
+        
+        self.__rbc = rbc
+
+    def get_exploration_prediction(self, observations: List[float]) -> List[float]:
+        """Return actions using :class:`RBC`."""
+
+        return self.rbc.predict(observations)
     
 class SACHourRBC(SACRBC):
     r"""Uses :py:class:`citylearn.agents.rbc.HourRBC` to select action during exploration before using :py:class:`citylearn.agents.sac.SAC`.
