@@ -624,6 +624,12 @@ class Building(Environment):
     def name(self, name: str):
         self.__name = self.uid if name is None else name
 
+    @Environment.random_seed.setter
+    def random_seed(self, seed: int):
+        Environment.random_seed.fset(self, seed)
+        self.action_space.seed(self.random_seed)
+        self.action_space.np_random.seed(self.random_seed)
+
     def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None) -> Mapping[str, float]:
         r"""Observations at current time step.
 
