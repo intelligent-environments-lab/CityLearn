@@ -627,7 +627,6 @@ class Building(Environment):
     @Environment.random_seed.setter
     def random_seed(self, seed: int):
         Environment.random_seed.fset(self, seed)
-        self.action_space.seed(self.random_seed)
 
     def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None) -> Mapping[str, float]:
         r"""Observations at current time step.
