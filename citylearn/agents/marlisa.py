@@ -1,6 +1,9 @@
 from copy import deepcopy
-from typing import List, Tuple
+from typing import Any, List, Tuple
 import numpy as np
+from citylearn.agents.rbc import RBC
+from citylearn.agents.sac import SACRBC
+from citylearn.citylearn import CityLearnEnv
 
 try:
     from sklearn.decomposition import PCA
@@ -270,8 +273,8 @@ class MARLISA(SAC):
 
     def get_post_exploration_prediction(self, observations: List[List[float]], deterministic: bool) -> List[List[float]]:
         func = {
-            True: self.get_post_exploration_actions_with_information_sharing,
-            False: self.get_post_exploration_actions_without_information_sharing
+            True: self.get_post_exploration_prediction_with_information_sharing,
+            False: self.get_post_exploration_prediction_without_information_sharing
         }[self.information_sharing]
         actions, coordination_variables = func(observations, deterministic)
         self.__coordination_variables_history[0] = deepcopy(self.__coordination_variables_history[1])
@@ -281,8 +284,8 @@ class MARLISA(SAC):
 
     def get_exploration_prediction(self, observations: List[List[float]]) -> List[List[float]]:
         func = {
-            True: self.get_exploration_actions_with_information_sharing,
-            False: self.get_exploration_actions_without_information_sharing
+            True: self.get_exploration_prediction_with_information_sharing,
+            False: self.get_exploration_prediction_without_information_sharing
         }[self.information_sharing]
         actions, coordination_variables = func(observations)
         self.__coordination_variables_history[0] = deepcopy(self.__coordination_variables_history[1])
@@ -290,7 +293,7 @@ class MARLISA(SAC):
         
         return actions
 
-    def get_post_exploration_actions_with_information_sharing(self, observations: List[List[float]], deterministic: bool) -> Tuple[List[List[float]], List[List[float]]]:
+    def get_post_exploration_prediction_with_information_sharing(self, observations: List[List[float]], deterministic: bool) -> Tuple[List[List[float]], List[List[float]]]:
         agent_count = len(self.action_dimension)
         actions = [None for _ in range(agent_count)]
         action_order = list(range(agent_count))
@@ -325,7 +328,7 @@ class MARLISA(SAC):
         
         return actions, coordination_variables
 
-    def get_post_exploration_actions_without_information_sharing(self, observations: List[List[float]], deterministic: bool) -> Tuple[List[List[float]], List[List[float]]]:
+    def get_post_exploration_prediction_without_information_sharing(self, observations: List[List[float]], deterministic: bool) -> Tuple[List[List[float]], List[List[float]]]:
         agent_count = len(self.action_dimension)
         actions = [None for _ in range(agent_count)]
         coordination_variables = [[0.0, 0.0] for _ in range(agent_count)]
@@ -342,8 +345,8 @@ class MARLISA(SAC):
         
         return actions, coordination_variables
 
-    def get_exploration_actions_with_information_sharing(self, observations: List[List[float]]) -> Tuple[List[List[float]], List[List[float]]]:
-        actions, coordination_variables = self.get_exploration_actions_without_information_sharing(observations)
+    def get_exploration_prediction_with_information_sharing(self, observations: List[List[float]]) -> Tuple[List[List[float]], List[List[float]]]:
+        actions, coordination_variables = self.get_exploration_prediction_without_information_sharing(observations)
     
         if self.time_step > self.start_regression_time_step:
             agent_count = len(self.action_dimension)
@@ -360,7 +363,7 @@ class MARLISA(SAC):
         
         return actions, coordination_variables
 
-    def get_exploration_actions_without_information_sharing(self, observations: List[List[float]]) -> Tuple[List[List[float]], List[List[float]]]:
+    def get_exploration_prediction_without_information_sharing(self, observations: List[List[float]]) -> Tuple[List[List[float]], List[List[float]]]:
         actions = super().get_exploration_prediction(observations)
         coordination_variables = [[0.0, 0.0] for _ in range(len(self.action_dimension))]
 
@@ -462,3 +465,28 @@ class MARLISA(SAC):
         self.__coordination_variables_history = [
             [[0.0]*self.__COORDINATION_VARIABLE_COUNT for _ in self.action_dimension] for _ in range(2)
         ]
+
+class MARLISARBC(MARLISA, SACRBC):
+    r"""Uses :py:class:`citylearn.agents.rbc.RBC` to select action during exploration before using :py:class:`citylearn.agents.marlisa.MARLISA`.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    rbc: RBC
+        :py:class:`citylearn.agents.rbc.RBC` or child class, used to select actions during exploration.
+    
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize super class.
+    """
+    
+    def __init__(self, env: CityLearnEnv, rbc: RBC = None, **kwargs: Any):
+        super().__init__(env=env, rbc=rbc, **kwargs)
+
+    def get_exploration_prediction_without_information_sharing(self, observations: List[List[float]]) -> Tuple[List[List[float]], List[List[float]]]:
+        _, coordination_variables = super().get_exploration_prediction_without_information_sharing(observations)
+        actions = super(SACRBC, self).get_exploration_prediction(observations)
+
+        return actions, coordination_variables
