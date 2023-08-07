@@ -56,6 +56,8 @@ class CityLearnEnv(Environment, Env):
     shared_observations: List[str], optional
         Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
         If provided, will override :code:`observations:<observation>:shared_in_central_agent` definitions in schema.
+    random_seed: int, optional
+        Pseudorandom number generator seed for repeatable results.
 
     Other Parameters
     ----------------
@@ -65,10 +67,11 @@ class CityLearnEnv(Environment, Env):
     
     def __init__(self, 
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, simulation_start_time_step: int = None, simulation_end_time_step: int = None, 
-        reward_function: 'citylearn.reward_function.RewardFunction' = None, central_agent: bool = None, shared_observations: List[str] = None, **kwargs: Any
+        reward_function: 'citylearn.reward_function.RewardFunction' = None, central_agent: bool = None, shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
     ):
         self.schema = schema
         self.__rewards = None
+        self.random_seed = random_seed
         self.root_directory, self.buildings, self.simulation_start_time_step, self.simulation_end_time_step, self.seconds_per_time_step,\
             self.reward_function, self.central_agent, self.shared_observations = self._load(
                 root_directory=root_directory,
@@ -78,6 +81,7 @@ class CityLearnEnv(Environment, Env):
                 reward_function=reward_function,
                 central_agent=central_agent,
                 shared_observations=shared_observations,
+                random_seed=self.random_seed,
             )
         super().__init__(**kwargs)
 
@@ -921,6 +925,7 @@ class CityLearnEnv(Environment, Env):
             self.schema['simulation_start_time_step']
         simulation_end_time_step = kwargs['simulation_end_time_step'] if kwargs.get('simulation_end_time_step') is not None else\
             self.schema['simulation_end_time_step']
+        random_seed = kwargs.get('random_seed', None)
         seconds_per_time_step = self.schema['seconds_per_time_step']
         buildings_to_include = list(self.schema['buildings'].keys())
         buildings = ()
@@ -1002,6 +1007,7 @@ class CityLearnEnv(Environment, Env):
                 pricing=pricing,
                 name=building_name, 
                 seconds_per_time_step=seconds_per_time_step,
+                random_seed=random_seed,
                 **dynamics,
             )
 
