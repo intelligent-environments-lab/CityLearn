@@ -690,6 +690,36 @@ class CityLearnEnv(Environment, Env):
             building_info += (building_dict ,)
         
         return building_info
+
+    def evaluate_citylearn_challenge(self) -> Mapping[str, float]:
+        """Evalation function for The CityLearn Challenge 2023.
+        
+        Returns
+        -------
+        evaluation: Mapping[str, float]
+            Mapping of evaluation KPI names to their values. 
+        """
+
+        cost_functions = {
+            'electricity_consumption_total': 'Electricity consumption',
+            'carbon_emissions_total': 'Carbon emissions',
+            'cost_total': 'Cost',
+            'discomfort_proportion': 'Discomfort',
+            'ramping_average': 'Ramping',
+            'daily_one_minus_load_factor_average': 'Load factor',
+            'daily_peak_average': 'Daily peak',
+            'annual_peak_average': 'All-time Peak',
+        }
+        data = self.evaluate(
+            control_condition=EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV,
+            baseline_condition=EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV,
+            comfort_band=1.0,
+        )
+        data = data[data['level']=='district'].copy()
+        data = data.set_index('cost_function')
+        data = data.to_dict('index') 
+        
+        return {v: data[k]['value'] for k, v in cost_functions.items()}
     
     def evaluate(self, control_condition: EvaluationCondition = None, baseline_condition: EvaluationCondition = None, comfort_band: float = None) -> pd.DataFrame:
         r"""Evaluate cost functions at current time step.
