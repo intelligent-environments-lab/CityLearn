@@ -690,7 +690,7 @@ class CityLearnEnv(Environment, Env):
         
         return building_info
     
-    def evaluate(self, control_condition: EvaluationCondition = None, baseline_condition: EvaluationCondition = None) -> pd.DataFrame:
+    def evaluate(self, control_condition: EvaluationCondition = None, baseline_condition: EvaluationCondition = None, comfort_band: float = None) -> pd.DataFrame:
         r"""Evaluate cost functions at current time step.
 
         Calculates and returns building-level and district-level cost functions normalized w.r.t. the no control scenario.
@@ -702,6 +702,9 @@ class CityLearnEnv(Environment, Env):
         baseline_condition: EvaluationCondition, default: :code:`EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV`
             Condition for net electricity consumption, cost and emission to use in calculating cost functions for the baseline scenario 
             that is used to normalize the control_condition scenario.
+        comfort_band: float, default = 2.0
+            Comfort band above and below dry_bulb_temperature_set_point beyond 
+            which occupant is assumed to be uncomfortable.
         
         Returns
         -------
@@ -728,14 +731,15 @@ class CityLearnEnv(Environment, Env):
         baseline_net_electricity_consumption = lambda x: getattr(x, f'net_electricity_consumption{baseline_condition.value}')
         baseline_net_electricity_consumption_cost = lambda x: getattr(x, f'net_electricity_consumption_cost{baseline_condition.value}')
         baseline_net_electricity_consumption_emission = lambda x: getattr(x, f'net_electricity_consumption_emission{baseline_condition.value}')
-        
+
+        comfort_band = 2.0 if comfort_band is None else comfort_band
         building_level = []
         
         for b in self.buildings:
             unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.discomfort(
                 b.energy_simulation.indoor_dry_bulb_temperature[:self.time_step + 1], 
                 b.energy_simulation.indoor_dry_bulb_temperature_set_point[:self.time_step + 1],
-                band=2.0,
+                band=comfort_band,
                 occupant_count=b.energy_simulation.occupant_count[:self.time_step + 1]
             )
             building_level += [{
