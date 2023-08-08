@@ -13,6 +13,7 @@ from citylearn.base import Environment
 from citylearn.building import Building
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
+from citylearn.rendering import get_background, RenderBuilding, get_plots
 from citylearn.utilities import read_json
 
 LOGGER = logging.getLogger()
@@ -799,7 +800,11 @@ class CityLearnEnv(Environment, Env):
             'value': CostFunction.ramping(control_net_electricity_consumption(self))[-1]/\
                 CostFunction.ramping(baseline_net_electricity_consumption(self))[-1],
             }, {
-            'cost_function': 'one_minus_load_factor_average',
+            'cost_function': 'daily_one_minus_load_factor_average',
+            'value': CostFunction.one_minus_load_factor(control_net_electricity_consumption(self), window=24)[-1]/\
+                CostFunction.one_minus_load_factor(baseline_net_electricity_consumption(self), window=24)[-1],
+            },{
+            'cost_function': 'monthly_one_minus_load_factor_average',
             'value': CostFunction.one_minus_load_factor(control_net_electricity_consumption(self), window=730)[-1]/\
                 CostFunction.one_minus_load_factor(baseline_net_electricity_consumption(self), window=730)[-1],
             }, {
@@ -819,6 +824,63 @@ class CityLearnEnv(Environment, Env):
         cost_functions = pd.concat([district_level, building_level], ignore_index=True, sort=False)
 
         return cost_functions
+    
+    def render(self):
+        """Rendering function for The CityLearn Challenge 2023."""
+
+        canvas, canvas_size, draw_obj, color = get_background()
+        num_buildings = len(self.buildings)
+        profile_time_steps = 24
+        norm_min, norm_max = 0.0, 1.0
+        space_limits = []
+
+        for i, b in enumerate(self.buildings):
+            # current time step net electricity consumption and storage soc and indoor temperature
+            energy = b.net_electricity_consumption[b.time_step]\
+                /(b.non_periodic_normalized_observation_space_limits[1]['net_electricity_consumption'])
+            energy = max(min(energy, norm_max), norm_min)
+            electrical_storage_soc = b.electrical_storage.soc[b.time_step]/b.electrical_storage.capacity_history[0]
+            electrical_storage_soc = max(min(electrical_storage_soc, norm_max),norm_min)
+            dhw_storage_soc = b.dhw_storage.soc[b.time_step]/b.dhw_storage.capacity
+            dhw_storage_soc = max(min(dhw_storage_soc, norm_max), norm_min)
+            indoor_temperature = b.indoor_dry_bulb_temperature[b.time_step]
+            indoor_temperature_delta = indoor_temperature - b.energy_simulation.indoor_dry_bulb_temperature_set_point[b.time_step]
+            space_limits.append(b.non_periodic_normalized_observation_space_limits)
+
+            # render
+            rbuilding = RenderBuilding(index=i, canvas_size=canvas_size, num_buildings=num_buildings, line_color=color)
+            rbuilding.draw_line(canvas, draw_obj, energy=energy, color=color)
+            rbuilding.draw_building(canvas, charge=electrical_storage_soc)
+
+        # time series data
+        nec = self.net_electricity_consumption[-profile_time_steps:]
+        nec_wo_storage = self.net_electricity_consumption_without_storage[-profile_time_steps:]
+        nec_wo_storage_and_partial_load = self.net_electricity_consumption_without_storage_and_partial_load[-profile_time_steps:]
+        nec_wo_storage_and_partial_load_and_pv = self.net_electricity_consumption_without_storage_and_partial_load_and_pv[-profile_time_steps:]
+        values = [nec, nec_wo_storage, nec_wo_storage_and_partial_load, nec_wo_storage_and_partial_load_and_pv]
+
+        # time series data y limits
+        nec_y_lim = (
+            sum(s[0]['net_electricity_consumption'] for s in space_limits),
+            sum(s[1]['net_electricity_consumption'] for s in space_limits)
+        )
+        nec_wo_storage_y_lim = (
+            sum(s[0]['net_electricity_consumption_without_storage'] for s in space_limits),
+            sum(s[1]['net_electricity_consumption_without_storage'] for s in space_limits)
+        )
+        nec_wo_storage_and_partial_load_y_lim = (
+            sum(s[0]['net_electricity_consumption_without_storage_and_partial_load'] for s in space_limits),
+            sum(s[1]['net_electricity_consumption_without_storage_and_partial_load'] for s in space_limits)
+        )
+        nec_wo_storage_and_partial_load_and_pv_y_lim = (
+            sum(s[0]['net_electricity_consumption_without_storage_and_partial_load_and_pv'] for s in space_limits),
+            sum(s[1]['net_electricity_consumption_without_storage_and_partial_load_and_pv'] for s in space_limits)
+        )
+        limits = [nec_y_lim, nec_wo_storage_y_lim, nec_wo_storage_and_partial_load_y_lim, nec_wo_storage_and_partial_load_and_pv_y_lim]
+        plot_image = get_plots(values, limits)
+        graphic_image = np.asarray(canvas)
+        
+        return np.concatenate([graphic_image, plot_image], axis=1)
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
