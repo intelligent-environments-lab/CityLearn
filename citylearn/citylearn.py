@@ -704,7 +704,7 @@ class CityLearnEnv(Environment, Env):
             # 'electricity_consumption_total': 'Electricity consumption',
             'carbon_emissions_total': 'Carbon emissions',
             'cost_total': 'Cost',
-            'discomfort_proportion': 'Discomfort',
+            'discomfort_proportion': 'Unmet hours',
             'ramping_average': 'Ramping',
             'daily_one_minus_load_factor_average': 'Load factor',
             'daily_peak_average': 'Daily peak',
