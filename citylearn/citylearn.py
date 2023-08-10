@@ -701,7 +701,7 @@ class CityLearnEnv(Environment, Env):
         """
 
         cost_functions = {
-            'electricity_consumption_total': 'Electricity consumption',
+            # 'electricity_consumption_total': 'Electricity consumption',
             'carbon_emissions_total': 'Carbon emissions',
             'cost_total': 'Cost',
             'discomfort_proportion': 'Discomfort',
