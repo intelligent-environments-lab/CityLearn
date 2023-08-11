@@ -702,13 +702,13 @@ class CityLearnEnv(Environment, Env):
 
         cost_functions = {
             # 'electricity_consumption_total': 'Electricity consumption',
-            'carbon_emissions_total': 'Carbon emissions',
-            'cost_total': 'Cost',
-            'discomfort_proportion': 'Unmet hours',
-            'ramping_average': 'Ramping',
-            'daily_one_minus_load_factor_average': 'Load factor',
-            'daily_peak_average': 'Daily peak',
-            'annual_peak_average': 'All-time Peak',
+            'carbon_emissions_total': {'name': 'Carbon emissions', 'weight': 1.0},
+            'cost_total': {'name': 'Cost', 'weight': 1.0},
+            'discomfort_proportion': {'name': 'Unmet hours', 'weight': 1.0},
+            'ramping_average': {'name': 'Ramping', 'weight': 1.0},
+            'daily_one_minus_load_factor_average': {'name': 'Load factor', 'weight': 1.0},
+            'daily_peak_average': {'name': 'Daily peak', 'weight': 1.0},
+            'annual_peak_average': {'name': 'All-time Peak', 'weight': 1.0},
         }
         data = self.evaluate(
             control_condition=EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV,
@@ -717,9 +717,11 @@ class CityLearnEnv(Environment, Env):
         )
         data = data[data['level']=='district'].copy()
         data = data.set_index('cost_function')
-        data = data.to_dict('index') 
+        data = data.to_dict('index')
+        evaluation = {v['name']: data[k]['value'] for k, v in cost_functions.items()}
+        evaluation['Score'] = np.mean([v['weight']*data[k]['value'] for k, v in cost_functions.items()], dtype=float)
         
-        return {v: data[k]['value'] for k, v in cost_functions.items()}
+        return evaluation
     
     def evaluate(self, control_condition: EvaluationCondition = None, baseline_condition: EvaluationCondition = None, comfort_band: float = None) -> pd.DataFrame:
         r"""Evaluate cost functions at current time step.
