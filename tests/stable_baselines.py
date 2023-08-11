@@ -28,4 +28,10 @@ model = SAC('MlpPolicy', env, verbose=2, learning_starts=env.time_steps, seed=0)
 model.learn(total_timesteps=env.time_steps*3, log_interval=1)
 
 # Evaluation
-print(env.evaluate())
+observations = env.reset()
+
+while not env.done:
+    actions, _ = model.predict(observations, deterministic=True)
+    observations, reward, _, _ = env.step(actions)
+
+print(env.evaluate_citylearn_challenge())

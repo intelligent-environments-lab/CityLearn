@@ -8,7 +8,7 @@ class Environment:
     ----------
     seconds_per_time_step: float, default: 3600.0
         Number of seconds in 1 `time_step` and must be set to >= 1.
-    random_seed : int
+    random_seed : int, optional
         Pseudorandom number generator seed for repeatable results.
     """
     

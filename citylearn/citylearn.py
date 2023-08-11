@@ -1,3 +1,4 @@
+from copy import deepcopy
 from enum import Enum, unique
 import importlib
 import logging
@@ -12,6 +13,7 @@ from citylearn.base import Environment
 from citylearn.building import Building
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
+from citylearn.rendering import get_background, RenderBuilding, get_plots
 from citylearn.utilities import read_json
 
 LOGGER = logging.getLogger()
@@ -55,6 +57,8 @@ class CityLearnEnv(Environment, Env):
     shared_observations: List[str], optional
         Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
         If provided, will override :code:`observations:<observation>:shared_in_central_agent` definitions in schema.
+    random_seed: int, optional
+        Pseudorandom number generator seed for repeatable results.
 
     Other Parameters
     ----------------
@@ -64,10 +68,11 @@ class CityLearnEnv(Environment, Env):
     
     def __init__(self, 
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, simulation_start_time_step: int = None, simulation_end_time_step: int = None, 
-        reward_function: 'citylearn.reward_function.RewardFunction' = None, central_agent: bool = None, shared_observations: List[str] = None, **kwargs: Any
+        reward_function: 'citylearn.reward_function.RewardFunction' = None, central_agent: bool = None, shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
     ):
         self.schema = schema
         self.__rewards = None
+        self.random_seed = random_seed
         self.root_directory, self.buildings, self.simulation_start_time_step, self.simulation_end_time_step, self.seconds_per_time_step,\
             self.reward_function, self.central_agent, self.shared_observations = self._load(
                 root_directory=root_directory,
@@ -77,6 +82,7 @@ class CityLearnEnv(Environment, Env):
                 reward_function=reward_function,
                 central_agent=central_agent,
                 shared_observations=shared_observations,
+                random_seed=self.random_seed,
             )
         super().__init__(**kwargs)
 
@@ -600,7 +606,7 @@ class CityLearnEnv(Environment, Env):
             Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
 
-        actions = self.__parse_actions(actions)
+        actions = self._parse_actions(actions)
 
         for building, building_actions in zip(self.buildings, actions):
             building.apply_actions(**building_actions)
@@ -684,8 +690,42 @@ class CityLearnEnv(Environment, Env):
             building_info += (building_dict ,)
         
         return building_info
+
+    def evaluate_citylearn_challenge(self) -> Mapping[str, Mapping[str, Union[str, float]]]:
+        """Evalation function for The CityLearn Challenge 2023.
+        
+        Returns
+        -------
+        evaluation: Mapping[str, Mapping[str, Union[str, float]]]
+            Mapping of internal CityLearn evaluation KPIs to their display name, weight and value. 
+        """
+
+        evaluation = {
+            # 'electricity_consumption_total': 'Electricity consumption',
+            'carbon_emissions_total': {'display_name': 'Carbon emissions', 'weight': 1.0},
+            'cost_total': {'display_name': 'Cost', 'weight': 1.0},
+            'discomfort_proportion': {'display_name': 'Unmet hours', 'weight': 1.0},
+            'ramping_average': {'display_name': 'Ramping', 'weight': 1.0},
+            'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 1.0},
+            'daily_peak_average': {'display_name': 'Daily peak', 'weight': 1.0},
+            'annual_peak_average': {'display_name': 'All-time peak', 'weight': 1.0},
+        }
+        data = self.evaluate(
+            control_condition=EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV,
+            baseline_condition=EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV,
+            comfort_band=1.0,
+        )
+        data = data[data['level']=='district'].set_index('cost_function').to_dict('index')
+        evaluation = {k: {**v, 'value': data[k]['value']} for k, v in evaluation.items()}
+        evaluation['average_score'] = {
+            'display_name': 'Score',
+            'weight': None,
+            'value': np.nanmean([v['weight']*v['value'] for k, v in evaluation.items()], dtype=float)
+        } 
+        
+        return evaluation
     
-    def evaluate(self, control_condition: EvaluationCondition = None, baseline_condition: EvaluationCondition = None) -> pd.DataFrame:
+    def evaluate(self, control_condition: EvaluationCondition = None, baseline_condition: EvaluationCondition = None, comfort_band: float = None) -> pd.DataFrame:
         r"""Evaluate cost functions at current time step.
 
         Calculates and returns building-level and district-level cost functions normalized w.r.t. the no control scenario.
@@ -697,6 +737,9 @@ class CityLearnEnv(Environment, Env):
         baseline_condition: EvaluationCondition, default: :code:`EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV`
             Condition for net electricity consumption, cost and emission to use in calculating cost functions for the baseline scenario 
             that is used to normalize the control_condition scenario.
+        comfort_band: float, default = 2.0
+            Comfort band above and below dry_bulb_temperature_set_point beyond 
+            which occupant is assumed to be uncomfortable.
         
         Returns
         -------
@@ -723,14 +766,15 @@ class CityLearnEnv(Environment, Env):
         baseline_net_electricity_consumption = lambda x: getattr(x, f'net_electricity_consumption{baseline_condition.value}')
         baseline_net_electricity_consumption_cost = lambda x: getattr(x, f'net_electricity_consumption_cost{baseline_condition.value}')
         baseline_net_electricity_consumption_emission = lambda x: getattr(x, f'net_electricity_consumption_emission{baseline_condition.value}')
-        
+
+        comfort_band = 2.0 if comfort_band is None else comfort_band
         building_level = []
         
         for b in self.buildings:
             unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.discomfort(
                 b.energy_simulation.indoor_dry_bulb_temperature[:self.time_step + 1], 
                 b.energy_simulation.indoor_dry_bulb_temperature_set_point[:self.time_step + 1],
-                band=2.0,
+                band=comfort_band,
                 occupant_count=b.energy_simulation.occupant_count[:self.time_step + 1]
             )
             building_level += [{
@@ -790,7 +834,11 @@ class CityLearnEnv(Environment, Env):
             'value': CostFunction.ramping(control_net_electricity_consumption(self))[-1]/\
                 CostFunction.ramping(baseline_net_electricity_consumption(self))[-1],
             }, {
-            'cost_function': 'one_minus_load_factor_average',
+            'cost_function': 'daily_one_minus_load_factor_average',
+            'value': CostFunction.one_minus_load_factor(control_net_electricity_consumption(self), window=24)[-1]/\
+                CostFunction.one_minus_load_factor(baseline_net_electricity_consumption(self), window=24)[-1],
+            },{
+            'cost_function': 'monthly_one_minus_load_factor_average',
             'value': CostFunction.one_minus_load_factor(control_net_electricity_consumption(self), window=730)[-1]/\
                 CostFunction.one_minus_load_factor(baseline_net_electricity_consumption(self), window=730)[-1],
             }, {
@@ -810,6 +858,63 @@ class CityLearnEnv(Environment, Env):
         cost_functions = pd.concat([district_level, building_level], ignore_index=True, sort=False)
 
         return cost_functions
+    
+    def render(self):
+        """Rendering function for The CityLearn Challenge 2023."""
+
+        canvas, canvas_size, draw_obj, color = get_background()
+        num_buildings = len(self.buildings)
+        profile_time_steps = 24
+        norm_min, norm_max = 0.0, 1.0
+        space_limits = []
+
+        for i, b in enumerate(self.buildings):
+            # current time step net electricity consumption and storage soc and indoor temperature
+            energy = b.net_electricity_consumption[b.time_step]\
+                /(b.non_periodic_normalized_observation_space_limits[1]['net_electricity_consumption'])
+            energy = max(min(energy, norm_max), norm_min)
+            electrical_storage_soc = b.electrical_storage.soc[b.time_step]/b.electrical_storage.capacity_history[0]
+            electrical_storage_soc = max(min(electrical_storage_soc, norm_max),norm_min)
+            dhw_storage_soc = b.dhw_storage.soc[b.time_step]/b.dhw_storage.capacity
+            dhw_storage_soc = max(min(dhw_storage_soc, norm_max), norm_min)
+            indoor_temperature = b.indoor_dry_bulb_temperature[b.time_step]
+            indoor_temperature_delta = indoor_temperature - b.energy_simulation.indoor_dry_bulb_temperature_set_point[b.time_step]
+            space_limits.append(b.non_periodic_normalized_observation_space_limits)
+
+            # render
+            rbuilding = RenderBuilding(index=i, canvas_size=canvas_size, num_buildings=num_buildings, line_color=color)
+            rbuilding.draw_line(canvas, draw_obj, energy=energy, color=color)
+            rbuilding.draw_building(canvas, charge=electrical_storage_soc)
+
+        # time series data
+        nec = self.net_electricity_consumption[-profile_time_steps:]
+        nec_wo_storage = self.net_electricity_consumption_without_storage[-profile_time_steps:]
+        nec_wo_storage_and_partial_load = self.net_electricity_consumption_without_storage_and_partial_load[-profile_time_steps:]
+        nec_wo_storage_and_partial_load_and_pv = self.net_electricity_consumption_without_storage_and_partial_load_and_pv[-profile_time_steps:]
+        values = [nec, nec_wo_storage, nec_wo_storage_and_partial_load, nec_wo_storage_and_partial_load_and_pv]
+
+        # time series data y limits
+        nec_y_lim = (
+            sum(s[0]['net_electricity_consumption'] for s in space_limits),
+            sum(s[1]['net_electricity_consumption'] for s in space_limits)
+        )
+        nec_wo_storage_y_lim = (
+            sum(s[0]['net_electricity_consumption_without_storage'] for s in space_limits),
+            sum(s[1]['net_electricity_consumption_without_storage'] for s in space_limits)
+        )
+        nec_wo_storage_and_partial_load_y_lim = (
+            sum(s[0]['net_electricity_consumption_without_storage_and_partial_load'] for s in space_limits),
+            sum(s[1]['net_electricity_consumption_without_storage_and_partial_load'] for s in space_limits)
+        )
+        nec_wo_storage_and_partial_load_and_pv_y_lim = (
+            sum(s[0]['net_electricity_consumption_without_storage_and_partial_load_and_pv'] for s in space_limits),
+            sum(s[1]['net_electricity_consumption_without_storage_and_partial_load_and_pv'] for s in space_limits)
+        )
+        limits = [nec_y_lim, nec_wo_storage_y_lim, nec_wo_storage_and_partial_load_y_lim, nec_wo_storage_and_partial_load_and_pv_y_lim]
+        plot_image = get_plots(values, limits)
+        graphic_image = np.asarray(canvas)
+        
+        return np.concatenate([graphic_image, plot_image], axis=1)
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
@@ -905,6 +1010,7 @@ class CityLearnEnv(Environment, Env):
             self.schema = DataSet.get_schema(self.schema)
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
         elif isinstance(self.schema, dict):
+            self.schema = deepcopy(self.schema)
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
         else:
             raise UnknownSchemaError()
@@ -919,6 +1025,7 @@ class CityLearnEnv(Environment, Env):
             self.schema['simulation_start_time_step']
         simulation_end_time_step = kwargs['simulation_end_time_step'] if kwargs.get('simulation_end_time_step') is not None else\
             self.schema['simulation_end_time_step']
+        random_seed = kwargs.get('random_seed', None)
         seconds_per_time_step = self.schema['seconds_per_time_step']
         buildings_to_include = list(self.schema['buildings'].keys())
         buildings = ()
@@ -1000,6 +1107,7 @@ class CityLearnEnv(Environment, Env):
                 pricing=pricing,
                 name=building_name, 
                 seconds_per_time_step=seconds_per_time_step,
+                random_seed=random_seed,
                 **dynamics,
             )
 

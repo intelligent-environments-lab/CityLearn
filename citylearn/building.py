@@ -624,6 +624,10 @@ class Building(Environment):
     def name(self, name: str):
         self.__name = self.uid if name is None else name
 
+    @Environment.random_seed.setter
+    def random_seed(self, seed: int):
+        Environment.random_seed.fset(self, seed)
+
     def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None) -> Mapping[str, float]:
         r"""Observations at current time step.
 
@@ -922,11 +926,17 @@ class Building(Environment):
         Notes
         -----
         Lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate hence,
-        scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.
+        scaling this observation-variable using these bounds may result in normalized values above 1 or below 0. It is also
+        assumed that devices and storage systems have been sized.
         """
 
         include_all = False if include_all is None else include_all
-        observation_names = list(self.observation_metadata.keys()) if include_all else self.active_observations
+        internal_limit_observations = [
+            'net_electricity_consumption_without_storage', 
+            'net_electricity_consumption_without_storage_and_partial_load', 
+            'net_electricity_consumption_without_storage_and_partial_load_and_pv'
+        ]
+        observation_names = list(self.observation_metadata.keys()) + internal_limit_observations if include_all else self.active_observations
         periodic_normalization = False if periodic_normalization is None else periodic_normalization
         periodic_observations = self.get_periodic_observation_metadata()
         low_limit, high_limit = {}, {}
@@ -940,18 +950,35 @@ class Building(Environment):
 
         for key in observation_names:
             if key == 'net_electricity_consumption':
-                net_electric_consumption = self.energy_simulation.non_shiftable_load\
-                    + (self.energy_simulation.dhw_demand)\
-                        + self.energy_simulation.cooling_demand\
-                            + self.energy_simulation.heating_demand\
-                                + (self.energy_simulation.dhw_demand/self.dhw_storage.efficiency)\
-                                    + (self.energy_simulation.cooling_demand/self.cooling_storage.efficiency)\
-                                        + (self.energy_simulation.heating_demand/self.heating_storage.efficiency)\
-                                            + (self.electrical_storage.nominal_power/self.electrical_storage.efficiency_history[0])\
-                                                - data['solar_generation']
-    
-                low_limit[key] = -max(abs(net_electric_consumption))
-                high_limit[key] = max(abs(net_electric_consumption))
+                # assumes devices and storages have been sized
+                low_limits = self.energy_simulation.non_shiftable_load - (
+                    + self.electrical_storage.nominal_power
+                        + data['solar_generation']
+                )
+                high_limits = self.energy_simulation.non_shiftable_load\
+                    + self.cooling_device.nominal_power\
+                        + self.heating_device.nominal_power\
+                            + self.dhw_device.nominal_power\
+                                + self.electrical_storage.nominal_power\
+                                    - data['solar_generation']
+                low_limit[key] = min(low_limits.min(), 0.0)
+                high_limit[key] = high_limits.max()
+                
+            elif key == 'net_electricity_consumption_without_storage':
+                low_limit[key] = min(low_limit['net_electricity_consumption'] + self.electrical_storage.nominal_power, 0.0)
+                high_limit[key] = high_limit['net_electricity_consumption'] - self.electrical_storage.nominal_power
+
+            elif key == 'net_electricity_consumption_without_storage_and_partial_load':
+                low_limit[key] = low_limit['net_electricity_consumption_without_storage']
+                high_limit[key] = high_limit['net_electricity_consumption_without_storage']
+
+            elif key == 'net_electricity_consumption_without_storage_and_partial_load_and_pv':
+                low_limit[key] = 0.0
+                high_limits = self.energy_simulation.non_shiftable_load\
+                    + self.cooling_device.nominal_power\
+                        + self.heating_device.nominal_power\
+                            + self.dhw_device.nominal_power
+                high_limit[key] = high_limits.max()
 
             elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc']:
                 low_limit[key] = 0.0

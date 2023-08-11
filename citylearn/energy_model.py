@@ -671,6 +671,8 @@ class Battery(ElectricDevice, StorageDevice):
         Charging/Discharging efficiency as a function of the power released or consumed.
     capacity_power_curve: list, default: [[0.0, 1],[0.8, 1],[1.0, 0.2]]   
         Maximum power of the battery as a function of its current state of charge.
+    depth_of_discharge: float, default: 1.0
+        Maximum fraction of the battery that can be discharged relative to the total battery capacity.
 
     Other Parameters
     ----------------
@@ -678,10 +680,12 @@ class Battery(ElectricDevice, StorageDevice):
         Other keyword arguments used to initialize super classes.
     """
     
-    def __init__(self, capacity: float, nominal_power: float, capacity_loss_coefficient: float = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, **kwargs: Any):
+    def __init__(self, capacity: float, nominal_power: float, capacity_loss_coefficient: float = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, depth_of_discharge: float = None, **kwargs: Any):
         self._efficiency_history = []
         self._capacity_history = []
+        self.depth_of_discharge = depth_of_discharge
         super().__init__(capacity = capacity, nominal_power = nominal_power, **kwargs)
+        self.initial_soc = (1.0 - self.depth_of_discharge)*self.capacity
         self.capacity_loss_coefficient = capacity_loss_coefficient
         self.power_efficiency_curve = power_efficiency_curve
         self.capacity_power_curve = capacity_power_curve
@@ -721,6 +725,12 @@ class Battery(ElectricDevice, StorageDevice):
         """Maximum power of the battery as a function of its current state of charge."""
 
         return self.__capacity_power_curve
+    
+    @property
+    def depth_of_discharge(self) -> float:
+        """Maximum fraction of the battery that can be discharged relative to the total battery capacity."""
+
+        return self.__depth_of_discharge
 
     @property
     def efficiency_history(self) -> List[float]:
@@ -773,6 +783,10 @@ class Battery(ElectricDevice, StorageDevice):
 
         self.__capacity_power_curve = np.array(capacity_power_curve).T
 
+    @depth_of_discharge.setter
+    def depth_of_discharge(self, depth_of_discharge: float):
+        self.__depth_of_discharge = 1.0 if depth_of_discharge is None else depth_of_discharge
+
     def charge(self, energy: float):
         """Charges or discharges storage with respect to specified energy while considering `capacity` degradation and `soc_init` limitations, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.
 
@@ -787,7 +801,11 @@ class Battery(ElectricDevice, StorageDevice):
         If discharging, soc = max(0, `soc_init` + energy/`efficiency`, `max_output_power`)
         """
 
-        energy = min(energy, self.get_max_input_power()) if energy >= 0 else max(-self.get_max_output_power(), energy)
+        soc_limit_wrt_dod = 1.0 - self.depth_of_discharge
+        current_soc = self.soc[-1]/self.capacity
+        soc_difference = current_soc - soc_limit_wrt_dod
+        energy_limit_wrt_dod = -soc_difference*self.capacity*self.efficiency
+        energy = min(energy, self.get_max_input_power()) if energy >= 0 else max(-self.get_max_output_power(), energy, energy_limit_wrt_dod)
         self.efficiency = self.get_current_efficiency(energy)
         super().charge(energy)
         self.capacity = self.capacity - min(self.degrade(), self.capacity)
