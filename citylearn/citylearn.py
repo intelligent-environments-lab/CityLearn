@@ -719,7 +719,7 @@ class CityLearnEnv(Environment, Env):
         data = data.set_index('cost_function')
         data = data.to_dict('index')
         evaluation = {v['name']: data[k]['value'] for k, v in cost_functions.items()}
-        evaluation['Score'] = np.mean([v['weight']*data[k]['value'] for k, v in cost_functions.items()], dtype=float)
+        evaluation['Score'] = np.nanmean([v['weight']*data[k]['value'] for k, v in cost_functions.items()], dtype=float)
         
         return evaluation
     
