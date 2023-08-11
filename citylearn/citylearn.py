@@ -691,35 +691,37 @@ class CityLearnEnv(Environment, Env):
         
         return building_info
 
-    def evaluate_citylearn_challenge(self) -> Mapping[str, float]:
+    def evaluate_citylearn_challenge(self) -> Mapping[str, Mapping[str, Union[str, float]]]:
         """Evalation function for The CityLearn Challenge 2023.
         
         Returns
         -------
-        evaluation: Mapping[str, float]
-            Mapping of evaluation KPI names to their values. 
+        evaluation: Mapping[str, Mapping[str, Union[str, float]]]
+            Mapping of internal CityLearn evaluation KPIs to their display name, weight and value. 
         """
 
-        cost_functions = {
+        evaluation = {
             # 'electricity_consumption_total': 'Electricity consumption',
-            'carbon_emissions_total': {'name': 'Carbon emissions', 'weight': 1.0},
-            'cost_total': {'name': 'Cost', 'weight': 1.0},
-            'discomfort_proportion': {'name': 'Unmet hours', 'weight': 1.0},
-            'ramping_average': {'name': 'Ramping', 'weight': 1.0},
-            'daily_one_minus_load_factor_average': {'name': 'Load factor', 'weight': 1.0},
-            'daily_peak_average': {'name': 'Daily peak', 'weight': 1.0},
-            'annual_peak_average': {'name': 'All-time Peak', 'weight': 1.0},
+            'carbon_emissions_total': {'display_name': 'Carbon emissions', 'weight': 1.0},
+            'cost_total': {'display_name': 'Cost', 'weight': 1.0},
+            'discomfort_proportion': {'display_name': 'Unmet hours', 'weight': 1.0},
+            'ramping_average': {'display_name': 'Ramping', 'weight': 1.0},
+            'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 1.0},
+            'daily_peak_average': {'display_name': 'Daily peak', 'weight': 1.0},
+            'annual_peak_average': {'display_name': 'All-time peak', 'weight': 1.0},
         }
         data = self.evaluate(
             control_condition=EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV,
             baseline_condition=EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV,
             comfort_band=1.0,
         )
-        data = data[data['level']=='district'].copy()
-        data = data.set_index('cost_function')
-        data = data.to_dict('index')
-        evaluation = {v['name']: data[k]['value'] for k, v in cost_functions.items()}
-        evaluation['Score'] = np.nanmean([v['weight']*data[k]['value'] for k, v in cost_functions.items()], dtype=float)
+        data = data[data['level']=='district'].set_index('cost_function').to_dict('index')
+        evaluation = {k: {**v, 'value': data[k]['value']} for k, v in evaluation.items()}
+        evaluation['average_score'] = {
+            'display_name': 'Score',
+            'weight': None,
+            'value': np.nanmean([v['weight']*v['value'] for k, v in evaluation.items()], dtype=float)
+        } 
         
         return evaluation
     
