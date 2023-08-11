@@ -9,8 +9,8 @@
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
       <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
       <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
@@ -66,6 +66,7 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.rendering.html">citylearn.rendering module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.rl.html">citylearn.rl module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.utilities.html">citylearn.utilities module</a></li>
@@ -491,7 +492,8 @@ These boundaries should speed up the learning process of the agents and make the
 </dl>
 <p class="rubric">Notes</p>
 <p>Lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate hence,
-scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.</p>
+scaling this observation-variable using these bounds may result in normalized values above 1 or below 0. It is also
+assumed that devices and storage systems have been sized.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -715,6 +717,12 @@ scaling this observation-variable using these bounds may result in normalized va
 <dt class="sig sig-object py" id="citylearn.building.Building.pv">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.PV" title="citylearn.energy_model.PV"><span class="pre">citylearn.energy_model.PV</span></a></em><a class="headerlink" href="#citylearn.building.Building.pv" title="Permalink to this definition"></a></dt>
 <dd><p>PV object for offsetting electricity demand from grid.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.random_seed">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random_seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.building.Building.random_seed" title="Permalink to this definition"></a></dt>
+<dd><p>Pseudorandom number generator seed for repeatable results.</p>
 </dd></dl>
 
 <dl class="py method">

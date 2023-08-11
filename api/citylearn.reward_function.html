@@ -9,8 +9,8 @@
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
       <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
       <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
@@ -29,7 +29,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="citylearn.rl module" href="citylearn.rl.html" />
-    <link rel="prev" title="citylearn.preprocessing module" href="citylearn.preprocessing.html" /> 
+    <link rel="prev" title="citylearn.rendering module" href="citylearn.rendering.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -68,6 +68,7 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.rendering.html">citylearn.rendering module</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.reward_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.rl.html">citylearn.rl module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.utilities.html">citylearn.utilities module</a></li>
@@ -273,7 +274,7 @@ where <span class="math notranslate nohighlight">\(e\)</span> is <cite>electrici
 <li><p><strong>band</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Setpoint comfort band (+/-).</p></li>
 <li><p><strong>lower_exponent</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Penalty exponent for when in cooling mode but temperature is above setpoint upper
 boundary or heating mode but temperature is below setpoint lower boundary.</p></li>
-<li><p><strong>higher_exponent</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Penalty exponent for when in cooling mode but temperature is below setpoint lower
+<li><p><strong>higher_exponent</strong> (<em>float</em><em>, </em><em>default = 3.0</em>) – Penalty exponent for when in cooling mode but temperature is below setpoint lower
 boundary or heating mode but temperature is above setpoint upper boundary.</p></li>
 <li><p><strong>coefficients</strong> (<em>Tuple</em><em>, </em><em>default =</em><em> (</em><em>1.0</em><em>, </em><em>1.0</em><em>)</em>) – Coefficents for <cite>citylearn.reward_function.SolarPenaltyReward</cite> and <a class="reference internal" href="#citylearn.reward_function.ComfortReward" title="citylearn.reward_function.ComfortReward"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.ComfortReward</span></code></a> values respectively.</p></li>
 </ul>
@@ -338,7 +339,7 @@ grid the penalty is maximized.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="citylearn.preprocessing.html" class="btn btn-neutral float-left" title="citylearn.preprocessing module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="citylearn.rendering.html" class="btn btn-neutral float-left" title="citylearn.rendering module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="citylearn.rl.html" class="btn btn-neutral float-right" title="citylearn.rl module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

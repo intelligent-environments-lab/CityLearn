@@ -8,8 +8,8 @@
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
@@ -755,6 +755,8 @@
 <span class="sd">        Charging/Discharging efficiency as a function of the power released or consumed.</span>
 <span class="sd">    capacity_power_curve: list, default: [[0.0, 1],[0.8, 1],[1.0, 0.2]]   </span>
 <span class="sd">        Maximum power of the battery as a function of its current state of charge.</span>
+<span class="sd">    depth_of_discharge: float, default: 1.0</span>
+<span class="sd">        Maximum fraction of the battery that can be discharged relative to the total battery capacity.</span>
 
 <span class="sd">    Other Parameters</span>
 <span class="sd">    ----------------</span>
@@ -762,10 +764,12 @@
 <span class="sd">        Other keyword arguments used to initialize super classes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">capacity_loss_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">power_efficiency_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">capacity_power_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capacity</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">capacity_loss_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">power_efficiency_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">capacity_power_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">depth_of_discharge</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_efficiency_history</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth_of_discharge</span> <span class="o">=</span> <span class="n">depth_of_discharge</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">capacity</span> <span class="o">=</span> <span class="n">capacity</span><span class="p">,</span> <span class="n">nominal_power</span> <span class="o">=</span> <span class="n">nominal_power</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_soc</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_of_discharge</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">capacity</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">capacity_loss_coefficient</span> <span class="o">=</span> <span class="n">capacity_loss_coefficient</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">power_efficiency_curve</span> <span class="o">=</span> <span class="n">power_efficiency_curve</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">capacity_power_curve</span> <span class="o">=</span> <span class="n">capacity_power_curve</span>
@@ -805,6 +809,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Maximum power of the battery as a function of its current state of charge.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_power_curve</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">depth_of_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maximum fraction of the battery that can be discharged relative to the total battery capacity.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__depth_of_discharge</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">efficiency_history</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
@@ -857,6 +867,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__capacity_power_curve</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">capacity_power_curve</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
+    <span class="nd">@depth_of_discharge</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">depth_of_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depth_of_discharge</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__depth_of_discharge</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">depth_of_discharge</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">depth_of_discharge</span>
+
 <div class="viewcode-block" id="Battery.charge"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.charge">[docs]</a>    <span class="k">def</span> <span class="nf">charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Charges or discharges storage with respect to specified energy while considering `capacity` degradation and `soc_init` limitations, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.</span>
 
@@ -871,7 +885,11 @@
 <span class="sd">        If discharging, soc = max(0, `soc_init` + energy/`efficiency`, `max_output_power`)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">energy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_input_power</span><span class="p">())</span> <span class="k">if</span> <span class="n">energy</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_max_output_power</span><span class="p">(),</span> <span class="n">energy</span><span class="p">)</span>
+        <span class="n">soc_limit_wrt_dod</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_of_discharge</span>
+        <span class="n">current_soc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">capacity</span>
+        <span class="n">soc_difference</span> <span class="o">=</span> <span class="n">current_soc</span> <span class="o">-</span> <span class="n">soc_limit_wrt_dod</span>
+        <span class="n">energy_limit_wrt_dod</span> <span class="o">=</span> <span class="o">-</span><span class="n">soc_difference</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_input_power</span><span class="p">())</span> <span class="k">if</span> <span class="n">energy</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_max_output_power</span><span class="p">(),</span> <span class="n">energy</span><span class="p">,</span> <span class="n">energy_limit_wrt_dod</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_efficiency</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">charge</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">degrade</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="p">)</span></div>

@@ -28,6 +28,7 @@ Submodules
    citylearn.dynamics
    citylearn.energy_model
    citylearn.preprocessing
+   citylearn.rendering
    citylearn.reward_function
    citylearn.rl
    citylearn.utilities
