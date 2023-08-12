@@ -394,7 +394,7 @@ class PV(ElectricDevice):
     """
     
     def __init__(self, nominal_power: float, **kwargs: Any):
-        super().__init__(nominal_power=nominal_power,**kwargs)
+        super().__init__(nominal_power=nominal_power, **kwargs)
 
 
     def get_generation(self, inverter_ac_power_per_kw: Union[float, Iterable[float]]) -> Union[float, Iterable[float]]:
@@ -416,7 +416,7 @@ class PV(ElectricDevice):
             \textrm{generation} = \frac{\textrm{capacity} \times \textrm{inverter_ac_power_per_w}}{1000}
         """
 
-        return self.nominal_power*np.array(inverter_ac_power_per_kw)/1000
+        return self.nominal_power*np.array(inverter_ac_power_per_kw)/1000.0
 
     def autosize(self, demand: Iterable[float], safety_factor: float = None):
         r"""Autosize `nominal_power`.
