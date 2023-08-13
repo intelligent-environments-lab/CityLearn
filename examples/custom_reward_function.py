@@ -9,8 +9,7 @@
 #
 #********************** END ***********************
 
-from typing import List
-from citylearn.citylearn import CityLearnEnv
+from typing import Any, List, Mapping, Union
 from citylearn.reward_function import RewardFunction
 
 class CustomReward(RewardFunction):
@@ -22,18 +21,33 @@ class CustomReward(RewardFunction):
 
     Parameters
     ----------
-    env: citylearn.citylearn.CityLearnEnv
-        CityLearn environment.
+    env_metadata: Mapping[str, Any]:
+        General static information about the environment.
     """
     
-    def __init__(self, env: CityLearnEnv):
-        super().__init__(env)
-        
-    def calculate(self) -> List[float]:
-        if self.env.central_agent:
-            reward = [self.env.net_electricity_consumption_emission[-1]]
+    def __init__(self, env_metadata: Mapping[str, Any]):
+        super().__init__(env_metadata)
+ 
+    def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
+        r"""Calculates reward.
 
+        Parameters
+        ----------
+        observations: List[Mapping[str, Union[int, float]]]
+            List of all building observations at current :py:attr:`citylearn.citylearn.CityLearnEnv.
+            time_step` that are got from calling :py:meth:`citylearn.building.Building.observations`.
+
+        Returns
+        -------
+        reward: List[float]
+            Reward for transition to current timestep.
+        """
+
+        net_electricity_consumption_emission = [o['net_electricity_consumption_emission'] for o in observations]
+
+        if self.central_agent:
+            reward = [-sum(net_electricity_consumption_emission)]
         else:
-            reward = [b.net_electricity_consumption_emission[-1] for b in self.env.buildings]
+            reward = [-v for v in net_electricity_consumption_emission]
 
         return reward

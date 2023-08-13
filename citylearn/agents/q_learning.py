@@ -80,11 +80,11 @@ class TabularQLearning(Agent):
         
         else:
             # Explore random action
-            actions = [[s.sample()] for s in self.env.action_space]
+            actions = [[s.sample()] for s in self.action_space]
             self.__explored = True
 
         # exponential decay
-        episode = int(self.time_step/self.env.time_steps)
+        episode = int(self.time_step/self.episode_time_steps)
         self.epsilon = max(self.minimum_epsilon, self.epsilon_init*np.exp(-self.epsilon_decay*episode))
 
         self.actions = actions
@@ -104,7 +104,7 @@ class TabularQLearning(Agent):
             
             except ValueError:
                 # when all values for observation are still NaN
-                a = self.env.action_space[i].sample()
+                a = self.action_space[i].sample()
 
             actions.append([a])
         
@@ -152,11 +152,11 @@ class TabularQLearning(Agent):
     def __initialize_q(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Initialize all values in Q-Table with `q_init_value`."""
         
-        q = [None for _ in self.env.observation_space]
-        q_exploration = [None for _ in self.env.observation_space]
-        q_exploitation = [None for _ in self.env.observation_space]
+        q = [None for _ in self.observation_space]
+        q_exploration = [None for _ in self.observation_space]
+        q_exploitation = [None for _ in self.observation_space]
 
-        for i, (od, ad) in enumerate(zip(self.env.observation_space, self.env.action_space)):
+        for i, (od, ad) in enumerate(zip(self.observation_space, self.action_space)):
             shape = (od.n, ad.n)
             q[i] = np.ones(shape=shape)*self.q_init_value
             q_exploration[i] = np.zeros(shape=shape)

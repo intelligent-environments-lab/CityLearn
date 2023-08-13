@@ -179,11 +179,11 @@ class RLC(Agent):
 
     @standardize_start_time_step.setter
     def standardize_start_time_step(self, standardize_start_time_step: int):
-        self.__standardize_start_time_step = self.env.time_steps - 1 if standardize_start_time_step is None else standardize_start_time_step
+        self.__standardize_start_time_step = self.episode_time_steps - 1 if standardize_start_time_step is None else standardize_start_time_step
 
     @end_exploration_time_step.setter
     def end_exploration_time_step(self, end_exploration_time_step: int):
-        self.__end_exploration_time_step = self.env.time_steps if end_exploration_time_step is None else end_exploration_time_step
+        self.__end_exploration_time_step = self.episode_time_steps if end_exploration_time_step is None else end_exploration_time_step
 
     @action_scaling_coefficient.setter
     def action_scaling_coefficient(self, action_scaling_coefficient: float):

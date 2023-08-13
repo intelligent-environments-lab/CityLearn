@@ -1,6 +1,5 @@
-from typing import List, Tuple
+from typing import Any, List, Mapping, Tuple, Union
 import numpy as np
-from citylearn.citylearn import CityLearnEnv
 from citylearn.energy_model import ZERO_DIVISION_CAPACITY
 
 class RewardFunction:
@@ -10,33 +9,39 @@ class RewardFunction:
 
     Parameters
     ----------
-    env: citylearn.citylearn.CityLearnEnv
-        CityLearn environment.
+    env_metadata: Mapping[str, Any]:
+        General static information about the environment.
     **kwargs : dict
         Other keyword arguments for custom reward calculation.
-
-    Notes
-    -----
-    Reward value is calculated as :math:`[\textrm{min}(-e_0, 0), \dots, \textrm{min}(-e_n, 0)]` 
-    where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
     """
     
-    def __init__(self, env: CityLearnEnv, **kwargs):
-        self.env = env
-        self.kwargs = kwargs
+    def __init__(self, env_metadata: Mapping[str, Any], **kwargs):
+        self.env_metadata = env_metadata
 
     @property
-    def env(self) -> CityLearnEnv:
-        """Simulation environment."""
+    def env_metadata(self) -> Mapping[str, Any]:
+        """General static information about the environment."""
 
-        return self.__env
+        return self.__env_metadata
+    
+    @property
+    def central_agent(self) -> bool:
+        """Expect 1 central agent to control all buildings."""
 
-    @env.setter
-    def env(self, env: CityLearnEnv):
-        self.__env = env
+        return self.env_metadata['central_agent']
+    
+    @env_metadata.setter
+    def env_metadata(self, env_metadata: Mapping[str, Any]):
+        self.__env_metadata = env_metadata
 
-    def calculate(self) -> List[float]:
+    def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
         r"""Calculates reward.
+
+        Parameters
+        ----------
+        observations: List[Mapping[str, Union[int, float]]]
+            List of all building observations at current :py:attr:`citylearn.citylearn.CityLearnEnv.
+            time_step` that are got from calling :py:meth:`citylearn.building.Building.observations`.
 
         Returns
         -------
@@ -44,10 +49,12 @@ class RewardFunction:
             Reward for transition to current timestep.
         """
 
-        if self.env.central_agent:
-            reward = [min(self.env.net_electricity_consumption[self.env.time_step]*-1, 0)]
+        net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
+
+        if self.central_agent:
+            reward = [min(sum(net_electricity_consumption)*-1, 0.0)]
         else:
-            reward = [min(b.net_electricity_consumption[b.time_step]*-1, 0) for b in self.env.buildings]
+            reward = [min(v*-1, 0.0) for v in net_electricity_consumption]
 
         return reward
 
@@ -56,24 +63,20 @@ class MARL(RewardFunction):
 
     Parameters
     ----------
-    env: citylearn.citylearn.CityLearnEnv
-        CityLearn environment.
-    
-    Notes
-    -----
-    Reward value is calculated as :math:`\textrm{sign}(-e) \times 0.01(e^2) \times \textrm{max}(0, E)`
-    where :math:`e` is the building `electricity_consumption` and :math:`E` is the district `electricity_consumption`.
+    env_metadata: Mapping[str, Any]:
+        General static information about the environment.
     """
 
-    def __init__(self, env: CityLearnEnv):
-        super().__init__(env)
+    def __init__(self, env_metadata: Mapping[str, Any]):
+        super().__init__(env_metadata)
 
-    def calculate(self) -> List[float]:
-        district_electricity_consumption = self.env.net_electricity_consumption[self.env.time_step]
-        building_electricity_consumption = np.array([b.net_electricity_consumption[b.time_step]*-1 for b in self.env.buildings])
+    def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
+        net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
+        district_electricity_consumption = sum(net_electricity_consumption)
+        building_electricity_consumption = np.array(net_electricity_consumption, dtype=float)*-1
         reward_list = np.sign(building_electricity_consumption)*0.01*building_electricity_consumption**2*np.nanmax([0, district_electricity_consumption])
 
-        if self.env.central_agent:
+        if self.central_agent:
             reward = [reward_list.sum()]
         else:
             reward = reward_list.tolist()
@@ -87,22 +90,18 @@ class IndependentSACReward(RewardFunction):
 
     Parameters
     ----------
-    env: citylearn.citylearn.CityLearnEnv
-        CityLearn environment.
-
-    Notes
-    -----
-    Reward value is calculated as :math:`[\textrm{min}(-e_0^3, 0), \dots, \textrm{min}(-e_n^3, 0)]` 
-    where :math:`e` is `electricity_consumption` and :math:`n` is the number of agents.
+    env_metadata: Mapping[str, Any]:
+        General static information about the environment.
     """
     
-    def __init__(self, env: CityLearnEnv):
-        super().__init__(env)
+    def __init__(self, env_metadata: Mapping[str, Any]):
+        super().__init__(env_metadata)
 
-    def calculate(self) -> List[float]:
-        reward_list = [min(b.net_electricity_consumption[b.time_step]*-1**3, 0) for b in self.env.buildings]
+    def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
+        net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
+        reward_list = [min(v*-1**3, 0) for v in net_electricity_consumption]
 
-        if self.env.central_agent:
+        if self.central_agent:
             reward = [sum(reward_list)]
         else:
             reward = reward_list
@@ -121,26 +120,26 @@ class SolarPenaltyReward(RewardFunction):
 
     Parameters
     ----------
-    env: citylearn.citylearn.CityLearnEnv
-        CityLearn environment.
+    env_metadata: Mapping[str, Any]:
+        General static information about the environment.
     """
 
-    def __init__(self, env: CityLearnEnv):
-        super().__init__(env)
+    def __init__(self, env_metadata: Mapping[str, Any]):
+        super().__init__(env_metadata)
 
-    def calculate(self) -> List[float]:
+    def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
         reward_list = []
 
-        for b in self.env.buildings:
-            e = b.net_electricity_consumption[-1]
-            cc = b.cooling_storage.capacity
-            hc = b.heating_storage.capacity
-            dc = b.dhw_storage.capacity
-            ec = b.electrical_storage.capacity_history[0]
-            cs = b.cooling_storage.soc[-1]/cc
-            hs = b.heating_storage.soc[-1]/hc
-            ds = b.dhw_storage.soc[-1]/dc
-            es = b.electrical_storage.soc[-1]/ec
+        for o, m in zip(observations, self.env_metadata['buildings']):
+            e = o['net_electricity_consumption']
+            cc = m['cooling_storage']['capacity']
+            hc = m['heating_storage']['capacity']
+            dc = m['dhw_storage']['capacity']
+            ec = m['electrical_storage']['capacity']
+            cs = o.get('cooling_storage_soc', 0.0)
+            hs = o.get('heating_storage_soc', 0.0)
+            ds = o.get('dhw_storage_soc', 0.0)
+            es = o.get('electrical_storage_soc', 0.0)
             reward = 0.0
             reward += -(1.0 + np.sign(e)*cs)*abs(e) if cc > ZERO_DIVISION_CAPACITY else 0.0
             reward += -(1.0 + np.sign(e)*hs)*abs(e) if hc > ZERO_DIVISION_CAPACITY else 0.0
@@ -148,8 +147,7 @@ class SolarPenaltyReward(RewardFunction):
             reward += -(1.0 + np.sign(e)*es)*abs(e) if ec > ZERO_DIVISION_CAPACITY else 0.0
             reward_list.append(reward)
 
-
-        if self.env.central_agent:
+        if self.central_agent:
             reward = [sum(reward_list)]
         else:
             reward = reward_list
@@ -166,8 +164,8 @@ class ComfortReward(RewardFunction):
 
     Parameters
     ----------
-    env: citylearn.citylearn.CityLearnEnv
-        CityLearn environment.
+    env_metadata: Mapping[str, Any]:
+        General static information about the environment.
     band: float, default = 2.0
         Setpoint comfort band (+/-).
     lower_exponent: float, default = 2.0
@@ -178,8 +176,8 @@ class ComfortReward(RewardFunction):
         boundary or heating mode but temperature is above setpoint upper boundary.
     """
     
-    def __init__(self, env: CityLearnEnv, band: float = None, lower_exponent: float = None, higher_exponent: float = None):
-        super().__init__(env)
+    def __init__(self, env_metadata: Mapping[str, Any], band: float = None, lower_exponent: float = None, higher_exponent: float = None):
+        super().__init__(env_metadata)
         self.band = band
         self.lower_exponent = lower_exponent
         self.higher_exponent = higher_exponent
@@ -208,13 +206,15 @@ class ComfortReward(RewardFunction):
     def higher_exponent(self, higher_exponent: float):
         self.__higher_exponent = 3.0 if higher_exponent is None else higher_exponent
 
-    def calculate(self) -> List[float]:
+    def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
         reward_list = []
 
-        for b in self.env.buildings:
-            heating = b.energy_simulation.heating_demand[b.time_step] > b.energy_simulation.cooling_demand[b.time_step]
-            indoor_dry_bulb_temperature = b.energy_simulation.indoor_dry_bulb_temperature[b.time_step]
-            set_point = b.energy_simulation.indoor_dry_bulb_temperature_set_point[b.time_step]
+        for o in observations:
+            heating_demand = o.get('heating_demand', 0.0)
+            cooling_demand = o.get('cooling_demand', 0.0)
+            heating = heating_demand > cooling_demand
+            indoor_dry_bulb_temperature = o['indoor_dry_bulb_temperature']
+            set_point = o['indoor_dry_bulb_temperature_set_point']
             lower_bound_comfortable_indoor_dry_bulb_temperature = set_point - self.band
             upper_bound_comfortable_indoor_dry_bulb_temperature = set_point + self.band
             delta = abs(indoor_dry_bulb_temperature - set_point)
@@ -235,7 +235,7 @@ class ComfortReward(RewardFunction):
 
             reward_list.append(reward)
 
-        if self.env.central_agent:
+        if self.central_agent:
             reward = [sum(reward_list)]
 
         else:
@@ -248,8 +248,8 @@ class SolarPenaltyAndComfortReward(RewardFunction):
 
     Parameters
     ----------
-    env: citylearn.citylearn.CityLearnEnv
-        CityLearn environment.
+    env_metadata: Mapping[str, Any]:
+        General static information about the environment.
     band: float, default = 2.0
         Setpoint comfort band (+/-).
     lower_exponent: float, default = 2.0
@@ -262,17 +262,24 @@ class SolarPenaltyAndComfortReward(RewardFunction):
         Coefficents for `citylearn.reward_function.SolarPenaltyReward` and :py:class:`citylearn.reward_function.ComfortReward` values respectively.
     """
     
-    def __init__(self, env: CityLearnEnv, band: float = None, lower_exponent: float = None, higher_exponent: float = None, coefficients: Tuple = None):
-        super().__init__(env)
+    def __init__(self, env_metadata: Mapping[str, Any], band: float = None, lower_exponent: float = None, higher_exponent: float = None, coefficients: Tuple = None):
         self.__functions: List[RewardFunction] = [
-            SolarPenaltyReward(env),
-            ComfortReward(env, band=band, lower_exponent=lower_exponent, higher_exponent=higher_exponent)
+            SolarPenaltyReward(env_metadata),
+            ComfortReward(env_metadata, band=band, lower_exponent=lower_exponent, higher_exponent=higher_exponent)
         ]
+        super().__init__(env_metadata)
         self.coefficients = coefficients
 
     @property
     def coefficients(self) -> Tuple:
         return self.__coefficients
+    
+    @RewardFunction.env_metadata.setter
+    def env_metadata(self, env_metadata: Mapping[str, Any]) -> Mapping[str, Any]:
+        RewardFunction.env_metadata.fset(self, env_metadata)
+
+        for f in self.__functions:
+            f.env_metadata = self.env_metadata
     
     @coefficients.setter
     def coefficients(self, coefficients: Tuple):
@@ -280,8 +287,8 @@ class SolarPenaltyAndComfortReward(RewardFunction):
         assert len(coefficients) == len(self.__functions), f'{type(self).__name__} needs {len(self.__functions)} coefficients.' 
         self.__coefficients = coefficients
 
-    def calculate(self) -> List[float]:
-        reward = np.array([f.calculate() for f in self.__functions], dtype='float32')
+    def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
+        reward = np.array([f.calculate(observations) for f in self.__functions], dtype='float32')
         reward = reward*np.reshape(self.coefficients, (len(self.coefficients), 1))
         reward = reward.sum(axis=0).tolist()
 

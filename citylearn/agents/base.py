@@ -29,7 +29,8 @@ class Agent(Environment):
         self.observation_names = self.env.observation_names
         self.observation_space = self.env.observation_space
         self.action_space = self.env.action_space
-        self.building_information = self.env.get_building_information()
+        self.episode_time_steps = self.env.time_steps
+        self.building_metadata = self.env.get_metadata()['buildings']
 
         arg_spec = inspect.getfullargspec(super().__init__)
         kwargs = {
@@ -56,12 +57,16 @@ class Agent(Environment):
         """Format of valid actions."""
 
         return self.__action_space
+    
+    @property
+    def episode_time_steps(self) -> int:
+        return self.__episode_time_steps
 
     @property
-    def building_information(self) -> List[Mapping[str, Any]]:
-        """Building metadata."""
+    def building_metadata(self) -> List[Mapping[str, Any]]:
+        """Building(s) metadata."""
 
-        return self.__building_information
+        return self.__building_metadata
 
     @property
     def action_dimension(self) -> List[int]:
@@ -87,9 +92,15 @@ class Agent(Environment):
     def action_space(self, action_space: List[spaces.Box]):
         self.__action_space = action_space
 
-    @building_information.setter
-    def building_information(self, building_information: List[Mapping[str, Any]]):
-        self.__building_information = building_information
+    @episode_time_steps.setter
+    def episode_time_steps(self, episode_time_steps: int):
+        """Number of time steps in one episode."""
+
+        self.__episode_time_steps = episode_time_steps
+
+    @building_metadata.setter
+    def building_metadata(self, building_metadata: List[Mapping[str, Any]]):
+        self.__building_metadata = building_metadata
 
     @actions.setter
     def actions(self, actions: List[List[Any]]):
@@ -119,29 +130,35 @@ class Agent(Environment):
         for episode in range(episodes):
             deterministic = deterministic or (deterministic_finish and episode >= episodes - 1)
             observations = self.env.reset()
+            done = False
+            time_step = 0
+            rewards_list = []
 
-            while not self.env.done:
+            while not done:
                 actions = self.predict(observations, deterministic=deterministic)
 
                 # apply actions to citylearn_env
-                next_observations, rewards, _, _ = self.env.step(actions)
+                next_observations, rewards, done, _ = self.env.step(actions)
+                rewards_list.append(rewards)
 
                 # update
                 if not deterministic:
-                    self.update(observations, actions, rewards, next_observations, done=self.env.done)
+                    self.update(observations, actions, rewards, next_observations, done=done)
                 else:
                     pass
 
                 observations = [o for o in next_observations]
 
                 logging.debug(
-                    f'Time step: {self.env.time_step + 1}/{self.env.time_steps},'\
+                    f'Time step: {time_step + 1}/{self.episode_time_steps},'\
                         f' Episode: {episode + 1}/{episodes},'\
                             f' Actions: {actions},'\
                                 f' Rewards: {rewards}'
                 )
 
-            rewards = np.array(self.env.rewards[1:], dtype='float')
+                time_step += 1
+
+            rewards = np.array(rewards_list, dtype='float')
             rewards_summary = {
                 'min': rewards.min(axis=0),
                 'max': rewards.max(axis=0),

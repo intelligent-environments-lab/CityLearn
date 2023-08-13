@@ -14,6 +14,7 @@ from citylearn.building import Building
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.rendering import get_background, RenderBuilding, get_plots
+from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 
 LOGGER = logging.getLogger()
@@ -50,7 +51,7 @@ class CityLearnEnv(Environment, Env):
         Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.
     end_time_step: int, optional
         Time step to end reading from data files. If provided, will override :code:`simulation_end_time_step` definition in schema.
-    reward_function: citylearn.reward_function.RewardFunction, optional
+    reward_function: RewardFunction, optional
         Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
     central_agent: bool, optional
         Expect 1 central agent to control all buildings. If provided, will override :code:`central` definition in schema.
@@ -67,8 +68,9 @@ class CityLearnEnv(Environment, Env):
     """
     
     def __init__(self, 
-        schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, simulation_start_time_step: int = None, simulation_end_time_step: int = None, 
-        reward_function: 'citylearn.reward_function.RewardFunction' = None, central_agent: bool = None, shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
+        schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, 
+        simulation_start_time_step: int = None, simulation_end_time_step: int = None, reward_function: RewardFunction = None, central_agent: bool = None, 
+        shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
     ):
         self.schema = schema
         self.__rewards = None
@@ -84,7 +86,11 @@ class CityLearnEnv(Environment, Env):
                 shared_observations=shared_observations,
                 random_seed=self.random_seed,
             )
+        
         super().__init__(**kwargs)
+
+        # update the metadata for reward function after initializing environment
+        self.reward_function.env_metadata = self.get_metadata()
 
     @property
     def schema(self) -> Union[str, Path, Mapping[str, Any]]:
@@ -123,7 +129,7 @@ class CityLearnEnv(Environment, Env):
         return (self.simulation_end_time_step - self.simulation_start_time_step) + 1
 
     @property
-    def reward_function(self) -> 'citylearn.reward_function.RewardFunction':
+    def reward_function(self) -> RewardFunction:
         """Reward function class instance."""
 
         return self.__reward_function
@@ -545,7 +551,7 @@ class CityLearnEnv(Environment, Env):
         self.__simulation_end_time_step = simulation_end_time_step
 
     @reward_function.setter
-    def reward_function(self, reward_function: 'citylearn.reward_function.RewardFunction'):
+    def reward_function(self, reward_function: RewardFunction):
         self.__reward_function = reward_function
 
     @central_agent.setter
@@ -555,6 +561,16 @@ class CityLearnEnv(Environment, Env):
     @shared_observations.setter
     def shared_observations(self, shared_observations: List[str]):
         self.__shared_observations = self.get_default_shared_observations() if shared_observations is None else shared_observations
+
+    def get_metadata(self) -> Mapping[str, Any]:
+        return {
+            **super().get_metadata(),
+            'time_steps': self.time_steps,
+            'reward_function': self.reward_function.__class__.__name__,
+            'central_agent': self.central_agent,
+            'shared_observations': self.shared_observations,
+            'buildings': [b.get_metadata() for b in self.buildings],
+        }
 
     @staticmethod
     def get_default_shared_observations() -> List[str]:
@@ -612,8 +628,17 @@ class CityLearnEnv(Environment, Env):
             building.apply_actions(**building_actions)
 
         self.next_time_step()
-        reward = self.reward_function.calculate()
+
+        # NOTE:
+        # This call to retrieve each building's observation dictionary is an expensive call especially since the observations 
+        # are retrieved again to send to agent but the observations in dict form is needed for the reward function to easily
+        # extract building-level values. Can't think of a better way to handle this without giving the reward direct access to
+        # env, which is not the best design for competition integrity sake. Will revisit the building.observations() function
+        # to see how it can be optimized.
+        reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
+        reward = self.reward_function.calculate(observations=reward_observations)
         self.__rewards.append(reward)
+        
         return self.observations, reward, self.done, self.get_info()
 
     def get_info(self) -> Mapping[Any, Any]:
@@ -643,53 +668,6 @@ class CityLearnEnv(Environment, Env):
         actions = [{f'{k}_action':actions[i].get(k, np.nan) for k in b.action_metadata} for i, b in enumerate(self.buildings)]
 
         return actions
-    
-    def get_building_information(self) -> Tuple[Mapping[str, Any]]:
-        """Get buildings PV capacity, end-use annual demands, and correlations with other buildings end-use annual demands.
-
-        Returns
-        -------
-        building_information: List[Mapping[str, Any]]
-            Building information summary.
-        """
-
-        np.seterr(divide='ignore', invalid='ignore')
-        building_info = ()
-        n_years = max(1, (self.time_steps*self.seconds_per_time_step)/(8760*3600))
-
-        for building in self.buildings:
-            building_dict = {}
-            building_dict['solar_power'] = round(building.pv.nominal_power, 3)
-            building_dict['annual_dhw_demand'] = round(sum(building.energy_simulation.dhw_demand)/n_years, 3)
-            building_dict['annual_cooling_demand'] = round(sum(building.energy_simulation.cooling_demand)/n_years, 3)
-            building_dict['annual_heating_demand'] = round(sum(building.energy_simulation.heating_demand)/n_years, 3)
-            building_dict['annual_nonshiftable_electrical_demand'] = round(sum(building.energy_simulation.non_shiftable_load)/n_years, 3)
-            building_dict['dhw_storage_capacity'] = building.dhw_storage.capacity
-            building_dict['cooling_storage_capacity'] = building.cooling_storage.capacity
-            building_dict['heating_storage_capacity'] = building.heating_storage.capacity
-            building_dict['electrical_storage_capacity'] = building.electrical_storage.capacity
-            building_dict['correlations_dhw'] = ()
-            building_dict['correlations_cooling_demand'] = ()
-            building_dict['correlations_heating_demand'] = ()
-            building_dict['correlations_non_shiftable_load'] = ()
-            
-            for corr_building in self.buildings:
-                building_dict['correlations_dhw'] += (round((np.corrcoef(
-                    np.array(building.energy_simulation.dhw_demand), np.array(corr_building.energy_simulation.dhw_demand)
-                ))[0][1], 3),)
-                building_dict['correlations_cooling_demand'] += (round((np.corrcoef(
-                    np.array(building.energy_simulation.cooling_demand), np.array(corr_building.energy_simulation.cooling_demand)
-                ))[0][1], 3),)
-                building_dict['correlations_heating_demand'] += (round((np.corrcoef(
-                    np.array(building.energy_simulation.heating_demand), np.array(corr_building.energy_simulation.heating_demand)
-                ))[0][1], 3),)
-                building_dict['correlations_non_shiftable_load'] += (round((np.corrcoef(
-                    np.array(building.energy_simulation.non_shiftable_load), np.array(corr_building.energy_simulation.non_shiftable_load)
-                ))[0][1], 3),)
-
-            building_info += (building_dict ,)
-        
-        return building_info
 
     def evaluate_citylearn_challenge(self) -> Mapping[str, Mapping[str, Union[str, float]]]:
         """Evalation function for The CityLearn Challenge 2023.
@@ -873,9 +851,9 @@ class CityLearnEnv(Environment, Env):
             energy = b.net_electricity_consumption[b.time_step]\
                 /(b.non_periodic_normalized_observation_space_limits[1]['net_electricity_consumption'])
             energy = max(min(energy, norm_max), norm_min)
-            electrical_storage_soc = b.electrical_storage.soc[b.time_step]/b.electrical_storage.capacity_history[0]
+            electrical_storage_soc = b.electrical_storage.soc[b.time_step]
             electrical_storage_soc = max(min(electrical_storage_soc, norm_max),norm_min)
-            dhw_storage_soc = b.dhw_storage.soc[b.time_step]/b.dhw_storage.capacity
+            dhw_storage_soc = b.dhw_storage.soc[b.time_step]
             dhw_storage_soc = max(min(dhw_storage_soc, norm_max), norm_min)
             indoor_temperature = b.indoor_dry_bulb_temperature[b.time_step]
             indoor_temperature_delta = indoor_temperature - b.energy_simulation.indoor_dry_bulb_temperature_set_point[b.time_step]
@@ -982,18 +960,22 @@ class CityLearnEnv(Environment, Env):
         agent = agent_constructor(**agent_attributes)
         return agent
 
-    def _load(self, **kwargs) -> Tuple[List[Building], int, float, 'citylearn.reward_function.RewardFunction', bool, List[str]]:
+    def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], int, int, float, RewardFunction, bool, List[str]]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
         
         Returns
         -------
+        root_directory: Union[Path, str]
+            Absolute path to directory that contains the data files including the schema.
         buildings : List[Building]
             Buildings in CityLearn environment.
-        time_steps : int
-            Number of simulation time steps.
+        simulation_start_time_step: int
+            Time step to start reading from data files.
+        simulation_end_time_step: int
+            Time step to end reading from data files.
         seconds_per_time_step: float
             Number of seconds in 1 `time_step` and must be set to >= 1.
-        reward_function : citylearn.reward_function.RewardFunction
+        reward_function : RewardFunction
             Reward function class instance.
         central_agent : bool, optional
             Expect 1 central agent to control all building storage device.
@@ -1152,7 +1134,7 @@ class CityLearnEnv(Environment, Env):
 
         if kwargs.get('reward_function') is not None:
             reward_function_constructor = kwargs['reward_function']
-            reward_function = reward_function_constructor(self)
+            reward_function = reward_function_constructor(None)
         else:
             reward_function_type = self.schema['reward_function']['type']
             reward_function_attributes = self.schema['reward_function'].get('attributes',None)
@@ -1160,7 +1142,7 @@ class CityLearnEnv(Environment, Env):
             reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
             reward_function_name = reward_function_type.split('.')[-1]
             reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
-            reward_function = reward_function_constructor(self,**reward_function_attributes)
+            reward_function = reward_function_constructor(None, **reward_function_attributes)
 
         return root_directory, buildings, simulation_start_time_step, simulation_end_time_step, seconds_per_time_step, reward_function, central_agent, shared_observations
         

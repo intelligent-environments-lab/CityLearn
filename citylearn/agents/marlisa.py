@@ -402,13 +402,13 @@ class MARLISA(SAC):
         self.energy_size_coefficient = []
         self.total_coefficient = 0
 
-        for b in self.building_information:
-            coef = b['annual_dhw_demand']/.9 \
-                + b['annual_cooling_demand']/3.5 \
-                    + b['annual_heating_demand']/3.5 \
-                        + b['annual_nonshiftable_electrical_demand'] \
-                            - b['solar_power']*8760/6.0
-            coef = max(0.3*(coef + b['solar_power']*8760/6.0), coef)/8760
+        for b in self.building_metadata:
+            coef = b['annual_dhw_demand_estimate']/.9 \
+                + b['annual_cooling_demand_estimate']/3.5 \
+                    + b['annual_heating_demand_estimate']/3.5 \
+                        + b['annual_non_shiftable_load_estimate'] \
+                            - b['annual_solar_generation_estimate']/6.0
+            coef = max(0.3*(coef + b['annual_solar_generation_estimate']/6.0), coef)/8760
             self.energy_size_coefficient.append(coef)
             self.total_coefficient += coef
 
