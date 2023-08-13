@@ -791,7 +791,8 @@ class Battery(ElectricDevice, StorageDevice):
         self.__depth_of_discharge = 1.0 if depth_of_discharge is None else depth_of_discharge
 
     def charge(self, energy: float):
-        """Charges or discharges storage with respect to specified energy while considering `capacity` degradation and `soc_init` limitations, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.
+        """Charges or discharges storage with respect to specified energy while considering `capacity` degradation and `soc_init` 
+        limitations, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.
 
         Parameters
         ----------
@@ -799,11 +800,17 @@ class Battery(ElectricDevice, StorageDevice):
             Energy to charge if (+) or discharge if (-) in [kWh].
         """
 
-        soc_limit_wrt_dod = 1.0 - self.depth_of_discharge
-        current_soc = self.soc[-1]
-        soc_difference = current_soc - soc_limit_wrt_dod
-        discharge_energy_limit_wrt_dod = max(soc_difference*self.capacity*self.efficiency, 0.0)
-        energy = min(energy, self.get_max_input_power()) if energy >= 0 else max(-self.get_max_output_power(), -discharge_energy_limit_wrt_dod, energy)
+        if energy >= 0:
+            energy_wrt_degrade = self.degraded_capacity - self.energy_init
+            energy = min(self.get_max_input_power(), energy_wrt_degrade, energy)
+
+        else:
+            soc_limit_wrt_dod = 1.0 - self.depth_of_discharge
+            current_soc = self.soc[-1]
+            soc_difference = current_soc - soc_limit_wrt_dod
+            energy_limit_wrt_dod = max(soc_difference*self.capacity*self.efficiency, 0.0)*-1
+            energy = max(-self.get_max_output_power(), energy_limit_wrt_dod, energy)
+
         self.efficiency = self.get_current_efficiency(energy)
         super().charge(energy)
         degraded_capacity = max(self.degraded_capacity - self.degrade(), 0.0)
@@ -829,7 +836,7 @@ class Battery(ElectricDevice, StorageDevice):
             Maximum amount of power that the storage unit can use to charge [kW].
         """
 
-        #The initial State Of Charge (SOC) is the previous SOC minus the energy losses
+        #The initial SOC is the previous SOC minus the energy losses
         if self.capacity_power_curve is not None:
             soc = self.energy_init/self.capacity
             # Calculating the maximum power rate at which the battery can be charged or discharged
