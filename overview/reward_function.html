@@ -170,8 +170,7 @@
 <section id="how-to-define-a-custom-reward-function">
 <h2>How to Define a Custom Reward Function<a class="headerlink" href="#how-to-define-a-custom-reward-function" title="Permalink to this headline"></a></h2>
 <p>CityLearn also allows for custom reward functions by inheriting the base <a class="reference internal" href="../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a>:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">citylearn.reward_function</span> <span class="kn">import</span> <span class="n">RewardFunction</span>
 
 <span class="k">class</span> <span class="nc">CustomReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
@@ -183,19 +182,34 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    env: citylearn.citylearn.CityLearnEnv</span>
-<span class="sd">        CityLearn environment.</span>
+<span class="sd">    env_metadata: Mapping[str, Any]:</span>
+<span class="sd">        General static information about the environment.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env_metadata</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
-            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates reward.</span>
 
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        observations: List[Mapping[str, Union[int, float]]]</span>
+<span class="sd">            List of all building observations at current :py:attr:`citylearn.citylearn.CityLearnEnv.</span>
+<span class="sd">            time_step` that are got from calling :py:meth:`citylearn.building.Building.observations`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        reward: List[float]</span>
+<span class="sd">            Reward for transition to current timestep.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">net_electricity_consumption_emission</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption_emission&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">observations</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="nb">sum</span><span class="p">(</span><span class="n">net_electricity_consumption_emission</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">net_electricity_consumption_emission</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">reward</span>
 </pre></div>

@@ -83,6 +83,7 @@
              
   <h1>Source code for citylearn.base</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Mapping</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
 
 <div class="viewcode-block" id="Environment"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment">[docs]</a><span class="k">class</span> <span class="nc">Environment</span><span class="p">:</span>
@@ -139,6 +140,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">seconds_per_time_step</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;seconds_per_time_step &gt;= 1&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__seconds_per_time_step</span> <span class="o">=</span> <span class="n">seconds_per_time_step</span>
+
+<div class="viewcode-block" id="Environment.get_metadata"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.get_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns general static information.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;uid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span>
+            <span class="s1">&#39;random_seed&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+            <span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">seconds_per_time_step</span>
+        <span class="p">}</span></div>
 
 <div class="viewcode-block" id="Environment.next_time_step"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.next_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Advance to next `time_step` value.</span>

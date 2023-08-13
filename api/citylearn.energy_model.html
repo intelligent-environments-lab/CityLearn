@@ -115,7 +115,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.energy_model.</span></span><span class="sig-name descname"><span class="pre">Battery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nominal_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity_loss_coefficient</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power_efficiency_curve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity_power_curve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth_of_discharge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#citylearn.energy_model.ElectricDevice" title="citylearn.energy_model.ElectricDevice"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.energy_model.ElectricDevice</span></code></a>, <a class="reference internal" href="#citylearn.energy_model.StorageDevice" title="citylearn.energy_model.StorageDevice"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.energy_model.StorageDevice</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.energy_model.StorageDevice" title="citylearn.energy_model.StorageDevice"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.energy_model.StorageDevice</span></code></a>, <a class="reference internal" href="#citylearn.energy_model.ElectricDevice" title="citylearn.energy_model.ElectricDevice"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.energy_model.ElectricDevice</span></code></a></p>
 <p>Base electricity storage class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -130,12 +130,6 @@
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.energy_model.Battery.capacity">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.energy_model.Battery.capacity" title="Permalink to this definition"></a></dt>
-<dd><p>Current time step maximum amount of energy the storage device can store in [kWh]</p>
-</dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.capacity_history">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">capacity_history</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.Battery.capacity_history" title="Permalink to this definition"></a></dt>
@@ -157,15 +151,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.charge">
 <span class="sig-name descname"><span class="pre">charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.charge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.charge" title="Permalink to this definition"></a></dt>
-<dd><p>Charges or discharges storage with respect to specified energy while considering <cite>capacity</cite> degradation and <cite>soc_init</cite> limitations, losses to the environment quantified by <cite>efficiency</cite>, <cite>power_efficiency_curve</cite> and <cite>capacity_power_curve</cite>.</p>
+<dd><p>Charges or discharges storage with respect to specified energy while considering <cite>capacity</cite> degradation and <cite>soc_init</cite>
+limitations, losses to the environment quantified by <cite>efficiency</cite>, <cite>power_efficiency_curve</cite> and <cite>capacity_power_curve</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>energy</strong> (<em>float</em>) – Energy to charge if (+) or discharge if (-) in [kWh].</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>If charging, soc = min(<cite>soc_init</cite> + energy*`efficiency`, <cite>max_input_power</cite>, <cite>capacity</cite>)
-If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>efficiency</cite>, <cite>max_output_power</cite>)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -180,8 +172,12 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>efficiency</ci
 <dd class="field-even"><p>float</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>degradation = <cite>capacity_loss_coef`*`capacity_history[0]`*abs(`energy_balance[-1]</cite>)/(2*`capacity`)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.Battery.degraded_capacity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">degraded_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.energy_model.Battery.degraded_capacity" title="Permalink to this definition"></a></dt>
+<dd><p>Maximum amount of energy the storage device can store after degradation in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
@@ -250,6 +246,18 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>efficiency</ci
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.Battery.get_metadata">
+<span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.get_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.get_metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Returns general static information.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.Battery.initial_soc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_soc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.energy_model.Battery.initial_soc" title="Permalink to this definition"></a></dt>
+<dd><p>State of charge when <cite>time_step</cite> = 0 in [kWh].</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.power_efficiency_curve">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">power_efficiency_curve</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.energy_model.Battery.power_efficiency_curve" title="Permalink to this definition"></a></dt>
@@ -283,6 +291,12 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>efficiency</ci
 <dd><p>Technical efficiency.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.Device.get_metadata">
+<span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Device.get_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Device.get_metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Returns general static information.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -308,6 +322,12 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>efficiency</ci
 <dt class="sig sig-object py" id="citylearn.energy_model.ElectricDevice.electricity_consumption">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.ElectricDevice.electricity_consumption" title="Permalink to this definition"></a></dt>
 <dd><p>Electricity consumption time series.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.ElectricDevice.get_metadata">
+<span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#ElectricDevice.get_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.ElectricDevice.get_metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Returns general static information.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -533,6 +553,12 @@ cooling_cop = (<cite>t_target_cooling</cite> + 273.15)*`efficiency`/(outdoor_dry
 <p>max_output_power = min(max_electric_power, <cite>available_nominal_power</cite>)*cop</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.HeatPump.get_metadata">
+<span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#HeatPump.get_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.HeatPump.get_metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Returns general static information.</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.HeatPump.target_cooling_temperature">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target_cooling_temperature</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.energy_model.HeatPump.target_cooling_temperature" title="Permalink to this definition"></a></dt>
@@ -659,6 +685,18 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>round_trip_eff
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.energy_init">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_init</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.energy_model.StorageDevice.energy_init" title="Permalink to this definition"></a></dt>
+<dd><p>Latest energy level after accounting for standby hourly lossses in [kWh].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.get_metadata">
+<span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#StorageDevice.get_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.StorageDevice.get_metadata" title="Permalink to this definition"></a></dt>
+<dd><p>Returns general static information.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.initial_soc">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_soc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.energy_model.StorageDevice.initial_soc" title="Permalink to this definition"></a></dt>
 <dd><p>State of charge when <cite>time_step</cite> = 0 in [kWh].</p>
@@ -693,13 +731,7 @@ for discharge or charge events respectively thus, thus accounts for energy losse
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.soc">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">soc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.StorageDevice.soc" title="Permalink to this definition"></a></dt>
-<dd><p>State of charge time series in [kWh].</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.soc_init">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">soc_init</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.energy_model.StorageDevice.soc_init" title="Permalink to this definition"></a></dt>
-<dd><p>Latest state of charge after accounting for standby hourly lossses.</p>
+<dd><p>State of charge time series between [0, 1] in [<span class="math notranslate nohighlight">\(\frac{\textrm{capacity}_{\textrm{charged}}}{\textrm{capacity}}\)</span>].</p>
 </dd></dl>
 
 </dd></dl>

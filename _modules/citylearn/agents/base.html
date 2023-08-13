@@ -113,7 +113,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">building_information</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_building_information</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">episode_time_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">time_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">building_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">()[</span><span class="s1">&#39;buildings&#39;</span><span class="p">]</span>
 
         <span class="n">arg_spec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
@@ -140,12 +141,16 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Format of valid actions.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_space</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">episode_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__episode_time_steps</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">building_information</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Building metadata.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">building_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Building(s) metadata.&quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__building_information</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__building_metadata</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">action_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
@@ -171,9 +176,15 @@
     <span class="k">def</span> <span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_space</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__action_space</span> <span class="o">=</span> <span class="n">action_space</span>
 
-    <span class="nd">@building_information</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">building_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">building_information</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__building_information</span> <span class="o">=</span> <span class="n">building_information</span>
+    <span class="nd">@episode_time_steps</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">episode_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of time steps in one episode.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__episode_time_steps</span> <span class="o">=</span> <span class="n">episode_time_steps</span>
+
+    <span class="nd">@building_metadata</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">building_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">building_metadata</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__building_metadata</span> <span class="o">=</span> <span class="n">building_metadata</span>
 
     <span class="nd">@actions</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]):</span>
@@ -203,29 +214,35 @@
         <span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">episodes</span><span class="p">):</span>
             <span class="n">deterministic</span> <span class="o">=</span> <span class="n">deterministic</span> <span class="ow">or</span> <span class="p">(</span><span class="n">deterministic_finish</span> <span class="ow">and</span> <span class="n">episode</span> <span class="o">&gt;=</span> <span class="n">episodes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">observations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">time_step</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rewards_list</span> <span class="o">=</span> <span class="p">[]</span>
 
-            <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
                 <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="n">deterministic</span><span class="p">)</span>
 
                 <span class="c1"># apply actions to citylearn_env</span>
-                <span class="n">next_observations</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+                <span class="n">next_observations</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+                <span class="n">rewards_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>
 
                 <span class="c1"># update</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">deterministic</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">next_observations</span><span class="p">,</span> <span class="n">done</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">done</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">next_observations</span><span class="p">,</span> <span class="n">done</span><span class="o">=</span><span class="n">done</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">pass</span>
 
                 <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">next_observations</span><span class="p">]</span>
 
                 <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Time step: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">time_step</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">time_steps</span><span class="si">}</span><span class="s1">,&#39;</span>\
+                    <span class="sa">f</span><span class="s1">&#39;Time step: </span><span class="si">{</span><span class="n">time_step</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_time_steps</span><span class="si">}</span><span class="s1">,&#39;</span>\
                         <span class="sa">f</span><span class="s1">&#39; Episode: </span><span class="si">{</span><span class="n">episode</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">episodes</span><span class="si">}</span><span class="s1">,&#39;</span>\
                             <span class="sa">f</span><span class="s1">&#39; Actions: </span><span class="si">{</span><span class="n">actions</span><span class="si">}</span><span class="s1">,&#39;</span>\
                                 <span class="sa">f</span><span class="s1">&#39; Rewards: </span><span class="si">{</span><span class="n">rewards</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="p">)</span>
 
-            <span class="n">rewards</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">rewards</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+                <span class="n">time_step</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">rewards</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rewards_list</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
             <span class="n">rewards_summary</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">rewards</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
                 <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">rewards</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
