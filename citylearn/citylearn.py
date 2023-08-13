@@ -556,6 +556,16 @@ class CityLearnEnv(Environment, Env):
     def shared_observations(self, shared_observations: List[str]):
         self.__shared_observations = self.get_default_shared_observations() if shared_observations is None else shared_observations
 
+    def get_metadata(self) -> Mapping[str, Any]:
+        return {
+            **super().get_metadata(),
+            'time_steps': self.time_steps,
+            'reward_function': self.reward_function.__class__.__name__,
+            'central_agent': self.central_agent,
+            'shared_observations': self.shared_observations,
+            'buildings': [b.get_metadata() for b in self.buildings],
+        }
+
     @staticmethod
     def get_default_shared_observations() -> List[str]:
         """Names of default common observations across all buildings i.e. observations that have the same value irrespective of the building.
@@ -643,53 +653,6 @@ class CityLearnEnv(Environment, Env):
         actions = [{f'{k}_action':actions[i].get(k, np.nan) for k in b.action_metadata} for i, b in enumerate(self.buildings)]
 
         return actions
-    
-    def get_building_information(self) -> Tuple[Mapping[str, Any]]:
-        """Get buildings PV capacity, end-use annual demands, and correlations with other buildings end-use annual demands.
-
-        Returns
-        -------
-        building_information: List[Mapping[str, Any]]
-            Building information summary.
-        """
-
-        np.seterr(divide='ignore', invalid='ignore')
-        building_info = ()
-        n_years = max(1, (self.time_steps*self.seconds_per_time_step)/(8760*3600))
-
-        for building in self.buildings:
-            building_dict = {}
-            building_dict['solar_power'] = round(building.pv.nominal_power, 3)
-            building_dict['annual_dhw_demand'] = round(sum(building.energy_simulation.dhw_demand)/n_years, 3)
-            building_dict['annual_cooling_demand'] = round(sum(building.energy_simulation.cooling_demand)/n_years, 3)
-            building_dict['annual_heating_demand'] = round(sum(building.energy_simulation.heating_demand)/n_years, 3)
-            building_dict['annual_nonshiftable_electrical_demand'] = round(sum(building.energy_simulation.non_shiftable_load)/n_years, 3)
-            building_dict['dhw_storage_capacity'] = building.dhw_storage.capacity
-            building_dict['cooling_storage_capacity'] = building.cooling_storage.capacity
-            building_dict['heating_storage_capacity'] = building.heating_storage.capacity
-            building_dict['electrical_storage_capacity'] = building.electrical_storage.capacity
-            building_dict['correlations_dhw'] = ()
-            building_dict['correlations_cooling_demand'] = ()
-            building_dict['correlations_heating_demand'] = ()
-            building_dict['correlations_non_shiftable_load'] = ()
-            
-            for corr_building in self.buildings:
-                building_dict['correlations_dhw'] += (round((np.corrcoef(
-                    np.array(building.energy_simulation.dhw_demand), np.array(corr_building.energy_simulation.dhw_demand)
-                ))[0][1], 3),)
-                building_dict['correlations_cooling_demand'] += (round((np.corrcoef(
-                    np.array(building.energy_simulation.cooling_demand), np.array(corr_building.energy_simulation.cooling_demand)
-                ))[0][1], 3),)
-                building_dict['correlations_heating_demand'] += (round((np.corrcoef(
-                    np.array(building.energy_simulation.heating_demand), np.array(corr_building.energy_simulation.heating_demand)
-                ))[0][1], 3),)
-                building_dict['correlations_non_shiftable_load'] += (round((np.corrcoef(
-                    np.array(building.energy_simulation.non_shiftable_load), np.array(corr_building.energy_simulation.non_shiftable_load)
-                ))[0][1], 3),)
-
-            building_info += (building_dict ,)
-        
-        return building_info
 
     def evaluate_citylearn_challenge(self) -> Mapping[str, Mapping[str, Union[str, float]]]:
         """Evalation function for The CityLearn Challenge 2023.

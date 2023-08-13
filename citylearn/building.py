@@ -628,6 +628,30 @@ class Building(Environment):
     def random_seed(self, seed: int):
         Environment.random_seed.fset(self, seed)
 
+    def get_metadata(self) -> Mapping[str, Any]:
+        time_steps = len(self.energy_simulation.non_shiftable_load)
+        n_years = max(1, (time_steps*self.seconds_per_time_step)/(8760*3600))
+        return {
+            **super().get_metadata(),
+            'name': self.name,
+            'observation_metadata': self.observation_metadata,
+            'action_metadata': self.action_metadata,
+            'maximum_temperature_delta': self.maximum_temperature_delta,
+            'cooling_device': self.cooling_device.get_metadata(),
+            'heating_device': self.heating_device.get_metadata(),
+            'dhw_device': self.dhw_device.get_metadata(),
+            'cooling_storage': self.cooling_storage.get_metadata(),
+            'heating_storage': self.heating_storage.get_metadata(),
+            'dhw_storage': self.dhw_storage.get_metadata(),
+            'electrical_storage': self.electrical_storage.get_metadata(),
+            'pv': self.pv.get_metadata(),
+            'annual_cooling_demand_estimate': self.energy_simulation.cooling_demand.sum()/n_years,
+            'annual_heating_demand_estimate': self.energy_simulation.heating_demand.sum()/n_years,
+            'annual_dhw_demand_estimate': self.energy_simulation.dhw_demand.sum()/n_years,
+            'annual_non_shiftable_load_estimate': self.energy_simulation.non_shiftable_load.sum()/n_years,
+            'annual_solar_generation_estimate': self.pv.get_generation(self.energy_simulation.solar_generation).sum()/n_years,
+        }
+
     def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None) -> Mapping[str, float]:
         r"""Observations at current time step.
 

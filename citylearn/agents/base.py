@@ -30,7 +30,7 @@ class Agent(Environment):
         self.observation_space = self.env.observation_space
         self.action_space = self.env.action_space
         self.episode_time_steps = self.env.time_steps
-        self.building_information = self.env.get_building_information()
+        self.building_metadata = self.env.get_metadata()['buildings']
 
         arg_spec = inspect.getfullargspec(super().__init__)
         kwargs = {
@@ -63,10 +63,10 @@ class Agent(Environment):
         return self.__episode_time_steps
 
     @property
-    def building_information(self) -> List[Mapping[str, Any]]:
-        """Building metadata."""
+    def building_metadata(self) -> List[Mapping[str, Any]]:
+        """Building(s) metadata."""
 
-        return self.__building_information
+        return self.__building_metadata
 
     @property
     def action_dimension(self) -> List[int]:
@@ -98,9 +98,9 @@ class Agent(Environment):
 
         self.__episode_time_steps = episode_time_steps
 
-    @building_information.setter
-    def building_information(self, building_information: List[Mapping[str, Any]]):
-        self.__building_information = building_information
+    @building_metadata.setter
+    def building_metadata(self, building_metadata: List[Mapping[str, Any]]):
+        self.__building_metadata = building_metadata
 
     @actions.setter
     def actions(self, actions: List[List[Any]]):

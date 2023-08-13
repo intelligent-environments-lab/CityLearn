@@ -1,4 +1,4 @@
-from typing import Any, Iterable, List, Union
+from typing import Any, Iterable, List, Mapping, Union
 import numpy as np
 from citylearn.base import Environment
 np.seterr(divide='ignore', invalid='ignore')
@@ -35,6 +35,12 @@ class Device(Environment):
         else:
             assert efficiency > 0, 'efficiency must be > 0.'
             self.__efficiency = efficiency
+
+    def get_metadata(self) -> Mapping[str, Any]:
+        return {
+            **super().get_metadata(),
+            'efficiency': self.efficiency
+        }
 
 class ElectricDevice(Device):
     r"""Base electric device class.
@@ -79,6 +85,12 @@ class ElectricDevice(Device):
         else:
             assert nominal_power >= 0, 'nominal_power must be >= 0.'
             self.__nominal_power = nominal_power
+
+    def get_metadata(self) -> Mapping[str, Any]:
+        return {
+            **super().get_metadata(),
+            'nominal_power': self.nominal_power,
+        }
 
     def update_electricity_consumption(self, electricity_consumption: float):
         r"""Updates `electricity_consumption` at current `time_step`.
@@ -159,6 +171,13 @@ class HeatPump(ElectricDevice):
     def efficiency(self, efficiency: float):
         efficiency = 0.2 if efficiency is None else efficiency
         ElectricDevice.efficiency.fset(self, efficiency)
+
+    def get_metadata(self) -> Mapping[str, Any]:
+        return {
+            **super().get_metadata(),
+            'target_heating_temperature': self.target_heating_temperature,
+            'target_cooling_temperature': self.target_cooling_temperature,
+        }
 
     def get_cop(self, outdoor_dry_bulb_temperature: Union[float, Iterable[float]], heating: bool) -> Union[float, Iterable[float]]:
         r"""Return coefficient of performance.
@@ -530,6 +549,15 @@ class StorageDevice(Device):
             assert 0.0 <= initial_soc <= 1.0, 'initial_soc must be >= 0.0 and <= 1.0.'
             self.__initial_soc = initial_soc
 
+    def get_metadata(self) -> Mapping[str, Any]:
+        return {
+            **super().get_metadata(),
+            'capacity': self.capacity,
+            'loss_coefficient': self.loss_coefficient,
+            'initial_soc': self.initial_soc,
+            'round_trip_efficiency': self.round_trip_efficiency
+        }
+
     def charge(self, energy: float):
         """Charges or discharges storage with respect to specified energy while considering `capacity` and `soc_init` limitations and, energy losses to the environment quantified by `round_trip_efficiency`.
 
@@ -661,7 +689,7 @@ class StorageTank(StorageDevice):
         
         super().charge(energy)
 
-class Battery(ElectricDevice, StorageDevice):
+class Battery(StorageDevice, ElectricDevice):
     r"""Base electricity storage class.
 
     Parameters
@@ -689,7 +717,8 @@ class Battery(ElectricDevice, StorageDevice):
         self._efficiency_history = []
         self._capacity_history = []
         self.depth_of_discharge = depth_of_discharge
-        super().__init__(capacity = capacity, nominal_power = nominal_power, **kwargs)
+        super().__init__(capacity=capacity, nominal_power=nominal_power, **kwargs)
+        self._capacity_history = [self.capacity]
         self.capacity_loss_coefficient = capacity_loss_coefficient
         self.power_efficiency_curve = power_efficiency_curve
         self.capacity_power_curve = capacity_power_curve
@@ -789,6 +818,15 @@ class Battery(ElectricDevice, StorageDevice):
     @depth_of_discharge.setter
     def depth_of_discharge(self, depth_of_discharge: float):
         self.__depth_of_discharge = 1.0 if depth_of_discharge is None else depth_of_discharge
+
+    def get_metadata(self) -> Mapping[str, Any]:
+        return {
+            **super().get_metadata(),
+            'depth_of_discharge': self.depth_of_discharge,
+            'capacity_loss_coefficient': self.capacity_loss_coefficient,
+            'power_efficiency_curve': self.power_efficiency_curve,
+            'capacity_power_curve': self.capacity_power_curve,
+        }
 
     def charge(self, energy: float):
         """Charges or discharges storage with respect to specified energy while considering `capacity` degradation and `soc_init` 
