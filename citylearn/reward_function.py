@@ -137,10 +137,10 @@ class SolarPenaltyReward(RewardFunction):
             hc = b.heating_storage.capacity
             dc = b.dhw_storage.capacity
             ec = b.electrical_storage.capacity_history[0]
-            cs = b.cooling_storage.soc[-1]/cc
-            hs = b.heating_storage.soc[-1]/hc
-            ds = b.dhw_storage.soc[-1]/dc
-            es = b.electrical_storage.soc[-1]/ec
+            cs = b.cooling_storage.soc[-1]
+            hs = b.heating_storage.soc[-1]
+            ds = b.dhw_storage.soc[-1]
+            es = b.electrical_storage.soc[-1]
             reward = 0.0
             reward += -(1.0 + np.sign(e)*cs)*abs(e) if cc > ZERO_DIVISION_CAPACITY else 0.0
             reward += -(1.0 + np.sign(e)*hs)*abs(e) if hc > ZERO_DIVISION_CAPACITY else 0.0

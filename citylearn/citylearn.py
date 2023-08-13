@@ -873,9 +873,9 @@ class CityLearnEnv(Environment, Env):
             energy = b.net_electricity_consumption[b.time_step]\
                 /(b.non_periodic_normalized_observation_space_limits[1]['net_electricity_consumption'])
             energy = max(min(energy, norm_max), norm_min)
-            electrical_storage_soc = b.electrical_storage.soc[b.time_step]/b.electrical_storage.capacity_history[0]
+            electrical_storage_soc = b.electrical_storage.soc[b.time_step]
             electrical_storage_soc = max(min(electrical_storage_soc, norm_max),norm_min)
-            dhw_storage_soc = b.dhw_storage.soc[b.time_step]/b.dhw_storage.capacity
+            dhw_storage_soc = b.dhw_storage.soc[b.time_step]
             dhw_storage_soc = max(min(dhw_storage_soc, norm_max), norm_min)
             indoor_temperature = b.indoor_dry_bulb_temperature[b.time_step]
             indoor_temperature_delta = indoor_temperature - b.energy_simulation.indoor_dry_bulb_temperature_set_point[b.time_step]

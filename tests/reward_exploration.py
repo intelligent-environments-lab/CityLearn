@@ -145,8 +145,8 @@ def save_data(env: CityLearnEnv, simulation_id, simulation_output_path, start_ti
             'cooling_demand_without_partial_load': b.cooling_demand_without_partial_load,
             'heating_demand': b.heating_demand,
             'heating_demand_without_partial_load': b.heating_demand_without_partial_load,
-            'electrical_storage_soc': np.array(b.electrical_storage.soc)/b.electrical_storage.capacity_history[0],
-            'dhw_storage_soc': np.array(b.dhw_storage.soc)/b.dhw_storage.capacity,
+            'electrical_storage_soc': b.electrical_storage.soc,
+            'dhw_storage_soc': b.dhw_storage.soc,
         })
         env_data['time_step'] = env_data.index
         env_data['mode'] = mode
