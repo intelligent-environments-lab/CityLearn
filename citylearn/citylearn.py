@@ -14,6 +14,7 @@ from citylearn.building import Building
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.rendering import get_background, RenderBuilding, get_plots
+from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 
 LOGGER = logging.getLogger()
@@ -50,7 +51,7 @@ class CityLearnEnv(Environment, Env):
         Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.
     end_time_step: int, optional
         Time step to end reading from data files. If provided, will override :code:`simulation_end_time_step` definition in schema.
-    reward_function: citylearn.reward_function.RewardFunction, optional
+    reward_function: RewardFunction, optional
         Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
     central_agent: bool, optional
         Expect 1 central agent to control all buildings. If provided, will override :code:`central` definition in schema.
@@ -67,8 +68,9 @@ class CityLearnEnv(Environment, Env):
     """
     
     def __init__(self, 
-        schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, simulation_start_time_step: int = None, simulation_end_time_step: int = None, 
-        reward_function: 'citylearn.reward_function.RewardFunction' = None, central_agent: bool = None, shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
+        schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, 
+        simulation_start_time_step: int = None, simulation_end_time_step: int = None, reward_function: RewardFunction = None, central_agent: bool = None, 
+        shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
     ):
         self.schema = schema
         self.__rewards = None
@@ -84,7 +86,11 @@ class CityLearnEnv(Environment, Env):
                 shared_observations=shared_observations,
                 random_seed=self.random_seed,
             )
+        
         super().__init__(**kwargs)
+
+        # update the metadata for reward function after initializing environment
+        self.reward_function.env_metadata = self.get_metadata()
 
     @property
     def schema(self) -> Union[str, Path, Mapping[str, Any]]:
@@ -123,7 +129,7 @@ class CityLearnEnv(Environment, Env):
         return (self.simulation_end_time_step - self.simulation_start_time_step) + 1
 
     @property
-    def reward_function(self) -> 'citylearn.reward_function.RewardFunction':
+    def reward_function(self) -> RewardFunction:
         """Reward function class instance."""
 
         return self.__reward_function
@@ -545,7 +551,7 @@ class CityLearnEnv(Environment, Env):
         self.__simulation_end_time_step = simulation_end_time_step
 
     @reward_function.setter
-    def reward_function(self, reward_function: 'citylearn.reward_function.RewardFunction'):
+    def reward_function(self, reward_function: RewardFunction):
         self.__reward_function = reward_function
 
     @central_agent.setter
@@ -622,8 +628,17 @@ class CityLearnEnv(Environment, Env):
             building.apply_actions(**building_actions)
 
         self.next_time_step()
-        reward = self.reward_function.calculate()
+
+        # NOTE:
+        # This call to retrieve each building's observation dictionary is an expensive call especially since the observations 
+        # are retrieved again to send to agent but the observations in dict form is needed for the reward function to easily
+        # extract building-level values. Can't think of a better way to handle this without giving the reward direct access to
+        # env, which is not the best design for competition integrity sake. Will revisit the building.observations() function
+        # to see how it can be optimized.
+        reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
+        reward = self.reward_function.calculate(observations=reward_observations)
         self.__rewards.append(reward)
+        
         return self.observations, reward, self.done, self.get_info()
 
     def get_info(self) -> Mapping[Any, Any]:
@@ -945,18 +960,22 @@ class CityLearnEnv(Environment, Env):
         agent = agent_constructor(**agent_attributes)
         return agent
 
-    def _load(self, **kwargs) -> Tuple[List[Building], int, float, 'citylearn.reward_function.RewardFunction', bool, List[str]]:
+    def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], int, int, float, RewardFunction, bool, List[str]]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
         
         Returns
         -------
+        root_directory: Union[Path, str]
+            Absolute path to directory that contains the data files including the schema.
         buildings : List[Building]
             Buildings in CityLearn environment.
-        time_steps : int
-            Number of simulation time steps.
+        simulation_start_time_step: int
+            Time step to start reading from data files.
+        simulation_end_time_step: int
+            Time step to end reading from data files.
         seconds_per_time_step: float
             Number of seconds in 1 `time_step` and must be set to >= 1.
-        reward_function : citylearn.reward_function.RewardFunction
+        reward_function : RewardFunction
             Reward function class instance.
         central_agent : bool, optional
             Expect 1 central agent to control all building storage device.
@@ -1115,7 +1134,7 @@ class CityLearnEnv(Environment, Env):
 
         if kwargs.get('reward_function') is not None:
             reward_function_constructor = kwargs['reward_function']
-            reward_function = reward_function_constructor(self)
+            reward_function = reward_function_constructor(None)
         else:
             reward_function_type = self.schema['reward_function']['type']
             reward_function_attributes = self.schema['reward_function'].get('attributes',None)
@@ -1123,7 +1142,7 @@ class CityLearnEnv(Environment, Env):
             reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
             reward_function_name = reward_function_type.split('.')[-1]
             reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
-            reward_function = reward_function_constructor(self,**reward_function_attributes)
+            reward_function = reward_function_constructor(None, **reward_function_attributes)
 
         return root_directory, buildings, simulation_start_time_step, simulation_end_time_step, seconds_per_time_step, reward_function, central_agent, shared_observations
         
