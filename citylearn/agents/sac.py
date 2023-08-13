@@ -9,7 +9,7 @@ try:
 except (ModuleNotFoundError, ImportError) as e:
     raise Exception("This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org.")
 
-from citylearn.agents.rbc import RBC, BasicBatteryRBC, BasicRBC, HourRBC, OptimizedRBC
+from citylearn.agents.rbc import RBC
 from citylearn.agents.rlc import RLC
 from citylearn.citylearn import CityLearnEnv
 from citylearn.preprocessing import Encoder, RemoveFeature
