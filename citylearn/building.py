@@ -795,7 +795,7 @@ class Building(Environment):
     def update_dynamics(self):
         r"""Update building dynamics e.g. space indoor temperature, relative humidity, etc."""
 
-        return
+        raise NotImplementedError
 
     def update_cooling(self, cooling_device_action: float, cooling_storage_action: float):
         r"""Update cooling demand and charge/discharge `cooling_storage` for next time step.
@@ -809,7 +809,10 @@ class Building(Environment):
         """
 
         if cooling_device_action is not None and not math.isnan(cooling_device_action):
-            self.update_cooling_demand(cooling_device_action)
+            try:
+                self.update_cooling_demand(cooling_device_action)
+            except NotImplementedError:
+                pass
         else:
             pass
 
@@ -825,7 +828,7 @@ class Building(Environment):
     def update_cooling_demand(self, action: float):
         r"""Update space cooling demand for next time step."""
 
-        return
+        raise NotImplementedError
 
     def update_heating(self, heating_device_action: float, heating_storage_action: float):
         r"""Update heating demand and charge/discharge `heating_storage` for next time step.
@@ -839,7 +842,10 @@ class Building(Environment):
         """
 
         if heating_device_action is not None and not math.isnan(heating_device_action):
-            self.update_heating_demand(heating_device_action)
+            try:
+                self.update_heating_demand(heating_device_action)
+            except NotImplementedError:
+                pass
         else:
             pass
 
@@ -858,7 +864,7 @@ class Building(Environment):
     def update_heating_demand(self, action: float):
         r"""Update space heating demand for next time step."""
 
-        return
+        raise NotImplementedError
 
     def update_dhw(self, action: float):
         r"""Charge/discharge `dhw_storage`.
