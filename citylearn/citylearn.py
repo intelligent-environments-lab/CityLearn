@@ -49,7 +49,7 @@ class CityLearnEnv(Environment, Env):
         If list of :int: is provided will include only schema :code:`buildings` whose index is contained in provided list of :code:`int`.
     simulation_start_time_step: int, optional
         Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.
-    end_time_step: int, optional
+    simulation_end_time_step: int, optional
         Time step to end reading from data files. If provided, will override :code:`simulation_end_time_step` definition in schema.
     reward_function: RewardFunction, optional
         Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
