@@ -206,104 +206,6 @@ class Building(Environment):
         return [k for k, v in self.action_metadata.items() if v]
 
     @property
-    def net_electricity_consumption_emission_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
-        """Carbon dioxide emmission from `net_electricity_consumption_without_storage_and_partial_load_pv` time series, in [kg_co2]."""
-
-        return (
-            self.carbon_intensity.carbon_intensity[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_partial_load_and_pv
-        ).clip(min=0)
-
-    @property
-    def net_electricity_consumption_cost_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
-        """net_electricity_consumption_without_storage_and_partial_load_and_pv` cost time series, in [$]."""
-
-        return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_partial_load_and_pv
-
-    @property
-    def net_electricity_consumption_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
-        """Net electricity consumption in the absence of flexibility provided by storage devices, 
-        partial load cooling and heating devices and self generation time series, in [kWh]. 
-        
-        Notes
-        -----
-        net_electricity_consumption_without_storage_and_partial_load_and_pv = 
-        `net_electricity_consumption_without_storage_and_partial_load` - `solar_generation`
-        """
-
-        return self.net_electricity_consumption_without_storage_and_partial_load - self.solar_generation
-    
-    @property
-    def net_electricity_consumption_emission_without_storage_and_partial_load(self) -> np.ndarray:
-        """Carbon dioxide emmission from `net_electricity_consumption_without_storage_and_partial_load` time series, in [kg_co2]."""
-
-        return (self.carbon_intensity.carbon_intensity[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_partial_load).clip(min=0)
-
-    @property
-    def net_electricity_consumption_cost_without_storage_and_partial_load(self) -> np.ndarray:
-        """`net_electricity_consumption_without_storage_and_partial_load` cost time series, in [$]."""
-
-        return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_partial_load
-    
-    @property
-    def net_electricity_consumption_without_storage_and_partial_load(self):
-        """Net electricity consumption in the absence of flexibility provided by 
-        storage devices and partial load cooling and heating devices time series, in [kWh]."""
-
-        # cooling electricity consumption
-        cooling_demand_difference = self.cooling_demand_without_partial_load - self.cooling_demand
-        cooling_electricity_consumption_difference = self.cooling_device.get_input_power(
-            cooling_demand_difference, 
-            self.weather.outdoor_dry_bulb_temperature[0:self.time_step + 1], 
-            heating=False
-        )
-
-        # heating electricity consumption
-        heating_demand_difference = self.heating_demand_without_partial_load - self.heating_demand
-        
-        if isinstance(self.heating_device, HeatPump):
-            heating_electricity_consumption_difference = self.heating_device.get_input_power(
-                heating_demand_difference, 
-                self.weather.outdoor_dry_bulb_temperature[self.time_step], 
-                heating=True
-            )
-        else:
-            heating_electricity_consumption_difference = self.dhw_device.get_input_power(heating_demand_difference)
-        
-        # net electricity consumption without storage and partial load
-        return self.net_electricity_consumption_without_storage + np.sum([
-            cooling_electricity_consumption_difference,
-            heating_electricity_consumption_difference,
-        ], axis = 0)
-
-    @property
-    def heating_demand_without_partial_load(self) -> np.ndarray:
-        """Total building space ideal heating demand time series in [kWh].
-        
-        This is the demand when heating_device is not controlled and always supplies ideal load.
-        """
-
-        return self.energy_simulation.heating_demand_without_control[0:self.time_step + 1]
-
-    @property
-    def cooling_demand_without_partial_load(self) -> np.ndarray:
-        """Total building space ideal cooling demand time series in [kWh].
-        
-        This is the demand when cooling_device is not controlled and always supplies ideal load.
-        """
-
-        return self.energy_simulation.cooling_demand_without_control[0:self.time_step + 1]
-    
-    @property
-    def indoor_dry_bulb_temperature_without_partial_load(self) -> np.ndarray:
-        """Ideal load dry bulb temperature time series in [C].
-        
-        This is the temperature when cooling_device and heating_device
-        are not controlled and always supply ideal load.
-        """
-
-        return self.energy_simulation.indoor_dry_bulb_temperature_without_control[0:self.time_step + 1]
-
-    @property
     def net_electricity_consumption_emission_without_storage(self) -> np.ndarray:
         """Carbon dioxide emmission from `net_electricity_consumption_without_storage` time series, in [kg_co2]."""
 
@@ -1364,11 +1266,13 @@ class Building(Environment):
         self.update_variables()
 
     def reset_dynamic_variables(self):
-        self.energy_simulation.cooling_demand = self.energy_simulation.cooling_demand_without_control.copy()
-        self.energy_simulation.heating_demand = self.energy_simulation.heating_demand_without_control.copy()
-        self.energy_simulation.indoor_dry_bulb_temperature = self.energy_simulation.indoor_dry_bulb_temperature_without_control.copy()
+        """Resets data file variables that change during control to their initial values."""
+        
+        pass
 
     def reset_datasets(self):
+        """Resets time series data `start_time_step` and `end_time_step` with respect to current episode's time step settings."""
+
         self.energy_simulation.start_time_step = self.episode_tracker.episode_start_time_step
         self.weather.start_time_step = self.episode_tracker.episode_start_time_step
         self.pricing.start_time_step = self.episode_tracker.episode_start_time_step
@@ -1449,8 +1353,117 @@ class DynamicsBuilding(Building):
         self.dynamics = None
         self.ignore_dynamics = False if ignore_dynamics is None else ignore_dynamics
         super().__init__(*args, **kwargs)
-        
 
+    @property
+    def net_electricity_consumption_emission_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
+        """Carbon dioxide emmission from `net_electricity_consumption_without_storage_and_partial_load_pv` time series, in [kg_co2]."""
+
+        return (
+            self.carbon_intensity.carbon_intensity[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_partial_load_and_pv
+        ).clip(min=0)
+
+    @property
+    def net_electricity_consumption_cost_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
+        """net_electricity_consumption_without_storage_and_partial_load_and_pv` cost time series, in [$]."""
+
+        return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_partial_load_and_pv
+
+    @property
+    def net_electricity_consumption_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
+        """Net electricity consumption in the absence of flexibility provided by storage devices, 
+        partial load cooling and heating devices and self generation time series, in [kWh]. 
+        
+        Notes
+        -----
+        net_electricity_consumption_without_storage_and_partial_load_and_pv = 
+        `net_electricity_consumption_without_storage_and_partial_load` - `solar_generation`
+        """
+
+        return self.net_electricity_consumption_without_storage_and_partial_load - self.solar_generation
+    
+    @property
+    def net_electricity_consumption_emission_without_storage_and_partial_load(self) -> np.ndarray:
+        """Carbon dioxide emmission from `net_electricity_consumption_without_storage_and_partial_load` time series, in [kg_co2]."""
+
+        return (self.carbon_intensity.carbon_intensity[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_partial_load).clip(min=0)
+
+    @property
+    def net_electricity_consumption_cost_without_storage_and_partial_load(self) -> np.ndarray:
+        """`net_electricity_consumption_without_storage_and_partial_load` cost time series, in [$]."""
+
+        return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_partial_load
+    
+    @property
+    def net_electricity_consumption_without_storage_and_partial_load(self):
+        """Net electricity consumption in the absence of flexibility provided by 
+        storage devices and partial load cooling and heating devices time series, in [kWh]."""
+
+        # cooling electricity consumption
+        cooling_demand_difference = self.cooling_demand_without_partial_load - self.cooling_demand
+        cooling_electricity_consumption_difference = self.cooling_device.get_input_power(
+            cooling_demand_difference, 
+            self.weather.outdoor_dry_bulb_temperature[0:self.time_step + 1], 
+            heating=False
+        )
+
+        # heating electricity consumption
+        heating_demand_difference = self.heating_demand_without_partial_load - self.heating_demand
+        
+        if isinstance(self.heating_device, HeatPump):
+            heating_electricity_consumption_difference = self.heating_device.get_input_power(
+                heating_demand_difference, 
+                self.weather.outdoor_dry_bulb_temperature[self.time_step], 
+                heating=True
+            )
+        else:
+            heating_electricity_consumption_difference = self.dhw_device.get_input_power(heating_demand_difference)
+        
+        # net electricity consumption without storage and partial load
+        return self.net_electricity_consumption_without_storage + np.sum([
+            cooling_electricity_consumption_difference,
+            heating_electricity_consumption_difference,
+        ], axis = 0)
+
+    @property
+    def heating_demand_without_partial_load(self) -> np.ndarray:
+        """Total building space ideal heating demand time series in [kWh].
+        
+        This is the demand when heating_device is not controlled and always supplies ideal load.
+        """
+
+        return self.energy_simulation.heating_demand_without_control[0:self.time_step + 1]
+
+    @property
+    def cooling_demand_without_partial_load(self) -> np.ndarray:
+        """Total building space ideal cooling demand time series in [kWh].
+        
+        This is the demand when cooling_device is not controlled and always supplies ideal load.
+        """
+
+        return self.energy_simulation.cooling_demand_without_control[0:self.time_step + 1]
+    
+    @property
+    def indoor_dry_bulb_temperature_without_partial_load(self) -> np.ndarray:
+        """Ideal load dry bulb temperature time series in [C].
+        
+        This is the temperature when cooling_device and heating_device
+        are not controlled and always supply ideal load.
+        """
+
+        return self.energy_simulation.indoor_dry_bulb_temperature_without_control[0:self.time_step + 1]
+    
+    def reset_dynamic_variables(self):
+        """Resets data file variables that change during control to their initial values.
+        
+        Resets cooling demand, heating deamand and indoor temperature time series to their initial value 
+        at the beginning of an episode.
+        """
+
+        super().reset_dynamic_variables()
+        self.energy_simulation.cooling_demand = self.energy_simulation.cooling_demand_without_control.copy()
+        self.energy_simulation.heating_demand = self.energy_simulation.heating_demand_without_control.copy()
+        self.energy_simulation.indoor_dry_bulb_temperature = self.energy_simulation.indoor_dry_bulb_temperature_without_control.copy()
+        
     def set_dynamics(self) -> Dynamics:
         """Resets and returns `cooling_dynamics` if current time step HVAC mode is off or
         cooling otherwise, resets and returns `heating dynamics`."""
