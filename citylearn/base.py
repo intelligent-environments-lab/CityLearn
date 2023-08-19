@@ -72,7 +72,7 @@ class EpisodeTracker:
 
         return self.__episode_end_time_step
 
-    def next_episode(self, episode_time_steps: Union[int, List[Tuple[int, int]]], rolling_episode_split: bool, random_episode: bool, random_seed: int):
+    def next_episode(self, episode_time_steps: Union[int, List[Tuple[int, int]]], rolling_episode_split: bool, random_episode_split: bool, random_seed: int):
         """Advance to next episode and set `episode_start_time_step` and `episode_end_time_step` for reading data files.
         
         Parameters
@@ -84,7 +84,7 @@ class EpisodeTracker:
         rolling_episode_split: bool, default: False
             True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, False to split episodes 
             in steps of `episode_time_steps`.
-        random_episode: bool, default: False
+        random_episode_split: bool, default: False
             True if episode splits are to be selected at random during training otherwise, False to select sequentially.
         """
 
@@ -92,11 +92,11 @@ class EpisodeTracker:
         self.__next_episode_time_steps(
             episode_time_steps,
             rolling_episode_split,
-            random_episode,
+            random_episode_split,
             random_seed,
         )
         
-    def __next_episode_time_steps(self, episode_time_steps: Union[int, List[Tuple[int, int]]], rolling_episode_split: bool, random_episode: bool, random_seed: int):
+    def __next_episode_time_steps(self, episode_time_steps: Union[int, List[Tuple[int, int]]], rolling_episode_split: bool, random_episode_split: bool, random_seed: int):
         """Sets `episode_start_time_step` and `episode_end_time_step` for reading data files."""
 
         splits = None
@@ -117,7 +117,7 @@ class EpisodeTracker:
             splits = np.array([start_time_steps, end_time_steps], dtype=int).T
             splits = splits.tolist()
 
-        if random_episode:
+        if random_episode_split:
             seed = int(random_seed*(self.episode + 1))
             np.random.seed(seed)
             ix = np.random.choice(len(splits) - 1)

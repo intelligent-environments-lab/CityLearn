@@ -52,13 +52,12 @@ class CityLearnEnv(Environment, Env):
     simulation_end_time_step: int, optional
         Time step to end reading from data files contents.
     episode_time_steps: Union[int, List[Tuple[int, int]]], optional
-        If type is `int`, it is the number of time steps in an episode. If type is `List[Tuple[int, int]]]` is provided, it is a list of 
-        episode start and end time steps between `simulation_start_time_step` and `simulation_end_time_step`. Defaults to (`simulation_end_time_step` 
-        - `simulation_start_time_step`) + 1. Will ignore `rolling_episode_split` if `episode_splits` is of type `List[Tuple[int, int]]]`.
+        If type is `int`, it is the number of time steps in an episode. If type is `List[Tuple[int, int]]]` is provided, 
+        it is a list of episode start and end time steps between `simulation_start_time_step` and `simulation_end_time_step`. 
+        Defaults to (`simulation_end_time_step` - `simulation_start_time_step`) + 1. Will ignore `rolling_episode_split` if `episode_splits` is of type `List[Tuple[int, int]]]`.
     rolling_episode_split: bool, default: False
-        True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, False to split episodes 
-        in steps of `episode_time_steps`.
-    random_episode: bool, default: False
+        True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, False to split episodes in steps of `episode_time_steps`.
+    random_episode_split: bool, default: False
         True if episode splits are to be selected at random during training otherwise, False to select sequentially.
     seconds_per_time_step: float
         Number of seconds in 1 `time_step` and must be set to >= 1.
@@ -84,13 +83,13 @@ class CityLearnEnv(Environment, Env):
     def __init__(self, 
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, 
         simulation_start_time_step: int = None, simulation_end_time_step: int = None, episode_time_steps: Union[int, List[Tuple[int, int]]] = None, rolling_episode_split: bool = None, 
-        random_episode: bool = None, seconds_per_time_step: float = None, reward_function: RewardFunction = None, 
+        random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: RewardFunction = None, 
         central_agent: bool = None, shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
     ):
         self.schema = schema
         self.__rewards = None
         self.random_seed = random_seed
-        root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode, \
+        root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode_split, \
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker = self._load(
                 root_directory=root_directory,
                 buildings=buildings,
@@ -98,7 +97,7 @@ class CityLearnEnv(Environment, Env):
                 simulation_end_time_step=simulation_end_time_step,
                 episode_time_steps=episode_time_steps,
                 rolling_episode_split=rolling_episode_split,
-                random_episode=random_episode,
+                random_episode=random_episode_split,
                 seconds_per_time_step=seconds_per_time_step,
                 reward_function=reward_function,
                 central_agent=central_agent,
@@ -114,7 +113,7 @@ class CityLearnEnv(Environment, Env):
         # set other class variables
         self.episode_time_steps = episode_time_steps
         self.rolling_episode_split = rolling_episode_split
-        self.random_episode = random_episode
+        self.random_episode_split = random_episode_split
         self.central_agent = central_agent
         self.shared_observations = shared_observations
 
@@ -165,10 +164,10 @@ class CityLearnEnv(Environment, Env):
         return self.__rolling_episode_split
     
     @property
-    def random_episode(self) -> bool:
+    def random_episode_split(self) -> bool:
         """True if episode splits are to be selected at random during training otherwise, False to select sequentially."""
 
-        return self.__random_episode
+        return self.__random_episode_split
     
     @property
     def episode(self) -> int:
@@ -603,9 +602,9 @@ class CityLearnEnv(Environment, Env):
     def rolling_episode_split(self, rolling_episode_split: bool):
         self.__rolling_episode_split = False if rolling_episode_split is None else rolling_episode_split
 
-    @random_episode.setter
-    def random_episode(self, random_episode: bool):
-        self.__random_episode = False if random_episode is None else random_episode
+    @random_episode_split.setter
+    def random_episode_split(self, random_episode_split: bool):
+        self.__random_episode_split = False if random_episode_split is None else random_episode_split
 
     @reward_function.setter
     def reward_function(self, reward_function: RewardFunction):
@@ -976,7 +975,7 @@ class CityLearnEnv(Environment, Env):
         self.episode_tracker.next_episode(
             self.episode_time_steps,
             self.rolling_episode_split,
-            self.random_episode,
+            self.random_episode_split,
             self.random_seed,
         )
 
@@ -1039,7 +1038,7 @@ class CityLearnEnv(Environment, Env):
         rolling_episode_split: bool
             True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, False to split episodes 
             in steps of `episode_time_steps`.
-        random_episode: bool
+        random_episode_split: bool
             True if episode splits are to be selected at random during training otherwise, False to select sequentially.
         seconds_per_time_step: float
             Number of seconds in 1 `time_step` and must be set to >= 1.
@@ -1078,7 +1077,7 @@ class CityLearnEnv(Environment, Env):
         random_seed = kwargs.get('random_seed', None)
         episode_time_steps = kwargs['episode_time_steps'] if kwargs.get('episode_time_steps') is not None else self.schema.get('episode_time_steps', None)
         rolling_episode_split = kwargs['rolling_episode_split'] if kwargs.get('rolling_episode_split') is not None else self.schema.get('rolling_episode_split', None)
-        random_episode = kwargs['random_episode'] if kwargs.get('random_episode') is not None else self.schema.get('random_episode', None)
+        random_episode_split = kwargs['random_episode_split'] if kwargs.get('random_episode_split') is not None else self.schema.get('random_episode_split', None)
         seconds_per_time_step = kwargs['seconds_per_time_step'] if kwargs.get('seconds_per_time_step') is not None else self.schema['seconds_per_time_step']
         episode_tracker = EpisodeTracker(simulation_start_time_step, simulation_end_time_step)
         buildings_to_include = list(self.schema['buildings'].keys())
@@ -1222,7 +1221,7 @@ class CityLearnEnv(Environment, Env):
             reward_function = reward_function_constructor(None, **reward_function_attributes)
 
         return (
-            root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode, 
+            root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode_split, 
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker
         )
         
