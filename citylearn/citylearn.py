@@ -49,7 +49,7 @@ class CityLearnEnv(Environment, Env):
         If list of :int: is provided will include only schema :code:`buildings` whose index is contained in provided list of :code:`int`.
     simulation_start_time_step: int, optional
         Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.
-    end_time_step: int, optional
+    simulation_end_time_step: int, optional
         Time step to end reading from data files. If provided, will override :code:`simulation_end_time_step` definition in schema.
     reward_function: RewardFunction, optional
         Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
@@ -680,13 +680,13 @@ class CityLearnEnv(Environment, Env):
 
         evaluation = {
             # 'electricity_consumption_total': 'Electricity consumption',
-            'carbon_emissions_total': {'display_name': 'Carbon emissions', 'weight': 1.0},
-            'cost_total': {'display_name': 'Cost', 'weight': 1.0},
-            'discomfort_proportion': {'display_name': 'Unmet hours', 'weight': 1.0},
-            'ramping_average': {'display_name': 'Ramping', 'weight': 1.0},
-            'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 1.0},
-            'daily_peak_average': {'display_name': 'Daily peak', 'weight': 1.0},
-            'annual_peak_average': {'display_name': 'All-time peak', 'weight': 1.0},
+            'carbon_emissions_total': {'display_name': 'Carbon emissions', 'weight': 0.1},
+            # 'cost_total': {'display_name': 'Cost', 'weight': 1.0},
+            'discomfort_proportion': {'display_name': 'Unmet hours', 'weight': 0.3},
+            'ramping_average': {'display_name': 'Ramping', 'weight': 0.15},
+            'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 0.15},
+            'daily_peak_average': {'display_name': 'Daily peak', 'weight': 0.15},
+            'annual_peak_average': {'display_name': 'All-time peak', 'weight': 0.15},
         }
         data = self.evaluate(
             control_condition=EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV,
@@ -695,10 +695,11 @@ class CityLearnEnv(Environment, Env):
         )
         data = data[data['level']=='district'].set_index('cost_function').to_dict('index')
         evaluation = {k: {**v, 'value': data[k]['value']} for k, v in evaluation.items()}
+        weight_sum = sum([v['weight'] for _, v in evaluation.items()])
         evaluation['average_score'] = {
             'display_name': 'Score',
             'weight': None,
-            'value': np.nanmean([v['weight']*v['value'] for k, v in evaluation.items()], dtype=float)
+            'value': np.nanmean([v['weight']*v['value']/weight_sum for _, v in evaluation.items()], dtype=float)
         } 
         
         return evaluation
