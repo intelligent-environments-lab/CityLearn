@@ -879,7 +879,7 @@
 <div class="viewcode-block" id="Building.update_dynamics"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_dynamics">[docs]</a>    <span class="k">def</span> <span class="nf">update_dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update building dynamics e.g. space indoor temperature, relative humidity, etc.&quot;&quot;&quot;</span>
 
-        <span class="k">return</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="Building.update_cooling"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_cooling">[docs]</a>    <span class="k">def</span> <span class="nf">update_cooling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cooling_device_action</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">cooling_storage_action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update cooling demand and charge/discharge `cooling_storage` for next time step.</span>
@@ -893,7 +893,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">cooling_device_action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">cooling_device_action</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_cooling_demand</span><span class="p">(</span><span class="n">cooling_device_action</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_cooling_demand</span><span class="p">(</span><span class="n">cooling_device_action</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+                <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
 
@@ -909,7 +912,7 @@
 <div class="viewcode-block" id="Building.update_cooling_demand"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_cooling_demand">[docs]</a>    <span class="k">def</span> <span class="nf">update_cooling_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update space cooling demand for next time step.&quot;&quot;&quot;</span>
 
-        <span class="k">return</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="Building.update_heating"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_heating">[docs]</a>    <span class="k">def</span> <span class="nf">update_heating</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">heating_device_action</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">heating_storage_action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update heating demand and charge/discharge `heating_storage` for next time step.</span>
@@ -923,7 +926,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">heating_device_action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">heating_device_action</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_heating_demand</span><span class="p">(</span><span class="n">heating_device_action</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_heating_demand</span><span class="p">(</span><span class="n">heating_device_action</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+                <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
 
@@ -942,7 +948,7 @@
 <div class="viewcode-block" id="Building.update_heating_demand"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_heating_demand">[docs]</a>    <span class="k">def</span> <span class="nf">update_heating_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update space heating demand for next time step.&quot;&quot;&quot;</span>
 
-        <span class="k">return</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 <div class="viewcode-block" id="Building.update_dhw"><a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.update_dhw">[docs]</a>    <span class="k">def</span> <span class="nf">update_dhw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Charge/discharge `dhw_storage`.</span>
