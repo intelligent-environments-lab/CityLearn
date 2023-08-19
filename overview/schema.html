@@ -128,8 +128,14 @@
 <tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">simulation_end_time_step</span></code></p></td>
 <td><p>Time step in the data files to end the simulation at.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">episodes</span></code></p></td>
-<td><p>The number of episodes/epochs to simulate.</p></td>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">episode_time_steps</span></code></p></td>
+<td><p>Either the number of time steps in an episode or list of episode start and end time steps between <code class="code docutils literal notranslate"><span class="pre">simulation_start_time_step</span></code> and <code class="code docutils literal notranslate"><span class="pre">simulation_end_time_step</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">rolling_episode_split</span></code></p></td>
+<td><p>True if episode sequences are split such that each time step is a candidate for <cite>episode_start_time_step</cite> otherwise, False to split episodes in steps of <cite>episode_time_steps</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">random_episode_split</span></code></p></td>
+<td><p>True if episode splits are to be selected at random during training otherwise, False to select sequentially.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">seconds_per_time_step</span></code></p></td>
 <td><p>Used to define the time resolution of the data files.</p></td>
@@ -247,7 +253,9 @@
   <span class="s2">&quot;central_agent&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
   <span class="s2">&quot;simulation_start_time_step&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
   <span class="s2">&quot;simulation_end_time_step&quot;</span><span class="p">:</span> <span class="mi">2927</span><span class="p">,</span>
-  <span class="s2">&quot;episodes&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s2">&quot;episode_time_steps&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+  <span class="s2">&quot;rolling_episode_split&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+  <span class="s2">&quot;random_episode_split&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
   <span class="s2">&quot;seconds_per_time_step&quot;</span><span class="p">:</span> <span class="mf">3600.0</span><span class="p">,</span>
   <span class="s2">&quot;observations&quot;</span><span class="p">:</span> <span class="p">{</span>
     <span class="s2">&quot;month&quot;</span><span class="p">:</span> <span class="p">{</span>
