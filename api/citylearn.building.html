@@ -590,6 +590,12 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_cost_without_storage_and_pv">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_cost_without_storage_and_pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_cost_without_storage_and_pv" title="Permalink to this definition"></a></dt>
+<dd><p>net_electricity_consumption_without_storage_and_pv` cost time series, in [$].</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_emission">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_emission</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_emission" title="Permalink to this definition"></a></dt>
 <dd><p>Carbon dioxide emmission from <cite>net_electricity_consumption</cite> time series, in [kg_co2].</p>
@@ -602,12 +608,28 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_emission_without_storage_and_pv">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_emission_without_storage_and_pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_emission_without_storage_and_pv" title="Permalink to this definition"></a></dt>
+<dd><p>Carbon dioxide emmission from <cite>net_electricity_consumption_without_storage_pv</cite> time series, in [kg_co2].</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage" title="Permalink to this definition"></a></dt>
 <dd><p>net electricity consumption in the absence of flexibility provided by storage devices time series, in [kWh].</p>
 <p class="rubric">Notes</p>
 <p>net_electricity_consumption_without_storage = <cite>net_electricity_consumption</cite> - (<cite>cooling_storage_electricity_consumption</cite>
 + <cite>heating_storage_electricity_consumption</cite> + <cite>dhw_storage_electricity_consumption</cite> + <cite>electrical_storage_electricity_consumption</cite>)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.net_electricity_consumption_without_storage_and_pv">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_electricity_consumption_without_storage_and_pv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.net_electricity_consumption_without_storage_and_pv" title="Permalink to this definition"></a></dt>
+<dd><p>Net electricity consumption in the absence of flexibility provided by storage devices,
+and self generation time series, in [kWh].</p>
+<p class="rubric">Notes</p>
+<p>net_electricity_consumption_without_storage_and_pv =
+<cite>net_electricity_consumption_without_storage</cite> - <cite>solar_generation</cite></p>
 </dd></dl>
 
 <dl class="py method">
