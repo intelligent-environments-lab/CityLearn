@@ -35,6 +35,7 @@ class Agent(Environment):
             random_seed=self.env.random_seed,
             episode_tracker=env.episode_tracker,
         )
+        self.reset()
 
     @property
     def observation_names(self) -> List[List[str]]:
