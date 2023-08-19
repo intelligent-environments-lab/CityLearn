@@ -7,8 +7,7 @@ from citylearn.wrappers import NormalizedObservationWrapper, StableBaselines3Wra
 
 # Initialize environment
 dataset_name = 'baeda_3dem'
-env = CityLearnEnv(dataset_name, central_agent=True)
-env.buildings = env.buildings[0:1]
+env = CityLearnEnv(dataset_name, buildings=[0], central_agent=True)
 
 # Normalization wrapper
 env = NormalizedObservationWrapper(env)
