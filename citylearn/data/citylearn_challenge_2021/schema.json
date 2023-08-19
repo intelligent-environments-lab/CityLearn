@@ -3,6 +3,7 @@
   "central_agent": false,
   "simulation_start_time_step": 0,
   "simulation_end_time_step": 35039,
+  "episode_time_steps": null,
   "rolling_episode_split": false,
   "random_episode_split": false,
   "seconds_per_time_step": 3600.0,
