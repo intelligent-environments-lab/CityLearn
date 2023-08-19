@@ -188,6 +188,15 @@ class EnergySimulation(TimeSeriesData):
         self.occupant_count = np.zeros(len(solar_generation), dtype=float) if occupant_count is None else np.array(occupant_count, dtype=float)
         self.indoor_dry_bulb_temperature_set_point = np.zeros(len(solar_generation), dtype=float) if indoor_dry_bulb_temperature_set_point is None else np.array(indoor_dry_bulb_temperature_set_point, dtype=float)
 
+        # set controlled variable defaults
+        self.indoor_dry_bulb_temperature_without_control = self.indoor_dry_bulb_temperature.copy()
+        self.cooling_demand_without_control = self.cooling_demand.copy()
+        self.heating_demand_without_control = self.heating_demand.copy()
+        self.dhw_demand_without_control = self.dhw_demand.copy()
+        self.non_shiftable_load_without_control = self.non_shiftable_load.copy()
+        self.indoor_relative_humidity_without_control = self.indoor_relative_humidity.copy()
+        self.indoor_dry_bulb_temperature_set_point_without_control = self.indoor_dry_bulb_temperature_set_point.copy()
+
         if hvac_mode is None:
             self.hvac_mode = np.zeros(len(solar_generation), dtype=float)*1 
         
