@@ -204,6 +204,33 @@ class Building(Environment):
         indicates which storage systems are to be controlled during simulation."""
 
         return [k for k, v in self.action_metadata.items() if v]
+    
+    @property
+    def net_electricity_consumption_emission_without_storage_and_pv(self) -> np.ndarray:
+        """Carbon dioxide emmission from `net_electricity_consumption_without_storage_pv` time series, in [kg_co2]."""
+
+        return (
+            self.carbon_intensity.carbon_intensity[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_pv
+        ).clip(min=0)
+
+    @property
+    def net_electricity_consumption_cost_without_storage_and_pv(self) -> np.ndarray:
+        """net_electricity_consumption_without_storage_and_pv` cost time series, in [$]."""
+
+        return self.pricing.electricity_pricing[0:self.time_step + 1]*self.net_electricity_consumption_without_storage_and_pv
+
+    @property
+    def net_electricity_consumption_without_storage_and_pv(self) -> np.ndarray:
+        """Net electricity consumption in the absence of flexibility provided by storage devices, 
+        and self generation time series, in [kWh]. 
+        
+        Notes
+        -----
+        net_electricity_consumption_without_storage_and_pv = 
+        `net_electricity_consumption_without_storage` - `solar_generation`
+        """
+
+        return self.net_electricity_consumption_without_storage - self.solar_generation
 
     @property
     def net_electricity_consumption_emission_without_storage(self) -> np.ndarray:

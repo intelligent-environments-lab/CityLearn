@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from citylearn import __version__ as citylearn_version
 from citylearn.base import Environment, EpisodeTracker
-from citylearn.building import Building
+from citylearn.building import Building, DynamicsBuilding
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.rendering import get_background, RenderBuilding, get_plots
@@ -343,7 +343,8 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv 
-            for b in self.buildings
+            if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_emission_without_storage_and_pv 
+                    for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -352,7 +353,8 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv 
-            for b in self.buildings
+                if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_cost_without_storage_and_pv 
+                    for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -361,7 +363,8 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_without_storage_and_partial_load_and_pv 
-            for b in self.buildings
+                if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_without_storage_and_pv 
+                    for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
     
 
@@ -371,7 +374,8 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_emission_without_storage_and_partial_load 
-            for b in self.buildings
+            if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_emission_without_storage
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -380,7 +384,8 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_cost_without_storage_and_partial_load 
-            for b in self.buildings
+            if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_cost_without_storage
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -388,8 +393,64 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_without_storage_and_partial_load` time series, in [kWh]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_without_storage_and_partial_load 
-            for b in self.buildings
+            b.net_electricity_consumption_without_storage_and_partial_load
+            if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_without_storage
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+    
+    @property
+    def net_electricity_consumption_emission_without_storage_and_pv(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_emission_without_storage_and_pv` time series, in [kg_co2]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_emission_without_storage_and_pv 
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_cost_without_storage_and_pv(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_cost_without_storage_and_pv` time series, in [$]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_cost_without_storage_and_pv 
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_without_storage_and_pv(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_without_storage_and_pv` time series, in [kWh]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_without_storage_and_pv 
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+    
+
+    @property
+    def net_electricity_consumption_emission_without_storage(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_emission_without_storage` time series, in [kg_co2]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_emission_without_storage 
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_cost_without_storage(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_cost_without_storage` time series, in [$]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_cost_without_storage
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_without_storage(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_without_storage` time series, in [kWh]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_without_storage
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -398,7 +459,7 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_emission_without_storage 
-            for b in self.buildings
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).tolist()
 
     @property
@@ -407,7 +468,7 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_cost_without_storage 
-            for b in self.buildings
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -416,7 +477,7 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_without_storage 
-            for b in self.buildings
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
