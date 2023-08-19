@@ -1460,9 +1460,21 @@ class DynamicsBuilding(Building):
         """
 
         super().reset_dynamic_variables()
-        self.energy_simulation.cooling_demand = self.energy_simulation.cooling_demand_without_control.copy()
-        self.energy_simulation.heating_demand = self.energy_simulation.heating_demand_without_control.copy()
-        self.energy_simulation.indoor_dry_bulb_temperature = self.energy_simulation.indoor_dry_bulb_temperature_without_control.copy()
+        self.energy_simulation.cooling_demand = self.energy_simulation.__getattr__(
+            'cooling_demand_without_control', 
+            start_time_step=self.episode_tracker.simulation_start_time_step,
+            end_time_step=self.episode_tracker.simulation_end_time_step,
+        ).copy()
+        self.energy_simulation.heating_demand = self.energy_simulation.__getattr__(
+            'heating_demand_without_control', 
+            start_time_step=self.episode_tracker.simulation_start_time_step,
+            end_time_step=self.episode_tracker.simulation_end_time_step,
+        ).copy()
+        self.energy_simulation.indoor_dry_bulb_temperature = self.energy_simulation.__getattr__(
+            'indoor_dry_bulb_temperature_without_control', 
+            start_time_step=self.episode_tracker.simulation_start_time_step,
+            end_time_step=self.episode_tracker.simulation_end_time_step,
+        ).copy()
         
     def set_dynamics(self) -> Dynamics:
         """Resets and returns `cooling_dynamics` if current time step HVAC mode is off or
