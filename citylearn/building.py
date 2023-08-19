@@ -1254,8 +1254,8 @@ class Building(Environment):
         self.pv.reset()
 
         # variable reset
-        self.reset_datasets()
         self.reset_dynamic_variables()
+        self.reset_data_sets()
         self.__solar_generation = self.pv.get_generation(self.energy_simulation.solar_generation)*-1
         self.__cooling_electricity_consumption = []
         self.__heating_electricity_consumption = []
@@ -1270,17 +1270,20 @@ class Building(Environment):
         
         pass
 
-    def reset_datasets(self):
+    def reset_data_sets(self):
         """Resets time series data `start_time_step` and `end_time_step` with respect to current episode's time step settings."""
 
-        self.energy_simulation.start_time_step = self.episode_tracker.episode_start_time_step
-        self.weather.start_time_step = self.episode_tracker.episode_start_time_step
-        self.pricing.start_time_step = self.episode_tracker.episode_start_time_step
-        self.carbon_intensity.start_time_step = self.episode_tracker.episode_start_time_step
-        self.energy_simulation.end_time_step = self.episode_tracker.episode_end_time_step
-        self.weather.end_time_step = self.episode_tracker.episode_end_time_step
-        self.pricing.end_time_step = self.episode_tracker.episode_end_time_step
-        self.carbon_intensity.end_time_step = self.episode_tracker.episode_end_time_step
+        start_time_step = self.episode_tracker.episode_start_time_step
+        end_time_step = self.episode_tracker.episode_end_time_step
+
+        self.energy_simulation.start_time_step = start_time_step
+        self.weather.start_time_step = start_time_step
+        self.pricing.start_time_step = start_time_step
+        self.carbon_intensity.start_time_step = start_time_step
+        self.energy_simulation.end_time_step = end_time_step
+        self.weather.end_time_step = end_time_step
+        self.pricing.end_time_step = end_time_step
+        self.carbon_intensity.end_time_step = end_time_step
 
     def update_variables(self):
         """Update cooling, heating, dhw and net electricity consumption as well as net electricity consumption cost and carbon emissions."""
@@ -1459,22 +1462,11 @@ class DynamicsBuilding(Building):
         at the beginning of an episode.
         """
 
-        super().reset_dynamic_variables()
-        self.energy_simulation.cooling_demand = self.energy_simulation.__getattr__(
-            'cooling_demand_without_control', 
-            start_time_step=self.episode_tracker.simulation_start_time_step,
-            end_time_step=self.episode_tracker.simulation_end_time_step,
-        ).copy()
-        self.energy_simulation.heating_demand = self.energy_simulation.__getattr__(
-            'heating_demand_without_control', 
-            start_time_step=self.episode_tracker.simulation_start_time_step,
-            end_time_step=self.episode_tracker.simulation_end_time_step,
-        ).copy()
-        self.energy_simulation.indoor_dry_bulb_temperature = self.energy_simulation.__getattr__(
-            'indoor_dry_bulb_temperature_without_control', 
-            start_time_step=self.episode_tracker.simulation_start_time_step,
-            end_time_step=self.episode_tracker.simulation_end_time_step,
-        ).copy()
+        start_ix = 0
+        end_ix = self.episode_tracker.episode_time_steps
+        self.energy_simulation.cooling_demand[start_ix:end_ix] = self.energy_simulation.cooling_demand_without_control.copy()[start_ix:end_ix]
+        self.energy_simulation.heating_demand[start_ix:end_ix] = self.energy_simulation.heating_demand_without_control.copy()[start_ix:end_ix]
+        self.energy_simulation.indoor_dry_bulb_temperature[start_ix:end_ix] = self.energy_simulation.indoor_dry_bulb_temperature_without_control.copy()[start_ix:end_ix]
         
     def set_dynamics(self) -> Dynamics:
         """Resets and returns `cooling_dynamics` if current time step HVAC mode is off or
