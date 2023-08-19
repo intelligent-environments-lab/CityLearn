@@ -1,5 +1,5 @@
 import random
-from typing import Any, List, Mapping, Tuple
+from typing import Any, List, Mapping, Tuple, Union
 import uuid
 import numpy as np
 
@@ -72,23 +72,20 @@ class EpisodeTracker:
 
         return self.__episode_end_time_step
 
-    def next_episode(
-            self, episode_time_steps: int, rolling_episode_split: bool, 
-            random_episode: bool, random_seed: int, episode_splits: List[Tuple[int, int]] = None
-    ):
+    def next_episode(self, episode_time_steps: Union[int, List[Tuple[int, int]]], rolling_episode_split: bool, random_episode: bool, random_seed: int):
         """Advance to next episode and set `episode_start_time_step` and `episode_end_time_step` for reading data files.
         
         Parameters
         ----------
-        episode_time_steps: int
-            Number of time steps in an episode. Defaults to (`simulation_end_time_step` - `simulation_start_time_step`) + 1.
-        rolling_episode_split: bool
-            True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, False to split episodes as (`simulation_end_time_step` - `simulation_start_time_step`) + 1)/`episode_time_steps`.
-        random_episode: bool
+        episode_time_steps: Union[int, List[Tuple[int, int]]], optional
+            If type is `int`, it is the number of time steps in an episode. If type is `List[Tuple[int, int]]]` is provided, it is a list of 
+            episode start and end time steps between `simulation_start_time_step` and `simulation_end_time_step`. Defaults to (`simulation_end_time_step` 
+        - `simulation_start_time_step`) + 1. Will ignore `rolling_episode_split` if `episode_splits` is of type `List[Tuple[int, int]]]`.
+        rolling_episode_split: bool, default: False
+            True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, False to split episodes 
+            in steps of `episode_time_steps`.
+        random_episode: bool, default: False
             True if episode splits are to be selected at random during training otherwise, False to select sequentially.
-        episode_splits: List[Tuple[int, int]]
-            A list of episode start and end time steps between `simulation_start_time_step` and `simulation_end_time_step`. 
-            Will ignore `episode_time_step` and `rolling_episode_split` if `episode_splits` is specified.
         """
 
         self.__episode += 1
@@ -97,18 +94,15 @@ class EpisodeTracker:
             rolling_episode_split,
             random_episode,
             random_seed,
-            episode_splits
         )
         
-    def __next_episode_time_steps(self, episode_time_steps: int, rolling_episode_split: bool, 
-            random_episode: bool, random_seed: int, episode_splits: List[Tuple[int, int]] = None
-    ):
+    def __next_episode_time_steps(self, episode_time_steps: Union[int, List[Tuple[int, int]]], rolling_episode_split: bool, random_episode: bool, random_seed: int):
         """Sets `episode_start_time_step` and `episode_end_time_step` for reading data files."""
 
         splits = None
 
-        if episode_splits is not None:
-            splits = episode_splits
+        if isinstance(episode_time_steps, List):
+            splits = episode_time_steps
 
         else:
             earliest_start_time_step = self.__simulation_start_time_step 
