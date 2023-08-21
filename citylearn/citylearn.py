@@ -770,6 +770,10 @@ class CityLearnEnv(Environment, Env):
 
         if self.central_agent:
             actions = actions[0]
+            number_of_actions = len(actions)
+            expected_number_of_actions = self.action_space[0].shape[0]
+            assert number_of_actions == expected_number_of_actions,\
+                f'Expected {expected_number_of_actions} actions but {number_of_actions} were parsed to env.step.'
             
             for building in self.buildings:
                 size = building.action_space.shape[0]
@@ -778,6 +782,13 @@ class CityLearnEnv(Environment, Env):
 
         else:
             building_actions = [list(a) for a in actions]
+
+        # check that appropriate number of building actions have been provided
+        for b, a in zip(self.buildings, building_actions):
+            number_of_actions = len(a)
+            expected_number_of_actions = b.action_space.shape[0]
+            assert number_of_actions == expected_number_of_actions,\
+                f'Expected {expected_number_of_actions} for {b.name} but {number_of_actions} actions were provided.'
 
         active_actions = [[k for k, v in b.action_metadata.items() if v] for b in self.buildings]
         actions = [{k:a for k, a in zip(active_actions[i],building_actions[i])} for i in range(len(active_actions))]
