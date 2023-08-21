@@ -287,14 +287,14 @@ class Building(Environment):
 
     @property
     def cooling_electricity_consumption(self) -> List[float]:
-        """`cooling_device` net electricity consumption in meeting cooling demand and `cooling_stoage` energy demand time series, in [kWh]. 
+        """`cooling_device` net electricity consumption in meeting cooling demand and `cooling_storage` energy demand time series, in [kWh]. 
         """
 
         return self.__cooling_electricity_consumption
 
     @property
     def heating_electricity_consumption(self) -> List[float]:
-        """`heating_device` net electricity consumption in meeting heating demand and `heating_stoage` energy demand time series, in [kWh]. 
+        """`heating_device` net electricity consumption in meeting heating demand and `heating_storage` energy demand time series, in [kWh]. 
         """
 
         return self.__heating_electricity_consumption
@@ -639,12 +639,13 @@ class Building(Environment):
                 'electrical_storage_soc':self.electrical_storage.soc[self.time_step],
             },
             'net_electricity_consumption': self.__net_electricity_consumption[self.time_step],
+            'cooling_electricity_consumption': self.__cooling_electricity_consumption[self.time_step],
+            'heating_electricity_consumption': self.__heating_electricity_consumption[self.time_step],
+            'dhw_electricity_consumption': self.__dhw_electricity_consumption[self.time_step],
             'cooling_device_cop': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
             'heating_device_cop': self.heating_device.get_cop(
                 self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
                     ) if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
-            'cooling_demand': self.energy_simulation.cooling_demand[self.time_step],
-            'heating_demand': self.energy_simulation.heating_demand[self.time_step],
             'indoor_dry_bulb_temperature_set_point': self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step],
             'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step]),
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
@@ -1003,14 +1004,22 @@ class Building(Environment):
                 low_limit[key] = 0
                 high_limit[key] = self.maximum_temperature_delta
                 
-            elif key in ['cooling_demand', 'heating_demand']:
-                if key == 'cooling_demand':
-                    max_demand = data['cooling_demand'].max()
-                else:
-                    max_demand = data['heating_demand'].max()
-
+            elif key in ['cooling_demand', 'heating_demand', 'dhw_demand']:
                 low_limit[key] = 0.0
+                max_demand = data[key].max()
                 high_limit[key] = max_demand*self.__thermal_load_factor
+
+            elif key == 'cooling_electricity_consumption':
+                low_limit[key] = 0.0
+                high_limit[key] = self.cooling_device.nominal_power
+
+            elif key == 'heating_electricity_consumption':
+                low_limit[key] = 0.0
+                high_limit[key] = self.heating_device.nominal_power
+
+            elif key == 'dhw_electricity_consumption':
+                low_limit[key] = 0.0
+                high_limit[key] = self.dhw_device.nominal_power
 
             elif periodic_normalization and key in periodic_observations:
                 pn = PeriodicNormalization(max(periodic_observations[key]))
