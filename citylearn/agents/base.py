@@ -1,4 +1,3 @@
-import inspect
 import logging
 from typing import Any, List, Mapping
 from gym import spaces
@@ -31,14 +30,12 @@ class Agent(Environment):
         self.action_space = self.env.action_space
         self.episode_time_steps = self.env.time_steps
         self.building_metadata = self.env.get_metadata()['buildings']
-
-        arg_spec = inspect.getfullargspec(super().__init__)
-        kwargs = {
-            key:value for (key, value) in kwargs.items()
-            if (key in arg_spec.args or (arg_spec.varkw is not None))
-            
-        }
-        super().__init__(**kwargs)
+        super().__init__(
+            seconds_per_time_step=self.env.seconds_per_time_step,
+            random_seed=self.env.random_seed,
+            episode_tracker=env.episode_tracker,
+        )
+        self.reset()
 
     @property
     def observation_names(self) -> List[List[str]]:
@@ -130,6 +127,7 @@ class Agent(Environment):
         for episode in range(episodes):
             deterministic = deterministic or (deterministic_finish and episode >= episodes - 1)
             observations = self.env.reset()
+            self.episode_time_steps = self.episode_tracker.episode_time_steps
             done = False
             time_step = 0
             rewards_list = []

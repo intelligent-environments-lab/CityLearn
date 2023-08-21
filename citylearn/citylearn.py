@@ -9,8 +9,8 @@ from gym import Env, spaces
 import numpy as np
 import pandas as pd
 from citylearn import __version__ as citylearn_version
-from citylearn.base import Environment
-from citylearn.building import Building
+from citylearn.base import Environment, EpisodeTracker
+from citylearn.building import Building, DynamicsBuilding
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.rendering import get_background, RenderBuilding, get_plots
@@ -42,22 +42,31 @@ class CityLearnEnv(Environment, Env):
         Name of CityLearn data set, filepath to JSON representation or :code:`dict` object of a CityLearn schema.
         Call :py:meth:`citylearn.data.DataSet.get_names` for list of available CityLearn data sets.
     root_directory: Union[str, Path]
-        Absolute path to directory that contains the data files including the schema. If provided, will override :code:`root_directory` definition in schema.
+        Absolute path to directory that contains the data files including the schema.
     buildings: Union[List[Building], List[str], List[int]], optional
         Buildings to include in environment. If list of :code:`citylearn.building.Building` is provided, will override :code:`buildings` definition in schema.
         If list of :str: is provided will include only schema :code:`buildings` keys that are contained in provided list of :code:`str`.
         If list of :int: is provided will include only schema :code:`buildings` whose index is contained in provided list of :code:`int`.
     simulation_start_time_step: int, optional
-        Time step to start reading from data files. If provided, will override :code:`simulation_start_time_step` definition in schema.
+        Time step to start reading data files contents.
     simulation_end_time_step: int, optional
-        Time step to end reading from data files. If provided, will override :code:`simulation_end_time_step` definition in schema.
+        Time step to end reading from data files contents.
+    episode_time_steps: Union[int, List[Tuple[int, int]]], optional
+        If type is `int`, it is the number of time steps in an episode. If type is `List[Tuple[int, int]]]` is provided, 
+        it is a list of episode start and end time steps between `simulation_start_time_step` and `simulation_end_time_step`. 
+        Defaults to (`simulation_end_time_step` - `simulation_start_time_step`) + 1. Will ignore `rolling_episode_split` if `episode_splits` is of type `List[Tuple[int, int]]]`.
+    rolling_episode_split: bool, default: False
+        True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, False to split episodes in steps of `episode_time_steps`.
+    random_episode_split: bool, default: False
+        True if episode splits are to be selected at random during training otherwise, False to select sequentially.
+    seconds_per_time_step: float
+        Number of seconds in 1 `time_step` and must be set to >= 1.
     reward_function: RewardFunction, optional
         Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
     central_agent: bool, optional
-        Expect 1 central agent to control all buildings. If provided, will override :code:`central` definition in schema.
+        Expect 1 central agent to control all buildings.
     shared_observations: List[str], optional
         Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
-        If provided, will override :code:`observations:<observation>:shared_in_central_agent` definitions in schema.
     random_seed: int, optional
         Pseudorandom number generator seed for repeatable results.
 
@@ -65,33 +74,56 @@ class CityLearnEnv(Environment, Env):
     ----------------
     **kwargs : dict
         Other keyword arguments used to initialize super classes.
+
+    Notes
+    -----
+    Parameters passed to `citylearn.citylearn.CityLearnEnv.__init__` that are also defined in `schema` will override their `schema` definition.
     """
     
     def __init__(self, 
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, 
-        simulation_start_time_step: int = None, simulation_end_time_step: int = None, reward_function: RewardFunction = None, central_agent: bool = None, 
-        shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
+        simulation_start_time_step: int = None, simulation_end_time_step: int = None, episode_time_steps: Union[int, List[Tuple[int, int]]] = None, rolling_episode_split: bool = None, 
+        random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: RewardFunction = None, 
+        central_agent: bool = None, shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
     ):
         self.schema = schema
         self.__rewards = None
         self.random_seed = random_seed
-        self.root_directory, self.buildings, self.simulation_start_time_step, self.simulation_end_time_step, self.seconds_per_time_step,\
-            self.reward_function, self.central_agent, self.shared_observations = self._load(
+        root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode_split, \
+            seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker = self._load(
                 root_directory=root_directory,
                 buildings=buildings,
                 simulation_start_time_step=simulation_start_time_step,
                 simulation_end_time_step=simulation_end_time_step,
+                episode_time_steps=episode_time_steps,
+                rolling_episode_split=rolling_episode_split,
+                random_episode=random_episode_split,
+                seconds_per_time_step=seconds_per_time_step,
                 reward_function=reward_function,
                 central_agent=central_agent,
                 shared_observations=shared_observations,
                 random_seed=self.random_seed,
             )
-        
-        super().__init__(**kwargs)
+        self.root_directory = root_directory
+        self.buildings = buildings
 
-        # update the metadata for reward function after initializing environment
+        # now call super class initialization and set episode tracker now that buildings are set
+        super().__init__(seconds_per_time_step=seconds_per_time_step, random_seed=self.random_seed, episode_tracker=episode_tracker)
+
+        # set other class variables
+        self.episode_time_steps = episode_time_steps
+        self.rolling_episode_split = rolling_episode_split
+        self.random_episode_split = random_episode_split
+        self.central_agent = central_agent
+        self.shared_observations = shared_observations
+
+        # reset environment
+        self.reset()
+
+        # set reward function
+        self.reward_function = reward_function
         self.reward_function.env_metadata = self.get_metadata()
-
+        
     @property
     def schema(self) -> Union[str, Path, Mapping[str, Any]]:
         """Filepath to JSON representation or `dict` object of CityLearn schema."""
@@ -109,24 +141,39 @@ class CityLearnEnv(Environment, Env):
         """Buildings in CityLearn environment."""
 
         return self.__buildings
-
-    @property
-    def simulation_start_time_step(self) -> int:
-        """Time step to start reading from data files."""
-
-        return self.__simulation_start_time_step
-
-    @property
-    def simulation_end_time_step(self) -> int:
-        """Time step to end reading from data files."""
-
-        return self.__simulation_end_time_step
-
+    
     @property
     def time_steps(self) -> int:
-        """Number of simulation time steps."""
+        """Number of time steps in current episode split."""
+        
+        return self.episode_tracker.episode_time_steps
 
-        return (self.simulation_end_time_step - self.simulation_start_time_step) + 1
+    @property
+    def episode_time_steps(self) -> int:
+        """If type is `int`, it is the number of time steps in an episode. If type is `List[Tuple[int, int]]]` is provided, it is a list of 
+        episode start and end time steps between `simulation_start_time_step` and `simulation_end_time_step`. Defaults to (`simulation_end_time_step` 
+        - `simulation_start_time_step`) + 1. Will ignore `rolling_episode_split` if `episode_splits` is of type `List[Tuple[int, int]]]`."""
+
+        return self.__episode_time_steps
+    
+    @property
+    def rolling_episode_split(self) -> bool:
+        """True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, 
+        False to split episodes in steps of `episode_time_steps`."""
+
+        return self.__rolling_episode_split
+    
+    @property
+    def random_episode_split(self) -> bool:
+        """True if episode splits are to be selected at random during training otherwise, False to select sequentially."""
+
+        return self.__random_episode_split
+    
+    @property
+    def episode(self) -> int:
+        """Current episode index."""
+
+        return self.episode_tracker.episode
 
     @property
     def reward_function(self) -> RewardFunction:
@@ -296,7 +343,8 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv 
-            for b in self.buildings
+            if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_emission_without_storage_and_pv 
+                    for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -305,7 +353,8 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv 
-            for b in self.buildings
+                if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_cost_without_storage_and_pv 
+                    for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -314,7 +363,8 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_without_storage_and_partial_load_and_pv 
-            for b in self.buildings
+                if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_without_storage_and_pv 
+                    for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
     
 
@@ -324,7 +374,8 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_emission_without_storage_and_partial_load 
-            for b in self.buildings
+            if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_emission_without_storage
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -333,7 +384,8 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_cost_without_storage_and_partial_load 
-            for b in self.buildings
+            if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_cost_without_storage
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -341,8 +393,64 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_without_storage_and_partial_load` time series, in [kWh]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_without_storage_and_partial_load 
-            for b in self.buildings
+            b.net_electricity_consumption_without_storage_and_partial_load
+            if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_without_storage
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+    
+    @property
+    def net_electricity_consumption_emission_without_storage_and_pv(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_emission_without_storage_and_pv` time series, in [kg_co2]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_emission_without_storage_and_pv 
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_cost_without_storage_and_pv(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_cost_without_storage_and_pv` time series, in [$]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_cost_without_storage_and_pv 
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_without_storage_and_pv(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_without_storage_and_pv` time series, in [kWh]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_without_storage_and_pv 
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+    
+
+    @property
+    def net_electricity_consumption_emission_without_storage(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_emission_without_storage` time series, in [kg_co2]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_emission_without_storage 
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_cost_without_storage(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_cost_without_storage` time series, in [$]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_cost_without_storage
+                for b in self.buildings
+        ]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def net_electricity_consumption_without_storage(self) -> np.ndarray:
+        """Summed `Building.net_electricity_consumption_without_storage` time series, in [kWh]."""
+
+        return pd.DataFrame([
+            b.net_electricity_consumption_without_storage
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -351,7 +459,7 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_emission_without_storage 
-            for b in self.buildings
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).tolist()
 
     @property
@@ -360,7 +468,7 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_cost_without_storage 
-            for b in self.buildings
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -369,7 +477,7 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([
             b.net_electricity_consumption_without_storage 
-            for b in self.buildings
+                for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -540,15 +648,24 @@ class CityLearnEnv(Environment, Env):
     def buildings(self, buildings: List[Building]):
         self.__buildings = buildings
 
-    @simulation_start_time_step.setter
-    def simulation_start_time_step(self, simulation_start_time_step: int):
-        assert simulation_start_time_step >= 0, 'simulation_start_time_step must be >= 0'
-        self.__simulation_start_time_step = simulation_start_time_step
+    @Environment.episode_tracker.setter
+    def episode_tracker(self, episode_tracker: EpisodeTracker):
+        Environment.episode_tracker.fset(self, episode_tracker)
 
-    @simulation_end_time_step.setter
-    def simulation_end_time_step(self, simulation_end_time_step: int):
-        assert simulation_end_time_step >= 0, 'simulation_end_time_step must be >= 0'
-        self.__simulation_end_time_step = simulation_end_time_step
+        for b in self.buildings:
+            b.episode_tracker = self.episode_tracker
+
+    @episode_time_steps.setter
+    def episode_time_steps(self, episode_time_steps: int):
+        self.__episode_time_steps = self.episode_tracker.simulation_time_steps if episode_time_steps is None else episode_time_steps
+
+    @rolling_episode_split.setter
+    def rolling_episode_split(self, rolling_episode_split: bool):
+        self.__rolling_episode_split = False if rolling_episode_split is None else rolling_episode_split
+
+    @random_episode_split.setter
+    def random_episode_split(self, random_episode_split: bool):
+        self.__random_episode_split = False if random_episode_split is None else random_episode_split
 
     @reward_function.setter
     def reward_function(self, reward_function: RewardFunction):
@@ -565,7 +682,6 @@ class CityLearnEnv(Environment, Env):
     def get_metadata(self) -> Mapping[str, Any]:
         return {
             **super().get_metadata(),
-            'time_steps': self.time_steps,
             'reward_function': self.reward_function.__class__.__name__,
             'central_agent': self.central_agent,
             'shared_observations': self.shared_observations,
@@ -910,11 +1026,19 @@ class CityLearnEnv(Environment, Env):
         Returns
         -------
         observations: List[List[float]]
-            :attr:`observations`. 
+            :attr:`observations`.
         """
 
         # object reset
         super().reset()
+
+        # update time steps for time series
+        self.episode_tracker.next_episode(
+            self.episode_time_steps,
+            self.rolling_episode_split,
+            self.random_episode_split,
+            self.random_seed,
+        )
 
         for building in self.buildings:
             building.reset()
@@ -961,7 +1085,7 @@ class CityLearnEnv(Environment, Env):
         agent = agent_constructor(**agent_attributes)
         return agent
 
-    def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], int, int, float, RewardFunction, bool, List[str]]:
+    def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
         
         Returns
@@ -970,17 +1094,20 @@ class CityLearnEnv(Environment, Env):
             Absolute path to directory that contains the data files including the schema.
         buildings : List[Building]
             Buildings in CityLearn environment.
-        simulation_start_time_step: int
-            Time step to start reading from data files.
-        simulation_end_time_step: int
-            Time step to end reading from data files.
+        episode_time_steps: Union[int, List[Tuple[int, int]]]
+            Number of time steps in an episode. Defaults to (`simulation_end_time_step` - `simulation_start_time_step`) + 1.
+        rolling_episode_split: bool
+            True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, False to split episodes 
+            in steps of `episode_time_steps`.
+        random_episode_split: bool
+            True if episode splits are to be selected at random during training otherwise, False to select sequentially.
         seconds_per_time_step: float
             Number of seconds in 1 `time_step` and must be set to >= 1.
         reward_function : RewardFunction
             Reward function class instance.
-        central_agent : bool, optional
+        central_agent : bool
             Expect 1 central agent to control all building storage device.
-        shared_observations : List[str], optional
+        shared_observations : List[str]
             Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
         """
         
@@ -1009,13 +1136,21 @@ class CityLearnEnv(Environment, Env):
         simulation_end_time_step = kwargs['simulation_end_time_step'] if kwargs.get('simulation_end_time_step') is not None else\
             self.schema['simulation_end_time_step']
         random_seed = kwargs.get('random_seed', None)
-        seconds_per_time_step = self.schema['seconds_per_time_step']
+        episode_time_steps = kwargs['episode_time_steps'] if kwargs.get('episode_time_steps') is not None else self.schema.get('episode_time_steps', None)
+        rolling_episode_split = kwargs['rolling_episode_split'] if kwargs.get('rolling_episode_split') is not None else self.schema.get('rolling_episode_split', None)
+        random_episode_split = kwargs['random_episode_split'] if kwargs.get('random_episode_split') is not None else self.schema.get('random_episode_split', None)
+        seconds_per_time_step = kwargs['seconds_per_time_step'] if kwargs.get('seconds_per_time_step') is not None else self.schema['seconds_per_time_step']
+        episode_tracker = EpisodeTracker(simulation_start_time_step, simulation_end_time_step)
         buildings_to_include = list(self.schema['buildings'].keys())
         buildings = ()
 
         if kwargs.get('buildings') is not None and len(kwargs['buildings']) > 0:
             if isinstance(kwargs['buildings'][0], Building):
-                buildings = kwargs['buildings']
+                buildings: List[Building] = kwargs['buildings']
+
+                for b in buildings:
+                    b.episode_tracker = episode_tracker
+
                 buildings_to_include = []
             
             elif isinstance(kwargs['buildings'][0], str):
@@ -1033,20 +1168,20 @@ class CityLearnEnv(Environment, Env):
         for building_name in buildings_to_include:
             building_schema = self.schema['buildings'][building_name]
             # data
-            energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+            energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation']))
             energy_simulation = EnergySimulation(*energy_simulation.values.T)
-            weather = pd.read_csv(os.path.join(root_directory,building_schema['weather'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+            weather = pd.read_csv(os.path.join(root_directory,building_schema['weather']))
             weather = Weather(*weather.values.T)
 
             if building_schema.get('carbon_intensity', None) is not None:
-                carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+                carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity']))
                 carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
                 carbon_intensity = CarbonIntensity(carbon_intensity)
             else:
                 carbon_intensity = None
 
             if building_schema.get('pricing', None) is not None:
-                pricing = pd.read_csv(os.path.join(root_directory,building_schema['pricing'])).iloc[simulation_start_time_step:simulation_end_time_step + 1].copy()
+                pricing = pd.read_csv(os.path.join(root_directory,building_schema['pricing']))
                 pricing = Pricing(*pricing.values.T)
             else:
                 pricing = None
@@ -1091,6 +1226,7 @@ class CityLearnEnv(Environment, Env):
                 name=building_name, 
                 seconds_per_time_step=seconds_per_time_step,
                 random_seed=random_seed,
+                episode_tracker=episode_tracker,
                 **dynamics,
             )
 
@@ -1145,7 +1281,10 @@ class CityLearnEnv(Environment, Env):
             reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
             reward_function = reward_function_constructor(None, **reward_function_attributes)
 
-        return root_directory, buildings, simulation_start_time_step, simulation_end_time_step, seconds_per_time_step, reward_function, central_agent, shared_observations
+        return (
+            root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode_split, 
+            seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker
+        )
         
 class Error(Exception):
     """Base class for other exceptions."""

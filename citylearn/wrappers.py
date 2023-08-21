@@ -31,7 +31,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
             shared_observations = []
 
             for i, b in enumerate(self.env.buildings):
-                s = b.estimate_observation_space(normalize=True, periodic_normalization=True)
+                s = b.estimate_observation_space(normalize=True)
                 o = b.observations(normalize=True, periodic_normalization=True)
 
                 for k, lv, hv in zip(o, s.low, s.high):
@@ -53,7 +53,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
             observation_space = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
 
         else:
-            observation_space = [b.estimate_observation_space(normalize=True, periodic_normalization=True) for b in self.env.buildings]
+            observation_space = [b.estimate_observation_space(normalize=True) for b in self.env.buildings]
         
         return observation_space
 
