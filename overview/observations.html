@@ -353,13 +353,37 @@
 <td><p><code class="code docutils literal notranslate"><span class="pre">cooling_demand</span></code></p></td>
 <td><p><code class="file docutils literal notranslate"><span class="pre">building_id.csv</span></code>/Runtime calculation</p></td>
 <td><p>kWh</p></td>
-<td><p>Cooling energy supplied by <code class="code docutils literal notranslate"><span class="pre">cooling_device</span></code>.</p></td>
+<td><p>Cooling energy supplied by <code class="code docutils literal notranslate"><span class="pre">cooling_device</span></code> and <code class="code docutils literal notranslate"><span class="pre">cooling_storage</span></code> for space cooling.</p></td>
 </tr>
 <tr class="row-even"><td><p>Building</p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">heating_demand</span></code></p></td>
 <td><p><code class="file docutils literal notranslate"><span class="pre">building_id.csv</span></code>/Runtime calculation</p></td>
 <td><p>kWh</p></td>
-<td><p>Heating energy supplied by <code class="code docutils literal notranslate"><span class="pre">heating_device</span></code>.</p></td>
+<td><p>Heating energy supplied by <code class="code docutils literal notranslate"><span class="pre">heating_device</span></code> and <code class="code docutils literal notranslate"><span class="pre">heating_storage</span></code> for space heating.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Building</p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">dhw_demand</span></code></p></td>
+<td><p><code class="file docutils literal notranslate"><span class="pre">building_id.csv</span></code>/Runtime calculation</p></td>
+<td><p>kWh</p></td>
+<td><p>Heating energy supplied by <code class="code docutils literal notranslate"><span class="pre">dhw_device</span></code> and <code class="code docutils literal notranslate"><span class="pre">dhw_storage</span></code> for DHW heating.</p></td>
+</tr>
+<tr class="row-even"><td><p>Building</p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">cooling_electricity_consumption</span></code></p></td>
+<td><p>Runtime calculation</p></td>
+<td><p>kWh</p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">cooling_device</span></code> net electricity consumption in meeting <code class="code docutils literal notranslate"><span class="pre">cooling_demand</span></code> and <code class="code docutils literal notranslate"><span class="pre">cooling_storage</span></code> demand.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Building</p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">heating_electricity_consumption</span></code></p></td>
+<td><p>Runtime calculation</p></td>
+<td><p>kWh</p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">heating_device</span></code> net electricity consumption in meeting <code class="code docutils literal notranslate"><span class="pre">heating_demand</span></code> and <code class="code docutils literal notranslate"><span class="pre">heating_storage</span></code> demand.</p></td>
+</tr>
+<tr class="row-even"><td><p>Building</p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">dhw_electricity_consumption</span></code></p></td>
+<td><p>Runtime calculation</p></td>
+<td><p>kWh</p></td>
+<td><p><code class="code docutils literal notranslate"><span class="pre">dhw_device</span></code> net electricity consumption in meeting <code class="code docutils literal notranslate"><span class="pre">dhw_demand</span></code> and <code class="code docutils literal notranslate"><span class="pre">dhw_storage</span></code> demand.</p></td>
 </tr>
 <tr class="row-odd"><td><p>Building</p></td>
 <td><p><code class="code docutils literal notranslate"><span class="pre">indoor_dry_bulb_temperature_set_point</span></code></p></td>
