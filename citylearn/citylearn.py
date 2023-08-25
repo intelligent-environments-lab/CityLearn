@@ -822,11 +822,12 @@ class CityLearnEnv(Environment, Env):
         )
         data = data[data['level']=='district'].set_index('cost_function').to_dict('index')
         evaluation = {k: {**v, 'value': data[k]['value']} for k, v in evaluation.items()}
-        weight_sum = sum([v['weight'] for _, v in evaluation.items()])
+        weight_sum = np.nansum([v['weight'] for _, v in evaluation.items()], dtype=float)
+        value_sum = np.nansum([v['weight']*v['value'] for _, v in evaluation.items()], dtype=float)
         evaluation['average_score'] = {
             'display_name': 'Score',
             'weight': None,
-            'value': np.nanmean([v['weight']*v['value']/weight_sum for _, v in evaluation.items()], dtype=float)
+            'value': value_sum/weight_sum
         } 
         
         return evaluation
