@@ -4,6 +4,7 @@ import numpy as np
 from citylearn.agents.base import Agent
 from citylearn.citylearn import CityLearnEnv
 
+
 class TabularQLearning(Agent):
     """Implementation of Tabular Q-Learning algorithm for discrete observation and action space and epsilon-greedy action selection.
 
@@ -31,10 +32,17 @@ class TabularQLearning(Agent):
     **kwargs: Any
         Other keyword arguments used to initialize :py:class:`citylearn.agents.base.Agent` super class.
     """
-    
+
     def __init__(
-        self, env: CityLearnEnv, epsilon: float = None, minimum_epsilon: float = None, epsilon_decay: float = None, 
-        learning_rate: float = None, discount_factor: float = None, q_init_value: float = None, **kwargs: Any,
+        self,
+        env: CityLearnEnv,
+        epsilon: float = None,
+        minimum_epsilon: float = None,
+        epsilon_decay: float = None,
+        learning_rate: float = None,
+        discount_factor: float = None,
+        q_init_value: float = None,
+        **kwargs: Any,
     ):
         super().__init__(env, **kwargs)
         self.epsilon = 1.0 if epsilon is None else epsilon
@@ -47,13 +55,15 @@ class TabularQLearning(Agent):
         self.q, self.q_exploration, self.q_exploitation = self.__initialize_q()
         self.__explored = False
 
-    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
+    def predict(
+        self, observations: List[List[float]], deterministic: bool = None
+    ) -> List[List[float]]:
         """Provide actions for current time step.
 
         If `deterministic` = True or, randomly generated number is greater than `epsilon`, return
-        deterministic action from Q-Table i.e. action with max Q-value for given observations 
+        deterministic action from Q-Table i.e. action with max Q-value for given observations
         otherwise, return randomly sampled action.
-        
+
         Parameters
         ----------
         observations: List[List[float]]
@@ -66,26 +76,32 @@ class TabularQLearning(Agent):
         actions: List[List[float]]
             Action values
         """
-        
+
         deterministic = False if deterministic is None else deterministic
         actions = None
-        seed = self.random_seed if self.random_seed is None else self.random_seed + self.time_step
+        seed = (
+            self.random_seed
+            if self.random_seed is None
+            else self.random_seed + self.time_step
+        )
         np.random.seed(seed)
-        
 
         if deterministic or np.random.random() > self.epsilon:
             # Use q-function to decide action
             actions = self.__exploit(observations)
             self.__explored = False
-        
+
         else:
             # Explore random action
             actions = [[s.sample()] for s in self.action_space]
             self.__explored = True
 
         # exponential decay
-        episode = int(self.time_step/self.episode_time_steps)
-        self.epsilon = max(self.minimum_epsilon, self.epsilon_init*np.exp(-self.epsilon_decay*episode))
+        episode = int(self.time_step / self.episode_time_steps)
+        self.epsilon = max(
+            self.minimum_epsilon,
+            self.epsilon_init * np.exp(-self.epsilon_decay * episode),
+        )
 
         self.actions = actions
         self.next_time_step()
@@ -93,7 +109,7 @@ class TabularQLearning(Agent):
 
     def __exploit(self, observations: List[List[float]]) -> List[List[float]]:
         """Select deterministic actions from Q-Table i.e. action with max Q-value for given observations."""
-        
+
         actions = []
 
         for i, o in enumerate(observations):
@@ -101,16 +117,22 @@ class TabularQLearning(Agent):
 
             try:
                 a = np.nanargmax(self.q[i][o])
-            
+
             except ValueError:
                 # when all values for observation are still NaN
                 a = self.action_space[i].sample()
 
             actions.append([a])
-        
+
         return actions
 
-    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]]):
+    def update(
+        self,
+        observations: List[List[float]],
+        actions: List[List[float]],
+        reward: List[float],
+        next_observations: List[List[float]],
+    ):
         r"""Update Q-Table using Bellman equation.
 
         Parameters
@@ -126,21 +148,25 @@ class TabularQLearning(Agent):
         """
 
         # Compute temporal difference target and error to udpate q-function
-        
-        for i, (o, a, r, n) in enumerate(zip(observations, actions, reward, next_observations)):
+
+        for i, (o, a, r, n) in enumerate(
+            zip(observations, actions, reward, next_observations)
+        ):
             o, n, a = o[0], n[0], a[0]
             current_q = self.q[i][o, a]
             current_q = 0.0 if math.isnan(current_q) else current_q
 
             try:
                 next_max_q = np.nanargmax(self.q[i][n])
-            
+
             except ValueError:
                 # when all values for observation are still NaN
                 next_max_q = 0.0
-            
+
             # update q
-            new_q = current_q + self.learning_rate*(r + self.discount_factor*next_max_q - current_q)
+            new_q = current_q + self.learning_rate * (
+                r + self.discount_factor * next_max_q - current_q
+            )
             self.q[i][o, a] = new_q
 
             # update exploration-exploitation count
@@ -151,15 +177,17 @@ class TabularQLearning(Agent):
 
     def __initialize_q(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Initialize all values in Q-Table with `q_init_value`."""
-        
+
         q = [None for _ in self.observation_space]
         q_exploration = [None for _ in self.observation_space]
         q_exploitation = [None for _ in self.observation_space]
 
         for i, (od, ad) in enumerate(zip(self.observation_space, self.action_space)):
-            shape = (od.n, ad.n)
-            q[i] = np.ones(shape=shape)*self.q_init_value
+            no = od.shape[0]
+            na = ad.shape[0]
+            shape = (no, na)
+            q[i] = np.ones(shape=shape) * self.q_init_value
             q_exploration[i] = np.zeros(shape=shape)
             q_exploitation[i] = np.zeros(shape=shape)
-        
+
         return q, q_exploration, q_exploitation
