@@ -738,12 +738,13 @@ class CityLearnEnv(Environment, Env):
             Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
 
+        self.next_time_step()
         actions = self._parse_actions(actions)
 
         for building, building_actions in zip(self.buildings, actions):
             building.apply_actions(**building_actions)
 
-        self.next_time_step()
+        self.update_variables()
 
         # NOTE:
         # This call to retrieve each building's observation dictionary is an expensive call especially since the observations 
@@ -822,8 +823,8 @@ class CityLearnEnv(Environment, Env):
         )
         data = data[data['level']=='district'].set_index('cost_function').to_dict('index')
         evaluation = {k: {**v, 'value': data[k]['value']} for k, v in evaluation.items()}
-        weight_sum = np.nansum([v['weight'] for _, v in evaluation.items()], dtype=float)
-        value_sum = np.nansum([v['weight']*v['value'] for _, v in evaluation.items()], dtype=float)
+        weight_sum = np.nansum([v['weight'] for _, v in evaluation.items()], dtype='float32')
+        value_sum = np.nansum([v['weight']*v['value'] for _, v in evaluation.items()], dtype='float32')
         evaluation['average_score'] = {
             'display_name': 'Score',
             'weight': None,
@@ -1030,7 +1031,6 @@ class CityLearnEnv(Environment, Env):
             building.next_time_step()
         
         super().next_time_step()
-        self.update_variables()
 
     def reset(self) -> List[List[float]]:
         r"""Reset `CityLearnEnv` to initial state.
