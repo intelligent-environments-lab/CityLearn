@@ -154,6 +154,9 @@ class EnergySimulation(TimeSeriesData):
         the heat pump is available for space cooling and if 2, the heat pump and auxilliary electric heating are available
         for space heating only. The default is to set the mode to cooling at all times. The HVAC devices are always available
         for cooling and heating storage charging irrespective of the hvac mode.
+    power_outage np.array, default: 0
+        Signal for power outage. If 0, there is no outage and building can draw energy from grid. 
+        If 1, there is a power outage and building can only use its energy resources to meet loads.
     start_time_step: int, optional
         Time step to start reading variables.
     end_time_step: int, optional
@@ -164,29 +167,30 @@ class EnergySimulation(TimeSeriesData):
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
         daylight_savings_status: Iterable[int], indoor_dry_bulb_temperature: Iterable[float], average_unmet_cooling_setpoint_difference: Iterable[float], indoor_relative_humidity: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float], solar_generation: Iterable[float], 
-        occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, start_time_step: int = None, end_time_step: int = None
+        occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.month = np.array(month, dtype = int)
         self.hour = np.array(hour, dtype = int)
         self.day_type = np.array(day_type, dtype = int)
         self.daylight_savings_status = np.array(daylight_savings_status, dtype = int)
-        self.indoor_dry_bulb_temperature = np.array(indoor_dry_bulb_temperature, dtype = float)
-        self.average_unmet_cooling_setpoint_difference = np.array(average_unmet_cooling_setpoint_difference, dtype = float)
-        self.indoor_relative_humidity = np.array(indoor_relative_humidity, dtype = float)
-        self.non_shiftable_load = np.array(non_shiftable_load, dtype = float)
-        self.dhw_demand = np.array(dhw_demand, dtype = float)
+        self.indoor_dry_bulb_temperature = np.array(indoor_dry_bulb_temperature, dtype='float32')
+        self.average_unmet_cooling_setpoint_difference = np.array(average_unmet_cooling_setpoint_difference, dtype='float32')
+        self.indoor_relative_humidity = np.array(indoor_relative_humidity, dtype = 'float32')
+        self.non_shiftable_load = np.array(non_shiftable_load, dtype = 'float32')
+        self.dhw_demand = np.array(dhw_demand, dtype = 'float32')
         
         # set space demands and check there is not cooling and heating demand at same time step
-        self.cooling_demand = np.array(cooling_demand, dtype = float)
-        self.heating_demand = np.array(heating_demand, dtype = float)
+        self.cooling_demand = np.array(cooling_demand, dtype = 'float32')
+        self.heating_demand = np.array(heating_demand, dtype = 'float32')
         assert (self.cooling_demand*self.heating_demand).sum() == 0, 'Cooling and heating in the same time step is not allowed.'
 
-        self.solar_generation = np.array(solar_generation, dtype = float)
+        self.solar_generation = np.array(solar_generation, dtype = 'float32')
 
         # optional
-        self.occupant_count = np.zeros(len(solar_generation), dtype=float) if occupant_count is None else np.array(occupant_count, dtype=float)
-        self.indoor_dry_bulb_temperature_set_point = np.zeros(len(solar_generation), dtype=float) if indoor_dry_bulb_temperature_set_point is None else np.array(indoor_dry_bulb_temperature_set_point, dtype=float)
+        self.occupant_count = np.zeros(len(solar_generation), dtype='float32') if occupant_count is None else np.array(occupant_count, dtype='float32')
+        self.indoor_dry_bulb_temperature_set_point = np.zeros(len(solar_generation), dtype='float32') if indoor_dry_bulb_temperature_set_point is None else np.array(indoor_dry_bulb_temperature_set_point, dtype='float32')
+        self.power_outage = np.zeros(len(solar_generation), dtype='float32') if power_outage is None else np.array(power_outage, dtype='float32')
 
         # set controlled variable defaults
         self.indoor_dry_bulb_temperature_without_control = self.indoor_dry_bulb_temperature.copy()
@@ -198,7 +202,7 @@ class EnergySimulation(TimeSeriesData):
         self.indoor_dry_bulb_temperature_set_point_without_control = self.indoor_dry_bulb_temperature_set_point.copy()
 
         if hvac_mode is None:
-            self.hvac_mode = np.zeros(len(solar_generation), dtype=float)*1 
+            self.hvac_mode = np.zeros(len(solar_generation), dtype='float32')*1 
         
         else:
             unique = list(set(hvac_mode))
@@ -263,22 +267,22 @@ class Weather(TimeSeriesData):
         direct_solar_irradiance_predicted_6h: Iterable[float], direct_solar_irradiance_predicted_12h: Iterable[float], direct_solar_irradiance_predicted_24h: Iterable[float], start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.outdoor_dry_bulb_temperature = np.array(outdoor_dry_bulb_temperature, dtype = float)
-        self.outdoor_relative_humidity = np.array(outdoor_relative_humidity, dtype = float)
-        self.diffuse_solar_irradiance = np.array(diffuse_solar_irradiance, dtype = float)
-        self.direct_solar_irradiance = np.array(direct_solar_irradiance, dtype = float)
-        self.outdoor_dry_bulb_temperature_predicted_6h = np.array(outdoor_dry_bulb_temperature_predicted_6h, dtype = float)
-        self.outdoor_dry_bulb_temperature_predicted_12h = np.array(outdoor_dry_bulb_temperature_predicted_12h, dtype = float)
-        self.outdoor_dry_bulb_temperature_predicted_24h = np.array(outdoor_dry_bulb_temperature_predicted_24h, dtype = float)
-        self.outdoor_relative_humidity_predicted_6h = np.array(outdoor_relative_humidity_predicted_6h, dtype = float)
-        self.outdoor_relative_humidity_predicted_12h = np.array(outdoor_relative_humidity_predicted_12h, dtype = float)
-        self.outdoor_relative_humidity_predicted_24h = np.array(outdoor_relative_humidity_predicted_24h, dtype = float)
-        self.diffuse_solar_irradiance_predicted_6h = np.array(diffuse_solar_irradiance_predicted_6h, dtype = float)
-        self.diffuse_solar_irradiance_predicted_12h = np.array(diffuse_solar_irradiance_predicted_12h, dtype = float)
-        self.diffuse_solar_irradiance_predicted_24h = np.array(diffuse_solar_irradiance_predicted_24h, dtype = float)
-        self.direct_solar_irradiance_predicted_6h = np.array(direct_solar_irradiance_predicted_6h, dtype = float)
-        self.direct_solar_irradiance_predicted_12h = np.array(direct_solar_irradiance_predicted_12h, dtype = float)
-        self.direct_solar_irradiance_predicted_24h = np.array(direct_solar_irradiance_predicted_24h, dtype = float)
+        self.outdoor_dry_bulb_temperature = np.array(outdoor_dry_bulb_temperature, dtype='float32')
+        self.outdoor_relative_humidity = np.array(outdoor_relative_humidity, dtype='float32')
+        self.diffuse_solar_irradiance = np.array(diffuse_solar_irradiance, dtype='float32')
+        self.direct_solar_irradiance = np.array(direct_solar_irradiance, dtype='float32')
+        self.outdoor_dry_bulb_temperature_predicted_6h = np.array(outdoor_dry_bulb_temperature_predicted_6h, dtype='float32')
+        self.outdoor_dry_bulb_temperature_predicted_12h = np.array(outdoor_dry_bulb_temperature_predicted_12h, dtype='float32')
+        self.outdoor_dry_bulb_temperature_predicted_24h = np.array(outdoor_dry_bulb_temperature_predicted_24h, dtype='float32')
+        self.outdoor_relative_humidity_predicted_6h = np.array(outdoor_relative_humidity_predicted_6h, dtype='float32')
+        self.outdoor_relative_humidity_predicted_12h = np.array(outdoor_relative_humidity_predicted_12h, dtype='float32')
+        self.outdoor_relative_humidity_predicted_24h = np.array(outdoor_relative_humidity_predicted_24h, dtype='float32')
+        self.diffuse_solar_irradiance_predicted_6h = np.array(diffuse_solar_irradiance_predicted_6h, dtype='float32')
+        self.diffuse_solar_irradiance_predicted_12h = np.array(diffuse_solar_irradiance_predicted_12h, dtype='float32')
+        self.diffuse_solar_irradiance_predicted_24h = np.array(diffuse_solar_irradiance_predicted_24h, dtype='float32')
+        self.direct_solar_irradiance_predicted_6h = np.array(direct_solar_irradiance_predicted_6h, dtype='float32')
+        self.direct_solar_irradiance_predicted_12h = np.array(direct_solar_irradiance_predicted_12h, dtype='float32')
+        self.direct_solar_irradiance_predicted_24h = np.array(direct_solar_irradiance_predicted_24h, dtype='float32')
 
 class Pricing(TimeSeriesData):
     """`Building` `pricing` data class.
@@ -304,10 +308,10 @@ class Pricing(TimeSeriesData):
         electricity_pricing_predicted_24h: Iterable[float], start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.electricity_pricing = np.array(electricity_pricing, dtype = float)
-        self.electricity_pricing_predicted_6h = np.array(electricity_pricing_predicted_6h, dtype = float)
-        self.electricity_pricing_predicted_12h = np.array(electricity_pricing_predicted_12h, dtype = float)
-        self.electricity_pricing_predicted_24h = np.array(electricity_pricing_predicted_24h, dtype = float)
+        self.electricity_pricing = np.array(electricity_pricing, dtype='float32')
+        self.electricity_pricing_predicted_6h = np.array(electricity_pricing_predicted_6h, dtype='float32')
+        self.electricity_pricing_predicted_12h = np.array(electricity_pricing_predicted_12h, dtype='float32')
+        self.electricity_pricing_predicted_24h = np.array(electricity_pricing_predicted_24h, dtype='float32')
 
 class CarbonIntensity(TimeSeriesData):
     """`Building` `carbon_intensity` data class.
@@ -324,4 +328,4 @@ class CarbonIntensity(TimeSeriesData):
 
     def __init__(self, carbon_intensity: Iterable[float], start_time_step: int = None, end_time_step: int = None):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.carbon_intensity = np.array(carbon_intensity, dtype = float)
+        self.carbon_intensity = np.array(carbon_intensity, dtype='float32')
