@@ -1,0 +1,7 @@
+============================
+The CityLearn Challenge 2023
+============================
+
+We are delighted to announce that `The CityLearn Challenge 2023 <https://www.aicrowd.com/challenges/neurips-2023-citylearn-challenge>`_ is accepted as a `NEURIPS 2023 Competition Track <https://neurips.cc/Conferences/2023/CompetitionTrack>`_ and will be hosted on `AIcrowd <https://www.aicrowd.com>`_.
+
+Please, visit the `competition page <https://www.aicrowd.com/challenges/neurips-2023-citylearn-challenge>`_ for more information!
