@@ -712,7 +712,7 @@ class CityLearnEnv(Environment, Env):
 
 
     def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, dict]:
-        """Apply actions to `buildings` and advance to next time step.
+        """Advance to next time step then apply actions to `buildings` and update variables.
         
         Parameters
         ----------
