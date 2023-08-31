@@ -87,6 +87,7 @@
 <span class="kn">from</span> <span class="nn">gym</span> <span class="kn">import</span> <span class="n">ActionWrapper</span><span class="p">,</span> <span class="n">ObservationWrapper</span><span class="p">,</span> <span class="n">RewardWrapper</span><span class="p">,</span> <span class="n">spaces</span><span class="p">,</span> <span class="n">Wrapper</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
+<span class="kn">from</span> <span class="nn">citylearn.building</span> <span class="kn">import</span> <span class="n">Building</span>
 
 <div class="viewcode-block" id="NormalizedObservationWrapper"><a class="viewcode-back" href="../../api/citylearn.wrappers.html#citylearn.wrappers.NormalizedObservationWrapper">[docs]</a><span class="k">class</span> <span class="nc">NormalizedObservationWrapper</span><span class="p">(</span><span class="n">ObservationWrapper</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for observations min-max and periodic normalization.</span>
@@ -103,7 +104,58 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shared_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.</span>
+<span class="sd">        </span>
+<span class="sd">        Includes extra three observations added during cyclic transformation of :code:`hour`, :code:`day_type` and :code:`month`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">shared_observations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">periodic_observation_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Building</span><span class="o">.</span><span class="n">get_periodic_observation_metadata</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">periodic_observation_names</span><span class="p">:</span>
+                <span class="n">shared_observations</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">o</span><span class="si">}</span><span class="s1">_cos&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">o</span><span class="si">}</span><span class="s1">_sin&#39;</span><span class="p">]</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shared_observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">shared_observations</span>
     
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">observation_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Names of returned observations.</span>
+
+<span class="sd">        Includes extra three observations added during cyclic transformation of :code:`hour`, :code:`day_type` and :code:`month`.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        If `central_agent` is True, a list of 1 sublist containing all building observation names is returned in the same order as `buildings`. </span>
+<span class="sd">        The `shared_observations` names are only included in the first building&#39;s observation names. If `central_agent` is False, a list of sublists </span>
+<span class="sd">        is returned where each sublist is a list of 1 building&#39;s observation names and the sublist in the same order as `buildings`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
+            <span class="n">observation_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">observation_names</span><span class="p">:</span>
+                        <span class="n">observation_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                    
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+            <span class="n">observation_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">observation_names</span><span class="p">]</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">observation_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">observation_names</span>
+
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns observation space for normalized observations.&quot;&quot;&quot;</span>
@@ -118,17 +170,15 @@
                 <span class="n">s</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">estimate_observation_space</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="n">o</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">lv</span><span class="p">,</span> <span class="n">hv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">high</span><span class="p">):</span>
-                    <span class="n">k_p</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_sin&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_cos&#39;</span><span class="p">)</span>
-                    
-                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k_p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">lv</span><span class="p">,</span> <span class="n">hv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">low</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">high</span><span class="p">):</span>                    
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">low_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lv</span><span class="p">)</span>
                         <span class="n">high_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hv</span><span class="p">)</span>
 
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
 
-                    <span class="k">if</span> <span class="n">k_p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">shared_observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
                     
                     <span class="k">else</span><span class="p">:</span>
@@ -150,15 +200,13 @@
 
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">buildings</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">k_p</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_sin&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_cos&#39;</span><span class="p">)</span>
-                    
-                    <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">k_p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">norm_observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
 
-                    <span class="k">if</span> <span class="n">k_p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">shared_observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
                     
                     <span class="k">else</span><span class="p">:</span>
@@ -277,16 +325,13 @@
 
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bin_sizes</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    
-                    <span class="n">k_p</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_sin&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;_cos&#39;</span><span class="p">)</span>
-                    
-                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k_p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">bin_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
 
-                    <span class="k">if</span> <span class="n">k_p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">shared_observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
 
                     <span class="k">else</span><span class="p">:</span>

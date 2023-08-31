@@ -229,9 +229,27 @@ transformations and then all observations are min-max normalized between 0 and 1
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="citylearn.wrappers.NormalizedObservationWrapper.observation_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observation_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.wrappers.NormalizedObservationWrapper.observation_names" title="Permalink to this definition"></a></dt>
+<dd><p>Names of returned observations.</p>
+<p>Includes extra three observations added during cyclic transformation of <code class="code docutils literal notranslate"><span class="pre">hour</span></code>, <code class="code docutils literal notranslate"><span class="pre">day_type</span></code> and <code class="code docutils literal notranslate"><span class="pre">month</span></code>.</p>
+<p class="rubric">Notes</p>
+<p>If <cite>central_agent</cite> is True, a list of 1 sublist containing all building observation names is returned in the same order as <cite>buildings</cite>.
+The <cite>shared_observations</cite> names are only included in the first building’s observation names. If <cite>central_agent</cite> is False, a list of sublists
+is returned where each sublist is a list of 1 building’s observation names and the sublist in the same order as <cite>buildings</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="citylearn.wrappers.NormalizedObservationWrapper.observation_space">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observation_space</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">gym.spaces.box.Box</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.wrappers.NormalizedObservationWrapper.observation_space" title="Permalink to this definition"></a></dt>
 <dd><p>Returns observation space for normalized observations.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.wrappers.NormalizedObservationWrapper.shared_observations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shared_observations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.wrappers.NormalizedObservationWrapper.shared_observations" title="Permalink to this definition"></a></dt>
+<dd><p>Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.</p>
+<p>Includes extra three observations added during cyclic transformation of <code class="code docutils literal notranslate"><span class="pre">hour</span></code>, <code class="code docutils literal notranslate"><span class="pre">day_type</span></code> and <code class="code docutils literal notranslate"><span class="pre">month</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
