@@ -33,7 +33,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
 
         for o in self.env.shared_observations:
             if o in periodic_observation_names:
-                shared_observations += [f'{o}_sin', f'{o}_cos']
+                shared_observations += [f'{o}_cos', f'{o}_sin']
             
             else:
                 shared_observations.append(o)
