@@ -143,6 +143,9 @@ class Environment:
     episode_tracker: EpisodeTracker, optional
         :py:class:`citylearn.base.EpisodeTracker` object used to keep track of current episode time steps for reading observations from data files.
     """
+
+    DEFAULT_SECONDS_PER_TIME_STEP = 3600.0
+    DEFAULT_RANDOM_SEED_RANGE = (0, 100_000_000)
     
     def __init__(self, seconds_per_time_step: float = None, random_seed: int = None, episode_tracker: EpisodeTracker = None):
         self.seconds_per_time_step = seconds_per_time_step
@@ -184,13 +187,13 @@ class Environment:
     
     @random_seed.setter
     def random_seed(self, random_seed: int):
-        random_seed = random.randint(0, 100_000_000) if random_seed is None else random_seed
+        random_seed = random.randint(*self.DEFAULT_RANDOM_SEED_RANGE) if random_seed is None else random_seed
         self.__random_seed = random_seed
 
     @seconds_per_time_step.setter
     def seconds_per_time_step(self, seconds_per_time_step: float):
         if seconds_per_time_step is None:
-            self.seconds_per_time_step = 3600.0
+            self.seconds_per_time_step = self.DEFAULT_SECONDS_PER_TIME_STEP
         else:
             assert seconds_per_time_step >= 1, 'seconds_per_time_step >= 1'
             self.__seconds_per_time_step = seconds_per_time_step
