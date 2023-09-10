@@ -7,6 +7,7 @@ from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.dynamics import Dynamics, LSTMDynamics
 from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank, ZERO_DIVISION_CAPACITY
+from citylearn.grid_resilience import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
 class Building(Environment):
@@ -55,6 +56,8 @@ class Building(Environment):
     stochastic_power_outage: bool, default: False
         Whether to use a stochastic function to determine outage time steps otherwise, 
         :py:class:`citylearn.building.Building.energy_simulation.power_outage` time series is used.
+    stochastic_power_outage_model: PowerOutage, optional
+        Power outage model class used to generate stochastic power outage signals.
 
     Other Parameters
     ----------------
@@ -66,7 +69,7 @@ class Building(Environment):
         self, energy_simulation: EnergySimulation, weather: Weather, observation_metadata: Mapping[str, bool], action_metadata: Mapping[str, bool], episode_tracker: EpisodeTracker, carbon_intensity: CarbonIntensity = None, 
         pricing: Pricing = None, dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, 
         dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None,
-        maximum_temperature_delta: float = None, simulate_power_outage: bool = None, stochastic_power_outage: bool = None, **kwargs: Any
+        maximum_temperature_delta: float = None, simulate_power_outage: bool = None, stochastic_power_outage: bool = None, stochastic_power_outage_model: PowerOutage = None, **kwargs: Any
     ):  
         self.name = name
         self.dhw_storage = dhw_storage
@@ -83,6 +86,7 @@ class Building(Environment):
             random_seed=kwargs.get('randon_seed'),
             episode_tracker=episode_tracker
         )
+        self.stochastic_power_outage_model = stochastic_power_outage_model
         self.energy_simulation = energy_simulation
         self.weather = weather
         self.carbon_intensity = carbon_intensity
@@ -529,7 +533,7 @@ class Building(Environment):
                         f' cooling:, {self.cooling_device.electricity_consumption[self.time_step]},'\
                             f' heating:, {self.heating_device.electricity_consumption[self.time_step]},'\
                                 f'dhw:, {self.dhw_device.electricity_consumption[self.time_step]},'\
-                                    f'non-shift:, {self.non_shiftable_load_device.electricity_consumption[self.time_step]},'\
+                                    f'non-shiftable:, {self.non_shiftable_load_device.electricity_consumption[self.time_step]},'\
                                         f' battery:, {self.electrical_storage.electricity_consumption[self.time_step]}'
             raise e(message)
         
@@ -540,6 +544,12 @@ class Building(Environment):
         """Whether there is power outage at current time step."""
 
         return self.simulate_power_outage and bool(self.energy_simulation.power_outage[self.time_step])
+    
+    @property
+    def stochastic_power_outage_model(self) -> PowerOutage:
+        """Power outage model class used to generate stochastic power outage signals."""
+        
+        return self.__stochastic_power_outage_model
 
     @energy_simulation.setter
     def energy_simulation(self, energy_simulation: EnergySimulation):
@@ -621,6 +631,11 @@ class Building(Environment):
     @name.setter
     def name(self, name: str):
         self.__name = self.uid if name is None else name
+
+    @stochastic_power_outage_model.setter
+    def stochastic_power_outage_model(self, stochastic_power_outage_model: PowerOutage):
+        self.__stochastic_power_outage_model = PowerOutage(seconds_per_time_step=self.seconds_per_time_step)\
+            if stochastic_power_outage_model is None else stochastic_power_outage_model
 
     @simulate_power_outage.setter
     def simulate_power_outage(self, simulate_power_outage: bool):
@@ -1477,6 +1492,16 @@ class Building(Environment):
         self.__net_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__net_electricity_consumption_emission = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__net_electricity_consumption_cost = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+
+        if self.simulate_power_outage and self.stochastic_power_outage:
+            self.energy_simulation.power_outage = self.stochastic_power_outage_model.get_signals(
+                self.episode_tracker.episode_time_steps,
+                weather=self.weather
+            )
+        
+        else:
+            pass
+
         self.update_variables()
 
     def reset_dynamic_variables(self):
