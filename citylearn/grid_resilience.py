@@ -1,6 +1,7 @@
 from typing import List
 import numpy as np
 from citylearn.base import Environment
+from citylearn.data import Weather
 
 class PowerOutage:
     def __init__(self, random_seed: int = None, seconds_per_time_step: float = None):
@@ -23,7 +24,7 @@ class PowerOutage:
     def seconds_per_time_step(self, value: float):
         self.__seconds_per_time_step = Environment.DEFAULT_SECONDS_PER_TIME_STEP if value is None else value
 
-    def get(self, time_steps: int) -> np.ndarray:
+    def get_signals(self, time_steps: int, weather: Weather = None) -> np.ndarray:
         np.random.seed(self.random_seed)
         signals = np.random.choice([0, 1], size=time_steps) 
 
@@ -69,7 +70,7 @@ class ReliabilityMetricsPowerOutage(PowerOutage):
     def start_time_steps(self, value: List[float]):
         self.__start_time_steps = value
 
-    def get(self, time_steps: int) -> np.ndarray:
+    def get_signals(self, time_steps: int, weather: Weather = None) -> np.ndarray:
         np.random.seed(self.random_seed)
         days_per_year = 365.0
         seconds_per_day = 86400.0
