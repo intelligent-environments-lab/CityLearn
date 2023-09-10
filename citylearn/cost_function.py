@@ -209,7 +209,7 @@ class CostFunction:
         band: float, default = 2.0
             Comfort band above and below dry_bulb_temperature_set_point beyond 
             which occupant is assumed to be uncomfortable.
-        occupant_cunt: List[float], optional
+        occupant_count: List[float], optional
             Occupant count time series. If provided, the comfort cost is 
             evaluated for occupied time steps only.
             
@@ -272,4 +272,65 @@ class CostFunction:
             data['discomfort_delta_maximum'].tolist(),
             data['discomfort_delta_average'].tolist()
         )
+    
+    @staticmethod
+    def thermal_resilience(power_outage: List[int], **kwargs):
+        r"""Rolling percentage of discomfort time steps during power outage.
+
+        Parameters
+        ----------
+        power_outage: List[float]
+            Signal for power outage. If 0, there is no outage and building can draw energy from grid. 
+            If 1, there is a power outage and building can only use its energy resources to meet loads.
         
+        Other Parameters
+        ----------------
+        **kwargs : Any
+            Parameters parsed to :py:meth:`citylearn.CostFunction.discomfort`.
+            
+        Returns
+        -------
+        thermal_resilience: List[float]
+            Rolling proportion of occupied timesteps where the condition 
+            (dry_bulb_temperature_set_point - band) <= indoor_dry_bulb_temperature <= (dry_bulb_temperature_set_point + band) 
+            is not met during a power outage.
+        """
+
+        occupant_count = [1]*len(power_outage) if kwargs.get('occupant_count', None) is None else kwargs['occupant_count']
+        occupant_count = np.array(occupant_count, dtype='float32')
+        power_outage = np.array(power_outage, dtype='float32')
+        occupant_count[power_outage==0] = 0.0
+        kwargs['occupant_count'] = occupant_count
+        thermal_resilience = CostFunction.discomfort(**kwargs)[0]
+
+        return thermal_resilience
+    
+    @staticmethod
+    def normalized_unserved_energy(expected_energy: List[float], served_energy: List[float]):
+        r"""Proportion of unmet demand due to supply shortage e.g. power outage.
+
+        Parameters
+        ----------
+        expected_energy: List[float]
+            Total expected energy time series to be met in the absence of power outage.
+        served_energy: List[float]
+            Total delivered energy time series when considering power outage.
+        power_outage: List[float]
+            Signal for power outage. If 0, there is no outage and building can draw energy from grid. 
+            If 1, there is a power outage and building can only use its energy resources to meet loads.
+            
+        Returns
+        -------
+        normalized_unserved_energy: List[float]
+            Unmet demand.
+        """
+
+        data = pd.DataFrame({
+            'expected_energy': expected_energy,
+            'served_energy': served_energy,
+        })
+        data['unserved_energy'] = data['expected_energy'] - data['served_energy']
+        data['unserved_energy'] = data['unserved_energy'].rolling(window=data.shape[0],min_periods=1).sum()
+        data['unserved_energy'] = data['unserved_energy']/data['expected_energy'].sum()
+
+        return data['unserved_energy'].tolist()
