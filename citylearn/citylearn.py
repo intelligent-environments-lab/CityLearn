@@ -581,6 +581,12 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.energy_from_dhw_device` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_dhw_device for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
+    
+    @property
+    def energy_to_non_shiftable_load(self) -> np.ndarray:
+        """Summed `Building.energy_to_non_shiftable_load` time series, in [kWh]."""
+
+        return pd.DataFrame([b.energy_to_non_shiftable_load for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
     def energy_from_cooling_storage(self) -> np.ndarray:
@@ -807,14 +813,14 @@ class CityLearnEnv(Environment, Env):
         """
 
         evaluation = {
-            # 'electricity_consumption_total': 'Electricity consumption',
-            'carbon_emissions_total': {'display_name': 'Carbon emissions', 'weight': 0.1},
-            # 'cost_total': {'display_name': 'Cost', 'weight': 1.0},
-            'discomfort_proportion': {'display_name': 'Unmet hours', 'weight': 0.3},
-            'ramping_average': {'display_name': 'Ramping', 'weight': 0.15},
-            'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 0.15},
-            'daily_peak_average': {'display_name': 'Daily peak', 'weight': 0.15},
-            'annual_peak_average': {'display_name': 'All-time peak', 'weight': 0.15},
+            'carbon_emissions_total': {'display_name': 'Carbon emissions', 'weight': 0.05},
+            'discomfort_proportion': {'display_name': 'Unmet hours', 'weight': 0.15},
+            'ramping_average': {'display_name': 'Ramping', 'weight': 0.1},
+            'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 0.1},
+            'daily_peak_average': {'display_name': 'Daily peak', 'weight': 0.1},
+            'annual_peak_average': {'display_name': 'All-time peak', 'weight': 0.1},
+            'thermal_resilience': {'display_name': 'Thermal resilience', 'weight': 0.2},
+            'normalized_unserved_energy': {'display_name': 'Normalized_unserved_energy', 'weight': 0.2},
         }
         data = self.evaluate(
             control_condition=EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV,
@@ -879,59 +885,64 @@ class CityLearnEnv(Environment, Env):
         building_level = []
         
         for b in self.buildings:
-            unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.discomfort(
-                b.energy_simulation.indoor_dry_bulb_temperature[:self.time_step + 1], 
-                b.energy_simulation.indoor_dry_bulb_temperature_set_point[:self.time_step + 1],
-                band=comfort_band,
-                occupant_count=b.energy_simulation.occupant_count[:self.time_step + 1]
-            )
+            discomfort_kwargs = {
+                'indoor_dry_bulb_temperature': b.energy_simulation.indoor_dry_bulb_temperature[:self.time_step + 1],
+                'dry_bulb_temperature_setpoint:': b.energy_simulation.indoor_dry_bulb_temperature_set_point[:self.time_step + 1],
+                'band': comfort_band,
+                'occupant_count': b.energy_simulation.occupant_count[:self.time_step + 1],
+            }
+            unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.discomfort(**discomfort_kwargs)
             building_level += [{
                 'name': b.name,
                 'cost_function': 'electricity_consumption_total',
                 'value': CostFunction.electricity_consumption(control_net_electricity_consumption(b))[-1]/\
                     CostFunction.electricity_consumption(baseline_net_electricity_consumption(b))[-1],
-                }, {
+            }, {
                 'name': b.name,
                 'cost_function': 'zero_net_energy',
                 'value': CostFunction.zero_net_energy(control_net_electricity_consumption(b))[-1]/\
                     CostFunction.zero_net_energy(baseline_net_electricity_consumption(b))[-1],
-                }, {
+            }, {
                 'name': b.name,
                 'cost_function': 'carbon_emissions_total',
                 'value': CostFunction.carbon_emissions(control_net_electricity_consumption_emission(b))[-1]/\
                     CostFunction.carbon_emissions(baseline_net_electricity_consumption_emission(b))[-1]\
                         if sum(b.carbon_intensity.carbon_intensity) != 0 else None,
-                }, {
+            }, {
                 'name': b.name,
                 'cost_function': 'cost_total',
                 'value': CostFunction.cost(control_net_electricity_consumption_cost(b))[-1]/\
                     CostFunction.cost(baseline_net_electricity_consumption_cost(b))[-1]\
                         if sum(b.pricing.electricity_pricing) != 0 else None,
-                }, {
+            }, {
                 'name': b.name,
                 'cost_function': 'discomfort_proportion',
                 'value': unmet[-1],
-                }, {
+            }, {
                 'name': b.name,
                 'cost_function': 'discomfort_too_cold_proportion',
                 'value': too_cold[-1],
-                }, {
+            }, {
                 'name': b.name,
                 'cost_function': 'discomfort_too_hot_proportion',
                 'value': too_hot[-1],
-                }, {
+            }, {
                 'name': b.name,
                 'cost_function': 'discomfort_delta_minimum',
                 'value': minimum_delta[-1],
-                }, {
+            }, {
                 'name': b.name,
                 'cost_function': 'discomfort_delta_maximum',
                 'value': maximum_delta[-1],
-                }, {
+            }, {
                 'name': b.name,
                 'cost_function': 'discomfort_delta_average',
                 'value': average_delta[-1],
-                }]
+            }, {
+                'name': b.name,
+                'cost_function': 'thermal_resilience',
+                'value': CostFunction.thermal_resilience(power_outage=b.energy_simulation.power_outage[:self.time_step + 1], **discomfort_kwargs)[-1],
+            }]
 
         building_level = pd.DataFrame(building_level)
         building_level['level'] = 'building'
@@ -941,23 +952,32 @@ class CityLearnEnv(Environment, Env):
             'cost_function': 'ramping_average',
             'value': CostFunction.ramping(control_net_electricity_consumption(self))[-1]/\
                 CostFunction.ramping(baseline_net_electricity_consumption(self))[-1],
-            }, {
+        }, {
             'cost_function': 'daily_one_minus_load_factor_average',
             'value': CostFunction.one_minus_load_factor(control_net_electricity_consumption(self), window=24)[-1]/\
                 CostFunction.one_minus_load_factor(baseline_net_electricity_consumption(self), window=24)[-1],
-            },{
+        },{
             'cost_function': 'monthly_one_minus_load_factor_average',
             'value': CostFunction.one_minus_load_factor(control_net_electricity_consumption(self), window=730)[-1]/\
                 CostFunction.one_minus_load_factor(baseline_net_electricity_consumption(self), window=730)[-1],
-            }, {
+        }, {
             'cost_function': 'daily_peak_average',
             'value': CostFunction.peak(control_net_electricity_consumption(self), window=24)[-1]/\
                 CostFunction.peak(baseline_net_electricity_consumption(self), window=24)[-1],
-            }, {
+        }, {
             'cost_function': 'annual_peak_average',
             'value': CostFunction.peak(control_net_electricity_consumption(self), window=8760)[-1]/\
                 CostFunction.peak(baseline_net_electricity_consumption(self), window=8760)[-1],
-            }])
+        }, {
+            'cost_function': 'normalized_unserved_energy',
+            'value': CostFunction.normalized_unserved_energy(
+                expected_energy=self.cooling_demand + self.heating_demand + self.dhw_demand + self.non_shiftable_load_demand,
+                served_energy=self.energy_from_cooling_device + self.energy_from_cooling_storage\
+                    + self.energy_from_heating_device + self.energy_from_heating_storage\
+                        + self.energy_from_dhw_device + self.energy_from_dhw_storage\
+                            + self.energy_to_non_shiftable_load,
+            )    
+        }])
 
         district_level = pd.concat([district_level, building_level], ignore_index=True, sort=False)
         district_level = district_level.groupby(['cost_function'])[['value']].mean().reset_index()
@@ -1228,6 +1248,21 @@ class CityLearnEnv(Environment, Env):
             else:
                 dynamics = {m: None for m in dynamics_modes}
 
+            # set power outage model
+            if building_schema.get('stochastic_power_outage_model', None) is not None:
+                stochastic_power_outage_model_type = building_schema['stochastic_power_outage_model']['type']
+                stochastic_power_outage_model_module = '.'.join(stochastic_power_outage_model_type.split('.')[0:-1])
+                stochastic_power_outage_model_name = stochastic_power_outage_model_type.split('.')[-1]
+                stochastic_power_outage_model_constructor = getattr(
+                    importlib.import_module(stochastic_power_outage_model_module), 
+                    stochastic_power_outage_model_name
+                )
+                attributes =  building_schema['stochastic_power_outage_model'].get('attributes', {})
+                stochastic_power_outage_model = stochastic_power_outage_model_constructor(**attributes)
+            
+            else:
+                stochastic_power_outage_model = None
+
             building: Building = building_constructor(
                 energy_simulation=energy_simulation, 
                 weather=weather, 
@@ -1239,6 +1274,7 @@ class CityLearnEnv(Environment, Env):
                 seconds_per_time_step=seconds_per_time_step,
                 random_seed=random_seed,
                 episode_tracker=episode_tracker,
+                stochastic_power_outage_model=stochastic_power_outage_model,
                 **dynamics,
             )
 
