@@ -26,6 +26,7 @@ class Agent(Environment):
     def __init__(self, env: CityLearnEnv, **kwargs: Any):
         self.env = env
         self.observation_names = self.env.observation_names
+        self.action_names = self.env.action_names
         self.observation_space = self.env.observation_space
         self.action_space = self.env.action_space
         self.episode_time_steps = self.env.time_steps
@@ -42,6 +43,12 @@ class Agent(Environment):
         """Names of active observations that can be used to map observation values."""
 
         return self.__observation_names
+    
+    @property
+    def action_names(self) -> List[List[str]]:
+        """Names of active actions that can be used to map action values."""
+
+        return self.__action_names
 
     @property
     def observation_space(self) -> List[spaces.Box]:
@@ -80,6 +87,10 @@ class Agent(Environment):
     @observation_names.setter
     def observation_names(self, observation_names: List[List[str]]):
         self.__observation_names = observation_names
+
+    @action_names.setter
+    def action_names(self, action_names: List[List[str]]):
+        self.__action_names = action_names
 
     @observation_space.setter
     def observation_space(self, observation_space: List[spaces.Box]):
