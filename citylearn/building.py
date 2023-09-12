@@ -6,7 +6,7 @@ import torch
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.dynamics import Dynamics, LSTMDynamics
-from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank, ZERO_DIVISION_CAPACITY
+from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank, TOLERANCE, ZERO_DIVISION_CAPACITY
 from citylearn.grid_resilience import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
@@ -308,13 +308,7 @@ class Building(Environment):
 
     @property
     def net_electricity_consumption(self) -> np.ndarray:
-        """net electricity consumption time series, in [kWh]. 
-        
-        Notes
-        -----
-        net_electricity_consumption = `cooling_electricity_consumption` + `heating_electricity_consumption` 
-        + `dhw_electricity_consumption` + `electrical_storage_electricity_consumption` + `non_shiftable_load_demand` + `solar_generation`
-        """
+        """Net electricity consumption time series, in [kWh]."""
 
         return self.__net_electricity_consumption[:self.time_step + 1]
 
@@ -523,19 +517,16 @@ class Building(Environment):
         )
         capacity = capacity if self.power_outage else np.inf
 
-        try:
-            assert capacity >= 0.0
-        
-        except AssertionError as e:
-            message = 'downward_electrical_flexibility must be >= 0.0!'\
-                f'time step:, {self.time_step}, outage:, {self.power_outage}, capacity:, {capacity},'\
-                    f' solar:, {abs(self.solar_generation[self.time_step])},'\
-                        f' cooling:, {self.cooling_device.electricity_consumption[self.time_step]},'\
-                            f' heating:, {self.heating_device.electricity_consumption[self.time_step]},'\
-                                f'dhw:, {self.dhw_device.electricity_consumption[self.time_step]},'\
-                                    f'non-shiftable:, {self.non_shiftable_load_device.electricity_consumption[self.time_step]},'\
-                                        f' battery:, {self.electrical_storage.electricity_consumption[self.time_step]}'
-            raise e(message)
+        message = 'downward_electrical_flexibility must be >= 0.0!'\
+            f'time step:, {self.time_step}, outage:, {self.power_outage}, capacity:, {capacity},'\
+                f' solar:, {abs(self.solar_generation[self.time_step])},'\
+                    f' cooling:, {self.cooling_device.electricity_consumption[self.time_step]},'\
+                        f' heating:, {self.heating_device.electricity_consumption[self.time_step]},'\
+                            f'dhw:, {self.dhw_device.electricity_consumption[self.time_step]},'\
+                                f'non-shiftable:, {self.non_shiftable_load_device.electricity_consumption[self.time_step]},'\
+                                    f' battery:, {self.electrical_storage.electricity_consumption[self.time_step]}'
+        assert capacity >= 0.0 or abs(capacity) < TOLERANCE, message
+        capacity = max(0.0, capacity)
         
         return capacity
     
@@ -634,8 +625,7 @@ class Building(Environment):
 
     @stochastic_power_outage_model.setter
     def stochastic_power_outage_model(self, stochastic_power_outage_model: PowerOutage):
-        self.__stochastic_power_outage_model = PowerOutage(seconds_per_time_step=self.seconds_per_time_step)\
-            if stochastic_power_outage_model is None else stochastic_power_outage_model
+        self.__stochastic_power_outage_model = PowerOutage() if stochastic_power_outage_model is None else stochastic_power_outage_model
 
     @simulate_power_outage.setter
     def simulate_power_outage(self, simulate_power_outage: bool):
@@ -900,11 +890,13 @@ class Building(Environment):
         storage_output = self.energy_from_cooling_storage[self.time_step]
         max_electric_power = self.downward_electrical_flexibility
         max_device_output = self.cooling_device.get_max_output_power(temperature, heating=False, max_electric_power=max_electric_power)
-        assert self.power_outage or demand <= max_device_output, 'demand is greater than cooling_device max output.'
+        # print('timestep:', self.time_step, 'building:', self.name, 'outage:', self.power_outage, 'demand:', demand, 'output:', max_device_output, 'check:', demand <= max_device_output)
+        assert self.power_outage or demand <= max_device_output or abs(demand - max_device_output) < TOLERANCE,\
+            'demand is greater than cooling_device max output.'
         device_output = min(demand - storage_output, max_device_output)
         self.__energy_from_cooling_device[self.time_step] = device_output
         electricity_consumption = self.cooling_device.get_input_power(device_output, temperature, heating=False)
-        # print('demand:', demand, 'temperature:', temperature, 'storage_capacity:', self.cooling_storage.capacity, 'prev_soc:', self.cooling_storage.soc[self.time_step - 1], 'curr_soc:', self.cooling_storage.soc[self.time_step], 'storage_output:', storage_output, 'max_electric_power:', max_electric_power, 'max_device_output:', max_device_output, 'device_output:', device_output, 'consumption:', electricity_consumption)
+        # print('timestep:', self.time_step, 'bldg:', self.name, 'demand:', demand, 'temperature:', temperature, 'storage_capacity:', self.cooling_storage.capacity, 'prev_soc:', self.cooling_storage.soc[self.time_step - 1], 'curr_soc:', self.cooling_storage.soc[self.time_step], 'storage_output:', storage_output, 'max_electric_power:', max_electric_power, 'max_device_output:', max_device_output, 'device_output:', device_output, 'consumption:', electricity_consumption)
         self.cooling_device.update_electricity_consumption(electricity_consumption)
 
     def update_cooling_storage(self, action: float):
@@ -946,7 +938,8 @@ class Building(Environment):
         max_electric_power = self.downward_electrical_flexibility
         max_device_output = self.heating_device.get_max_output_power(temperature, heating=True, max_electric_power=max_electric_power)\
             if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power(max_electric_power=max_electric_power)
-        assert self.power_outage or demand <= max_device_output, 'demand is greater than heating_device max output.'
+        assert self.power_outage or demand <= max_device_output or abs(demand - max_device_output) < TOLERANCE,\
+            'demand is greater than heating_device max output.'
         device_output = min(demand - storage_output, max_device_output)
         self.__energy_from_heating_device[self.time_step] = device_output
         electricity_consumption = self.heating_device.get_input_power(device_output, temperature, heating=True)\
@@ -989,7 +982,9 @@ class Building(Environment):
         max_electric_power = self.downward_electrical_flexibility
         max_device_output = self.dhw_device.get_max_output_power(temperature, heating=True, max_electric_power=max_electric_power)\
             if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_max_output_power(max_electric_power=max_electric_power)
-        assert self.power_outage or demand <= max_device_output, 'demand is greater than dhw_device max output.'
+        # print('timestep:', self.time_step, 'building:', self.name, 'outage:', self.power_outage, 'demand:', demand, 'output:', max_device_output, 'check:', demand <= max_device_output)
+        assert self.power_outage or demand <= max_device_output or abs(demand - max_device_output) < TOLERANCE,\
+            'demand is greater than dhw_device max output.'
         device_output = min(demand - storage_output, max_device_output)
         self.__energy_from_dhw_device[self.time_step] = device_output
         electricity_consumption = self.dhw_device.get_input_power(device_output, temperature, heating=True)\
@@ -1496,6 +1491,7 @@ class Building(Environment):
         if self.simulate_power_outage and self.stochastic_power_outage:
             self.energy_simulation.power_outage = self.stochastic_power_outage_model.get_signals(
                 self.episode_tracker.episode_time_steps,
+                seconds_per_time_step=self.seconds_per_time_step,
                 weather=self.weather
             )
         
