@@ -96,7 +96,10 @@ class TimeSeriesData:
         is useful for selecting episode-specific observation."""
         
         # not the most elegant solution tbh
-        variable = self.__dict__[f'_{name}']
+        try:
+            variable = self.__dict__[f'_{name}']
+        except KeyError:
+            raise AttributeError(f'_{name}')
         
         if isinstance(variable, Iterable):
             start_time_step = self.start_time_step if start_time_step is None else start_time_step
