@@ -299,14 +299,14 @@ class CostFunction:
         occupant_count = [1]*len(power_outage) if kwargs.get('occupant_count', None) is None else kwargs['occupant_count']
         occupant_count = np.array(occupant_count, dtype='float32')
         power_outage = np.array(power_outage, dtype='float32')
-        occupant_count[power_outage==0] = 0.0
+        occupant_count[power_outage==0.0] = 0.0
         kwargs['occupant_count'] = occupant_count
         thermal_resilience = CostFunction.discomfort(**kwargs)[0]
 
         return thermal_resilience
     
     @staticmethod
-    def normalized_unserved_energy(expected_energy: List[float], served_energy: List[float]):
+    def normalized_unserved_energy(expected_energy: List[float], served_energy: List[float], power_outage: List[int] = None):
         r"""Proportion of unmet demand due to supply shortage e.g. power outage.
 
         Parameters
@@ -315,9 +315,11 @@ class CostFunction:
             Total expected energy time series to be met in the absence of power outage.
         served_energy: List[float]
             Total delivered energy time series when considering power outage.
-        power_outage: List[float]
+        power_outage: List[float], optional
             Signal for power outage. If 0, there is no outage and building can draw energy from grid. 
-            If 1, there is a power outage and building can only use its energy resources to meet loads.
+            If >= 1, there is a power outage and building can only use its energy resources to meet loads.
+            If provided, the cost funtion is only calculated for time steps when there is an outage 
+            otherwise all time steps are considered.
             
         Returns
         -------
@@ -328,9 +330,11 @@ class CostFunction:
         data = pd.DataFrame({
             'expected_energy': expected_energy,
             'served_energy': served_energy,
+            'power_outage': [1]*len(served_energy) if power_outage is None else power_outage,
         })
         data['unserved_energy'] = data['expected_energy'] - data['served_energy']
-        data['unserved_energy'] = data['unserved_energy'].rolling(window=data.shape[0],min_periods=1).sum()
+        data.loc[data['power_outage']==0, ('unserved_energy', 'expected_energy')] = (0.0, 0.0)
+        data['unserved_energy'] = data['unserved_energy'].rolling(window=data.shape[0], min_periods=1).sum()
         data['unserved_energy'] = data['unserved_energy']/data['expected_energy'].sum()
 
         return data['unserved_energy'].tolist()
