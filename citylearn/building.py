@@ -906,14 +906,18 @@ class Building(Environment):
         storage_output = self.energy_from_cooling_storage[self.time_step]
         max_electric_power = self.downward_electrical_flexibility
         max_device_output = self.cooling_device.get_max_output_power(temperature, heating=False, max_electric_power=max_electric_power)
-        # print('timestep:', self.time_step, 'building:', self.name, 'outage:', self.power_outage, 'demand:', demand, 'output:', max_device_output, 'check:', demand <= max_device_output)
-        assert self.power_outage or demand <= max_device_output or abs(demand - max_device_output) < TOLERANCE,\
-            'demand is greater than cooling_device max output.'
+        self.___demand_limit_check('cooling', demand, max_device_output)
         device_output = min(demand - storage_output, max_device_output)
         self.__energy_from_cooling_device[self.time_step] = device_output
         electricity_consumption = self.cooling_device.get_input_power(device_output, temperature, heating=False)
         # print('timestep:', self.time_step, 'bldg:', self.name, 'demand:', demand, 'temperature:', temperature, 'storage_capacity:', self.cooling_storage.capacity, 'prev_soc:', self.cooling_storage.soc[self.time_step - 1], 'curr_soc:', self.cooling_storage.soc[self.time_step], 'storage_output:', storage_output, 'max_electric_power:', max_electric_power, 'max_device_output:', max_device_output, 'device_output:', device_output, 'consumption:', electricity_consumption)
         self.cooling_device.update_electricity_consumption(electricity_consumption)
+
+    def ___demand_limit_check(self, end_use: str, demand: float, max_device_output: float):
+            message = f'timestep: {self.time_step} building: {self.name} outage: {self.power_outage} demand: {demand}'\
+                f'output: {max_device_output} difference: {demand - max_device_output} check: {demand <= max_device_output}'
+            assert self.power_outage or demand <= max_device_output or abs(demand - max_device_output) < TOLERANCE,\
+            f'demand is greater than {end_use}_device max output | {message}'
 
     def update_cooling_storage(self, action: float):
         r"""Charge/discharge `cooling_storage` for current time step.
@@ -954,8 +958,7 @@ class Building(Environment):
         max_electric_power = self.downward_electrical_flexibility
         max_device_output = self.heating_device.get_max_output_power(temperature, heating=True, max_electric_power=max_electric_power)\
             if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power(max_electric_power=max_electric_power)
-        assert self.power_outage or demand <= max_device_output or abs(demand - max_device_output) < TOLERANCE,\
-            'demand is greater than heating_device max output.'
+        self.___demand_limit_check('heating', demand, max_device_output)
         device_output = min(demand - storage_output, max_device_output)
         self.__energy_from_heating_device[self.time_step] = device_output
         electricity_consumption = self.heating_device.get_input_power(device_output, temperature, heating=True)\
@@ -998,9 +1001,7 @@ class Building(Environment):
         max_electric_power = self.downward_electrical_flexibility
         max_device_output = self.dhw_device.get_max_output_power(temperature, heating=True, max_electric_power=max_electric_power)\
             if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_max_output_power(max_electric_power=max_electric_power)
-        # print('timestep:', self.time_step, 'building:', self.name, 'outage:', self.power_outage, 'demand:', demand, 'output:', max_device_output, 'check:', demand <= max_device_output)
-        assert self.power_outage or demand <= max_device_output or abs(demand - max_device_output) < TOLERANCE,\
-            'demand is greater than dhw_device max output.'
+        self.___demand_limit_check('dhw', demand, max_device_output)
         device_output = min(demand - storage_output, max_device_output)
         self.__energy_from_dhw_device[self.time_step] = device_output
         electricity_consumption = self.dhw_device.get_input_power(device_output, temperature, heating=True)\

@@ -2,8 +2,8 @@ from typing import Any, Iterable, List, Mapping, Union
 import numpy as np
 from citylearn.base import Environment
 np.seterr(divide='ignore', invalid='ignore')
-TOLERANCE = 0.000001
-ZERO_DIVISION_CAPACITY = TOLERANCE
+TOLERANCE = 0.0001
+ZERO_DIVISION_CAPACITY = 0.000001
 
 class Device(Environment):
     r"""Base device class.
