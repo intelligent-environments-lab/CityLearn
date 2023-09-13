@@ -19,7 +19,7 @@ from citylearn.__init__ import __version__
 # -- Project information -----------------------------------------------------
 
 project = 'CityLearn'
-copyright = '2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy'
+copyright = '2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy'
 author = 'Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy'
 
 # The full version, including alpha/beta/rc tags
@@ -69,7 +69,7 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 #html context
 html_context = {
