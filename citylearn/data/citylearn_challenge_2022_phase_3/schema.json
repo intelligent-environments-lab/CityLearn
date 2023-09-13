@@ -147,6 +147,10 @@
     "electricity_pricing_predicted_24h": {
       "active": true,
       "shared_in_central_agent": false
+    },
+    "power_outage": {
+      "active": false,
+      "shared_in_central_agent": false
     }
   },
   "actions": {
