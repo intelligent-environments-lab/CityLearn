@@ -351,7 +351,8 @@ class MARLISA(SAC):
         if self.time_step > self.start_regression_time_step:
             agent_count = len(self.action_dimension)
             action_order = list(range(agent_count))
-            np.random.shuffle(action_order)
+            nprs = np.random.RandomState(int(self.random_seed + self.time_step))
+            nprs.shuffle(action_order)
             expected_demand = [self.predict_demand(i, o, a) for i, (o, a) in enumerate(zip(observations, actions))]
             coordination_variables = [[
                 (sum(expected_demand) - expected_demand[i])/self.total_coefficient,

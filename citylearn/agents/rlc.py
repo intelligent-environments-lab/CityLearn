@@ -202,7 +202,6 @@ class RLC(Agent):
     @Agent.random_seed.setter
     def random_seed(self, seed: int):
         Agent.random_seed.fset(self, seed)
-        np.random.seed(self.random_seed)
         torch.manual_seed(self.random_seed)
 
     def set_encoders(self) -> List[List[Encoder]]:

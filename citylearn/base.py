@@ -119,8 +119,8 @@ class EpisodeTracker:
 
         if random_episode_split:
             seed = int(random_seed*(self.episode + 1))
-            np.random.seed(seed)
-            ix = np.random.choice(len(splits) - 1)
+            nprs = np.random.RandomState(seed)
+            ix = nprs.choice(len(splits) - 1)
 
         else:
             ix = self.episode%len(splits)
