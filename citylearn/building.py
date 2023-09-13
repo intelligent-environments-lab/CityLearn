@@ -7,7 +7,7 @@ from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
 from citylearn.dynamics import Dynamics, LSTMDynamics
 from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank, TOLERANCE, ZERO_DIVISION_CAPACITY
-from citylearn.grid_resilience import PowerOutage
+from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
 class Building(Environment):
