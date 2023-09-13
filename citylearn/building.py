@@ -508,6 +508,13 @@ class Building(Environment):
     
     @property
     def downward_electrical_flexibility(self) -> float:
+        """Available distributed energy resource capacity to satisfy electric loads while considering power outage at current time step.
+        
+        It is the sum of solar generation and any discharge from electrical storage, less electricity consumption by cooling, heating, 
+        dhw and non-shfitable load devices as well as charging electrical storage. When there is no power outage, the returned value 
+        is `np.inf`.
+        """
+
         capacity = abs(self.solar_generation[self.time_step]) - (
             self.cooling_device.electricity_consumption[self.time_step] 
             + self.heating_device.electricity_consumption[self.time_step] 
@@ -807,6 +814,14 @@ class Building(Environment):
         dhw_storage_action: float = None, electrical_storage_action: float = None
     ):
         r"""Update cooling and heating demand for next timestep and charge/discharge storage devices.
+
+        The order of action execution is dependent on polarity of the storage actions. If the electrical 
+        storage is to be discharged, its action is executed first before all other actions. Likewise, if 
+        the storage for an end-use is to be discharged, the storage action is executed before the control 
+        action for the end-use electric device. Discharging the storage devices before fulfilling thermal 
+        and non-shiftable loads ensures that the discharged energy is considered when allocating electricity 
+        consumption to meet building loads. Likewise, meeting building loads before charging storage devices 
+        ensures that comfort is met before attempting to shift loads.
 
         Parameters
         ----------
