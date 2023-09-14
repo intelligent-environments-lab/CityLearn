@@ -1233,6 +1233,10 @@ class Building(Environment):
                 low_limit[key] = 0.0
                 high_limit[key] = self.dhw_device.nominal_power
 
+            elif key == 'power_outage':
+                low_limit[key] = 0.0
+                high_limit[key] = 1.0
+
             elif periodic_normalization and key in periodic_observations:
                 pn = PeriodicNormalization(max(periodic_observations[key]))
                 x_sin, x_cos = pn*np.array(list(periodic_observations[key]))
