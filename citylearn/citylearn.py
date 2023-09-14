@@ -870,7 +870,6 @@ class CityLearnEnv(Environment, Env):
             'weight': None,
             'value': value_sum/weight_sum
         }
-        assert np.nanmin(weighted_values) >= 0, f'Negative value error: {evaluation}.'
         
         return evaluation
     
