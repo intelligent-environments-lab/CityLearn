@@ -175,6 +175,10 @@
     "indoor_dry_bulb_temperature_delta": {
       "active": true,
       "shared_in_central_agent": false
+    },
+    "power_outage": {
+      "active": false,
+      "shared_in_central_agent": false
     }
   },
   "actions": {

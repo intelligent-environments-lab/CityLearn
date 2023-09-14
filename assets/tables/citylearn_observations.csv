@@ -43,4 +43,5 @@
 "Building",":code:`heating_electricity_consumption`","Runtime calculation","kWh",":code:`heating_device` net electricity consumption in meeting :code:`heating_demand` and :code:`heating_storage` demand."
 "Building",":code:`dhw_electricity_consumption`","Runtime calculation","kWh",":code:`dhw_device` net electricity consumption in meeting :code:`dhw_demand` and :code:`dhw_storage` demand."
 "Building",":code:`indoor_dry_bulb_temperature_set_point`",":file:`building_id.csv`","C","Zone volume-weighted average building dry bulb temperature set point."
-"Building",":code:`indoor_dry_bulb_temperature_delta`",":file:`building_id.csv`/Runtime calculation","C","Ansolute difference between :code:`indoor_dry_bulb_temperature` and :code:`indoor_dry_bulb_temperature_set_point` observations."
+"Building",":code:`indoor_dry_bulb_temperature_delta`",":file:`building_id.csv`/Runtime calculation","C","Absolute difference between :code:`indoor_dry_bulb_temperature` and :code:`indoor_dry_bulb_temperature_set_point` observations."
+"Building",":code:`power_outage`",":file:`building_id.csv`/Runtime calculation","-","Integer signal indicating power outage at time step (1) or not (0)."

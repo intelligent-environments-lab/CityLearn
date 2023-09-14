@@ -70,10 +70,10 @@ class TabularQLearning(Agent):
         deterministic = False if deterministic is None else deterministic
         actions = None
         seed = self.random_seed if self.random_seed is None else self.random_seed + self.time_step
-        np.random.seed(seed)
+        nprs = np.random.RandomState(seed)
         
 
-        if deterministic or np.random.random() > self.epsilon:
+        if deterministic or nprs.random() > self.epsilon:
             # Use q-function to decide action
             actions = self.__exploit(observations)
             self.__explored = False
