@@ -3,6 +3,7 @@ from typing import List, Mapping
 from gym import ActionWrapper, ObservationWrapper, RewardWrapper, spaces, Wrapper
 import numpy as np
 from citylearn.citylearn import CityLearnEnv
+from citylearn.building import Building
 
 class NormalizedObservationWrapper(ObservationWrapper):
     """Wrapper for observations min-max and periodic normalization.
@@ -19,7 +20,58 @@ class NormalizedObservationWrapper(ObservationWrapper):
     def __init__(self, env: CityLearnEnv) -> None:
         super().__init__(env)
         self.env: CityLearnEnv
+
+    @property
+    def shared_observations(self) -> List[str]:
+        """Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
+        
+        Includes extra three observations added during cyclic transformation of :code:`hour`, :code:`day_type` and :code:`month`.
+        """
+
+        shared_observations = []
+        periodic_observation_names = list(Building.get_periodic_observation_metadata().keys())
+
+        for o in self.env.shared_observations:
+            if o in periodic_observation_names:
+                shared_observations += [f'{o}_cos', f'{o}_sin']
+            
+            else:
+                shared_observations.append(o)
+
+        return shared_observations
     
+    @property
+    def observation_names(self) -> List[List[str]]:
+        """Names of returned observations.
+
+        Includes extra three observations added during cyclic transformation of :code:`hour`, :code:`day_type` and :code:`month`.
+
+        Notes
+        -----
+        If `central_agent` is True, a list of 1 sublist containing all building observation names is returned in the same order as `buildings`. 
+        The `shared_observations` names are only included in the first building's observation names. If `central_agent` is False, a list of sublists 
+        is returned where each sublist is a list of 1 building's observation names and the sublist in the same order as `buildings`.
+        """
+
+        if self.env.central_agent:
+            observation_names = []
+
+            for i, b in enumerate(self.env.buildings):
+                for k, _ in b.observations(normalize=True, periodic_normalization=True).items():
+                    if i == 0 or k not in self.shared_observations or k not in observation_names:
+                        observation_names.append(k)
+                    
+                    else:
+                        pass
+
+            observation_names = [observation_names]
+        
+        else:
+            observation_names = [list(b.observations(normalize=True, periodic_normalization=True).keys()) for b in self.env.buildings]
+
+        return observation_names
+
+
     @property
     def observation_space(self) -> List[spaces.Box]:
         """Returns observation space for normalized observations."""
@@ -34,17 +86,15 @@ class NormalizedObservationWrapper(ObservationWrapper):
                 s = b.estimate_observation_space(normalize=True)
                 o = b.observations(normalize=True, periodic_normalization=True)
 
-                for k, lv, hv in zip(o, s.low, s.high):
-                    k_p = k.rstrip('_sin').rstrip('_cos')
-                    
-                    if i == 0 or k_p not in self.env.shared_observations or k not in shared_observations:
+                for k, lv, hv in zip(o, s.low, s.high):                    
+                    if i == 0 or k not in self.shared_observations or k not in shared_observations:
                         low_limit.append(lv)
                         high_limit.append(hv)
 
                     else:
                         pass
 
-                    if k_p in self.env.shared_observations and k not in shared_observations:
+                    if k in self.shared_observations and k not in shared_observations:
                         shared_observations.append(k)
                     
                     else:
@@ -66,15 +116,13 @@ class NormalizedObservationWrapper(ObservationWrapper):
 
             for i, b in enumerate(self.env.buildings):
                 for k, v in b.observations(normalize=True, periodic_normalization=True).items():
-                    k_p = k.rstrip('_sin').rstrip('_cos')
-                    
-                    if i==0 or k_p not in self.env.shared_observations or k not in shared_observations:
+                    if i==0 or k not in self.shared_observations or k not in shared_observations:
                         norm_observations.append(v)
 
                     else:
                         pass
 
-                    if k_p in self.env.shared_observations and k not in shared_observations:
+                    if k in self.shared_observations and k not in shared_observations:
                         shared_observations.append(k)
                     
                     else:
@@ -193,16 +241,13 @@ class DiscreteObservationWrapper(ObservationWrapper):
 
             for i, b in enumerate(self.bin_sizes):
                 for k, v in b.items():
-                    
-                    k_p = k.rstrip('_sin').rstrip('_cos')
-                    
-                    if i == 0 or k_p not in self.env.shared_observations or k not in shared_observations:
+                    if i == 0 or k not in self.env.shared_observations or k not in shared_observations:
                         bin_sizes.append(v)
 
                     else:
                         pass
 
-                    if k_p in self.env.shared_observations and k not in shared_observations:
+                    if k in self.env.shared_observations and k not in shared_observations:
                         shared_observations.append(k)
 
                     else:
