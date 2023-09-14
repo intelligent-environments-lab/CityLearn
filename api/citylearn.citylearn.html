@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.citylearn module &mdash; CityLearn 2.0.0 documentation</title>
+  <title>citylearn.citylearn module &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -67,6 +67,7 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.power_outage.html">citylearn.power_outage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.rendering.html">citylearn.rendering module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
@@ -144,6 +145,16 @@ Defaults to (<cite>simulation_end_time_step</cite> - <cite>simulation_start_time
 </dl>
 <p class="rubric">Notes</p>
 <p>Parameters passed to <cite>citylearn.citylearn.CityLearnEnv.__init__</cite> that are also defined in <cite>schema</cite> will override their <cite>schema</cite> definition.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.action_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.action_names" title="Permalink to this definition"></a></dt>
+<dd><p>Names of received actions.</p>
+<p class="rubric">Notes</p>
+<p>If <cite>central_agent</cite> is True, a list of 1 sublist containing all building action names is returned in the same order as <cite>buildings</cite>.
+If <cite>central_agent</cite> is False, a list of sublists is returned where each sublist is a list of 1 building’s action names and the sublist
+in the same order as <cite>buildings</cite>.</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.action_space">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_space</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">gym.spaces.box.Box</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.action_space" title="Permalink to this definition"></a></dt>
@@ -285,6 +296,12 @@ If <cite>central_agent</cite> is False, a list of <cite>space.Box</cite> objects
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.energy_to_electrical_storage">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_to_electrical_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.energy_to_electrical_storage" title="Permalink to this definition"></a></dt>
 <dd><p>Summed <cite>Building.energy_to_electrical_storage</cite> time series, in [kWh].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.energy_to_non_shiftable_load">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_to_non_shiftable_load</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.energy_to_non_shiftable_load" title="Permalink to this definition"></a></dt>
+<dd><p>Summed <cite>Building.energy_to_non_shiftable_load</cite> time series, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
@@ -504,9 +521,9 @@ is the value when none of the storages and partial load cooling and heating devi
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.non_shiftable_load_demand">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_shiftable_load_demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.non_shiftable_load_demand" title="Permalink to this definition"></a></dt>
-<dd><p>Summed <cite>Building.non_shiftable_load_demand</cite>, in [kWh].</p>
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.non_shiftable_load">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_shiftable_load</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.non_shiftable_load" title="Permalink to this definition"></a></dt>
+<dd><p>Summed <cite>Building.non_shiftable_load</cite>, in [kWh].</p>
 </dd></dl>
 
 <dl class="py property">
@@ -545,6 +562,12 @@ many as <cite>buildings</cite> is returned in the same order as <cite>buildings<
 <p>If <cite>central_agent</cite> is True, a list of 1 sublist containing all building observation values is returned in the same order as <cite>buildings</cite>.
 The <cite>shared_observations</cite> values are only included in the first building’s observation values. If <cite>central_agent</cite> is False, a list of sublists
 is returned where each sublist is a list of 1 building’s observation values and the sublist in the same order as <cite>buildings</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.power_outage">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">power_outage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.power_outage" title="Permalink to this definition"></a></dt>
+<dd><p>Time series of number of buildings experiencing power outage.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -619,7 +642,7 @@ False to split episodes in steps of <cite>episode_time_steps</cite>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.citylearn.CityLearnEnv.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/citylearn.html#CityLearnEnv.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.citylearn.CityLearnEnv.step" title="Permalink to this definition"></a></dt>
-<dd><p>Apply actions to <cite>buildings</cite> and advance to next time step.</p>
+<dd><p>Advance to next time step then apply actions to <cite>buildings</cite> and update variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>actions</strong> (<em>List</em><em>[</em><em>List</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Fractions of <cite>buildings</cite> storage devices’ capacities to charge/discharge by.
@@ -711,7 +734,7 @@ Override :meth”<cite>get_info</cite> to get custom key-value pairs in <cite>in
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

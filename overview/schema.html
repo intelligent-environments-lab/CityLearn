@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Schema &mdash; CityLearn 2.0.0 documentation</title>
+  <title>Schema &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -242,6 +242,24 @@
 <tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:dynamics:&lt;mode&gt;:attributes</span></code></p></td>
 <td><p>Used to define attributes that are used to construct <code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:dynamics:&lt;mode&gt;:type</span></code>.</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:power_outage</span></code></p></td>
+<td><p>Used to define power outage preferences and stochastic model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:power_outage:simulate_power_outage</span></code></p></td>
+<td><p>Whether to allow time steps when the grid is unavailable and loads must be met using only the building’s flexible resources.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:power_outage:stochastic_power_outage</span></code></p></td>
+<td><p>Whether to use a stochastic function to determine outage time steps otherwise, <code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.building.Building.energy_simulation.power_outage</span></code> time series is used.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:power_outage:stochastic_power_outage_model</span></code></p></td>
+<td><p>Used to define stochastic power outage model.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:power_outage:stochastic_power_outage_model:type</span></code></p></td>
+<td><p>Stochastic power outage model in <a class="reference internal" href="../api/citylearn.power_outage.html#module-citylearn.power_outage" title="citylearn.power_outage"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.power_outage</span></code></a> or user-defined model class path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:power_outage:stochastic_power_outage_model:attributes</span></code></p></td>
+<td><p>Used to define attributes/hyperparameters that are used to construct stochastic power outage model class in <code class="code docutils literal notranslate"><span class="pre">buildings:&lt;building_name&gt;:power_outage:stochastic_power_outage_model:type</span></code>.</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -424,6 +442,10 @@
     <span class="p">},</span>
     <span class="s2">&quot;indoor_dry_bulb_temperature_delta&quot;</span><span class="p">:</span> <span class="p">{</span>
       <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;power_outage&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
       <span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">:</span> <span class="n">false</span>
     <span class="p">}</span>
   <span class="p">},</span>
@@ -1152,7 +1174,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

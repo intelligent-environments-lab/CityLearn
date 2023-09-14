@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; CityLearn 2.0.0 documentation</title>
+  <title>Installation &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
@@ -91,8 +91,12 @@
 </pre></div>
 </div>
 <p>Alternatively, install a specific version:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install CityLearn==1.8.0</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install CityLearn==2.0.0</span>
 </pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Version <code class="docutils literal notranslate"><span class="pre">1.8.0</span></code> and earlier do not support temperature dynamic buildings class <a class="reference internal" href="api/citylearn.building.html#citylearn.building.DynamicsBuilding" title="citylearn.building.DynamicsBuilding"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.building.DynamicsBuilding</span></code></a> and its descendant classes. Thus, <cite>cooling_device</cite> and <cite>heating_device</cite> control for partial load is not supported by these versions.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -100,10 +104,6 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>v1.1.0<span class="w"> </span>https://github.com/intelligent-environments-lab/CityLearn.git
 </pre></div>
 </div>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Version <code class="docutils literal notranslate"><span class="pre">1.8.0</span></code> and earlier do not support temperature dynamic buildings class <a class="reference internal" href="api/citylearn.building.html#citylearn.building.DynamicsBuilding" title="citylearn.building.DynamicsBuilding"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.building.DynamicsBuilding</span></code></a> and its descendant classes. Thus, <cite>cooling_device</cite> and <cite>heating_device</cite> control for partial load is not supported by these versions.</p>
 </div>
 </section>
 
@@ -118,7 +118,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.base &mdash; CityLearn 2.0.0 documentation</title>
+  <title>citylearn.base &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -203,8 +203,8 @@
 
         <span class="k">if</span> <span class="n">random_episode_split</span><span class="p">:</span>
             <span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">random_seed</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">episode</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-            <span class="n">ix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">nprs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">ix</span> <span class="o">=</span> <span class="n">nprs</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode</span><span class="o">%</span><span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">)</span>
@@ -227,6 +227,9 @@
 <span class="sd">    episode_tracker: EpisodeTracker, optional</span>
 <span class="sd">        :py:class:`citylearn.base.EpisodeTracker` object used to keep track of current episode time steps for reading observations from data files.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULT_SECONDS_PER_TIME_STEP</span> <span class="o">=</span> <span class="mf">3600.0</span>
+    <span class="n">DEFAULT_RANDOM_SEED_RANGE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100_000_000</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seconds_per_time_step</span> <span class="o">=</span> <span class="n">seconds_per_time_step</span>
@@ -268,13 +271,13 @@
     
     <span class="nd">@random_seed</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="n">random_seed</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100_000_000</span><span class="p">)</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">random_seed</span>
+        <span class="n">random_seed</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_RANDOM_SEED_RANGE</span><span class="p">)</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">random_seed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__random_seed</span> <span class="o">=</span> <span class="n">random_seed</span>
 
     <span class="nd">@seconds_per_time_step</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">seconds_per_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">seconds_per_time_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">seconds_per_time_step</span> <span class="o">=</span> <span class="mf">3600.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seconds_per_time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_SECONDS_PER_TIME_STEP</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">seconds_per_time_step</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;seconds_per_time_step &gt;= 1&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__seconds_per_time_step</span> <span class="o">=</span> <span class="n">seconds_per_time_step</span>
@@ -331,7 +334,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

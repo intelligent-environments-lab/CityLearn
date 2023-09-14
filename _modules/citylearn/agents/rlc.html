@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.rlc &mdash; CityLearn 2.0.0 documentation</title>
+  <title>citylearn.agents.rlc &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -286,7 +286,6 @@
     <span class="nd">@Agent</span><span class="o">.</span><span class="n">random_seed</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="n">Agent</span><span class="o">.</span><span class="n">random_seed</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RLC.set_encoders"><a class="viewcode-back" href="../../../api/citylearn.agents.rlc.html#citylearn.agents.rlc.RLC.set_encoders">[docs]</a>    <span class="k">def</span> <span class="nf">set_encoders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Encoder</span><span class="p">]]:</span>
@@ -332,7 +331,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

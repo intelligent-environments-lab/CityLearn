@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Environment &mdash; CityLearn 2.0.0 documentation</title>
+  <title>Environment &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -104,7 +104,8 @@
 <p>An internal backup controller guarantees that the cooling and heating devices prioritize satisfying the building loads before storing energy in the storage devices. The backup controller also guarantees that the storage devices do not discharge more energy than is needed to meet the unsatisfied building loads.</p>
 <p>The legacy CityLearn guarantees that, at any time, the ideal space cooling, space heating, domestic hot water and non-shiftable building loads are satisfied by utilizing pre-computed or pre-measured demand of the buildings. Thus, ideal indoor dry-bulb temperature is always maintained and load shedding is not possible.</p>
 <p>Since CityLearn version <code class="code docutils literal notranslate"><span class="pre">2.0.0</span></code>, building indoor dry-bulb temperature can be dynamic to provide load shedding energy flexibility services compared to earlier versions where the temperature was pre-computed/pre=measured and remained static during simulation. This is achieved through an LSTM model that encodes a building’s temperature evolution as a result of supplied cooling or heating energy <span id="id1">[<a class="reference internal" href="../references.html#id12" title="Giuseppe Pinto, Davide Deltetto, and Alfonso Capozzoli. Data-driven district energy management with surrogate models and deep reinforcement learning. Applied Energy, 304:117642, 2021. URL: https://www.sciencedirect.com/science/article/pii/S0306261921010096, doi:https://doi.org/10.1016/j.apenergy.2021.117642.">16</a>]</span>. Thus, partial load satisfaction is made possible by controlling the cooling and heating device power which then influences temperature change.</p>
-<p>RBC, RL or MPC agent(s) control the active storage devices by determining how much energy to store or release, and the cooling and heating device by determining their supply power at each control timestep.</p>
+<p>Since CityLearn version <code class="code docutils literal notranslate"><span class="pre">2.1.0</span></code>, power outages can be simulated where buildings can only make of their available distributed energy resources including storage devices and PV system to satisfy end-use loads otherwise, risk thermal discomfort and unserved energy during the outage period. During normal operation i.e., when there is no power outage, there is unlimited supply from the grid.</p>
+<p>RBC, RL or MPC agent(s) control the active storage devices by determining how much energy to store or release, and the cooling and heating device by determining their supply power at each control time step.</p>
 </section>
 
 
@@ -118,7 +119,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

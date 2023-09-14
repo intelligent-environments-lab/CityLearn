@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.cost_function module &mdash; CityLearn 2.0.0 documentation</title>
+  <title>citylearn.cost_function module &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -67,6 +67,7 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.power_outage.html">citylearn.power_outage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.rendering.html">citylearn.rendering module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
@@ -162,7 +163,7 @@
 <li><p><strong>dry_bulb_temperature_set_point</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Building thermostat setpoint time series.</p></li>
 <li><p><strong>band</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Comfort band above and below dry_bulb_temperature_set_point beyond
 which occupant is assumed to be uncomfortable.</p></li>
-<li><p><strong>occupant_cunt</strong> (<em>List</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Occupant count time series. If provided, the comfort cost is
+<li><p><strong>occupant_count</strong> (<em>List</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Occupant count time series. If provided, the comfort cost is
 evaluated for occupied time steps only.</p></li>
 </ul>
 </dd>
@@ -192,6 +193,30 @@ evaluated for occupied time steps only.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>electricity_consumption</strong> – Electricity consumption cost.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.normalized_unserved_energy">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normalized_unserved_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expected_energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">served_energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">power_outage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.normalized_unserved_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.normalized_unserved_energy" title="Permalink to this definition"></a></dt>
+<dd><p>Proportion of unmet demand due to supply shortage e.g. power outage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expected_energy</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Total expected energy time series to be met in the absence of power outage.</p></li>
+<li><p><strong>served_energy</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Total delivered energy time series when considering power outage.</p></li>
+<li><p><strong>power_outage</strong> (<em>List</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Signal for power outage. If 0, there is no outage and building can draw energy from grid.
+If &gt;= 1, there is a power outage and building can only use its energy resources to meet loads.
+If provided, the cost funtion is only calculated for time steps when there is an outage
+otherwise all time steps are considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>normalized_unserved_energy</strong> – Unmet demand.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[float]</p>
@@ -281,6 +306,29 @@ to rolling peak demand over a specified period.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.thermal_resilience">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thermal_resilience</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power_outage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.thermal_resilience"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.thermal_resilience" title="Permalink to this definition"></a></dt>
+<dd><p>Rolling percentage of discomfort time steps during power outage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>power_outage</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Signal for power outage. If 0, there is no outage and building can draw energy from grid.
+If 1, there is a power outage and building can only use its energy resources to meet loads.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Parameters parsed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.CostFunction.discomfort()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>thermal_resilience</strong> – Rolling proportion of occupied timesteps where the condition
+(dry_bulb_temperature_set_point - band) &lt;= indoor_dry_bulb_temperature &lt;= (dry_bulb_temperature_set_point + band)
+is not met during a power outage.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.zero_net_energy">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zero_net_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.zero_net_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.zero_net_energy" title="Permalink to this definition"></a></dt>
 <dd><p>Rolling sum of net electricity consumption.</p>
@@ -314,7 +362,7 @@ This calculation of zero net energy does not consider TDV and all time steps are
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.cost_function &mdash; CityLearn 2.0.0 documentation</title>
+  <title>citylearn.cost_function &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -293,7 +293,7 @@
 <span class="sd">        band: float, default = 2.0</span>
 <span class="sd">            Comfort band above and below dry_bulb_temperature_set_point beyond </span>
 <span class="sd">            which occupant is assumed to be uncomfortable.</span>
-<span class="sd">        occupant_cunt: List[float], optional</span>
+<span class="sd">        occupant_count: List[float], optional</span>
 <span class="sd">            Occupant count time series. If provided, the comfort cost is </span>
 <span class="sd">            evaluated for occupied time steps only.</span>
 <span class="sd">            </span>
@@ -355,8 +355,73 @@
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_delta_minimum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_delta_maximum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_delta_average&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="p">)</span></div></div>
-        
+        <span class="p">)</span></div>
+    
+<div class="viewcode-block" id="CostFunction.thermal_resilience"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.thermal_resilience">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">thermal_resilience</span><span class="p">(</span><span class="n">power_outage</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling percentage of discomfort time steps during power outage.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        power_outage: List[float]</span>
+<span class="sd">            Signal for power outage. If 0, there is no outage and building can draw energy from grid. </span>
+<span class="sd">            If 1, there is a power outage and building can only use its energy resources to meet loads.</span>
+<span class="sd">        </span>
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        **kwargs : Any</span>
+<span class="sd">            Parameters parsed to :py:meth:`citylearn.CostFunction.discomfort`.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        thermal_resilience: List[float]</span>
+<span class="sd">            Rolling proportion of occupied timesteps where the condition </span>
+<span class="sd">            (dry_bulb_temperature_set_point - band) &lt;= indoor_dry_bulb_temperature &lt;= (dry_bulb_temperature_set_point + band) </span>
+<span class="sd">            is not met during a power outage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">occupant_count</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">power_outage</span><span class="p">)</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;occupant_count&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;occupant_count&#39;</span><span class="p">]</span>
+        <span class="n">occupant_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">occupant_count</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="n">power_outage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">power_outage</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="n">occupant_count</span><span class="p">[</span><span class="n">power_outage</span><span class="o">==</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;occupant_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">occupant_count</span>
+        <span class="n">thermal_resilience</span> <span class="o">=</span> <span class="n">CostFunction</span><span class="o">.</span><span class="n">discomfort</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">thermal_resilience</span></div>
+    
+<div class="viewcode-block" id="CostFunction.normalized_unserved_energy"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.normalized_unserved_energy">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">normalized_unserved_energy</span><span class="p">(</span><span class="n">expected_energy</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">served_energy</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">power_outage</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Proportion of unmet demand due to supply shortage e.g. power outage.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        expected_energy: List[float]</span>
+<span class="sd">            Total expected energy time series to be met in the absence of power outage.</span>
+<span class="sd">        served_energy: List[float]</span>
+<span class="sd">            Total delivered energy time series when considering power outage.</span>
+<span class="sd">        power_outage: List[float], optional</span>
+<span class="sd">            Signal for power outage. If 0, there is no outage and building can draw energy from grid. </span>
+<span class="sd">            If &gt;= 1, there is a power outage and building can only use its energy resources to meet loads.</span>
+<span class="sd">            If provided, the cost funtion is only calculated for time steps when there is an outage </span>
+<span class="sd">            otherwise all time steps are considered.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        normalized_unserved_energy: List[float]</span>
+<span class="sd">            Unmet demand.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s1">&#39;expected_energy&#39;</span><span class="p">:</span> <span class="n">expected_energy</span><span class="p">,</span>
+            <span class="s1">&#39;served_energy&#39;</span><span class="p">:</span> <span class="n">served_energy</span><span class="p">,</span>
+            <span class="s1">&#39;power_outage&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">served_energy</span><span class="p">)</span> <span class="k">if</span> <span class="n">power_outage</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">power_outage</span><span class="p">,</span>
+        <span class="p">})</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;expected_energy&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;served_energy&#39;</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;power_outage&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">,</span> <span class="s1">&#39;expected_energy&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;expected_energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div></div>
 </pre></div>
 
            </div>
@@ -366,7 +431,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.q_learning &mdash; CityLearn 2.0.0 documentation</title>
+  <title>citylearn.agents.q_learning &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -154,10 +154,10 @@
         <span class="n">deterministic</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">deterministic</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">deterministic</span>
         <span class="n">actions</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">nprs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
         
 
-        <span class="k">if</span> <span class="n">deterministic</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">deterministic</span> <span class="ow">or</span> <span class="n">nprs</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsilon</span><span class="p">:</span>
             <span class="c1"># Use q-function to decide action</span>
             <span class="n">actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exploit</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__explored</span> <span class="o">=</span> <span class="kc">False</span>
@@ -256,7 +256,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.marlisa &mdash; CityLearn 2.0.0 documentation</title>
+  <title>citylearn.agents.marlisa &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -435,7 +435,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_regression_time_step</span><span class="p">:</span>
             <span class="n">agent_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">)</span>
             <span class="n">action_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">agent_count</span><span class="p">))</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">action_order</span><span class="p">)</span>
+            <span class="n">nprs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">))</span>
+            <span class="n">nprs</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">action_order</span><span class="p">)</span>
             <span class="n">expected_demand</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">predict_demand</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">actions</span><span class="p">))]</span>
             <span class="n">coordination_variables</span> <span class="o">=</span> <span class="p">[[</span>
                 <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">expected_demand</span><span class="p">)</span> <span class="o">-</span> <span class="n">expected_demand</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_coefficient</span><span class="p">,</span>
@@ -583,7 +584,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

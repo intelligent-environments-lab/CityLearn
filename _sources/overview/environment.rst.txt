@@ -18,4 +18,6 @@ The legacy CityLearn guarantees that, at any time, the ideal space cooling, spac
 
 Since CityLearn version :code:`2.0.0`, building indoor dry-bulb temperature can be dynamic to provide load shedding energy flexibility services compared to earlier versions where the temperature was pre-computed/pre=measured and remained static during simulation. This is achieved through an LSTM model that encodes a building's temperature evolution as a result of supplied cooling or heating energy :cite:p:`PINTO2021117642`. Thus, partial load satisfaction is made possible by controlling the cooling and heating device power which then influences temperature change.
 
-RBC, RL or MPC agent(s) control the active storage devices by determining how much energy to store or release, and the cooling and heating device by determining their supply power at each control timestep.
+Since CityLearn version :code:`2.1.0`, power outages can be simulated where buildings can only make of their available distributed energy resources including storage devices and PV system to satisfy end-use loads otherwise, risk thermal discomfort and unserved energy during the outage period. During normal operation i.e., when there is no power outage, there is unlimited supply from the grid.
+
+RBC, RL or MPC agent(s) control the active storage devices by determining how much energy to store or release, and the cooling and heating device by determining their supply power at each control time step.

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cost Function &mdash; CityLearn 2.0.0 documentation</title>
+  <title>Cost Function &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -97,17 +97,18 @@
              
   <section id="cost-function">
 <h1>Cost Function<a class="headerlink" href="#cost-function" title="Permalink to this headline"></a></h1>
-<p>CityLearn provides a set of cost functions (a.k.a key performance indicators) that can be used to quantify building-level or district-level energy, comfort, environmental and economic performance post-simulation. The implemented functions include the following:</p>
+<p>CityLearn provides a set of cost functions (a.k.a key performance indicators) that can be used to quantify building-level or district-level energy, comfort, environmental, economic, and resilience performance post-simulation. The implemented functions include the following:</p>
 <ol class="arabic simple">
-<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.average_daily_peak()</span></code></p></li>
 <li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.carbon_emissions" title="citylearn.cost_function.CostFunction.carbon_emissions"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.carbon_emissions()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.cost" title="citylearn.cost_function.CostFunction.cost"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.cost()</span></code></a></p></li>
 <li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.discomfort" title="citylearn.cost_function.CostFunction.discomfort"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.discomfort()</span></code></a></p></li>
-<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.load_factor()</span></code></p></li>
 <li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.electricity_consumption" title="citylearn.cost_function.CostFunction.electricity_consumption"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.electricity_consumption()</span></code></a></p></li>
-<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.peak_demand()</span></code></p></li>
-<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.price()</span></code></p></li>
+<li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.normalized_unserved_energy" title="citylearn.cost_function.CostFunction.normalized_unserved_energy"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.normalized_unserved_energy()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.one_minus_load_factor" title="citylearn.cost_function.CostFunction.one_minus_load_factor"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.one_minus_load_factor()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.peak" title="citylearn.cost_function.CostFunction.peak"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.peak()</span></code></a></p></li>
 <li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.quadratic" title="citylearn.cost_function.CostFunction.quadratic"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.quadratic()</span></code></a></p></li>
 <li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.ramping" title="citylearn.cost_function.CostFunction.ramping"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.ramping()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.thermal_resilience" title="citylearn.cost_function.CostFunction.thermal_resilience"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.thermal_resilience()</span></code></a></p></li>
 <li><p><a class="reference internal" href="../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.zero_net_energy" title="citylearn.cost_function.CostFunction.zero_net_energy"><code class="xref py py-func docutils literal notranslate"><span class="pre">citylearn.cost_function.CostFunction.zero_net_energy()</span></code></a></p></li>
 </ol>
 </section>
@@ -123,7 +124,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

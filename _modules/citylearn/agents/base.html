@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.base &mdash; CityLearn 2.0.0 documentation</title>
+  <title>citylearn.agents.base &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
@@ -110,6 +110,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">episode_time_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">time_steps</span>
@@ -126,6 +127,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Names of active observations that can be used to map observation values.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__observation_names</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">action_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Names of active actions that can be used to map action values.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_names</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">]:</span>
@@ -164,6 +171,10 @@
     <span class="nd">@observation_names</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">observation_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__observation_names</span> <span class="o">=</span> <span class="n">observation_names</span>
+
+    <span class="nd">@action_names</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">action_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__action_names</span> <span class="o">=</span> <span class="n">action_names</span>
 
     <span class="nd">@observation_space</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_space</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">]):</span>
@@ -307,7 +318,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

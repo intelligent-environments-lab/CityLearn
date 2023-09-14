@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CLI &mdash; CityLearn 2.0.0 documentation</title>
+  <title>CLI &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -106,18 +106,17 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">CityLearn</span><span class="o">==</span><span class="mf">2.0</span><span class="n">b3</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">CityLearn</span><span class="o">==</span><span class="m">2</span>.0.0
 </pre></div>
 </div>
 </div>
 <p>The CityLearn installation comes with a CLI for running simulations. The CLI is useful for use cases where multiple environment-agent setups that have been defined in schemas need to be submitted as 1 job for parallel running e.g. in an HPC.</p>
 <p>The CLI documentation is returned by executing the following in a Shell Terminal of Powershell:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-python<span class="w"> </span>-m<span class="w"> </span>citylearn<span class="w"> </span>-h
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>python<span class="w"> </span>-m<span class="w"> </span>citylearn<span class="w"> </span>-h
 </pre></div>
 </div>
 </div>
@@ -148,8 +147,7 @@ level. The output log includes action and reward values at each time step.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-python<span class="w"> </span>-m<span class="w"> </span>citylearn<span class="w"> </span>learn<span class="w"> </span>-h
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>python<span class="w"> </span>-m<span class="w"> </span>citylearn<span class="w"> </span>learn<span class="w"> </span>-h
 </pre></div>
 </div>
 </div>
@@ -193,8 +191,7 @@ optional arguments:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-sh notranslate"><div class="highlight"><pre><span></span>%%sh
-python<span class="w"> </span>-m<span class="w"> </span>citylearn<span class="w"> </span>learn<span class="w"> </span>citylearn_challenge_2022_phase_1<span class="w"> </span>-k<span class="w"> </span>-l<span class="w"> </span><span class="m">100</span><span class="w"> </span>-e<span class="w"> </span><span class="m">1</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>python<span class="w"> </span>-m<span class="w"> </span>citylearn<span class="w"> </span>learn<span class="w"> </span>citylearn_challenge_2022_phase_1<span class="w"> </span>-k<span class="w"> </span>-l<span class="w"> </span><span class="m">100</span><span class="w"> </span>-e<span class="w"> </span><span class="m">1</span>
 </pre></div>
 </div>
 </div>
@@ -376,7 +373,7 @@ python<span class="w"> </span>-m<span class="w"> </span>citylearn<span class="w"
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.rbc module &mdash; CityLearn 2.0.0 documentation</title>
+  <title>citylearn.agents.rbc module &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -106,7 +106,9 @@
 <p>A time-of-use rule-based controller that is designed to take advantage of solar generation for charging.</p>
 <p>The actions are optimized for electrical storage (battery) such that the agent charges the controlled
 storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM,
-and discharges 6.7% of its maximum capacity at every other hour.</p>
+and discharges 6.7% of its maximum capacity at every other hour. Cooling device is set
+to 70.0% of nominal power between between 06:00 AM and 02:00 PM and 30.0% at every other hour.
+Heating device is to 30.0% of nominal power between between 06:00 AM and 02:00 PM and 70.0% at every other hour</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -115,6 +117,11 @@ and discharges 6.7% of its maximum capacity at every other hour.</p>
 </ul>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.rbc.BasicBatteryRBC.action_map">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_map</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.agents.rbc.BasicBatteryRBC.action_map" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -123,7 +130,9 @@ and discharges 6.7% of its maximum capacity at every other hour.</p>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.agents.rbc.HourRBC" title="citylearn.agents.rbc.HourRBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.rbc.HourRBC</span></code></a></p>
 <p>A time-of-use rule-based controller for heat-pump charged thermal energy storage systems that charges when COP is high.</p>
 <p>The actions are designed such that the agent charges the controlled storage system(s) by 9.1% of its maximum capacity every
-hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity at every other hour.</p>
+hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity at every other hour. Cooling device is set
+to 40.0% of nominal power between between 10:00 PM and 08:00 AM and 80.0% at every other hour. Heating device is to 80.0%
+of nominal power between between 10:00 PM and 08:00 AM and 40.0% at every other hour.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -132,24 +141,40 @@ hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity 
 </ul>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.rbc.BasicRBC.action_map">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_map</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.agents.rbc.BasicRBC.action_map" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.agents.rbc.HourRBC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.rbc.</span></span><span class="sig-name descname"><span class="pre">HourRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/rbc.html#HourRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.rbc.HourRBC" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.rbc.</span></span><span class="sig-name descname"><span class="pre">HourRBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">citylearn.citylearn.CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/rbc.html#HourRBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.rbc.HourRBC" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.agents.rbc.RBC" title="citylearn.agents.rbc.RBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.rbc.RBC</span></code></a></p>
 <p>A time-of-use rule-based controller.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p></li>
-<li><p><strong>action_map</strong> (<em>Mapping</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – A 24-hour action map where the key is the hour between 1-24 and the value is the action.
-For storage systems, the value is negative for discharge and positive for charge. Will
-return random actions if no map is provided.</p></li>
+<li><p><strong>action_map</strong> (<em>Union</em><em>[</em><em>Mapping</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>, </em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Mapping</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em><em>, </em><em>List</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Mapping</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – A 24-hour action map for each controlled device where the key is the hour between 1-24 and the value is the action.
+For storage systems, the value is negative for discharge and positive for charge where it ranges between [0, 1].
+Whereas, for cooling or heating devices, the value is positive for proportion of nominal power to make available and
+ranges between [0, 1]. The action map can be parsed as a dictionary of hour keys mapped to action values
+(<code class="code docutils literal notranslate"><span class="pre">Mapping[int,</span> <span class="pre">float]</span></code>). Alternatively, it can be parsed as a dictionary of devices
+(<code class="code docutils literal notranslate"><span class="pre">Mapping[str,</span> <span class="pre">Mapping[int,</span> <span class="pre">float]]</span></code>) with their specific hour key to action value mapping
+(<code class="code docutils literal notranslate"><span class="pre">Mapping[int,</span> <span class="pre">float]</span></code>). Finally, the action map can be defined for each agent especially in decentralized
+setup as a list of device dictionary where each device dictionary (<code class="code docutils literal notranslate"><span class="pre">Mapping[str,</span> <span class="pre">Mapping[int,</span> <span class="pre">float]]</span></code>)
+is for a specific decentralized (or centralized) agent. The HourRBC will return random actions if no map is provided.</p></li>
 <li><p><strong>**kwargs</strong> (<em>Any</em>) – Other keyword arguments used to initialize super class.</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.rbc.HourRBC.action_map">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_map</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.agents.rbc.HourRBC.action_map" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.agents.rbc.HourRBC.predict">
 <span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/agents/rbc.html#HourRBC.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.rbc.HourRBC.predict" title="Permalink to this definition"></a></dt>
@@ -183,6 +208,10 @@ maximum capacity every hour between 07:00 AM and 03:00 PM, discharges by 4.4% of
 between 04:00 PM and 06:00 PM, discharges by 2.4% of its maximum capacity between 07:00 PM and 10:00 PM,
 charges by 3.4% of its maximum capacity between 11:00 PM to midnight and charges by 5.532% of its maximum
 capacity at every other hour.</p>
+<p>Cooling device makes available 70.0% of its nominal power every hour between 07:00 AM and 03:00 PM, 60.0% between
+04:00 PM and 06:00 PM, 80.0% between 07:00 PM and 10:00 PM, 40.0% between 11:00 PM to midnight and 20.0% other hour.</p>
+<p>Heating device makes available 30.0% of its nominal power every hour between 07:00 AM and 03:00 PM, 40.0% between
+04:00 PM and 06:00 PM, 60.0% between 07:00 PM and 10:00 PM, 70.0% between 11:00 PM to midnight and 80.0% other hour.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -191,6 +220,11 @@ capacity at every other hour.</p>
 </ul>
 </dd>
 </dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.agents.rbc.OptimizedRBC.action_map">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_map</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.agents.rbc.OptimizedRBC.action_map" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -221,7 +255,7 @@ capacity at every other hour.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

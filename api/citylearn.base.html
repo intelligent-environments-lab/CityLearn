@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.base module &mdash; CityLearn 2.0.0 documentation</title>
+  <title>citylearn.base module &mdash; CityLearn 2.1b1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
@@ -65,6 +65,7 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.power_outage.html">citylearn.power_outage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.rendering.html">citylearn.rendering module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
@@ -126,6 +127,16 @@
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.base.Environment.DEFAULT_RANDOM_SEED_RANGE">
+<span class="sig-name descname"><span class="pre">DEFAULT_RANDOM_SEED_RANGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,</span> <span class="pre">100000000)</span></em><a class="headerlink" href="#citylearn.base.Environment.DEFAULT_RANDOM_SEED_RANGE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.base.Environment.DEFAULT_SECONDS_PER_TIME_STEP">
+<span class="sig-name descname"><span class="pre">DEFAULT_SECONDS_PER_TIME_STEP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3600.0</span></em><a class="headerlink" href="#citylearn.base.Environment.DEFAULT_SECONDS_PER_TIME_STEP" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.base.Environment.episode_tracker">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">episode_tracker</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#citylearn.base.EpisodeTracker" title="citylearn.base.EpisodeTracker"><span class="pre">citylearn.base.EpisodeTracker</span></a></em><a class="headerlink" href="#citylearn.base.Environment.episode_tracker" title="Permalink to this definition"></a></dt>
@@ -286,7 +297,7 @@ in steps of <cite>episode_time_steps</cite>.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
