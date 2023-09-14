@@ -105,7 +105,8 @@ class ElectricDevice(Device):
         """
 
         enforce_polarity = True if enforce_polarity is None else enforce_polarity
-        assert not enforce_polarity or electricity_consumption >= 0.0, 'electricity_consumption must be >= 0.'
+        assert not enforce_polarity or electricity_consumption >= 0.0,\
+            f'electricity_consumption must be >= 0 but value: {electricity_consumption} was provided.'
         self.__electricity_consumption[self.time_step] += electricity_consumption
 
     def reset(self):
