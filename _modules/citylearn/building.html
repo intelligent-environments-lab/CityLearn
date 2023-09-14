@@ -1317,6 +1317,10 @@
                 <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
                 <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_device</span><span class="o">.</span><span class="n">nominal_power</span>
 
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;power_outage&#39;</span><span class="p">:</span>
+                <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
             <span class="k">elif</span> <span class="n">periodic_normalization</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">periodic_observations</span><span class="p">:</span>
                 <span class="n">pn</span> <span class="o">=</span> <span class="n">PeriodicNormalization</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">periodic_observations</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
                 <span class="n">x_sin</span><span class="p">,</span> <span class="n">x_cos</span> <span class="o">=</span> <span class="n">pn</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">periodic_observations</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
