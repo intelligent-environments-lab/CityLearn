@@ -307,17 +307,6 @@ class BasicBatteryRBC(BasicRBC):
 
     def __init__(self, env: CityLearnEnv, **kwargs: Any):
         super().__init__(env, **kwargs)
-        action_map = {}
-
-        for hour in Building.get_periodic_observation_metadata()['hour']:
-            if 6 <= hour <= 14:
-                value = 0.11
-            else:
-                value = -0.067
-
-            action_map[hour] = value
-        
-        self.action_map = action_map
 
     @HourRBC.action_map.setter
     def action_map(self, action_map: Union[List[Mapping[str, Mapping[int, float]]], Mapping[str, Mapping[int, float]], Mapping[int, float]]):
