@@ -911,13 +911,8 @@ class Building(Environment):
         self.__energy_from_cooling_device[self.time_step] = device_output
         electricity_consumption = self.cooling_device.get_input_power(device_output, temperature, heating=False)
         # print('timestep:', self.time_step, 'bldg:', self.name, 'demand:', demand, 'temperature:', temperature, 'storage_capacity:', self.cooling_storage.capacity, 'prev_soc:', self.cooling_storage.soc[self.time_step - 1], 'curr_soc:', self.cooling_storage.soc[self.time_step], 'storage_output:', storage_output, 'max_electric_power:', max_electric_power, 'max_device_output:', max_device_output, 'device_output:', device_output, 'consumption:', electricity_consumption)
-        self.cooling_device.update_electricity_consumption(electricity_consumption)
-
-    def ___demand_limit_check(self, end_use: str, demand: float, max_device_output: float):
-            message = f'timestep: {self.time_step} building: {self.name} outage: {self.power_outage} demand: {demand}'\
-                f'output: {max_device_output} difference: {demand - max_device_output} check: {demand <= max_device_output}'
-            assert self.power_outage or demand <= max_device_output or abs(demand - max_device_output) < TOLERANCE,\
-            f'demand is greater than {end_use}_device max output | {message}'
+        self.___electricity_consumption_polarity_check('cooling', device_output, electricity_consumption)
+        self.cooling_device.update_electricity_consumption(max(0.0, electricity_consumption))
 
     def update_cooling_storage(self, action: float):
         r"""Charge/discharge `cooling_storage` for current time step.
@@ -963,7 +958,8 @@ class Building(Environment):
         self.__energy_from_heating_device[self.time_step] = device_output
         electricity_consumption = self.heating_device.get_input_power(device_output, temperature, heating=True)\
             if isinstance(self.heating_device, HeatPump) else self.heating_device.get_input_power(device_output)
-        self.heating_device.update_electricity_consumption(electricity_consumption)
+        self.___electricity_consumption_polarity_check('heating', device_output, electricity_consumption)
+        self.heating_device.update_electricity_consumption(max(0.0, electricity_consumption))
 
     def update_heating_storage(self, action: float):
         r"""Charge/discharge `heating_storage` for current time step.
@@ -1006,7 +1002,8 @@ class Building(Environment):
         self.__energy_from_dhw_device[self.time_step] = device_output
         electricity_consumption = self.dhw_device.get_input_power(device_output, temperature, heating=True)\
             if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_input_power(device_output)
-        self.dhw_device.update_electricity_consumption(electricity_consumption)
+        self.___electricity_consumption_polarity_check('dhw', device_output, electricity_consumption)
+        self.dhw_device.update_electricity_consumption(max(0.0, electricity_consumption))
 
     def update_dhw_storage(self, action: float):
         r"""Charge/discharge `dhw_storage` for current time step.
@@ -1054,6 +1051,17 @@ class Building(Environment):
         energy = min(action*self.electrical_storage.capacity, self.downward_electrical_flexibility)
         self.electrical_storage.charge(energy)
 
+    def ___demand_limit_check(self, end_use: str, demand: float, max_device_output: float):
+            message = f'timestep: {self.time_step}, building: {self.name}, outage: {self.power_outage}, demand: {demand},'\
+                f'output: {max_device_output}, difference: {demand - max_device_output}, check: {demand <= max_device_output},'
+            assert self.power_outage or demand <= max_device_output or abs(demand - max_device_output) < TOLERANCE,\
+            f'demand is greater than {end_use}_device max output | {message}'
+
+    def ___electricity_consumption_polarity_check(self, end_use: str, device_output: float, electricity_consumption: float):
+            message = f'timestep: {self.time_step}, building: {self.name}, device_output: {device_output}, electricity_consumption: {electricity_consumption}'
+            assert electricity_consumption >= 0.0 or abs(electricity_consumption) < TOLERANCE,\
+            f'negative electricity consumption for {end_use} demand | {message}'
+
     def estimate_observation_space(self, include_all: bool = None, normalize: bool = None) -> spaces.Box:
         r"""Get estimate of observation spaces.
 
@@ -1088,7 +1096,8 @@ class Building(Environment):
     def estimate_observation_space_limits(self, include_all: bool = None, periodic_normalization: bool = None) -> Tuple[Mapping[str, float], Mapping[str, float]]:
         r"""Get estimate of observation space limits.
 
-        Find minimum and maximum possible values of all the observations, which can then be used by the RL agent to scale the observations and train any function approximators more effectively.
+        Find minimum and maximum possible values of all the observations, which can then be used by the RL agent to scale the observations 
+        and train any function approximators more effectively.
 
         Parameters
         ----------
