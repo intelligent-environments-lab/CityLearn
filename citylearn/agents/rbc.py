@@ -50,7 +50,7 @@ class HourRBC(RBC):
         self.action_map = action_map
 
     @property
-    def action_map(self) -> Union[List[Mapping[str, Mapping[int, float]]], Mapping[str, Mapping[int, float]], Mapping[int, float]]:
+    def action_map(self) -> List[Mapping[str, Mapping[int, float]]]:
         return self.__action_map
     
     @action_map.setter
