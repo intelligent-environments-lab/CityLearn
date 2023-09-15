@@ -1855,6 +1855,10 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         model_input_tensor = model_input_tensor[np.newaxis, :, :]
         hidden_state = tuple([h.data for h in self.dynamics._hidden_state])
         indoor_dry_bulb_temperature_norm, self.dynamics._hidden_state = self.dynamics(model_input_tensor.float(), hidden_state)
+        
+        # update dry bulb temperature for current time step in model input
+        ix = self.dynamics.input_observation_names.index('indoor_dry_bulb_temperature')
+        self.dynamics._model_input[ix][-1] = indoor_dry_bulb_temperature_norm.item()
 
         # unnormalize temperature
         low_limit, high_limit = self.dynamics.input_normalization_minimum[-1], self.dynamics.input_normalization_maximum[-1]
