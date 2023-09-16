@@ -274,7 +274,7 @@ class CostFunction:
         )
     
     @staticmethod
-    def thermal_resilience(power_outage: List[int], **kwargs):
+    def one_minus_thermal_resilience(power_outage: List[int], **kwargs):
         r"""Rolling percentage of discomfort time steps during power outage.
 
         Parameters

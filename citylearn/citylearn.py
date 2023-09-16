@@ -849,7 +849,7 @@ class CityLearnEnv(Environment, Env):
             'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 0.075},
             'daily_peak_average': {'display_name': 'Daily peak', 'weight': 0.075},
             'annual_peak_average': {'display_name': 'All-time peak', 'weight': 0.075},
-            'thermal_resilience_proportion': {'display_name': 'Thermal resilience', 'weight': 0.15},
+            'one_minus_thermal_resilience_proportion': {'display_name': 'Thermal resilience', 'weight': 0.15},
             'power_outage_normalized_unserved_energy_total': {'display_name': 'Unserved energy', 'weight': 0.15},
         }
         data = self.evaluate(
@@ -966,8 +966,8 @@ class CityLearnEnv(Environment, Env):
                 'cost_function': 'discomfort_delta_average',
                 'value': average_delta[-1],
             }, {
-                'cost_function': 'thermal_resilience_proportion',
-                'value': CostFunction.thermal_resilience(power_outage=b.power_outage_signal, **discomfort_kwargs)[-1],
+                'cost_function': 'one_minus_thermal_resilience_proportion',
+                'value': CostFunction.one_minus_thermal_resilience(power_outage=b.power_outage_signal, **discomfort_kwargs)[-1],
             }, {
                 'cost_function': 'power_outage_normalized_unserved_energy_total',
                 'value': CostFunction.normalized_unserved_energy(expected_energy, served_energy, power_outage=b.power_outage_signal)[-1]
