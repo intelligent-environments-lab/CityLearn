@@ -246,6 +246,29 @@ to rolling peak demand over a specified period.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.one_minus_thermal_resilience">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">one_minus_thermal_resilience</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power_outage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.one_minus_thermal_resilience"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.one_minus_thermal_resilience" title="Permalink to this definition"></a></dt>
+<dd><p>Rolling percentage of discomfort time steps during power outage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>power_outage</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Signal for power outage. If 0, there is no outage and building can draw energy from grid.
+If 1, there is a power outage and building can only use its energy resources to meet loads.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Parameters parsed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.CostFunction.discomfort()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>thermal_resilience</strong> – Rolling proportion of occupied timesteps where the condition
+(dry_bulb_temperature_set_point - band) &lt;= indoor_dry_bulb_temperature &lt;= (dry_bulb_temperature_set_point + band)
+is not met during a power outage.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.peak">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.peak"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.peak" title="Permalink to this definition"></a></dt>
 <dd><p>Net electricity consumption peak.</p>
@@ -303,29 +326,6 @@ to rolling peak demand over a specified period.</p>
 <div class="math notranslate nohighlight">
 \[\textrm{ramping} = \sum_{i=1}^{n}{\lvert E_i - E_{i-1} \rvert}\]</div>
 <p>Where <span class="math notranslate nohighlight">\(E_i\)</span> is the <span class="math notranslate nohighlight">\(i^{\textrm{th}}\)</span> element in <cite>net_electricity_consumption</cite>, <span class="math notranslate nohighlight">\(E\)</span>, that has a length of <span class="math notranslate nohighlight">\(n\)</span>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.thermal_resilience">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thermal_resilience</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power_outage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.thermal_resilience"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.thermal_resilience" title="Permalink to this definition"></a></dt>
-<dd><p>Rolling percentage of discomfort time steps during power outage.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>power_outage</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Signal for power outage. If 0, there is no outage and building can draw energy from grid.
-If 1, there is a power outage and building can only use its energy resources to meet loads.</p></li>
-<li><p><strong>**kwargs</strong> (<em>Any</em>) – Parameters parsed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.CostFunction.discomfort()</span></code>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>thermal_resilience</strong> – Rolling proportion of occupied timesteps where the condition
-(dry_bulb_temperature_set_point - band) &lt;= indoor_dry_bulb_temperature &lt;= (dry_bulb_temperature_set_point + band)
-is not met during a power outage.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>List[float]</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
