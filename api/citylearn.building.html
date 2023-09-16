@@ -592,6 +592,12 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.indoor_dry_bulb_temperature_set_point">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">indoor_dry_bulb_temperature_set_point</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.indoor_dry_bulb_temperature_set_point" title="Permalink to this definition"></a></dt>
+<dd><p>dry bulb temperature set point time series, in [C].</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.name">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#citylearn.building.Building.name" title="Permalink to this definition"></a></dt>
 <dd><p>Unique building name.</p>
@@ -719,9 +725,21 @@ scaling this observation-variable using these bounds may result in normalized va
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.occupant_count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">occupant_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.occupant_count" title="Permalink to this definition"></a></dt>
+<dd><p>Building occupant count time series, in [people].</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.power_outage">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">power_outage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#citylearn.building.Building.power_outage" title="Permalink to this definition"></a></dt>
 <dd><p>Whether there is power outage at current time step.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.power_outage_signal">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">power_outage_signal</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.power_outage_signal" title="Permalink to this definition"></a></dt>
+<dd><p>Power outage signal time series, in [Yes/No].</p>
 </dd></dl>
 
 <dl class="py property">
@@ -758,6 +776,22 @@ scaling this observation-variable using these bounds may result in normalized va
 <dt class="sig sig-object py" id="citylearn.building.Building.reset_dynamic_variables">
 <span class="sig-name descname"><span class="pre">reset_dynamic_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.reset_dynamic_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.reset_dynamic_variables" title="Permalink to this definition"></a></dt>
 <dd><p>Resets data file variables that change during control to their initial values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.building.Building.reset_power_outage_signal">
+<span class="sig-name descname"><span class="pre">reset_power_outage_signal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../_modules/citylearn/building.html#Building.reset_power_outage_signal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.reset_power_outage_signal" title="Permalink to this definition"></a></dt>
+<dd><p>Resets power outage signal time series.</p>
+<p>Resets to zeros if <cite>simulate_power_outage</cite> is <cite>False</cite> otherwise, resets to a stochastic time series
+if <cite>stochastic_power_outage</cite> is <cite>True</cite> or the  time series defined in <cite>energy_simulation.power_outage</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>power_outage_signal</strong> – Power outage signal time series.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
