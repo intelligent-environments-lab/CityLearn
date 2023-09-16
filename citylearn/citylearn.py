@@ -670,10 +670,7 @@ class CityLearnEnv(Environment, Env):
     def power_outage(self) -> np.ndarray:
         """Time series of number of buildings experiencing power outage."""
 
-        return pd.DataFrame([
-            b.energy_simulation.power_outage if b.simulate_power_outage 
-            else b.energy_simulation.power_outage*0.0 for b in self.buildings
-        ]).sum(axis = 0, min_count = 1).to_numpy()[:self.time_step + 1]
+        return pd.DataFrame([b.power_outage_signal for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()[:self.time_step + 1]
 
     @schema.setter
     def schema(self, schema: Union[str, Path, Mapping[str, Any]]):
@@ -920,10 +917,10 @@ class CityLearnEnv(Environment, Env):
         
         for b in self.buildings:
             discomfort_kwargs = {
-                'indoor_dry_bulb_temperature': b.energy_simulation.indoor_dry_bulb_temperature[:self.time_step + 1],
-                'dry_bulb_temperature_set_point': b.energy_simulation.indoor_dry_bulb_temperature_set_point[:self.time_step + 1],
+                'indoor_dry_bulb_temperature': b.indoor_dry_bulb_temperature,
+                'dry_bulb_temperature_set_point': b.indoor_dry_bulb_temperature_set_point,
                 'band': comfort_band,
-                'occupant_count': b.energy_simulation.occupant_count[:self.time_step + 1],
+                'occupant_count': b.occupant_count,
             }
             unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.discomfort(**discomfort_kwargs)
             expected_energy = b.cooling_demand + b.heating_demand + b.dhw_demand + b.non_shiftable_load
@@ -969,10 +966,10 @@ class CityLearnEnv(Environment, Env):
                 'value': average_delta[-1],
             }, {
                 'cost_function': 'thermal_resilience_proportion',
-                'value': CostFunction.thermal_resilience(power_outage=b.energy_simulation.power_outage[:self.time_step + 1], **discomfort_kwargs)[-1],
+                'value': CostFunction.thermal_resilience(power_outage=b.power_outage_signal, **discomfort_kwargs)[-1],
             }, {
                 'cost_function': 'power_outage_normalized_unserved_energy_total',
-                'value': CostFunction.normalized_unserved_energy(expected_energy, served_energy, power_outage=b.energy_simulation.power_outage[:self.time_step + 1])[-1]
+                'value': CostFunction.normalized_unserved_energy(expected_energy, served_energy, power_outage=b.power_outage_signal)[-1]
             }, {
                 'cost_function': 'annual_normalized_unserved_energy_total',
                 'value': CostFunction.normalized_unserved_energy(expected_energy, served_energy)[-1]
