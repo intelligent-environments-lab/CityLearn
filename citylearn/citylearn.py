@@ -12,7 +12,7 @@ from citylearn import __version__ as citylearn_version
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
 from citylearn.cost_function import CostFunction
-from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, Weather
+from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather
 from citylearn.rendering import get_background, RenderBuilding, get_plots
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
@@ -843,12 +843,12 @@ class CityLearnEnv(Environment, Env):
         """
 
         evaluation = {
-            'carbon_emissions_total': {'display_name': 'Carbon emissions', 'weight': 0.05},
-            'discomfort_proportion': {'display_name': 'Unmet hours', 'weight': 0.15},
-            'ramping_average': {'display_name': 'Ramping', 'weight': 0.125},
-            'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 0.125},
-            'daily_peak_average': {'display_name': 'Daily peak', 'weight': 0.125},
-            'annual_peak_average': {'display_name': 'All-time peak', 'weight': 0.125},
+            'carbon_emissions_total': {'display_name': 'Carbon emissions', 'weight': 0.10},
+            'discomfort_proportion': {'display_name': 'Unmet hours', 'weight': 0.30},
+            'ramping_average': {'display_name': 'Ramping', 'weight': 0.075},
+            'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 0.075},
+            'daily_peak_average': {'display_name': 'Daily peak', 'weight': 0.075},
+            'annual_peak_average': {'display_name': 'All-time peak', 'weight': 0.075},
             'thermal_resilience_proportion': {'display_name': 'Thermal resilience', 'weight': 0.15},
             'power_outage_normalized_unserved_energy_total': {'display_name': 'Unserved energy', 'weight': 0.15},
         }
@@ -860,6 +860,7 @@ class CityLearnEnv(Environment, Env):
         data = data[data['level']=='district'].set_index('cost_function').to_dict('index')
         evaluation = {k: {**v, 'value': data[k]['value']} for k, v in evaluation.items()}
         weight_sum = np.nansum([v['weight'] for _, v in evaluation.items()], dtype='float32')
+        assert abs(weight_sum - 1.0) < TOLERANCE, f'weights must sum up to 1.0 but currently sum up to {weight_sum}'
         weighted_values = [v['weight']*v['value'] for _, v in evaluation.items()]
         value_sum = np.nansum(weighted_values, dtype='float32')
         evaluation['average_score'] = {

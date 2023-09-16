@@ -4,9 +4,9 @@ from gym import spaces
 import numpy as np
 import torch
 from citylearn.base import Environment, EpisodeTracker
-from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather
+from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
 from citylearn.dynamics import Dynamics, LSTMDynamics
-from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank, TOLERANCE, ZERO_DIVISION_CAPACITY
+from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank
 from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
@@ -1296,7 +1296,7 @@ class Building(Environment):
                 high_limit.append(1.0)
             
             elif key == 'electrical_storage':
-                limit = self.electrical_storage.nominal_power/max(self.electrical_storage.capacity, ZERO_DIVISION_CAPACITY)
+                limit = self.electrical_storage.nominal_power/max(self.electrical_storage.capacity, ZERO_DIVISION_PLACEHOLDER)
                 low_limit.append(-limit)
                 high_limit.append(limit)
             
@@ -1331,7 +1331,7 @@ class Building(Environment):
                 else:
                     raise Exception(f'Unknown action: {key}')
 
-                maximum_demand_ratio = maximum_demand/max(capacity, ZERO_DIVISION_CAPACITY)
+                maximum_demand_ratio = maximum_demand/max(capacity, ZERO_DIVISION_PLACEHOLDER)
 
                 try:
                     low_limit.append(max(-maximum_demand_ratio, -1.0))

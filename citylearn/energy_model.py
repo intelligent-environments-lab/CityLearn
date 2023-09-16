@@ -1,9 +1,8 @@
 from typing import Any, Iterable, List, Mapping, Union
 import numpy as np
 from citylearn.base import Environment
+from citylearn.data import ZERO_DIVISION_PLACEHOLDER
 np.seterr(divide='ignore', invalid='ignore')
-TOLERANCE = 0.0001
-ZERO_DIVISION_CAPACITY = 0.000001
 
 class Device(Environment):
     r"""Base device class.
@@ -572,7 +571,7 @@ class StorageDevice(Device):
         energy = self.energy_init + energy
         energy = min(energy*self.round_trip_efficiency, self.capacity) if energy >= 0 else max(0.0, energy/self.round_trip_efficiency)   
         self.__energy_balance[self.time_step] = self.set_energy_balance(energy)
-        self.__soc[self.time_step] = energy/max(self.capacity, ZERO_DIVISION_CAPACITY)
+        self.__soc[self.time_step] = energy/max(self.capacity, ZERO_DIVISION_PLACEHOLDER)
 
     def set_energy_balance(self, energy: float) -> float:
         r"""Calculate energy balance.
@@ -874,7 +873,7 @@ class Battery(StorageDevice, ElectricDevice):
 
         #The initial SOC is the previous SOC minus the energy losses
         if self.capacity_power_curve is not None:
-            soc = self.energy_init/max(self.capacity, ZERO_DIVISION_CAPACITY)
+            soc = self.energy_init/max(self.capacity, ZERO_DIVISION_PLACEHOLDER)
             # Calculating the maximum power rate at which the battery can be charged or discharged
             idx = max(0, np.argmax(soc <= self.capacity_power_curve[0]) - 1)
             max_output_power = self.nominal_power*(
@@ -898,7 +897,7 @@ class Battery(StorageDevice, ElectricDevice):
 
         if self.power_efficiency_curve is not None:
             # Calculating the maximum power rate at which the battery can be charged or discharged
-            energy_normalized = np.abs(energy)/max(self.nominal_power, ZERO_DIVISION_CAPACITY)
+            energy_normalized = np.abs(energy)/max(self.nominal_power, ZERO_DIVISION_PLACEHOLDER)
             idx = max(0, np.argmax(energy_normalized <= self.power_efficiency_curve[0]) - 1)
             efficiency = self.power_efficiency_curve[1][idx]\
                 + (energy_normalized - self.power_efficiency_curve[0][idx]
@@ -919,7 +918,7 @@ class Battery(StorageDevice, ElectricDevice):
         """
 
         # Calculating the degradation of the battery: new max. capacity of the battery after charge/discharge
-        capacity_degrade = self.capacity_loss_coefficient*self.capacity*np.abs(self.energy_balance[self.time_step])/(2*max(self.degraded_capacity, ZERO_DIVISION_CAPACITY))
+        capacity_degrade = self.capacity_loss_coefficient*self.capacity*np.abs(self.energy_balance[self.time_step])/(2*max(self.degraded_capacity, ZERO_DIVISION_PLACEHOLDER))
         return capacity_degrade
 
     def reset(self):

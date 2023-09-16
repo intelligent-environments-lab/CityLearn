@@ -1,6 +1,6 @@
 from typing import Any, List, Mapping, Tuple, Union
 import numpy as np
-from citylearn.energy_model import ZERO_DIVISION_CAPACITY
+from citylearn.data import ZERO_DIVISION_PLACEHOLDER
 
 class RewardFunction:
     r"""Base and default reward function class.
@@ -141,10 +141,10 @@ class SolarPenaltyReward(RewardFunction):
             ds = o.get('dhw_storage_soc', 0.0)
             es = o.get('electrical_storage_soc', 0.0)
             reward = 0.0
-            reward += -(1.0 + np.sign(e)*cs)*abs(e) if cc > ZERO_DIVISION_CAPACITY else 0.0
-            reward += -(1.0 + np.sign(e)*hs)*abs(e) if hc > ZERO_DIVISION_CAPACITY else 0.0
-            reward += -(1.0 + np.sign(e)*ds)*abs(e) if dc > ZERO_DIVISION_CAPACITY else 0.0
-            reward += -(1.0 + np.sign(e)*es)*abs(e) if ec > ZERO_DIVISION_CAPACITY else 0.0
+            reward += -(1.0 + np.sign(e)*cs)*abs(e) if cc > ZERO_DIVISION_PLACEHOLDER else 0.0
+            reward += -(1.0 + np.sign(e)*hs)*abs(e) if hc > ZERO_DIVISION_PLACEHOLDER else 0.0
+            reward += -(1.0 + np.sign(e)*ds)*abs(e) if dc > ZERO_DIVISION_PLACEHOLDER else 0.0
+            reward += -(1.0 + np.sign(e)*es)*abs(e) if ec > ZERO_DIVISION_PLACEHOLDER else 0.0
             reward_list.append(reward)
 
         if self.central_agent:

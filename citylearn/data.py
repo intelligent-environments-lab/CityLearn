@@ -3,8 +3,10 @@ from pathlib import Path
 import shutil
 from typing import Any, Iterable, List, Union
 import numpy as np
-
 from citylearn.utilities import read_json
+
+TOLERANCE = 0.0001
+ZERO_DIVISION_PLACEHOLDER = 0.000001
 
 class DataSet:
     """CityLearn input data set and schema class."""
