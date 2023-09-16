@@ -466,6 +466,18 @@ class Building(Environment):
         """
 
         return self.energy_simulation.indoor_dry_bulb_temperature[0:self.time_step + 1]
+    
+    @property
+    def indoor_dry_bulb_temperature_set_point(self) -> np.ndarray:
+        """dry bulb temperature set point time series, in [C]."""
+
+        return self.energy_simulation.indoor_dry_bulb_temperature_set_point[0:self.time_step + 1]
+    
+    @property
+    def occupant_count(self) -> np.ndarray:
+        """Building occupant count time series, in [people]."""
+
+        return self.energy_simulation.occupant_count[0:self.time_step + 1]
 
     @property
     def cooling_demand(self) -> np.ndarray:
@@ -496,6 +508,12 @@ class Building(Environment):
         """`PV` solar generation (negative value) time series, in [kWh]."""
 
         return self.__solar_generation[:self.time_step + 1]
+    
+    @property
+    def power_outage_signal(self) -> np.ndarray:
+        """Power outage signal time series, in [Yes/No]."""
+
+        return self.__power_outage_signal[:self.time_step + 1]
     
     @property
     def hvac_mode_switch(self) -> bool:
@@ -541,7 +559,7 @@ class Building(Environment):
     def power_outage(self) -> bool:
         """Whether there is power outage at current time step."""
 
-        return self.simulate_power_outage and bool(self.energy_simulation.power_outage[self.time_step])
+        return self.simulate_power_outage and bool(self.__power_outage_signal[self.time_step])
     
     @property
     def stochastic_power_outage_model(self) -> PowerOutage:
@@ -749,7 +767,7 @@ class Building(Environment):
             'indoor_dry_bulb_temperature_set_point': self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step],
             'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step]),
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
-            'power_outage': self.energy_simulation.power_outage[self.time_step],
+            'power_outage': self.__power_outage_signal[self.time_step],
         }
 
         if include_all:
@@ -1517,18 +1535,38 @@ class Building(Environment):
         self.__net_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__net_electricity_consumption_emission = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__net_electricity_consumption_cost = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.__power_outage_signal = self.reset_power_outage_signal()
+        self.update_variables()
 
-        if self.simulate_power_outage and self.stochastic_power_outage:
-            self.energy_simulation.power_outage = self.stochastic_power_outage_model.get_signals(
-                self.episode_tracker.episode_time_steps,
-                seconds_per_time_step=self.seconds_per_time_step,
-                weather=self.weather
-            )
+    def reset_power_outage_signal(self) -> np.ndarray:
+        """Resets power outage signal time series.
+        
+        Resets to zeros if `simulate_power_outage` is `False` otherwise, resets to a stochastic time series 
+        if `stochastic_power_outage` is `True` or the  time series defined in `energy_simulation.power_outage`.
+
+        Returns
+        -------
+        power_outage_signal: np.ndarray
+            Power outage signal time series.
+        """
+
+        power_outage_signal = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+
+        if self.simulate_power_outage:
+            if self.stochastic_power_outage:
+                power_outage_signal = self.stochastic_power_outage_model.get_signals(
+                    self.episode_tracker.episode_time_steps,
+                    seconds_per_time_step=self.seconds_per_time_step,
+                    weather=self.weather
+                )
+            
+            else:
+                power_outage_signal = self.energy_simulation.power_outage.copy()
         
         else:
             pass
 
-        self.update_variables()
+        return power_outage_signal
 
     def reset_dynamic_variables(self):
         """Resets data file variables that change during control to their initial values."""
