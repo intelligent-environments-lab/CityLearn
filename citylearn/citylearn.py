@@ -21,17 +21,28 @@ LOGGER = logging.getLogger()
 logging.getLogger('matplotlib.font_manager').disabled = True
 logging.getLogger('matplotlib.pyplot').disabled = True
 
-@unique
 class EvaluationCondition(Enum):
     """Evaluation conditions.
     
     Used in `citylearn.CityLearnEnv.calculate` method.
     """
 
-    WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV = ''
-    WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV = '_without_storage'
-    WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV = '_without_storage_and_partial_load'
-    WITHOUT_STORAGE_AND_PARTIAL_LOAD_AND_PV = '_without_storage_and_partial_load_and_pv'
+    # general (private)
+    __DEFAULT = ''
+    __STORAGE_SUFFIX = '_without_storage'
+    __PARTIAL_LOAD_SUFFIX = '_and_partial_load'
+    __PV_SUFFIX = '_and_pv'
+
+    # Building type
+    WITH_STORAGE_AND_PV = __DEFAULT
+    WITHOUT_STORAGE_BUT_WITH_PV = __STORAGE_SUFFIX
+    WITHOUT_STORAGE_AND_PV = WITHOUT_STORAGE_BUT_WITH_PV +__PV_SUFFIX
+
+    # DynamicsBuilding type
+    WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV = WITH_STORAGE_AND_PV
+    WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV = WITHOUT_STORAGE_BUT_WITH_PV
+    WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV = WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV + __PARTIAL_LOAD_SUFFIX
+    WITHOUT_STORAGE_AND_PARTIAL_LOAD_AND_PV = WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV + __PV_SUFFIX
 
 class CityLearnEnv(Environment, Env):
     r"""CityLearn nvironment class.
@@ -901,22 +912,23 @@ class CityLearnEnv(Environment, Env):
         is the value when none of the storages and partial load cooling and heating devices in the environment are actively controlled.
         """
 
-        # set default evaluation conditions
-        control_condition = EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV if control_condition is None else control_condition
-        baseline_condition = EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV if baseline_condition is None else baseline_condition
-
         # lambda functions to get building or district level properties w.r.t. evaluation condition
-        control_net_electricity_consumption = lambda x: getattr(x, f'net_electricity_consumption{control_condition.value}')
-        control_net_electricity_consumption_cost = lambda x: getattr(x, f'net_electricity_consumption_cost{control_condition.value}')
-        control_net_electricity_consumption_emission = lambda x: getattr(x, f'net_electricity_consumption_emission{control_condition.value}')
-        baseline_net_electricity_consumption = lambda x: getattr(x, f'net_electricity_consumption{baseline_condition.value}')
-        baseline_net_electricity_consumption_cost = lambda x: getattr(x, f'net_electricity_consumption_cost{baseline_condition.value}')
-        baseline_net_electricity_consumption_emission = lambda x: getattr(x, f'net_electricity_consumption_emission{baseline_condition.value}')
+        get_net_electricity_consumption = lambda x, c: getattr(x, f'net_electricity_consumption{c.value}')
+        get_net_electricity_consumption_cost = lambda x, c: getattr(x, f'net_electricity_consumption_cost{c.value}')
+        get_net_electricity_consumption_emission = lambda x, c: getattr(x, f'net_electricity_consumption_emission{c.value}')
 
         comfort_band = 2.0 if comfort_band is None else comfort_band
         building_level = []
         
         for b in self.buildings:
+            if isinstance(b, DynamicsBuilding):
+                control_condition = EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV if control_condition is None else control_condition
+                baseline_condition = EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV if baseline_condition is None else baseline_condition
+            
+            else:
+                control_condition = EvaluationCondition.WITH_STORAGE_AND_PV if control_condition is None else control_condition
+                baseline_condition = EvaluationCondition.WITHOUT_STORAGE_BUT_WITH_PV if baseline_condition is None else baseline_condition
+
             discomfort_kwargs = {
                 'indoor_dry_bulb_temperature': b.indoor_dry_bulb_temperature,
                 'dry_bulb_temperature_set_point': b.indoor_dry_bulb_temperature_set_point,
@@ -931,21 +943,21 @@ class CityLearnEnv(Environment, Env):
                         + b.energy_to_non_shiftable_load
             building_level_ = pd.DataFrame([{
                 'cost_function': 'electricity_consumption_total',
-                'value': CostFunction.electricity_consumption(control_net_electricity_consumption(b))[-1]/\
-                    CostFunction.electricity_consumption(baseline_net_electricity_consumption(b))[-1],
+                'value': CostFunction.electricity_consumption(get_net_electricity_consumption(b, control_condition))[-1]/\
+                    CostFunction.electricity_consumption(get_net_electricity_consumption(b, baseline_condition))[-1],
             }, {
                 'cost_function': 'zero_net_energy',
-                'value': CostFunction.zero_net_energy(control_net_electricity_consumption(b))[-1]/\
-                    CostFunction.zero_net_energy(baseline_net_electricity_consumption(b))[-1],
+                'value': CostFunction.zero_net_energy(get_net_electricity_consumption(b, control_condition))[-1]/\
+                    CostFunction.zero_net_energy(get_net_electricity_consumption(b, baseline_condition))[-1],
             }, {
                 'cost_function': 'carbon_emissions_total',
-                'value': CostFunction.carbon_emissions(control_net_electricity_consumption_emission(b))[-1]/\
-                    CostFunction.carbon_emissions(baseline_net_electricity_consumption_emission(b))[-1]\
+                'value': CostFunction.carbon_emissions(get_net_electricity_consumption_emission(b, control_condition))[-1]/\
+                    CostFunction.carbon_emissions(get_net_electricity_consumption_emission(b, baseline_condition))[-1]\
                         if sum(b.carbon_intensity.carbon_intensity) != 0 else None,
             }, {
                 'cost_function': 'cost_total',
-                'value': CostFunction.cost(control_net_electricity_consumption_cost(b))[-1]/\
-                    CostFunction.cost(baseline_net_electricity_consumption_cost(b))[-1]\
+                'value': CostFunction.cost(get_net_electricity_consumption_cost(b, control_condition))[-1]/\
+                    CostFunction.cost(get_net_electricity_consumption_cost(b, baseline_condition))[-1]\
                         if sum(b.pricing.electricity_pricing) != 0 else None,
             }, {
                 'cost_function': 'discomfort_proportion',
@@ -982,26 +994,30 @@ class CityLearnEnv(Environment, Env):
         building_level['level'] = 'building'
 
         ## district level
+        # set default evaluation conditions
+        control_condition = EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV if control_condition is None else control_condition
+        baseline_condition = EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV if baseline_condition is None else baseline_condition
+
         district_level = pd.DataFrame([{
             'cost_function': 'ramping_average',
-            'value': CostFunction.ramping(control_net_electricity_consumption(self))[-1]/\
-                CostFunction.ramping(baseline_net_electricity_consumption(self))[-1],
+            'value': CostFunction.ramping(get_net_electricity_consumption(self, control_condition))[-1]/\
+                CostFunction.ramping(get_net_electricity_consumption(self, baseline_condition))[-1],
         }, {
             'cost_function': 'daily_one_minus_load_factor_average',
-            'value': CostFunction.one_minus_load_factor(control_net_electricity_consumption(self), window=24)[-1]/\
-                CostFunction.one_minus_load_factor(baseline_net_electricity_consumption(self), window=24)[-1],
+            'value': CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, control_condition), window=24)[-1]/\
+                CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, baseline_condition), window=24)[-1],
         },{
             'cost_function': 'monthly_one_minus_load_factor_average',
-            'value': CostFunction.one_minus_load_factor(control_net_electricity_consumption(self), window=730)[-1]/\
-                CostFunction.one_minus_load_factor(baseline_net_electricity_consumption(self), window=730)[-1],
+            'value': CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, control_condition), window=730)[-1]/\
+                CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, baseline_condition), window=730)[-1],
         }, {
             'cost_function': 'daily_peak_average',
-            'value': CostFunction.peak(control_net_electricity_consumption(self), window=24)[-1]/\
-                CostFunction.peak(baseline_net_electricity_consumption(self), window=24)[-1],
+            'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=24)[-1]/\
+                CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=24)[-1],
         }, {
             'cost_function': 'annual_peak_average',
-            'value': CostFunction.peak(control_net_electricity_consumption(self), window=8760)[-1]/\
-                CostFunction.peak(baseline_net_electricity_consumption(self), window=8760)[-1],
+            'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=8760)[-1]/\
+                CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=8760)[-1],
         }])
 
         district_level = pd.concat([district_level, building_level], ignore_index=True, sort=False)
