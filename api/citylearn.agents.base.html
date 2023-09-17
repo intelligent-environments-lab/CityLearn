@@ -23,8 +23,6 @@
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -156,7 +154,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>episodes</strong> (<em>int</em><em>, </em><em>default: 1</em>) – Number of training episode <span class="math notranslate nohighlight">\(\ge 1\)</span>.</p></li>
+<li><p><strong>episodes</strong> (<em>int</em><em>, </em><em>default: 1</em>) – Number of training episode &gt;= 1.</p></li>
 <li><p><strong>deterministic</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Indicator to take deterministic actions i.e. strictly exploit the learned policy.</p></li>
 <li><p><strong>deterministic_finish</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Indicator to take deterministic actions in the final episode.</p></li>
 <li><p><strong>logging_level</strong> (<em>int</em><em>, </em><em>default: 30</em>) – Logging level where increasing the number silences lower level information.</p></li>
