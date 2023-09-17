@@ -121,13 +121,13 @@ class Agent(Environment):
         Parameters
         ----------
         episodes: int, default: 1
-            Number of training episode :math:`\ge 1`.
+            Number of training episode >= 1.
         deterministic: bool, default: False
             Indicator to take deterministic actions i.e. strictly exploit the learned policy.
         deterministic_finish: bool, default: False
             Indicator to take deterministic actions in the final episode.
         logging_level: int, default: 30
-            Logging level where increasing the number silences lower level information.      
+            Logging level where increasing the number silences lower level information.
         """
         
         episodes = 1 if episodes is None else episodes
