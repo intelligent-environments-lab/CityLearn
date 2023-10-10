@@ -333,7 +333,7 @@ class CostFunction:
             'power_outage': [1]*len(served_energy) if power_outage is None else power_outage,
         })
         data['unserved_energy'] = data['expected_energy'] - data['served_energy']
-        data.loc[data['power_outage']==0, ('unserved_energy', 'expected_energy')] = (0.0, 0.0)
+        data.loc[data['power_outage']==0, 'unserved_energy'] = 0.0
         data['unserved_energy'] = data['unserved_energy'].rolling(window=data.shape[0], min_periods=1).sum()
         data['unserved_energy'] = data['unserved_energy']/data['expected_energy'].sum()
 
