@@ -128,12 +128,18 @@ class CityLearnEnv(Environment, Env):
         self.central_agent = central_agent
         self.shared_observations = shared_observations
 
-        # reset environment
+        # reset environment and initializes episode time steps
         self.reset()
+
+        # reset episode tracker to start after initializing episode time steps during reset
+        self.episode_tracker.reset_episode_index()
 
         # set reward function
         self.reward_function = reward_function
         self.reward_function.env_metadata = self.get_metadata()
+
+        # reward history tracker
+        self.__episode_rewards = []
         
     @property
     def schema(self) -> Union[str, Path, Mapping[str, Any]]:
@@ -160,7 +166,7 @@ class CityLearnEnv(Environment, Env):
         return self.episode_tracker.episode_time_steps
 
     @property
-    def episode_time_steps(self) -> int:
+    def episode_time_steps(self) -> Union[int, List[Tuple[int, int]]]:
         """If type is `int`, it is the number of time steps in an episode. If type is `List[Tuple[int, int]]]` is provided, it is a list of 
         episode start and end time steps between `simulation_start_time_step` and `simulation_end_time_step`. Defaults to (`simulation_end_time_step` 
         - `simulation_start_time_step`) + 1. Will ignore `rolling_episode_split` if `episode_splits` is of type `List[Tuple[int, int]]]`."""
@@ -197,6 +203,12 @@ class CityLearnEnv(Environment, Env):
         """Reward time series"""
 
         return self.__rewards
+    
+    @property
+    def episode_rewards(self) -> List[Mapping[str, Union[float, List[float]]]]:
+        """Reward summary statistics for elapsed episodes."""
+
+        return self.__episode_rewards
 
     @property
     def central_agent(self) -> bool:
@@ -703,7 +715,7 @@ class CityLearnEnv(Environment, Env):
             b.episode_tracker = self.episode_tracker
 
     @episode_time_steps.setter
-    def episode_time_steps(self, episode_time_steps: int):
+    def episode_time_steps(self, episode_time_steps: Union[int, List[Tuple[int, int]]]):
         self.__episode_time_steps = self.episode_tracker.simulation_time_steps if episode_time_steps is None else episode_time_steps
 
     @rolling_episode_split.setter
@@ -802,6 +814,19 @@ class CityLearnEnv(Environment, Env):
         reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
         reward = self.reward_function.calculate(observations=reward_observations)
         self.__rewards.append(reward)
+
+        # store episode reward summary
+        if self.done:
+            rewards = np.array(self.__rewards[1:], dtype='float32')
+            self.__episode_rewards.append({
+                'min': rewards.min(axis=0).tolist(),
+                'max': rewards.max(axis=0).tolist(),
+                'sum': rewards.sum(axis=0).tolist(),
+                'mean': rewards.mean(axis=0).tolist()
+            })
+
+        else:
+            pass
         
         return self.observations, reward, self.done, self.get_info()
 
