@@ -24,11 +24,12 @@ class EpisodeTracker:
     """
     
     def __init__(self, simulation_start_time_step: int, simulation_end_time_step: int):
-        self.__episode = -2
+        self.__episode = None
         self.__episode_start_time_step = None
         self.__episode_end_time_step = None
         self.__simulation_start_time_step = simulation_start_time_step
         self.__simulation_end_time_step = simulation_end_time_step
+        self.reset_episode_index()
 
     @property
     def episode(self):
@@ -126,6 +127,11 @@ class EpisodeTracker:
             ix = self.episode%len(splits)
 
         self.__episode_start_time_step, self.__episode_end_time_step = splits[ix]
+
+    def reset_episode_index(self):
+        """Resets episode index to -1 before any simulation."""
+
+        self.__episode = -1
 
 class Environment:
     """Base class for all `citylearn` classes that have a spatio-temporal dimension.

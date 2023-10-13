@@ -844,9 +844,9 @@ class Building(Environment):
 
         Parameters
         ----------
-        cooling_device_action : float, default: 0.0
+        cooling_device_action : float, default: np.nan
             Fraction of `cooling_device` `nominal_power` to make available for space cooling.
-        heating_device_action : float, default: 0.0
+        heating_device_action : float, default: np.nan
             Fraction of `heating_device` `nominal_power` to make available for space heating.
         cooling_storage_action : float, default: 0.0
             Fraction of `cooling_storage` `capacity` to charge/discharge by.
@@ -858,12 +858,12 @@ class Building(Environment):
             Fraction of `electrical_storage` `capacity` to charge/discharge by.
         """
 
-        cooling_device_action = 0.0 if cooling_device_action is None or math.isnan(cooling_device_action) else cooling_device_action
-        heating_device_action = 0.0 if heating_device_action is None or math.isnan(heating_device_action) else heating_device_action
-        cooling_storage_action = 0.0 if cooling_storage_action is None or math.isnan(cooling_storage_action) else cooling_storage_action
-        heating_storage_action = 0.0 if heating_storage_action is None or math.isnan(heating_storage_action) else heating_storage_action
-        dhw_storage_action = 0.0 if dhw_storage_action is None or math.isnan(dhw_storage_action) else dhw_storage_action
-        electrical_storage_action = 0.0 if electrical_storage_action is None or math.isnan(electrical_storage_action) else electrical_storage_action
+        cooling_device_action = np.nan if 'cooling_device' not in self.active_actions else cooling_device_action
+        heating_device_action = np.nan if 'heating_device' not in self.active_actions else heating_device_action
+        cooling_storage_action = 0.0 if 'cooling_storage' not in self.active_actions else cooling_storage_action
+        heating_storage_action = 0.0 if 'heating_storage' not in self.active_actions else heating_storage_action
+        dhw_storage_action = 0.0 if 'dhw_storage' not in self.active_actions else dhw_storage_action
+        electrical_storage_action = 0.0 if 'electrical_storage' not in self.active_actions else electrical_storage_action
 
         # set action priority
         actions = {
@@ -1976,7 +1976,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         # to use in lookback. Alternatively, one can use the rolled observation values at the end of the time series
         # but it complicates things and is not too realistic.
 
-        if self.simulate_dynamics:
+        if 'cooling_device' in self.active_actions and self.simulate_dynamics:
             if self.energy_simulation.hvac_mode[self.time_step] == 1:
                 electric_power = action*self.cooling_device.nominal_power
                 demand = self.cooling_device.get_max_output_power(
@@ -2012,7 +2012,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         lookback.
         """
         
-        if self.simulate_dynamics:
+        if 'heating_device' in self.active_actions and self.simulate_dynamics:
             if self.energy_simulation.hvac_mode[self.time_step] == 2:
                 electric_power = action*self.heating_device.nominal_power
                 demand = self.heating_device.get_max_output_power(

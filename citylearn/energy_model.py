@@ -568,10 +568,10 @@ class StorageDevice(Device):
         """
         
         # The initial State Of Charge (SOC) is the previous SOC minus the energy losses
-        energy = self.energy_init + energy
-        energy = min(energy*self.round_trip_efficiency, self.capacity) if energy >= 0 else max(0.0, energy/self.round_trip_efficiency)   
-        self.__energy_balance[self.time_step] = self.set_energy_balance(energy)
-        self.__soc[self.time_step] = energy/max(self.capacity, ZERO_DIVISION_PLACEHOLDER)
+        energy_final = min(self.energy_init + energy*self.round_trip_efficiency, self.capacity) if energy >= 0\
+            else max(0.0, self.energy_init + energy/self.round_trip_efficiency)
+        self.__soc[self.time_step] = energy_final/max(self.capacity, ZERO_DIVISION_PLACEHOLDER)
+        self.__energy_balance[self.time_step] = self.set_energy_balance(energy_final)
 
     def set_energy_balance(self, energy: float) -> float:
         r"""Calculate energy balance.
