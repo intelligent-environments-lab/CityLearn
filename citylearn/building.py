@@ -942,20 +942,21 @@ class Building(Environment):
         """
 
         energy = action*self.cooling_storage.capacity
-        demand = self.cooling_demand[self.time_step]
+        temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
         
         if energy > 0.0:
-            temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
             max_electric_power = self.downward_electrical_flexibility
             max_output = self.cooling_device.get_max_output_power(temperature, heating=False, max_electric_power=max_electric_power)
             energy = min(max_output, energy)
-            electricity_consumption = self.cooling_device.get_input_power(energy, temperature, heating=False)
-            self.cooling_device.update_electricity_consumption(electricity_consumption)
         
         else:
+            demand = self.cooling_demand[self.time_step]
             energy = max(-demand, energy)
-
+        
         self.cooling_storage.charge(energy)
+        charged_energy = max(self.cooling_storage.energy_balance[self.time_step], 0.0)
+        electricity_consumption = self.cooling_device.get_input_power(charged_energy, temperature, heating=False)
+        self.cooling_device.update_electricity_consumption(electricity_consumption)
 
     def update_heating_demand(self, action: float):
         """Update space heating demand for current time step."""
@@ -989,22 +990,23 @@ class Building(Environment):
         """
 
         energy = action*self.heating_storage.capacity
+        temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
 
         if energy > 0.0:
-            temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
             max_electric_power = self.downward_electrical_flexibility
             max_output = self.heating_device.get_max_output_power(temperature, heating=True, max_electric_power=max_electric_power)\
                 if isinstance(self.heating_device, HeatPump) else self.heating_device.get_max_output_power(max_electric_power=max_electric_power)
             energy = min(max_output, energy)
-            electricity_consumption = self.heating_device.get_input_power(energy, temperature, heating=True)\
-                if isinstance(self.heating_device, HeatPump) else self.heating_device.get_input_power(energy)
-            self.heating_device.update_electricity_consumption(electricity_consumption)
         
         else:
             demand = self.heating_demand[self.time_step]
             energy = max(-demand, energy)
 
         self.heating_storage.charge(energy)
+        charged_energy = max(self.heating_storage.energy_balance[self.time_step], 0.0)
+        electricity_consumption = self.heating_device.get_input_power(charged_energy, temperature, heating=True)\
+            if isinstance(self.heating_device, HeatPump) else self.heating_device.get_input_power(charged_energy)
+        self.heating_device.update_electricity_consumption(electricity_consumption)
 
     def update_energy_from_dhw_device(self):
         r"""Update dhw device electricity consumption and energy tranfer for current time step's dhw demand."""
@@ -1033,22 +1035,23 @@ class Building(Environment):
         """
 
         energy = action*self.dhw_storage.capacity
+        temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
 
         if energy > 0.0:
-            temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
             max_electric_power = self.downward_electrical_flexibility
             max_output = self.dhw_device.get_max_output_power(temperature, heating=True, max_electric_power=max_electric_power)\
                 if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_max_output_power(max_electric_power=max_electric_power)
-            energy =min(max_output, energy)
-            electricity_consumption = self.dhw_device.get_input_power(energy, temperature, heating=True)\
-                if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_input_power(energy)
-            self.dhw_device.update_electricity_consumption(electricity_consumption)
+            energy = min(max_output, energy)
 
         else:
             demand = self.dhw_demand[self.time_step]
             energy = max(-demand, energy)
 
         self.dhw_storage.charge(energy)
+        charged_energy = max(self.dhw_storage.energy_balance[self.time_step], 0.0)
+        electricity_consumption = self.dhw_device.get_input_power(charged_energy, temperature, heating=True)\
+            if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_input_power(charged_energy)
+        self.dhw_device.update_electricity_consumption(electricity_consumption)
 
     def update_non_shiftable_load(self):
         r"""Update non shiftable loads electricity consumption for current time step non shiftable load."""
@@ -1590,9 +1593,10 @@ class Building(Environment):
     def update_variables(self):
         """Update cooling, heating, dhw and net electricity consumption as well as net electricity consumption cost and carbon emissions."""
 
-        # cooling electricity consumption
         if self.time_step == 0:
             temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
+
+            # cooling electricity consumption
             cooling_demand = self.__energy_from_cooling_device[self.time_step] + self.cooling_storage.energy_balance[self.time_step]
             cooling_electricity_consumption = self.cooling_device.get_input_power(cooling_demand, temperature, heating=False)
             self.cooling_device.update_electricity_consumption(cooling_electricity_consumption)
