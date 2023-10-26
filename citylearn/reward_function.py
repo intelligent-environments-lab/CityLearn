@@ -34,6 +34,11 @@ class RewardFunction:
     def env_metadata(self, env_metadata: Mapping[str, Any]):
         self.__env_metadata = env_metadata
 
+    def reset(self):
+        """Use to reset variables at the start of an episode."""
+
+        pass
+
     def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
         r"""Calculates reward.
 

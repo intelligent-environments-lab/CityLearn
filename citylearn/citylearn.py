@@ -1,5 +1,5 @@
 from copy import deepcopy
-from enum import Enum, unique
+from enum import Enum
 import importlib
 import logging
 import os
@@ -128,14 +128,16 @@ class CityLearnEnv(Environment, Env):
         self.central_agent = central_agent
         self.shared_observations = shared_observations
 
+        # set reward function
+        self.reward_function = reward_function
+
         # reset environment and initializes episode time steps
         self.reset()
 
         # reset episode tracker to start after initializing episode time steps during reset
         self.episode_tracker.reset_episode_index()
 
-        # set reward function
-        self.reward_function = reward_function
+        # set reward metadata
         self.reward_function.env_metadata = self.get_metadata()
 
         # reward history tracker
@@ -1140,6 +1142,9 @@ class CityLearnEnv(Environment, Env):
 
         for building in self.buildings:
             building.reset()
+
+        # reset reward function (does nothing by default)
+        self.reward_function.reset()
 
         # variable reset
         self.__rewards = [[]]
