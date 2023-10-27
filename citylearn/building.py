@@ -1151,16 +1151,16 @@ class Building(Environment):
 
         # Use entire dataset length for space limit estimation
         data = {
-            'solar_generation':np.array(self.pv.get_generation(self.energy_simulation.__getattr__(
-                'solar_generation', 
-                start_time_step=self.episode_tracker.simulation_start_time_step, 
-                end_time_step=self.episode_tracker.simulation_end_time_step
-            ))),
             **{k.lstrip('_'): self.energy_simulation.__getattr__(
                 k.lstrip('_'), 
                 start_time_step=self.episode_tracker.simulation_start_time_step, 
                 end_time_step=self.episode_tracker.simulation_end_time_step
             ) for k in vars(self.energy_simulation)},
+            'solar_generation':np.array(self.pv.get_generation(self.energy_simulation.__getattr__(
+                'solar_generation', 
+                start_time_step=self.episode_tracker.simulation_start_time_step, 
+                end_time_step=self.episode_tracker.simulation_end_time_step
+            ))),
             **{k.lstrip('_'): self.weather.__getattr__(
                 k.lstrip('_'), 
                 start_time_step=self.episode_tracker.simulation_start_time_step, 
