@@ -759,6 +759,10 @@ class Building(Environment):
             'cooling_electricity_consumption': self.cooling_electricity_consumption[self.time_step],
             'heating_electricity_consumption': self.heating_electricity_consumption[self.time_step],
             'dhw_electricity_consumption': self.dhw_electricity_consumption[self.time_step],
+            'cooling_storage_electricity_consumption': self.cooling_storage_electricity_consumption[self.time_step],
+            'heating_storage_electricity_consumption': self.heating_storage_electricity_consumption[self.time_step],
+            'dhw_storage_electricity_consumption': self.dhw_storage_electricity_consumption[self.time_step],
+            'electrical_storage_electricity_consumption': self.electrical_storage_electricity_consumption[self.time_step],
             'cooling_device_cop': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
             'heating_device_cop': self.heating_device.get_cop(
                 self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
@@ -770,7 +774,7 @@ class Building(Environment):
         }
 
         if include_all:
-            valid_observations = list(self.observation_metadata.keys())
+            valid_observations = list(data.keys())
         else:
             valid_observations = self.active_observations
         
@@ -1151,16 +1155,16 @@ class Building(Environment):
 
         # Use entire dataset length for space limit estimation
         data = {
-            'solar_generation':np.array(self.pv.get_generation(self.energy_simulation.__getattr__(
-                'solar_generation', 
-                start_time_step=self.episode_tracker.simulation_start_time_step, 
-                end_time_step=self.episode_tracker.simulation_end_time_step
-            ))),
             **{k.lstrip('_'): self.energy_simulation.__getattr__(
                 k.lstrip('_'), 
                 start_time_step=self.episode_tracker.simulation_start_time_step, 
                 end_time_step=self.episode_tracker.simulation_end_time_step
             ) for k in vars(self.energy_simulation)},
+            'solar_generation':np.array(self.pv.get_generation(self.energy_simulation.__getattr__(
+                'solar_generation', 
+                start_time_step=self.episode_tracker.simulation_start_time_step, 
+                end_time_step=self.episode_tracker.simulation_end_time_step
+            ))),
             **{k.lstrip('_'): self.weather.__getattr__(
                 k.lstrip('_'), 
                 start_time_step=self.episode_tracker.simulation_start_time_step, 
@@ -1252,6 +1256,42 @@ class Building(Environment):
             elif key == 'dhw_electricity_consumption':
                 low_limit[key] = 0.0
                 high_limit[key] = self.dhw_device.nominal_power
+
+            elif key == 'cooling_storage_electricity_consumption':
+                demand = self.energy_simulation.__getattr__(
+                   f'cooling_demand', 
+                    start_time_step=self.episode_tracker.simulation_start_time_step, 
+                    end_time_step=self.episode_tracker.simulation_end_time_step
+                )
+                electricity_consumption = self.cooling_device.get_input_power(demand, data['outdoor_dry_bulb_temperature'], False)
+                low_limit[key] = -max(electricity_consumption)
+                high_limit[key] = self.cooling_device.nominal_power
+
+            elif key == 'heating_storage_electricity_consumption':
+                demand = self.energy_simulation.__getattr__(
+                   f'heating_demand', 
+                    start_time_step=self.episode_tracker.simulation_start_time_step, 
+                    end_time_step=self.episode_tracker.simulation_end_time_step
+                )
+                electricity_consumption = self.heating_device.get_input_power(demand, data['outdoor_dry_bulb_temperature'], True)\
+                    if isinstance(self.heating_device, HeatPump) else self.heating_device.get_input_power(demand)
+                low_limit[key] = -max(electricity_consumption)
+                high_limit[key] = self.heating_device.nominal_power
+                
+            elif key == 'dhw_storage_electricity_consumption':
+                demand = self.energy_simulation.__getattr__(
+                   f'dhw_demand', 
+                    start_time_step=self.episode_tracker.simulation_start_time_step, 
+                    end_time_step=self.episode_tracker.simulation_end_time_step
+                )
+                electricity_consumption = self.dhw_device.get_input_power(demand, data['outdoor_dry_bulb_temperature'], True)\
+                    if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_input_power(demand)
+                low_limit[key] = -max(electricity_consumption)
+                high_limit[key] = self.dhw_device.nominal_power
+                
+            elif key == 'electrical_storage_electricity_consumption':
+                low_limit[key] = -self.electrical_storage.nominal_power
+                high_limit[key] = self.electrical_storage.nominal_power
 
             elif key == 'power_outage':
                 low_limit[key] = 0.0
