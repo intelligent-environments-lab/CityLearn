@@ -118,6 +118,11 @@
     <span class="k">def</span> <span class="nf">env_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__env_metadata</span> <span class="o">=</span> <span class="n">env_metadata</span>
 
+<div class="viewcode-block" id="RewardFunction.reset"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Use to reset variables at the start of an episode.&quot;&quot;&quot;</span>
+
+        <span class="k">pass</span></div>
+
 <div class="viewcode-block" id="RewardFunction.calculate"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates reward.</span>
 

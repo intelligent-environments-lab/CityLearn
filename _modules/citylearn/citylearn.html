@@ -83,7 +83,7 @@
              
   <h1>Source code for citylearn.citylearn</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -212,14 +212,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">central_agent</span> <span class="o">=</span> <span class="n">central_agent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="o">=</span> <span class="n">shared_observations</span>
 
+        <span class="c1"># set reward function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span> <span class="o">=</span> <span class="n">reward_function</span>
+
         <span class="c1"># reset environment and initializes episode time steps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
         <span class="c1"># reset episode tracker to start after initializing episode time steps during reset</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">reset_episode_index</span><span class="p">()</span>
 
-        <span class="c1"># set reward function</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span> <span class="o">=</span> <span class="n">reward_function</span>
+        <span class="c1"># set reward metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span><span class="o">.</span><span class="n">env_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">()</span>
 
         <span class="c1"># reward history tracker</span>
@@ -1224,6 +1226,9 @@
 
         <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
             <span class="n">building</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="c1"># reset reward function (does nothing by default)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
         <span class="c1"># variable reset</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span> <span class="o">=</span> <span class="p">[[]]</span>
