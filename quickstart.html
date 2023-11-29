@@ -101,7 +101,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">CityLearn</span><span class="o">==</span><span class="m">2</span>.0.0
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>CityLearn
 </pre></div>
 </div>
 </div>
@@ -113,7 +113,7 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.agents.rbc</span> <span class="kn">import</span> <span class="n">BasicRBC</span> <span class="k">as</span> <span class="n">RBCAgent</span>
-<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">EvaluationCondition</span>
+<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
 <span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
@@ -121,18 +121,34 @@
 <span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># print cost functions at the end of episode</span>
-<span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">baseline_condition</span><span class="o">=</span><span class="n">EvaluationCondition</span><span class="o">.</span><span class="n">WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV</span><span class="p">)</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
 <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
 <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/local/lib/python3.10/dist-packages/citylearn/citylearn.py:31: DeprecationWarning: private variables, such as &#39;_EvaluationCondition__DEFAULT&#39;, will be normal attributes in 3.11
+  __DEFAULT = &#39;&#39;
+/usr/local/lib/python3.10/dist-packages/citylearn/citylearn.py:32: DeprecationWarning: private variables, such as &#39;_EvaluationCondition__STORAGE_SUFFIX&#39;, will be normal attributes in 3.11
+  __STORAGE_SUFFIX = &#39;_without_storage&#39;
+/usr/local/lib/python3.10/dist-packages/citylearn/citylearn.py:33: DeprecationWarning: private variables, such as &#39;_EvaluationCondition__PARTIAL_LOAD_SUFFIX&#39;, will be normal attributes in 3.11
+  __PARTIAL_LOAD_SUFFIX = &#39;_and_partial_load&#39;
+/usr/local/lib/python3.10/dist-packages/citylearn/citylearn.py:34: DeprecationWarning: private variables, such as &#39;_EvaluationCondition__PV_SUFFIX&#39;, will be normal attributes in 3.11
+  __PV_SUFFIX = &#39;_and_pv&#39;
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div>
+  <div id="df-8e2c89b3-22e7-4650-ad2c-cac27e75d027" class="colab-df-container">
+    <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -169,6 +185,15 @@
   </thead>
   <tbody>
     <tr>
+      <th>annual_normalized_unserved_energy_total</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
       <th>annual_peak_average</th>
       <td>NaN</td>
       <td>NaN</td>
@@ -179,21 +204,21 @@
     </tr>
     <tr>
       <th>carbon_emissions_total</th>
-      <td>1.102594</td>
-      <td>1.121684</td>
-      <td>1.160362</td>
-      <td>1.288392</td>
-      <td>1.156426</td>
-      <td>1.165892</td>
+      <td>1.102550</td>
+      <td>1.121634</td>
+      <td>1.160502</td>
+      <td>1.288958</td>
+      <td>1.156360</td>
+      <td>1.166001</td>
     </tr>
     <tr>
       <th>cost_total</th>
-      <td>1.052283</td>
-      <td>1.050133</td>
-      <td>1.099890</td>
-      <td>1.238812</td>
-      <td>1.061484</td>
-      <td>1.100520</td>
+      <td>1.051644</td>
+      <td>1.049357</td>
+      <td>1.099417</td>
+      <td>1.238857</td>
+      <td>1.060611</td>
+      <td>1.099977</td>
     </tr>
     <tr>
       <th>daily_one_minus_load_factor_average</th>
@@ -202,7 +227,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>1.006849</td>
+      <td>1.006957</td>
     </tr>
     <tr>
       <th>daily_peak_average</th>
@@ -211,7 +236,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>1.126686</td>
+      <td>1.127111</td>
     </tr>
     <tr>
       <th>discomfort_delta_average</th>
@@ -242,12 +267,12 @@
     </tr>
     <tr>
       <th>electricity_consumption_total</th>
-      <td>1.154071</td>
-      <td>1.201622</td>
-      <td>1.220946</td>
-      <td>1.351182</td>
+      <td>1.154070</td>
+      <td>1.201625</td>
+      <td>1.221118</td>
+      <td>1.351710</td>
       <td>1.251914</td>
-      <td>1.235947</td>
+      <td>1.236088</td>
     </tr>
     <tr>
       <th>monthly_one_minus_load_factor_average</th>
@@ -265,7 +290,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>1.157437</td>
+      <td>1.157428</td>
     </tr>
     <tr>
       <th>zero_net_energy</th>
@@ -278,7 +303,215 @@
     </tr>
   </tbody>
 </table>
-</div></div>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-8e2c89b3-22e7-4650-ad2c-cac27e75d027')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-8e2c89b3-22e7-4650-ad2c-cac27e75d027 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-8e2c89b3-22e7-4650-ad2c-cac27e75d027');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-31ae8241-adea-48bf-b964-ab0fed685139">
+  <button class="colab-df-quickchart" onclick="quickchart('df-31ae8241-adea-48bf-b964-ab0fed685139')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-31ae8241-adea-48bf-b964-ab0fed685139 button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+    </div>
+  </div></div>
 </div>
 </section>
 <section id="Decentralized-Independent-SAC">
@@ -289,7 +522,7 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.agents.sac</span> <span class="kn">import</span> <span class="n">SAC</span> <span class="k">as</span> <span class="n">RLAgent</span>
-<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">EvaluationCondition</span>
+<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
 <span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
@@ -297,18 +530,28 @@
 <span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">deterministic_finish</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># print cost functions at the end of episode</span>
-<span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">baseline_condition</span><span class="o">=</span><span class="n">EvaluationCondition</span><span class="o">.</span><span class="n">WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV</span><span class="p">)</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
 <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
 <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/local/lib/python3.10/dist-packages/ipykernel/ipkernel.py:283: DeprecationWarning: `should_run_async` will not call `transform_cell` automatically in the future. Please pass the result to `transformed_cell` argument and any exception that happen during thetransform in `preprocessing_exc_tuple` in IPython 7.17 and above.
+  and should_run_async(code)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div>
+  <div id="df-06d3514e-2b21-4c05-9ec4-415b5c467923" class="colab-df-container">
+    <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -345,31 +588,40 @@
   </thead>
   <tbody>
     <tr>
+      <th>annual_normalized_unserved_energy_total</th>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
       <th>annual_peak_average</th>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.999520</td>
+      <td>1.000224</td>
     </tr>
     <tr>
       <th>carbon_emissions_total</th>
-      <td>1.000830</td>
-      <td>1.003118</td>
-      <td>1.006803</td>
-      <td>1.008576</td>
-      <td>1.005219</td>
-      <td>1.004909</td>
+      <td>1.004662</td>
+      <td>1.0</td>
+      <td>1.006444</td>
+      <td>1.000440</td>
+      <td>1.002564</td>
+      <td>1.002822</td>
     </tr>
     <tr>
       <th>cost_total</th>
-      <td>1.000736</td>
-      <td>1.003527</td>
-      <td>1.005652</td>
-      <td>1.007746</td>
-      <td>1.004541</td>
-      <td>1.004441</td>
+      <td>1.004593</td>
+      <td>1.0</td>
+      <td>1.005644</td>
+      <td>1.000505</td>
+      <td>1.002343</td>
+      <td>1.002617</td>
     </tr>
     <tr>
       <th>daily_one_minus_load_factor_average</th>
@@ -378,7 +630,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.997970</td>
+      <td>0.998608</td>
     </tr>
     <tr>
       <th>daily_peak_average</th>
@@ -387,12 +639,12 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>1.002592</td>
+      <td>1.001827</td>
     </tr>
     <tr>
       <th>discomfort_delta_average</th>
       <td>0.000000</td>
-      <td>0.000000</td>
+      <td>0.0</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -401,7 +653,7 @@
     <tr>
       <th>discomfort_delta_maximum</th>
       <td>0.000000</td>
-      <td>0.000000</td>
+      <td>0.0</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -410,7 +662,7 @@
     <tr>
       <th>discomfort_delta_minimum</th>
       <td>0.000000</td>
-      <td>0.000000</td>
+      <td>0.0</td>
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.000000</td>
@@ -418,12 +670,12 @@
     </tr>
     <tr>
       <th>electricity_consumption_total</th>
-      <td>1.000747</td>
-      <td>1.003289</td>
-      <td>1.006059</td>
-      <td>1.008239</td>
-      <td>1.005223</td>
-      <td>1.004711</td>
+      <td>1.004508</td>
+      <td>1.0</td>
+      <td>1.006431</td>
+      <td>1.000633</td>
+      <td>1.002679</td>
+      <td>1.002850</td>
     </tr>
     <tr>
       <th>monthly_one_minus_load_factor_average</th>
@@ -432,7 +684,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.998779</td>
+      <td>0.999074</td>
     </tr>
     <tr>
       <th>ramping_average</th>
@@ -441,20 +693,228 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.999844</td>
+      <td>1.000063</td>
     </tr>
     <tr>
       <th>zero_net_energy</th>
-      <td>1.000396</td>
-      <td>1.002922</td>
+      <td>1.010314</td>
+      <td>1.0</td>
       <td>1.014362</td>
-      <td>1.016329</td>
-      <td>1.016463</td>
-      <td>1.010094</td>
+      <td>1.000529</td>
+      <td>1.002685</td>
+      <td>1.005578</td>
     </tr>
   </tbody>
 </table>
-</div></div>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-06d3514e-2b21-4c05-9ec4-415b5c467923')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-06d3514e-2b21-4c05-9ec4-415b5c467923 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-06d3514e-2b21-4c05-9ec4-415b5c467923');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-49eb7b68-1549-4fe2-b243-afb7c2ffe962">
+  <button class="colab-df-quickchart" onclick="quickchart('df-49eb7b68-1549-4fe2-b243-afb7c2ffe962')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-49eb7b68-1549-4fe2-b243-afb7c2ffe962 button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+    </div>
+  </div></div>
 </div>
 </section>
 <section id="Decentralized-Cooperative-MARLISA">
@@ -465,25 +925,35 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.agents.marlisa</span> <span class="kn">import</span> <span class="n">MARLISA</span> <span class="k">as</span> <span class="n">RLAgent</span>
-<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">EvaluationCondition</span>
+<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
 <span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2022_phase_1&#39;</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">RLAgent</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">deterministic_finish</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">baseline_condition</span><span class="o">=</span><span class="n">EvaluationCondition</span><span class="o">.</span><span class="n">WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV</span><span class="p">)</span>
+<span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
 <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
 <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/local/lib/python3.10/dist-packages/ipykernel/ipkernel.py:283: DeprecationWarning: `should_run_async` will not call `transform_cell` automatically in the future. Please pass the result to `transformed_cell` argument and any exception that happen during thetransform in `preprocessing_exc_tuple` in IPython 7.17 and above.
+  and should_run_async(code)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div>
+  <div id="df-5d3dcb00-7119-4be8-bed6-6961d663b9b3" class="colab-df-container">
+    <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -520,31 +990,40 @@
   </thead>
   <tbody>
     <tr>
+      <th>annual_normalized_unserved_energy_total</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
       <th>annual_peak_average</th>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.996312</td>
+      <td>1.000144</td>
     </tr>
     <tr>
       <th>carbon_emissions_total</th>
-      <td>1.001109</td>
-      <td>1.001338</td>
-      <td>1.002362</td>
-      <td>1.001276</td>
-      <td>1.001262</td>
-      <td>1.001469</td>
+      <td>1.001658</td>
+      <td>1.000789</td>
+      <td>1.000947</td>
+      <td>1.001103</td>
+      <td>0.999957</td>
+      <td>1.000890</td>
     </tr>
     <tr>
       <th>cost_total</th>
-      <td>1.000774</td>
-      <td>1.000223</td>
-      <td>1.002054</td>
-      <td>1.001097</td>
-      <td>1.000936</td>
-      <td>1.001017</td>
+      <td>1.002205</td>
+      <td>1.001202</td>
+      <td>1.000498</td>
+      <td>1.002034</td>
+      <td>0.999780</td>
+      <td>1.001144</td>
     </tr>
     <tr>
       <th>daily_one_minus_load_factor_average</th>
@@ -553,7 +1032,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.999645</td>
+      <td>0.999698</td>
     </tr>
     <tr>
       <th>daily_peak_average</th>
@@ -562,7 +1041,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>1.000204</td>
+      <td>1.000874</td>
     </tr>
     <tr>
       <th>discomfort_delta_average</th>
@@ -593,12 +1072,12 @@
     </tr>
     <tr>
       <th>electricity_consumption_total</th>
-      <td>1.001689</td>
-      <td>1.002693</td>
-      <td>1.003330</td>
-      <td>1.001814</td>
-      <td>1.001687</td>
-      <td>1.002243</td>
+      <td>1.001355</td>
+      <td>1.000561</td>
+      <td>1.000642</td>
+      <td>1.000686</td>
+      <td>1.000097</td>
+      <td>1.000668</td>
     </tr>
     <tr>
       <th>monthly_one_minus_load_factor_average</th>
@@ -607,7 +1086,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.999536</td>
+      <td>0.999600</td>
     </tr>
     <tr>
       <th>ramping_average</th>
@@ -616,20 +1095,228 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>1.000448</td>
+      <td>1.000677</td>
     </tr>
     <tr>
       <th>zero_net_energy</th>
-      <td>1.000717</td>
-      <td>1.001723</td>
-      <td>1.001401</td>
-      <td>1.000740</td>
-      <td>1.000561</td>
-      <td>1.001029</td>
+      <td>1.002913</td>
+      <td>1.000520</td>
+      <td>1.001797</td>
+      <td>1.001839</td>
+      <td>1.000932</td>
+      <td>1.001600</td>
     </tr>
   </tbody>
 </table>
-</div></div>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-5d3dcb00-7119-4be8-bed6-6961d663b9b3')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-5d3dcb00-7119-4be8-bed6-6961d663b9b3 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-5d3dcb00-7119-4be8-bed6-6961d663b9b3');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-e7b2e7f9-41f1-49f2-b1b9-76e31f9db92d">
+  <button class="colab-df-quickchart" onclick="quickchart('df-e7b2e7f9-41f1-49f2-b1b9-76e31f9db92d')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-e7b2e7f9-41f1-49f2-b1b9-76e31f9db92d button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+    </div>
+  </div></div>
 </div>
 </section>
 <section id="Stable-Baselines3-Reinforcement-Learning-Algorithms">
@@ -639,7 +1326,8 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>stable-baselines3<span class="o">==</span><span class="m">1</span>.7.0
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">shimmy</span><span class="o">==</span><span class="m">0</span>.2.1
+<span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>stable-baselines3<span class="o">==</span><span class="m">2</span>.1.0
 </pre></div>
 </div>
 </div>
@@ -678,11 +1366,25 @@
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/local/lib/python3.10/dist-packages/tensorflow/python/framework/dtypes.py:35: DeprecationWarning: ml_dtypes.float8_e4m3b11 is deprecated. Use ml_dtypes.float8_e4m3b11fnuz
+  from tensorflow.tsl.python.lib.core import pywrap_ml_dtypes
+/usr/local/lib/python3.10/dist-packages/gym/core.py:317: DeprecationWarning: <span class="ansi-yellow-fg">WARN: Initializing wrapper in old step API which returns one bool instead of two. It is recommended to set `new_step_api=True` to use new step API. This will be the default behaviour in future.</span>
+  deprecation(
+/usr/local/lib/python3.10/dist-packages/stable_baselines3/common/vec_env/patch_gym.py:49: UserWarning: You provided an OpenAI Gym environment. We strongly recommend transitioning to Gymnasium environments. Stable-Baselines3 is automatically wrapping your environments in a compatibility layer, which could potentially cause issues.
+  warnings.warn(
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div>
+  <div id="df-a43f580f-4fc5-40fc-9e44-4b48755c2a3e" class="colab-df-container">
+    <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
@@ -717,20 +1419,28 @@
   </thead>
   <tbody>
     <tr>
+      <th>annual_normalized_unserved_energy_total</th>
+      <td>3.251227e-10</td>
+      <td>-2.049072e-10</td>
+      <td>0.000000</td>
+      <td>2.032326e-10</td>
+      <td>8.086204e-11</td>
+    </tr>
+    <tr>
       <th>annual_peak_average</th>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.572397</td>
+      <td>5.829849e-01</td>
     </tr>
     <tr>
       <th>cost_total</th>
-      <td>1.018358</td>
-      <td>0.988815</td>
-      <td>0.737863</td>
-      <td>0.589145</td>
-      <td>0.833545</td>
+      <td>1.037740e+00</td>
+      <td>6.016434e-01</td>
+      <td>0.761491</td>
+      <td>4.804734e-01</td>
+      <td>7.203371e-01</td>
     </tr>
     <tr>
       <th>daily_one_minus_load_factor_average</th>
@@ -738,7 +1448,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.942072</td>
+      <td>9.960214e-01</td>
     </tr>
     <tr>
       <th>daily_peak_average</th>
@@ -746,63 +1456,63 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.706729</td>
+      <td>6.309540e-01</td>
     </tr>
     <tr>
       <th>discomfort_delta_average</th>
-      <td>-0.377245</td>
-      <td>-0.009167</td>
-      <td>3.860405</td>
-      <td>2.633747</td>
-      <td>1.526935</td>
+      <td>-3.981834e-01</td>
+      <td>7.763432e-01</td>
+      <td>3.866776</td>
+      <td>3.287224e+00</td>
+      <td>1.883040e+00</td>
     </tr>
     <tr>
       <th>discomfort_delta_maximum</th>
-      <td>2.292152</td>
-      <td>2.667698</td>
-      <td>6.868553</td>
-      <td>8.035797</td>
-      <td>4.966050</td>
+      <td>2.259375e+00</td>
+      <td>2.658461e+00</td>
+      <td>6.857704</td>
+      <td>8.107384e+00</td>
+      <td>4.970731e+00</td>
     </tr>
     <tr>
       <th>discomfort_delta_minimum</th>
-      <td>-6.134180</td>
-      <td>-3.742098</td>
-      <td>-3.700124</td>
-      <td>-2.782747</td>
-      <td>-4.089787</td>
+      <td>-3.941513e+00</td>
+      <td>-2.659611e+00</td>
+      <td>-3.700125</td>
+      <td>-2.782747e+00</td>
+      <td>-3.270999e+00</td>
     </tr>
     <tr>
       <th>discomfort_proportion</th>
-      <td>0.290196</td>
-      <td>0.545936</td>
-      <td>0.875761</td>
-      <td>0.683599</td>
-      <td>0.598873</td>
+      <td>2.313725e-01</td>
+      <td>4.893993e-01</td>
+      <td>0.874543</td>
+      <td>8.301887e-01</td>
+      <td>6.063759e-01</td>
     </tr>
     <tr>
       <th>discomfort_too_cold_proportion</th>
-      <td>0.254902</td>
-      <td>0.256184</td>
+      <td>2.156863e-01</td>
+      <td>8.833922e-03</td>
       <td>0.003654</td>
-      <td>0.005806</td>
-      <td>0.130136</td>
+      <td>4.354136e-03</td>
+      <td>5.813210e-02</td>
     </tr>
     <tr>
       <th>discomfort_too_hot_proportion</th>
-      <td>0.035294</td>
-      <td>0.289753</td>
-      <td>0.872107</td>
-      <td>0.677794</td>
-      <td>0.468737</td>
+      <td>1.568627e-02</td>
+      <td>4.805654e-01</td>
+      <td>0.870889</td>
+      <td>8.258345e-01</td>
+      <td>5.482438e-01</td>
     </tr>
     <tr>
       <th>electricity_consumption_total</th>
-      <td>1.043795</td>
-      <td>1.060913</td>
-      <td>0.764151</td>
-      <td>0.648842</td>
-      <td>0.879425</td>
+      <td>1.044388e+00</td>
+      <td>6.370223e-01</td>
+      <td>0.751090</td>
+      <td>5.356911e-01</td>
+      <td>7.420478e-01</td>
     </tr>
     <tr>
       <th>monthly_one_minus_load_factor_average</th>
@@ -810,7 +1520,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.859535</td>
+      <td>9.905221e-01</td>
     </tr>
     <tr>
       <th>ramping_average</th>
@@ -818,19 +1528,227 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>1.019842</td>
+      <td>7.751627e-01</td>
     </tr>
     <tr>
       <th>zero_net_energy</th>
-      <td>1.043196</td>
-      <td>1.060596</td>
-      <td>0.764151</td>
-      <td>0.514950</td>
-      <td>0.845723</td>
+      <td>1.044388e+00</td>
+      <td>6.370223e-01</td>
+      <td>0.751090</td>
+      <td>4.168003e-01</td>
+      <td>7.123251e-01</td>
     </tr>
   </tbody>
 </table>
-</div></div>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-a43f580f-4fc5-40fc-9e44-4b48755c2a3e')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-a43f580f-4fc5-40fc-9e44-4b48755c2a3e button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-a43f580f-4fc5-40fc-9e44-4b48755c2a3e');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-49cb8845-9f98-4c6b-a3f4-eec602e036ab">
+  <button class="colab-df-quickchart" onclick="quickchart('df-49cb8845-9f98-4c6b-a3f4-eec602e036ab')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-49cb8845-9f98-4c6b-a3f4-eec602e036ab button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+    </div>
+  </div></div>
 </div>
 </section>
 </section>
