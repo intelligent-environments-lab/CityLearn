@@ -225,3 +225,14 @@ class Agent(Environment):
     def reset(self):
         super().reset()
         self.__actions = [[[]] for _ in self.action_space]
+
+class DummyController(Agent):
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        super().__init__(env, **kwargs)
+
+    def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
+        actions = [[0.0 if 'storage' in n else None for n in a] for a in self.action_names]
+        self.actions = actions
+        self.next_time_step()
+        
+        return actions
