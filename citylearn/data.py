@@ -207,7 +207,7 @@ class EnergySimulation(TimeSeriesData):
         self.indoor_dry_bulb_temperature_set_point_without_control = self.indoor_dry_bulb_temperature_set_point.copy()
 
         if hvac_mode is None:
-            self.hvac_mode = np.zeros(len(solar_generation), dtype='float32')*1 
+            self.hvac_mode = np.zeros(len(solar_generation), dtype='float32') + 1 
         
         else:
             unique = list(set(hvac_mode))
