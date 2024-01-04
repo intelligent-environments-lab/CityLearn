@@ -82,7 +82,7 @@ class Building(Environment):
         self.pv = pv
         super().__init__(
             seconds_per_time_step=kwargs.get('seconds_per_time_step'),
-            random_seed=kwargs.get('randon_seed'),
+            random_seed=kwargs.get('random_seed'),
             episode_tracker=episode_tracker
         )
         self.stochastic_power_outage_model = stochastic_power_outage_model
