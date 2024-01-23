@@ -334,3 +334,56 @@ class CarbonIntensity(TimeSeriesData):
     def __init__(self, carbon_intensity: Iterable[float], start_time_step: int = None, end_time_step: int = None):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.carbon_intensity = np.array(carbon_intensity, dtype='float32')
+
+
+class EVSimulation:
+    """`electric_vehicle` `ev_simulation` data class.
+
+    Month,Hour,Day Type,Location,Estimated Departure Time,Required Soc At Departure
+
+    Attributes
+    ----------
+    month : np.array
+        Month time series value ranging from 1 - 12.
+    hour : np.array
+        Hour time series value ranging from 1 - 24.
+    day_type : np.array
+        Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.
+    ev_state : np.array
+        State of the electric_vehicle indicating whether it is 'parked ready to charge' represented as 0, 'in transit', represented as 1.
+    charger : np.array
+        (available only for 'in transit' state) Charger where the electric_vehicle will plug in the next "parked ready to charge" state.
+        It can be nan if no destination charger is specified or the charger id in the format "Charger_X_Y", where X is
+        the number of the building and Y the number of the charger within that building.
+    estimated_departure_time : np.array
+        Number of time steps  expected until the vehicle departs (available only for 'parked ready to charge' state)
+    required_soc_departure : np.array
+        Estimated SOC percentage required for the electric_vehicle at departure time. (available only for 'parked ready to charge' state)
+    estimated_arrival_time : np.array
+        Number of time steps  expected until the vehicle arrives at the charger (available only for 'in transit' state)
+    estimated_soc_arrival : np.array
+        Estimated SOC percentage for the electric_vehicle at arrival time. (available only for 'in transit' state)
+
+    """
+
+    def __init__(
+            self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int], state: Iterable[str],
+            charger: Iterable[str], estimated_departure_time: Iterable[int], required_soc_departure: Iterable[float],
+            estimated_arrival_time: Iterable[int], estimated_soc_arrival: Iterable[float]
+    ):
+        r"""Initialize `EVSimulation`."""
+
+        self.month = np.array(month, dtype=int)
+        self.hour = np.array(hour, dtype=int)
+        self.day_type = np.array(day_type, dtype=int)
+        self.ev_state = np.array(state, dtype=int)
+        self.charger = np.array(charger, dtype=str)
+        # NaNs are considered and filled as -1
+        default_value = -1
+        self.estimated_departure_time = np.nan_to_num(np.array(estimated_departure_time, dtype=float),
+                                                      nan=default_value).astype(int)
+        self.required_soc_departure = np.nan_to_num(np.array(required_soc_departure, dtype=float), nan=default_value)
+        self.estimated_arrival_time = np.nan_to_num(np.array(estimated_arrival_time, dtype=float),
+                                                    nan=default_value).astype(int)
+        self.estimated_soc_arrival = np.nan_to_num(np.array(estimated_soc_arrival, dtype=float), nan=default_value)
+
