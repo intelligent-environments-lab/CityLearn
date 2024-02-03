@@ -533,7 +533,7 @@ class StorageDevice(Device):
         if loss_coefficient is None:
             self.__loss_coefficient = 0.006
         else:
-            assert 0 <= loss_coefficient <= 1, 'initial_soc must be >= 0 and <= 1.'
+            assert 0 <= loss_coefficient <= 1, 'loss_coefficient must be >= 0 and <= 1.'
             self.__loss_coefficient = loss_coefficient
 
     @initial_soc.setter
