@@ -194,7 +194,7 @@
         
         <span class="k">return</span> <span class="n">actions</span>
 
-<div class="viewcode-block" id="TabularQLearning.update"><a class="viewcode-back" href="../../../api/citylearn.agents.q_learning.html#citylearn.agents.q_learning.TabularQLearning.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">reward</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">next_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]):</span>
+<div class="viewcode-block" id="TabularQLearning.update"><a class="viewcode-back" href="../../../api/citylearn.agents.q_learning.html#citylearn.agents.q_learning.TabularQLearning.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">reward</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">next_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">done</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update Q-Table using Bellman equation.</span>
 
 <span class="sd">        Parameters</span>
@@ -207,6 +207,8 @@
 <span class="sd">            Current time step reward.</span>
 <span class="sd">        next_observations : List[List[float]]</span>
 <span class="sd">            Current time step observations.</span>
+<span class="sd">        done : bool</span>
+<span class="sd">            Indication that episode has ended.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Compute temporal difference target and error to udpate q-function</span>

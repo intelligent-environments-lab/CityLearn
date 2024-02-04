@@ -617,7 +617,7 @@
         <span class="k">if</span> <span class="n">loss_coefficient</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__loss_coefficient</span> <span class="o">=</span> <span class="mf">0.006</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">loss_coefficient</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;initial_soc must be &gt;= 0 and &lt;= 1.&#39;</span>
+            <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">loss_coefficient</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;loss_coefficient must be &gt;= 0 and &lt;= 1.&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__loss_coefficient</span> <span class="o">=</span> <span class="n">loss_coefficient</span>
 
     <span class="nd">@initial_soc</span><span class="o">.</span><span class="n">setter</span>
