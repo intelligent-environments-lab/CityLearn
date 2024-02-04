@@ -4,7 +4,7 @@ The CityLearn Challenge 2022
 
 .. note::
 
-    The CityLearn Challenge 2022 has now concluded! The winners and the leaderboard have been announced at the `NEURIPS 2022 Competition - The CityLearn Challenge 2022 <https://youtu.be/Yel5zybmvwg>`_:
+    The CityLearn Challenge 2022 has now concluded! The winners and the leaderboard have been announced at the `NEURIPS 2022 Competition - The CityLearn Challenge 2022 <https://youtu.be/Yel5zybmvwg>`_.
 
 .. note::
 
