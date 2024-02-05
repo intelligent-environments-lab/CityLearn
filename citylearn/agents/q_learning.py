@@ -110,7 +110,7 @@ class TabularQLearning(Agent):
         
         return actions
 
-    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]]):
+    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], done: bool):
         r"""Update Q-Table using Bellman equation.
 
         Parameters
@@ -123,6 +123,8 @@ class TabularQLearning(Agent):
             Current time step reward.
         next_observations : List[List[float]]
             Current time step observations.
+        done : bool
+            Indication that episode has ended.
         """
 
         # Compute temporal difference target and error to udpate q-function

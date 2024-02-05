@@ -688,6 +688,13 @@ class Building(Environment):
     @Environment.random_seed.setter
     def random_seed(self, seed: int):
         Environment.random_seed.fset(self, seed)
+        self.cooling_device.random_seed = self.random_seed
+        self.heating_device.random_seed = self.random_seed
+        self.dhw_device.random_seed = self.random_seed
+        self.cooling_storage.random_seed = self.random_seed
+        self.heating_storage.random_seed = self.random_seed
+        self.electrical_storage.random_seed = self.random_seed
+        self.pv.random_seed = self.random_seed
 
     @Environment.episode_tracker.setter
     def episode_tracker(self, episode_tracker: EpisodeTracker):

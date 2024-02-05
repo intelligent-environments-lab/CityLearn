@@ -226,9 +226,43 @@ class Agent(Environment):
         super().reset()
         self.__actions = [[[]] for _ in self.action_space]
 
-class DummyController(Agent):
+class DummyAgent(Agent):
+    r"""Agent class for business-as-usual simulation where the storage systems and heat pumps are not controlled.
+
+    This agent will provide results for when there is no storage for load shifting and no heat pump partial load. 
+    The storage actions prescribed will be 0.0 and the heat pump will have no action, i.e. `None`, causing it to 
+    deliver the ideal load in the building time series files. 
+    
+    To ensure that the environment does not expect non-zero and non-null actions, the buildings in the parsed `env` 
+    will be set to have no active actions. This means that you must initialize a new `env` if you want to simulate
+    with a new agent type. 
+    
+    This agent class is best used to establish a baseline simulation that can then be compared 
+    to RBC, RLC, or MPC control algorithms.
+
+    Parameters
+    ----------
+    env : CityLearnEnv
+        CityLearn environment.
+
+    Other Parameters
+    ----------------
+    **kwargs : dict
+        Other keyword arguments used to initialize super class.
+    """
+
     def __init__(self, env: CityLearnEnv, **kwargs: Any):
-        super().__init__(env, **kwargs)
+        super().__init__(self.__deactivate_actions(env), **kwargs)
+
+    def __deactivate_actions(self, env: CityLearnEnv) -> CityLearnEnv:
+        for b in env.unwrapped.buildings:
+            for a in b.action_metadata:
+                b.action_metadata[a] = False
+
+            b.action_space = b.estimate_action_space()
+            b.observation_space = b.estimate_observation_space()
+
+        return env
 
     def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         actions = [[0.0 if 'storage' in n else None for n in a] for a in self.action_names]
