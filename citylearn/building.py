@@ -47,8 +47,12 @@ class Building(Environment):
         PV object for offsetting electricity demand from grid.
     name : str, optional
         Unique building name.
-    maximum_temperature_delta: float, default: 5.0
+    observation_space_limit_delta: float, default: 0.0
+        +/- buffer for observation space limits after they have been dynamically calculated.
+    maximum_temperature_delta: float, default: 10.0
         Expected maximum absolute temperature delta above and below indoor dry-bulb temperature in [C].
+    demand_observation_limit_factor: float, default: 1.15
+        Multiplier for maximum cooling/heating/dhw demand observations when setting observation limits.
     simulate_power_outage: bool, default: False
         Whether to allow time steps when the grid is unavailable and loads must be met using only the 
         building's downward flexibility resources.
@@ -68,7 +72,7 @@ class Building(Environment):
         self, energy_simulation: EnergySimulation, weather: Weather, observation_metadata: Mapping[str, bool], action_metadata: Mapping[str, bool], episode_tracker: EpisodeTracker, carbon_intensity: CarbonIntensity = None, 
         pricing: Pricing = None, dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, 
         dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None,
-        maximum_temperature_delta: float = None, simulate_power_outage: bool = None, stochastic_power_outage: bool = None, stochastic_power_outage_model: PowerOutage = None, **kwargs: Any
+        maximum_temperature_delta: float = None, observation_space_limit_delta: float = None, demand_observation_limit_factor: float = None, simulate_power_outage: bool = None, stochastic_power_outage: bool = None, stochastic_power_outage_model: PowerOutage = None, **kwargs: Any
     ):  
         self.name = name
         self.dhw_storage = dhw_storage
@@ -92,9 +96,9 @@ class Building(Environment):
         self.pricing = pricing
         self.observation_metadata = observation_metadata
         self.action_metadata = action_metadata
-        self.__observation_epsilon = 0.0 # to avoid out of bound observations
-        self.maximum_temperature_delta = 10.0 if maximum_temperature_delta is None else maximum_temperature_delta # C
-        self.__thermal_load_factor = 1.15
+        self.observation_space_limit_delta = observation_space_limit_delta
+        self.maximum_temperature_delta = maximum_temperature_delta
+        self.demand_observation_limit_factor = demand_observation_limit_factor
         self.simulate_power_outage = simulate_power_outage
         self.stochastic_power_outage = stochastic_power_outage
         self.non_periodic_normalized_observation_space_limits = None
@@ -197,6 +201,24 @@ class Building(Environment):
         """Unique building name."""
 
         return self.__name
+    
+    @property
+    def observation_space_limit_delta(self) -> float:
+        """+/- buffer for observation space limits after they have been dynamically calculated."""
+
+        return self.__observation_space_limit_delta
+    
+    @property
+    def maximum_temperature_delta(self) -> float:
+        """Expected maximum absolute temperature delta above and below indoor dry-bulb temperature in [C]."""
+
+        return self.__maximum_temperature_delta
+    
+    @property
+    def demand_observation_limit_factor(self) -> float:
+        """Multiplier for maximum cooling/heating/dhw demand observations when setting observation limits."""
+
+        return self.__demand_observation_limit_factor 
     
     @property
     def simulate_power_outage(self) -> bool:
@@ -646,6 +668,36 @@ class Building(Environment):
     @name.setter
     def name(self, name: str):
         self.__name = self.uid if name is None else name
+
+    @observation_space_limit_delta.setter
+    def observation_space_limit_delta(self, observation_space_limit_delta: float):
+        self.__observation_space_limit_delta = 0.0 if observation_space_limit_delta is None else observation_space_limit_delta
+
+        if hasattr(self, 'observation_space') and self.observation_space is not None:
+            self.observation_space = self.estimate_observation_space(include_all=False, normalize=False)
+
+        else:
+            pass
+
+    @maximum_temperature_delta.setter
+    def maximum_temperature_delta(self, maximum_temperature_delta: float):
+        self.__maximum_temperature_delta = 10.0 if maximum_temperature_delta is None else maximum_temperature_delta
+
+        if hasattr(self, 'observation_space') and self.observation_space is not None:
+            self.observation_space = self.estimate_observation_space(include_all=False, normalize=False)
+
+        else:
+            pass
+
+    @demand_observation_limit_factor.setter
+    def demand_observation_limit_factor(self, demand_observation_limit_factor: float):
+        self.__demand_observation_limit_factor = 1.15 if demand_observation_limit_factor is None else demand_observation_limit_factor
+
+        if hasattr(self, 'observation_space') and self.observation_space is not None:
+            self.observation_space = self.estimate_observation_space(include_all=False, normalize=False)
+
+        else:
+            pass
 
     @stochastic_power_outage_model.setter
     def stochastic_power_outage_model(self, stochastic_power_outage_model: PowerOutage):
@@ -1250,7 +1302,7 @@ class Building(Environment):
             elif key in ['cooling_demand', 'heating_demand', 'dhw_demand']:
                 low_limit[key] = 0.0
                 max_demand = data[key].max()
-                high_limit[key] = max_demand*self.__thermal_load_factor
+                high_limit[key] = max_demand*self.demand_observation_limit_factor
 
             elif key == 'cooling_electricity_consumption':
                 low_limit[key] = 0.0
@@ -1314,8 +1366,8 @@ class Building(Environment):
                 low_limit[key] = min(data[key])
                 high_limit[key] = max(data[key])
 
-        low_limit = {k: v - self.__observation_epsilon for k, v in low_limit.items()}
-        high_limit = {k: v + self.__observation_epsilon for k, v in high_limit.items()}
+        low_limit = {k: v - self.observation_space_limit_delta for k, v in low_limit.items()}
+        high_limit = {k: v + self.observation_space_limit_delta for k, v in high_limit.items()}
 
         return low_limit, high_limit
     
