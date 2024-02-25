@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.building &mdash; CityLearn 2.1.1 documentation</title>
+  <title>citylearn.building &mdash; CityLearn 2.1.2 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
@@ -131,8 +131,12 @@
 <span class="sd">        PV object for offsetting electricity demand from grid.</span>
 <span class="sd">    name : str, optional</span>
 <span class="sd">        Unique building name.</span>
-<span class="sd">    maximum_temperature_delta: float, default: 5.0</span>
+<span class="sd">    observation_space_limit_delta: float, default: 0.0</span>
+<span class="sd">        +/- buffer for observation space limits after they have been dynamically calculated.</span>
+<span class="sd">    maximum_temperature_delta: float, default: 10.0</span>
 <span class="sd">        Expected maximum absolute temperature delta above and below indoor dry-bulb temperature in [C].</span>
+<span class="sd">    demand_observation_limit_factor: float, default: 1.15</span>
+<span class="sd">        Multiplier for maximum cooling/heating/dhw demand observations when setting observation limits.</span>
 <span class="sd">    simulate_power_outage: bool, default: False</span>
 <span class="sd">        Whether to allow time steps when the grid is unavailable and loads must be met using only the </span>
 <span class="sd">        building&#39;s downward flexibility resources.</span>
@@ -152,7 +156,7 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">energy_simulation</span><span class="p">:</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">weather</span><span class="p">:</span> <span class="n">Weather</span><span class="p">,</span> <span class="n">observation_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">action_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">,</span> <span class="n">carbon_intensity</span><span class="p">:</span> <span class="n">CarbonIntensity</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
         <span class="n">pricing</span><span class="p">:</span> <span class="n">Pricing</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dhw_storage</span><span class="p">:</span> <span class="n">StorageTank</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cooling_storage</span><span class="p">:</span> <span class="n">StorageTank</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">heating_storage</span><span class="p">:</span> <span class="n">StorageTank</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">electrical_storage</span><span class="p">:</span> <span class="n">Battery</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
         <span class="n">dhw_device</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">HeatPump</span><span class="p">,</span> <span class="n">ElectricHeater</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cooling_device</span><span class="p">:</span> <span class="n">HeatPump</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">heating_device</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">HeatPump</span><span class="p">,</span> <span class="n">ElectricHeater</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pv</span><span class="p">:</span> <span class="n">PV</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">maximum_temperature_delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">simulate_power_outage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">stochastic_power_outage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">stochastic_power_outage_model</span><span class="p">:</span> <span class="n">PowerOutage</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+        <span class="n">maximum_temperature_delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">observation_space_limit_delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">demand_observation_limit_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">simulate_power_outage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">stochastic_power_outage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">stochastic_power_outage_model</span><span class="p">:</span> <span class="n">PowerOutage</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">):</span>  
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dhw_storage</span> <span class="o">=</span> <span class="n">dhw_storage</span>
@@ -176,9 +180,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pricing</span> <span class="o">=</span> <span class="n">pricing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_metadata</span> <span class="o">=</span> <span class="n">observation_metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_metadata</span> <span class="o">=</span> <span class="n">action_metadata</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__observation_epsilon</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># to avoid out of bound observations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_temperature_delta</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="k">if</span> <span class="n">maximum_temperature_delta</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">maximum_temperature_delta</span> <span class="c1"># C</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__thermal_load_factor</span> <span class="o">=</span> <span class="mf">1.15</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">observation_space_limit_delta</span> <span class="o">=</span> <span class="n">observation_space_limit_delta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_temperature_delta</span> <span class="o">=</span> <span class="n">maximum_temperature_delta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">demand_observation_limit_factor</span> <span class="o">=</span> <span class="n">demand_observation_limit_factor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">simulate_power_outage</span> <span class="o">=</span> <span class="n">simulate_power_outage</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stochastic_power_outage</span> <span class="o">=</span> <span class="n">stochastic_power_outage</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">non_periodic_normalized_observation_space_limits</span> <span class="o">=</span> <span class="kc">None</span>
@@ -281,6 +285,24 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Unique building name.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__name</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">observation_space_limit_delta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;+/- buffer for observation space limits after they have been dynamically calculated.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__observation_space_limit_delta</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">maximum_temperature_delta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Expected maximum absolute temperature delta above and below indoor dry-bulb temperature in [C].&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__maximum_temperature_delta</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">demand_observation_limit_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Multiplier for maximum cooling/heating/dhw demand observations when setting observation limits.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__demand_observation_limit_factor</span> 
     
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">simulate_power_outage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -730,6 +752,36 @@
     <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">name</span>
+
+    <span class="nd">@observation_space_limit_delta</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">observation_space_limit_delta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_space_limit_delta</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__observation_space_limit_delta</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">observation_space_limit_delta</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">observation_space_limit_delta</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;observation_space&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space</span><span class="p">(</span><span class="n">include_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="nd">@maximum_temperature_delta</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">maximum_temperature_delta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum_temperature_delta</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__maximum_temperature_delta</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="k">if</span> <span class="n">maximum_temperature_delta</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">maximum_temperature_delta</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;observation_space&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space</span><span class="p">(</span><span class="n">include_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="nd">@demand_observation_limit_factor</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">demand_observation_limit_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">demand_observation_limit_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__demand_observation_limit_factor</span> <span class="o">=</span> <span class="mf">1.15</span> <span class="k">if</span> <span class="n">demand_observation_limit_factor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">demand_observation_limit_factor</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;observation_space&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space</span><span class="p">(</span><span class="n">include_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
 
     <span class="nd">@stochastic_power_outage_model</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">stochastic_power_outage_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stochastic_power_outage_model</span><span class="p">:</span> <span class="n">PowerOutage</span><span class="p">):</span>
@@ -1334,7 +1386,7 @@
             <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cooling_demand&#39;</span><span class="p">,</span> <span class="s1">&#39;heating_demand&#39;</span><span class="p">,</span> <span class="s1">&#39;dhw_demand&#39;</span><span class="p">]:</span>
                 <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
                 <span class="n">max_demand</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-                <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_demand</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">__thermal_load_factor</span>
+                <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_demand</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">demand_observation_limit_factor</span>
 
             <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;cooling_electricity_consumption&#39;</span><span class="p">:</span>
                 <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -1398,8 +1450,8 @@
                 <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
                 <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
 
-        <span class="n">low_limit</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__observation_epsilon</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">low_limit</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="n">high_limit</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">__observation_epsilon</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">high_limit</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">low_limit</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_space_limit_delta</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">low_limit</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">high_limit</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_space_limit_delta</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">high_limit</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
         <span class="k">return</span> <span class="n">low_limit</span><span class="p">,</span> <span class="n">high_limit</span></div>
     
