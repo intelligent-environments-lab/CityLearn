@@ -378,7 +378,7 @@
       },
       "chargers": {
         "charger_1_1": {
-          "type": "citylearn.charger.Charger",
+          "type": "citylearn.electric_vehicle_charger.Charger",
           "autosize": false,
           "image_path": "images/charger.png",
           "attributes": {
@@ -493,7 +493,7 @@
       },
       "chargers": {
         "charger_4_1": {
-          "type": "citylearn.charger.Charger",
+          "type": "citylearn.electric_vehicle_charger.Charger",
           "autosize": false,
           "image_path": "images/charger.png",
           "attributes": {
@@ -542,7 +542,7 @@
       },
       "chargers": {
         "charger_5_1": {
-          "type": "citylearn.charger.Charger",
+          "type": "citylearn.electric_vehicle_charger.Charger",
           "autosize": false,
           "image_path": "images/charger.png",
           "attributes": {
@@ -624,7 +624,7 @@
       },
       "chargers": {
         "charger_7_1": {
-          "type": "citylearn.charger.Charger",
+          "type": "citylearn.electric_vehicle_charger.Charger",
           "autosize": false,
           "image_path": "images/charger.png",
           "attributes": {
@@ -739,7 +739,7 @@
       },
       "chargers": {
         "charger_10_1": {
-          "type": "citylearn.charger.Charger",
+          "type": "citylearn.electric_vehicle_charger.Charger",
           "autosize": false,
           "image_path": "images/charger.png",
           "attributes": {
@@ -821,7 +821,7 @@
       },
       "chargers": {
         "charger_12_1": {
-          "type": "citylearn.charger.Charger",
+          "type": "citylearn.electric_vehicle_charger.Charger",
           "autosize": false,
           "image_path": "images/charger.png",
           "attributes": {
@@ -936,7 +936,7 @@
       },
       "chargers": {
         "charger_15_1": {
-          "type": "citylearn.charger.Charger",
+          "type": "citylearn.electric_vehicle_charger.Charger",
           "autosize": false,
           "image_path": "images/charger.png",
           "attributes": {
@@ -950,7 +950,7 @@
           }
         },
         "charger_15_2": {
-          "type": "citylearn.charger.Charger",
+          "type": "citylearn.electric_vehicle_charger.Charger",
           "autosize": false,
           "image_path": "images/charger.png",
           "attributes": {

@@ -866,8 +866,8 @@ class Building(Environment):
         
         #Observations for EV_Chargers
         # Connected is 1 and disconnected is 0
-        if self.chargers is not None:
-            for charger in self.chargers: #If present, itrerate to each charger
+        if self.ev_chargers is not None:
+            for charger in self.ev_chargers: #If present, itrerate to each charger
                 charger_id = charger.charger_id
                 charger_key_state = f'charger_{charger_id}_connected_state' #Observations names are composed from the charger unique ID
                 charger_key_incoming_state = f'charger_{charger_id}_incoming_state'
@@ -990,7 +990,7 @@ class Building(Environment):
         electrical_storage_action = 0.0 if 'electrical_storage' not in self.active_actions else electrical_storage_action
 
         if ev_storage_actions is None or 'ev_storage' not in self.active_actions:
-            ev_storage_actions = [0.0] * len(self.chargers)
+            ev_storage_actions = [0.0] * len(self.ev_chargers)
 
         # set action priority
         actions = {
@@ -1008,11 +1008,11 @@ class Building(Environment):
 
         priority_list = list(actions.keys())
 
-        for i, charger in enumerate(self.chargers): #creating a list of actions for each charger within the building
+        for i, charger in enumerate(self.ev_chargers): #creating a list of actions for each charger within the building
             action_key = f'ev_storage_{charger.charger_id}'
             actions[action_key] = (charger.update_connected_ev_soc, (ev_storage_actions[i],)) #the action of each charger is paired with the charger
 
-        ev_priority_list = [f'ev_storage_{charger.charger_id}' for charger in self.chargers]
+        ev_priority_list = [f'ev_storage_{charger.charger_id}' for charger in self.ev_chargers]
         priority_list = priority_list + ev_priority_list #the priority lists are merged
 
         if electrical_storage_action < 0.0:
@@ -1348,7 +1348,7 @@ class Building(Environment):
                             + self.dhw_device.nominal_power
                 high_limit[key] = high_limits.max()
 
-            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc', "required_soc_departure", "estimated_soc_arrival", "ev_state", "ev_soc",]:
+            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc', "ev_required_soc_departure", "ev_estimated_soc_arrival", "ev_state", "ev_soc",]:
                 low_limit[key] = 0.0
                 high_limit[key] = 1.0
 
@@ -1367,8 +1367,8 @@ class Building(Environment):
                     high_limit[key] = self.heating_device.efficiency
 
             elif "charger" in key:
-                if self.chargers is not None:
-                    for charger in self.chargers:
+                if self.ev_chargers is not None:
+                    for charger in self.ev_chargers:
                         if key == f'charger_{charger.charger_id}_connected_state' or key == f'charger_{charger.charger_id}_incoming_state':
                             low_limit[key] = 0
                             high_limit[key] = 1
@@ -1376,11 +1376,11 @@ class Building(Environment):
                             low_limit[key] = 0
                             high_limit[key] = 1
                         elif any(value in key for value in
-                                 ["estimated_departure_time", "estimated_arrival_time"]):
+                                 ["ev_estimated_departure_time", "ev_estimated_arrival_time"]):
                             low_limit[key] = 0
                             high_limit[key] = 24
                         elif any(value in key for value in
-                                   ["required_soc_departure", "estimated_soc_arrival", "ev_soc"]):
+                                   ["ev_required_soc_departure", "ev_estimated_soc_arrival", "ev_soc"]):
                             low_limit[key] = 0.0
                             high_limit[key] = 1.0
 
@@ -1495,8 +1495,8 @@ class Building(Environment):
                 high_limit.append(limit)
 
             elif "ev_storage" in key:
-                if self.chargers is not None:
-                    for c in self.chargers:
+                if self.ev_chargers is not None:
+                    for c in self.ev_chargers:
                         if key == f"ev_storage_{c.charger_id}":
                             low_limit.append(-1.0)
                             high_limit.append(1.0)
@@ -1708,8 +1708,8 @@ class Building(Environment):
         self.dhw_storage.next_time_step()
         self.electrical_storage.next_time_step()
         self.pv.next_time_step()
-        if self.chargers is not None:
-            for c in self.chargers:
+        if self.ev_chargers is not None:
+            for c in self.ev_chargers:
                 pass
                 c.next_time_step()
         super().next_time_step()
@@ -1728,8 +1728,8 @@ class Building(Environment):
         self.dhw_device.reset()
         self.non_shiftable_load_device.reset()
         self.pv.reset()
-        if self.chargers is not None:
-            for c in self.chargers:
+        if self.ev_chargers is not None:
+            for c in self.ev_chargers:
                 c.reset()
 
         # variable reset
@@ -1842,9 +1842,9 @@ class Building(Environment):
 
         total = 0 #ToDo Where to put this
         total_no_partial_load = 0
-        if self.chargers is not None:
+        if self.ev_chargers is not None:
 
-            for c in self.chargers:
+            for c in self.ev_chargers:
                 total = total + c.electricity_consumption[self.time_step-1]
                 total_no_partial_load = total_no_partial_load + c.electricity_consumption_without_partial_load[self.time_step-1]
 

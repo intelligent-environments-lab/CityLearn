@@ -1281,11 +1281,10 @@ class CityLearnEnv(Environment, Env):
         actions = self.schema['actions']
 
         #Separated chargers observations to create one for each charger at each building
-        chargers_observations = [key for key, value in self.schema["observations"].items() if key.startswith("ev_")]
-        chargers_actions = [key for key, value in self.schema["actions"].items() if key.startswith("ev_")]
-        chargers_shared_observations = [key for key, value in self.schema["observations"].items() if
-                                        key.startswith("ev_") and value["shared_in_central_agent"]]
-
+        chargers_observations = {key: value for key, value in self.schema["observations"].items() if key.startswith("ev_")}
+        chargers_actions = {key: value for key, value in self.schema["actions"].items() if key.startswith("ev_")}
+        chargers_shared_observations = {key: value for key, value in self.schema["observations"].items() if
+                                        key.startswith("ev_") and value.get("shared_in_central_agent", False)}
 
         shared_observations =  kwargs['shared_observations'] if kwargs.get('shared_observations') is not None else\
             [k for k, v in observations.items() if v['shared_in_central_agent']]
@@ -1392,25 +1391,8 @@ class CityLearnEnv(Environment, Env):
             
             else:
                 stochastic_power_outage_model = None
-
-
-            building: Building = building_constructor(
-                energy_simulation=energy_simulation, 
-                weather=weather, 
-                observation_metadata=observation_metadata, 
-                action_metadata=action_metadata, 
-                carbon_intensity=carbon_intensity, 
-                pricing=pricing,
-                name=building_name, 
-                seconds_per_time_step=seconds_per_time_step,
-                random_seed=random_seed,
-                episode_tracker=episode_tracker,
-                simulate_power_outage=simulate_power_outage,
-                stochastic_power_outage=stochastic_power_outage,
-                stochastic_power_outage_model=stochastic_power_outage_model,
-                **dynamics,
-            )
-
+            print(observation_metadata)
+            print("BEFORE")
             #Adding chargers to buildings if they exist
             if building_schema.get("chargers", None) is not None:
                 chargers_list = []
@@ -1425,10 +1407,9 @@ class CityLearnEnv(Environment, Env):
                     chargers_list.append(charger_object)
 
                     if 'ev_storage' not in inactive_actions and "ev_storage" in chargers_actions:
-                        if chargers_actions["ev_storage"]["active"]:
-                            # Add new action for this charger to action_metadata
-                            action_metadata[f'ev_storage_{charger_name}'] = True
-                            building.action_metadata = action_metadata
+                        # Add new action for this charger to action_metadata
+                        action_metadata[f'ev_storage_{charger_name}'] = True
+                        #building.action_metadata = action_metadata
 
                     # Consider that if chargers_observations is not empty we should populate observations for chargers
                     # Each charger replicates the observations of the original chargers_observations but specific for its own
@@ -1445,9 +1426,27 @@ class CityLearnEnv(Environment, Env):
                                     observation_metadata[f'charger_{charger_name}_{state_type}_{obs}'] = True
                                 if obs in chargers_shared_observations:
                                     shared_observations.append(f'charger_{charger_name}_{state_type}_{obs}')
-                        building.observation_metadata = observation_metadata
+                        #building.observation_metadata = observation_metadata
 
-                building.chargers = chargers_list
+            print(observation_metadata)
+            print("Sf««Ater")
+            building: Building = building_constructor(
+                energy_simulation=energy_simulation,
+                ev_chargers=chargers_list,
+                weather=weather,
+                observation_metadata=observation_metadata,
+                action_metadata=action_metadata,
+                carbon_intensity=carbon_intensity,
+                pricing=pricing,
+                name=building_name,
+                seconds_per_time_step=seconds_per_time_step,
+                random_seed=random_seed,
+                episode_tracker=episode_tracker,
+                simulate_power_outage=simulate_power_outage,
+                stochastic_power_outage=stochastic_power_outage,
+                stochastic_power_outage_model=stochastic_power_outage_model,
+                **dynamics,
+            )
 
             # update devices
             device_metadata = {
