@@ -1280,13 +1280,11 @@ class CityLearnEnv(Environment, Env):
         observations = self.schema['observations']
         actions = self.schema['actions']
 
-        #Separated building and chargers observations, might revisit later ToDo
-        building_observations = self.schema['observations']["buildings"]
-        building_actions = self.schema['actions']["buildings"]
-        chargers_observations = self.schema['observations']["ev_chargers"]
-        chargers_actions = self.schema['actions']["ev_chargers"]
-        building_shared_observations = [k for k, v in building_observations.items() if v['shared_in_central_agent']]
-        chargers_shared_observations = [k for k, v in chargers_observations.items() if v['shared_in_central_agent']]
+        #Separated chargers observations to create one for each charger at each building
+        chargers_observations = [key for key, value in self.schema["observations"].items() if key.startswith("ev_")]
+        chargers_actions = [key for key, value in self.schema["actions"].items() if key.startswith("ev_")]
+        chargers_shared_observations = [key for key, value in self.schema["observations"].items() if
+                                        key.startswith("ev_") and value["shared_in_central_agent"]]
 
 
         shared_observations =  kwargs['shared_observations'] if kwargs.get('shared_observations') is not None else\
@@ -1413,6 +1411,7 @@ class CityLearnEnv(Environment, Env):
                 **dynamics,
             )
 
+            #Adding chargers to buildings if they exist
             if building_schema.get("chargers", None) is not None:
                 chargers_list = []
                 for charger_name, charger_config in building_schema["chargers"].items():
@@ -1421,9 +1420,7 @@ class CityLearnEnv(Environment, Env):
                     charger_class_name = charger_type.split('.')[-1]
                     charger_class = getattr(importlib.import_module(charger_module), charger_class_name)
                     charger_attributes = charger_config.get('attributes', {})
-                    image_path = None if charger_config.get('image_path', None) is None else charger_config[
-                        "image_path"]
-                    charger_object = charger_class(charger_id=charger_name, image_path=image_path, **charger_attributes,
+                    charger_object = charger_class(charger_id=charger_name, **charger_attributes,
                                                    seconds_per_time_step=seconds_per_time_step, )
                     chargers_list.append(charger_object)
 
@@ -1436,15 +1433,15 @@ class CityLearnEnv(Environment, Env):
                     # Consider that if chargers_observations is not empty we should populate observations for chargers
                     # Each charger replicates the observations of the original chargers_observations but specific for its own
                     # If shared observations are active for the specific observation, that observation is added to shared_observations
-                    if chargers_observations is not None and 'charger_state' in chargers_observations:
+                    if chargers_observations is not None and 'ev_charger_state' in chargers_observations:
                         for state_type in ['connected', 'incoming']:
-                            if chargers_observations['charger_state']["active"]:
+                            if chargers_observations['ev_charger_state']["active"]:
                                 observation_metadata[f'charger_{charger_name}_{state_type}_state'] = True  # Add base case
-                            if "charger_state" in chargers_shared_observations:
+                            if "ev_charger_state" in chargers_shared_observations:
                                 shared_observations.append(f'charger_{charger_name}_{state_type}_state')
 
                             for obs in chargers_observations:
-                                if chargers_observations[obs]["active"] and obs != 'charger_state':
+                                if chargers_observations[obs]["active"] and obs != 'ev_charger_state':
                                     observation_metadata[f'charger_{charger_name}_{state_type}_{obs}'] = True
                                 if obs in chargers_shared_observations:
                                     shared_observations.append(f'charger_{charger_name}_{state_type}_{obs}')
@@ -1491,6 +1488,7 @@ class CityLearnEnv(Environment, Env):
         
         buildings = list(buildings)
 
+        #Loading Electric Vehicles (if present in the schema)
         if kwargs.get('evs') is not None and len(kwargs['evs']) > 0:
             evs = kwargs['evs']
         else:
@@ -1505,7 +1503,7 @@ class CityLearnEnv(Environment, Env):
                                         simulation_start_time_step:simulation_end_time_step + 1].copy()
                         ev_simulation = EVSimulation(*ev_simulation.values.T)
 
-                        # data from the file
+                        # energy consumption data from the file, possibly for future work
                         #energy_consumption_rate = ev_schema["energy_consumption_rate"]
 
                         # observation and action metadata

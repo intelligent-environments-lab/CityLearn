@@ -6,7 +6,6 @@
   "episodes": 1,
   "seconds_per_time_step": 3600,
   "observations": {
-    "buildings": {
       "month": {
         "active": true,
         "shared_in_central_agent": true
@@ -146,26 +145,24 @@
       "electricity_pricing_predicted_24h": {
         "active": true,
         "shared_in_central_agent": false
-      }
-    },
-    "ev_chargers": {
-      "charger_state": {
+      },
+      "ev_charger_state": {
         "active": true,
         "shared_in_central_agent": false
       },
-      "estimated_departure_time": {
+      "ev_estimated_departure_time": {
         "active": true,
         "shared_in_central_agent": false
       },
-      "required_soc_departure": {
+      "ev_required_soc_departure": {
         "active": true,
         "shared_in_central_agent": false
       },
-      "estimated_arrival_time": {
+      "ev_estimated_arrival_time": {
         "active": true,
         "shared_in_central_agent": false
       },
-      "estimated_soc_arrival": {
+      "ev_estimated_soc_arrival": {
         "active": true,
         "shared_in_central_agent": false
       },
@@ -173,10 +170,8 @@
         "active": true,
         "shared_in_central_agent": false
       }
-    }
   },
   "actions": {
-    "buildings": {
       "cooling_storage": {
         "active": false
       },
@@ -188,13 +183,10 @@
       },
       "electrical_storage": {
         "active": true
-      }
-    },
-    "ev_chargers": {
+      },
       "ev_storage": {
         "active": true
       }
-    }
   },
   "agent": {
     "type": "citylearn.agents.sac.SAC",
