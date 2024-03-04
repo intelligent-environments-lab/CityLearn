@@ -336,7 +336,7 @@ class CarbonIntensity(TimeSeriesData):
         self.carbon_intensity = np.array(carbon_intensity, dtype='float32')
 
 
-class EVSimulation:
+class EVSimulation(TimeSeriesData):
     """`electric_vehicle` `ev_simulation` data class.
 
     Month,Hour,Day Type,Location,Estimated Departure Time,Required Soc At Departure
@@ -369,10 +369,10 @@ class EVSimulation:
     def __init__(
             self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int], state: Iterable[str],
             charger: Iterable[str], estimated_departure_time: Iterable[int], required_soc_departure: Iterable[float],
-            estimated_arrival_time: Iterable[int], estimated_soc_arrival: Iterable[float]
+            estimated_arrival_time: Iterable[int], estimated_soc_arrival: Iterable[float], start_time_step: int = None, end_time_step: int = None
     ):
         r"""Initialize `EVSimulation`."""
-
+        super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.month = np.array(month, dtype=int)
         self.hour = np.array(hour, dtype=int)
         self.day_type = np.array(day_type, dtype=int)
