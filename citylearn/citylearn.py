@@ -12,6 +12,7 @@ from citylearn import __version__ as citylearn_version
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
 from citylearn.electric_vehicle import electric_vehicle
+from citylearn.energy_model import Battery
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, EVSimulation
 from citylearn.rendering import get_background, RenderBuilding, get_plots
@@ -720,7 +721,7 @@ class CityLearnEnv(Environment, Env):
         self.__buildings = buildings
 
     @electric_vehicles.setter
-    def evs(self, electric_vehicles: List[electric_vehicle]):
+    def electric_vehicles(self, electric_vehicles: List[electric_vehicle]):
         self.__electric_vehicles = electric_vehicles
 
     @Environment.episode_tracker.setter
@@ -1153,8 +1154,8 @@ class CityLearnEnv(Environment, Env):
 
             if charger != "" and charger != "nan":
                 for b in self.buildings:
-                    if b.chargers is not None:
-                        for c in b.chargers:
+                    if b.ev_chargers is not None:
+                        for c in b.ev_chargers:
                             if c.charger_id == charger:
                                 if state == 1:  # ev connected to charger
                                     c.plug_car(ev)
@@ -1346,8 +1347,12 @@ class CityLearnEnv(Environment, Env):
             # observation and action metadata
             inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
             inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
-            observation_metadata = {k: False if k in inactive_observations else v['active'] for k, v in observations.items()}
-            action_metadata = {k: False if k in inactive_actions else v['active'] for k, v in actions.items()}
+            observation_metadata = {
+                k: False if k in inactive_observations else v['active']
+                for k, v in observations.items()
+                if k not in chargers_observations
+            }
+            action_metadata = {k: False if k in inactive_actions else v['active'] for k, v in actions.items() if k not in chargers_actions}
 
             # construct building
             building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
@@ -1391,8 +1396,6 @@ class CityLearnEnv(Environment, Env):
             
             else:
                 stochastic_power_outage_model = None
-            print(observation_metadata)
-            print("BEFORE")
             #Adding chargers to buildings if they exist
             if building_schema.get("chargers", None) is not None:
                 chargers_list = []
@@ -1428,8 +1431,6 @@ class CityLearnEnv(Environment, Env):
                                     shared_observations.append(f'charger_{charger_name}_{state_type}_{obs}')
                         #building.observation_metadata = observation_metadata
 
-            print(observation_metadata)
-            print("Sf««Ater")
             building: Building = building_constructor(
                 energy_simulation=energy_simulation,
                 ev_chargers=chargers_list,
@@ -1520,43 +1521,20 @@ class CityLearnEnv(Environment, Env):
                         ev_type_name = ev_type.split('.')[-1]
                         ev_constructor = getattr(importlib.import_module(ev_type_module), ev_type_name)
 
+                        capacity = ev_schema["battery"]["attributes"]["capacity"]
+                        nominal_power = ev_schema["battery"]["attributes"]["nominal_power"]
+                        initial_soc = ev_schema["battery"]["attributes"]["initial_soc"]
+                        battery = Battery(capacity= capacity, nominal_power=nominal_power, initial_soc=initial_soc, seconds_per_time_step=attributes['seconds_per_time_step'])
+
                         ev: electric_vehicle = ev_constructor(
                             ev_simulation=ev_simulation,
                             observation_metadata=ev_observation_metadata,
                             action_metadata=ev_action_metadata,
+                            battery=battery,
                             name=ev_name,
                             seconds_per_time_step=seconds_per_time_step,
                             image_path=image_path
                         )
-
-                        # update devices
-                        ev_device_metadata = {
-                            'battery': {'autosizer': ev.autosize_battery},
-                        }
-
-                        for name in ev_device_metadata:
-                            if ev_schema.get(name, None) is None:
-                                device = None
-                            else:
-                                ev_device_type = ev_schema[name]['type']
-                                ev_device_module = '.'.join(ev_device_type.split('.')[0:-1])
-                                ev_device_name = ev_device_type.split('.')[-1]
-                                constructor = getattr(importlib.import_module(ev_device_module), ev_device_name)
-                                attributes = ev_schema[name].get('attributes', {})
-                                attributes['seconds_per_time_step'] = seconds_per_time_step
-                                ev_device = constructor(**attributes)
-                                autosize = False if ev_schema[name].get('autosize', None) is None else \
-                                    ev_schema[name]['autosize']
-                                ev.__setattr__(name, ev_device)
-
-                                if autosize:
-                                    autosizer = ev_device_metadata[name]['autosizer']
-                                    autosize_kwargs = {} if ev_schema[name].get('autosize_attributes',
-                                                                                None) is None else \
-                                        ev_schema[name]['autosize_attributes']
-                                    autosizer(**autosize_kwargs)
-                                else:
-                                    pass
 
                         ev.observation_space = ev.estimate_observation_space()
                         ev.action_space = ev.estimate_action_space()
@@ -1580,7 +1558,7 @@ class CityLearnEnv(Environment, Env):
             reward_function = reward_function_constructor(None, **reward_function_attributes)
 
         return (
-            root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode_split, 
+            root_directory, buildings, evs, episode_time_steps, rolling_episode_split, random_episode_split,
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker
         )
         

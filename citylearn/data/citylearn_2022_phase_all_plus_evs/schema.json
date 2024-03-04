@@ -226,7 +226,7 @@
         "attributes": {
           "capacity": 40,
           "nominal_power": 50,
-          "initial_soc": 25
+          "initial_soc": 0.25
         }
       }
     },
@@ -242,7 +242,7 @@
         "attributes": {
           "capacity": 50,
           "nominal_power": 50,
-          "initial_soc": 35
+          "initial_soc": 0.35
         }
       }
     },
@@ -258,7 +258,7 @@
         "attributes": {
           "capacity": 75,
           "nominal_power": 50,
-          "initial_soc": 50
+          "initial_soc": 0.5
         }
       }
     },
@@ -274,7 +274,7 @@
         "attributes": {
           "capacity": 45,
           "nominal_power": 50,
-          "initial_soc": 20
+          "initial_soc": 0.2
         }
       }
     },
@@ -290,7 +290,7 @@
         "attributes": {
           "capacity": 90,
           "nominal_power": 50,
-          "initial_soc": 80
+          "initial_soc": 0.8
         }
       }
     },
@@ -306,7 +306,7 @@
         "attributes": {
           "capacity": 100,
           "nominal_power": 50,
-          "initial_soc": 80
+          "initial_soc": 0.8
         }
       }
     },
@@ -322,7 +322,7 @@
         "attributes": {
           "capacity": 60,
           "nominal_power": 50,
-          "initial_soc": 10
+          "initial_soc": 0.1
         }
       }
     },
@@ -338,7 +338,7 @@
         "attributes": {
           "capacity": 80,
           "nominal_power": 50,
-          "initial_soc": 20
+          "initial_soc": 0.2
         }
       }
     }

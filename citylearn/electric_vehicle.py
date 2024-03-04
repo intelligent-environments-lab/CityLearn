@@ -52,6 +52,8 @@ class electric_vehicle(Environment):
         self.image_path = image_path
         self.__observation_epsilon = 0.0  # to avoid out of bound observations
 
+        print(self.battery)
+
 
         arg_spec = inspect.getfullargspec(super().__init__)
         kwargs = {
@@ -256,8 +258,12 @@ class electric_vehicle(Environment):
         super().reset()
 
         #object reset
-        self.battery.reset()
-        self.aux_battery.reset()
+        #ToDO Problem Here
+
+        #self.battery.reset()
+        #self.aux_battery.reset()
+
+
 
     def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None) -> \
             Mapping[str, float]:
