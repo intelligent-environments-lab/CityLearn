@@ -281,7 +281,7 @@ class electric_vehicle(Environment):
             Observation low and high limits.
         """
 
-        unwanted_keys = ['month', 'hour', 'day_type', "charger"]
+        unwanted_keys = ['month', 'hour', 'day_type', "ev_charger_state", "charger"]
 
         normalize = False if normalize is None else normalize
         periodic_normalization = False if periodic_normalization is None else periodic_normalization
