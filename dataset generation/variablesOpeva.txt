@@ -1,0 +1,17 @@
+Variables Office Generation:
+- CHANGE_ROUTINE_WEEK: Possibilidade de haver uma mudança de rotina á semana
+# CHANGE_ROUTINE_WEEKEND: Possibilidade de haver uma mudança de rotina ao fim de semana
+- WORK_WEEKEND_CONSTANT: Probabilidade de trabalhar ao fim de semana
+- WORK_WEEKEND_RAND_1: Probabilidade de trabalhar num sábado aleatório
+- WORK_WEEKEND_RAND_2: Probabilidade de trabalhar num domingo aleatório
+- CHARGE_AT_WORK: Probabilidade de carregar no trabalho
+- CHARGE_THRESHOLD: Até onde o carregador carrega
+- YEARS: Quantos anos gera-se o dataset
+- CHARGE_BAT: Mínimos e máximos de carregamento dos carros
+- semana_dia: Rotinas e horários da semana de dia / probabilidades e horas
+- semana_noite: Rotinas e horários da semana de noite / probabilidades e horas
+- cars_all: Carros para a geração e os seus atributos como capacidade da bateria e o quanto gasta
+- dist_home: Distãncias de casa \ probabilidades \ minima e máxima velocidade
+- traffic_week: trânsito à semana \ probabilidades \ tempo mínimo e máximo
+- traffic_weekend: trânsito ao fim de semana \ tempo mínimo e máximo
+- chargers_all: todos os carregadores disponíveis e o quanto carregam
