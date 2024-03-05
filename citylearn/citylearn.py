@@ -1150,7 +1150,7 @@ class CityLearnEnv(Environment, Env):
         for ev in self.electric_vehicles:
 
             charger = ev.ev_simulation.charger[self.time_step]
-            state = ev.ev_simulation.ev_state[self.time_step]
+            state = ev.ev_simulation.ev_charger_state[self.time_step]
 
             if charger != "" and charger != "nan":
                 for b in self.buildings:
@@ -1432,6 +1432,8 @@ class CityLearnEnv(Environment, Env):
                                 if obs in chargers_shared_observations:
                                     shared_observations.append(f'charger_{charger_name}_{state_type}_{obs}')
                         #building.observation_metadata = observation_metadata
+            else:
+                chargers_list = []
 
             building: Building = building_constructor(
                 energy_simulation=energy_simulation,

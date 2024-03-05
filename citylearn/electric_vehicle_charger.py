@@ -337,7 +337,7 @@ class Charger(Environment):
 
             #charge for maintaining the case of no partial load, this is just for result comparison and is done to a no partial load battery
 
-            energy_aux = min(self.max_charging_power, (car.aux_battery.capacity*car.ev_simulation.required_soc_departure[self.time_step]) - car.aux_battery.soc[self.time_step])
+            energy_aux = min(self.max_charging_power, (car.aux_battery.capacity * car.ev_simulation.ev_required_soc_departure[self.time_step]) - car.aux_battery.soc[self.time_step])
             car.aux_battery.charge(energy_aux)
             self.__electricity_consumption_without_partial_load[self.time_step] = car.aux_battery.electricity_consumption[-1]
         else:

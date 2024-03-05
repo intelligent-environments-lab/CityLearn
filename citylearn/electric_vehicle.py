@@ -241,10 +241,10 @@ class electric_vehicle(Environment):
         self.aux_battery.next_time_step()
         super().next_time_step()
 
-        if self.ev_simulation.ev_state[self.time_step] == 2:
-            self.adjust_ev_soc_on_system_connection(self.ev_simulation.estimated_soc_arrival[self.time_step])
+        if self.ev_simulation.ev_charger_state[self.time_step] == 2:
+            self.adjust_ev_soc_on_system_connection(self.ev_simulation.ev_estimated_soc_arrival[self.time_step])
 
-        elif self.ev_simulation.ev_state[self.time_step] == 3:
+        elif self.ev_simulation.ev_charger_state[self.time_step] == 3:
             self.adjust_ev_soc_on_system_connection((self.battery.soc[-1] / self.battery.capacity)*100)
 
 
@@ -294,6 +294,7 @@ class electric_vehicle(Environment):
             },
             'ev_soc': self.battery.soc[self.time_step] / self.battery.capacity
         }
+
 
         if include_all:
             valid_observations = list(self.observation_metadata.keys())
@@ -409,16 +410,16 @@ class electric_vehicle(Environment):
         periodic_observations = self.get_periodic_observation_metadata()
         low_limit, high_limit = {}, {}
         for key in observation_names:
-            if key == 'ev_state':
+            if key == 'ev_charger_state':
                 low_limit[key] = 0
                 high_limit[key] = 1
             if key == 'charger':
                     low_limit[key] = 0
                     high_limit[key] = 7  #
-            elif key in "estimated_departure_time" or key in "estimated_arrival_time":
+            elif key in "ev_estimated_departure_time" or key in "ev_estimated_arrival_time":
                     low_limit[key] = 0
                     high_limit[key] = 24
-            elif key in "required_soc_departure" or key in "estimated_soc_arrival"  or key in "ev_soc":
+            elif key in "ev_required_soc_departure" or key in "ev_estimated_soc_arrival"  or key in "ev_soc":
                     low_limit[key] = 0.0 #todo
                     high_limit[key] = 1.0
         low_limit = {k: v - 0.05 for k, v in low_limit.items()}
@@ -480,11 +481,11 @@ class electric_vehicle(Environment):
             f"Month: {self.ev_simulation.month[self.time_step]}",
             f"Hour: {self.ev_simulation.hour[self.time_step]}",
             f"Day Type: {self.ev_simulation.day_type[self.time_step]}",
-            f"State: {self.ev_simulation.ev_state[self.time_step]}",
-            f"Estimated Departure Time: {self.ev_simulation.estimated_departure_time[self.time_step]}",
-            f"Required Soc At Departure: {self.ev_simulation.required_soc_departure[self.time_step]}",
-            f"Estimated Arrival Time: {self.ev_simulation.estimated_arrival_time[self.time_step]}",
-            f"Estimated Soc Arrival: {self.ev_simulation.estimated_soc_arrival[self.time_step]}"
+            f"State: {self.ev_simulation.ev_charger_state[self.time_step]}",
+            f"Estimated Departure Time: {self.ev_simulation.ev_estimated_departure_time[self.time_step]}",
+            f"Required Soc At Departure: {self.ev_simulation.ev_required_soc_departure[self.time_step]}",
+            f"Estimated Arrival Time: {self.ev_simulation.ev_estimated_arrival_time[self.time_step]}",
+            f"Estimated Soc Arrival: {self.ev_simulation.ev_estimated_soc_arrival[self.time_step]}"
         ]
 
         ev_simulation_str = '\n'.join(ev_simulation_attrs)

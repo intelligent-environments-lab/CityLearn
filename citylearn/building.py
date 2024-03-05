@@ -862,7 +862,8 @@ class Building(Environment):
             valid_observations = list(data.keys())
         else:
             valid_observations = self.active_observations
-        
+
+        observations = {k: data[k] for k in valid_observations if k in data.keys()}
         
         #Observations for EV_Chargers
         # Connected is 1 and disconnected is 0
@@ -895,7 +896,6 @@ class Building(Environment):
                         if f"charger_{charger_id}_incoming" in o and o != charger_key_incoming_state:
                             observations[o] = -1
 
-        observations = {k: data[k] for k in valid_observations if k in data.keys()}
         unknown_observations = list(set(valid_observations).difference(observations.keys()))
         assert len(unknown_observations) == 0, f'Unknown observations: {unknown_observations}'
 
@@ -951,7 +951,7 @@ class Building(Environment):
         cooling_device_action: float = None, heating_device_action: float = None,
         cooling_storage_action: float = None, heating_storage_action: float = None, 
         dhw_storage_action: float = None, electrical_storage_action: float = None,
-        ev_storage_actions: List[float] = None
+        **kwargs
     ):
         r"""Update cooling and heating demand for next timestep and charge/discharge storage devices.
 
@@ -977,8 +977,8 @@ class Building(Environment):
             Fraction of `dhw_storage` `capacity` to charge/discharge by.
         electrical_storage_action : float, default: 0.0
             Fraction of `electrical_storage` `capacity` to charge/discharge by.
-        ev_storage_action : List[float], default: 0.0
-            List in which each action corresponds to the order of chargers per building and is a fraction of
+        **kwargs
+            In which each action corresponds to the order of chargers per building and is a fraction of
             connected_ev in each charger that the battery `capacity` to charge/discharge by.
         """
 
@@ -988,6 +988,14 @@ class Building(Environment):
         heating_storage_action = 0.0 if 'heating_storage' not in self.active_actions else heating_storage_action
         dhw_storage_action = 0.0 if 'dhw_storage' not in self.active_actions else dhw_storage_action
         electrical_storage_action = 0.0 if 'electrical_storage' not in self.active_actions else electrical_storage_action
+
+        # Initialize an empty list for ev_storage_actions
+        ev_storage_actions = []
+
+        # Separate 'ev_storage' actions from other arguments
+        for key, value in kwargs.items():
+            if key.startswith('ev_storage'):
+                ev_storage_actions.append(value)
 
         if ev_storage_actions is None or 'ev_storage' not in self.active_actions:
             ev_storage_actions = [0.0] * len(self.ev_chargers)
@@ -1035,8 +1043,9 @@ class Building(Environment):
             
             else:
                 pass
-
-        #ToDo Understand better this and if it gonna work with EVs
+        print(self.name)
+        print(self.ev_chargers)
+        print(self.observations())
         for k in priority_list:
             func, args = actions[k]
 
@@ -1348,7 +1357,7 @@ class Building(Environment):
                             + self.dhw_device.nominal_power
                 high_limit[key] = high_limits.max()
 
-            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc', "ev_required_soc_departure", "ev_estimated_soc_arrival", "ev_state", "ev_soc",]:
+            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc', "ev_required_soc_departure", "ev_estimated_soc_arrival", "ev_charger_state", "ev_soc",]:
                 low_limit[key] = 0.0
                 high_limit[key] = 1.0
 
@@ -1372,7 +1381,7 @@ class Building(Environment):
                         if key == f'charger_{charger.charger_id}_connected_state' or key == f'charger_{charger.charger_id}_incoming_state':
                             low_limit[key] = 0
                             high_limit[key] = 1
-                        elif 'ev_state' in key:
+                        elif 'ev_charger_state' in key:
                             low_limit[key] = 0
                             high_limit[key] = 1
                         elif any(value in key for value in
