@@ -3,7 +3,7 @@ import math
 from typing import List, Mapping, Tuple, Union, Dict
 from gym import spaces
 import numpy as np
-from citylearn.base import Environment
+from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather, EVSimulation
 from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, StorageTank
 from citylearn.preprocessing import Normalize, PeriodicNormalization
@@ -12,8 +12,8 @@ import copy
 
 class electric_vehicle(Environment):
 
-    def __init__(self, ev_simulation: EVSimulation, observation_metadata: Mapping[str, bool],
-                 action_metadata: Mapping[str, bool], battery: Battery = None, min_battery_soc: int = 20,
+    def __init__(self, ev_simulation: EVSimulation,episode_tracker: EpisodeTracker, observation_metadata: Mapping[str, bool],
+                 action_metadata: Mapping[str, bool], battery: Battery = None, auxBattery: Battery = None, min_battery_soc: int = 20,
                  image_path: str = None, name: str = None, **kwargs):
         """
         Initialize the EVCar class.
@@ -39,28 +39,26 @@ class electric_vehicle(Environment):
 
         self.ev_simulation = ev_simulation
         self.name = name
+
+        super().__init__(
+            seconds_per_time_step=kwargs.get('seconds_per_time_step'),
+            random_seed=kwargs.get('random_seed'),
+            episode_tracker=episode_tracker
+        )
+
         self.battery = battery
-        self.aux_battery = copy.deepcopy(battery)
+        self.aux_battery = auxBattery
         self.observation_metadata = observation_metadata
         self.action_metadata = action_metadata
         self.non_periodic_normalized_observation_space_limits = None
         self.periodic_normalized_observation_space_limits = None
         self.observation_space = self.estimate_observation_space()
         self.action_space = self.estimate_action_space()
-        #Todo add parameter on the max charge and discharge ???
         self.min_battery_soc = min_battery_soc
         self.image_path = image_path
         self.__observation_epsilon = 0.0  # to avoid out of bound observations
 
-        print(self.battery)
 
-
-        arg_spec = inspect.getfullargspec(super().__init__)
-        kwargs = {
-            key: value for (key, value) in kwargs.items()
-            if (key in arg_spec.args or (arg_spec.varkw is not None))
-        }
-        super().__init__(**kwargs)
 
     @property
     def ev_simulation(self) -> EVSimulation:
@@ -134,11 +132,10 @@ class electric_vehicle(Environment):
     @battery.setter
     def battery(self, battery: Battery):
         self.__battery = Battery(0.0, 0.0) if battery is None else battery
-        self.__aux_battery = copy.deepcopy(self.battery)
 
     @aux_battery.setter
-    def aux_battery(self, aux_battery: Battery):
-        self.__aux_battery = copy.deepcopy(self.battery) if aux_battery is None else aux_battery
+    def aux_battery(self, auxBattery: Battery):
+        self.__aux_battery = Battery(0.0, 0.0) if auxBattery is None else auxBattery
 
     @property
     def observation_space(self) -> spaces.Box:
@@ -260,8 +257,8 @@ class electric_vehicle(Environment):
         #object reset
         #ToDO Problem Here
 
-        #self.battery.reset()
-        #self.aux_battery.reset()
+        self.battery.reset()
+        self.aux_battery.reset()
 
 
 
@@ -284,15 +281,17 @@ class electric_vehicle(Environment):
             Observation low and high limits.
         """
 
+        unwanted_keys = ['month', 'hour', 'day_type', "charger"]
+
         normalize = False if normalize is None else normalize
         periodic_normalization = False if periodic_normalization is None else periodic_normalization
         include_all = False if include_all is None else include_all
 
-        ev_data = vars(self.ev_simulation)
-        unwanted_keys = ['month', 'hour', 'day_type', "charger"]
-
         data = {
-            **{k: v[self.time_step] for k, v in ev_data.items() if k not in unwanted_keys},
+            **{
+                k.lstrip('_'): self.ev_simulation.__getattr__(k.lstrip('_'))[self.time_step]
+                for k, v in vars(self.ev_simulation).items() if isinstance(v, np.ndarray) and k not in unwanted_keys
+            },
             'ev_soc': self.battery.soc[self.time_step] / self.battery.capacity
         }
 

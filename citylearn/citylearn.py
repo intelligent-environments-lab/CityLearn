@@ -1185,6 +1185,8 @@ class CityLearnEnv(Environment, Env):
         for building in self.buildings:
             building.reset()
 
+        print("AQUI")
+
         for ev in self.electric_vehicles:
             ev.reset()
         self.associate_evs_2_chargers()
@@ -1524,15 +1526,33 @@ class CityLearnEnv(Environment, Env):
                         capacity = ev_schema["battery"]["attributes"]["capacity"]
                         nominal_power = ev_schema["battery"]["attributes"]["nominal_power"]
                         initial_soc = ev_schema["battery"]["attributes"]["initial_soc"]
-                        battery = Battery(capacity= capacity, nominal_power=nominal_power, initial_soc=initial_soc, seconds_per_time_step=attributes['seconds_per_time_step'])
+                        battery = Battery(
+                            capacity= capacity,
+                            nominal_power=nominal_power,
+                            initial_soc=initial_soc,
+                            seconds_per_time_step=seconds_per_time_step,
+                            random_seed=random_seed,
+                            episode_tracker=episode_tracker)
+
+                        #Just for normal operation (without control) tracking purposes
+                        auxBattery = Battery(
+                            capacity= capacity,
+                            nominal_power=nominal_power,
+                            initial_soc=initial_soc,
+                            seconds_per_time_step=seconds_per_time_step,
+                            random_seed=random_seed,
+                            episode_tracker=episode_tracker)
 
                         ev: electric_vehicle = ev_constructor(
                             ev_simulation=ev_simulation,
                             observation_metadata=ev_observation_metadata,
                             action_metadata=ev_action_metadata,
                             battery=battery,
+                            auxBattery=auxBattery,
                             name=ev_name,
                             seconds_per_time_step=seconds_per_time_step,
+                            random_seed=random_seed,
+                            episode_tracker=episode_tracker,
                             image_path=image_path
                         )
 
