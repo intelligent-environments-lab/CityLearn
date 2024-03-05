@@ -258,12 +258,8 @@ class Charger(Environment):
         ValueError
             If the charger has reached its maximum connected cars' capacity.
         """
-        # if self.connected_ev is None
         self.__past_connected_evs[self.time_step] = car
         self.connected_ev = car
-        #print(f"Connecting car {car.name} to charger {self.charger_id}")
-        # else:
-        #    raise ValueError("Charger has reached its maximum connected cars capacity")
 
     def unplug_car(self):
         """
@@ -290,9 +286,7 @@ class Charger(Environment):
         ValueError
             If the charger has reached its maximum associated cars' capacity.
         """
-        # if self.incoming_ev_ev is None:
         self.incoming_ev = car
-        #print(f"Incoming car {car.name} to charger {self.charger_id}")
 
         # else:
         #    raise ValueError("Charger has reached its maximum associated cars capacity")
@@ -374,12 +368,6 @@ class Charger(Environment):
             f"electricity_consumption_without_partial_load: {self.electricity_consumption_without_partial_load} kW\n"
             f"past_connected_evs: {self.past_connected_evs} kW\n"
             f"past_charging_action_values: {self.past_charging_action_values} kW\n"
-            #f"Max Charging Power: {self.max_charging_power} kW\n"
-            #f"Min Charging Power: {self.min_charging_power} kW\n"
-            #f"Max Discharging Power: {self.max_discharging_power} kW\n"
-            #f"Min Discharging Power: {self.min_discharging_power} kW\n"
-            #f"Charge Efficiency Curve: {self.charge_efficiency_curve}\n"
-            #f"Discharge Efficiency Curve: {self.discharge_efficiency_curve}\n"
             f"Currently Connected Car: {self.connected_ev}\n"
             f"Incoming electric_vehicle: {self.incoming_ev}\n"
        )

@@ -410,17 +410,11 @@ class electric_vehicle(Environment):
         periodic_observations = self.get_periodic_observation_metadata()
         low_limit, high_limit = {}, {}
         for key in observation_names:
-            if key == 'ev_charger_state':
-                low_limit[key] = 0
-                high_limit[key] = 1
-            if key == 'charger':
-                    low_limit[key] = 0
-                    high_limit[key] = 7  #
-            elif key in "ev_estimated_departure_time" or key in "ev_estimated_arrival_time":
+            if key in "ev_estimated_departure_time" or key in "ev_estimated_arrival_time":
                     low_limit[key] = 0
                     high_limit[key] = 24
             elif key in "ev_required_soc_departure" or key in "ev_estimated_soc_arrival"  or key in "ev_soc":
-                    low_limit[key] = 0.0 #todo
+                    low_limit[key] = 0.0
                     high_limit[key] = 1.0
         low_limit = {k: v - 0.05 for k, v in low_limit.items()}
         high_limit = {k: v + 0.05 for k, v in high_limit.items()}

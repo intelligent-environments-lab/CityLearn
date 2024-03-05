@@ -1518,11 +1518,6 @@ class CityLearnEnv(Environment, Env):
                         ev_observation_metadata = {s: False if s in ev_inactive_observations else True for s in chargers_observations if s != 'ev_charger_state'}
                         ev_action_metadata = {a: False if a in ev_inactive_actions else True for a in chargers_actions}
 
-                        print("AHHHHHHHHHHHHHH")
-                        print(ev_observation_metadata)
-
-
-
                         # construct ev
                         ev_type = 'citylearn.citylearn.electric_vehicle' if ev_schema.get('type', None) is None else ev_schema['type']
                         image_path = None if ev_schema.get('type', None) is None else ev_schema["image_path"]

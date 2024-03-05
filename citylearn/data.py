@@ -378,7 +378,7 @@ class EVSimulation(TimeSeriesData):
         self.day_type = np.array(day_type, dtype=int)
         self.ev_charger_state = np.array(state, dtype=int)
         self.charger = np.array(charger, dtype=str)
-        # NaNs are considered and filled as -1
+        # NaNs are considered and filled as -1, i.e., when they serve no value or no data is recorded from them
         default_value = -1
         self.ev_estimated_departure_time = np.nan_to_num(np.array(estimated_departure_time, dtype=float),
                                                          nan=default_value).astype(int)
