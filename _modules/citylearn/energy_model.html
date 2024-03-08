@@ -8,8 +8,8 @@
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
@@ -918,18 +918,23 @@
 <span class="sd">            Energy to charge if (+) or discharge if (-) in [kWh].</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">action_energy</span> <span class="o">=</span> <span class="n">energy</span>
+
         <span class="k">if</span> <span class="n">energy</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">energy_wrt_degrade</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">degraded_capacity</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_init</span>
-            <span class="n">energy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_max_input_power</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_nominal_power</span><span class="p">,</span> <span class="n">energy_wrt_degrade</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>
+            <span class="n">max_input_power</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_input_power</span><span class="p">()</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_input_power</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_nominal_power</span><span class="p">,</span> <span class="n">energy_wrt_degrade</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_efficiency</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">action_energy</span><span class="p">,</span> <span class="n">max_input_power</span><span class="p">))</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">soc_limit_wrt_dod</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_of_discharge</span>
             <span class="n">soc_init</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
             <span class="n">soc_difference</span> <span class="o">=</span> <span class="n">soc_init</span> <span class="o">-</span> <span class="n">soc_limit_wrt_dod</span>
             <span class="n">energy_limit_wrt_dod</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">soc_difference</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">round_trip_efficiency</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span>
-            <span class="n">energy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">get_max_output_power</span><span class="p">(),</span> <span class="n">energy_limit_wrt_dod</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>
+            <span class="n">max_output_power</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_output_power</span><span class="p">()</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="n">max_output_power</span><span class="p">,</span> <span class="n">energy_limit_wrt_dod</span><span class="p">,</span> <span class="n">energy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_efficiency</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">action_energy</span><span class="p">),</span> <span class="n">max_output_power</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_efficiency</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">charge</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
         <span class="n">degraded_capacity</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">degraded_capacity</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">degrade</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">degraded_capacity</span><span class="p">)</span>
