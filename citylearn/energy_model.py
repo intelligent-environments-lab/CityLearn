@@ -834,18 +834,23 @@ class Battery(StorageDevice, ElectricDevice):
             Energy to charge if (+) or discharge if (-) in [kWh].
         """
 
+        action_energy = energy
+
         if energy >= 0:
             energy_wrt_degrade = self.degraded_capacity - self.energy_init
-            energy = min(self.get_max_input_power(), self.available_nominal_power, energy_wrt_degrade, energy)
+            max_input_power = self.get_max_input_power()
+            energy = min(max_input_power, self.available_nominal_power, energy_wrt_degrade, energy)
+            self.efficiency = self.get_current_efficiency(min(action_energy, max_input_power))
 
         else:
             soc_limit_wrt_dod = 1.0 - self.depth_of_discharge
             soc_init = self.soc[self.time_step - 1]
             soc_difference = soc_init - soc_limit_wrt_dod
             energy_limit_wrt_dod = max(soc_difference*self.capacity*self.round_trip_efficiency, 0.0)*-1
-            energy = max(-self.get_max_output_power(), energy_limit_wrt_dod, energy)
+            max_output_power = self.get_max_output_power()
+            energy = max(-max_output_power, energy_limit_wrt_dod, energy)
+            self.efficiency = self.get_current_efficiency(min(abs(action_energy), max_output_power))
 
-        self.efficiency = self.get_current_efficiency(energy)
         super().charge(energy)
         degraded_capacity = max(self.degraded_capacity - self.degrade(), 0.0)
         self._capacity_history.append(degraded_capacity)
