@@ -171,11 +171,14 @@ evaluated for occupied time steps only.</p></li>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>discomfort</strong> (<em>List[float]</em>) – Rolling proportion of occupied timesteps where the condition
 (dry_bulb_temperature_set_point - band) &lt;= indoor_dry_bulb_temperature &lt;= (dry_bulb_temperature_set_point + band) is not met.</p></li>
-<li><p><strong>discomfort_too_cold</strong> (<em>List[float]</em>) – Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature &lt; (dry_bulb_temperature_set_point - band) is met.</p></li>
-<li><p><strong>discomfort_too_hot</strong> (<em>List[float]</em>) – Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature &gt; (dry_bulb_temperature_set_point + band) is met.</p></li>
-<li><p><strong>discomfort_delta_minimum</strong> (<em>List[float]</em>) – Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.</p></li>
-<li><p><strong>discomfort_delta_maximum</strong> (<em>List[float]</em>) – Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.</p></li>
-<li><p><strong>discomfort_delta_average</strong> (<em>List[float]</em>) – Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.</p></li>
+<li><p><strong>discomfort_cold</strong> (<em>List[float]</em>) – Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature &lt; (dry_bulb_temperature_set_point - band) is met.</p></li>
+<li><p><strong>discomfort_hot</strong> (<em>List[float]</em>) – Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature &gt; (dry_bulb_temperature_set_point + band) is met.</p></li>
+<li><p><strong>discomfort_cold_delta_minimum</strong> (<em>List[float]</em>) – Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature &lt; (dry_bulb_temperature_set_point - band) is met.</p></li>
+<li><p><strong>discomfort_hot_delta_maximum</strong> (<em>List[float]</em>) – Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature &lt; (dry_bulb_temperature_set_point - band) is met.</p></li>
+<li><p><strong>discomfort_hot_delta_average</strong> (<em>List[float]</em>) – Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature &lt; (dry_bulb_temperature_set_point - band) is met.</p></li>
+<li><p><strong>discomfort_hot_delta_minimum</strong> (<em>List[float]</em>) – Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature &gt; (dry_bulb_temperature_set_point + band) is met.</p></li>
+<li><p><strong>discomfort_hot_delta_maximum</strong> (<em>List[float]</em>) – Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature &gt; (dry_bulb_temperature_set_point + band) is met.</p></li>
+<li><p><strong>discomfort_hot_delta_average</strong> (<em>List[float]</em>) – Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature &gt; (dry_bulb_temperature_set_point + band) is met.</p></li>
 </ul>
 </p>
 </dd>
@@ -309,11 +312,20 @@ is not met during a power outage.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.cost_function.CostFunction.ramping">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ramping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.ramping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.ramping" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ramping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_electricity_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">down_ramp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">net_export</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/cost_function.html#CostFunction.ramping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.cost_function.CostFunction.ramping" title="Permalink to this definition"></a></dt>
 <dd><p>Rolling sum of absolute difference in net electric consumption between consecutive time steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>net_electricity_consumption</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Electricity consumption time series.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>net_electricity_consumption</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – Electricity consumption time series.</p></li>
+<li><p><strong>down_ramp</strong> (<em>bool</em>) – Include cases where there is reduction in consumption between consecutive time steps
+in the summation if <cite>True</cite>, otherwise set ramp value to zero for such cases.</p></li>
+<li><p><strong>net_export</strong> (<em>bool</em>) – <dl class="simple">
+<dt>Include cases where net electric consumption is negative (net export) in the summation</dt><dd><p>if <cite>True</cite>, otherwise set ramp value to zero for such cases.</p>
+</dd>
+</dl>
+</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>ramping</strong> – Ramping cost.</p>

@@ -105,7 +105,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HourRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.HourRBC">[docs]</a><span class="k">class</span> <span class="nc">HourRBC</span><span class="p">(</span><span class="n">RBC</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A time-of-use rule-based controller.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A hour-of-use rule-based controller.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -204,7 +204,7 @@
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_actions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">message</span></div>
 
 <div class="viewcode-block" id="BasicRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicRBC">[docs]</a><span class="k">class</span> <span class="nc">BasicRBC</span><span class="p">(</span><span class="n">HourRBC</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A time-of-use rule-based controller for heat-pump charged thermal energy storage systems that charges when COP is high.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A hour-of-use rule-based controller for heat-pump charged thermal energy storage systems that charges when COP is high.</span>
 
 <span class="sd">    The actions are designed such that the agent charges the controlled storage system(s) by 9.1% of its maximum capacity every</span>
 <span class="sd">    hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity at every other hour. Cooling device is set</span>
@@ -274,7 +274,7 @@
         <span class="n">HourRBC</span><span class="o">.</span><span class="n">action_map</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_map</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OptimizedRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.OptimizedRBC">[docs]</a><span class="k">class</span> <span class="nc">OptimizedRBC</span><span class="p">(</span><span class="n">BasicRBC</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A time-of-use rule-based controller that is an optimized version of :py:class:`citylearn.agents.rbc.BasicRBC`</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A hour-of-use rule-based controller that is an optimized version of :py:class:`citylearn.agents.rbc.BasicRBC`</span>
 <span class="sd">    where control actions have been selected through a search grid.</span>
 
 <span class="sd">    The actions are designed such that the agent discharges the controlled storage system(s) by 2.0% of its </span>
@@ -370,7 +370,7 @@
         <span class="n">HourRBC</span><span class="o">.</span><span class="n">action_map</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_map</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BasicBatteryRBC"><a class="viewcode-back" href="../../../api/citylearn.agents.rbc.html#citylearn.agents.rbc.BasicBatteryRBC">[docs]</a><span class="k">class</span> <span class="nc">BasicBatteryRBC</span><span class="p">(</span><span class="n">BasicRBC</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A time-of-use rule-based controller that is designed to take advantage of solar generation for charging.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A hour-of-use rule-based controller that is designed to take advantage of solar generation for charging.</span>
 
 <span class="sd">    The actions are optimized for electrical storage (battery) such that the agent charges the controlled</span>
 <span class="sd">    storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, </span>

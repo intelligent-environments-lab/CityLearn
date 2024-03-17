@@ -99,8 +99,9 @@
 <span class="sd">        Other keyword arguments for custom reward calculation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env_metadata</span> <span class="o">=</span> <span class="n">env_metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exponent</span> <span class="o">=</span> <span class="n">exponent</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">env_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -114,9 +115,17 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_metadata</span><span class="p">[</span><span class="s1">&#39;central_agent&#39;</span><span class="p">]</span>
     
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exponent</span>
+    
     <span class="nd">@env_metadata</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">env_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__env_metadata</span> <span class="o">=</span> <span class="n">env_metadata</span>
+
+    <span class="nd">@exponent</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__exponent</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">exponent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">exponent</span>
 
 <div class="viewcode-block" id="RewardFunction.reset"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Use to reset variables at the start of an episode.&quot;&quot;&quot;</span>
@@ -139,11 +148,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">net_electricity_consumption</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">observations</span><span class="p">]</span>
+        <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">exponent</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">net_electricity_consumption</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
-            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)]</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">reward_list</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">v</span><span class="o">*-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">net_electricity_consumption</span><span class="p">]</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="n">reward_list</span>
 
         <span class="k">return</span> <span class="n">reward</span></div></div>
 
@@ -202,7 +212,7 @@
 
 <span class="sd">    The reward is calculated for each building, i and summed to provide the agent with a reward that is representative of all the</span>
 <span class="sd">    building or buildings (in centralized case)it controls. It encourages net-zero energy use by penalizing grid load satisfaction </span>
-<span class="sd">    when there is energy in the enerygy storage systems as well as penalizing net export when the energy storage systems are not</span>
+<span class="sd">    when there is energy in the energy storage systems as well as penalizing net export when the energy storage systems are not</span>
 <span class="sd">    fully charged through the penalty term. There is neither penalty nor reward when the energy storage systems are fully charged</span>
 <span class="sd">    during net export to the grid. Whereas, when the energy storage systems are charged to capacity and there is net import from the </span>
 <span class="sd">    grid the penalty is maximized.</span>
@@ -246,8 +256,8 @@
 <div class="viewcode-block" id="ComfortReward"><a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.ComfortReward">[docs]</a><span class="k">class</span> <span class="nc">ComfortReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Reward for occupant thermal comfort satisfaction.</span>
 
-<span class="sd">    The reward is the calculated as the negative delta between the setpoint and indoor dry-bulb temperature raised to some exponent</span>
-<span class="sd">    if outside the comfort band. If within the comfort band, the reward is the negative delta when in cooling mode and temperature</span>
+<span class="sd">    The reward is calculated as the negative difference between the setpoint and indoor dry-bulb temperature raised to some exponent</span>
+<span class="sd">    if outside the comfort band. If within the comfort band, the reward is the negative difference when in cooling mode and temperature</span>
 <span class="sd">    is below the setpoint or when in heating mode and temperature is above the setpoint. The reward is 0 if within the comfort band</span>
 <span class="sd">    and above the setpoint in cooling mode or below the setpoint and in heating mode.</span>
 
