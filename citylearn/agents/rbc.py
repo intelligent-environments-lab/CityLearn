@@ -21,7 +21,7 @@ class RBC(Agent):
         super().__init__(env, **kwargs)
 
 class HourRBC(RBC):
-    r"""A time-of-use rule-based controller.
+    r"""A hour-of-use rule-based controller.
 
     Parameters
     ----------
@@ -120,7 +120,7 @@ class HourRBC(RBC):
         assert len(missing_actions) == 0, message
 
 class BasicRBC(HourRBC):
-    r"""A time-of-use rule-based controller for heat-pump charged thermal energy storage systems that charges when COP is high.
+    r"""A hour-of-use rule-based controller for heat-pump charged thermal energy storage systems that charges when COP is high.
 
     The actions are designed such that the agent charges the controlled storage system(s) by 9.1% of its maximum capacity every
     hour between 10:00 PM and 08:00 AM, and discharges 8.0% of its maximum capacity at every other hour. Cooling device is set
@@ -190,7 +190,7 @@ class BasicRBC(HourRBC):
         HourRBC.action_map.fset(self, action_map)
 
 class OptimizedRBC(BasicRBC):
-    r"""A time-of-use rule-based controller that is an optimized version of :py:class:`citylearn.agents.rbc.BasicRBC`
+    r"""A hour-of-use rule-based controller that is an optimized version of :py:class:`citylearn.agents.rbc.BasicRBC`
     where control actions have been selected through a search grid.
 
     The actions are designed such that the agent discharges the controlled storage system(s) by 2.0% of its 
@@ -286,7 +286,7 @@ class OptimizedRBC(BasicRBC):
         HourRBC.action_map.fset(self, action_map)
 
 class BasicBatteryRBC(BasicRBC):
-    r"""A time-of-use rule-based controller that is designed to take advantage of solar generation for charging.
+    r"""A hour-of-use rule-based controller that is designed to take advantage of solar generation for charging.
 
     The actions are optimized for electrical storage (battery) such that the agent charges the controlled
     storage system(s) by 11.0% of its maximum capacity every hour between 06:00 AM and 02:00 PM, 

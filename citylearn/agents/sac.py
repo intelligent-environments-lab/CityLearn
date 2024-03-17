@@ -268,7 +268,7 @@ class SAC(RLC):
         return encoders
 
 class SACRBC(SAC):
-    r"""Uses :py:class:`citylearn.agents.rbc.RBC` to select action during exploration before using :py:class:`citylearn.agents.sac.SAC`.
+    r"""Uses :py:class:`citylearn.agents.rbc.RBC` to select actions during exploration before using :py:class:`citylearn.agents.sac.SAC`.
 
     Parameters
     ----------
