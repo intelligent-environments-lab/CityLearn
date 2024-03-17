@@ -15,8 +15,9 @@ class RewardFunction:
         Other keyword arguments for custom reward calculation.
     """
     
-    def __init__(self, env_metadata: Mapping[str, Any], **kwargs):
+    def __init__(self, env_metadata: Mapping[str, Any], exponent: float, **kwargs):
         self.env_metadata = env_metadata
+        self.exponent = exponent
 
     @property
     def env_metadata(self) -> Mapping[str, Any]:
@@ -30,9 +31,17 @@ class RewardFunction:
 
         return self.env_metadata['central_agent']
     
+    @property
+    def exponent(self) -> float:
+        return self.__exponent
+    
     @env_metadata.setter
     def env_metadata(self, env_metadata: Mapping[str, Any]):
         self.__env_metadata = env_metadata
+
+    @exponent.setter
+    def exponent(self, exponent: float):
+        self.__exponent = 1.0 if exponent is None else exponent
 
     def reset(self):
         """Use to reset variables at the start of an episode."""
@@ -55,11 +64,12 @@ class RewardFunction:
         """
 
         net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
+        reward_list = [-(max(o, 0)**self.exponent) for o in net_electricity_consumption]
 
         if self.central_agent:
-            reward = [min(sum(net_electricity_consumption)*-1, 0.0)]
+            reward = [sum(reward_list)]
         else:
-            reward = [min(v*-1, 0.0) for v in net_electricity_consumption]
+            reward = reward_list
 
         return reward
 
@@ -118,7 +128,7 @@ class SolarPenaltyReward(RewardFunction):
 
     The reward is calculated for each building, i and summed to provide the agent with a reward that is representative of all the
     building or buildings (in centralized case)it controls. It encourages net-zero energy use by penalizing grid load satisfaction 
-    when there is energy in the enerygy storage systems as well as penalizing net export when the energy storage systems are not
+    when there is energy in the energy storage systems as well as penalizing net export when the energy storage systems are not
     fully charged through the penalty term. There is neither penalty nor reward when the energy storage systems are fully charged
     during net export to the grid. Whereas, when the energy storage systems are charged to capacity and there is net import from the 
     grid the penalty is maximized.
@@ -162,8 +172,8 @@ class SolarPenaltyReward(RewardFunction):
 class ComfortReward(RewardFunction):
     """Reward for occupant thermal comfort satisfaction.
 
-    The reward is the calculated as the negative delta between the setpoint and indoor dry-bulb temperature raised to some exponent
-    if outside the comfort band. If within the comfort band, the reward is the negative delta when in cooling mode and temperature
+    The reward is calculated as the negative difference between the setpoint and indoor dry-bulb temperature raised to some exponent
+    if outside the comfort band. If within the comfort band, the reward is the negative difference when in cooling mode and temperature
     is below the setpoint or when in heating mode and temperature is above the setpoint. The reward is 0 if within the comfort band
     and above the setpoint in cooling mode or below the setpoint and in heating mode.
 
