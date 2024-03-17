@@ -148,11 +148,11 @@
       "active": true,
       "shared_in_central_agent": true
     },
-    "cooling_device_cop": {
+    "cooling_device_efficiency": {
       "active": false,
       "shared_in_central_agent": false
     },
-    "heating_device_cop": {
+    "heating_device_efficiency": {
       "active": false,
       "shared_in_central_agent": false
     },

@@ -822,10 +822,13 @@ class Building(Environment):
             'heating_storage_electricity_consumption': self.heating_storage_electricity_consumption[self.time_step],
             'dhw_storage_electricity_consumption': self.dhw_storage_electricity_consumption[self.time_step],
             'electrical_storage_electricity_consumption': self.electrical_storage_electricity_consumption[self.time_step],
-            'cooling_device_cop': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
-            'heating_device_cop': self.heating_device.get_cop(
+            'cooling_device_efficiency': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
+            'heating_device_efficiency': self.heating_device.get_cop(
                 self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
                     ) if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
+            'dhw_device_efficiency': self.dhw_device.get_cop(
+                self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
+                    ) if isinstance(self.dhw_device, HeatPump) else self.dhw_device.efficiency,
             'indoor_dry_bulb_temperature_set_point': self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step],
             'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step]),
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
@@ -1277,12 +1280,12 @@ class Building(Environment):
                 low_limit[key] = 0.0
                 high_limit[key] = 1.0
 
-            elif key in ['cooling_device_cop']:
+            elif key in ['cooling_device_efficiency']:
                 cop = self.cooling_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=False)
                 low_limit[key] = min(cop)
                 high_limit[key] = max(cop)
 
-            elif key in ['heating_device_cop']:
+            elif key in ['heating_device_efficiency']:
                 if isinstance(self.heating_device, HeatPump):
                     cop = self.heating_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=True)
                     low_limit[key] = min(cop)
@@ -1290,6 +1293,15 @@ class Building(Environment):
                 else:
                     low_limit[key] = self.heating_device.efficiency
                     high_limit[key] = self.heating_device.efficiency
+
+            elif key in ['dhw_device_efficiency']:
+                if isinstance(self.dhw_device, HeatPump):
+                    cop = self.dhw_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=True)
+                    low_limit[key] = min(cop)
+                    high_limit[key] = max(cop)
+                else:
+                    low_limit[key] = self.dhw_device.efficiency
+                    high_limit[key] = self.dhw_device.efficiency
 
             elif key == 'indoor_dry_bulb_temperature':
                 low_limit[key] = data['indoor_dry_bulb_temperature'].min() - self.maximum_temperature_delta
