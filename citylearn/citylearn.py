@@ -886,7 +886,7 @@ class CityLearnEnv(Environment, Env):
             'ramping_average': {'display_name': 'Ramping', 'weight': 0.075},
             'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 0.075},
             'daily_peak_average': {'display_name': 'Daily peak', 'weight': 0.075},
-            'annual_peak_average': {'display_name': 'All-time peak', 'weight': 0.075},
+            'all_time_peak_average': {'display_name': 'All-time peak', 'weight': 0.075},
             'one_minus_thermal_resilience_proportion': {'display_name': 'Thermal resilience', 'weight': 0.15},
             'power_outage_normalized_unserved_energy_total': {'display_name': 'Unserved energy', 'weight': 0.15},
         }
@@ -962,7 +962,10 @@ class CityLearnEnv(Environment, Env):
                 'band': comfort_band,
                 'occupant_count': b.occupant_count,
             }
-            unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.discomfort(**discomfort_kwargs)
+            unmet, cold, hot,\
+                cold_minimum_delta, cold_maximum_delta, cold_average_delta,\
+                    hot_minimum_delta, hot_maximum_delta, hot_average_delta =\
+                        CostFunction.discomfort(**discomfort_kwargs)
             expected_energy = b.cooling_demand + b.heating_demand + b.dhw_demand + b.non_shiftable_load
             served_energy = b.energy_from_cooling_device + b.energy_from_cooling_storage\
                 + b.energy_from_heating_device + b.energy_from_heating_storage\
@@ -990,20 +993,29 @@ class CityLearnEnv(Environment, Env):
                 'cost_function': 'discomfort_proportion',
                 'value': unmet[-1],
             }, {
-                'cost_function': 'discomfort_too_cold_proportion',
-                'value': too_cold[-1],
+                'cost_function': 'discomfort_cold_proportion',
+                'value': cold[-1],
             }, {
-                'cost_function': 'discomfort_too_hot_proportion',
-                'value': too_hot[-1],
+                'cost_function': 'discomfort_hot_proportion',
+                'value': hot[-1],
             }, {
-                'cost_function': 'discomfort_delta_minimum',
-                'value': minimum_delta[-1],
+                'cost_function': 'discomfort_cold_delta_minimum',
+                'value': cold_minimum_delta[-1],
             }, {
-                'cost_function': 'discomfort_delta_maximum',
-                'value': maximum_delta[-1],
+                'cost_function': 'discomfort_cold_delta_maximum',
+                'value': cold_maximum_delta[-1],
             }, {
-                'cost_function': 'discomfort_delta_average',
-                'value': average_delta[-1],
+                'cost_function': 'discomfort_cold_delta_average',
+                'value': cold_average_delta[-1],
+            }, {
+                'cost_function': 'discomfort_hot_delta_minimum',
+                'value': hot_minimum_delta[-1],
+            }, {
+                'cost_function': 'discomfort_hot_delta_maximum',
+                'value': hot_maximum_delta[-1],
+            }, {
+                'cost_function': 'discomfort_hot_delta_average',
+                'value': hot_average_delta[-1],
             }, {
                 'cost_function': 'one_minus_thermal_resilience_proportion',
                 'value': CostFunction.one_minus_thermal_resilience(power_outage=b.power_outage_signal, **discomfort_kwargs)[-1],
@@ -1042,9 +1054,9 @@ class CityLearnEnv(Environment, Env):
             'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=24)[-1]/\
                 CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=24)[-1],
         }, {
-            'cost_function': 'annual_peak_average',
-            'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=8760)[-1]/\
-                CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=8760)[-1],
+            'cost_function': 'all_time_peak_average',
+            'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=self.time_steps)[-1]/\
+                CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=self.time_steps)[-1],
         }])
 
         district_level = pd.concat([district_level, building_level], ignore_index=True, sort=False)
