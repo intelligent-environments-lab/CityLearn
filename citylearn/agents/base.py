@@ -226,7 +226,7 @@ class Agent(Environment):
         super().reset()
         self.__actions = [[[]] for _ in self.action_space]
 
-class DummyAgent(Agent):
+class BaselineAgent(Agent):
     r"""Agent class for business-as-usual simulation where the storage systems and heat pumps are not controlled.
 
     This agent will provide results for when there is no storage for load shifting and no heat pump partial load. 
