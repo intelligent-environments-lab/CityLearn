@@ -1,6 +1,6 @@
 import itertools
 from typing import List, Mapping
-from gym import ActionWrapper, ObservationWrapper, RewardWrapper, spaces, Wrapper
+from gymnasium import ActionWrapper, ObservationWrapper, RewardWrapper, spaces, Wrapper
 import numpy as np
 from citylearn.citylearn import CityLearnEnv
 from citylearn.building import Building
@@ -53,7 +53,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
         is returned where each sublist is a list of 1 building's observation names and the sublist in the same order as `buildings`.
         """
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
             observation_names = []
 
             for i, b in enumerate(self.env.buildings):
@@ -79,7 +79,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
         low_limit = []
         high_limit = []
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
             shared_observations = []
 
             for i, b in enumerate(self.env.buildings):
@@ -110,7 +110,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
     def observation(self, observations: List[List[float]]) -> List[List[float]]:
         """Returns normalized observations."""
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
             norm_observations = []
             shared_observations = []
 
@@ -157,7 +157,7 @@ class NormalizedActionWrapper(ActionWrapper):
         low_limit = []
         high_limit = []
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
 
             for b in self.env.buildings:
                 low_limit += [0.0]*b.action_space.low.size
@@ -235,7 +235,7 @@ class DiscreteObservationWrapper(ObservationWrapper):
     def observation_space(self) -> List[spaces.MultiDiscrete]:
         """Returns observation space for discretized observations."""
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
             bin_sizes = []
             shared_observations = []
 
@@ -304,7 +304,7 @@ class DiscreteActionWrapper(ActionWrapper):
     def action_space(self) -> List[spaces.MultiDiscrete]:
         """Returns action space for discretized actions."""
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
             bin_sizes = []
 
             for b in self.bin_sizes:
@@ -496,7 +496,7 @@ class StableBaselines3ObservationWrapper(ObservationWrapper):
     """
 
     def __init__(self, env: CityLearnEnv):
-        assert env.central_agent, 'StableBaselines3ObservationWrapper is compatible only when env.central_agent = True.'\
+        assert env.unwrapped.central_agent, 'StableBaselines3ObservationWrapper is compatible only when env.central_agent = True.'\
             ' First set env.central_agent = True to use this wrapper.'
         
         super().__init__(env)
@@ -527,7 +527,7 @@ class StableBaselines3ActionWrapper(ActionWrapper):
     """
 
     def __init__(self, env: CityLearnEnv):
-        assert env.central_agent, 'StableBaselines3ActionWrapper is compatible only when env.central_agent = True.'\
+        assert env.unwrapped.central_agent, 'StableBaselines3ActionWrapper is compatible only when env.central_agent = True.'\
             ' First set env.central_agent = True to use this wrapper.'
         
         super().__init__(env)
@@ -558,7 +558,7 @@ class StableBaselines3RewardWrapper(RewardWrapper):
     """
 
     def __init__(self, env: CityLearnEnv):
-        assert env.central_agent, 'StableBaselines3RewardWrapper is compatible only when env.central_agent = True.'\
+        assert env.unwrapped.central_agent, 'StableBaselines3RewardWrapper is compatible only when env.central_agent = True.'\
             ' First set env.central_agent = True to use this wrapper.'
         
         super().__init__(env)

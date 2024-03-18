@@ -52,7 +52,7 @@ class SAC(RLC):
         self.r_norm_std = [None for _ in self.action_space]
         self.set_networks()
 
-    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], done: bool):
+    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], terminated: bool, truncated: bool):
         r"""Update replay buffer.
 
         Parameters
@@ -65,8 +65,10 @@ class SAC(RLC):
             Current time step reward.
         next_observations : List[List[float]]
             Current time step observations.
-        done : bool
+        terminated : bool
             Indication that episode has ended.
+        truncated : bool
+            If episode truncates due to a time limit or a reason that is not defined as part of the task MDP.
         """
 
         # Run once the regression model has been fitted
@@ -83,7 +85,7 @@ class SAC(RLC):
             else:
                 pass
         
-            self.replay_buffer[i].push(o, a, r, n, done)
+            self.replay_buffer[i].push(o, a, r, n, terminated)
 
             if self.time_step >= self.standardize_start_time_step and self.batch_size <= len(self.replay_buffer[i]):
                 if not self.normalized[i]:

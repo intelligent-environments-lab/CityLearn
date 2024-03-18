@@ -1,13 +1,11 @@
 import logging
 from typing import Any, List, Mapping
-from gym import spaces
+from gymnasium import spaces
 import numpy as np
 from citylearn.base import Environment
 from citylearn.citylearn import CityLearnEnv
 
 LOGGER = logging.getLogger()
-logging.getLogger('matplotlib.font_manager').disabled = True
-logging.getLogger('matplotlib.pyplot').disabled = True
 
 class Agent(Environment):
     r"""Base agent class.
@@ -137,22 +135,22 @@ class Agent(Environment):
 
         for episode in range(episodes):
             deterministic = deterministic or (deterministic_finish and episode >= episodes - 1)
-            observations = self.env.reset()
+            observations, _ = self.env.reset()
             self.episode_time_steps = self.episode_tracker.episode_time_steps
-            done = False
+            terminated = False
             time_step = 0
             rewards_list = []
 
-            while not done:
+            while not terminated:
                 actions = self.predict(observations, deterministic=deterministic)
 
                 # apply actions to citylearn_env
-                next_observations, rewards, done, _ = self.env.step(actions)
+                next_observations, rewards, terminated, truncated, _ = self.env.step(actions)
                 rewards_list.append(rewards)
 
                 # update
                 if not deterministic:
-                    self.update(observations, actions, rewards, next_observations, done=done)
+                    self.update(observations, actions, rewards, next_observations, terminated=terminated, truncated=truncated)
                 else:
                     pass
 
