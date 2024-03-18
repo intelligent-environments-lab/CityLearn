@@ -23,7 +23,7 @@ def __learn(**kwargs):
 
 def main():
     parser = argparse.ArgumentParser(prog='citylearn', formatter_class=argparse.ArgumentDefaultsHelpFormatter, description=('''
-        An open source OpenAI Gym environment for the implementation of Multi-Agent Reinforcement 
+        An open source Farama Foundation Gymnasium environment for the implementation of Multi-Agent Reinforcement 
         Learning (RL) for building energy coordination and demand response in cities.'''
     ))
     parser.add_argument('--version', action='version', version='%(prog)s' + f' {__version__}')
