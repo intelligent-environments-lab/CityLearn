@@ -1,3 +1,4 @@
+setuptools
 jinja2
 myst-nb
 nbsphinx-link
