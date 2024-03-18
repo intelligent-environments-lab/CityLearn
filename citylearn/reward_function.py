@@ -15,7 +15,7 @@ class RewardFunction:
         Other keyword arguments for custom reward calculation.
     """
     
-    def __init__(self, env_metadata: Mapping[str, Any], exponent: float, **kwargs):
+    def __init__(self, env_metadata: Mapping[str, Any], exponent: float = None, **kwargs):
         self.env_metadata = env_metadata
         self.exponent = exponent
 
