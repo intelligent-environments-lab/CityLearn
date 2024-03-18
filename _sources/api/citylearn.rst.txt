@@ -29,7 +29,6 @@ Submodules
    citylearn.energy_model
    citylearn.power_outage
    citylearn.preprocessing
-   citylearn.rendering
    citylearn.reward_function
    citylearn.rl
    citylearn.utilities

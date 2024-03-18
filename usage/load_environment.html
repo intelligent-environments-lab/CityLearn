@@ -1,28 +1,30 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How to Load an Environment &mdash; CityLearn 2.1.2 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -101,7 +103,7 @@
              
   <p><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></p>
 <section id="How-to-Load-an-Environment">
-<h1>How to Load an Environment<a class="headerlink" href="#How-to-Load-an-Environment" title="Permalink to this headline"></a></h1>
+<h1>How to Load an Environment<a class="headerlink" href="#How-to-Load-an-Environment" title="Link to this heading"></a></h1>
 <p>Install the latest CityLearn version from PyPi with the :code:<code class="docutils literal notranslate"><span class="pre">pip</span></code> command:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -112,7 +114,7 @@
 </div>
 </div>
 <section id="Load-an-Environment-Using-Named-Dataset">
-<h2>Load an Environment Using Named Dataset<a class="headerlink" href="#Load-an-Environment-Using-Named-Dataset" title="Permalink to this headline"></a></h2>
+<h2>Load an Environment Using Named Dataset<a class="headerlink" href="#Load-an-Environment-Using-Named-Dataset" title="Link to this heading"></a></h2>
 <p>CityLearn provides some data files that are contained in named datasets including those that have been used in <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/citylearn_challenge/index.html">The CityLearn Challenge</a>. These datasets names can be used in place of schema filepaths or <code class="docutils literal notranslate"><span class="pre">dict</span></code> objects to initialize an environment. To get the dataset names run:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -157,7 +159,7 @@
 </div>
 </section>
 <section id="Load-an-Environment-Using-Schema-Filepath">
-<h2>Load an Environment Using Schema Filepath<a class="headerlink" href="#Load-an-Environment-Using-Schema-Filepath" title="Permalink to this headline"></a></h2>
+<h2>Load an Environment Using Schema Filepath<a class="headerlink" href="#Load-an-Environment-Using-Schema-Filepath" title="Link to this heading"></a></h2>
 <p>The <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/overview/schema.html">Schema</a> filepath can be use to initialize an environment:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -173,7 +175,7 @@
 <p>This approach is best if using a custom <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/overview/dataset.html">Dataset</a>.</p>
 </section>
 <section id="Load-an-Environment-Using-Schema-Dictionary-Object">
-<h2>Load an Environment Using Schema Dictionary Object<a class="headerlink" href="#Load-an-Environment-Using-Schema-Dictionary-Object" title="Permalink to this headline"></a></h2>
+<h2>Load an Environment Using Schema Dictionary Object<a class="headerlink" href="#Load-an-Environment-Using-Schema-Dictionary-Object" title="Link to this heading"></a></h2>
 <p>Alternatively, the schema can be supplied as a <code class="docutils literal notranslate"><span class="pre">dict</span></code> object. This approach can be used to edit the schema parameter values before constructing the environment. With this approach, the <code class="docutils literal notranslate"><span class="pre">root_directory</span></code> key-value must be explicitly set: See example below:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:

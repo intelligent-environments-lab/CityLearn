@@ -1,27 +1,29 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reward Function &mdash; CityLearn 2.1.2 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -102,14 +104,10 @@
            <div itemprop="articleBody">
              
   <section id="reward-function">
-<h1>Reward Function<a class="headerlink" href="#reward-function" title="Permalink to this headline"></a></h1>
+<h1>Reward Function<a class="headerlink" href="#reward-function" title="Link to this heading"></a></h1>
 <p>A reward is calculated and returned each time <a class="reference internal" href="../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step" title="citylearn.citylearn.CityLearnEnv.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.step()</span></code></a> is called. The reward time series is also accessible through the <a class="reference internal" href="../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.rewards" title="citylearn.citylearn.CityLearnEnv.rewards"><code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.rewards</span></code></a> property.</p>
 <p>CityLearn provides custom reward functions:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Class</p></th>
 <th class="head"><p>Equation</p></th>
@@ -154,21 +152,21 @@
 </table>
 <p>Where <span class="math notranslate nohighlight">\(e\)</span> is a building’s net electricity consumption, <span class="math notranslate nohighlight">\(T_{in}\)</span> is a building’s indoor dry-bulb temperature, <span class="math notranslate nohighlight">\(T_{spt}\)</span> is a building’s indoor dry-bulb temperature setpoint, <span class="math notranslate nohighlight">\(T_{b}\)</span> is a building’s indoor dry-bulb temperature setpoint comfort band while <span class="math notranslate nohighlight">\(E\)</span> is the district’s net electricity consumption. These rewards are defined for a decentralized single building application and for a centralized agent controlling all buildings, the reward will be the sum of the decentralized values.</p>
 <section id="how-to-point-to-the-reward-function">
-<h2>How to Point to the Reward Function<a class="headerlink" href="#how-to-point-to-the-reward-function" title="Permalink to this headline"></a></h2>
+<h2>How to Point to the Reward Function<a class="headerlink" href="#how-to-point-to-the-reward-function" title="Link to this heading"></a></h2>
 <p>The reward function to use in a simulation is defined in the <code class="code docutils literal notranslate"><span class="pre">reward_function</span></code> key-value of the schema:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
-   ...,
-   &quot;reward_function&quot;: {
-      &quot;type&quot;: &quot;citylearn.reward_function.RewardFunction&quot;,
-      ...
-   },
-   ...
-}
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="err">...</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">&quot;reward_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;citylearn.reward_function.RewardFunction&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="err">...</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="err">...</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
 <section id="how-to-define-a-custom-reward-function">
-<h2>How to Define a Custom Reward Function<a class="headerlink" href="#how-to-define-a-custom-reward-function" title="Permalink to this headline"></a></h2>
+<h2>How to Define a Custom Reward Function<a class="headerlink" href="#how-to-define-a-custom-reward-function" title="Link to this heading"></a></h2>
 <p>CityLearn also allows for custom reward functions by inheriting the base <a class="reference internal" href="../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.reward_function.RewardFunction</span></code></a>:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">citylearn.reward_function</span> <span class="kn">import</span> <span class="n">RewardFunction</span>
@@ -215,14 +213,14 @@
 </pre></div>
 </div>
 <p>The schema must then be updated to reference the custom reward function:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
-   ...,
-   &quot;reward_function&quot;: {
-      &quot;type&quot;: &quot;custom_module.CustomReward&quot;,
-      ...
-   },
-   ...
-}
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="err">...</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">&quot;reward_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;custom_module.CustomReward&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="err">...</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="err">...</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>

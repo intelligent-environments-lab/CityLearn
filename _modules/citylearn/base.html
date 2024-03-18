@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.base &mdash; CityLearn 2.1.2 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -87,7 +89,9 @@
 <span class="kn">import</span> <span class="nn">uuid</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<div class="viewcode-block" id="EpisodeTracker"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.EpisodeTracker">[docs]</a><span class="k">class</span> <span class="nc">EpisodeTracker</span><span class="p">:</span>
+<div class="viewcode-block" id="EpisodeTracker">
+<a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.EpisodeTracker">[docs]</a>
+<span class="k">class</span> <span class="nc">EpisodeTracker</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for keeping track of current episode time steps for reading observations from data files.</span>
 
 <span class="sd">    An EpisodeTracker object is shared amongst the environment, buildings in environment and all descendant </span>
@@ -157,7 +161,9 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__episode_end_time_step</span>
 
-<div class="viewcode-block" id="EpisodeTracker.next_episode"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.EpisodeTracker.next_episode">[docs]</a>    <span class="k">def</span> <span class="nf">next_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">rolling_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<div class="viewcode-block" id="EpisodeTracker.next_episode">
+<a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.EpisodeTracker.next_episode">[docs]</a>
+    <span class="k">def</span> <span class="nf">next_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">rolling_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Advance to next episode and set `episode_start_time_step` and `episode_end_time_step` for reading data files.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
@@ -180,6 +186,7 @@
             <span class="n">random_episode_split</span><span class="p">,</span>
             <span class="n">random_seed</span><span class="p">,</span>
         <span class="p">)</span></div>
+
         
     <span class="k">def</span> <span class="nf">__next_episode_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">rolling_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets `episode_start_time_step` and `episode_end_time_step` for reading data files.&quot;&quot;&quot;</span>
@@ -212,12 +219,18 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__episode_start_time_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__episode_end_time_step</span> <span class="o">=</span> <span class="n">splits</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
 
-<div class="viewcode-block" id="EpisodeTracker.reset_episode_index"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.EpisodeTracker.reset_episode_index">[docs]</a>    <span class="k">def</span> <span class="nf">reset_episode_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="EpisodeTracker.reset_episode_index">
+<a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.EpisodeTracker.reset_episode_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_episode_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets episode index to -1 before any simulation.&quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">__episode</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__episode</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></div>
+</div>
 
-<div class="viewcode-block" id="Environment"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment">[docs]</a><span class="k">class</span> <span class="nc">Environment</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Environment">
+<a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment">[docs]</a>
+<span class="k">class</span> <span class="nc">Environment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all `citylearn` classes that have a spatio-temporal dimension.</span>
 
 <span class="sd">    Parameters</span>
@@ -292,7 +305,9 @@
     <span class="k">def</span> <span class="nf">episode_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__episode_tracker</span> <span class="o">=</span> <span class="n">episode_tracker</span>
 
-<div class="viewcode-block" id="Environment.get_metadata"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.get_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="Environment.get_metadata">
+<a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.get_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns general static information.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">{</span>
@@ -302,7 +317,10 @@
             <span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">seconds_per_time_step</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Environment.next_time_step"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.next_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Environment.next_time_step">
+<a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.next_time_step">[docs]</a>
+    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Advance to next `time_step` value.</span>
 
 <span class="sd">        Notes</span>
@@ -312,7 +330,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__time_step</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="Environment.reset"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Environment.reset">
+<a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset environment to initial state.</span>
 
 <span class="sd">        Calls `reset_time_step`.</span>
@@ -324,13 +345,18 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_time_step</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Environment.reset_time_step"><a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.reset_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">reset_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Environment.reset_time_step">
+<a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.reset_time_step">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `time_step` to initial state.</span>
 
 <span class="sd">        Sets `time_step` to 0.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">__time_step</span> <span class="o">=</span> <span class="mi">0</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__time_step</span> <span class="o">=</span> <span class="mi">0</span></div>
+</div>
+
 </pre></div>
 
            </div>

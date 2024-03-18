@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.cost_function &mdash; CityLearn 2.1.2 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -86,10 +88,14 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<div class="viewcode-block" id="CostFunction"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction">[docs]</a><span class="k">class</span> <span class="nc">CostFunction</span><span class="p">:</span>
+<div class="viewcode-block" id="CostFunction">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction">[docs]</a>
+<span class="k">class</span> <span class="nc">CostFunction</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Cost and energy flexibility functions that may be used to evaluate environment performance.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CostFunction.ramping"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.ramping">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CostFunction.ramping">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.ramping">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">ramping</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">down_ramp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">net_export</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling sum of absolute difference in net electric consumption between consecutive time steps.</span>
 
@@ -141,7 +147,10 @@
         
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;ramping&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CostFunction.one_minus_load_factor"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.one_minus_load_factor">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CostFunction.one_minus_load_factor">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.one_minus_load_factor">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">one_minus_load_factor</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Difference between 1 and the load factor i.e., ratio of rolling mean demand </span>
 <span class="sd">        to rolling peak demand over a specified period.</span>
@@ -168,7 +177,10 @@
         
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;load_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CostFunction.peak"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.peak">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CostFunction.peak">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.peak">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">peak</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Net electricity consumption peak.</span>
 
@@ -193,7 +205,10 @@
         
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CostFunction.electricity_consumption"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.electricity_consumption">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CostFunction.electricity_consumption">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.electricity_consumption">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">electricity_consumption</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling sum of positive electricity consumption.</span>
 
@@ -215,7 +230,10 @@
         
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;electricity_consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CostFunction.zero_net_energy"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.zero_net_energy">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CostFunction.zero_net_energy">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.zero_net_energy">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">zero_net_energy</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling sum of net electricity consumption.</span>
 
@@ -238,7 +256,10 @@
         
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;zero_net_energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CostFunction.carbon_emissions"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.carbon_emissions">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CostFunction.carbon_emissions">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.carbon_emissions">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">carbon_emissions</span><span class="p">(</span><span class="n">carbon_emissions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling sum of carbon emissions.</span>
 
@@ -258,7 +279,10 @@
         
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;carbon_emissions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CostFunction.cost"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.cost">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CostFunction.cost">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.cost">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">cost</span><span class="p">(</span><span class="n">cost</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling sum of electricity monetary cost.</span>
 
@@ -278,7 +302,10 @@
         
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CostFunction.quadratic"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.quadratic">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CostFunction.quadratic">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.quadratic">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">quadratic</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling sum of net electricity consumption raised to the power of 2.</span>
 
@@ -302,8 +329,11 @@
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;quadratic&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;quadratic&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         
         <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;quadratic&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+
     
-<div class="viewcode-block" id="CostFunction.discomfort"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.discomfort">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CostFunction.discomfort">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.discomfort">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">discomfort</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dry_bulb_temperature_set_point</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">occupant_count</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling percentage of discomfort (total, too cold, and too hot) time steps as well as rolling minimum, maximum and average temperature delta.</span>
 
@@ -397,8 +427,11 @@
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_hot_delta_maximum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_hot_delta_average&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
         <span class="p">)</span></div>
+
     
-<div class="viewcode-block" id="CostFunction.one_minus_thermal_resilience"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.one_minus_thermal_resilience">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CostFunction.one_minus_thermal_resilience">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.one_minus_thermal_resilience">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">one_minus_thermal_resilience</span><span class="p">(</span><span class="n">power_outage</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling percentage of discomfort time steps during power outage.</span>
 
@@ -429,8 +462,11 @@
         <span class="n">thermal_resilience</span> <span class="o">=</span> <span class="n">CostFunction</span><span class="o">.</span><span class="n">discomfort</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">thermal_resilience</span></div>
+
     
-<div class="viewcode-block" id="CostFunction.normalized_unserved_energy"><a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.normalized_unserved_energy">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CostFunction.normalized_unserved_energy">
+<a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.normalized_unserved_energy">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">normalized_unserved_energy</span><span class="p">(</span><span class="n">expected_energy</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">served_energy</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">power_outage</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Proportion of unmet demand due to supply shortage e.g. power outage.</span>
 
@@ -463,7 +499,9 @@
         <span class="n">expected_energy</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;expected_energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">expected_energy</span>
 
-        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unserved_energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+</div>
+
 </pre></div>
 
            </div>

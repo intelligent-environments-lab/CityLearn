@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.citylearn &mdash; CityLearn 2.1.2 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -89,7 +91,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">gym</span> <span class="kn">import</span> <span class="n">Env</span><span class="p">,</span> <span class="n">spaces</span>
+<span class="kn">from</span> <span class="nn">gymnasium</span> <span class="kn">import</span> <span class="n">Env</span><span class="p">,</span> <span class="n">spaces</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">citylearn</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">citylearn_version</span>
@@ -97,7 +99,6 @@
 <span class="kn">from</span> <span class="nn">citylearn.building</span> <span class="kn">import</span> <span class="n">Building</span><span class="p">,</span> <span class="n">DynamicsBuilding</span>
 <span class="kn">from</span> <span class="nn">citylearn.cost_function</span> <span class="kn">import</span> <span class="n">CostFunction</span>
 <span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span><span class="p">,</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">TOLERANCE</span><span class="p">,</span> <span class="n">Weather</span>
-<span class="kn">from</span> <span class="nn">citylearn.rendering</span> <span class="kn">import</span> <span class="n">get_background</span><span class="p">,</span> <span class="n">RenderBuilding</span><span class="p">,</span> <span class="n">get_plots</span>
 <span class="kn">from</span> <span class="nn">citylearn.reward_function</span> <span class="kn">import</span> <span class="n">RewardFunction</span>
 <span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
 
@@ -105,7 +106,9 @@
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;matplotlib.font_manager&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;matplotlib.pyplot&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="EvaluationCondition"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.EvaluationCondition">[docs]</a><span class="k">class</span> <span class="nc">EvaluationCondition</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="EvaluationCondition">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.EvaluationCondition">[docs]</a>
+<span class="k">class</span> <span class="nc">EvaluationCondition</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluation conditions.</span>
 <span class="sd">    </span>
 <span class="sd">    Used in `citylearn.CityLearnEnv.calculate` method.</span>
@@ -128,7 +131,10 @@
     <span class="n">WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV</span> <span class="o">=</span> <span class="n">WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV</span> <span class="o">+</span> <span class="n">__PARTIAL_LOAD_SUFFIX</span>
     <span class="n">WITHOUT_STORAGE_AND_PARTIAL_LOAD_AND_PV</span> <span class="o">=</span> <span class="n">WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV</span> <span class="o">+</span> <span class="n">__PV_SUFFIX</span></div>
 
-<div class="viewcode-block" id="CityLearnEnv"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv">[docs]</a><span class="k">class</span> <span class="nc">CityLearnEnv</span><span class="p">(</span><span class="n">Environment</span><span class="p">,</span> <span class="n">Env</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CityLearnEnv">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv">[docs]</a>
+<span class="k">class</span> <span class="nc">CityLearnEnv</span><span class="p">(</span><span class="n">Environment</span><span class="p">,</span> <span class="n">Env</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;CityLearn nvironment class.</span>
 
 <span class="sd">    Parameters</span>
@@ -183,6 +189,7 @@
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">schema</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">random_seed</span>
         <span class="n">root_directory</span><span class="p">,</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">rolling_episode_split</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">,</span> \
             <span class="n">seconds_per_time_step</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">,</span> <span class="n">central_agent</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">,</span> <span class="n">episode_tracker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span>
@@ -309,10 +316,16 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__shared_observations</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">terminated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if simulation has reached completion.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">-</span> <span class="mi">1</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">truncated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if episode truncates due to a time limit or a reason that is not defined as part of the task MDP.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">]:</span>
@@ -824,7 +837,16 @@
     <span class="k">def</span> <span class="nf">shared_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__shared_observations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_shared_observations</span><span class="p">()</span> <span class="k">if</span> <span class="n">shared_observations</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">shared_observations</span>
 
-<div class="viewcode-block" id="CityLearnEnv.get_metadata"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="nd">@Environment</span><span class="o">.</span><span class="n">random_seed</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">Environment</span><span class="o">.</span><span class="n">random_seed</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span>
+
+<div class="viewcode-block" id="CityLearnEnv.get_metadata">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(),</span>
             <span class="s1">&#39;reward_function&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
@@ -833,7 +855,10 @@
             <span class="s1">&#39;buildings&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">()</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">],</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="CityLearnEnv.get_default_shared_observations"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_default_shared_observations">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CityLearnEnv.get_default_shared_observations">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_default_shared_observations">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_default_shared_observations</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Names of default common observations across all buildings i.e. observations that have the same value irrespective of the building.</span>
 <span class="sd">        </span>
@@ -856,7 +881,10 @@
         <span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="CityLearnEnv.step"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CityLearnEnv.step">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step">[docs]</a>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Advance to next time step then apply actions to `buildings` and update variables.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
@@ -873,12 +901,15 @@
 <span class="sd">            :attr:`observations` current value.</span>
 <span class="sd">        reward: List[float] </span>
 <span class="sd">            :meth:`get_reward` current value.</span>
-<span class="sd">        done: bool </span>
+<span class="sd">        terminated: bool </span>
 <span class="sd">            A boolean value for if the episode has ended, in which case further :meth:`step` calls will return undefined results.</span>
 <span class="sd">            A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully,</span>
 <span class="sd">            a certain timelimit was exceeded, or the physics simulation has entered an invalid observation.</span>
+<span class="sd">        truncated: bool</span>
+<span class="sd">            A boolean value for if episode truncates due to a time limit or a reason that is not defined as part of the task MDP.</span>
+<span class="sd">            Will always return False in this base class.</span>
 <span class="sd">        info: dict</span>
-<span class="sd">            A dictionary that may contain additional information regarding the reason for a ``done`` signal.</span>
+<span class="sd">            A dictionary that may contain additional information regarding the reason for a `terminated` signal.</span>
 <span class="sd">            `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).</span>
 <span class="sd">            Override :meth&quot;`get_info` to get custom key-value pairs in `info`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -902,7 +933,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
 
         <span class="c1"># store episode reward summary</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
             <span class="n">rewards</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__episode_rewards</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
                 <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">rewards</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
@@ -914,12 +945,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
         
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">done</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">truncated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CityLearnEnv.get_info"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CityLearnEnv.get_info">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_info">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Other information to return from the `citylearn.CityLearnEnv.step` function.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">{}</span></div>
+
 
     <span class="k">def</span> <span class="nf">_parse_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return mapping of action name to action value for each building.&quot;&quot;&quot;</span>
@@ -955,7 +990,9 @@
 
         <span class="k">return</span> <span class="n">actions</span>
 
-<div class="viewcode-block" id="CityLearnEnv.evaluate_citylearn_challenge"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate_citylearn_challenge">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_citylearn_challenge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+<div class="viewcode-block" id="CityLearnEnv.evaluate_citylearn_challenge">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate_citylearn_challenge">[docs]</a>
+    <span class="k">def</span> <span class="nf">evaluate_citylearn_challenge</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Evalation function for The CityLearn Challenge 2023.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
@@ -992,8 +1029,11 @@
         <span class="p">}</span>
         
         <span class="k">return</span> <span class="n">evaluation</span></div>
+
     
-<div class="viewcode-block" id="CityLearnEnv.evaluate"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_condition</span><span class="p">:</span> <span class="n">EvaluationCondition</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">baseline_condition</span><span class="p">:</span> <span class="n">EvaluationCondition</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">comfort_band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="CityLearnEnv.evaluate">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate">[docs]</a>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_condition</span><span class="p">:</span> <span class="n">EvaluationCondition</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">baseline_condition</span><span class="p">:</span> <span class="n">EvaluationCondition</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">comfort_band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Evaluate cost functions at current time step.</span>
 
 <span class="sd">        Calculates and returns building-level and district-level cost functions normalized w.r.t. the no control scenario.</span>
@@ -1150,65 +1190,11 @@
         <span class="n">cost_functions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">district_level</span><span class="p">,</span> <span class="n">building_level</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">cost_functions</span></div>
-    
-<div class="viewcode-block" id="CityLearnEnv.render"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rendering function for The CityLearn Challenge 2023.&quot;&quot;&quot;</span>
 
-        <span class="n">canvas</span><span class="p">,</span> <span class="n">canvas_size</span><span class="p">,</span> <span class="n">draw_obj</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">get_background</span><span class="p">()</span>
-        <span class="n">num_buildings</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">)</span>
-        <span class="n">profile_time_steps</span> <span class="o">=</span> <span class="mi">24</span>
-        <span class="n">norm_min</span><span class="p">,</span> <span class="n">norm_max</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span>
-        <span class="n">space_limits</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">):</span>
-            <span class="c1"># current time step net electricity consumption and storage soc and indoor temperature</span>
-            <span class="n">energy</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>\
-                <span class="o">/</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">non_periodic_normalized_observation_space_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">])</span>
-            <span class="n">energy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">norm_max</span><span class="p">),</span> <span class="n">norm_min</span><span class="p">)</span>
-            <span class="n">electrical_storage_soc</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
-            <span class="n">electrical_storage_soc</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">electrical_storage_soc</span><span class="p">,</span> <span class="n">norm_max</span><span class="p">),</span><span class="n">norm_min</span><span class="p">)</span>
-            <span class="n">dhw_storage_soc</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">dhw_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
-            <span class="n">dhw_storage_soc</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">dhw_storage_soc</span><span class="p">,</span> <span class="n">norm_max</span><span class="p">),</span> <span class="n">norm_min</span><span class="p">)</span>
-            <span class="n">indoor_temperature</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
-            <span class="n">indoor_temperature_delta</span> <span class="o">=</span> <span class="n">indoor_temperature</span> <span class="o">-</span> <span class="n">b</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
-            <span class="n">space_limits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">non_periodic_normalized_observation_space_limits</span><span class="p">)</span>
-
-            <span class="c1"># render</span>
-            <span class="n">rbuilding</span> <span class="o">=</span> <span class="n">RenderBuilding</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">canvas_size</span><span class="o">=</span><span class="n">canvas_size</span><span class="p">,</span> <span class="n">num_buildings</span><span class="o">=</span><span class="n">num_buildings</span><span class="p">,</span> <span class="n">line_color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
-            <span class="n">rbuilding</span><span class="o">.</span><span class="n">draw_line</span><span class="p">(</span><span class="n">canvas</span><span class="p">,</span> <span class="n">draw_obj</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">energy</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
-            <span class="n">rbuilding</span><span class="o">.</span><span class="n">draw_building</span><span class="p">(</span><span class="n">canvas</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">electrical_storage_soc</span><span class="p">)</span>
-
-        <span class="c1"># time series data</span>
-        <span class="n">nec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="o">-</span><span class="n">profile_time_steps</span><span class="p">:]</span>
-        <span class="n">nec_wo_storage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span><span class="p">[</span><span class="o">-</span><span class="n">profile_time_steps</span><span class="p">:]</span>
-        <span class="n">nec_wo_storage_and_partial_load</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_partial_load</span><span class="p">[</span><span class="o">-</span><span class="n">profile_time_steps</span><span class="p">:]</span>
-        <span class="n">nec_wo_storage_and_partial_load_and_pv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_partial_load_and_pv</span><span class="p">[</span><span class="o">-</span><span class="n">profile_time_steps</span><span class="p">:]</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">nec</span><span class="p">,</span> <span class="n">nec_wo_storage</span><span class="p">,</span> <span class="n">nec_wo_storage_and_partial_load</span><span class="p">,</span> <span class="n">nec_wo_storage_and_partial_load_and_pv</span><span class="p">]</span>
-
-        <span class="c1"># time series data y limits</span>
-        <span class="n">nec_y_lim</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">space_limits</span><span class="p">),</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">space_limits</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">nec_wo_storage_y_lim</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;net_electricity_consumption_without_storage&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">space_limits</span><span class="p">),</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;net_electricity_consumption_without_storage&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">space_limits</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">nec_wo_storage_and_partial_load_y_lim</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;net_electricity_consumption_without_storage_and_partial_load&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">space_limits</span><span class="p">),</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;net_electricity_consumption_without_storage_and_partial_load&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">space_limits</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">nec_wo_storage_and_partial_load_and_pv_y_lim</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;net_electricity_consumption_without_storage_and_partial_load_and_pv&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">space_limits</span><span class="p">),</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;net_electricity_consumption_without_storage_and_partial_load_and_pv&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">space_limits</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">limits</span> <span class="o">=</span> <span class="p">[</span><span class="n">nec_y_lim</span><span class="p">,</span> <span class="n">nec_wo_storage_y_lim</span><span class="p">,</span> <span class="n">nec_wo_storage_and_partial_load_y_lim</span><span class="p">,</span> <span class="n">nec_wo_storage_and_partial_load_and_pv_y_lim</span><span class="p">]</span>
-        <span class="n">plot_image</span> <span class="o">=</span> <span class="n">get_plots</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">limits</span><span class="p">)</span>
-        <span class="n">graphic_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">canvas</span><span class="p">)</span>
-        
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">graphic_image</span><span class="p">,</span> <span class="n">plot_image</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="CityLearnEnv.next_time_step"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.next_time_step">[docs]</a>    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CityLearnEnv.next_time_step">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.next_time_step">[docs]</a>
+    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Advance all buildings to next `time_step`.&quot;&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
@@ -1216,17 +1202,39 @@
         
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CityLearnEnv.reset"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="CityLearnEnv.reset">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `CityLearnEnv` to initial state.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        seed: int, optional</span>
+<span class="sd">            Use to updated :code:`citylearn.CityLearnEnv.random_seed` if value is provided.</span>
+<span class="sd">        options: Mapping[str, Any], optional</span>
+<span class="sd">            Use to pass additional data to environment on reset. Not used in this base class</span>
+<span class="sd">            but included to conform to gymnasium interface.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        observations: List[List[float]]</span>
 <span class="sd">            :attr:`observations`.</span>
+<span class="sd">        info: dict</span>
+<span class="sd">            A dictionary that may contain additional information regarding the reason for a `terminated` signal.</span>
+<span class="sd">            `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).</span>
+<span class="sd">            Override :meth&quot;`get_info` to get custom key-value pairs in `info`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># object reset</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="c1"># update seed</span>
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">seed</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
 
         <span class="c1"># update time steps for time series</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">next_episode</span><span class="p">(</span>
@@ -1249,9 +1257,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption_emission</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_variables</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CityLearnEnv.update_variables"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.update_variables">[docs]</a>    <span class="k">def</span> <span class="nf">update_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CityLearnEnv.update_variables">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.update_variables">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># net electricity consumption</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]))</span>
 
@@ -1261,7 +1272,10 @@
         <span class="c1"># net electriciy consumption emission</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption_emission</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]))</span></div>
 
-<div class="viewcode-block" id="CityLearnEnv.load_agent"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.load_agent">[docs]</a>    <span class="k">def</span> <span class="nf">load_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;citylearn.agents.base.Agent&#39;</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CityLearnEnv.load_agent">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.load_agent">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;citylearn.agents.base.Agent&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return :class:`Agent` or sub class object as defined by the `schema`.</span>
 
 <span class="sd">        Parameters</span>
@@ -1283,6 +1297,7 @@
         <span class="n">agent_attributes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;env&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">agent_attributes</span><span class="p">}</span>
         <span class="n">agent</span> <span class="o">=</span> <span class="n">agent_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">agent_attributes</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">agent</span></div>
+
 
     <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">RewardFunction</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">EpisodeTracker</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.</span>
@@ -1507,11 +1522,17 @@
             <span class="n">root_directory</span><span class="p">,</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">rolling_episode_split</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">,</span> 
             <span class="n">seconds_per_time_step</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">,</span> <span class="n">central_agent</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">,</span> <span class="n">episode_tracker</span>
         <span class="p">)</span></div>
+
         
-<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="Error">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.Error">[docs]</a>
+<span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for other exceptions.&quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="UnknownSchemaError"><a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.UnknownSchemaError">[docs]</a><span class="k">class</span> <span class="nc">UnknownSchemaError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+
+<div class="viewcode-block" id="UnknownSchemaError">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.UnknownSchemaError">[docs]</a>
+<span class="k">class</span> <span class="nc">UnknownSchemaError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a schema is not a data set name, dict nor filepath.&quot;&quot;&quot;</span>
     <span class="n">__MESSAGE</span> <span class="o">=</span> <span class="s1">&#39;Unknown schema parsed into constructor. Schema must be name of CityLearn data set,&#39;</span>\
         <span class="s1">&#39; a filepath to JSON representation or `dict` object of a CityLearn schema.&#39;</span>\
@@ -1519,6 +1540,7 @@
   
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__MESSAGE</span> <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">message</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

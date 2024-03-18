@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.energy_model &mdash; CityLearn 2.1.2 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -88,7 +90,9 @@
 <span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span>
 <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Device"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Device">[docs]</a><span class="k">class</span> <span class="nc">Device</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
+<div class="viewcode-block" id="Device">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Device">[docs]</a>
+<span class="k">class</span> <span class="nc">Device</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base device class.</span>
 
 <span class="sd">    Parameters</span>
@@ -120,13 +124,19 @@
             <span class="k">assert</span> <span class="n">efficiency</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;efficiency must be &gt; 0.&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__efficiency</span> <span class="o">=</span> <span class="n">efficiency</span>
 
-<div class="viewcode-block" id="Device.get_metadata"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Device.get_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="Device.get_metadata">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Device.get_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(),</span>
             <span class="s1">&#39;efficiency&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span>
-        <span class="p">}</span></div></div>
+        <span class="p">}</span></div>
+</div>
 
-<div class="viewcode-block" id="ElectricDevice"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricDevice">[docs]</a><span class="k">class</span> <span class="nc">ElectricDevice</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ElectricDevice">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricDevice">[docs]</a>
+<span class="k">class</span> <span class="nc">ElectricDevice</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base electric device class.</span>
 
 <span class="sd">    Parameters</span>
@@ -168,13 +178,18 @@
         <span class="k">assert</span> <span class="n">nominal_power</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;nominal_power must be &gt;= 0.&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__nominal_power</span> <span class="o">=</span> <span class="n">nominal_power</span>
 
-<div class="viewcode-block" id="ElectricDevice.get_metadata"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricDevice.get_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="ElectricDevice.get_metadata">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricDevice.get_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(),</span>
             <span class="s1">&#39;nominal_power&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="ElectricDevice.update_electricity_consumption"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricDevice.update_electricity_consumption">[docs]</a>    <span class="k">def</span> <span class="nf">update_electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">enforce_polarity</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ElectricDevice.update_electricity_consumption">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricDevice.update_electricity_consumption">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electricity_consumption</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">enforce_polarity</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Updates `electricity_consumption` at current `time_step`.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
@@ -192,13 +207,20 @@
             <span class="sa">f</span><span class="s1">&#39;electricity_consumption must be &gt;= 0 but value: </span><span class="si">{</span><span class="n">electricity_consumption</span><span class="si">}</span><span class="s1"> was provided.&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">+=</span> <span class="n">electricity_consumption</span></div>
 
-<div class="viewcode-block" id="ElectricDevice.reset"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricDevice.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ElectricDevice.reset">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricDevice.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `ElectricDevice` to initial state and set `electricity_consumption` at `time_step` 0 to = 0.0.&quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_consumption</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_consumption</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span></div>
+</div>
 
-<div class="viewcode-block" id="HeatPump"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump">[docs]</a><span class="k">class</span> <span class="nc">HeatPump</span><span class="p">(</span><span class="n">ElectricDevice</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HeatPump">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump">[docs]</a>
+<span class="k">class</span> <span class="nc">HeatPump</span><span class="p">(</span><span class="n">ElectricDevice</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base heat pump class.</span>
 
 <span class="sd">    Parameters</span>
@@ -254,14 +276,19 @@
         <span class="n">efficiency</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="k">if</span> <span class="n">efficiency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">efficiency</span>
         <span class="n">ElectricDevice</span><span class="o">.</span><span class="n">efficiency</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">)</span>
 
-<div class="viewcode-block" id="HeatPump.get_metadata"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.get_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="HeatPump.get_metadata">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.get_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(),</span>
             <span class="s1">&#39;target_heating_temperature&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_heating_temperature</span><span class="p">,</span>
             <span class="s1">&#39;target_cooling_temperature&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_cooling_temperature</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="HeatPump.get_cop"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.get_cop">[docs]</a>    <span class="k">def</span> <span class="nf">get_cop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">heating</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="HeatPump.get_cop">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.get_cop">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">heating</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return coefficient of performance.</span>
 
 <span class="sd">        Calculate the Carnot cycle COP for heating or cooling mode. COP is set to 20 if &lt; 0 or &gt; 20.</span>
@@ -297,7 +324,10 @@
         <span class="n">cop</span><span class="p">[</span><span class="n">cop</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span>
         <span class="k">return</span> <span class="n">cop</span></div>
 
-<div class="viewcode-block" id="HeatPump.get_max_output_power"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.get_max_output_power">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_output_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">heating</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">max_electric_power</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="HeatPump.get_max_output_power">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.get_max_output_power">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_max_output_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">heating</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">max_electric_power</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return maximum output power.</span>
 
 <span class="sd">        Calculate maximum output power from heat pump given `cop`, `available_nominal_power` and `max_electric_power` limitations.</span>
@@ -328,7 +358,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">max_electric_power</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_nominal_power</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">cop</span></div>
 
-<div class="viewcode-block" id="HeatPump.get_input_power"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.get_input_power">[docs]</a>    <span class="k">def</span> <span class="nf">get_input_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_power</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">outdoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">heating</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="HeatPump.get_input_power">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.get_input_power">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_input_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_power</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">outdoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">heating</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return input power.</span>
 
 <span class="sd">        Calculate power needed to meet `output_power` given `cop` limitations.</span>
@@ -354,7 +387,10 @@
 
         <span class="k">return</span> <span class="n">output_power</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">,</span> <span class="n">heating</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HeatPump.autosize"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.autosize">[docs]</a>    <span class="k">def</span> <span class="nf">autosize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">cooling_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">heating_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">safety_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HeatPump.autosize">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.HeatPump.autosize">[docs]</a>
+    <span class="k">def</span> <span class="nf">autosize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">cooling_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">heating_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">safety_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Autosize `nominal_power`.</span>
 
 <span class="sd">        Set `nominal_power` to the minimum power needed to always meet `cooling_demand` + `heating_demand`.</span>
@@ -387,9 +423,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">heating_nominal_power</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">cooling_nominal_power</span> <span class="o">+</span> <span class="n">heating_nominal_power</span><span class="p">)</span><span class="o">*</span><span class="n">safety_factor</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">cooling_nominal_power</span> <span class="o">+</span> <span class="n">heating_nominal_power</span><span class="p">)</span><span class="o">*</span><span class="n">safety_factor</span></div>
+</div>
 
-<div class="viewcode-block" id="ElectricHeater"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricHeater">[docs]</a><span class="k">class</span> <span class="nc">ElectricHeater</span><span class="p">(</span><span class="n">ElectricDevice</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ElectricHeater">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricHeater">[docs]</a>
+<span class="k">class</span> <span class="nc">ElectricHeater</span><span class="p">(</span><span class="n">ElectricDevice</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base electric heater class.</span>
 
 <span class="sd">    Parameters</span>
@@ -413,7 +453,9 @@
         <span class="n">efficiency</span> <span class="o">=</span> <span class="mf">0.9</span> <span class="k">if</span> <span class="n">efficiency</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">efficiency</span>   
         <span class="n">ElectricDevice</span><span class="o">.</span><span class="n">efficiency</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ElectricHeater.get_max_output_power"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricHeater.get_max_output_power">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_output_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_electric_power</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<div class="viewcode-block" id="ElectricHeater.get_max_output_power">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricHeater.get_max_output_power">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_max_output_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_electric_power</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return maximum output power.</span>
 
 <span class="sd">        Calculate maximum output power from heat pump given `max_electric_power` limitations.</span>
@@ -438,7 +480,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">max_electric_power</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_nominal_power</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span></div>
 
-<div class="viewcode-block" id="ElectricHeater.get_input_power"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricHeater.get_input_power">[docs]</a>    <span class="k">def</span> <span class="nf">get_input_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_power</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="ElectricHeater.get_input_power">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricHeater.get_input_power">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_input_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_power</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return input power.</span>
 
 <span class="sd">        Calculate power demand to meet `output_power`.</span>
@@ -460,7 +505,10 @@
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">output_power</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span></div>
 
-<div class="viewcode-block" id="ElectricHeater.autosize"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricHeater.autosize">[docs]</a>    <span class="k">def</span> <span class="nf">autosize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">safety_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ElectricHeater.autosize">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricHeater.autosize">[docs]</a>
+    <span class="k">def</span> <span class="nf">autosize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">safety_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Autosize `nominal_power`.</span>
 
 <span class="sd">        Set `nominal_power` to the minimum power needed to always meet `demand`.</span>
@@ -478,9 +526,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">safety_factor</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">safety_factor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">safety_factor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">demand</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">)</span><span class="o">*</span><span class="n">safety_factor</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">demand</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">)</span><span class="o">*</span><span class="n">safety_factor</span></div>
+</div>
 
-<div class="viewcode-block" id="PV"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV">[docs]</a><span class="k">class</span> <span class="nc">PV</span><span class="p">(</span><span class="n">ElectricDevice</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PV">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV">[docs]</a>
+<span class="k">class</span> <span class="nc">PV</span><span class="p">(</span><span class="n">ElectricDevice</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base photovoltaic array class.</span>
 
 <span class="sd">    Parameters</span>
@@ -497,7 +549,9 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">nominal_power</span><span class="o">=</span><span class="n">nominal_power</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="PV.get_generation"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV.get_generation">[docs]</a>    <span class="k">def</span> <span class="nf">get_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inverter_ac_power_per_kw</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<div class="viewcode-block" id="PV.get_generation">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV.get_generation">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inverter_ac_power_per_kw</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get solar generation output.</span>
 
 <span class="sd">        Parameters</span>
@@ -518,7 +572,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inverter_ac_power_per_kw</span><span class="p">)</span><span class="o">/</span><span class="mf">1000.0</span></div>
 
-<div class="viewcode-block" id="PV.autosize"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV.autosize">[docs]</a>    <span class="k">def</span> <span class="nf">autosize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">safety_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PV.autosize">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.PV.autosize">[docs]</a>
+    <span class="k">def</span> <span class="nf">autosize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">safety_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Autosize `nominal_power`.</span>
 
 <span class="sd">        Set `nominal_power` to the minimum nominal_power needed to always meet `demand`.</span>
@@ -536,9 +593,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">safety_factor</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">safety_factor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">safety_factor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">demand</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">)</span><span class="o">*</span><span class="n">safety_factor</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">demand</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span><span class="p">)</span><span class="o">*</span><span class="n">safety_factor</span></div>
+</div>
 
-<div class="viewcode-block" id="StorageDevice"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice">[docs]</a><span class="k">class</span> <span class="nc">StorageDevice</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StorageDevice">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice">[docs]</a>
+<span class="k">class</span> <span class="nc">StorageDevice</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base storage device class.</span>
 
 <span class="sd">    Parameters</span>
@@ -628,7 +689,9 @@
             <span class="k">assert</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">initial_soc</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;initial_soc must be &gt;= 0.0 and &lt;= 1.0.&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__initial_soc</span> <span class="o">=</span> <span class="n">initial_soc</span>
 
-<div class="viewcode-block" id="StorageDevice.get_metadata"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.get_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="StorageDevice.get_metadata">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.get_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(),</span>
             <span class="s1">&#39;capacity&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="p">,</span>
@@ -637,7 +700,10 @@
             <span class="s1">&#39;round_trip_efficiency&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_trip_efficiency</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="StorageDevice.charge"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.charge">[docs]</a>    <span class="k">def</span> <span class="nf">charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StorageDevice.charge">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.charge">[docs]</a>
+    <span class="k">def</span> <span class="nf">charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Charges or discharges storage with respect to specified energy while considering `capacity` and `soc_init` limitations and, energy losses to the environment quantified by `round_trip_efficiency`.</span>
 
 <span class="sd">        Parameters</span>
@@ -657,7 +723,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">=</span> <span class="n">energy_final</span><span class="o">/</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="p">,</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__energy_balance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_energy_balance</span><span class="p">(</span><span class="n">energy_final</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StorageDevice.set_energy_balance"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.set_energy_balance">[docs]</a>    <span class="k">def</span> <span class="nf">set_energy_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StorageDevice.set_energy_balance">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.set_energy_balance">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_energy_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculate energy balance.</span>
 
 <span class="sd">        Parameters</span>
@@ -681,7 +750,10 @@
         
         <span class="k">return</span> <span class="n">energy_balance</span></div>
 
-<div class="viewcode-block" id="StorageDevice.autosize"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.autosize">[docs]</a>    <span class="k">def</span> <span class="nf">autosize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">safety_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StorageDevice.autosize">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.autosize">[docs]</a>
+    <span class="k">def</span> <span class="nf">autosize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">safety_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Autosize `capacity`.</span>
 
 <span class="sd">        Set `capacity` to the minimum capacity needed to always meet `demand`.</span>
@@ -701,15 +773,22 @@
         <span class="n">safety_factor</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">safety_factor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">safety_factor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">demand</span><span class="p">)</span><span class="o">*</span><span class="n">safety_factor</span></div>
 
-<div class="viewcode-block" id="StorageDevice.reset"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StorageDevice.reset">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageDevice.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `StorageDevice` to initial state.&quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__soc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__soc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_soc</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__energy_balance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__energy_balance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span></div>
+</div>
 
-<div class="viewcode-block" id="StorageTank"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageTank">[docs]</a><span class="k">class</span> <span class="nc">StorageTank</span><span class="p">(</span><span class="n">StorageDevice</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StorageTank">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageTank">[docs]</a>
+<span class="k">class</span> <span class="nc">StorageTank</span><span class="p">(</span><span class="n">StorageDevice</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base thermal energy storage class.</span>
 
 <span class="sd">    Parameters</span>
@@ -754,7 +833,9 @@
         <span class="k">assert</span> <span class="n">max_input_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_input_power</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;`max_input_power` must be &gt;= 0.&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__max_input_power</span> <span class="o">=</span> <span class="n">max_input_power</span>
 
-<div class="viewcode-block" id="StorageTank.charge"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageTank.charge">[docs]</a>    <span class="k">def</span> <span class="nf">charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<div class="viewcode-block" id="StorageTank.charge">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.StorageTank.charge">[docs]</a>
+    <span class="k">def</span> <span class="nf">charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Charges or discharges storage with respect to specified energy while considering `capacity` and `soc_init` limitations and, energy losses to the environment quantified by `efficiency`.</span>
 
 <span class="sd">        Parameters</span>
@@ -773,9 +854,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_output_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">max_output_power</span><span class="p">,</span> <span class="n">energy</span><span class="p">])</span>
         
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">charge</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">charge</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div>
+</div>
 
-<div class="viewcode-block" id="Battery"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery">[docs]</a><span class="k">class</span> <span class="nc">Battery</span><span class="p">(</span><span class="n">StorageDevice</span><span class="p">,</span> <span class="n">ElectricDevice</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Battery">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery">[docs]</a>
+<span class="k">class</span> <span class="nc">Battery</span><span class="p">(</span><span class="n">StorageDevice</span><span class="p">,</span> <span class="n">ElectricDevice</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base electricity storage class.</span>
 
 <span class="sd">    Parameters</span>
@@ -899,7 +984,9 @@
     <span class="k">def</span> <span class="nf">depth_of_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depth_of_discharge</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__depth_of_discharge</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">depth_of_discharge</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">depth_of_discharge</span>
 
-<div class="viewcode-block" id="Battery.get_metadata"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.get_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="Battery.get_metadata">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.get_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(),</span>
             <span class="s1">&#39;depth_of_discharge&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_of_discharge</span><span class="p">,</span>
@@ -908,7 +995,10 @@
             <span class="s1">&#39;capacity_power_curve&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity_power_curve</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Battery.charge"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.charge">[docs]</a>    <span class="k">def</span> <span class="nf">charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Battery.charge">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.charge">[docs]</a>
+    <span class="k">def</span> <span class="nf">charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Charges or discharges storage with respect to specified energy while considering `capacity` degradation and `soc_init` </span>
 <span class="sd">        limitations, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.</span>
 
@@ -940,7 +1030,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">degraded_capacity</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_balance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">enforce_polarity</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Battery.get_max_output_power"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.get_max_output_power">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_output_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Battery.get_max_output_power">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.get_max_output_power">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_max_output_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get maximum output power while considering `capacity_power_curve` limitations if defined otherwise, returns `nominal_power`.</span>
 
 <span class="sd">        Returns</span>
@@ -951,7 +1044,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_input_power</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Battery.get_max_input_power"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.get_max_input_power">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_input_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Battery.get_max_input_power">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.get_max_input_power">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_max_input_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get maximum input power while considering `capacity_power_curve` limitations if defined otherwise, returns `nominal_power`.</span>
 
 <span class="sd">        Returns</span>
@@ -975,7 +1071,10 @@
         
         <span class="k">return</span> <span class="n">max_output_power</span></div>
 
-<div class="viewcode-block" id="Battery.get_current_efficiency"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.get_current_efficiency">[docs]</a>    <span class="k">def</span> <span class="nf">get_current_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Battery.get_current_efficiency">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.get_current_efficiency">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_current_efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get technical efficiency while considering `power_efficiency_curve` limitations if defined otherwise, returns `efficiency`.</span>
 
 <span class="sd">        Returns</span>
@@ -997,7 +1096,10 @@
 
         <span class="k">return</span> <span class="n">efficiency</span></div>
 
-<div class="viewcode-block" id="Battery.degrade"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.degrade">[docs]</a>    <span class="k">def</span> <span class="nf">degrade</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Battery.degrade">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.degrade">[docs]</a>
+    <span class="k">def</span> <span class="nf">degrade</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get amount of capacity degradation.</span>
 
 <span class="sd">        Returns</span>
@@ -1010,12 +1112,17 @@
         <span class="n">capacity_degrade</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity_loss_coefficient</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_balance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">degraded_capacity</span><span class="p">,</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">capacity_degrade</span></div>
 
-<div class="viewcode-block" id="Battery.reset"><a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Battery.reset">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `Battery` to initial state.&quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_efficiency_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_efficiency_history</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_capacity_history</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span></div>
+</div>
+
 </pre></div>
 
            </div>

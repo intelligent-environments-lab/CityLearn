@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.dynamics &mdash; CityLearn 2.1.2 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -87,16 +89,24 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn</span>
 
-<div class="viewcode-block" id="Dynamics"><a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.Dynamics">[docs]</a><span class="k">class</span> <span class="nc">Dynamics</span><span class="p">:</span>
+<div class="viewcode-block" id="Dynamics">
+<a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.Dynamics">[docs]</a>
+<span class="k">class</span> <span class="nc">Dynamics</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base building dynamics model.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="Dynamics.reset"><a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.Dynamics.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span></div></div>
+<div class="viewcode-block" id="Dynamics.reset">
+<a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.Dynamics.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+</div>
 
-<div class="viewcode-block" id="LSTMDynamics"><a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics">[docs]</a><span class="k">class</span> <span class="nc">LSTMDynamics</span><span class="p">(</span><span class="n">Dynamics</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+
+<div class="viewcode-block" id="LSTMDynamics">
+<a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics">[docs]</a>
+<span class="k">class</span> <span class="nc">LSTMDynamics</span><span class="p">(</span><span class="n">Dynamics</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;LSTM building dynamics model that predicts indoor temperature based on partial cooling/heating load and other weather variables.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -142,7 +152,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_hidden_state</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model_input</span> <span class="o">=</span> <span class="kc">None</span>
     
-<div class="viewcode-block" id="LSTMDynamics.set_lstm"><a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.set_lstm">[docs]</a>    <span class="k">def</span> <span class="nf">set_lstm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">LSTM</span><span class="p">:</span>
+<div class="viewcode-block" id="LSTMDynamics.set_lstm">
+<a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.set_lstm">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_lstm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">LSTM</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize LSTM model.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span>
@@ -152,15 +164,21 @@
             <span class="n">batch_first</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="LSTMDynamics.set_linear"><a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.set_linear">[docs]</a>    <span class="k">def</span> <span class="nf">set_linear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">:</span>
+
+<div class="viewcode-block" id="LSTMDynamics.set_linear">
+<a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.set_linear">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_linear</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize linear transformer.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
             <span class="n">in_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span>
             <span class="n">out_features</span><span class="o">=</span><span class="mi">1</span>
         <span class="p">)</span></div>
+
     
-<div class="viewcode-block" id="LSTMDynamics.forward"><a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+<div class="viewcode-block" id="LSTMDynamics.forward">
+<a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict indoor dry bulb temperature.&quot;&quot;&quot;</span>
 
         <span class="n">lstm_out</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_lstm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
@@ -168,7 +186,10 @@
         <span class="n">out_linear_transf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l_linear</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out_linear_transf</span><span class="p">,</span> <span class="n">h</span></div>
 
-<div class="viewcode-block" id="LSTMDynamics.init_hidden"><a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.init_hidden">[docs]</a>    <span class="k">def</span> <span class="nf">init_hidden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+
+<div class="viewcode-block" id="LSTMDynamics.init_hidden">
+<a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.init_hidden">[docs]</a>
+    <span class="k">def</span> <span class="nf">init_hidden</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize hidden states.&quot;&quot;&quot;</span>
 
         <span class="n">hidden_state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
@@ -177,7 +198,10 @@
         
         <span class="k">return</span> <span class="n">hidden</span></div>
 
-<div class="viewcode-block" id="LSTMDynamics.reset"><a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="LSTMDynamics.reset">
+<a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads dynamic model state dict, and initializes hidden states and model input.&quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
@@ -190,8 +214,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_hidden_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_hidden</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model_input</span> <span class="o">=</span> <span class="p">[[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lookback</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_observation_names</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="LSTMDynamics.terminate"><a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.terminate">[docs]</a>    <span class="k">def</span> <span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span></div></div>
+
+<div class="viewcode-block" id="LSTMDynamics.terminate">
+<a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.terminate">[docs]</a>
+    <span class="k">def</span> <span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span></div>
+</div>
+
 </pre></div>
 
            </div>

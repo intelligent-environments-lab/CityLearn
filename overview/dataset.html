@@ -1,27 +1,29 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dataset &mdash; CityLearn 2.1.2 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -107,13 +109,13 @@
            <div itemprop="articleBody">
              
   <section id="dataset">
-<span id="dataset-page"></span><h1>Dataset<a class="headerlink" href="#dataset" title="Permalink to this headline"></a></h1>
+<span id="dataset-page"></span><h1>Dataset<a class="headerlink" href="#dataset" title="Link to this heading"></a></h1>
 <p>CityLearn makes use of datasets that are a collection of data files. The data files are used to define the simulation environment as well as provide some observation values. See <a class="reference internal" href="#dataset-data-files-section"><span class="std std-ref">Data Files</span></a> for more information.</p>
 <section id="data-files">
-<span id="dataset-data-files-section"></span><h2>Data Files<a class="headerlink" href="#data-files" title="Permalink to this headline"></a></h2>
+<span id="dataset-data-files-section"></span><h2>Data Files<a class="headerlink" href="#data-files" title="Link to this heading"></a></h2>
 <p>The data files refer to flat files containing time series data that are used to set observations that are agent action agnostic (i.e. observations that are not a function of the control actions). These files are referenced in the environment <code class="code docutils literal notranslate"><span class="pre">schema.json</span></code> and read when <a class="reference internal" href="../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> is initialized. The data files are desrcribes as follows:</p>
 <section id="building-data-file">
-<h3>Building Data File<a class="headerlink" href="#building-data-file" title="Permalink to this headline"></a></h3>
+<h3>Building Data File<a class="headerlink" href="#building-data-file" title="Link to this heading"></a></h3>
 <p>The building file is a <code class="code docutils literal notranslate"><span class="pre">csv</span></code> file that contains a building’s temporal (calendar), end-use loads, occupancy, solar generation and indoor environment variables time series data. There are as many building files as buildings in the environment. The end-use loads, occupancy, solar generation and indoor environment data may come from simulation in energy modeling software e.g., <a class="reference external" href="https://energyplus.net">EnergyPlus</a> or from smart meter or from a Building Automation System (BAS). The file structure is shown in the snippet below:</p>
 <div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Month</span><span class="p">,</span><span class="n">Hour</span><span class="p">,</span><span class="n">Day</span> <span class="n">Type</span><span class="p">,</span><span class="n">Daylight</span> <span class="n">Savings</span> <span class="n">Status</span><span class="p">,</span><span class="n">Indoor</span> <span class="n">Temperature</span> <span class="p">[</span><span class="n">C</span><span class="p">],</span><span class="n">Average</span> <span class="n">Unmet</span> <span class="n">Cooling</span> <span class="n">Setpoint</span> <span class="n">Difference</span> <span class="p">[</span><span class="n">C</span><span class="p">],</span><span class="n">Indoor</span> <span class="n">Relative</span> <span class="n">Humidity</span> <span class="p">[</span><span class="o">%</span><span class="p">],</span><span class="n">Equipment</span> <span class="n">Electric</span> <span class="n">Power</span> <span class="p">[</span><span class="n">kWh</span><span class="p">],</span><span class="n">DHW</span> <span class="n">Heating</span> <span class="p">[</span><span class="n">kWh</span><span class="p">],</span><span class="n">Cooling</span> <span class="n">Load</span> <span class="p">[</span><span class="n">kWh</span><span class="p">],</span><span class="n">Heating</span> <span class="n">Load</span> <span class="p">[</span><span class="n">kWh</span><span class="p">],</span><span class="n">Solar</span> <span class="n">Generation</span> <span class="p">[</span><span class="n">W</span><span class="o">/</span><span class="n">kW</span><span class="p">],</span><span class="n">Occupant</span> <span class="n">Count</span> <span class="p">[</span><span class="n">people</span><span class="p">],</span><span class="n">Temperature</span> <span class="n">Set</span> <span class="n">Point</span> <span class="p">[</span><span class="n">C</span><span class="p">],</span><span class="n">HVAC</span> <span class="n">Mode</span> <span class="p">[</span><span class="n">Off</span><span class="o">/</span><span class="n">Cooling</span><span class="o">/</span><span class="n">Heating</span><span class="p">]</span>
 <span class="mi">6</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">28.1219624277523</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">49.774185554176</span><span class="p">,</span><span class="mf">0.567641894272677</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">30.0</span><span class="p">,</span><span class="mi">0</span>
@@ -125,7 +127,7 @@
 </div>
 </section>
 <section id="weather-data-file">
-<h3>Weather Data File<a class="headerlink" href="#weather-data-file" title="Permalink to this headline"></a></h3>
+<h3>Weather Data File<a class="headerlink" href="#weather-data-file" title="Link to this heading"></a></h3>
 <p>The weather file is a <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file that contains outdoor weather variables time series for the desired simulation geographical location. It is used as the source for <a class="reference internal" href="../api/citylearn.building.html#citylearn.building.Building.weather" title="citylearn.building.Building.weather"><code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.building.Building.weather</span></code></a>, which is the source for weather related observations. <a class="reference external" href="https://energyplus.net/weather">Typical Meteorological Year</a> (TMY) or Actual Meteorological Year (AMY) data can be used. The file structure is shown in the snippet below:</p>
 <div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Outdoor</span> <span class="n">Drybulb</span> <span class="n">Temperature</span> <span class="p">[</span><span class="n">C</span><span class="p">],</span><span class="n">Relative</span> <span class="n">Humidity</span> <span class="p">[</span><span class="o">%</span><span class="p">],</span><span class="n">Diffuse</span> <span class="n">Solar</span> <span class="n">Radiation</span> <span class="p">[</span><span class="n">W</span><span class="o">/</span><span class="n">m2</span><span class="p">],</span><span class="n">Direct</span> <span class="n">Solar</span> <span class="n">Radiation</span> <span class="p">[</span><span class="n">W</span><span class="o">/</span><span class="n">m2</span><span class="p">],</span><span class="mi">6</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Outdoor</span> <span class="n">Drybulb</span> <span class="n">Temperature</span> <span class="p">[</span><span class="n">C</span><span class="p">],</span><span class="mi">12</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Outdoor</span> <span class="n">Drybulb</span> <span class="n">Temperature</span> <span class="p">[</span><span class="n">C</span><span class="p">],</span><span class="mi">24</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Outdoor</span> <span class="n">Drybulb</span> <span class="n">Temperature</span> <span class="p">[</span><span class="n">C</span><span class="p">],</span><span class="mi">6</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Relative</span> <span class="n">Humidity</span> <span class="p">[</span><span class="o">%</span><span class="p">],</span><span class="mi">12</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Relative</span> <span class="n">Humidity</span> <span class="p">[</span><span class="o">%</span><span class="p">],</span><span class="mi">24</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Relative</span> <span class="n">Humidity</span> <span class="p">[</span><span class="o">%</span><span class="p">],</span><span class="mi">6</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Diffuse</span> <span class="n">Solar</span> <span class="n">Radiation</span> <span class="p">[</span><span class="n">W</span><span class="o">/</span><span class="n">m2</span><span class="p">],</span><span class="mi">12</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Diffuse</span> <span class="n">Solar</span> <span class="n">Radiation</span> <span class="p">[</span><span class="n">W</span><span class="o">/</span><span class="n">m2</span><span class="p">],</span><span class="mi">24</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Diffuse</span> <span class="n">Solar</span> <span class="n">Radiation</span> <span class="p">[</span><span class="n">W</span><span class="o">/</span><span class="n">m2</span><span class="p">],</span><span class="mi">6</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Direct</span> <span class="n">Solar</span> <span class="n">Radiation</span> <span class="p">[</span><span class="n">W</span><span class="o">/</span><span class="n">m2</span><span class="p">],</span><span class="mi">12</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Direct</span> <span class="n">Solar</span> <span class="n">Radiation</span> <span class="p">[</span><span class="n">W</span><span class="o">/</span><span class="n">m2</span><span class="p">],</span><span class="mi">24</span><span class="n">h</span> <span class="n">Prediction</span> <span class="n">Direct</span> <span class="n">Solar</span> <span class="n">Radiation</span> <span class="p">[</span><span class="n">W</span><span class="o">/</span><span class="n">m2</span><span class="p">]</span>
 <span class="mf">20.0</span><span class="p">,</span><span class="mf">84.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">18.3</span><span class="p">,</span><span class="mf">22.8</span><span class="p">,</span><span class="mf">20.0</span><span class="p">,</span><span class="mf">81.0</span><span class="p">,</span><span class="mf">68.0</span><span class="p">,</span><span class="mf">81.0</span><span class="p">,</span><span class="mf">25.0</span><span class="p">,</span><span class="mf">964.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">100.0</span><span class="p">,</span><span class="mf">815.0</span><span class="p">,</span><span class="mf">0.0</span>
@@ -137,7 +139,7 @@
 </div>
 </section>
 <section id="carbon-intensity-data-file">
-<h3>Carbon Intensity Data File<a class="headerlink" href="#carbon-intensity-data-file" title="Permalink to this headline"></a></h3>
+<h3>Carbon Intensity Data File<a class="headerlink" href="#carbon-intensity-data-file" title="Link to this heading"></a></h3>
 <p>The carbon intensity file is a <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file that contains CO:sub:<cite>2</cite> emission rate time series. It is used as the source for <a class="reference internal" href="../api/citylearn.building.html#citylearn.building.Building.carbon_intensity" title="citylearn.building.Building.carbon_intensity"><code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.building.Building.carbon_intensity</span></code></a>, which is the source for the <cite>carbon_intensity</cite> observation. The data can be sourced from grid operators e.g. <a class="reference external" href="https://www.ercot.com/gridinfo/generation">ERCOT</a>, <a class="reference external" href="http://mis.nyiso.com/public/P-63list.htm">NYISO</a> or third-party sources <a class="reference external" href="https://www.watttime.org">WattTime</a>. The file structure is shown in the snippet below:</p>
 <div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kg_CO2</span><span class="o">/</span><span class="n">kWh</span>
 <span class="mf">0.17072441264038085</span>
@@ -149,7 +151,7 @@
 </div>
 </section>
 <section id="pricing-data-file">
-<h3>Pricing Data File<a class="headerlink" href="#pricing-data-file" title="Permalink to this headline"></a></h3>
+<h3>Pricing Data File<a class="headerlink" href="#pricing-data-file" title="Link to this heading"></a></h3>
 <p>The carbon intensity file is a <code class="code docutils literal notranslate"><span class="pre">.csv</span></code> file that contains current time-step and forecasted electricity price time series. It is used as the source for <a class="reference internal" href="../api/citylearn.building.html#citylearn.building.Building.pricing" title="citylearn.building.Building.pricing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.building.Building.pricing</span></code></a>, which is the source for pricing related observations. The data can be sourced from specific utility providers for a desired location e.g. <a class="reference external" href="https://www.sce.com/residential/rates/Time-Of-Use-Residential-Rate-Plans">Edison</a>. The file structure is shown in the snippet below:</p>
 <div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span>Electricity Pricing [$/kWh],6h Prediction Electricity Pricing [$/kWh],12h Prediction Electricity Pricing [$/kWh],24h Prediction Electricity Pricing [$/kWh]
 0.22,0.22,0.22,0.22
@@ -161,11 +163,11 @@
 </div>
 </section>
 <section id="lstm-model-file">
-<h3>LSTM Model File<a class="headerlink" href="#lstm-model-file" title="Permalink to this headline"></a></h3>
+<h3>LSTM Model File<a class="headerlink" href="#lstm-model-file" title="Link to this heading"></a></h3>
 <p>The LSTM model file is an optional PyTorch state dictionary used to initialize the <code class="code docutils literal notranslate"><span class="pre">cooling_dynamics</span></code> and <code class="code docutils literal notranslate"><span class="pre">heating_dynamics</span></code> temperature dynamics model attributes in <a class="reference internal" href="../api/citylearn.building.html#citylearn.building.DynamicsBuilding" title="citylearn.building.DynamicsBuilding"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.building.DynamicsBuilding</span></code></a> and its descendant classes.</p>
 </section>
 <section id="schema-data-file">
-<h3>Schema Data File<a class="headerlink" href="#schema-data-file" title="Permalink to this headline"></a></h3>
+<h3>Schema Data File<a class="headerlink" href="#schema-data-file" title="Link to this heading"></a></h3>
 <p>The schema file is a <code class="code docutils literal notranslate"><span class="pre">.json</span></code> file that references all other data files and is used to define the simulation environment. Refer to <a class="reference internal" href="schema.html#schema-page"><span class="std std-ref">Schema</span></a> for more information.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
