@@ -5,7 +5,7 @@ import logging
 import os
 from pathlib import Path
 from typing import Any, List, Mapping, Tuple, Union
-from gym import Env, spaces
+from gymnasium import Env, spaces
 import numpy as np
 import pandas as pd
 from citylearn import __version__ as citylearn_version
@@ -13,7 +13,6 @@ from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather
-from citylearn.rendering import get_background, RenderBuilding, get_plots
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 
@@ -99,6 +98,7 @@ class CityLearnEnv(Environment, Env):
     ):
         self.schema = schema
         self.__rewards = None
+        self.buildings = []
         self.random_seed = random_seed
         root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode_split, \
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker = self._load(
@@ -225,10 +225,16 @@ class CityLearnEnv(Environment, Env):
         return self.__shared_observations
 
     @property
-    def done(self) -> bool:
+    def terminated(self) -> bool:
         """Check if simulation has reached completion."""
 
         return self.time_step == self.time_steps - 1
+    
+    @property
+    def truncated(self) -> bool:
+        """Check if episode truncates due to a time limit or a reason that is not defined as part of the task MDP."""
+
+        return False
 
     @property
     def observation_space(self) -> List[spaces.Box]:
@@ -740,6 +746,13 @@ class CityLearnEnv(Environment, Env):
     def shared_observations(self, shared_observations: List[str]):
         self.__shared_observations = self.get_default_shared_observations() if shared_observations is None else shared_observations
 
+    @Environment.random_seed.setter
+    def random_seed(self, seed: int):
+        Environment.random_seed.fset(self, seed)
+
+        for b in self.buildings:
+            b.random_seed = self.random_seed
+
     def get_metadata(self) -> Mapping[str, Any]:
         return {
             **super().get_metadata(),
@@ -772,7 +785,7 @@ class CityLearnEnv(Environment, Env):
         ]
 
 
-    def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, dict]:
+    def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, bool, dict]:
         """Advance to next time step then apply actions to `buildings` and update variables.
         
         Parameters
@@ -789,12 +802,15 @@ class CityLearnEnv(Environment, Env):
             :attr:`observations` current value.
         reward: List[float] 
             :meth:`get_reward` current value.
-        done: bool 
+        terminated: bool 
             A boolean value for if the episode has ended, in which case further :meth:`step` calls will return undefined results.
             A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully,
             a certain timelimit was exceeded, or the physics simulation has entered an invalid observation.
+        truncated: bool
+            A boolean value for if episode truncates due to a time limit or a reason that is not defined as part of the task MDP.
+            Will always return False in this base class.
         info: dict
-            A dictionary that may contain additional information regarding the reason for a ``done`` signal.
+            A dictionary that may contain additional information regarding the reason for a `terminated` signal.
             `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
             Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
@@ -818,7 +834,7 @@ class CityLearnEnv(Environment, Env):
         self.__rewards.append(reward)
 
         # store episode reward summary
-        if self.done:
+        if self.terminated:
             rewards = np.array(self.__rewards[1:], dtype='float32')
             self.__episode_rewards.append({
                 'min': rewards.min(axis=0).tolist(),
@@ -830,7 +846,7 @@ class CityLearnEnv(Environment, Env):
         else:
             pass
         
-        return self.observations, reward, self.done, self.get_info()
+        return self.observations, reward, self.terminated, self.truncated, self.get_info()
 
     def get_info(self) -> Mapping[Any, Any]:
         """Other information to return from the `citylearn.CityLearnEnv.step` function."""
@@ -1066,63 +1082,6 @@ class CityLearnEnv(Environment, Env):
         cost_functions = pd.concat([district_level, building_level], ignore_index=True, sort=False)
 
         return cost_functions
-    
-    def render(self):
-        """Rendering function for The CityLearn Challenge 2023."""
-
-        canvas, canvas_size, draw_obj, color = get_background()
-        num_buildings = len(self.buildings)
-        profile_time_steps = 24
-        norm_min, norm_max = 0.0, 1.0
-        space_limits = []
-
-        for i, b in enumerate(self.buildings):
-            # current time step net electricity consumption and storage soc and indoor temperature
-            energy = b.net_electricity_consumption[b.time_step]\
-                /(b.non_periodic_normalized_observation_space_limits[1]['net_electricity_consumption'])
-            energy = max(min(energy, norm_max), norm_min)
-            electrical_storage_soc = b.electrical_storage.soc[b.time_step]
-            electrical_storage_soc = max(min(electrical_storage_soc, norm_max),norm_min)
-            dhw_storage_soc = b.dhw_storage.soc[b.time_step]
-            dhw_storage_soc = max(min(dhw_storage_soc, norm_max), norm_min)
-            indoor_temperature = b.indoor_dry_bulb_temperature[b.time_step]
-            indoor_temperature_delta = indoor_temperature - b.energy_simulation.indoor_dry_bulb_temperature_set_point[b.time_step]
-            space_limits.append(b.non_periodic_normalized_observation_space_limits)
-
-            # render
-            rbuilding = RenderBuilding(index=i, canvas_size=canvas_size, num_buildings=num_buildings, line_color=color)
-            rbuilding.draw_line(canvas, draw_obj, energy=energy, color=color)
-            rbuilding.draw_building(canvas, charge=electrical_storage_soc)
-
-        # time series data
-        nec = self.net_electricity_consumption[-profile_time_steps:]
-        nec_wo_storage = self.net_electricity_consumption_without_storage[-profile_time_steps:]
-        nec_wo_storage_and_partial_load = self.net_electricity_consumption_without_storage_and_partial_load[-profile_time_steps:]
-        nec_wo_storage_and_partial_load_and_pv = self.net_electricity_consumption_without_storage_and_partial_load_and_pv[-profile_time_steps:]
-        values = [nec, nec_wo_storage, nec_wo_storage_and_partial_load, nec_wo_storage_and_partial_load_and_pv]
-
-        # time series data y limits
-        nec_y_lim = (
-            sum(s[0]['net_electricity_consumption'] for s in space_limits),
-            sum(s[1]['net_electricity_consumption'] for s in space_limits)
-        )
-        nec_wo_storage_y_lim = (
-            sum(s[0]['net_electricity_consumption_without_storage'] for s in space_limits),
-            sum(s[1]['net_electricity_consumption_without_storage'] for s in space_limits)
-        )
-        nec_wo_storage_and_partial_load_y_lim = (
-            sum(s[0]['net_electricity_consumption_without_storage_and_partial_load'] for s in space_limits),
-            sum(s[1]['net_electricity_consumption_without_storage_and_partial_load'] for s in space_limits)
-        )
-        nec_wo_storage_and_partial_load_and_pv_y_lim = (
-            sum(s[0]['net_electricity_consumption_without_storage_and_partial_load_and_pv'] for s in space_limits),
-            sum(s[1]['net_electricity_consumption_without_storage_and_partial_load_and_pv'] for s in space_limits)
-        )
-        limits = [nec_y_lim, nec_wo_storage_y_lim, nec_wo_storage_and_partial_load_y_lim, nec_wo_storage_and_partial_load_and_pv_y_lim]
-        plot_image = get_plots(values, limits)
-        graphic_image = np.asarray(canvas)
-        
-        return np.concatenate([graphic_image, plot_image], axis=1)
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
@@ -1132,17 +1091,36 @@ class CityLearnEnv(Environment, Env):
         
         super().next_time_step()
 
-    def reset(self) -> List[List[float]]:
+    def reset(self, seed: int = None, options: Mapping[str, Any] = None) -> Tuple[List[List[float]], dict]:
         r"""Reset `CityLearnEnv` to initial state.
+
+        Parameters
+        ----------
+        seed: int, optional
+            Use to updated :code:`citylearn.CityLearnEnv.random_seed` if value is provided.
+        options: Mapping[str, Any], optional
+            Use to pass additional data to environment on reset. Not used in this base class
+            but included to conform to gymnasium interface.
         
         Returns
         -------
         observations: List[List[float]]
             :attr:`observations`.
+        info: dict
+            A dictionary that may contain additional information regarding the reason for a `terminated` signal.
+            `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
+            Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
 
         # object reset
         super().reset()
+
+        # update seed
+        if seed is not None:
+            self.random_seed = seed
+        
+        else:
+            pass
 
         # update time steps for time series
         self.episode_tracker.next_episode(
@@ -1165,7 +1143,7 @@ class CityLearnEnv(Environment, Env):
         self.__net_electricity_consumption_emission = []
         self.update_variables()
 
-        return self.observations
+        return self.observations, self.get_info()
 
     def update_variables(self):
         # net electricity consumption
