@@ -687,18 +687,14 @@ class RLlibMultiAgentObservationWrapper(ObservationWrapper):
     def observation_space(self) -> spaces.Dict:
         """Parses observation space into a :py:class:`gymnasium.spaces.Dict`."""
 
-        return spaces.Dict({b.name: s for b, s in zip(
-            self.env.buildings, self.env.observation_space
-        )})
+        return spaces.Dict({f'agent_{i}': s for i, s in enumerate(self.env.observation_space)})
 
     def observation(
         self, observations: List[List[float]]
     ) -> Mapping[str, np.ndarray]:
         """Parses observation into a dictionary."""
 
-        return {b.name: np.array(o, dtype='float32') for b, o in zip(
-            self.env.buildings, observations
-        )}
+        return {f'agent_{i}': np.array(o, dtype='float32') for i, o in enumerate(observations)}
 
 class RLlibMultiAgentActionWrapper(ActionWrapper):
     """Action wrapper for :code:`RLlib` multi-agent algorithms.
@@ -726,7 +722,7 @@ class RLlibMultiAgentActionWrapper(ActionWrapper):
     def action_space(self) -> spaces.Dict:
         """Parses action space into a :py:class:`gymnasium.spaces.Dict`."""
 
-        return spaces.Dict({b.name: s for b, s in zip(self.env.buildings, self.env.action_space)})
+        return spaces.Dict({f'agent_{i}': s for i, s in enumerate(self.env.action_space)})
 
     def action(self, actions: Mapping[str, np.ndarray]) -> List[List[float]]:
         """Parses actions into data structure for :py:meth:`citylearn.citylearn.CityLearnEnv.step`."""
@@ -755,7 +751,7 @@ class RLlibMultiAgentRewardWrapper(RewardWrapper):
     def reward(self, reward: List[float]) -> Mapping[str, float]:
         """Parses reward into a `dict`."""
 
-        return {b.name: r for b, r in zip(self.env.buildings, reward)}
+        return {f'agent_{i}': r for i, r in enumerate(reward)}
 
 class RLlibMultiAgentEnv(MultiAgentEnv):
     """Wrapper for :code:`RLlib` multi-agent algorithms.
@@ -813,7 +809,7 @@ class RLlibMultiAgentEnv(MultiAgentEnv):
         env = RLlibMultiAgentObservationWrapper(env)
         env = RLlibMultiAgentRewardWrapper(env)
         self.env: CityLearnEnv = env
-        self._agent_ids = [b.name for b in self.buildings]
+        self._agent_ids = [f'agent_{i}' for i in range(len(self.buildings))]
         self.observation_space: spaces.Dict = self.env.observation_space
         self.action_space: spaces.Dict = self.env.action_space
 
