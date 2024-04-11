@@ -32,9 +32,15 @@ class Agent(Environment):
         super().__init__(
             seconds_per_time_step=self.env.seconds_per_time_step,
             random_seed=self.env.random_seed,
-            episode_tracker=env.episode_tracker,
+            episode_tracker=self.env.episode_tracker,
         )
         self.reset()
+
+    @property
+    def env(self) -> CityLearnEnv:
+        """CityLearn environment."""
+
+        return self.__env
 
     @property
     def observation_names(self) -> List[List[str]]:
@@ -81,6 +87,10 @@ class Agent(Environment):
         """Action history/time series."""
 
         return self.__actions
+    
+    @env.setter
+    def env(self, env: CityLearnEnv):
+        self.__env = env
 
     @observation_names.setter
     def observation_names(self, observation_names: List[List[str]]):
@@ -250,7 +260,11 @@ class BaselineAgent(Agent):
     """
 
     def __init__(self, env: CityLearnEnv, **kwargs: Any):
-        super().__init__(self.__deactivate_actions(env), **kwargs)
+        super().__init__(env, **kwargs)
+
+    @Agent.env.setter
+    def env(self, env: CityLearnEnv):
+        Agent.env.fset(self, self.__deactivate_actions(env))
 
     def __deactivate_actions(self, env: CityLearnEnv) -> CityLearnEnv:
         for b in env.unwrapped.buildings:
