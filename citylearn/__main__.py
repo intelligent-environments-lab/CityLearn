@@ -409,7 +409,7 @@ def main():
     )
     subparser_run_work_order.add_argument('work_order_filepath', type=Path, help=(
         'Filepath to script containing list of commands to be run in parallel with each command defined on a new line.'))
-    subparser_run_work_order.add_argument('-w', '--max_workers', dest='max_workers', type=int, default=cpu_count(), help=(
+    subparser_run_work_order.add_argument('-w', '--max_workers', dest='max_workers', type=int, help=(
         'Maximum number of commands to run at a time. Default is the number of CPUs.'))
     subparser_run_work_order.add_argument('-is', '--start_index', default=0, dest='start_index', type=int, help=(
         'Line index of first command to execute. Commands above this index are not executed. '
