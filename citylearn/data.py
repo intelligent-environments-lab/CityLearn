@@ -11,7 +11,7 @@ ZERO_DIVISION_PLACEHOLDER = 0.000001
 class DataSet:
     """CityLearn input data set and schema class."""
     
-    __ROOT_DIRECTORY = os.path.join(os.path.dirname(__file__),'data')
+    __ROOT_DIRECTORY = os.path.join(os.path.dirname(__file__), 'data')
 
     @staticmethod
     def get_names() -> List[str]:

@@ -22,14 +22,16 @@ setuptools.setup(
     version=get_version(),
     author='Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy',
     author_email='nweye@utexas.edu',
-    description='An open source Farama Foundation Gymnasium environment for the implementation of Multi-Agent Reinforcement Learning (RL) for building energy coordination and demand response in cities.',
+    description=(
+        'An open source Farama Foundation Gymnasium environment for benchmarking distributed '
+        'energy resource control algorithms to provide energy flexibility in a district of buildings.'),
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/intelligent-environments-lab/CityLearn',
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=requirements,
-    entry_points={'console_scripts': ['citylearn = citylearn.main:main']},
+    entry_points={'console_scripts': ['citylearn = citylearn.__main__:main']},
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',

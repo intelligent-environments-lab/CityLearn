@@ -5,6 +5,7 @@ nbsphinx-link
 Sphinx
 sphinxemoji
 sphinxcontrib-bibtex
+sphinx-argparse
 sphinx-copybutton
 sphinx-panels
 sphinx-rtd-theme
