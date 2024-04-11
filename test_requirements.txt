@@ -1,4 +1,2 @@
--e .
-ipykernel
 ray[rllib]
 stable-baselines3
