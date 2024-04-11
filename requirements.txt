@@ -1,6 +1,7 @@
 gymnasium
 numpy
 pandas
+pyyaml
 scikit-learn
 simplejson
 torch
