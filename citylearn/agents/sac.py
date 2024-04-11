@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Union
 import numpy as np
 import numpy.typing as npt
 
@@ -166,7 +166,7 @@ class SAC(RLC):
     def predict(self, observations: List[List[float]], deterministic: bool = None):
         r"""Provide actions for current time step.
 
-        Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` >= :attr:`time_step` 
+        Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` <= :attr:`time_step` 
         else will use policy to sample actions.
 
         Parameters
@@ -285,13 +285,14 @@ class SACRBC(SAC):
         Other keyword arguments used to initialize super class.
     """
     
-    def __init__(self, env: CityLearnEnv, rbc: RBC = None, **kwargs: Any):
+    def __init__(self, env: CityLearnEnv, rbc: Union[RBC, str] = None, **kwargs: Any):
         super().__init__(env, **kwargs)
         self.__set_rbc(rbc, **kwargs)
 
     @property
     def rbc(self) -> RBC:
-        """:py:class:`citylearn.agents.rbc.RBC` or child class, used to select actions during exploration."""
+        """:py:class:`citylearn.agents.rbc.RBC` class child class or string path to an RBC 
+        class e.g. 'citylearn.agents.rbc.RBC', used to select actions during exploration."""
 
         return self.__rbc
     
@@ -301,6 +302,9 @@ class SACRBC(SAC):
         
         elif isinstance(rbc, RBC):
             pass
+
+        elif isinstance(rbc, str):
+            rbc = self.env.load_agent(rbc, env=self.env, **kwargs)
 
         else:
             rbc = rbc(self.env, **kwargs)
