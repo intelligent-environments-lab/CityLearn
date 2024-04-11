@@ -71,12 +71,33 @@ class CityLearnEnv(Environment, Env):
         True if episode splits are to be selected at random during training otherwise, False to select sequentially.
     seconds_per_time_step: float
         Number of seconds in 1 `time_step` and must be set to >= 1.
-    reward_function: RewardFunction, optional
-        Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
+    reward_function: Union[RewardFunction, str], optional
+        Reward function class instance or path to function class e.g. 'citylearn.reward_function.IndependentSACReward'.
+        If provided, will override :code:`reward_function` definition in schema.
+    reward_function_kwargs: Mapping[str, Any], optional
+        Parameters to be parsed to :py:attr:`reward_function` at intialization.
     central_agent: bool, optional
         Expect 1 central agent to control all buildings.
     shared_observations: List[str], optional
         Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
+    active_observations: Union[List[str], List[List[str]]], optional
+        List of observations to be made available in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  
+        each building independently in a :code:`List[List[str]]`. Will override the observations defined in the :code:`schema`.
+    inactive_observations: Union[List[str], List[List[str]]], optional
+        List of observations to be made unavailable in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  
+        each building independently in a :code:`List[List[str]]`. Will override the observations defined in the :code:`schema`.
+    active_actions: Union[List[str], List[List[str]]], optional
+        List of actions to be made available in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  
+        each building independently in a :code:`List[List[str]]`. Will override the actions defined in the :code:`schema`.
+    inactive_actions: Union[List[str], List[List[str]]], optional
+        List of actions to be made unavailable in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  
+        each building independently in a :code:`List[List[str]]`. Will override the actions defined in the :code:`schema`.
+    simulate_power_outage: Union[bool, List[bool]]
+        Whether to simulate power outages. Can be specified for all buildings as single :code:`bool` or for  
+        each building independently in a :code:`List[bool]`. Will override power outage defined in the :code:`schema`.
+    solar_generation: Union[bool, List[bool]]
+        Wehther to allow solar generation. Can be specified for all buildings as single :code:`bool` or for  
+        each building independently in a :code:`List[bool]`. Will override :code:`pv` defined in the :code:`schema`.
     random_seed: int, optional
         Pseudorandom number generator seed for repeatable results.
 
@@ -93,8 +114,10 @@ class CityLearnEnv(Environment, Env):
     def __init__(self, 
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None, 
         simulation_start_time_step: int = None, simulation_end_time_step: int = None, episode_time_steps: Union[int, List[Tuple[int, int]]] = None, rolling_episode_split: bool = None, 
-        random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: RewardFunction = None, 
-        central_agent: bool = None, shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
+        random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: Union[RewardFunction, str] = None, reward_function_kwargs: Mapping[str, Any] = None, 
+        central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None, 
+        inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None, 
+        inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, **kwargs: Any
     ):
         self.schema = schema
         self.__rewards = None
@@ -111,8 +134,15 @@ class CityLearnEnv(Environment, Env):
                 random_episode=random_episode_split,
                 seconds_per_time_step=seconds_per_time_step,
                 reward_function=reward_function,
+                reward_function_kwargs=reward_function_kwargs,
                 central_agent=central_agent,
                 shared_observations=shared_observations,
+                active_observations=active_observations,
+                inactive_observations=inactive_observations,
+                active_actions=active_actions,
+                inactive_actions=inactive_actions,
+                simulate_power_outage=simulate_power_outage,
+                solar_generation=solar_generation,
                 random_seed=self.random_seed,
             )
         self.root_directory = root_directory
@@ -319,7 +349,7 @@ class CityLearnEnv(Environment, Env):
             shared_observations = []
 
             for i, b in enumerate(self.buildings):
-                for k, v in b.observations(normalize=False, periodic_normalization=False).items():
+                for k, v in b.observations(normalize=False, periodic_normalization=False, check_limits=True).items():
                     if i == 0 or k not in self.shared_observations or k not in shared_observations:
                         observations.append(v)
                     
@@ -335,7 +365,7 @@ class CityLearnEnv(Environment, Env):
             observations = [observations]
         
         else:
-            observations = [list(b.observations().values()) for b in self.buildings]
+            observations = [list(b.observations(normalize=False, periodic_normalization=False, check_limits=True).values()) for b in self.buildings]
         
         return observations
 
@@ -1155,27 +1185,54 @@ class CityLearnEnv(Environment, Env):
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission.append(sum([b.net_electricity_consumption_emission[self.time_step] for b in self.buildings]))
 
-    def load_agent(self) -> 'citylearn.agents.base.Agent':
+    def load_agent(self, agent: Union[str, 'citylearn.agents.base.Agent'] = None, **kwargs) -> Union[Any, 'citylearn.agents.base.Agent']:
         """Return :class:`Agent` or sub class object as defined by the `schema`.
 
         Parameters
         ----------
+        agent: Union[str, 'citylearn.agents.base.Agent], optional
+            Agent class or string describing path to agent class, e.g. 'citylearn.agents.base.BaselineAgent'.
+            If a value is not provided, defaults to the agent defined in the schema:agent:type.
+
         **kwargs : dict
-            Parameters to override schema definitions. See :py:class:`citylearn.citylearn.CityLearnEnv` initialization parameters for valid kwargs.
+            Agent initialization attributes. For most agents e.g. CityLearn and Stable-Baselines3 agents, 
+            an intialized :py:attr:`env` must be parsed to the agent :py:meth:`init` function.
         
         Returns
         -------
-        agents: Agent
-            Simulation agent(s) for `citylearn_env.buildings` energy storage charging/discharging management.
+        agent: Agent
+            Initialized agent.
         """
 
-        agent_type = self.schema['agent']['type']
+        # set agent class
+        if agent is not None:
+            agent_type = agent
+
+            if not isinstance(agent_type, str):
+                agent_type = [agent_type.__module__] + [agent_type.__name__]
+                agent_type = '.'.join(agent_type)
+
+            else:
+                pass
+        
+        # set agent init attributes
+        else:
+            agent_type = self.schema['agent']['type']
+        
+        if kwargs is not None and len(kwargs) > 0:
+            agent_attributes = kwargs
+
+        elif agent is None:
+            agent_attributes = self.schema['agent'].get('attributes', {})
+
+        else:
+            agent_attributes = None
+        
         agent_module = '.'.join(agent_type.split('.')[0:-1])
         agent_name = agent_type.split('.')[-1]
         agent_constructor = getattr(importlib.import_module(agent_module), agent_name)
-        agent_attributes = self.schema['agent'].get('attributes', {})
-        agent_attributes = {'env': self, **agent_attributes}
-        agent = agent_constructor(**agent_attributes)
+        agent = agent_constructor() if agent_attributes is None else agent_constructor(**agent_attributes)
+
         return agent
 
     def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
@@ -1209,12 +1266,15 @@ class CityLearnEnv(Environment, Env):
             self.schema = read_json(self.schema)
             self.schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if self.schema['root_directory'] is None\
                 else self.schema['root_directory']
+        
         elif isinstance(self.schema, str) and self.schema in DataSet.get_names():
             self.schema = DataSet.get_schema(self.schema)
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
+        
         elif isinstance(self.schema, dict):
             self.schema = deepcopy(self.schema)
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
+        
         else:
             raise UnknownSchemaError()
 
@@ -1258,7 +1318,7 @@ class CityLearnEnv(Environment, Env):
         else:
             buildings_to_include = [b for b in buildings_to_include if self.schema['buildings'][b]['include']]
 
-        for building_name in buildings_to_include:
+        for i, building_name in enumerate(buildings_to_include):
             building_schema = self.schema['buildings'][building_name]
             # data
             energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation']))
@@ -1270,6 +1330,7 @@ class CityLearnEnv(Environment, Env):
                 carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity']))
                 carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
                 carbon_intensity = CarbonIntensity(carbon_intensity)
+            
             else:
                 carbon_intensity = None
 
@@ -1279,11 +1340,51 @@ class CityLearnEnv(Environment, Env):
             else:
                 pricing = None
                 
-            # observation and action metadata
-            inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
-            inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
-            observation_metadata = {k: False if k in inactive_observations else v['active'] for k, v in observations.items()}
-            action_metadata = {k: False if k in inactive_actions else v['active'] for k, v in actions.items()}
+            # observation metadata
+            observation_metadata = {k: v['active'] for k, v in observations.items()}
+
+            if kwargs.get('active_observations') is not None:
+                active_observations = kwargs['active_observations']
+                active_observations = active_observations[i] if isinstance(active_observations[0], list) else active_observations
+                observation_metadata = {k: True if k in active_observations else False for k in observation_metadata}
+            
+            else:
+                pass
+
+            if kwargs.get('inactive_observations') is not None:
+                inactive_observations = kwargs['inactive_observations']
+                inactive_observations = inactive_observations[i] if isinstance(inactive_observations[0], list) else inactive_observations
+
+            elif building_schema.get('inactive_observations') is not None:
+                inactive_observations = building_schema['inactive_observations']
+
+            else:
+                inactive_observations = []
+
+            observation_metadata = {k: False if k in inactive_observations else v for k, v in observation_metadata.items()}
+
+            # action metadata
+            action_metadata = {k: v['active'] for k, v in actions.items()}
+
+            if kwargs.get('active_actions') is not None:
+                active_actions = kwargs['active_actions']
+                active_actions = active_actions[i] if isinstance(active_actions[0], list) else active_actions
+                action_metadata = {k: True if k in active_actions else False for k in action_metadata}
+            
+            else:
+                pass
+
+            if kwargs.get('inactive_actions') is not None:
+                inactive_actions = kwargs['inactive_actions']
+                inactive_actions = inactive_actions[i] if isinstance(inactive_actions[0], list) else inactive_actions
+
+            elif building_schema.get('inactive_actions') is not None:
+                inactive_actions = building_schema['inactive_actions']
+
+            else:
+                inactive_actions = []
+
+            action_metadata = {k: False if k in inactive_actions else v for k, v in action_metadata.items()}
 
             # construct building
             building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
@@ -1311,7 +1412,9 @@ class CityLearnEnv(Environment, Env):
 
             # set power outage model
             building_schema_power_outage = building_schema.get('power_outage', {})
-            simulate_power_outage = building_schema_power_outage.get('simulate_power_outage')
+            simulate_power_outage = kwargs.get('simulate_power_outage')
+            simulate_power_outage = building_schema_power_outage.get('simulate_power_outage') if simulate_power_outage is None else simulate_power_outage
+            simulate_power_outage = simulate_power_outage[i] if isinstance(simulate_power_outage, list) else simulate_power_outage
             stochastic_power_outage = building_schema_power_outage.get('stochastic_power_outage')
 
             if building_schema_power_outage.get('stochastic_power_outage_model', None) is not None:
@@ -1357,10 +1460,17 @@ class CityLearnEnv(Environment, Env):
                 'dhw_device': {'autosizer': building.autosize_dhw_device}, 
                 'pv': {'autosizer': building.autosize_pv}
             }
+            solar_generation = kwargs.get('solar_generation')
+            solar_generation = True if solar_generation is None else solar_generation
+            solar_generation = solar_generation[i] if isinstance(solar_generation, list) else solar_generation
 
             for name in device_metadata:
                 if building_schema.get(name, None) is None:
                     device = None
+                
+                elif name == 'pv' and not solar_generation:
+                    device = None
+                
                 else:
                     device_type = building_schema[name]['type']
                     device_module = '.'.join(device_type.split('.')[0:-1])
@@ -1376,6 +1486,7 @@ class CityLearnEnv(Environment, Env):
                         autosizer = device_metadata[name]['autosizer']
                         autosize_kwargs = {} if building_schema[name].get('autosize_attributes', None) is None else building_schema[name]['autosize_attributes']
                         autosizer(**autosize_kwargs)
+                    
                     else:
                         pass
             
@@ -1385,17 +1496,31 @@ class CityLearnEnv(Environment, Env):
         
         buildings = list(buildings)
 
+        # set reward function
         if kwargs.get('reward_function') is not None:
-            reward_function_constructor = kwargs['reward_function']
-            reward_function = reward_function_constructor(None)
+            reward_function_type = kwargs['reward_function']
+
+            if not isinstance(reward_function_type, str):
+                reward_function_type = [reward_function_type.__module__] + [reward_function_type.__name__]
+                reward_function_type = '.'.join(reward_function_type)
+
+            else:
+                pass
+
         else:
             reward_function_type = self.schema['reward_function']['type']
-            reward_function_attributes = self.schema['reward_function'].get('attributes',None)
+
+        if kwargs.get('reward_function_kwargs') is not None:
+            reward_function_attributes = kwargs['reward_function_kwargs']
+        
+        else:
+            reward_function_attributes = self.schema['reward_function'].get('attributes', None)
             reward_function_attributes = {} if reward_function_attributes is None else reward_function_attributes
-            reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
-            reward_function_name = reward_function_type.split('.')[-1]
-            reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
-            reward_function = reward_function_constructor(None, **reward_function_attributes)
+        
+        reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
+        reward_function_name = reward_function_type.split('.')[-1]
+        reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
+        reward_function = reward_function_constructor(None, **reward_function_attributes)
 
         return (
             root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode_split, 
