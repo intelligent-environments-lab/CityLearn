@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.sac &mdash; CityLearn 2.1.2 documentation</title>
+  <title>citylearn.agents.sac &mdash; CityLearn 2.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -18,7 +18,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../../../_static/documentation_options.js?v=b21de401"></script>
         <script src="../../../_static/doctools.js?v=888ff710"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">QuickStart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
@@ -84,7 +85,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.agents.sac</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
 
@@ -259,7 +260,7 @@
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
 
-<span class="sd">        Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` &gt;= :attr:`time_step` </span>
+<span class="sd">        Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` &lt;= :attr:`time_step` </span>
 <span class="sd">        else will use policy to sample actions.</span>
 
 <span class="sd">        Parameters</span>
@@ -403,13 +404,14 @@
 <span class="sd">        Other keyword arguments used to initialize super class.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">rbc</span><span class="p">:</span> <span class="n">RBC</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">rbc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RBC</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__set_rbc</span><span class="p">(</span><span class="n">rbc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rbc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RBC</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;:py:class:`citylearn.agents.rbc.RBC` or child class, used to select actions during exploration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;:py:class:`citylearn.agents.rbc.RBC` class child class or string path to an RBC </span>
+<span class="sd">        class e.g. &#39;citylearn.agents.rbc.RBC&#39;, used to select actions during exploration.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rbc</span>
     
@@ -419,6 +421,9 @@
         
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rbc</span><span class="p">,</span> <span class="n">RBC</span><span class="p">):</span>
             <span class="k">pass</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rbc</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">rbc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">load_agent</span><span class="p">(</span><span class="n">rbc</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">rbc</span> <span class="o">=</span> <span class="n">rbc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>

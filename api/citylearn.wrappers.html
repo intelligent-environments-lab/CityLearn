@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.wrappers module &mdash; CityLearn 2.1.2 documentation</title>
+  <title>citylearn.wrappers module &mdash; CityLearn 2.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -19,7 +19,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../_static/documentation_options.js?v=b21de401"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="citylearn.html">citylearn package</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="citylearn.html#subpackages">Subpackages</a></li>
@@ -112,6 +113,25 @@
              
   <section id="module-citylearn.wrappers">
 <span id="citylearn-wrappers-module"></span><h1>citylearn.wrappers module<a class="headerlink" href="#module-citylearn.wrappers" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.wrappers.ClippedObservationWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.wrappers.</span></span><span class="sig-name descname"><span class="pre">ClippedObservationWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">CityLearnEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/wrappers.html#ClippedObservationWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.ClippedObservationWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObservationWrapper</span></code></p>
+<p>Wrapper for observations min-max and periodic normalization.</p>
+<p>Observations are clipped to be within the observation space limits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.wrappers.ClippedObservationWrapper.observation">
+<span class="sig-name descname"><span class="pre">observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/wrappers.html#ClippedObservationWrapper.observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.ClippedObservationWrapper.observation" title="Link to this definition"></a></dt>
+<dd><p>Returns normalized observations.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.wrappers.DiscreteActionWrapper">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.wrappers.</span></span><span class="sig-name descname"><span class="pre">DiscreteActionWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_bin_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/wrappers.html#DiscreteActionWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.DiscreteActionWrapper" title="Link to this definition"></a></dt>
@@ -270,6 +290,175 @@ is returned where each sublist is a list of 1 building’s observation names and
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentActionWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.wrappers.</span></span><span class="sig-name descname"><span class="pre">RLlibMultiAgentActionWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">CityLearnEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibMultiAgentActionWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentActionWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ActionWrapper</span></code></p>
+<p>Action wrapper for <code class="code docutils literal notranslate"><span class="pre">RLlib</span></code> multi-agent algorithms.</p>
+<p>Wraps action space so that it is returned as <code class="xref py py-class docutils literal notranslate"><span class="pre">gymnasium.spaces.Dict</span></code>.
+The keys correspond to the agent IDs i.e., policy IDs in the multi-agent.
+Also converts agent actions from <cite>dict</cite> to  data structure need by
+<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step" title="citylearn.citylearn.CityLearnEnv.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.step()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentActionWrapper.action">
+<span class="sig-name descname"><span class="pre">action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibMultiAgentActionWrapper.action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentActionWrapper.action" title="Link to this definition"></a></dt>
+<dd><p>Parses actions into data structure for <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step" title="citylearn.citylearn.CityLearnEnv.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.step()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentActionWrapper.action_space">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_space</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span></em><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentActionWrapper.action_space" title="Link to this definition"></a></dt>
+<dd><p>Parses action space into a <code class="xref py py-class docutils literal notranslate"><span class="pre">gymnasium.spaces.Dict</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentEnv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.wrappers.</span></span><span class="sig-name descname"><span class="pre">RLlibMultiAgentEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibMultiAgentEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentEnv" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultiAgentEnv</span></code></p>
+<p>Wrapper for <code class="code docutils literal notranslate"><span class="pre">RLlib</span></code> multi-agent algorithms.</p>
+<p>Converts, observation and action spaces to <code class="xref py py-class docutils literal notranslate"><span class="pre">gymnasium.spaces.Dict</span></code>.
+Also converts <cite>observations</cite>, <cite>actions</cite>, <cite>rewards</cite>, <cite>terminated</cite>, and <cite>truncated</cite>
+to dictionaries where necessary. The dictionary keys correspond to the agent IDs i.e.,
+policy IDs in the multi-agent. Agent IDs are accessible through the <cite>_agent_ids</cite> property.
+The initialized environment is a <code class="xref py py-class docutils literal notranslate"><span class="pre">ray.rllib.env.MultiAgentEnv</span></code> object
+and has an <cite>env</cite> attribute that is <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env_config</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Dictionary providing initialization parameters for the environment.
+Must contain <cite>env_kwargs</cite> as a key where <cite>env_kwargs</cite> is a <cite>dict</cite> used to
+initialize <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a>. Thus it must
+contain all with positional arguments needed for intialization and
+optionally contain optional  intialization arguments. <cite>env_config</cite> can also
+contain a <cite>wrappers</cite> key that is a list of <a class="reference internal" href="#module-citylearn.wrappers" title="citylearn.wrappers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.wrappers</span></code></a>
+classes to wrap <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> with. Wrapping
+with <a class="reference internal" href="#citylearn.wrappers.ClippedObservationWrapper" title="citylearn.wrappers.ClippedObservationWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.wrappers.ClippedObservationWrapper</span></code></a> is recommended
+to avoid having the simulation terminating prematurely with an error due to
+out of bound observations relative to the observation space.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This wrapper is only compatible with an environment where
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.citylearn.central_agent`=`False</span></code> and will initialize the
+environment as such, overriding any value for <cite>central_agent</cite> in <cite>env_kwargs</cite>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentEnv.buildings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">buildings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.building.html#citylearn.building.Building" title="citylearn.building.Building"><span class="pre">Building</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentEnv.buildings" title="Link to this definition"></a></dt>
+<dd><p>Convenience property for <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.buildings" title="citylearn.citylearn.CityLearnEnv.buildings"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.buildings()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentEnv.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibMultiAgentEnv.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentEnv.evaluate" title="Link to this definition"></a></dt>
+<dd><p>Convenience method for <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate" title="citylearn.citylearn.CityLearnEnv.evaluate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.evaluate()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentEnv.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibMultiAgentEnv.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentEnv.reset" title="Link to this definition"></a></dt>
+<dd><p>Calls <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.reset" title="citylearn.citylearn.CityLearnEnv.reset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.reset()</span></code></a> and parses returned values into dictionaries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentEnv.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibMultiAgentEnv.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentEnv.step" title="Link to this definition"></a></dt>
+<dd><p>Calls <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step" title="citylearn.citylearn.CityLearnEnv.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.step()</span></code></a> and parses returned values into dictionaries.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentEnv.terminated">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">terminated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentEnv.terminated" title="Link to this definition"></a></dt>
+<dd><p>Convenience property for <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.terminated" title="citylearn.citylearn.CityLearnEnv.terminated"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.terminated()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentEnv.time_step">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">time_step</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentEnv.time_step" title="Link to this definition"></a></dt>
+<dd><p>Convenience property for <code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.time_step()</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentObservationWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.wrappers.</span></span><span class="sig-name descname"><span class="pre">RLlibMultiAgentObservationWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">CityLearnEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibMultiAgentObservationWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentObservationWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObservationWrapper</span></code></p>
+<p>Observation wrapper for <code class="code docutils literal notranslate"><span class="pre">RLlib</span></code> multi-agent algorithms.</p>
+<p>Wraps observation space and observations so that they are returned
+as <code class="xref py py-class docutils literal notranslate"><span class="pre">gymnasium.spaces.Dict</span></code> and <cite>dict</cite> objects respectively.
+The keys in these objects correspond to the agent IDs i.e.,
+policy IDs in the multi-agent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentObservationWrapper.observation">
+<span class="sig-name descname"><span class="pre">observation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibMultiAgentObservationWrapper.observation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentObservationWrapper.observation" title="Link to this definition"></a></dt>
+<dd><p>Parses observation into a dictionary.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentObservationWrapper.observation_space">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observation_space</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span></em><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentObservationWrapper.observation_space" title="Link to this definition"></a></dt>
+<dd><p>Parses observation space into a <code class="xref py py-class docutils literal notranslate"><span class="pre">gymnasium.spaces.Dict</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentRewardWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.wrappers.</span></span><span class="sig-name descname"><span class="pre">RLlibMultiAgentRewardWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">CityLearnEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibMultiAgentRewardWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentRewardWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RewardWrapper</span></code></p>
+<p>Action wrapper for <code class="code docutils literal notranslate"><span class="pre">RLlib</span></code> multi-agent algorithms.</p>
+<p>Wraps action space so that it is returned as a <cite>dict</cite> mapping agent IDs to reward values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibMultiAgentRewardWrapper.reward">
+<span class="sig-name descname"><span class="pre">reward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibMultiAgentRewardWrapper.reward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibMultiAgentRewardWrapper.reward" title="Link to this definition"></a></dt>
+<dd><p>Parses reward into a <cite>dict</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.wrappers.RLlibSingleAgentWrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.wrappers.</span></span><span class="sig-name descname"><span class="pre">RLlibSingleAgentWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/wrappers.html#RLlibSingleAgentWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.RLlibSingleAgentWrapper" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.wrappers.StableBaselines3Wrapper" title="citylearn.wrappers.StableBaselines3Wrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">StableBaselines3Wrapper</span></code></a></p>
+<p>Wrapper for <code class="code docutils literal notranslate"><span class="pre">RLlib</span></code> single-agent algorithms.</p>
+<p>Uses the same wrapper as <code class="code docutils literal notranslate"><span class="pre">stable-baselines3</span></code> by wrapping
+<cite>env</cite> in <a class="reference internal" href="#citylearn.wrappers.StableBaselines3Wrapper" title="citylearn.wrappers.StableBaselines3Wrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.wrappers.StableBaselines3Wrapper</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env_config</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Dictionary providing initialization parameters for the environment.
+Must contain <cite>env_kwargs</cite> as a key where <cite>env_kwargs</cite> is a <cite>dict</cite> used to
+initialize <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a>. Thus it must
+contain all with positional arguments needed for intialization and
+optionally contain optional  intialization arguments. <cite>env_config</cite> can also
+contain a <cite>wrappers</cite> key that is a list of <a class="reference internal" href="#module-citylearn.wrappers" title="citylearn.wrappers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">citylearn.wrappers</span></code></a>
+classes to wrap <a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> with. Wrapping
+with <a class="reference internal" href="#citylearn.wrappers.ClippedObservationWrapper" title="citylearn.wrappers.ClippedObservationWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.wrappers.ClippedObservationWrapper</span></code></a> is recommended
+to avoid having the simulation terminating prematurely with an error due to
+out of bound observations relative to the observation space.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This wrapper is only compatible with an environment where
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.citylearn.central_agent`=`True</span></code> and will initialize the
+environment as such, overriding any value for <cite>central_agent</cite> in <cite>env_kwargs</cite>.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="citylearn.wrappers.StableBaselines3ActionWrapper">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.wrappers.</span></span><span class="sig-name descname"><span class="pre">StableBaselines3ActionWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">CityLearnEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/wrappers.html#StableBaselines3ActionWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.StableBaselines3ActionWrapper" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ActionWrapper</span></code></p>
@@ -349,9 +538,9 @@ i.e., <a class="reference internal" href="citylearn.citylearn.html#citylearn.cit
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.wrappers.</span></span><span class="sig-name descname"><span class="pre">StableBaselines3Wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">CityLearnEnv</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/wrappers.html#StableBaselines3Wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.StableBaselines3Wrapper" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Wrapper</span></code></p>
 <p>Wrapper for <code class="code docutils literal notranslate"><span class="pre">stable-baselines3</span></code> algorithms.</p>
-<p>Wraps <cite>env</cite> in <a class="reference internal" href="#citylearn.wrappers.StableBaselines3ObservationWrapper" title="citylearn.wrappers.StableBaselines3ObservationWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.wrappers.StableBaselines3ObservationWrapper</span></code></a>,
-<a class="reference internal" href="#citylearn.wrappers.StableBaselines3ActionWrapper" title="citylearn.wrappers.StableBaselines3ActionWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.wrappers.StableBaselines3ActionWrapper</span></code></a>
-and <a class="reference internal" href="#citylearn.wrappers.StableBaselines3RewardWrapper" title="citylearn.wrappers.StableBaselines3RewardWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.wrappers.StableBaselines3RewardWrapper</span></code></a>.</p>
+<p>Wraps observations so that they are returned in a 1-dimensional numpy array.
+Wraps actions so that they are returned in a 1-dimensional numpy array.
+Wraps rewards so that it is returned as float value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>env</strong> (<a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><em>CityLearnEnv</em></a>) – CityLearn environment.</p>
@@ -434,7 +623,7 @@ and <a class="reference internal" href="#citylearn.wrappers.StableBaselines3Rewa
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.wrappers.</span></span><span class="sig-name descname"><span class="pre">TabularQLearningWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_bin_sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_bin_sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_observation_bin_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_action_bin_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/wrappers.html#TabularQLearningWrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.wrappers.TabularQLearningWrapper" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Wrapper</span></code></p>
 <p>Wrapper for <a class="reference internal" href="citylearn.agents.q_learning.html#citylearn.agents.q_learning.TabularQLearning" title="citylearn.agents.q_learning.TabularQLearning"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.q_learning.TabularQLearning</span></code></a> agent.</p>
-<p>Wraps <cite>env</cite> in <a class="reference internal" href="#citylearn.wrappers.DiscreteObservationWrapper" title="citylearn.wrappers.DiscreteObservationWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.wrappers.DiscreteObservationWrapper</span></code></a> and <a class="reference internal" href="#citylearn.wrappers.DiscreteActionWrapper" title="citylearn.wrappers.DiscreteActionWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.wrappers.DiscreteActionWrapper</span></code></a>.</p>
+<p>Discretizes observation and action spaces.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

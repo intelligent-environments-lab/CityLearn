@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.building module &mdash; CityLearn 2.1.2 documentation</title>
+  <title>citylearn.building module &mdash; CityLearn 2.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -19,7 +19,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../_static/documentation_options.js?v=b21de401"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="citylearn.html">citylearn package</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="citylearn.html#subpackages">Subpackages</a></li>
@@ -306,6 +307,12 @@ ensures that comfort is met before attempting to shift loads.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.cooling_device_cop">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cooling_device_cop</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.cooling_device_cop" title="Link to this definition"></a></dt>
+<dd><p>Heat pump <cite>cooling_device</cite> coefficient of performance time series.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.cooling_electricity_consumption">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cooling_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.cooling_electricity_consumption" title="Link to this definition"></a></dt>
 <dd><p><cite>cooling_device</cite> net electricity consumption in meeting cooling demand and <cite>cooling_storage</cite> energy demand time series, in [kWh].</p>
@@ -341,6 +348,12 @@ electricity consumption by discharging <cite>cooling_storage</cite> to meet <cit
 <dt class="sig sig-object py" id="citylearn.building.Building.dhw_device">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dhw_device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.HeatPump" title="citylearn.energy_model.HeatPump"><span class="pre">HeatPump</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.ElectricHeater" title="citylearn.energy_model.ElectricHeater"><span class="pre">ElectricHeater</span></a></em><a class="headerlink" href="#citylearn.building.Building.dhw_device" title="Link to this definition"></a></dt>
 <dd><p>Electric device for meeting hot domestic hot water demand and charging <cite>dhw_storage</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.dhw_device_cop">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dhw_device_cop</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.dhw_device_cop" title="Link to this definition"></a></dt>
+<dd><p>Heat pump <cite>dhw_device</cite> coefficient of performance or electric heater <cite>dhw_device</cite> static technical efficiency time series.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -568,6 +581,12 @@ assumed that devices and storage systems have been sized.</p>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.heating_device_cop">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">heating_device_cop</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.heating_device_cop" title="Link to this definition"></a></dt>
+<dd><p>Heat pump <cite>heating_device</cite> coefficient of performance or electric heater <cite>heating_device</cite> static technical efficiency time series.</p>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.heating_electricity_consumption">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">heating_electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.heating_electricity_consumption" title="Link to this definition"></a></dt>
 <dd><p><cite>heating_device</cite> net electricity consumption in meeting heating demand and <cite>heating_storage</cite> energy demand time series, in [kWh].</p>
@@ -723,7 +742,7 @@ and self generation time series, in [kWh].</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.Building.observations">
-<span class="sig-name descname"><span class="pre">observations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic_normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/building.html#Building.observations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.observations" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">observations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic_normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_limits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/building.html#Building.observations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.observations" title="Link to this definition"></a></dt>
 <dd><p>Observations at current time step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -731,6 +750,8 @@ and self generation time series, in [kWh].</p>
 <li><p><strong>include_all</strong> (<em>bool</em><em>, </em><em>default: False</em><em>,</em>) – Whether to estimate for all observations as listed in <cite>observation_metadata</cite> or only those that are active.</p></li>
 <li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Whether to apply min-max normalization bounded between [0, 1].</p></li>
 <li><p><strong>periodic_normalization</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Whether to apply sine-cosine normalization to cyclic observations including hour, day_type and month.</p></li>
+<li><p><strong>check_limits</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Whether to check if observations are within observation space and if not, will send output to log describing
+out of bounds observations. Useful for agents that will fail if observations fall outside space e.g. RLlib agents.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.utilities module &mdash; CityLearn 2.1.2 documentation</title>
+  <title>citylearn.utilities module &mdash; CityLearn 2.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -19,7 +19,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../_static/documentation_options.js?v=b21de401"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,6 +56,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="citylearn.html">citylearn package</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="citylearn.html#subpackages">Subpackages</a></li>
@@ -114,8 +115,8 @@
 <span id="citylearn-utilities-module"></span><h1>citylearn.utilities module<a class="headerlink" href="#module-citylearn.utilities" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="citylearn.utilities.read_json">
-<span class="sig-prename descclassname"><span class="pre">citylearn.utilities.</span></span><span class="sig-name descname"><span class="pre">read_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/utilities.html#read_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.utilities.read_json" title="Link to this definition"></a></dt>
-<dd><p>Return json document as dictionary.</p>
+<span class="sig-prename descclassname"><span class="pre">citylearn.utilities.</span></span><span class="sig-name descname"><span class="pre">read_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/citylearn/utilities.html#read_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.utilities.read_json" title="Link to this definition"></a></dt>
+<dd><p>Return JSON document as dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -133,15 +134,82 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="citylearn.utilities.read_pickle">
+<span class="sig-prename descclassname"><span class="pre">citylearn.utilities.</span></span><span class="sig-name descname"><span class="pre">read_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../_modules/citylearn/utilities.html#read_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.utilities.read_pickle" title="Link to this definition"></a></dt>
+<dd><p>Return pickle file as some Python class object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<em>str</em>) – pathname of pickle file.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Other infrequently used keyword arguments to be parsed to <cite>pickle.load</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pickle file as a Python object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="citylearn.utilities.read_yaml">
+<span class="sig-prename descclassname"><span class="pre">citylearn.utilities.</span></span><span class="sig-name descname"><span class="pre">read_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/citylearn/utilities.html#read_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.utilities.read_yaml" title="Link to this definition"></a></dt>
+<dd><p>Return YAML document as dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>) – pathname of YAML document.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>YAML document converted to dictionary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="citylearn.utilities.write_json">
 <span class="sig-prename descclassname"><span class="pre">citylearn.utilities.</span></span><span class="sig-name descname"><span class="pre">write_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dictionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/utilities.html#write_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.utilities.write_json" title="Link to this definition"></a></dt>
-<dd><p>Write dictionary to json file. Returns boolen value of operation success.</p>
+<dd><p>Write dictionary to JSON file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>filepath</strong> (<em>str</em>) – pathname of JSON document.</p></li>
 <li><p><strong>dictionary</strong> (<em>dict</em>) – dictionary to convert to JSON.</p></li>
 <li><p><strong>**kwargs</strong> (<em>dict</em>) – Other infrequently used keyword arguments to be parsed to <cite>simplejson.dump</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="citylearn.utilities.write_pickle">
+<span class="sig-prename descclassname"><span class="pre">citylearn.utilities.</span></span><span class="sig-name descname"><span class="pre">write_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/utilities.html#write_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.utilities.write_pickle" title="Link to this definition"></a></dt>
+<dd><p>Write Python object to pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<em>str</em>) – pathname of pickle document.</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – object to convert to pickle.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Other infrequently used keyword arguments to be parsed to <cite>pickle.dump</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="citylearn.utilities.write_yaml">
+<span class="sig-prename descclassname"><span class="pre">citylearn.utilities.</span></span><span class="sig-name descname"><span class="pre">write_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dictionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/utilities.html#write_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.utilities.write_yaml" title="Link to this definition"></a></dt>
+<dd><p>Write dictionary to YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filepath</strong> (<em>str</em>) – pathname of YAML document.</p></li>
+<li><p><strong>dictionary</strong> (<em>dict</em>) – dictionary to convert to YAML.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Other infrequently used keyword arguments to be parsed to <cite>yaml.safe_dump</cite>.</p></li>
 </ul>
 </dd>
 </dl>

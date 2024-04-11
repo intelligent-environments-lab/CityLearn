@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.citylearn &mdash; CityLearn 2.1.2 documentation</title>
+  <title>citylearn.citylearn &mdash; CityLearn 2.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -18,7 +18,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=b3e23499"></script>
+        <script src="../../_static/documentation_options.js?v=b21de401"></script>
         <script src="../../_static/doctools.js?v=888ff710"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">QuickStart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
@@ -162,12 +163,33 @@
 <span class="sd">        True if episode splits are to be selected at random during training otherwise, False to select sequentially.</span>
 <span class="sd">    seconds_per_time_step: float</span>
 <span class="sd">        Number of seconds in 1 `time_step` and must be set to &gt;= 1.</span>
-<span class="sd">    reward_function: RewardFunction, optional</span>
-<span class="sd">        Reward function class instance. If provided, will override :code:`reward_function` definition in schema.</span>
+<span class="sd">    reward_function: Union[RewardFunction, str], optional</span>
+<span class="sd">        Reward function class instance or path to function class e.g. &#39;citylearn.reward_function.IndependentSACReward&#39;.</span>
+<span class="sd">        If provided, will override :code:`reward_function` definition in schema.</span>
+<span class="sd">    reward_function_kwargs: Mapping[str, Any], optional</span>
+<span class="sd">        Parameters to be parsed to :py:attr:`reward_function` at intialization.</span>
 <span class="sd">    central_agent: bool, optional</span>
 <span class="sd">        Expect 1 central agent to control all buildings.</span>
 <span class="sd">    shared_observations: List[str], optional</span>
 <span class="sd">        Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.</span>
+<span class="sd">    active_observations: Union[List[str], List[List[str]]], optional</span>
+<span class="sd">        List of observations to be made available in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  </span>
+<span class="sd">        each building independently in a :code:`List[List[str]]`. Will override the observations defined in the :code:`schema`.</span>
+<span class="sd">    inactive_observations: Union[List[str], List[List[str]]], optional</span>
+<span class="sd">        List of observations to be made unavailable in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  </span>
+<span class="sd">        each building independently in a :code:`List[List[str]]`. Will override the observations defined in the :code:`schema`.</span>
+<span class="sd">    active_actions: Union[List[str], List[List[str]]], optional</span>
+<span class="sd">        List of actions to be made available in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  </span>
+<span class="sd">        each building independently in a :code:`List[List[str]]`. Will override the actions defined in the :code:`schema`.</span>
+<span class="sd">    inactive_actions: Union[List[str], List[List[str]]], optional</span>
+<span class="sd">        List of actions to be made unavailable in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  </span>
+<span class="sd">        each building independently in a :code:`List[List[str]]`. Will override the actions defined in the :code:`schema`.</span>
+<span class="sd">    simulate_power_outage: Union[bool, List[bool]]</span>
+<span class="sd">        Whether to simulate power outages. Can be specified for all buildings as single :code:`bool` or for  </span>
+<span class="sd">        each building independently in a :code:`List[bool]`. Will override power outage defined in the :code:`schema`.</span>
+<span class="sd">    solar_generation: Union[bool, List[bool]]</span>
+<span class="sd">        Wehther to allow solar generation. Can be specified for all buildings as single :code:`bool` or for  </span>
+<span class="sd">        each building independently in a :code:`List[bool]`. Will override :code:`pv` defined in the :code:`schema`.</span>
 <span class="sd">    random_seed: int, optional</span>
 <span class="sd">        Pseudorandom number generator seed for repeatable results.</span>
 
@@ -184,8 +206,10 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
         <span class="n">schema</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">root_directory</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">buildings</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
         <span class="n">simulation_start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rolling_episode_split</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">:</span> <span class="n">RewardFunction</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">central_agent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+        <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RewardFunction</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_function_kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">central_agent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">active_observations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">inactive_observations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">active_actions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+        <span class="n">inactive_actions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">simulate_power_outage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">solar_generation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">schema</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span> <span class="o">=</span> <span class="kc">None</span>
@@ -202,8 +226,15 @@
                 <span class="n">random_episode</span><span class="o">=</span><span class="n">random_episode_split</span><span class="p">,</span>
                 <span class="n">seconds_per_time_step</span><span class="o">=</span><span class="n">seconds_per_time_step</span><span class="p">,</span>
                 <span class="n">reward_function</span><span class="o">=</span><span class="n">reward_function</span><span class="p">,</span>
+                <span class="n">reward_function_kwargs</span><span class="o">=</span><span class="n">reward_function_kwargs</span><span class="p">,</span>
                 <span class="n">central_agent</span><span class="o">=</span><span class="n">central_agent</span><span class="p">,</span>
                 <span class="n">shared_observations</span><span class="o">=</span><span class="n">shared_observations</span><span class="p">,</span>
+                <span class="n">active_observations</span><span class="o">=</span><span class="n">active_observations</span><span class="p">,</span>
+                <span class="n">inactive_observations</span><span class="o">=</span><span class="n">inactive_observations</span><span class="p">,</span>
+                <span class="n">active_actions</span><span class="o">=</span><span class="n">active_actions</span><span class="p">,</span>
+                <span class="n">inactive_actions</span><span class="o">=</span><span class="n">inactive_actions</span><span class="p">,</span>
+                <span class="n">simulate_power_outage</span><span class="o">=</span><span class="n">simulate_power_outage</span><span class="p">,</span>
+                <span class="n">solar_generation</span><span class="o">=</span><span class="n">solar_generation</span><span class="p">,</span>
                 <span class="n">random_seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_directory</span> <span class="o">=</span> <span class="n">root_directory</span>
@@ -410,7 +441,7 @@
             <span class="n">shared_observations</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_limits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
                     
@@ -426,7 +457,7 @@
             <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="n">observations</span><span class="p">]</span>
         
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
+            <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_limits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
         
         <span class="k">return</span> <span class="n">observations</span>
 
@@ -1275,27 +1306,54 @@
 
 <div class="viewcode-block" id="CityLearnEnv.load_agent">
 <a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.load_agent">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;citylearn.agents.base.Agent&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">load_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;citylearn.agents.base.Agent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="s1">&#39;citylearn.agents.base.Agent&#39;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return :class:`Agent` or sub class object as defined by the `schema`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        agent: Union[str, &#39;citylearn.agents.base.Agent], optional</span>
+<span class="sd">            Agent class or string describing path to agent class, e.g. &#39;citylearn.agents.base.BaselineAgent&#39;.</span>
+<span class="sd">            If a value is not provided, defaults to the agent defined in the schema:agent:type.</span>
+
 <span class="sd">        **kwargs : dict</span>
-<span class="sd">            Parameters to override schema definitions. See :py:class:`citylearn.citylearn.CityLearnEnv` initialization parameters for valid kwargs.</span>
+<span class="sd">            Agent initialization attributes. For most agents e.g. CityLearn and Stable-Baselines3 agents, </span>
+<span class="sd">            an intialized :py:attr:`env` must be parsed to the agent :py:meth:`init` function.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        agents: Agent</span>
-<span class="sd">            Simulation agent(s) for `citylearn_env.buildings` energy storage charging/discharging management.</span>
+<span class="sd">        agent: Agent</span>
+<span class="sd">            Initialized agent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">agent_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="c1"># set agent class</span>
+        <span class="k">if</span> <span class="n">agent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">agent_type</span> <span class="o">=</span> <span class="n">agent</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">agent_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">agent_type</span> <span class="o">=</span> <span class="p">[</span><span class="n">agent_type</span><span class="o">.</span><span class="vm">__module__</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">agent_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+                <span class="n">agent_type</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">agent_type</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+        
+        <span class="c1"># set agent init attributes</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">agent_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">agent_attributes</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="k">elif</span> <span class="n">agent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">agent_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">agent_attributes</span> <span class="o">=</span> <span class="kc">None</span>
+        
         <span class="n">agent_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">agent_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">agent_name</span> <span class="o">=</span> <span class="n">agent_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">agent_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">agent_module</span><span class="p">),</span> <span class="n">agent_name</span><span class="p">)</span>
-        <span class="n">agent_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="n">agent_attributes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;env&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">agent_attributes</span><span class="p">}</span>
-        <span class="n">agent</span> <span class="o">=</span> <span class="n">agent_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">agent_attributes</span><span class="p">)</span>
+        <span class="n">agent</span> <span class="o">=</span> <span class="n">agent_constructor</span><span class="p">()</span> <span class="k">if</span> <span class="n">agent_attributes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">agent_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">agent_attributes</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">agent</span></div>
 
 
@@ -1330,12 +1388,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">schema_filepath</span><span class="o">.</span><span class="n">absolute</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>\
                 <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span>
+        
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="ow">in</span> <span class="n">DataSet</span><span class="o">.</span><span class="n">get_names</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">DataSet</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span>
+        
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span>
+        
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">UnknownSchemaError</span><span class="p">()</span>
 
@@ -1379,7 +1440,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">buildings_to_include</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">buildings_to_include</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="s1">&#39;include&#39;</span><span class="p">]]</span>
 
-        <span class="k">for</span> <span class="n">building_name</span> <span class="ow">in</span> <span class="n">buildings_to_include</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">building_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">buildings_to_include</span><span class="p">):</span>
             <span class="n">building_schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">][</span><span class="n">building_name</span><span class="p">]</span>
             <span class="c1"># data</span>
             <span class="n">energy_simulation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_directory</span><span class="p">,</span><span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;energy_simulation&#39;</span><span class="p">]))</span>
@@ -1391,6 +1452,7 @@
                 <span class="n">carbon_intensity</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_directory</span><span class="p">,</span><span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;carbon_intensity&#39;</span><span class="p">]))</span>
                 <span class="n">carbon_intensity</span> <span class="o">=</span> <span class="n">carbon_intensity</span><span class="p">[</span><span class="s1">&#39;kg_CO2/kWh&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
                 <span class="n">carbon_intensity</span> <span class="o">=</span> <span class="n">CarbonIntensity</span><span class="p">(</span><span class="n">carbon_intensity</span><span class="p">)</span>
+            
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">carbon_intensity</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1400,11 +1462,51 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">pricing</span> <span class="o">=</span> <span class="kc">None</span>
                 
-            <span class="c1"># observation and action metadata</span>
-            <span class="n">inactive_observations</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">]</span>
-            <span class="n">inactive_actions</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">]</span>
-            <span class="n">observation_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inactive_observations</span> <span class="k">else</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">observations</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-            <span class="n">action_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inactive_actions</span> <span class="k">else</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">actions</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="c1"># observation metadata</span>
+            <span class="n">observation_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">observations</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;active_observations&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">active_observations</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;active_observations&#39;</span><span class="p">]</span>
+                <span class="n">active_observations</span> <span class="o">=</span> <span class="n">active_observations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">active_observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">active_observations</span>
+                <span class="n">observation_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">active_observations</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">observation_metadata</span><span class="p">}</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">inactive_observations</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">]</span>
+                <span class="n">inactive_observations</span> <span class="o">=</span> <span class="n">inactive_observations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inactive_observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">inactive_observations</span>
+
+            <span class="k">elif</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">inactive_observations</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">inactive_observations</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">observation_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inactive_observations</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">observation_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+            <span class="c1"># action metadata</span>
+            <span class="n">action_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">actions</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;active_actions&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">active_actions</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;active_actions&#39;</span><span class="p">]</span>
+                <span class="n">active_actions</span> <span class="o">=</span> <span class="n">active_actions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">active_actions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">active_actions</span>
+                <span class="n">action_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">active_actions</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">action_metadata</span><span class="p">}</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">inactive_actions</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">]</span>
+                <span class="n">inactive_actions</span> <span class="o">=</span> <span class="n">inactive_actions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inactive_actions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">inactive_actions</span>
+
+            <span class="k">elif</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">inactive_actions</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">inactive_actions</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">action_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inactive_actions</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">action_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
             <span class="c1"># construct building</span>
             <span class="n">building_type</span> <span class="o">=</span> <span class="s1">&#39;citylearn.citylearn.Building&#39;</span> <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
@@ -1432,7 +1534,9 @@
 
             <span class="c1"># set power outage model</span>
             <span class="n">building_schema_power_outage</span> <span class="o">=</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;power_outage&#39;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="n">simulate_power_outage</span> <span class="o">=</span> <span class="n">building_schema_power_outage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;simulate_power_outage&#39;</span><span class="p">)</span>
+            <span class="n">simulate_power_outage</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;simulate_power_outage&#39;</span><span class="p">)</span>
+            <span class="n">simulate_power_outage</span> <span class="o">=</span> <span class="n">building_schema_power_outage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;simulate_power_outage&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">simulate_power_outage</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">simulate_power_outage</span>
+            <span class="n">simulate_power_outage</span> <span class="o">=</span> <span class="n">simulate_power_outage</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">simulate_power_outage</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">simulate_power_outage</span>
             <span class="n">stochastic_power_outage</span> <span class="o">=</span> <span class="n">building_schema_power_outage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stochastic_power_outage&#39;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">building_schema_power_outage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stochastic_power_outage_model&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1478,10 +1582,17 @@
                 <span class="s1">&#39;dhw_device&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_dhw_device</span><span class="p">},</span> 
                 <span class="s1">&#39;pv&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_pv</span><span class="p">}</span>
             <span class="p">}</span>
+            <span class="n">solar_generation</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;solar_generation&#39;</span><span class="p">)</span>
+            <span class="n">solar_generation</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">solar_generation</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">solar_generation</span>
+            <span class="n">solar_generation</span> <span class="o">=</span> <span class="n">solar_generation</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">solar_generation</span>
 
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">device_metadata</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">device</span> <span class="o">=</span> <span class="kc">None</span>
+                
+                <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;pv&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">solar_generation</span><span class="p">:</span>
+                    <span class="n">device</span> <span class="o">=</span> <span class="kc">None</span>
+                
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">device_type</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
                     <span class="n">device_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">device_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -1497,6 +1608,7 @@
                         <span class="n">autosizer</span> <span class="o">=</span> <span class="n">device_metadata</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;autosizer&#39;</span><span class="p">]</span>
                         <span class="n">autosize_kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;autosize_attributes&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;autosize_attributes&#39;</span><span class="p">]</span>
                         <span class="n">autosizer</span><span class="p">(</span><span class="o">**</span><span class="n">autosize_kwargs</span><span class="p">)</span>
+                    
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
             
@@ -1506,17 +1618,31 @@
         
         <span class="n">buildings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">buildings</span><span class="p">)</span>
 
+        <span class="c1"># set reward function</span>
         <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reward_function&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">reward_function_constructor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;reward_function&#39;</span><span class="p">]</span>
-            <span class="n">reward_function</span> <span class="o">=</span> <span class="n">reward_function_constructor</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">reward_function_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;reward_function&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reward_function_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">reward_function_type</span> <span class="o">=</span> <span class="p">[</span><span class="n">reward_function_type</span><span class="o">.</span><span class="vm">__module__</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">reward_function_type</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+                <span class="n">reward_function_type</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reward_function_type</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">reward_function_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;reward_function&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
-            <span class="n">reward_function_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;reward_function&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reward_function_kwargs&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reward_function_attributes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;reward_function_kwargs&#39;</span><span class="p">]</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reward_function_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;reward_function&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="n">reward_function_attributes</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">reward_function_attributes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reward_function_attributes</span>
-            <span class="n">reward_function_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reward_function_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">reward_function_name</span> <span class="o">=</span> <span class="n">reward_function_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">reward_function_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">reward_function_module</span><span class="p">),</span> <span class="n">reward_function_name</span><span class="p">)</span>
-            <span class="n">reward_function</span> <span class="o">=</span> <span class="n">reward_function_constructor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">reward_function_attributes</span><span class="p">)</span>
+        
+        <span class="n">reward_function_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reward_function_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">reward_function_name</span> <span class="o">=</span> <span class="n">reward_function_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">reward_function_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">reward_function_module</span><span class="p">),</span> <span class="n">reward_function_name</span><span class="p">)</span>
+        <span class="n">reward_function</span> <span class="o">=</span> <span class="n">reward_function_constructor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">reward_function_attributes</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">root_directory</span><span class="p">,</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">rolling_episode_split</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">,</span> 
