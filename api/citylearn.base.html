@@ -20,7 +20,7 @@
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../_static/documentation_options.js?v=b21de401"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../_static/copybutton.js?v=f281be69"></script>
@@ -257,7 +257,7 @@ action and observation space estimation in <code class="xref py py-class docutil
 <li><p><strong>episode_time_steps</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>List</em><em>[</em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – If type is <cite>int</cite>, it is the number of time steps in an episode. If type is <cite>List[Tuple[int, int]]]</cite> is provided, it is a list of
 episode start and end time steps between <cite>simulation_start_time_step</cite> and <cite>simulation_end_time_step</cite>. Defaults to (<cite>simulation_end_time_step</cite></p></li>
 <li><p><strong>`List</strong><strong>[</strong><strong>Tuple</strong><strong>[</strong><strong>int</strong> (<em>- simulation_start_time_step</em><em>) </em><em>+ 1. Will ignore rolling_episode_split if episode_splits is</em><em> of </em><em>type</em>) – </p></li>
-<li><p><strong>int</strong><strong>]</strong><strong>]</strong><strong>]</strong><strong>`.</strong> – </p></li>
+<li><p><strong>int</strong><strong>]</strong><strong>]</strong><strong>]</strong><strong>`.</strong></p></li>
 <li><p><strong>rolling_episode_split</strong> (<em>bool</em><em>, </em><em>default: False</em>) – True if episode sequences are split such that each time step is a candidate for <cite>episode_start_time_step</cite> otherwise, False to split episodes
 in steps of <cite>episode_time_steps</cite>.</p></li>
 <li><p><strong>random_episode_split</strong> (<em>bool</em><em>, </em><em>default: False</em>) – True if episode splits are to be selected at random during training otherwise, False to select sequentially.</p></li>
