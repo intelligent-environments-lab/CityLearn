@@ -15,7 +15,7 @@ from citylearn.electric_vehicle import electric_vehicle
 from citylearn.energy_model import Battery
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, EVSimulation
-from citylearn.rendering import get_background, RenderBuilding, get_plots
+#from citylearn.rendering import get_background, RenderBuilding, get_plots
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 
@@ -1399,17 +1399,19 @@ class CityLearnEnv(Environment, Env):
             else:
                 pricing = None
                 
-            # observation and action metadata
-            inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
-            inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
-            observation_metadata = {
-                k: False if k in inactive_observations else v['active']
-                for k, v in observations.items()
-                if k not in chargers_observations
-            }
-            action_metadata = {k: False if k in inactive_actions else v['active'] for k, v in actions.items() if k not in chargers_actions}
+            ## observation and action metadata
+            #inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
+            #inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
+            #observation_metadata = {
+            #    k: False if k in inactive_observations else v['active']
+            #    for k, v in observations.items()
+            #    if k not in chargers_observations
+            #}
+            #action_metadata = {k: False if k in inactive_actions else v['active'] for k, v in actions.items() if k not in chargers_actions}
+
+
             # observation metadata
-            observation_metadata = {k: v['active'] for k, v in observations.items()}
+            observation_metadata = {k: v['active'] for k, v in observations.items() if k not in chargers_observations}
 
             if kwargs.get('active_observations') is not None:
                 active_observations = kwargs['active_observations']
@@ -1432,7 +1434,7 @@ class CityLearnEnv(Environment, Env):
             observation_metadata = {k: False if k in inactive_observations else v for k, v in observation_metadata.items()}
 
             # action metadata
-            action_metadata = {k: v['active'] for k, v in actions.items()}
+            action_metadata = {k: v['active'] for k, v in actions.items() if k not in chargers_actions}
 
             if kwargs.get('active_actions') is not None:
                 active_actions = kwargs['active_actions']
@@ -1534,6 +1536,15 @@ class CityLearnEnv(Environment, Env):
                         #building.observation_metadata = observation_metadata
             else:
                 chargers_list = []
+
+            print("Chargers List")
+            print(chargers_list)
+
+            print("Observations")
+            print(observation_metadata)
+
+            print("Actions")
+            print(action_metadata)
 
             building: Building = building_constructor(
                 energy_simulation=energy_simulation,

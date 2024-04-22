@@ -1561,15 +1561,23 @@ class Building(Environment):
                 low_limit.append(0.0)
                 high_limit.append(1.0)
             
+            elif "ev_storage" in key:
+                if self.ev_chargers is not None:
+                    for c in self.ev_chargers:
+                        if key == f"ev_storage_{c.charger_id}":
+                            low_limit.append(-1.0)
+                            high_limit.append(1.0)
+
             elif 'storage' in key:
                 if key == 'electrical_storage':
-                    limit = self.electrical_storage.nominal_power/max(self.electrical_storage.capacity, ZERO_DIVISION_PLACEHOLDER)
-                
+                    limit = self.electrical_storage.nominal_power / max(self.electrical_storage.capacity,
+                                                                        ZERO_DIVISION_PLACEHOLDER)
+
                 else:
                     if key == 'cooling_storage':
                         capacity = self.cooling_storage.capacity
                         power = self.cooling_device.nominal_power
-                    
+
                     elif key == 'heating_storage':
                         capacity = self.heating_storage.capacity
                         power = self.heating_device.nominal_power
@@ -1581,19 +1589,12 @@ class Building(Environment):
                     else:
                         raise Exception(f'Unknown action: {key}')
 
-                    limit = power/max(capacity, ZERO_DIVISION_PLACEHOLDER)
-                    
+                    limit = power / max(capacity, ZERO_DIVISION_PLACEHOLDER)
+
                 limit = min(limit, 1.0)
                 low_limit.append(-limit)
                 high_limit.append(limit)
 
-            elif "ev_storage" in key:
-                if self.ev_chargers is not None:
-                    for c in self.ev_chargers:
-                        if key == f"ev_storage_{c.charger_id}":
-                            low_limit.append(-1.0)
-                            high_limit.append(1.0)
-            
             else:
                 if key == 'cooling_storage':
                     capacity = self.cooling_storage.capacity
