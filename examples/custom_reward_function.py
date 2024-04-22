@@ -34,8 +34,7 @@ class CustomReward(RewardFunction):
         Parameters
         ----------
         observations: List[Mapping[str, Union[int, float]]]
-            List of all building observations at current :py:attr:`citylearn.citylearn.CityLearnEnv.
-            time_step` that are got from calling :py:meth:`citylearn.building.Building.observations`.
+            List of all building observations at current :py:attr:`citylearn.citylearn.CityLearnEnv.time_step` that are got from calling :py:meth:`citylearn.building.Building.observations`.
 
         Returns
         -------
