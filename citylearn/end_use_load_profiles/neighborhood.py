@@ -1,13 +1,3 @@
-# build schema for a give list of building IDs in EULP dataset
-# All buildings must have the same weather file
-# all buildings must be single family
-# still using 2021 release
-# option to select random buildings with option to filter by certain metadata properties. Option to specify building IDs. Option to cluster and sample from cluster. For clustering all buildings must be in the same location.
-# option to train or not train for thermal dynamics
-# how do you set solar generation (see how they do it in OCHRE)
-# how does OCHRE size battery? Maybe PYsam can be a place to sample batteries and PV?
-# 
-
 from copy import deepcopy
 import os
 from enum import Enum, unique
@@ -17,11 +7,12 @@ import shutil
 from typing import Any, List, Mapping, Tuple, Union
 from doe_xstock.data import VersionDatasetType
 from doe_xstock.end_use_load_profiles import EndUseLoadProfiles
-from doe_xstock.simulate import EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusPartialLoadSimulator
+from doe_xstock.simulate import EndUseLoadProfilesEnergyPlusSimulator
 import numpy as np
 import pandas as pd
 from citylearn.base import Environment
 from citylearn.end_use_load_profiles.clustering import MetadataClustering
+from citylearn.end_use_load_profiles.simulate import EnergyPlusPartialLoadSimulator
 
 @unique
 class SampleMethod(Enum):
@@ -88,12 +79,11 @@ class Neighborhood:
         
         simulators = self.simulate_energy_plus(idd_filepath, **energyplus_simulation_kwargs)
         lstm_training_data = self.get_lstm_training_data(simulators)
-        
 
-    def get_schema(self, simulators: Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusPartialLoadSimulator]]], models: Mapping[str, Path]):
+    def get_schema(self, simulators: Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EnergyPlusPartialLoadSimulator]]], models: Mapping[str, Path]):
         raise NotImplementedError
     
-    def train_lstm(data: Mapping[str, pd.DataFrame], **kwargs) -> Mapping[str, Path]:
+    def train_lstm(data: pd.DataFrame, **kwargs) -> Mapping[str, Path]:
         """
         TODO: Satvik & Pavani
         1. Install training repo using pip.
@@ -103,41 +93,48 @@ class Neighborhood:
         """
 
         raise NotImplementedError
-        
-        models = None
-
-        return models
     
-    def get_lstm_training_data(self, simulators: Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusPartialLoadSimulator]]]) -> pd.DataFrame:
-        data = {}
+    def get_lstm_training_data(self, simulators: Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EnergyPlusPartialLoadSimulator]]]) -> pd.DataFrame:
+        data = []
 
         for bldg_id, building_simulators in simulators.items():
-            data_list = []
-
             for partial_simulator in building_simulators['partial']:
-                query_filepath = os.path.join(self.queries_directory, 'select_lstm_trainind_data.sql')
+                query_filepath = os.path.join(self.queries_directory, 'select_lstm_training_data.sql')
                 pdata = partial_simulator.get_output_database().query_table_from_file(query_filepath)
                 pdata.insert(0, 'reference_name', partial_simulator.simulation_id.split('-')[-2])
                 pdata.insert(0, 'reference', int(partial_simulator.simulation_id.split('-')[-1]))
-                data_list.append(pdata)
+                pdata.insert(0, 'bldg_id', bldg_id)
+                data.append(pdata)
 
-            bldg_data = pd.concat(data_list, ignore_index=True)
-            bldg_data.insert(0, 'bldg_id', bldg_id)
-            data[bldg_id] = bldg_data.copy()
-            del data_list
+        data = pd.concat(data, ignore_index=True)
 
         return data
     
     def simulate_energy_plus(
         self, bldg_ids: List[int], idd_filepath: Union[Path, str], simulation_ids: List[str] = None, models: List[Union[Path, str]] = None, osm: bool = None, 
         partial_loads_simulations: int = None, partial_loads_kwargs: Mapping[str, Any] = None, max_workers: int = None, **kwargs
-    ) -> Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusPartialLoadSimulator]]]:
+    ) -> Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EnergyPlusPartialLoadSimulator]]]:
         assert models is None or len(models) == len(bldg_ids), 'There must be as many models as bldg_ids.'
         assert simulation_ids is None or len(simulation_ids) == len(bldg_ids), 'There must be as many simulation_ids as bldg_ids.'
         os.makedirs(self.energyplus_output_directory, exist_ok=True)
-        partial_loads_simulations = 5 if partial_loads_simulations is None else partial_loads_simulations
+        partial_loads_simulations = 4 if partial_loads_simulations is None else partial_loads_simulations
         partial_loads_kwargs = {} if partial_loads_kwargs is None else partial_loads_kwargs
         simulators = {}
+
+        kwargs = dict(
+            idd_filepath=idd_filepath,
+            osm=osm,
+            **kwargs,
+            number_of_time_steps_per_hour=kwargs.pop('number_of_time_steps_per_hour', 1)
+        )
+
+        if (
+            kwargs.get('default_output_variables', None) is None or not kwargs['default_output_variables']
+        ) and kwargs.get('output_variables', None) is None:
+            kwargs['default_output_variables'] = True
+
+        else:
+            pass
 
         for i, bldg_id in enumerate(bldg_ids):
             simulation_id = f'{self.end_use_load_profiles.version}-{bldg_id}' if simulation_ids is None else simulation_ids[i]
@@ -152,14 +149,11 @@ class Neighborhood:
             os.makedirs(output_directory)
 
             _kwargs = dict(
-                bldg_id=bldg_id,
-                idd_filepath=idd_filepath,
-                model=models[i] if models is not None else models,
-                osm=osm,
-                number_of_time_steps_per_hour=kwargs.pop('number_of_time_steps_per_hour', 1),
                 **kwargs,
+                bldg_id=bldg_id,
+                model=models[i] if models is not None else models,
             )
-            
+
             # mechanical loads
             _simulation_id = f'{simulation_id}-mechanical'
             _output_directory = os.path.join(output_directory, _simulation_id)
@@ -181,7 +175,7 @@ class Neighborhood:
             ).simulator
 
             # partial loads
-            partial_loads_simulators = []
+            partial_loads_simulators: List[EnergyPlusPartialLoadSimulator] = []
             kwargs_multiplier_minimum = partial_loads_kwargs.pop('multiplier_minimum', None)
             kwargs_multiplier_maximum = partial_loads_kwargs.pop('multiplier_maximum', None)
             kwargs_multiplier_probability = partial_loads_kwargs.pop('multiplier_probability', None)
@@ -208,7 +202,7 @@ class Neighborhood:
                 _ = partial_loads_kwargs.pop('simulation_id', None)
                 _ = partial_loads_kwargs.pop('output_directory', None)
                 _ = partial_loads_kwargs.pop('random_seed', None)
-                partial_loads_simulators.append(EndUseLoadProfilesEnergyPlusPartialLoadSimulator(
+                partial_loads_simulators.append(EnergyPlusPartialLoadSimulator(
                     ideal_loads_simulator=deepcopy(ideal_simulator),
                     multiplier_minimum=multiplier_minimum,
                     multiplier_maximum=multiplier_maximum,
@@ -219,7 +213,7 @@ class Neighborhood:
                     **partial_loads_kwargs
                 ))
             
-            EndUseLoadProfilesEnergyPlusPartialLoadSimulator.multi_simulate(partial_loads_simulators, max_workers=max_workers)
+            EnergyPlusPartialLoadSimulator.multi_simulate(partial_loads_simulators, max_workers=max_workers)
 
             simulators[bldg_id] = {
                 'mechanical': mechanical_simulator,
@@ -280,5 +274,3 @@ class Neighborhood:
         labels = metadata['label'].tolist()
 
         return bldg_ids, labels, sample_metadata
-    
-
