@@ -829,6 +829,7 @@ class CityLearnEnv(Environment, Env):
         # env, which is not the best design for competition integrity sake. Will revisit the building.observations() function
         # to see how it can be optimized.
         reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
+        print(reward_observations)
         reward = self.reward_function.calculate(observations=reward_observations)
         self.__rewards.append(reward)
 
