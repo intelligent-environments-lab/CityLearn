@@ -1,9 +1,40 @@
 import itertools
-from typing import List, Mapping
-from gym import ActionWrapper, ObservationWrapper, RewardWrapper, spaces, Wrapper
+from typing import Any, List, Mapping, Tuple
+from gymnasium import ActionWrapper, Env, ObservationWrapper, RewardWrapper, spaces, Wrapper
 import numpy as np
+import pandas as pd
+
+try:
+    from ray.rllib.env import MultiAgentEnv
+except (ModuleNotFoundError, ImportError) as e:
+    from gymnasium import Env as MultiAgentEnv
+
 from citylearn.citylearn import CityLearnEnv
 from citylearn.building import Building
+
+class ClippedObservationWrapper(ObservationWrapper):
+    """Wrapper for observations min-max and periodic normalization.
+    
+    Observations are clipped to be within the observation space limits.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    """
+
+    def __init__(self, env: CityLearnEnv) -> None:
+        super().__init__(env)
+        self.env: CityLearnEnv
+
+    def observation(self, observations: List[List[float]]) -> List[List[float]]:
+        """Returns normalized observations."""
+
+        for i, (o, s) in enumerate(zip(observations, self.observation_space)):
+            for j, (o_, l, u) in enumerate(zip(o, s.low, s.high)):
+                observations[i][j] = min(max(o_, l), u)
+
+        return observations
 
 class NormalizedObservationWrapper(ObservationWrapper):
     """Wrapper for observations min-max and periodic normalization.
@@ -53,7 +84,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
         is returned where each sublist is a list of 1 building's observation names and the sublist in the same order as `buildings`.
         """
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
             observation_names = []
 
             for i, b in enumerate(self.env.buildings):
@@ -79,7 +110,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
         low_limit = []
         high_limit = []
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
             shared_observations = []
 
             for i, b in enumerate(self.env.buildings):
@@ -110,7 +141,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
     def observation(self, observations: List[List[float]]) -> List[List[float]]:
         """Returns normalized observations."""
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
             norm_observations = []
             shared_observations = []
 
@@ -157,7 +188,7 @@ class NormalizedActionWrapper(ActionWrapper):
         low_limit = []
         high_limit = []
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
 
             for b in self.env.buildings:
                 low_limit += [0.0]*b.action_space.low.size
@@ -235,7 +266,7 @@ class DiscreteObservationWrapper(ObservationWrapper):
     def observation_space(self) -> List[spaces.MultiDiscrete]:
         """Returns observation space for discretized observations."""
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
             bin_sizes = []
             shared_observations = []
 
@@ -304,7 +335,7 @@ class DiscreteActionWrapper(ActionWrapper):
     def action_space(self) -> List[spaces.MultiDiscrete]:
         """Returns action space for discretized actions."""
 
-        if self.env.central_agent:
+        if self.env.unwrapped.central_agent:
             bin_sizes = []
 
             for b in self.bin_sizes:
@@ -460,8 +491,8 @@ class TabularQLearningActionWrapper(ActionWrapper):
 class TabularQLearningWrapper(Wrapper):
     """Wrapper for :py:class:`citylearn.agents.q_learning.TabularQLearning` agent.
 
-    Wraps `env` in :py:class:`citylearn.wrappers.DiscreteObservationWrapper` and :py:class:`citylearn.wrappers.DiscreteActionWrapper`.
-    
+    Discretizes observation and action spaces.
+
     Parameters
     ----------
     env: CityLearnEnv
@@ -496,7 +527,7 @@ class StableBaselines3ObservationWrapper(ObservationWrapper):
     """
 
     def __init__(self, env: CityLearnEnv):
-        assert env.central_agent, 'StableBaselines3ObservationWrapper is compatible only when env.central_agent = True.'\
+        assert env.unwrapped.central_agent, 'StableBaselines3ObservationWrapper is compatible only when env.central_agent = True.'\
             ' First set env.central_agent = True to use this wrapper.'
         
         super().__init__(env)
@@ -527,7 +558,7 @@ class StableBaselines3ActionWrapper(ActionWrapper):
     """
 
     def __init__(self, env: CityLearnEnv):
-        assert env.central_agent, 'StableBaselines3ActionWrapper is compatible only when env.central_agent = True.'\
+        assert env.unwrapped.central_agent, 'StableBaselines3ActionWrapper is compatible only when env.central_agent = True.'\
             ' First set env.central_agent = True to use this wrapper.'
         
         super().__init__(env)
@@ -558,7 +589,7 @@ class StableBaselines3RewardWrapper(RewardWrapper):
     """
 
     def __init__(self, env: CityLearnEnv):
-        assert env.central_agent, 'StableBaselines3RewardWrapper is compatible only when env.central_agent = True.'\
+        assert env.unwrapped.central_agent, 'StableBaselines3RewardWrapper is compatible only when env.central_agent = True.'\
             ' First set env.central_agent = True to use this wrapper.'
         
         super().__init__(env)
@@ -572,9 +603,9 @@ class StableBaselines3RewardWrapper(RewardWrapper):
 class StableBaselines3Wrapper(Wrapper):
     """Wrapper for :code:`stable-baselines3` algorithms.
 
-    Wraps `env` in :py:class:`citylearn.wrappers.StableBaselines3ObservationWrapper`,
-    :py:class:`citylearn.wrappers.StableBaselines3ActionWrapper`
-    and :py:class:`citylearn.wrappers.StableBaselines3RewardWrapper`.
+    Wraps observations so that they are returned in a 1-dimensional numpy array.
+    Wraps actions so that they are returned in a 1-dimensional numpy array.
+    Wraps rewards so that it is returned as float value.
     
     Parameters
     ----------
@@ -588,3 +619,239 @@ class StableBaselines3Wrapper(Wrapper):
         env = StableBaselines3ObservationWrapper(env)
         super().__init__(env)
         self.env: CityLearnEnv
+
+class RLlibSingleAgentWrapper(StableBaselines3Wrapper):
+    """Wrapper for :code:`RLlib` single-agent algorithms.
+
+    Uses the same wrapper as :code:`stable-baselines3` by wrapping
+    `env` in :py:class:`citylearn.wrappers.StableBaselines3Wrapper`.
+    
+    Parameters
+    ----------
+    env_config: Mapping[str, Any]
+        Dictionary providing initialization parameters for the environment.
+        Must contain `env_kwargs` as a key where `env_kwargs` is a `dict` used to 
+        initialize :py:class:`citylearn.citylearn.CityLearnEnv`. Thus it must 
+        contain all with positional arguments needed for intialization and 
+        optionally contain optional  intialization arguments. `env_config` can also 
+        contain a `wrappers` key that is a list of :py:mod:`citylearn.wrappers` 
+        classes to wrap :py:class:`citylearn.citylearn.CityLearnEnv` with. Wrapping
+        with :py:class:`citylearn.wrappers.ClippedObservationWrapper` is recommended
+        to avoid having the simulation terminating prematurely with an error due to
+        out of bound observations relative to the observation space.
+
+    Notes
+    -----
+    This wrapper is only compatible with an environment where 
+    :py:attr:`citylearn.citylearn.central_agent`=`True` and will initialize the 
+    environment as such, overriding any value for `central_agent` in `env_kwargs`.
+    """
+
+    def __init__(self, env_config: Mapping[str, Any]):
+        env_kwargs = env_config['env_kwargs']
+        env_kwargs['central_agent'] = True
+        assert 'schema' in env_kwargs, 'missing schema key in env_kwargs.'
+        env = CityLearnEnv(**env_kwargs)
+
+        wrappers = env_config.get('wrappers')
+        wrappers = [] if wrappers is None else wrappers
+
+        for w in wrappers:
+            env = w(env)
+
+        super().__init__(env)
+
+class RLlibMultiAgentObservationWrapper(ObservationWrapper):
+    """Observation wrapper for :code:`RLlib` multi-agent algorithms.
+
+    Wraps observation space and observations so that they are returned 
+    as :py:class:`gymnasium.spaces.Dict` and `dict` objects respectively.
+    The keys in these objects correspond to the agent IDs i.e., 
+    policy IDs in the multi-agent.
+    
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    """
+
+    def __init__(self, env: CityLearnEnv):
+        assert not env.central_agent, 'RLlibMultiAgentObservationWrapper is'\
+            ' compatible only when env.central_agent = False.'\
+                ' First set env.central_agent = False to use this wrapper.'
+
+        super().__init__(env)
+        self.env: CityLearnEnv
+
+    @property
+    def observation_space(self) -> spaces.Dict:
+        """Parses observation space into a :py:class:`gymnasium.spaces.Dict`."""
+
+        return spaces.Dict({f'agent_{i}': s for i, s in enumerate(self.env.observation_space)})
+
+    def observation(
+        self, observations: List[List[float]]
+    ) -> Mapping[str, np.ndarray]:
+        """Parses observation into a dictionary."""
+
+        return {f'agent_{i}': np.array(o, dtype='float32') for i, o in enumerate(observations)}
+
+class RLlibMultiAgentActionWrapper(ActionWrapper):
+    """Action wrapper for :code:`RLlib` multi-agent algorithms.
+
+    Wraps action space so that it is returned as :py:class:`gymnasium.spaces.Dict`. 
+    The keys correspond to the agent IDs i.e., policy IDs in the multi-agent. 
+    Also converts agent actions from `dict` to  data structure need by 
+    :py:meth:`citylearn.citylearn.CityLearnEnv.step`.
+    
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    """
+
+    def __init__(self, env: CityLearnEnv):
+        assert not env.central_agent, 'RLlibMultiAgentActionWrapper is'\
+            ' compatible only when env.central_agent = False.'\
+                ' First set env.central_agent = False to use this wrapper.'
+
+        super().__init__(env)
+        self.env: CityLearnEnv
+
+    @property
+    def action_space(self) -> spaces.Dict:
+        """Parses action space into a :py:class:`gymnasium.spaces.Dict`."""
+
+        return spaces.Dict({f'agent_{i}': s for i, s in enumerate(self.env.action_space)})
+
+    def action(self, actions: Mapping[str, np.ndarray]) -> List[List[float]]:
+        """Parses actions into data structure for :py:meth:`citylearn.citylearn.CityLearnEnv.step`."""
+
+        return [list(v) for v in actions.values()]
+
+class RLlibMultiAgentRewardWrapper(RewardWrapper):
+    """Action wrapper for :code:`RLlib` multi-agent algorithms.
+
+    Wraps action space so that it is returned as a `dict` mapping agent IDs to reward values.
+    
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+    """
+
+    def __init__(self, env: CityLearnEnv):
+        assert not env.central_agent, 'RLlibMultiAgentRewardWrapper is'\
+            ' compatible only when env.central_agent = False.'\
+                ' First set env.central_agent = False to use this wrapper.'
+
+        super().__init__(env)
+        self.env: CityLearnEnv
+
+    def reward(self, reward: List[float]) -> Mapping[str, float]:
+        """Parses reward into a `dict`."""
+
+        return {f'agent_{i}': r for i, r in enumerate(reward)}
+
+class RLlibMultiAgentEnv(MultiAgentEnv):
+    """Wrapper for :code:`RLlib` multi-agent algorithms.
+
+    Converts, observation and action spaces to :py:class:`gymnasium.spaces.Dict`.
+    Also converts `observations`, `actions`, `rewards`, `terminated`, and `truncated`
+    to dictionaries where necessary. The dictionary keys correspond to the agent IDs i.e., 
+    policy IDs in the multi-agent. Agent IDs are accessible through the `_agent_ids` property. 
+    The initialized environment is a :py:class:`ray.rllib.env.MultiAgentEnv` object 
+    and has an `env` attribute that is :py:class:`citylearn.citylearn.CityLearnEnv` object.
+    
+    Parameters
+    ----------
+    env_config: Mapping[str, Any]
+        Dictionary providing initialization parameters for the environment.
+        Must contain `env_kwargs` as a key where `env_kwargs` is a `dict` used to 
+        initialize :py:class:`citylearn.citylearn.CityLearnEnv`. Thus it must 
+        contain all with positional arguments needed for intialization and 
+        optionally contain optional  intialization arguments. `env_config` can also 
+        contain a `wrappers` key that is a list of :py:mod:`citylearn.wrappers` 
+        classes to wrap :py:class:`citylearn.citylearn.CityLearnEnv` with. Wrapping
+        with :py:class:`citylearn.wrappers.ClippedObservationWrapper` is recommended
+        to avoid having the simulation terminating prematurely with an error due to
+        out of bound observations relative to the observation space.
+
+    Notes
+    -----
+    This wrapper is only compatible with an environment where 
+    :py:attr:`citylearn.citylearn.central_agent`=`False` and will initialize the 
+    environment as such, overriding any value for `central_agent` in `env_kwargs`.
+    """
+    
+    def __init__(self, env_config: Mapping[str, Any]):
+        if MultiAgentEnv == Env:
+            raise Exception('This functionality requires you to install RLlib.'\
+                'You can install RLlib from pip: pip install "ray[rllib]", '\
+                    'or for more detailed instructions please visit https://docs.ray.io/en/latest/rllib/index.html.')
+        
+        else:
+            pass
+
+        super().__init__()
+        env_kwargs = env_config['env_kwargs']
+        env_kwargs['central_agent'] = False
+        assert 'schema' in env_kwargs, 'missing schema key in env_kwargs.'
+        env = CityLearnEnv(**env_kwargs)
+
+        wrappers = env_config.get('wrappers')
+        wrappers = [] if wrappers is None else wrappers
+
+        for w in wrappers:
+            env = w(env)
+
+        env = RLlibMultiAgentActionWrapper(env)
+        env = RLlibMultiAgentObservationWrapper(env)
+        env = RLlibMultiAgentRewardWrapper(env)
+        self.env: CityLearnEnv = env
+        self._agent_ids = [f'agent_{i}' for i in range(len(self.buildings))]
+        self.observation_space: spaces.Dict = self.env.observation_space
+        self.action_space: spaces.Dict = self.env.action_space
+
+    @property
+    def time_step(self) -> int:
+        """Convenience property for :py:meth:`citylearn.citylearn.CityLearnEnv.time_step`."""
+
+        return self.env.time_step
+
+    @property
+    def buildings(self) -> List[Building]:
+        """Convenience property for :py:meth:`citylearn.citylearn.CityLearnEnv.buildings`."""
+
+        return self.env.buildings
+    
+    @property
+    def terminated(self) -> bool:
+        """Convenience property for :py:meth:`citylearn.citylearn.CityLearnEnv.terminated`."""
+
+        return self.env.terminated
+
+    def step(
+            self, action_dict: Mapping[str, np.ndarray]
+    ) -> Tuple[Mapping[str, np.ndarray], Mapping[str, float], Mapping[str, bool], Mapping[str, bool], Mapping[str, dict]]:
+        """Calls :py:meth:`citylearn.citylearn.CityLearnEnv.step` and parses returned values into dictionaries."""
+
+        observations, reward, terminated, truncated, info = self.env.step(action_dict)
+        terminated = {'__all__': terminated, **{a: terminated for a in self._agent_ids}}
+        truncated = {'__all__': truncated, **{a: truncated for a in self._agent_ids}}
+        info = {a: info for a in self._agent_ids}
+
+        return observations, reward, terminated, truncated, info
+
+    def evaluate(self, **kwargs) -> pd.DataFrame:
+        """Convenience method for :py:meth:`citylearn.citylearn.CityLearnEnv.evaluate`."""
+
+        return self.env.evaluate(**kwargs)
+
+    def reset(self, *, seed: int = None, options: Mapping[str, Any] = None) -> Tuple[Mapping[str, np.ndarray], Mapping[str, dict]]:
+        """Calls :py:meth:`citylearn.citylearn.CityLearnEnv.reset` and parses returned values into dictionaries."""
+
+        observations, info = self.env.reset(seed=seed, options=options)
+        info = {a: info for a in self._agent_ids}
+
+        return observations, info

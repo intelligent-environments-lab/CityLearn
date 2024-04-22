@@ -1,13 +1,11 @@
 import logging
 from typing import Any, List, Mapping
-from gym import spaces
+from gymnasium import spaces
 import numpy as np
 from citylearn.base import Environment
 from citylearn.citylearn import CityLearnEnv
 
 LOGGER = logging.getLogger()
-logging.getLogger('matplotlib.font_manager').disabled = True
-logging.getLogger('matplotlib.pyplot').disabled = True
 
 class Agent(Environment):
     r"""Base agent class.
@@ -34,9 +32,15 @@ class Agent(Environment):
         super().__init__(
             seconds_per_time_step=self.env.seconds_per_time_step,
             random_seed=self.env.random_seed,
-            episode_tracker=env.episode_tracker,
+            episode_tracker=self.env.episode_tracker,
         )
         self.reset()
+
+    @property
+    def env(self) -> CityLearnEnv:
+        """CityLearn environment."""
+
+        return self.__env
 
     @property
     def observation_names(self) -> List[List[str]]:
@@ -83,6 +87,10 @@ class Agent(Environment):
         """Action history/time series."""
 
         return self.__actions
+    
+    @env.setter
+    def env(self, env: CityLearnEnv):
+        self.__env = env
 
     @observation_names.setter
     def observation_names(self, observation_names: List[List[str]]):
@@ -137,22 +145,22 @@ class Agent(Environment):
 
         for episode in range(episodes):
             deterministic = deterministic or (deterministic_finish and episode >= episodes - 1)
-            observations = self.env.reset()
+            observations, _ = self.env.reset()
             self.episode_time_steps = self.episode_tracker.episode_time_steps
-            done = False
+            terminated = False
             time_step = 0
             rewards_list = []
 
-            while not done:
+            while not terminated:
                 actions = self.predict(observations, deterministic=deterministic)
 
                 # apply actions to citylearn_env
-                next_observations, rewards, done, _ = self.env.step(actions)
+                next_observations, rewards, terminated, truncated, _ = self.env.step(actions)
                 rewards_list.append(rewards)
 
                 # update
                 if not deterministic:
-                    self.update(observations, actions, rewards, next_observations, done=done)
+                    self.update(observations, actions, rewards, next_observations, terminated=terminated, truncated=truncated)
                 else:
                     pass
 
@@ -226,7 +234,7 @@ class Agent(Environment):
         super().reset()
         self.__actions = [[[]] for _ in self.action_space]
 
-class DummyAgent(Agent):
+class BaselineAgent(Agent):
     r"""Agent class for business-as-usual simulation where the storage systems and heat pumps are not controlled.
 
     This agent will provide results for when there is no storage for load shifting and no heat pump partial load. 
@@ -252,7 +260,11 @@ class DummyAgent(Agent):
     """
 
     def __init__(self, env: CityLearnEnv, **kwargs: Any):
-        super().__init__(self.__deactivate_actions(env), **kwargs)
+        super().__init__(env, **kwargs)
+
+    @Agent.env.setter
+    def env(self, env: CityLearnEnv):
+        Agent.env.fset(self, self.__deactivate_actions(env))
 
     def __deactivate_actions(self, env: CityLearnEnv) -> CityLearnEnv:
         for b in env.unwrapped.buildings:

@@ -41,6 +41,7 @@ extensions = [
     'myst_nb', # jupyter notebook
     'nbsphinx_link', # link jupyter notebook from dir that is not in docs/
     'sphinx_panels', # for backgrounds
+    'sphinxarg.ext', # document CLI
 ]
 
 # source for bib references

@@ -1,9 +1,11 @@
-jinja2==3.0.0
+setuptools
+jinja2
 myst-nb
 nbsphinx-link
-Sphinx==4.5.0
+Sphinx
 sphinxemoji
 sphinxcontrib-bibtex
+sphinx-argparse
 sphinx-copybutton
 sphinx-panels
 sphinx-rtd-theme

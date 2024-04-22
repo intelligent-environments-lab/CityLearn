@@ -1,5 +1,6 @@
+import logging
 from typing import Any, List, Mapping, Tuple, Union
-from gym import spaces
+from gymnasium import spaces
 import numpy as np
 import torch
 from citylearn.base import Environment, EpisodeTracker
@@ -9,6 +10,8 @@ from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, Heat
 from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 from citylearn.electric_vehicle_charger import Charger
+
+LOGGER = logging.getLogger()
 
 class Building(Environment):
     r"""Base class for building.
@@ -545,6 +548,26 @@ class Building(Environment):
         """Electricity load that must be met by the grid, or `PV` and/or `electrical_storage` if available time series, in [kWh]."""
 
         return self.energy_simulation.non_shiftable_load[0:self.time_step + 1]
+    
+    @property
+    def cooling_device_cop(self) -> np.ndarray:
+        """Heat pump `cooling_device` coefficient of performance time series."""
+
+        return self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature, heating=False)[0:self.time_step + 1]
+    
+    @property
+    def heating_device_cop(self) -> np.ndarray:
+        """Heat pump `heating_device` coefficient of performance or electric heater `heating_device` static technical efficiency time series."""
+
+        return self.heating_device.get_cop(self.weather.outdoor_dry_bulb_temperature, heating=True)[0:self.time_step + 1] \
+            if isinstance(self.heating_device, HeatPump) else np.zeros(self.time_step + 1, dtype='float32')
+    
+    @property
+    def dhw_device_cop(self) -> np.ndarray:
+        """Heat pump `dhw_device` coefficient of performance or electric heater `dhw_device` static technical efficiency time series."""
+
+        return self.dhw_device.get_cop(self.weather.outdoor_dry_bulb_temperature, heating=True)[0:self.time_step + 1] \
+            if isinstance(self.dhw_device, HeatPump) else np.zeros(self.time_step + 1, dtype='float32')
 
     @property
     def solar_generation(self) -> np.ndarray:
@@ -717,7 +740,7 @@ class Building(Environment):
 
     @demand_observation_limit_factor.setter
     def demand_observation_limit_factor(self, demand_observation_limit_factor: float):
-        self.__demand_observation_limit_factor = 1.15 if demand_observation_limit_factor is None else demand_observation_limit_factor
+        self.__demand_observation_limit_factor = 2.0 if demand_observation_limit_factor is None else demand_observation_limit_factor
 
         if hasattr(self, 'observation_space') and self.observation_space is not None:
             self.observation_space = self.estimate_observation_space(include_all=False, normalize=False)
@@ -785,7 +808,7 @@ class Building(Environment):
             'annual_solar_generation_estimate': self.pv.get_generation(self.energy_simulation.solar_generation).sum()/n_years,
         }
 
-    def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None) -> Mapping[str, float]:
+    def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None, check_limits: bool = None) -> Mapping[str, float]:
         r"""Observations at current time step.
 
         Parameters
@@ -796,6 +819,9 @@ class Building(Environment):
             Whether to apply min-max normalization bounded between [0, 1].
         periodic_normalization: bool, default: False
             Whether to apply sine-cosine normalization to cyclic observations including hour, day_type and month.
+        check_limits: bool, default: False
+            Whether to check if observations are within observation space and if not, will send output to log describing 
+            out of bounds observations. Useful for agents that will fail if observations fall outside space e.g. RLlib agents.
 
         Returns
         -------
@@ -811,6 +837,7 @@ class Building(Environment):
         normalize = False if normalize is None else normalize
         periodic_normalization = False if periodic_normalization is None else periodic_normalization
         include_all = False if include_all is None else include_all
+        check_limits = False if check_limits is None else check_limits
 
         observations = {}
         data = {
@@ -848,10 +875,13 @@ class Building(Environment):
             'heating_storage_electricity_consumption': self.heating_storage_electricity_consumption[self.time_step],
             'dhw_storage_electricity_consumption': self.dhw_storage_electricity_consumption[self.time_step],
             'electrical_storage_electricity_consumption': self.electrical_storage_electricity_consumption[self.time_step],
-            'cooling_device_cop': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
-            'heating_device_cop': self.heating_device.get_cop(
+            'cooling_device_efficiency': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
+            'heating_device_efficiency': self.heating_device.get_cop(
                 self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
                     ) if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
+            'dhw_device_efficiency': self.dhw_device.get_cop(
+                self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
+                    ) if isinstance(self.dhw_device, HeatPump) else self.dhw_device.efficiency,
             'indoor_dry_bulb_temperature_set_point': self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step],
             'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step]),
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
@@ -899,8 +929,33 @@ class Building(Environment):
         unknown_observations = list(set(valid_observations).difference(observations.keys()))
         assert len(unknown_observations) == 0, f'Unknown observations: {unknown_observations}'
 
-        low_limit, high_limit = self.periodic_normalized_observation_space_limits
+        non_periodic_low_limit, non_periodic_high_limit = self.non_periodic_normalized_observation_space_limits
+        periodic_low_limit, periodic_high_limit = self.periodic_normalized_observation_space_limits
         periodic_observations = self.get_periodic_observation_metadata()
+
+        if check_limits:
+            for k in self.active_observations:
+                value = observations[k]
+                lower = non_periodic_low_limit[k]
+                upper = non_periodic_high_limit[k]
+                
+                if not lower <= value <= upper:
+                    report = {
+                        'Building': self.name, 
+                        'episode': self.episode_tracker.episode, 
+                        'time_step': f'{self.time_step + 1}/{self.episode_tracker.episode_time_steps}', 
+                        'observation': k, 
+                        'value': value, 
+                        'lower': lower, 
+                        'upper': upper
+                    }
+                    LOGGER.debug(f'Observation outside space limit: {report}')
+
+                else:
+                    pass
+            
+            else:
+                pass
 
         if periodic_normalization:
             observations_copy = {k: v for k, v in observations.items()}
@@ -922,8 +977,8 @@ class Building(Environment):
             nm = Normalize(0.0, 1.0)
 
             for k, v in observations.items():
-                nm.x_min = low_limit[k]
-                nm.x_max = high_limit[k]
+                nm.x_min = periodic_low_limit[k]
+                nm.x_max = periodic_high_limit[k]
                 observations[k] = v*nm
 
         else:
@@ -1361,12 +1416,12 @@ class Building(Environment):
                 low_limit[key] = 0.0
                 high_limit[key] = 1.0
 
-            elif key in ['cooling_device_cop']:
+            elif key in ['cooling_device_efficiency']:
                 cop = self.cooling_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=False)
                 low_limit[key] = min(cop)
                 high_limit[key] = max(cop)
 
-            elif key in ['heating_device_cop']:
+            elif key in ['heating_device_efficiency']:
                 if isinstance(self.heating_device, HeatPump):
                     cop = self.heating_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=True)
                     low_limit[key] = min(cop)
@@ -1392,6 +1447,14 @@ class Building(Environment):
                                    ["ev_required_soc_departure", "ev_estimated_soc_arrival", "ev_soc"]):
                             low_limit[key] = 0.0
                             high_limit[key] = 1.0
+            elif key in ['dhw_device_efficiency']:
+                if isinstance(self.dhw_device, HeatPump):
+                    cop = self.dhw_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=True)
+                    low_limit[key] = min(cop)
+                    high_limit[key] = max(cop)
+                else:
+                    low_limit[key] = self.dhw_device.efficiency
+                    high_limit[key] = self.dhw_device.efficiency
 
             elif key == 'indoor_dry_bulb_temperature':
                 low_limit[key] = data['indoor_dry_bulb_temperature'].min() - self.maximum_temperature_delta
@@ -1498,8 +1561,29 @@ class Building(Environment):
                 low_limit.append(0.0)
                 high_limit.append(1.0)
             
-            elif key == 'electrical_storage':
-                limit = self.electrical_storage.nominal_power/max(self.electrical_storage.capacity, ZERO_DIVISION_PLACEHOLDER)
+            elif 'storage' in key:
+                if key == 'electrical_storage':
+                    limit = self.electrical_storage.nominal_power/max(self.electrical_storage.capacity, ZERO_DIVISION_PLACEHOLDER)
+                
+                else:
+                    if key == 'cooling_storage':
+                        capacity = self.cooling_storage.capacity
+                        power = self.cooling_device.nominal_power
+                    
+                    elif key == 'heating_storage':
+                        capacity = self.heating_storage.capacity
+                        power = self.heating_device.nominal_power
+
+                    elif key == 'dhw_storage':
+                        capacity = self.dhw_storage.capacity
+                        power = self.dhw_device.nominal_power
+
+                    else:
+                        raise Exception(f'Unknown action: {key}')
+
+                    limit = power/max(capacity, ZERO_DIVISION_PLACEHOLDER)
+                    
+                limit = min(limit, 1.0)
                 low_limit.append(-limit)
                 high_limit.append(limit)
 

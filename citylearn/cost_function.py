@@ -6,13 +6,21 @@ class CostFunction:
     r"""Cost and energy flexibility functions that may be used to evaluate environment performance."""
 
     @staticmethod
-    def ramping(net_electricity_consumption: List[float]) -> List[float]:
+    def ramping(net_electricity_consumption: List[float], down_ramp: bool = None, net_export: bool = None) -> List[float]:
         r"""Rolling sum of absolute difference in net electric consumption between consecutive time steps.
 
         Parameters
         ----------
-        net_electricity_consumption : List[float]
+        net_electricity_consumption: List[float]
             Electricity consumption time series.
+
+        down_ramp: bool
+            Include cases where there is reduction in consumption between consecutive time steps  
+            in the summation if `True`, otherwise set ramp value to zero for such cases.
+
+        net_export: bool
+            Include cases where net electric consumption is negative (net export) in the summation 
+             if `True`, otherwise set ramp value to zero for such cases.
 
         Returns
         -------
@@ -27,9 +35,24 @@ class CostFunction:
         Where :math:`E_i` is the :math:`i^{\textrm{th}}` element in `net_electricity_consumption`, :math:`E`, that has a length of :math:`n`.
         """
 
+        down_ramp = False if down_ramp is None else down_ramp
+        net_export = True if net_export is None else net_export
+
         data = pd.DataFrame({'net_electricity_consumption':net_electricity_consumption})
         data['ramping'] = data['net_electricity_consumption'] - data['net_electricity_consumption'].shift(1)
-        data['ramping'] = data['ramping'].abs()
+
+        if down_ramp:
+            data['ramping'] = data['ramping'].abs()
+
+        else:
+            data['ramping'] = data['ramping'].clip(lower=0)
+ 
+        if not net_export:
+            data.loc[data['net_electricity_consumption']<0, 'ramping'] = 0
+        
+        else:
+            pass
+
         data['ramping'] = data['ramping'].rolling(window=data.shape[0],min_periods=1).sum()
         
         return data['ramping'].tolist()
@@ -218,16 +241,22 @@ class CostFunction:
         discomfort: List[float]
             Rolling proportion of occupied timesteps where the condition 
             (dry_bulb_temperature_set_point - band) <= indoor_dry_bulb_temperature <= (dry_bulb_temperature_set_point + band) is not met.
-        discomfort_too_cold: List[float]
+        discomfort_cold: List[float]
             Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
-        discomfort_too_hot: List[float]
+        discomfort_hot: List[float]
             Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
-        discomfort_delta_minimum: List[float]
-            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
-        discomfort_delta_maximum: List[float]
-            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
-        discomfort_delta_average: List[float]
-            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point.
+        discomfort_cold_delta_minimum: List[float]
+            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
+        discomfort_hot_delta_maximum: List[float]
+            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
+        discomfort_hot_delta_average: List[float]
+            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
+        discomfort_hot_delta_minimum: List[float]
+            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
+        discomfort_hot_delta_maximum: List[float]
+            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
+        discomfort_hot_delta_average: List[float]
+            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
         """
 
         band = 2.0 if band is None else band
@@ -246,31 +275,43 @@ class CostFunction:
         data['discomfort'] = data['discomfort'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # too cold
-        data['discomfort_too_cold'] = 0
-        data.loc[data['delta'] < -band, 'discomfort_too_cold'] = 1
-        data['discomfort_too_cold'] = data['discomfort_too_cold'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
+        data['discomfort_cold'] = 0
+        data.loc[data['delta'] < -band, 'discomfort_cold'] = 1
+        data['discomfort_cold'] = data['discomfort_cold'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # too hot
-        data['discomfort_too_hot'] = 0
-        data.loc[data['delta'] > band, 'discomfort_too_hot'] = 1
-        data['discomfort_too_hot'] = data['discomfort_too_hot'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
+        data['discomfort_hot'] = 0
+        data.loc[data['delta'] > band, 'discomfort_hot'] = 1
+        data['discomfort_hot'] = data['discomfort_hot'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
-        # minimum delta
-        data['discomfort_delta_minimum'] = data['delta'].rolling(window=data.shape[0],min_periods=1).min()
+        # minimum cold delta
+        data['discomfort_cold_delta_minimum'] = data['delta'].clip(upper=0).abs().rolling(window=data.shape[0],min_periods=1).min()
 
-        # maximum delta
-        data['discomfort_delta_maximum'] = data['delta'].rolling(window=data.shape[0],min_periods=1).max()
+        # maximum cold delta
+        data['discomfort_cold_delta_maximum'] = data['delta'].clip(upper=0).abs().rolling(window=data.shape[0],min_periods=1).max()
 
-        # average delta
-        data['discomfort_delta_average'] = data['delta'].rolling(window=data.shape[0],min_periods=1).mean()
+        # average cold delta
+        data['discomfort_cold_delta_average'] = data['delta'].clip(upper=0).abs().rolling(window=data.shape[0],min_periods=1).mean()
+
+        # minimum hot delta
+        data['discomfort_hot_delta_minimum'] = data['delta'].clip(lower=0).abs().rolling(window=data.shape[0],min_periods=1).min()
+
+        # maximum hot delta
+        data['discomfort_hot_delta_maximum'] = data['delta'].clip(lower=0).abs().rolling(window=data.shape[0],min_periods=1).max()
+
+        # average hot delta
+        data['discomfort_hot_delta_average'] = data['delta'].clip(lower=0).abs().rolling(window=data.shape[0],min_periods=1).mean()
 
         return (
             data['discomfort'].tolist(),
-            data['discomfort_too_cold'].tolist(),
-            data['discomfort_too_hot'].tolist(),
-            data['discomfort_delta_minimum'].tolist(),
-            data['discomfort_delta_maximum'].tolist(),
-            data['discomfort_delta_average'].tolist()
+            data['discomfort_cold'].tolist(),
+            data['discomfort_hot'].tolist(),
+            data['discomfort_cold_delta_minimum'].tolist(),
+            data['discomfort_cold_delta_maximum'].tolist(),
+            data['discomfort_cold_delta_average'].tolist(),
+            data['discomfort_hot_delta_minimum'].tolist(),
+            data['discomfort_hot_delta_maximum'].tolist(),
+            data['discomfort_hot_delta_average'].tolist(),
         )
     
     @staticmethod

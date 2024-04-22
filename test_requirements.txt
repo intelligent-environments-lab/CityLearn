@@ -1,5 +1,2 @@
--r requirements.txt
-opencv-python==4.6.0.66
-PettingZoo==1.19.0
-matplotlib
-Pillow==9.2.0
+ray[rllib]
+stable-baselines3

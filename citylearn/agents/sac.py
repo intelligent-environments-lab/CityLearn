@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Union
 import numpy as np
 import numpy.typing as npt
 
@@ -52,7 +52,7 @@ class SAC(RLC):
         self.r_norm_std = [None for _ in self.action_space]
         self.set_networks()
 
-    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], done: bool):
+    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], terminated: bool, truncated: bool):
         r"""Update replay buffer.
 
         Parameters
@@ -65,8 +65,10 @@ class SAC(RLC):
             Current time step reward.
         next_observations : List[List[float]]
             Current time step observations.
-        done : bool
+        terminated : bool
             Indication that episode has ended.
+        truncated : bool
+            If episode truncates due to a time limit or a reason that is not defined as part of the task MDP.
         """
 
         # Run once the regression model has been fitted
@@ -83,7 +85,7 @@ class SAC(RLC):
             else:
                 pass
         
-            self.replay_buffer[i].push(o, a, r, n, done)
+            self.replay_buffer[i].push(o, a, r, n, terminated)
 
             if self.time_step >= self.standardize_start_time_step and self.batch_size <= len(self.replay_buffer[i]):
                 if not self.normalized[i]:
@@ -164,7 +166,7 @@ class SAC(RLC):
     def predict(self, observations: List[List[float]], deterministic: bool = None):
         r"""Provide actions for current time step.
 
-        Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` >= :attr:`time_step` 
+        Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` <= :attr:`time_step` 
         else will use policy to sample actions.
 
         Parameters
@@ -268,7 +270,7 @@ class SAC(RLC):
         return encoders
 
 class SACRBC(SAC):
-    r"""Uses :py:class:`citylearn.agents.rbc.RBC` to select action during exploration before using :py:class:`citylearn.agents.sac.SAC`.
+    r"""Uses :py:class:`citylearn.agents.rbc.RBC` to select actions during exploration before using :py:class:`citylearn.agents.sac.SAC`.
 
     Parameters
     ----------
@@ -283,13 +285,14 @@ class SACRBC(SAC):
         Other keyword arguments used to initialize super class.
     """
     
-    def __init__(self, env: CityLearnEnv, rbc: RBC = None, **kwargs: Any):
+    def __init__(self, env: CityLearnEnv, rbc: Union[RBC, str] = None, **kwargs: Any):
         super().__init__(env, **kwargs)
         self.__set_rbc(rbc, **kwargs)
 
     @property
     def rbc(self) -> RBC:
-        """:py:class:`citylearn.agents.rbc.RBC` or child class, used to select actions during exploration."""
+        """:py:class:`citylearn.agents.rbc.RBC` class child class or string path to an RBC 
+        class e.g. 'citylearn.agents.rbc.RBC', used to select actions during exploration."""
 
         return self.__rbc
     
@@ -299,6 +302,9 @@ class SACRBC(SAC):
         
         elif isinstance(rbc, RBC):
             pass
+
+        elif isinstance(rbc, str):
+            rbc = self.env.load_agent(rbc, env=self.env, **kwargs)
 
         else:
             rbc = rbc(self.env, **kwargs)

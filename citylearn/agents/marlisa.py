@@ -115,7 +115,7 @@ class MARLISA(SAC):
     def iterations(self, iterations: int):
         self.__iterations = 2 if iterations is None else iterations
 
-    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], done: bool):
+    def update(self, observations: List[List[float]], actions: List[List[float]], reward: List[float], next_observations: List[List[float]], terminated: bool, truncated: bool):
         r"""Update replay buffer.
 
         Parameters
@@ -128,8 +128,10 @@ class MARLISA(SAC):
             Current time step reward.
         next_observations : List[List[float]]
             Current time step observations.
-        done : bool
+        terminated : bool
             Indication that episode has ended.
+        truncated : bool
+            If episode truncates due to a time limit or a reason that is not defined as part of the task MDP.
         """
 
         # Run once the regression model has been fitted
@@ -168,7 +170,7 @@ class MARLISA(SAC):
                 else:
                     pass
 
-                self.replay_buffer[i].push(o, a, r, n, done)
+                self.replay_buffer[i].push(o, a, r, n, terminated)
 
             else:
                 pass

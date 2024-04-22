@@ -5,7 +5,7 @@ import logging
 import os
 from pathlib import Path
 from typing import Any, List, Mapping, Tuple, Union
-from gym import Env, spaces
+from gymnasium import Env, spaces
 import numpy as np
 import pandas as pd
 from citylearn import __version__ as citylearn_version
@@ -74,12 +74,33 @@ class CityLearnEnv(Environment, Env):
         True if episode splits are to be selected at random during training otherwise, False to select sequentially.
     seconds_per_time_step: float
         Number of seconds in 1 `time_step` and must be set to >= 1.
-    reward_function: RewardFunction, optional
-        Reward function class instance. If provided, will override :code:`reward_function` definition in schema.
+    reward_function: Union[RewardFunction, str], optional
+        Reward function class instance or path to function class e.g. 'citylearn.reward_function.IndependentSACReward'.
+        If provided, will override :code:`reward_function` definition in schema.
+    reward_function_kwargs: Mapping[str, Any], optional
+        Parameters to be parsed to :py:attr:`reward_function` at intialization.
     central_agent: bool, optional
         Expect 1 central agent to control all buildings.
     shared_observations: List[str], optional
         Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
+    active_observations: Union[List[str], List[List[str]]], optional
+        List of observations to be made available in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  
+        each building independently in a :code:`List[List[str]]`. Will override the observations defined in the :code:`schema`.
+    inactive_observations: Union[List[str], List[List[str]]], optional
+        List of observations to be made unavailable in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  
+        each building independently in a :code:`List[List[str]]`. Will override the observations defined in the :code:`schema`.
+    active_actions: Union[List[str], List[List[str]]], optional
+        List of actions to be made available in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  
+        each building independently in a :code:`List[List[str]]`. Will override the actions defined in the :code:`schema`.
+    inactive_actions: Union[List[str], List[List[str]]], optional
+        List of actions to be made unavailable in the buildings. Can be specified for all buildings in a :code:`List[str]` or for  
+        each building independently in a :code:`List[List[str]]`. Will override the actions defined in the :code:`schema`.
+    simulate_power_outage: Union[bool, List[bool]]
+        Whether to simulate power outages. Can be specified for all buildings as single :code:`bool` or for  
+        each building independently in a :code:`List[bool]`. Will override power outage defined in the :code:`schema`.
+    solar_generation: Union[bool, List[bool]]
+        Wehther to allow solar generation. Can be specified for all buildings as single :code:`bool` or for  
+        each building independently in a :code:`List[bool]`. Will override :code:`pv` defined in the :code:`schema`.
     random_seed: int, optional
         Pseudorandom number generator seed for repeatable results.
 
@@ -97,11 +118,14 @@ class CityLearnEnv(Environment, Env):
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None,
         electric_vehicles: Union[List[electric_vehicle], List[str], List[int]] = None,
         simulation_start_time_step: int = None, simulation_end_time_step: int = None, episode_time_steps: Union[int, List[Tuple[int, int]]] = None, rolling_episode_split: bool = None, 
-        random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: RewardFunction = None, 
-        central_agent: bool = None, shared_observations: List[str] = None, random_seed: int = None, **kwargs: Any
+        random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: Union[RewardFunction, str] = None, reward_function_kwargs: Mapping[str, Any] = None, 
+        central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None, 
+        inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None, 
+        inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, **kwargs: Any
     ):
         self.schema = schema
         self.__rewards = None
+        self.buildings = []
         self.random_seed = random_seed
         root_directory, buildings, electric_vehicles, episode_time_steps, rolling_episode_split, random_episode_split, \
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker = self._load(
@@ -115,8 +139,15 @@ class CityLearnEnv(Environment, Env):
                 random_episode=random_episode_split,
                 seconds_per_time_step=seconds_per_time_step,
                 reward_function=reward_function,
+                reward_function_kwargs=reward_function_kwargs,
                 central_agent=central_agent,
                 shared_observations=shared_observations,
+                active_observations=active_observations,
+                inactive_observations=inactive_observations,
+                active_actions=active_actions,
+                inactive_actions=inactive_actions,
+                simulate_power_outage=simulate_power_outage,
+                solar_generation=solar_generation,
                 random_seed=self.random_seed,
             )
         self.root_directory = root_directory
@@ -236,10 +267,16 @@ class CityLearnEnv(Environment, Env):
         return self.__shared_observations
 
     @property
-    def done(self) -> bool:
+    def terminated(self) -> bool:
         """Check if simulation has reached completion."""
 
         return self.time_step == self.time_steps - 1
+    
+    @property
+    def truncated(self) -> bool:
+        """Check if episode truncates due to a time limit or a reason that is not defined as part of the task MDP."""
+
+        return False
 
     @property
     def observation_space(self) -> List[spaces.Box]:
@@ -324,7 +361,7 @@ class CityLearnEnv(Environment, Env):
             shared_observations = []
 
             for i, b in enumerate(self.buildings):
-                for k, v in b.observations(normalize=False, periodic_normalization=False).items():
+                for k, v in b.observations(normalize=False, periodic_normalization=False, check_limits=True).items():
                     if i == 0 or k not in self.shared_observations or k not in shared_observations:
                         observations.append(v)
                     
@@ -340,7 +377,7 @@ class CityLearnEnv(Environment, Env):
             observations = [observations]
         
         else:
-            observations = [list(b.observations().values()) for b in self.buildings]
+            observations = [list(b.observations(normalize=False, periodic_normalization=False, check_limits=True).values()) for b in self.buildings]
         
         return observations
 
@@ -755,6 +792,13 @@ class CityLearnEnv(Environment, Env):
     def shared_observations(self, shared_observations: List[str]):
         self.__shared_observations = self.get_default_shared_observations() if shared_observations is None else shared_observations
 
+    @Environment.random_seed.setter
+    def random_seed(self, seed: int):
+        Environment.random_seed.fset(self, seed)
+
+        for b in self.buildings:
+            b.random_seed = self.random_seed
+
     def get_metadata(self) -> Mapping[str, Any]:
         return {
             **super().get_metadata(),
@@ -787,7 +831,7 @@ class CityLearnEnv(Environment, Env):
         ]
 
 
-    def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, dict]:
+    def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, bool, dict]:
         """Advance to next time step then apply actions to `buildings` and update variables.
         
         Parameters
@@ -804,12 +848,15 @@ class CityLearnEnv(Environment, Env):
             :attr:`observations` current value.
         reward: List[float] 
             :meth:`get_reward` current value.
-        done: bool 
+        terminated: bool 
             A boolean value for if the episode has ended, in which case further :meth:`step` calls will return undefined results.
             A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully,
             a certain timelimit was exceeded, or the physics simulation has entered an invalid observation.
+        truncated: bool
+            A boolean value for if episode truncates due to a time limit or a reason that is not defined as part of the task MDP.
+            Will always return False in this base class.
         info: dict
-            A dictionary that may contain additional information regarding the reason for a ``done`` signal.
+            A dictionary that may contain additional information regarding the reason for a `terminated` signal.
             `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
             Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
@@ -834,7 +881,7 @@ class CityLearnEnv(Environment, Env):
         self.__rewards.append(reward)
 
         # store episode reward summary
-        if self.done:
+        if self.terminated:
             rewards = np.array(self.__rewards[1:], dtype='float32')
             self.__episode_rewards.append({
                 'min': rewards.min(axis=0).tolist(),
@@ -846,7 +893,7 @@ class CityLearnEnv(Environment, Env):
         else:
             pass
         
-        return self.observations, reward, self.done, self.get_info()
+        return self.observations, reward, self.terminated, self.truncated, self.get_info()
 
     def get_info(self) -> Mapping[Any, Any]:
         """Other information to return from the `citylearn.CityLearnEnv.step` function."""
@@ -902,7 +949,7 @@ class CityLearnEnv(Environment, Env):
             'ramping_average': {'display_name': 'Ramping', 'weight': 0.075},
             'daily_one_minus_load_factor_average': {'display_name': 'Load factor', 'weight': 0.075},
             'daily_peak_average': {'display_name': 'Daily peak', 'weight': 0.075},
-            'annual_peak_average': {'display_name': 'All-time peak', 'weight': 0.075},
+            'all_time_peak_average': {'display_name': 'All-time peak', 'weight': 0.075},
             'one_minus_thermal_resilience_proportion': {'display_name': 'Thermal resilience', 'weight': 0.15},
             'power_outage_normalized_unserved_energy_total': {'display_name': 'Unserved energy', 'weight': 0.15},
         }
@@ -978,7 +1025,10 @@ class CityLearnEnv(Environment, Env):
                 'band': comfort_band,
                 'occupant_count': b.occupant_count,
             }
-            unmet, too_cold, too_hot, minimum_delta, maximum_delta, average_delta = CostFunction.discomfort(**discomfort_kwargs)
+            unmet, cold, hot,\
+                cold_minimum_delta, cold_maximum_delta, cold_average_delta,\
+                    hot_minimum_delta, hot_maximum_delta, hot_average_delta =\
+                        CostFunction.discomfort(**discomfort_kwargs)
             expected_energy = b.cooling_demand + b.heating_demand + b.dhw_demand + b.non_shiftable_load
             served_energy = b.energy_from_cooling_device + b.energy_from_cooling_storage\
                 + b.energy_from_heating_device + b.energy_from_heating_storage\
@@ -1006,20 +1056,29 @@ class CityLearnEnv(Environment, Env):
                 'cost_function': 'discomfort_proportion',
                 'value': unmet[-1],
             }, {
-                'cost_function': 'discomfort_too_cold_proportion',
-                'value': too_cold[-1],
+                'cost_function': 'discomfort_cold_proportion',
+                'value': cold[-1],
             }, {
-                'cost_function': 'discomfort_too_hot_proportion',
-                'value': too_hot[-1],
+                'cost_function': 'discomfort_hot_proportion',
+                'value': hot[-1],
             }, {
-                'cost_function': 'discomfort_delta_minimum',
-                'value': minimum_delta[-1],
+                'cost_function': 'discomfort_cold_delta_minimum',
+                'value': cold_minimum_delta[-1],
             }, {
-                'cost_function': 'discomfort_delta_maximum',
-                'value': maximum_delta[-1],
+                'cost_function': 'discomfort_cold_delta_maximum',
+                'value': cold_maximum_delta[-1],
             }, {
-                'cost_function': 'discomfort_delta_average',
-                'value': average_delta[-1],
+                'cost_function': 'discomfort_cold_delta_average',
+                'value': cold_average_delta[-1],
+            }, {
+                'cost_function': 'discomfort_hot_delta_minimum',
+                'value': hot_minimum_delta[-1],
+            }, {
+                'cost_function': 'discomfort_hot_delta_maximum',
+                'value': hot_maximum_delta[-1],
+            }, {
+                'cost_function': 'discomfort_hot_delta_average',
+                'value': hot_average_delta[-1],
             }, {
                 'cost_function': 'one_minus_thermal_resilience_proportion',
                 'value': CostFunction.one_minus_thermal_resilience(power_outage=b.power_outage_signal, **discomfort_kwargs)[-1],
@@ -1058,9 +1117,9 @@ class CityLearnEnv(Environment, Env):
             'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=24)[-1]/\
                 CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=24)[-1],
         }, {
-            'cost_function': 'annual_peak_average',
-            'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=8760)[-1]/\
-                CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=8760)[-1],
+            'cost_function': 'all_time_peak_average',
+            'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=self.time_steps)[-1]/\
+                CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=self.time_steps)[-1],
         }])
 
         district_level = pd.concat([district_level, building_level], ignore_index=True, sort=False)
@@ -1070,63 +1129,6 @@ class CityLearnEnv(Environment, Env):
         cost_functions = pd.concat([district_level, building_level], ignore_index=True, sort=False)
 
         return cost_functions
-    
-    def render(self):
-        """Rendering function for The CityLearn Challenge 2023."""
-
-        canvas, canvas_size, draw_obj, color = get_background()
-        num_buildings = len(self.buildings)
-        profile_time_steps = 24
-        norm_min, norm_max = 0.0, 1.0
-        space_limits = []
-
-        for i, b in enumerate(self.buildings):
-            # current time step net electricity consumption and storage soc and indoor temperature
-            energy = b.net_electricity_consumption[b.time_step]\
-                /(b.non_periodic_normalized_observation_space_limits[1]['net_electricity_consumption'])
-            energy = max(min(energy, norm_max), norm_min)
-            electrical_storage_soc = b.electrical_storage.soc[b.time_step]
-            electrical_storage_soc = max(min(electrical_storage_soc, norm_max),norm_min)
-            dhw_storage_soc = b.dhw_storage.soc[b.time_step]
-            dhw_storage_soc = max(min(dhw_storage_soc, norm_max), norm_min)
-            indoor_temperature = b.indoor_dry_bulb_temperature[b.time_step]
-            indoor_temperature_delta = indoor_temperature - b.energy_simulation.indoor_dry_bulb_temperature_set_point[b.time_step]
-            space_limits.append(b.non_periodic_normalized_observation_space_limits)
-
-            # render
-            rbuilding = RenderBuilding(index=i, canvas_size=canvas_size, num_buildings=num_buildings, line_color=color)
-            rbuilding.draw_line(canvas, draw_obj, energy=energy, color=color)
-            rbuilding.draw_building(canvas, charge=electrical_storage_soc)
-
-        # time series data
-        nec = self.net_electricity_consumption[-profile_time_steps:]
-        nec_wo_storage = self.net_electricity_consumption_without_storage[-profile_time_steps:]
-        nec_wo_storage_and_partial_load = self.net_electricity_consumption_without_storage_and_partial_load[-profile_time_steps:]
-        nec_wo_storage_and_partial_load_and_pv = self.net_electricity_consumption_without_storage_and_partial_load_and_pv[-profile_time_steps:]
-        values = [nec, nec_wo_storage, nec_wo_storage_and_partial_load, nec_wo_storage_and_partial_load_and_pv]
-
-        # time series data y limits
-        nec_y_lim = (
-            sum(s[0]['net_electricity_consumption'] for s in space_limits),
-            sum(s[1]['net_electricity_consumption'] for s in space_limits)
-        )
-        nec_wo_storage_y_lim = (
-            sum(s[0]['net_electricity_consumption_without_storage'] for s in space_limits),
-            sum(s[1]['net_electricity_consumption_without_storage'] for s in space_limits)
-        )
-        nec_wo_storage_and_partial_load_y_lim = (
-            sum(s[0]['net_electricity_consumption_without_storage_and_partial_load'] for s in space_limits),
-            sum(s[1]['net_electricity_consumption_without_storage_and_partial_load'] for s in space_limits)
-        )
-        nec_wo_storage_and_partial_load_and_pv_y_lim = (
-            sum(s[0]['net_electricity_consumption_without_storage_and_partial_load_and_pv'] for s in space_limits),
-            sum(s[1]['net_electricity_consumption_without_storage_and_partial_load_and_pv'] for s in space_limits)
-        )
-        limits = [nec_y_lim, nec_wo_storage_y_lim, nec_wo_storage_and_partial_load_y_lim, nec_wo_storage_and_partial_load_and_pv_y_lim]
-        plot_image = get_plots(values, limits)
-        graphic_image = np.asarray(canvas)
-        
-        return np.concatenate([graphic_image, plot_image], axis=1)
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
@@ -1163,17 +1165,36 @@ class CityLearnEnv(Environment, Env):
                                 if state == 2: #EVs can also be associated as incoming to a given charger
                                     c.associate_incoming_car(ev)
 
-    def reset(self) -> List[List[float]]:
+    def reset(self, seed: int = None, options: Mapping[str, Any] = None) -> Tuple[List[List[float]], dict]:
         r"""Reset `CityLearnEnv` to initial state.
+
+        Parameters
+        ----------
+        seed: int, optional
+            Use to updated :code:`citylearn.CityLearnEnv.random_seed` if value is provided.
+        options: Mapping[str, Any], optional
+            Use to pass additional data to environment on reset. Not used in this base class
+            but included to conform to gymnasium interface.
         
         Returns
         -------
         observations: List[List[float]]
             :attr:`observations`.
+        info: dict
+            A dictionary that may contain additional information regarding the reason for a `terminated` signal.
+            `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
+            Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
 
         # object reset
         super().reset()
+
+        # update seed
+        if seed is not None:
+            self.random_seed = seed
+        
+        else:
+            pass
 
         # update time steps for time series
         self.episode_tracker.next_episode(
@@ -1202,7 +1223,7 @@ class CityLearnEnv(Environment, Env):
         self.__net_electricity_consumption_emission = []
         self.update_variables()
 
-        return self.observations
+        return self.observations, self.get_info()
 
     def update_variables(self):
         # net electricity consumption
@@ -1214,27 +1235,54 @@ class CityLearnEnv(Environment, Env):
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission.append(sum([b.net_electricity_consumption_emission[self.time_step] for b in self.buildings]))
 
-    def load_agent(self) -> 'citylearn.agents.base.Agent':
+    def load_agent(self, agent: Union[str, 'citylearn.agents.base.Agent'] = None, **kwargs) -> Union[Any, 'citylearn.agents.base.Agent']:
         """Return :class:`Agent` or sub class object as defined by the `schema`.
 
         Parameters
         ----------
+        agent: Union[str, 'citylearn.agents.base.Agent], optional
+            Agent class or string describing path to agent class, e.g. 'citylearn.agents.base.BaselineAgent'.
+            If a value is not provided, defaults to the agent defined in the schema:agent:type.
+
         **kwargs : dict
-            Parameters to override schema definitions. See :py:class:`citylearn.citylearn.CityLearnEnv` initialization parameters for valid kwargs.
+            Agent initialization attributes. For most agents e.g. CityLearn and Stable-Baselines3 agents, 
+            an intialized :py:attr:`env` must be parsed to the agent :py:meth:`init` function.
         
         Returns
         -------
-        agents: Agent
-            Simulation agent(s) for `citylearn_env.buildings` energy storage charging/discharging management.
+        agent: Agent
+            Initialized agent.
         """
 
-        agent_type = self.schema['agent']['type']
+        # set agent class
+        if agent is not None:
+            agent_type = agent
+
+            if not isinstance(agent_type, str):
+                agent_type = [agent_type.__module__] + [agent_type.__name__]
+                agent_type = '.'.join(agent_type)
+
+            else:
+                pass
+        
+        # set agent init attributes
+        else:
+            agent_type = self.schema['agent']['type']
+        
+        if kwargs is not None and len(kwargs) > 0:
+            agent_attributes = kwargs
+
+        elif agent is None:
+            agent_attributes = self.schema['agent'].get('attributes', {})
+
+        else:
+            agent_attributes = None
+        
         agent_module = '.'.join(agent_type.split('.')[0:-1])
         agent_name = agent_type.split('.')[-1]
         agent_constructor = getattr(importlib.import_module(agent_module), agent_name)
-        agent_attributes = self.schema['agent'].get('attributes', {})
-        agent_attributes = {'env': self, **agent_attributes}
-        agent = agent_constructor(**agent_attributes)
+        agent = agent_constructor() if agent_attributes is None else agent_constructor(**agent_attributes)
+
         return agent
 
     def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], List[electric_vehicle], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
@@ -1270,12 +1318,15 @@ class CityLearnEnv(Environment, Env):
             self.schema = read_json(self.schema)
             self.schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if self.schema['root_directory'] is None\
                 else self.schema['root_directory']
+        
         elif isinstance(self.schema, str) and self.schema in DataSet.get_names():
             self.schema = DataSet.get_schema(self.schema)
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
+        
         elif isinstance(self.schema, dict):
             self.schema = deepcopy(self.schema)
             self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
+        
         else:
             raise UnknownSchemaError()
 
@@ -1326,7 +1377,7 @@ class CityLearnEnv(Environment, Env):
         else:
             buildings_to_include = [b for b in buildings_to_include if self.schema['buildings'][b]['include']]
 
-        for building_name in buildings_to_include:
+        for i, building_name in enumerate(buildings_to_include):
             building_schema = self.schema['buildings'][building_name]
             # data
             energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation']))
@@ -1338,6 +1389,7 @@ class CityLearnEnv(Environment, Env):
                 carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity']))
                 carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
                 carbon_intensity = CarbonIntensity(carbon_intensity)
+            
             else:
                 carbon_intensity = None
 
@@ -1356,6 +1408,51 @@ class CityLearnEnv(Environment, Env):
                 if k not in chargers_observations
             }
             action_metadata = {k: False if k in inactive_actions else v['active'] for k, v in actions.items() if k not in chargers_actions}
+            # observation metadata
+            observation_metadata = {k: v['active'] for k, v in observations.items()}
+
+            if kwargs.get('active_observations') is not None:
+                active_observations = kwargs['active_observations']
+                active_observations = active_observations[i] if isinstance(active_observations[0], list) else active_observations
+                observation_metadata = {k: True if k in active_observations else False for k in observation_metadata}
+            
+            else:
+                pass
+
+            if kwargs.get('inactive_observations') is not None:
+                inactive_observations = kwargs['inactive_observations']
+                inactive_observations = inactive_observations[i] if isinstance(inactive_observations[0], list) else inactive_observations
+
+            elif building_schema.get('inactive_observations') is not None:
+                inactive_observations = building_schema['inactive_observations']
+
+            else:
+                inactive_observations = []
+
+            observation_metadata = {k: False if k in inactive_observations else v for k, v in observation_metadata.items()}
+
+            # action metadata
+            action_metadata = {k: v['active'] for k, v in actions.items()}
+
+            if kwargs.get('active_actions') is not None:
+                active_actions = kwargs['active_actions']
+                active_actions = active_actions[i] if isinstance(active_actions[0], list) else active_actions
+                action_metadata = {k: True if k in active_actions else False for k in action_metadata}
+            
+            else:
+                pass
+
+            if kwargs.get('inactive_actions') is not None:
+                inactive_actions = kwargs['inactive_actions']
+                inactive_actions = inactive_actions[i] if isinstance(inactive_actions[0], list) else inactive_actions
+
+            elif building_schema.get('inactive_actions') is not None:
+                inactive_actions = building_schema['inactive_actions']
+
+            else:
+                inactive_actions = []
+
+            action_metadata = {k: False if k in inactive_actions else v for k, v in action_metadata.items()}
 
             # construct building
             building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
@@ -1383,7 +1480,9 @@ class CityLearnEnv(Environment, Env):
 
             # set power outage model
             building_schema_power_outage = building_schema.get('power_outage', {})
-            simulate_power_outage = building_schema_power_outage.get('simulate_power_outage')
+            simulate_power_outage = kwargs.get('simulate_power_outage')
+            simulate_power_outage = building_schema_power_outage.get('simulate_power_outage') if simulate_power_outage is None else simulate_power_outage
+            simulate_power_outage = simulate_power_outage[i] if isinstance(simulate_power_outage, list) else simulate_power_outage
             stochastic_power_outage = building_schema_power_outage.get('stochastic_power_outage')
 
             if building_schema_power_outage.get('stochastic_power_outage_model', None) is not None:
@@ -1465,10 +1564,17 @@ class CityLearnEnv(Environment, Env):
                 'dhw_device': {'autosizer': building.autosize_dhw_device}, 
                 'pv': {'autosizer': building.autosize_pv}
             }
+            solar_generation = kwargs.get('solar_generation')
+            solar_generation = True if solar_generation is None else solar_generation
+            solar_generation = solar_generation[i] if isinstance(solar_generation, list) else solar_generation
 
             for name in device_metadata:
                 if building_schema.get(name, None) is None:
                     device = None
+                
+                elif name == 'pv' and not solar_generation:
+                    device = None
+                
                 else:
                     device_type = building_schema[name]['type']
                     device_module = '.'.join(device_type.split('.')[0:-1])
@@ -1484,6 +1590,7 @@ class CityLearnEnv(Environment, Env):
                         autosizer = device_metadata[name]['autosizer']
                         autosize_kwargs = {} if building_schema[name].get('autosize_attributes', None) is None else building_schema[name]['autosize_attributes']
                         autosizer(**autosize_kwargs)
+                    
                     else:
                         pass
             
@@ -1569,16 +1676,29 @@ class CityLearnEnv(Environment, Env):
         evs = list(evs)
 
         if kwargs.get('reward_function') is not None:
-            reward_function_constructor = kwargs['reward_function']
-            reward_function = reward_function_constructor(None)
+            reward_function_type = kwargs['reward_function']
+
+            if not isinstance(reward_function_type, str):
+                reward_function_type = [reward_function_type.__module__] + [reward_function_type.__name__]
+                reward_function_type = '.'.join(reward_function_type)
+
+            else:
+                pass
+
         else:
             reward_function_type = self.schema['reward_function']['type']
-            reward_function_attributes = self.schema['reward_function'].get('attributes',None)
+
+        if kwargs.get('reward_function_kwargs') is not None:
+            reward_function_attributes = kwargs['reward_function_kwargs']
+        
+        else:
+            reward_function_attributes = self.schema['reward_function'].get('attributes', None)
             reward_function_attributes = {} if reward_function_attributes is None else reward_function_attributes
-            reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
-            reward_function_name = reward_function_type.split('.')[-1]
-            reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
-            reward_function = reward_function_constructor(None, **reward_function_attributes)
+        
+        reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
+        reward_function_name = reward_function_type.split('.')[-1]
+        reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
+        reward_function = reward_function_constructor(None, **reward_function_attributes)
 
         return (
             root_directory, buildings, evs, episode_time_steps, rolling_episode_split, random_episode_split,
