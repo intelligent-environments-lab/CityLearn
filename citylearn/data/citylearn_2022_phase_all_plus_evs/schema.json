@@ -208,9 +208,8 @@
     }
   },
   "reward_function": {
-    "type": "citylearn.reward_function.V2GPenaltyReward",
+    "type": "citylearn.reward_function.MARL",
     "attributes": {
-      "n_buildings": 17
     }
   },
   "evs": {

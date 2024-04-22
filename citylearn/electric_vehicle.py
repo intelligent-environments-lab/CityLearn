@@ -207,8 +207,8 @@ class electric_vehicle(Environment):
         """
 
         # Get the SoC in kWh from the battery
-        soc_init_kwh = self.battery.soc_init
-        aux_soc_init_kwh = self.aux_battery.soc_init
+        soc_init_kwh = self.battery.initial_soc
+        aux_soc_init_kwh = self.aux_battery.initial_soc
 
         # Calculate the system connection SoC in kWh
         soc_system_connection_kwh = self.battery.capacity * (soc_system_connection / 100)
