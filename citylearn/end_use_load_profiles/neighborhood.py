@@ -49,10 +49,6 @@ class Neighborhood:
     @property
     def random_seed(self) -> int:
         return self.__random_seed
-    
-    @property
-    def queries_directory(self) -> str:
-        return os.path.join(os.path.join(*Path(os.path.dirname(os.path.abspath(__file__))).parts[0:-1]), 'misc', 'queries')
 
     @energyplus_output_directory.setter
     def energyplus_output_directory(self, value: Union[Path, str]):
@@ -99,7 +95,7 @@ class Neighborhood:
 
         for bldg_id, building_simulators in simulators.items():
             for partial_simulator in building_simulators['partial']:
-                query_filepath = os.path.join(self.queries_directory, 'select_lstm_training_data.sql')
+                query_filepath = os.path.join(EnergyPlusPartialLoadSimulator.QUERIES_DIRECTORY, 'select_lstm_training_data.sql')
                 pdata = partial_simulator.get_output_database().query_table_from_file(query_filepath)
                 pdata.insert(0, 'reference_name', partial_simulator.simulation_id.split('-')[-2])
                 pdata.insert(0, 'reference', int(partial_simulator.simulation_id.split('-')[-1]))
@@ -111,10 +107,12 @@ class Neighborhood:
         return data
     
     def simulate_energy_plus(
-        self, bldg_ids: List[int], idd_filepath: Union[Path, str], simulation_ids: List[str] = None, models: List[Union[Path, str]] = None, osm: bool = None, 
+        self, bldg_ids: List[int], idd_filepath: Union[Path, str], simulation_ids: List[str] = None, models: List[Union[Path, str]] = None, 
+        schedules: Union[Path, pd.DataFrame] = None, osm: bool = None,
         partial_loads_simulations: int = None, partial_loads_kwargs: Mapping[str, Any] = None, max_workers: int = None, **kwargs
     ) -> Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EnergyPlusPartialLoadSimulator]]]:
         assert models is None or len(models) == len(bldg_ids), 'There must be as many models as bldg_ids.'
+        assert schedules is None or len(schedules) == len(bldg_ids), 'There must be as many schedules as bldg_ids.'
         assert simulation_ids is None or len(simulation_ids) == len(bldg_ids), 'There must be as many simulation_ids as bldg_ids.'
         os.makedirs(self.energyplus_output_directory, exist_ok=True)
         partial_loads_simulations = 4 if partial_loads_simulations is None else partial_loads_simulations
@@ -152,6 +150,7 @@ class Neighborhood:
                 **kwargs,
                 bldg_id=bldg_id,
                 model=models[i] if models is not None else models,
+                schedules=schedules[i] if schedules is not None else schedules,
             )
 
             # mechanical loads

@@ -7,8 +7,10 @@ import numpy as np
 import pandas as pd
 
 class EnergyPlusPartialLoadSimulator(EndUseLoadProfilesEnergyPlusSimulator):
+    QUERIES_DIRECTORY = os.path.join(os.path.join(*Path(os.path.dirname(os.path.abspath(__file__))).parts[0:-1]), 'misc', 'queries')
+
     def __init__(
-        self, ideal_loads_simulator: EndUseLoadProfilesEnergyPlusSimulator = None, allow_multi_load_time_step: bool = None, multiplier_minimum: float = None,
+        self, ideal_loads_simulator: EndUseLoadProfilesEnergyPlusSimulator, allow_multi_load_time_step: bool = None, multiplier_minimum: float = None,
         multiplier_maximum: float = None, multiplier_probability: float = None, output_variables: List[str] = None, output_meters: List[str] = None, 
         simulation_id: str = None, output_directory: Union[Path, str] = None, random_seed: int = None,
     ):
@@ -33,10 +35,6 @@ class EnergyPlusPartialLoadSimulator(EndUseLoadProfilesEnergyPlusSimulator):
         self.multiplier_maximum = multiplier_maximum
         self.multiplier_probability = multiplier_probability
         self.random_seed = random_seed
-
-    @property
-    def queries_directory(self) -> str:
-        return os.path.join(os.path.dirname(__file__), 'misc', 'queries')
     
     @property
     def ideal_loads_simulator(self) -> EndUseLoadProfilesEnergyPlusSimulator:
@@ -90,7 +88,7 @@ class EnergyPlusPartialLoadSimulator(EndUseLoadProfilesEnergyPlusSimulator):
 
     @classmethod
     def multi_simulate(cls, simulators: list, max_workers=None):
-        cls.multi_simulate(simulators, max_workers=max_workers)
+        super().multi_simulate(simulators, max_workers=max_workers)
 
         for s in simulators:
             s.insert_zone_metadata(s)
@@ -178,7 +176,7 @@ class EnergyPlusPartialLoadSimulator(EndUseLoadProfilesEnergyPlusSimulator):
         cooled_zone_names = ', '.join(cooled_zone_names)
         heated_zone_names = ', '.join(heated_zone_names)
 
-        query_filepath = os.path.join(self.queries_directory, 'select_ideal_loads.sql')
+        query_filepath = os.path.join(self.QUERIES_DIRECTORY, 'select_ideal_loads.sql')
         data = self.ideal_loads_simulator.get_output_database().query_table_from_file(query_filepath, replace={
             '<cooled_zone_names>': cooled_zone_names, 
             '<heated_zone_names>': heated_zone_names, 
@@ -199,12 +197,12 @@ class EnergyPlusPartialLoadSimulator(EndUseLoadProfilesEnergyPlusSimulator):
     def insert_zone_metadata(self, simulator: EndUseLoadProfilesEnergyPlusSimulator):
         zones = self.get_zone_conditioning_metadata()
         data = pd.DataFrame([v for _, v in zones.items()])
-        query_filepath = os.path.join(self.queries_directory, 'create_zone_metadata.sql')
+        query_filepath = os.path.join(self.QUERIES_DIRECTORY, 'create_zone_metadata.sql')
         simulator.get_output_database().execute_sql_from_file(query_filepath)
         simulator.get_output_database().insert('zone_metadata', data.columns.tolist(), data.values)
 
     def get_zone_conditioning_metadata(self) -> Mapping[str, Mapping[str, Any]]:
-        query_filepath = os.path.join(self.queries_directory, 'select_zone_conditioning_metadata.sql')
+        query_filepath = os.path.join(self.QUERIES_DIRECTORY, 'select_zone_conditioning_metadata.sql')
         data = self.ideal_loads_simulator.get_output_database().query_table_from_file(query_filepath)
         zones = {z['zone_name']: z for z in data.to_dict('records')}
 
@@ -219,5 +217,12 @@ class EnergyPlusPartialLoadSimulator(EndUseLoadProfilesEnergyPlusSimulator):
 
         for name in obj_names:
             idf.idfobjects[name] = []
+
+        # turn off sizing
+        for obj in idf.idfobjects['SimulationControl']:
+            obj.Do_Zone_Sizing_Calculation = 'No'
+            obj.Do_System_Sizing_Calculation = 'No'
+            obj.Do_Plant_Sizing_Calculation = 'No'
+            obj.Run_Simulation_for_Sizing_Periods = 'No'
 
         return idf
