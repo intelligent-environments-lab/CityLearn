@@ -227,7 +227,7 @@ class Neighborhood:
     def sample_buildings(
         self, filters: Mapping[str, List[Any]] = None, sample_method: SampleMethod = None, sample_count: int = None, duplicate_to_count: bool = None, 
         single_county: bool = None, single_family_detached: bool = None, **kwargs
-    ):
+    ) -> Tuple[List[int], List[int], Mapping[str, Any]]:
         sample_method = SampleMethod.RANDOM if sample_method is None else sample_method
         valid_sample_method = [v for v in SampleMethod]
         assert sample_method in valid_sample_method, f'Valid sample methods are {valid_sample_method}.'
