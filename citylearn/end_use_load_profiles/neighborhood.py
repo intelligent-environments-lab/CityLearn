@@ -79,30 +79,32 @@ class Neighborhood:
     def get_schema(self, simulators: Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EnergyPlusPartialLoadSimulator]]], models: Mapping[str, Path]):
         raise NotImplementedError
     
-    def train_lstm(data: pd.DataFrame, **kwargs) -> Mapping[str, Path]:
+    def train_lstm(data: Mapping[int, pd.DataFrame], **kwargs) -> Mapping[int, Mapping[str, Any]]:
         """
         TODO: Satvik & Pavani
         1. Install training repo using pip.
         2. Parse training data and custom kwargs for training to some function in the training package
            that trains and finds a best model for the building
-        3. Train the building LSTM and return .pth, error metrics
+        3. Train the building LSTM and return .pth, normalization limits, & error metrics
         """
 
         raise NotImplementedError
     
-    def get_lstm_training_data(self, simulators: Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EnergyPlusPartialLoadSimulator]]]) -> pd.DataFrame:
-        data = []
+    def get_lstm_training_data(self, simulators: Mapping[int, Mapping[int, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EnergyPlusPartialLoadSimulator]]]) -> Mapping[int, pd.DataFrame]:
+        data = {}
 
         for bldg_id, building_simulators in simulators.items():
+            data_list = []
+
             for partial_simulator in building_simulators['partial']:
                 query_filepath = os.path.join(EnergyPlusPartialLoadSimulator.QUERIES_DIRECTORY, 'select_lstm_training_data.sql')
                 pdata = partial_simulator.get_output_database().query_table_from_file(query_filepath)
                 pdata.insert(0, 'reference_name', partial_simulator.simulation_id.split('-')[-2])
                 pdata.insert(0, 'reference', int(partial_simulator.simulation_id.split('-')[-1]))
                 pdata.insert(0, 'bldg_id', bldg_id)
-                data.append(pdata)
-
-        data = pd.concat(data, ignore_index=True)
+                data_list.append(pdata)
+             
+            data[bldg_id] = pd.concat(data_list, ignore_index=True)
 
         return data
     
