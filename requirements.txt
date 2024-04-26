@@ -1,3 +1,4 @@
+git+https://github.com/intelligent-environments-lab/DOE_XStock.git@v1-develop
 gymnasium
 numpy
 pandas
