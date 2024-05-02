@@ -811,7 +811,8 @@ class CityLearnEnv(Environment, Env):
             'diffuse_solar_irradiance_predicted_12h', 'diffuse_solar_irradiance_predicted_24h',
             'direct_solar_irradiance', 'direct_solar_irradiance_predicted_6h',
             'direct_solar_irradiance_predicted_12h', 'direct_solar_irradiance_predicted_24h',
-            'carbon_intensity',
+            'carbon_intensity', 'electricity_pricing', 'electricity_pricing_predicted_6h',
+            'electricity_pricing_predicted_12h', 'electricity_pricing_predicted_24h',
         ]
 
 
