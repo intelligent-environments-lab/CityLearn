@@ -16,6 +16,7 @@ import uuid
 from citylearn.agents.base import Agent as CityLearnAgent
 from citylearn.citylearn import CityLearnEnv
 from citylearn.data import DataSet
+from citylearn.__init__ import __version__
 from citylearn.utilities import read_pickle, read_yaml, write_json, write_pickle
 import pandas as pd
 import simplejson as json
@@ -399,6 +400,7 @@ def main():
             'Compatible with training and evaluating internally defined CityLearn agents in `citylearn.agents`, '
             'user-defined agents that inherit from `citylearn.agents.base.Agent` and use the same interface as it, and agents '
             'provided by stable-baselines3.'))
+    parser.add_argument('--version', action='version', version='%(prog)s' + f' {__version__}')
     subparsers = parser.add_subparsers(title='subcommands', required=True, dest='subcommands')
 
     # run many simulations in parallel
