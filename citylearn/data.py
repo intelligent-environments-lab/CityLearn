@@ -1,17 +1,19 @@
 import os
 from pathlib import Path
 import shutil
-from typing import Any, Iterable, List, Union
+from typing import Any, Iterable, Mapping, List, Union
 import numpy as np
-from citylearn.utilities import read_json
+import pandas as pd
+from citylearn.utilities import read_json, read_yaml
 
 TOLERANCE = 0.0001
 ZERO_DIVISION_PLACEHOLDER = 0.000001
+DATA_DIRECTORY = os.path.join(os.path.dirname(__file__), 'data')
 
 class DataSet:
     """CityLearn input data set and schema class."""
     
-    __ROOT_DIRECTORY = os.path.join(os.path.dirname(__file__), 'data')
+    __ROOT_DIRECTORY = os.path.join(DATA_DIRECTORY, 'datasets')
 
     @staticmethod
     def get_names() -> List[str]:
@@ -53,7 +55,7 @@ class DataSet:
                 continue
 
     @staticmethod
-    def get_schema(name: str) -> dict:
+    def get_schema(name: str) -> Mapping[str, Union[dict, float, str]]:
         """Returns a data set's schema.
 
         Parameters
@@ -63,7 +65,7 @@ class DataSet:
 
         Returns
         -------
-        schema: dict
+        schema: Mapping[str, Union[dict, float, str]]
             Data set schema.
         """
         
@@ -165,7 +167,7 @@ class EnergySimulation(TimeSeriesData):
     start_time_step: int, optional
         Time step to start reading variables.
     end_time_step: int, optional
-         Time step to end reading variables.
+        Time step to end reading variables.
     """
 
     def __init__(
@@ -220,6 +222,42 @@ class EnergySimulation(TimeSeriesData):
 
             assert len(unique) == 0, f'Invalid hvac_mode values were found: {unique}. Valid values are 0, 1 and 2 to indicate off, cooling mode and heating mode.'
             self.hvac_mode = np.array(hvac_mode, dtype=int)
+
+    @staticmethod
+    def get_pv_sizing_data() -> pd.DataFrame:
+        """Reads and returns NREL's Tracking The Sun dataset that has been prefilered for completeness.
+        
+        Returns
+        -------
+        data: pd.DataFrame
+
+        Notes
+        -----
+        Data source: https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/lbl-tracking_the_sun_res-pv.csv.
+        """
+
+        filepath = os.path.join(DATA_DIRECTORY, 'misc', 'lbl-tracking_the_sun-res-pv.csv')
+        data = pd.read_csv(filepath)
+
+        return data
+    
+    @staticmethod
+    def get_battery_sizing_data() -> Mapping[str, Union[float, str]]:
+        """Reads and returns internally defined real world manufacturer models.
+        
+        Returns
+        -------
+        data: Mapping[str, Union[float, str]]
+
+        Notes
+        -----
+        Data source: https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/battery_choices.yaml.
+        """
+
+        filepath = os.path.join(DATA_DIRECTORY, 'misc', 'battery_choices.yaml')
+        data = read_yaml(filepath)
+
+        return data
 
 class Weather(TimeSeriesData):
     """`Building` `weather` data class.
