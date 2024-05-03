@@ -2,6 +2,7 @@ import logging
 from typing import Any, List, Mapping, Tuple, Union
 from gymnasium import spaces
 import numpy as np
+import pandas as pd
 import torch
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
@@ -1045,7 +1046,13 @@ class Building(Environment):
         device_output = min(demand - storage_output, max_device_output)
         self.__energy_from_cooling_device[self.time_step] = device_output
         electricity_consumption = self.cooling_device.get_input_power(device_output, temperature, heating=False)
-        # print('timestep:', self.time_step, 'bldg:', self.name, 'demand:', demand, 'temperature:', temperature, 'storage_capacity:', self.cooling_storage.capacity, 'prev_soc:', self.cooling_storage.soc[self.time_step - 1], 'curr_soc:', self.cooling_storage.soc[self.time_step], 'storage_output:', storage_output, 'max_electric_power:', max_electric_power, 'max_device_output:', max_device_output, 'device_output:', device_output, 'consumption:', electricity_consumption)
+        # print(
+        #     'timestep:', self.time_step, 'bldg:', self.name, 'demand:', demand, 'temperature:', temperature, 
+        #     'storage_capacity:', self.cooling_storage.capacity, 'prev_soc:', self.cooling_storage.soc[self.time_step - 1], 
+        #     'curr_soc:', self.cooling_storage.soc[self.time_step], 'storage_output:', storage_output, 
+        #     'max_electric_power:', max_electric_power, 'max_device_output:', max_device_output, 'device_output:', 
+        #     device_output, 'consumption:', electricity_consumption
+        # )
         self.___electricity_consumption_polarity_check('cooling', device_output, electricity_consumption)
         self.cooling_device.update_electricity_consumption(max(0.0, electricity_consumption))
 
@@ -1507,7 +1514,7 @@ class Building(Environment):
             start_time_step=self.episode_tracker.simulation_start_time_step, 
             end_time_step=self.episode_tracker.simulation_end_time_step
         )
-        self.cooling_device.autosize(temperature, cooling_demand=demand, **kwargs)
+        self.cooling_device.nominal_power = self.cooling_device.autosize(temperature, cooling_demand=demand, **kwargs)
 
     def autosize_heating_device(self, **kwargs):
         """Autosize `heating_device` `nominal_power` to minimum power needed to always meet `heating_demand`.
@@ -1530,10 +1537,10 @@ class Building(Environment):
         )
 
         if isinstance(self.heating_device, HeatPump):
-            self.heating_device.autosize(temperature, heating_demand=demand, **kwargs)
+            self.heating_device.nominal_power = self.heating_device.autosize(temperature, heating_demand=demand, **kwargs)
 
         else:
-            self.heating_device.autosize(demand, **kwargs)
+            self.heating_device.nominal_power = self.heating_device.autosize(demand, **kwargs)
 
     def autosize_dhw_device(self, **kwargs):
         """Autosize `dhw_device` `nominal_power` to minimum power needed to always meet `dhw_demand`.
@@ -1556,10 +1563,10 @@ class Building(Environment):
         )
 
         if isinstance(self.dhw_device, HeatPump):
-            self.dhw_device.autosize(temperature, heating_demand=demand, **kwargs)
+            self.dhw_device.nominal_power = self.dhw_device.autosize(temperature, heating_demand=demand, **kwargs)
 
         else:
-            self.dhw_device.autosize(demand, **kwargs)
+            self.dhw_device.nominal_power = self.dhw_device.autosize(demand, **kwargs)
 
     def autosize_cooling_storage(self, **kwargs):
         """Autosize `cooling_storage` `capacity` to minimum capacity needed to always meet `cooling_demand`.
@@ -1575,7 +1582,7 @@ class Building(Environment):
             start_time_step=self.episode_tracker.simulation_start_time_step, 
             end_time_step=self.episode_tracker.simulation_end_time_step
         )
-        self.cooling_storage.autosize(demand, **kwargs)
+        self.cooling_storage.capacity = self.cooling_storage.autosize(demand, **kwargs)
 
     def autosize_heating_storage(self, **kwargs):
         """Autosize `heating_storage` `capacity` to minimum capacity needed to always meet `heating_demand`.
@@ -1591,7 +1598,7 @@ class Building(Environment):
             start_time_step=self.episode_tracker.simulation_start_time_step, 
             end_time_step=self.episode_tracker.simulation_end_time_step
         )
-        self.heating_storage.autosize(demand, **kwargs)
+        self.heating_storage.capacity = self.heating_storage.autosize(demand, **kwargs)
 
     def autosize_dhw_storage(self, **kwargs):
         """Autosize `dhw_storage` `capacity` to minimum capacity needed to always meet `dhw_demand`.
@@ -1607,10 +1614,11 @@ class Building(Environment):
             start_time_step=self.episode_tracker.simulation_start_time_step, 
             end_time_step=self.episode_tracker.simulation_end_time_step
         )
-        self.dhw_storage.autosize(demand, **kwargs)
+        self.dhw_storage.capacity = self.dhw_storage.autosize(demand, **kwargs)
 
     def autosize_electrical_storage(self, **kwargs):
-        """Autosize `electrical_storage` `capacity` to minimum capacity needed to store maximum `solar_generation`.
+        """Autosize `electrical_storage` `capacity`, `nominal_power`, `depth_of_discharge`, `efficiency`, 
+        `loss_coefficient`, and `capacity_loss_coefficient` to meet an estimated average peak demand.
         
         Other Parameters
         ----------------
@@ -1618,15 +1626,22 @@ class Building(Environment):
             Other keyword arguments parsed to `electrical_storage` `autosize` function.
         """
 
-        solar_generation = self.energy_simulation.__getattr__(
-            'solar_generation', 
-            start_time_step=self.episode_tracker.simulation_start_time_step, 
-            end_time_step=self.episode_tracker.simulation_end_time_step
-        )
-        self.electrical_storage.autosize(self.pv.get_generation(solar_generation), **kwargs)
+        demand = pd.DataFrame(self._estimate_baseline_electricity_consumption(), columns=['value'])
+        demand['day'] = int(demand.index/(self.seconds_per_time_step*24/self.seconds_per_time_step))
+        demand = demand.groupby('day')['value'].max().mean()
+        
+        self.electrical_storage.capacity, \
+            self.electrical_storage.nominal_power, \
+                self.electrical_storage.depth_of_discharge, \
+                    self.electrical_storage.efficiency, \
+                        self.electrical_storage.loss_coefficient, \
+                            self.electrical_storage.capacity_loss_coefficient = self.electrical_storage.autosize(
+                                demand, **kwargs
+                            )
 
     def autosize_pv(self, **kwargs):
-        """Autosize `PV` `nominal_pwer` to minimum nominal_power needed to output maximum `solar_generation`.
+        """Autosize `pv` `nominal_power` and set `energy_simulation.solar_generation` using sampled PV data from
+        LBNL's Tracking The Sun dataset.
         
         Other Parameters
         ----------------
@@ -1634,12 +1649,68 @@ class Building(Environment):
             Other keyword arguments parsed to `electrical_storage` `autosize` function.
         """
 
-        solar_generation = self.energy_simulation.__getattr__(
-            'solar_generation', 
+        demand = pd.DataFrame(self._estimate_baseline_electricity_consumption(), columns=['value'])
+        demand['year'] = int(demand.index/(self.seconds_per_time_step*24*365/self.seconds_per_time_step))
+        demand = demand.groupby('year')['value'].sum().mean()
+        epw_filepath = kwargs['epw_filepath']
+        self.pv.nominal_power, solar_generation = self.pv.autosize(demand, epw_filepath, **kwargs)
+        self.energy_simulation.__setattr__('solar_generation', np.array(solar_generation, dtype = 'float32'))
+
+    def _estimate_baseline_electricity_consumption(self) -> np.ndarray:
+        """Returns estimated baseline electricity consumption time series for entire simulation period.
+        
+        The estimate is the sum of estimated cooling, heating, domestic hot water and non-shiftable 
+        load consumption without storage and self-generation flexibility.
+
+        Returns
+        -------
+        baseline_electricity_consumption: np.ndarray
+            Estimate time series for simulation period which may be equal to or longer than the current
+            episode's number of time steps.
+        """
+
+        cooling_demand = self.energy_simulation.__getattr__(
+            'cooling_demand', 
             start_time_step=self.episode_tracker.simulation_start_time_step, 
             end_time_step=self.episode_tracker.simulation_end_time_step
         )
-        self.pv.autosize(self.pv.get_generation(solar_generation), **kwargs)
+        heating_demand = self.energy_simulation.__getattr__(
+            'heating_demand', 
+            start_time_step=self.episode_tracker.simulation_start_time_step, 
+            end_time_step=self.episode_tracker.simulation_end_time_step
+        )
+        dhw_demand = self.energy_simulation.__getattr__(
+            'dhw_demand', 
+            start_time_step=self.episode_tracker.simulation_start_time_step, 
+            end_time_step=self.episode_tracker.simulation_end_time_step
+        )
+        non_shiftable_electricity_consumption = self.energy_simulation.__getattr__(
+            'non_shiftable_load', 
+            start_time_step=self.episode_tracker.simulation_start_time_step, 
+            end_time_step=self.episode_tracker.simulation_end_time_step
+        )
+        outdoor_dry_bulb_temperature = self.weather.__getattr__(
+            'outdoor_dry_bulb_temperature', 
+            start_time_step=self.episode_tracker.simulation_start_time_step, 
+            end_time_step=self.episode_tracker.simulation_end_time_step
+        )
+        cooling_electricity_consumption = self.cooling_device.get_input_power(cooling_demand, outdoor_dry_bulb_temperature, heating=False)
+
+        if isinstance(self.heating_device, HeatPump):
+            heating_electricity_consumption = self.heating_device.get_input_power(heating_demand, outdoor_dry_bulb_temperature, heating=True)
+
+        else:
+            heating_electricity_consumption = self.heating_device.get_input_power(heating_demand)
+
+        if isinstance(self.dhw_device, HeatPump):
+            dhw_electricity_consumption = self.dhw_device.get_input_power(dhw_demand, outdoor_dry_bulb_temperature, heating=True)
+
+        else:
+            dhw_electricity_consumption = self.dhw_device.get_input_power(dhw_demand)
+
+        electricity_consumption = cooling_electricity_consumption + heating_electricity_consumption + dhw_electricity_consumption + non_shiftable_electricity_consumption
+
+        return electricity_consumption
 
     def next_time_step(self):
         r"""Advance all energy storage and electric devices and, PV to next `time_step`."""

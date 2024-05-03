@@ -1,5 +1,6 @@
 from copy import deepcopy
 from enum import Enum
+import hashlib
 import importlib
 import logging
 import os
@@ -1296,6 +1297,8 @@ class CityLearnEnv(Environment, Env):
         seconds_per_time_step = kwargs['seconds_per_time_step'] if kwargs.get('seconds_per_time_step') is not None else self.schema['seconds_per_time_step']
         episode_tracker = EpisodeTracker(simulation_start_time_step, simulation_end_time_step)
         buildings_to_include = list(self.schema['buildings'].keys())
+        md5 = hashlib.md5()
+        hash_to_integer_badse = 16
         buildings = ()
 
         if kwargs.get('buildings') is not None and len(kwargs['buildings']) > 0:
@@ -1452,45 +1455,57 @@ class CityLearnEnv(Environment, Env):
 
             # update devices
             device_metadata = {
+                'cooling_device': {'autosizer': building.autosize_cooling_device}, 
+                'heating_device': {'autosizer': building.autosize_heating_device}, 
+                'dhw_device': {'autosizer': building.autosize_dhw_device}, 
                 'dhw_storage': {'autosizer': building.autosize_dhw_storage},  
                 'cooling_storage': {'autosizer': building.autosize_cooling_storage}, 
                 'heating_storage': {'autosizer': building.autosize_heating_storage}, 
                 'electrical_storage': {'autosizer': building.autosize_electrical_storage}, 
-                'cooling_device': {'autosizer': building.autosize_cooling_device}, 
-                'heating_device': {'autosizer': building.autosize_heating_device}, 
-                'dhw_device': {'autosizer': building.autosize_dhw_device}, 
                 'pv': {'autosizer': building.autosize_pv}
             }
             solar_generation = kwargs.get('solar_generation')
             solar_generation = True if solar_generation is None else solar_generation
             solar_generation = solar_generation[i] if isinstance(solar_generation, list) else solar_generation
 
-            for name in device_metadata:
-                if building_schema.get(name, None) is None:
+            for device_name in device_metadata:
+                if building_schema.get(device_name, None) is None:
                     device = None
                 
-                elif name == 'pv' and not solar_generation:
+                elif device_name == 'pv' and not solar_generation:
                     device = None
                 
                 else:
-                    device_type = building_schema[name]['type']
+                    device_type: str = building_schema[device_name]['type']
                     device_module = '.'.join(device_type.split('.')[0:-1])
-                    device_name = device_type.split('.')[-1]
-                    constructor = getattr(importlib.import_module(device_module),device_name)
-                    attributes = building_schema[name].get('attributes',{})
+                    device_type_name = device_type.split('.')[-1]
+                    constructor = getattr(importlib.import_module(device_module),device_type_name)
+                    attributes = building_schema[device_name].get('attributes',{})
                     attributes['seconds_per_time_step'] = seconds_per_time_step
+
+                    # in case device technical specifications are to be randomly sampled, make sure each device per building has a unique seed
+                    device_random_seed = random_seed \
+                        + int(md5.update(building_name.encode()), hash_to_integer_base) \
+                            + int(md5.update(device_name.encode()), hash_to_integer_base) \
+                                + int(md5.update(device_type.encode()), hash_to_integer_base)
+                    attributes = {
+                        **attributes,
+                        'random_seed': attributes['random_seed'] if attributes.get('random_seed', None) is not None else device_random_seed
+                    }
                     device = constructor(**attributes)
-                    autosize = False if building_schema[name].get('autosize', None) is None else building_schema[name]['autosize']
-                    building.__setattr__(name, device)
+                    autosize = False if building_schema[device_name].get('autosize', None) is None else building_schema[device_name]['autosize']
+                    building.__setattr__(device_name, device)
 
                     if autosize:
-                        autosizer = device_metadata[name]['autosizer']
-                        autosize_kwargs = {} if building_schema[name].get('autosize_attributes', None) is None else building_schema[name]['autosize_attributes']
+                        autosizer = device_metadata[device_name]['autosizer']
+                        autosize_kwargs = {} if building_schema[device_name].get('autosize_attributes', None) is None else building_schema[device_name]['autosize_attributes']
                         autosizer(**autosize_kwargs)
                     
                     else:
                         pass
             
+            # set back the random seed to to building's random seed
+            device.random_seed = random_seed
             building.observation_space = building.estimate_observation_space()
             building.action_space = building.estimate_action_space()
             buildings += (building,)
