@@ -9,6 +9,7 @@ from citylearn.dynamics import Dynamics, LSTMDynamics
 from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank
 from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
+from citylearn.electric_vehicle_charger import Charger
 
 LOGGER = logging.getLogger()
 
@@ -64,6 +65,10 @@ class Building(Environment):
         :py:class:`citylearn.building.Building.energy_simulation.power_outage` time series is used.
     stochastic_power_outage_model: PowerOutage, optional
         Power outage model class used to generate stochastic power outage signals.
+    carbon_intensity : CarbonIntensity, optional
+        Carbon dioxide emission rate time series.
+    ev_chargers : Charger, optional
+        Electric Vehicle Chargers associated with the building.
 
     Other Parameters
     ----------------
@@ -75,7 +80,7 @@ class Building(Environment):
         self, energy_simulation: EnergySimulation, weather: Weather, observation_metadata: Mapping[str, bool], action_metadata: Mapping[str, bool], episode_tracker: EpisodeTracker, carbon_intensity: CarbonIntensity = None, 
         pricing: Pricing = None, dhw_storage: StorageTank = None, cooling_storage: StorageTank = None, heating_storage: StorageTank = None, electrical_storage: Battery = None, 
         dhw_device: Union[HeatPump, ElectricHeater] = None, cooling_device: HeatPump = None, heating_device: Union[HeatPump, ElectricHeater] = None, pv: PV = None, name: str = None,
-        maximum_temperature_delta: float = None, observation_space_limit_delta: float = None, demand_observation_limit_factor: float = None, simulate_power_outage: bool = None, stochastic_power_outage: bool = None, stochastic_power_outage_model: PowerOutage = None, **kwargs: Any
+        maximum_temperature_delta: float = None, observation_space_limit_delta: float = None, demand_observation_limit_factor: float = None, simulate_power_outage: bool = None, stochastic_power_outage: bool = None, stochastic_power_outage_model: PowerOutage = None, ev_chargers: List[Charger] = None, **kwargs: Any
     ):  
         self.name = name
         self.dhw_storage = dhw_storage
@@ -93,6 +98,7 @@ class Building(Environment):
             episode_tracker=episode_tracker
         )
         self.stochastic_power_outage_model = stochastic_power_outage_model
+        self.ev_chargers = ev_chargers
         self.energy_simulation = energy_simulation
         self.weather = weather
         self.carbon_intensity = carbon_intensity
@@ -198,6 +204,13 @@ class Building(Environment):
         """PV object for offsetting electricity demand from grid."""
 
         return self.__pv
+
+    @property
+    def ev_chargers(self) -> List[Charger]:
+        """Electric Vehicle Chargers associated with the building for charging connected eletric vehicles."""
+
+        return self.__ev_chargers
+
 
     @property
     def name(self) -> str:
@@ -308,15 +321,24 @@ class Building(Environment):
         Notes
         -----
         net_electricity_consumption_without_storage = `net_electricity_consumption` - (`cooling_storage_electricity_consumption`
-        + `heating_storage_electricity_consumption` + `dhw_storage_electricity_consumption` + `electrical_storage_electricity_consumption`)
+        + `heating_storage_electricity_consumption` + `dhw_storage_electricity_consumption` + `electrical_storage_electricity_consumption` + `charger_electricity_consumption`) + __chargers_electricity_consumption_without_partial_load)
+
+        Regarding electric vehicles specifically, there are two variables:
+        charger_electricity_consumption -> the electricity consumption of EV_Chargers when a control mechanism is in place (either L2V or V2G)
+        __chargers_electricity_consumption_without_partial_load -> the EV_Chargers energy consumption in a normal day (i.e., no control is applied and the EVs charger per usual)
+
+        So, the first one is subtracted from the net_electricity_consumption, obtaining the energy consumption as if the cars were not used at all.
+        However, if there are chargers and EVs, they need to charge per usual, so that consumption is added
+        This is what allows to check if the control mechanism affects the grid balancing scheme for EVs for example.
         """
 
         return self.net_electricity_consumption - np.sum([
             self.cooling_storage_electricity_consumption,
             self.heating_storage_electricity_consumption,
             self.dhw_storage_electricity_consumption,
-            self.electrical_storage_electricity_consumption
-        ], axis = 0)
+            self.electrical_storage_electricity_consumption,
+            self.__chargers_electricity_consumption
+        ], axis=0) + self.__chargers_electricity_consumption_without_partial_load
 
     @property
     def net_electricity_consumption_emission(self) -> np.ndarray:
@@ -678,6 +700,10 @@ class Building(Environment):
     def pv(self, pv: PV):
         self.__pv = PV(0.0) if pv is None else pv
 
+    @ev_chargers.setter
+    def ev_chargers(self, ev_chargers: List[Charger]):
+        self.__ev_chargers = ev_chargers
+
     @observation_space.setter
     def observation_space(self, observation_space: spaces.Box):
         self.__observation_space = observation_space
@@ -866,8 +892,40 @@ class Building(Environment):
             valid_observations = list(data.keys())
         else:
             valid_observations = self.active_observations
-        
+
         observations = {k: data[k] for k in valid_observations if k in data.keys()}
+        
+        #Observations for EV_Chargers
+        # Connected is 1 and disconnected is 0
+        if self.ev_chargers is not None:
+            for charger in self.ev_chargers: #If present, itrerate to each charger
+                charger_id = charger.charger_id
+                charger_key_state = f'charger_{charger_id}_connected_state' #Observations names are composed from the charger unique ID
+                charger_key_incoming_state = f'charger_{charger_id}_incoming_state'
+
+                if charger.connected_ev:
+                    observations[charger_key_state] = 1 # attributes the f'charger_{charger_id}_connected_state' the value of one (connected EV)
+                    obs = charger.connected_ev.observations(include_all, normalize, periodic_normalization)
+                    for k, v in obs.items():
+                        observations[f'charger_{charger_id}_connected_{k}'] = v #for the connected EV several observations are added (according to the observations specified in Electric_Vehicle class
+                else: #otherwise, when not connected, 0 is given and observations are filled with -1
+                    observations[charger_key_state] = 0 
+                    for o in self.observation_metadata:
+                        if f"charger_{charger_id}_connected" in o and o != charger_key_state:
+                            observations[o] = -1
+                
+                #same logic for incoming EV, which states if an EV is routing towards the charger
+                if charger.incoming_ev:
+                    observations[charger_key_incoming_state] = 1
+                    obs = charger.incoming_ev.observations(include_all, normalize, periodic_normalization)
+                    for k, v in obs.items():
+                        observations[f'charger_{charger_id}_incoming_{k}'] = v
+                else:
+                    observations[charger_key_incoming_state] = 0
+                    for o in self.observation_metadata:
+                        if f"charger_{charger_id}_incoming" in o and o != charger_key_incoming_state:
+                            observations[o] = -1
+
         unknown_observations = list(set(valid_observations).difference(observations.keys()))
         assert len(unknown_observations) == 0, f'Unknown observations: {unknown_observations}'
 
@@ -947,7 +1005,8 @@ class Building(Environment):
     def apply_actions(self,
         cooling_device_action: float = None, heating_device_action: float = None,
         cooling_storage_action: float = None, heating_storage_action: float = None, 
-        dhw_storage_action: float = None, electrical_storage_action: float = None
+        dhw_storage_action: float = None, electrical_storage_action: float = None,
+        **kwargs
     ):
         r"""Update cooling and heating demand for next timestep and charge/discharge storage devices.
 
@@ -973,6 +1032,9 @@ class Building(Environment):
             Fraction of `dhw_storage` `capacity` to charge/discharge by.
         electrical_storage_action : float, default: 0.0
             Fraction of `electrical_storage` `capacity` to charge/discharge by.
+        **kwargs
+            In which each action corresponds to the order of chargers per building and is a fraction of
+            connected_ev in each charger that the battery `capacity` to charge/discharge by.
         """
 
         cooling_device_action = np.nan if 'cooling_device' not in self.active_actions else cooling_device_action
@@ -981,6 +1043,17 @@ class Building(Environment):
         heating_storage_action = 0.0 if 'heating_storage' not in self.active_actions else heating_storage_action
         dhw_storage_action = 0.0 if 'dhw_storage' not in self.active_actions else dhw_storage_action
         electrical_storage_action = 0.0 if 'electrical_storage' not in self.active_actions else electrical_storage_action
+
+        # Initialize an empty list for ev_storage_actions
+        ev_storage_actions = []
+
+        # Separate 'ev_storage' actions from other arguments
+        for key, value in kwargs.items():
+            if key.startswith('ev_storage'):
+                ev_storage_actions.append(value)
+
+        if ev_storage_actions is None or 'ev_storage' not in self.active_actions:
+            ev_storage_actions = [0.0] * len(self.ev_chargers)
 
         # set action priority
         actions = {
@@ -995,7 +1068,15 @@ class Building(Environment):
             'non_shiftable_load': (self.update_non_shiftable_load, ()),
             'electrical_storage': (self.update_electrical_storage, (electrical_storage_action,)),
         }
+
         priority_list = list(actions.keys())
+
+        for i, charger in enumerate(self.ev_chargers): #creating a list of actions for each charger within the building
+            action_key = f'ev_storage_{charger.charger_id}'
+            actions[action_key] = (charger.update_connected_ev_soc, (ev_storage_actions[i],)) #the action of each charger is paired with the charger
+
+        ev_priority_list = [f'ev_storage_{charger.charger_id}' for charger in self.ev_chargers]
+        priority_list = priority_list + ev_priority_list #the priority lists are merged
 
         if electrical_storage_action < 0.0:
             key = 'electrical_storage'
@@ -1017,7 +1098,9 @@ class Building(Environment):
             
             else:
                 pass
-        
+        print(self.name)
+        print(self.ev_chargers)
+        print(self.observations())
         for k in priority_list:
             func, args = actions[k]
 
@@ -1176,6 +1259,7 @@ class Building(Environment):
         demand = min(self.non_shiftable_load[self.time_step], self.downward_electrical_flexibility)
         self.__energy_to_non_shiftable_load[self.time_step] = demand
         self.non_shiftable_load_device.update_electricity_consumption(demand)
+        #ToDo might need to add chargers here
 
     def update_electrical_storage(self, action: float):
         r"""Charge/discharge `electrical_storage` for current time step.
@@ -1328,7 +1412,7 @@ class Building(Environment):
                             + self.dhw_device.nominal_power
                 high_limit[key] = high_limits.max()
 
-            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc']:
+            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc', "ev_required_soc_departure", "ev_estimated_soc_arrival", "ev_charger_state", "ev_soc",]:
                 low_limit[key] = 0.0
                 high_limit[key] = 1.0
 
@@ -1346,6 +1430,23 @@ class Building(Environment):
                     low_limit[key] = self.heating_device.efficiency
                     high_limit[key] = self.heating_device.efficiency
 
+            elif "charger" in key:
+                if self.ev_chargers is not None:
+                    for charger in self.ev_chargers:
+                        if key == f'charger_{charger.charger_id}_connected_state' or key == f'charger_{charger.charger_id}_incoming_state':
+                            low_limit[key] = 0
+                            high_limit[key] = 1
+                        elif 'ev_charger_state' in key:
+                            low_limit[key] = 0
+                            high_limit[key] = 1
+                        elif any(value in key for value in
+                                 ["ev_estimated_departure_time", "ev_estimated_arrival_time"]):
+                            low_limit[key] = 0
+                            high_limit[key] = 24
+                        elif any(value in key for value in
+                                   ["ev_required_soc_departure", "ev_estimated_soc_arrival", "ev_soc"]):
+                            low_limit[key] = 0.0
+                            high_limit[key] = 1.0
             elif key in ['dhw_device_efficiency']:
                 if isinstance(self.dhw_device, HeatPump):
                     cop = self.dhw_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=True)
@@ -1460,15 +1561,23 @@ class Building(Environment):
                 low_limit.append(0.0)
                 high_limit.append(1.0)
             
+            elif "ev_storage" in key:
+                if self.ev_chargers is not None:
+                    for c in self.ev_chargers:
+                        if key == f"ev_storage_{c.charger_id}":
+                            low_limit.append(-1.0)
+                            high_limit.append(1.0)
+
             elif 'storage' in key:
                 if key == 'electrical_storage':
-                    limit = self.electrical_storage.nominal_power/max(self.electrical_storage.capacity, ZERO_DIVISION_PLACEHOLDER)
-                
+                    limit = self.electrical_storage.nominal_power / max(self.electrical_storage.capacity,
+                                                                        ZERO_DIVISION_PLACEHOLDER)
+
                 else:
                     if key == 'cooling_storage':
                         capacity = self.cooling_storage.capacity
                         power = self.cooling_device.nominal_power
-                    
+
                     elif key == 'heating_storage':
                         capacity = self.heating_storage.capacity
                         power = self.heating_device.nominal_power
@@ -1480,11 +1589,51 @@ class Building(Environment):
                     else:
                         raise Exception(f'Unknown action: {key}')
 
-                    limit = power/max(capacity, ZERO_DIVISION_PLACEHOLDER)
-                    
+                    limit = power / max(capacity, ZERO_DIVISION_PLACEHOLDER)
+
                 limit = min(limit, 1.0)
                 low_limit.append(-limit)
                 high_limit.append(limit)
+
+            else:
+                if key == 'cooling_storage':
+                    capacity = self.cooling_storage.capacity
+                    cooling_demand = self.energy_simulation.__getattr__(
+                        'cooling_demand', 
+                        start_time_step=self.episode_tracker.simulation_start_time_step, 
+                        end_time_step=self.episode_tracker.simulation_end_time_step
+                    )
+                    maximum_demand = cooling_demand.max()
+                
+                elif key == 'heating_storage':
+                    capacity = self.heating_storage.capacity
+                    heating_demand = self.energy_simulation.__getattr__(
+                        'heating_demand', 
+                        start_time_step=self.episode_tracker.simulation_start_time_step, 
+                        end_time_step=self.episode_tracker.simulation_end_time_step
+                    )
+                    maximum_demand = heating_demand.max()
+
+                elif key == 'dhw_storage':
+                    capacity = self.dhw_storage.capacity
+                    dhw_demand = self.energy_simulation.__getattr__(
+                        'dhw_demand', 
+                        start_time_step=self.episode_tracker.simulation_start_time_step, 
+                        end_time_step=self.episode_tracker.simulation_end_time_step
+                    )
+                    maximum_demand = dhw_demand.max()
+
+                else:
+                    raise Exception(f'Unknown action: {key}')
+
+                maximum_demand_ratio = maximum_demand/max(capacity, ZERO_DIVISION_PLACEHOLDER)
+
+                try:
+                    low_limit.append(max(-maximum_demand_ratio, -1.0))
+                    high_limit.append(min(maximum_demand_ratio, 1.0))
+                except ZeroDivisionError:
+                    low_limit.append(-1.0)
+                    high_limit.append(1.0)
  
         return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
 
@@ -1653,6 +1802,10 @@ class Building(Environment):
         self.dhw_storage.next_time_step()
         self.electrical_storage.next_time_step()
         self.pv.next_time_step()
+        if self.ev_chargers is not None:
+            for c in self.ev_chargers:
+                pass
+                c.next_time_step()
         super().next_time_step()
 
     def reset(self):
@@ -1669,6 +1822,9 @@ class Building(Environment):
         self.dhw_device.reset()
         self.non_shiftable_load_device.reset()
         self.pv.reset()
+        if self.ev_chargers is not None:
+            for c in self.ev_chargers:
+                c.reset()
 
         # variable reset
         self.reset_dynamic_variables()
@@ -1682,6 +1838,8 @@ class Building(Environment):
         self.__net_electricity_consumption_emission = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__net_electricity_consumption_cost = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__power_outage_signal = self.reset_power_outage_signal()
+        self.__chargers_electricity_consumption = []
+        self.__chargers_electricity_consumption_without_partial_load = []
         self.update_variables()
 
     def reset_power_outage_signal(self) -> np.ndarray:
@@ -1775,6 +1933,18 @@ class Building(Environment):
         else:
             pass
 
+
+        total = 0 #ToDo Where to put this
+        total_no_partial_load = 0
+        if self.ev_chargers is not None:
+
+            for c in self.ev_chargers:
+                total = total + c.electricity_consumption[self.time_step-1]
+                total_no_partial_load = total_no_partial_load + c.electricity_consumption_without_partial_load[self.time_step-1]
+
+        self.__chargers_electricity_consumption.append(total)
+        self.__chargers_electricity_consumption_without_partial_load.append(total_no_partial_load)
+
         # net electricity consumption
         net_electricity_consumption = 0.0
 
@@ -1784,7 +1954,8 @@ class Building(Environment):
                     + self.dhw_device.electricity_consumption[self.time_step] \
                         + self.non_shiftable_load_device.electricity_consumption[self.time_step] \
                             + self.electrical_storage.electricity_consumption[self.time_step] \
-                                + self.solar_generation[self.time_step]
+                                + self.solar_generation[self.time_step] \
+                                          + self.__chargers_electricity_consumption[self.time_step]
         else:
             pass
 
@@ -1796,7 +1967,8 @@ class Building(Environment):
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission[self.time_step] = max(0.0, net_electricity_consumption*self.carbon_intensity.carbon_intensity[self.time_step])
 
-class DynamicsBuilding(Building):
+
+class DynamicsBuilding(Building): #ToDo
     r"""Base class for temperature dynamic building.
 
     Parameters
