@@ -1,0 +1,14 @@
+{'user_defined':{'weekday':
+                {'n_trip_out': [1],
+                    'last_trip_to':{'home': True},
+                    'overall_min_time_at':{'home': 9},
+                    'min_state_duration':{'home': 0.25,'errands': 0.25,'escort': 0.25,'shopping': 0.25,'leisure': 0.25},
+                },
+            'weekend':
+                {'n_trip_out': [1],
+                    'last_trip_to':{'home': True},
+                    'overall_min_time_at':{'home': 6},
+                    'min_state_duration':{'home': 0.25,'errands': 0.25, 'escort': 0.25,'shopping': 0.25,'leisure': 0.25},
+                }
+            } 
+}
