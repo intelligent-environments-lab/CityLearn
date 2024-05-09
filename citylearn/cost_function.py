@@ -1,6 +1,7 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import numpy as np
 import pandas as pd
+from citylearn.data import EnergySimulation
 
 class CostFunction:
     r"""Cost and energy flexibility functions that may be used to evaluate environment performance."""
@@ -220,7 +221,7 @@ class CostFunction:
         return data['quadratic'].tolist()
     
     @staticmethod
-    def discomfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_set_point: List[float], band: float = None, occupant_count: List[int] = None) -> Tuple[list]:
+    def discomfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_set_point: List[float], band: Union[float, List[float]] = None, occupant_count: List[int] = None) -> Tuple[list]:
         r"""Rolling percentage of discomfort (total, too cold, and too hot) time steps as well as rolling minimum, maximum and average temperature delta.
 
         Parameters
@@ -229,9 +230,10 @@ class CostFunction:
             Average building dry bulb temperature time series.
         dry_bulb_temperature_set_point: List[float]
             Building thermostat setpoint time series.
-        band: float, default = 2.0
+        band: Union[float, List[float]], optional
             Comfort band above and below dry_bulb_temperature_set_point beyond 
-            which occupant is assumed to be uncomfortable.
+            which occupant is assumed to be uncomfortable. The default value is
+            a constant value time series of 2.0.
         occupant_count: List[float], optional
             Occupant count time series. If provided, the comfort cost is 
             evaluated for occupied time steps only.
@@ -259,29 +261,28 @@ class CostFunction:
             Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
         """
 
-        band = 2.0 if band is None else band
-
         # unmet hours
         data = pd.DataFrame({
             'indoor_dry_bulb_temperature': indoor_dry_bulb_temperature, 
             'dry_bulb_temperature_set_point': dry_bulb_temperature_set_point,
             'occupant_count': [1]*len(indoor_dry_bulb_temperature) if occupant_count is None else occupant_count
         })
+        data['band'] = EnergySimulation.DEFUALT_COMFORT_BAND if band is None else band
         occupied_time_step_count = data[data['occupant_count'] > 0.0].shape[0]
         data['delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_set_point']
         data.loc[data['occupant_count'] == 0.0, 'delta'] = 0.0
         data['discomfort'] = 0
-        data.loc[data['delta'].abs() > band, 'discomfort'] = 1
+        data.loc[data['delta'].abs() > data['band'], 'discomfort'] = 1
         data['discomfort'] = data['discomfort'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # too cold
         data['discomfort_cold'] = 0
-        data.loc[data['delta'] < -band, 'discomfort_cold'] = 1
+        data.loc[data['delta'] < -data['band'], 'discomfort_cold'] = 1
         data['discomfort_cold'] = data['discomfort_cold'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # too hot
         data['discomfort_hot'] = 0
-        data.loc[data['delta'] > band, 'discomfort_hot'] = 1
+        data.loc[data['delta'] > data['band'], 'discomfort_hot'] = 1
         data['discomfort_hot'] = data['discomfort_hot'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # minimum cold delta
