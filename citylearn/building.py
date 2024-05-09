@@ -494,9 +494,15 @@ class Building(Environment):
     
     @property
     def indoor_dry_bulb_temperature_set_point(self) -> np.ndarray:
-        """dry bulb temperature set point time series, in [C]."""
+        """Dry bulb temperature set point time series, in [C]."""
 
         return self.energy_simulation.indoor_dry_bulb_temperature_set_point[0:self.time_step + 1]
+    
+    @property
+    def comfort_band(self) -> np.ndarray:
+        """Occupant comfort band about the `indoor_dry_bulb_temperature_set_point`, in [C]."""
+
+        return self.energy_simulation.comfort_band[0:self.time_step + 1]
     
     @property
     def occupant_count(self) -> np.ndarray:
@@ -559,15 +565,6 @@ class Building(Environment):
         """Power outage signal time series, in [Yes/No]."""
 
         return self.__power_outage_signal[:self.time_step + 1]
-    
-    @property
-    def hvac_mode_switch(self) -> bool:
-        """If HVAC has just switched from cooling to heating or vice versa at current `time_step`."""
-
-        previous_mode = self.energy_simulation.hvac_mode[self.time_step - 1]
-        current_mode = self.energy_simulation.hvac_mode[self.time_step]
-
-        return (previous_mode <= 1 and current_mode == 2) or (previous_mode == 2 and current_mode <= 1)
     
     @property
     def downward_electrical_flexibility(self) -> float:
@@ -859,6 +856,7 @@ class Building(Environment):
                     ) if isinstance(self.dhw_device, HeatPump) else self.dhw_device.efficiency,
             'indoor_dry_bulb_temperature_set_point': self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step],
             'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step]),
+            'comfort_band': self.energy_simulation.comfort_band[self.time_step],
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
             'power_outage': self.__power_outage_signal[self.time_step],
         }
@@ -946,6 +944,7 @@ class Building(Environment):
         }
 
     def apply_actions(self,
+        cooling_or_heating_device_action: float = None,
         cooling_device_action: float = None, heating_device_action: float = None,
         cooling_storage_action: float = None, heating_storage_action: float = None, 
         dhw_storage_action: float = None, electrical_storage_action: float = None
@@ -962,6 +961,9 @@ class Building(Environment):
 
         Parameters
         ----------
+        cooling_or_heating_device_action : float, default: np.nan
+            Fraction of `cooling_device` or `heating_device` `nominal_power` to make available. An action 
+            < 0.0 is for the `cooling_device`, while an action > 0.0 is for the `heating_device`.
         cooling_device_action : float, default: np.nan
             Fraction of `cooling_device` `nominal_power` to make available for space cooling.
         heating_device_action : float, default: np.nan
@@ -976,8 +978,23 @@ class Building(Environment):
             Fraction of `electrical_storage` `capacity` to charge/discharge by.
         """
 
-        cooling_device_action = np.nan if 'cooling_device' not in self.active_actions else cooling_device_action
-        heating_device_action = np.nan if 'heating_device' not in self.active_actions else heating_device_action
+        # hvac devices
+        if 'cooling_or_heating_device_action' in self.active_actions:
+            assert 'cooling_device' not in self.active_actions and 'heating_device' not in self.active_actions, \
+                'cooling_device and heating_device actions must be set to False when cooling_or_heating_device_action is True.' \
+                    ' They will be implicitly set based on the polarity of cooling_or_heating_device_action.'
+            cooling_device_action = abs(min(cooling_or_heating_device_action, 0.0))
+            heating_device_action = abs(max(cooling_or_heating_device_action, 0.0))
+    
+        else:
+            assert not ('cooling_device' in self.active_actions and 'heating_device' in self.active_actions), \
+                'cooling_device and heating_device actions cannot both be set to True to avoid both actions having' \
+                    ' values > 0.0 in the same time step. Use cooling_or_heating_device_action action instead to control' \
+                        ' both cooling_device and heating_device in a building.'
+            cooling_device_action = np.nan if 'cooling_device' not in self.active_actions else cooling_device_action
+            heating_device_action = np.nan if 'heating_device' not in self.active_actions else heating_device_action
+        
+        # energy storage devices
         cooling_storage_action = 0.0 if 'cooling_storage' not in self.active_actions else cooling_storage_action
         heating_storage_action = 0.0 if 'heating_storage' not in self.active_actions else heating_storage_action
         dhw_storage_action = 0.0 if 'dhw_storage' not in self.active_actions else dhw_storage_action
@@ -1024,6 +1041,7 @@ class Building(Environment):
 
             try:
                 func(*args)
+            
             except NotImplementedError:
                 pass
 
@@ -1369,6 +1387,10 @@ class Building(Environment):
             elif key == 'indoor_dry_bulb_temperature_delta':
                 low_limit[key] = 0
                 high_limit[key] = self.maximum_temperature_delta
+
+            elif key == 'comfort_band':
+                low_limit[key] = 0
+                high_limit[key] = max(data[key])
                 
             elif key in ['cooling_demand', 'heating_demand', 'dhw_demand']:
                 low_limit[key] = 0.0
@@ -1463,7 +1485,20 @@ class Building(Environment):
         low_limit, high_limit = [], []
  
         for key in self.active_actions:
-            if key in ['cooling_device', 'heating_device']:
+            if key == 'cooling_or_heating_device_action':
+                if self.cooling_device.nominal_power > ZERO_DIVISION_PLACEHOLDER:
+                    low_limit.append(-1.0)
+
+                else:
+                    low_limit.append(0.0)
+
+                if self.heating_device.nominal_power > ZERO_DIVISION_PLACEHOLDER:
+                    high_limit.append(1.0)
+
+                else:
+                    high_limit.append(0.0)
+
+            elif key in ['cooling_device', 'heating_device']:
                 low_limit.append(0.0)
                 high_limit.append(1.0)
             
@@ -1874,10 +1909,8 @@ class DynamicsBuilding(Building):
     ----------
     *args: Any
         Positional arguments in :py:class:`citylearn.building.Building`.
-    cooling_dynamics: Dynamics
-        Indoor dry-bulb temperature dynamics model for cooling mode.
-    heating_dynamics: Dynamics
-        Indoor dry-bulb temperature dynamics model for heating mode.
+    dynamics: Dynamics
+        Indoor dry-bulb temperature dynamics model.
     ignore_dynamics: bool, default: False
         Wether to simulate temperature dynamics at any time step.
 
@@ -1887,12 +1920,10 @@ class DynamicsBuilding(Building):
         Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.
     """
 
-    def __init__(self, *args: Any, cooling_dynamics: Dynamics, heating_dynamics: Dynamics, ignore_dynamics: bool = None, **kwargs: Any):
+    def __init__(self, *args: Any, dynamics: Dynamics, ignore_dynamics: bool = None, **kwargs: Any):
         """Intialize `DynamicsBuilding`"""
 
-        self.cooling_dynamics = cooling_dynamics
-        self.heating_dynamics = heating_dynamics
-        self.dynamics = None
+        self.dynamics = dynamics
         self.ignore_dynamics = False if ignore_dynamics is None else ignore_dynamics
         super().__init__(*args, **kwargs)
 
@@ -2018,17 +2049,6 @@ class DynamicsBuilding(Building):
     def _update_dynamics_input(self):
         raise NotImplementedError
     
-    def next_time_step(self):
-        super().next_time_step()
-
-        # Reset dynamics model if HVAC mode has switched since previous time step. Reason for doing this is 
-        # because the current model input and hidden states will no longer be valid later on if the mode
-        # switches back to it at a later time step since a different LSTM will be in use until the switch.
-        if self.hvac_mode_switch:
-            self.dynamics = self.set_dynamics()
-        else:
-            pass
-    
     def reset_dynamic_variables(self):
         """Resets data file variables that change during control to their initial values.
         
@@ -2042,23 +2062,11 @@ class DynamicsBuilding(Building):
         self.energy_simulation.heating_demand[start_ix:end_ix] = self.energy_simulation.heating_demand_without_control.copy()[start_ix:end_ix]
         self.energy_simulation.indoor_dry_bulb_temperature[start_ix:end_ix] = self.energy_simulation.indoor_dry_bulb_temperature_without_control.copy()[start_ix:end_ix]
         
-    def set_dynamics(self) -> Dynamics:
-        """Resets and returns `cooling_dynamics` if current time step HVAC mode is off or
-        cooling otherwise, resets and returns `heating dynamics`."""
-        
-        if self.energy_simulation.hvac_mode[self.time_step] <= 1:
-            self.cooling_dynamics.reset()
-            return self.cooling_dynamics
-        
-        else:
-            self.heating_dynamics.reset()
-            return self.heating_dynamics
-        
     def reset(self):
-        """Reset Building to initial state and sets `dynamics`."""
+        """Reset Building to initial state and resets `dynamics`."""
 
         super().reset()
-        self.dynamics = self.set_dynamics()
+        self.dynamics.reset()
 
 class LSTMDynamicsBuilding(DynamicsBuilding):
     r"""Class for building with LSTM temperature dynamics model.
@@ -2067,10 +2075,8 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
     ----------
     *args: Any
         Positional arguments in :py:class:`citylearn.building.Building`.
-    cooling_dynamics: Dynamics
-        Indoor dry-bulb temperature dynamics model for cooling mode.
-    heating_dynamics: Dynamics
-        Indoor dry-bulb temperature dynamics model for heating mode.
+    dynamics: Dynamics
+        Indoor dry-bulb temperature dynamics model.
 
     Other Parameters
     ----------------
@@ -2078,8 +2084,8 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.
     """
 
-    def __init__(self, *args, cooling_dynamics: LSTMDynamics, heating_dynamics: LSTMDynamics, **kwargs):
-        super().__init__(*args, cooling_dynamics=cooling_dynamics, heating_dynamics=heating_dynamics, **kwargs)
+    def __init__(self, *args, dynamics: LSTMDynamics, **kwargs):
+        super().__init__(*args, dynamics=dynamics, **kwargs)
         self.dynamics: LSTMDynamics
 
     @DynamicsBuilding.simulate_dynamics.getter
@@ -2194,8 +2200,8 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         # to use in lookback. Alternatively, one can use the rolled observation values at the end of the time series
         # but it complicates things and is not too realistic.
 
-        if 'cooling_device' in self.active_actions and self.simulate_dynamics:
-            if self.energy_simulation.hvac_mode[self.time_step] == 1:
+        if ('cooling_device' in self.active_actions or 'cooling_or_heating_device_action' in self.active_actions) and self.simulate_dynamics:
+            if self.energy_simulation.hvac_mode[self.time_step] in [1, 3]:
                 electric_power = action*self.cooling_device.nominal_power
                 demand = self.cooling_device.get_max_output_power(
                     self.weather.outdoor_dry_bulb_temperature[self.time_step],
@@ -2230,8 +2236,8 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         lookback.
         """
         
-        if 'heating_device' in self.active_actions and self.simulate_dynamics:
-            if self.energy_simulation.hvac_mode[self.time_step] == 2:
+        if ('heating_device' in self.active_actions or 'cooling_or_heating_device_action' in self.active_actions) and self.simulate_dynamics:
+            if self.energy_simulation.hvac_mode[self.time_step] in [2, 3]:
                 electric_power = action*self.heating_device.nominal_power
                 demand = self.heating_device.get_max_output_power(
                     self.weather.outdoor_dry_bulb_temperature[self.time_step], 
