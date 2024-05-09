@@ -1,0 +1,7203 @@
+{
+  "root_directory": null,
+  "central_agent": false,
+  "simulation_start_time_step": 0,
+  "simulation_end_time_step": 1415,
+  "episodes": 15,
+  "seconds_per_time_step": 3600.0,
+  "observations": {
+    "month": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "day_type": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "hour": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "daylight_savings_status": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_6h": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_12h": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_24h": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_6h": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_12h": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_24h": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_6h": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_12h": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_24h": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_6h": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_12h": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_24h": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "carbon_intensity": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "indoor_dry_bulb_temperature": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "average_unmet_cooling_setpoint_difference": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "indoor_relative_humidity": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "non_shiftable_load": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "solar_generation": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "cooling_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "heating_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "dhw_storage_soc": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electrical_storage_soc": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "net_electricity_consumption": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electricity_pricing": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "electricity_pricing_predicted_6h": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "electricity_pricing_predicted_12h": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "electricity_pricing_predicted_24h": {
+      "active": false,
+      "shared_in_central_agent": false
+    }
+  },
+  "actions": {
+    "cooling_storage": {
+      "active": false
+    },
+    "heating_storage": {
+      "active": false
+    },
+    "dhw_storage": {
+      "active": true
+    },
+    "electrical_storage": {
+      "active": true
+    }
+  },
+  "agent": {
+    "type": "citylearn.agents.sac.SACOptimizedRBC",
+    "attributes": {
+      "hidden_dimension": [
+        128,
+        128
+      ],
+      "discount": 0.99,
+      "tau": 0.005,
+      "lr": 0.0003,
+      "batch_size": 256,
+      "replay_buffer_capacity": 100000.0,
+      "start_training_time_step": 1415,
+      "end_exploration_time_step": 1416,
+      "deterministic_start_time_step": 19824,
+      "action_scaling_coef": 0.5,
+      "reward_scaling": 5.0,
+      "update_per_time_step": 2,
+      "alpha": 0.2,
+      "action_scaling_coefficient": 1.0,
+      "seed": 0
+    }
+  },
+  "reward_function": {
+    "type": "citylearn.reward_function.SolarPenaltyReward",
+    "attributes": null
+  },
+  "buildings": {
+    "resstock-amy2018-2021-release-1-108541": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-108541.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 18.017439655310493,
+          "max_input_power": 0.2550309141629037,
+          "max_output_power": 0.2550309141629037,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-108624": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-108624.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 24.18311923935612,
+          "max_input_power": 0.1647409127604479,
+          "max_output_power": 0.1647409127604479,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-111763": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-111763.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 26.13427536358557,
+          "max_input_power": 0.5414688580007632,
+          "max_output_power": 0.5414688580007632,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-112641": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-112641.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 40.70436772393114,
+          "max_input_power": 0.582601460965878,
+          "max_output_power": 0.582601460965878,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-122940": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-122940.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 24.719980999405823,
+          "max_input_power": 0.3080855260125235,
+          "max_output_power": 0.3080855260125235,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-123582": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-123582.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 6.775293749846952,
+          "max_input_power": 0.051625152274423,
+          "max_output_power": 0.051625152274423,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-130997": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-130997.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 16.59570511824103,
+          "max_input_power": 0.1800431244279151,
+          "max_output_power": 0.1800431244279151,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-131043": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-131043.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 18.60029185823091,
+          "max_input_power": 0.5064501603007818,
+          "max_output_power": 0.5064501603007818,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-141704": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-141704.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 14.491957166802194,
+          "max_input_power": 0.1793813468790418,
+          "max_output_power": 0.1793813468790418,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-151710": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-151710.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 25.32000592895055,
+          "max_input_power": 0.4267296984451569,
+          "max_output_power": 0.4267296984451569,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-157159": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-157159.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 37.33364261588798,
+          "max_input_power": 0.5514711835472431,
+          "max_output_power": 0.5514711835472431,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-158885": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-158885.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 53.74452598128722,
+          "max_input_power": 1.0706416687353215,
+          "max_output_power": 1.0706416687353215,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-159669": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-159669.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 17.87781895905691,
+          "max_input_power": 0.1466994736474361,
+          "max_output_power": 0.1466994736474361,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-174488": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-174488.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 73.09729941726599,
+          "max_input_power": 0.7640137116756625,
+          "max_output_power": 0.7640137116756625,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-175803": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-175803.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 6.436470001995289,
+          "max_input_power": 0.076768484967721,
+          "max_output_power": 0.076768484967721,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-177451": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-177451.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 33.88102476618101,
+          "max_input_power": 0.3927526559779346,
+          "max_output_power": 0.3927526559779346,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-195281": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-195281.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 16.75484865063979,
+          "max_input_power": 0.2024650310185131,
+          "max_output_power": 0.2024650310185131,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-19656": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-19656.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 36.9131331198959,
+          "max_input_power": 0.5694076164490416,
+          "max_output_power": 0.5694076164490416,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-207227": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-207227.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 16.331553904994724,
+          "max_input_power": 0.1550083319123459,
+          "max_output_power": 0.1550083319123459,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-217106": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-217106.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 19.94358406531014,
+          "max_input_power": 0.2300663792100958,
+          "max_output_power": 0.2300663792100958,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-231329": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-231329.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 37.050767954819214,
+          "max_input_power": 0.7778850275821605,
+          "max_output_power": 0.7778850275821605,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-235184": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-235184.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 17.39518802787348,
+          "max_input_power": 0.2661850655891409,
+          "max_output_power": 0.2661850655891409,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-237891": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-237891.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 11.427962959692762,
+          "max_input_power": 0.1188141065266103,
+          "max_output_power": 0.1188141065266103,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-242708": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-242708.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 9.739508354889828,
+          "max_input_power": 0.0944738045352587,
+          "max_output_power": 0.0944738045352587,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-243047": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-243047.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 27.183826235526418,
+          "max_input_power": 0.2890096660812916,
+          "max_output_power": 0.2890096660812916,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-243868": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-243868.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 8.642496784195359,
+          "max_input_power": 0.1263009841050697,
+          "max_output_power": 0.1263009841050697,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-245522": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-245522.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 15.346000913167275,
+          "max_input_power": 0.272811278274257,
+          "max_output_power": 0.272811278274257,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-25516": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-25516.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 41.91364097919611,
+          "max_input_power": 0.8688900623105201,
+          "max_output_power": 0.8688900623105201,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-25659": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-25659.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 35.20119505536152,
+          "max_input_power": 0.6022780972687091,
+          "max_output_power": 0.6022780972687091,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-26963": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-26963.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 20.86845502867088,
+          "max_input_power": 0.2507952019943603,
+          "max_output_power": 0.2507952019943603,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-272080": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-272080.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 22.5723772192316,
+          "max_input_power": 0.2877725972993675,
+          "max_output_power": 0.2877725972993675,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-273646": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-273646.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 12.129089584141534,
+          "max_input_power": 0.2391820702739671,
+          "max_output_power": 0.2391820702739671,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-279202": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-279202.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 23.221410549288255,
+          "max_input_power": 0.2904025876150737,
+          "max_output_power": 0.2904025876150737,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-284868": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-284868.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 24.60363825701102,
+          "max_input_power": 0.51533816031326,
+          "max_output_power": 0.51533816031326,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-286655": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-286655.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 17.08635407053126,
+          "max_input_power": 0.2217583982863495,
+          "max_output_power": 0.2217583982863495,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-291139": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-291139.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 26.607384470077697,
+          "max_input_power": 0.4929358564996631,
+          "max_output_power": 0.4929358564996631,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-296245": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-296245.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 11.725468228141724,
+          "max_input_power": 0.0881582091137081,
+          "max_output_power": 0.0881582091137081,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-316419": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-316419.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 26.29221109982877,
+          "max_input_power": 0.3157022514988073,
+          "max_output_power": 0.3157022514988073,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-320787": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-320787.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 8.345944642242184,
+          "max_input_power": 0.099047918272215,
+          "max_output_power": 0.099047918272215,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-335233": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-335233.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 7.689939339600246,
+          "max_input_power": 0.0929173322920329,
+          "max_output_power": 0.0929173322920329,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-340965": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-340965.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 17.67214485839917,
+          "max_input_power": 0.2122387524090239,
+          "max_output_power": 0.2122387524090239,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-343490": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-343490.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 58.96474973705797,
+          "max_input_power": 1.1388928077638545,
+          "max_output_power": 1.1388928077638545,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-355132": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-355132.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 41.16686575687752,
+          "max_input_power": 0.7362181741932653,
+          "max_output_power": 0.7362181741932653,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-365282": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-365282.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 14.498798395650386,
+          "max_input_power": 0.1880202937183174,
+          "max_output_power": 0.1880202937183174,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-366057": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-366057.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 42.74702528248853,
+          "max_input_power": 0.876132874786392,
+          "max_output_power": 0.876132874786392,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-380746": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-380746.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 11.304860746165026,
+          "max_input_power": 0.1514756565622772,
+          "max_output_power": 0.1514756565622772,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-386079": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-386079.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 7.911091958187656,
+          "max_input_power": 0.1323746711890314,
+          "max_output_power": 0.1323746711890314,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-388573": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-388573.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 29.332426237289454,
+          "max_input_power": 0.4346327258867613,
+          "max_output_power": 0.4346327258867613,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-417517": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-417517.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 31.39114139839309,
+          "max_input_power": 0.4466827543679258,
+          "max_output_power": 0.4466827543679258,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-425690": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-425690.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 33.17723694253958,
+          "max_input_power": 0.3964437861087495,
+          "max_output_power": 0.3964437861087495,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-439008": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-439008.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 48.20002581424411,
+          "max_input_power": 1.0992352107712111,
+          "max_output_power": 1.0992352107712111,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-441958": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-441958.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 11.962265578420872,
+          "max_input_power": 0.2017585449624352,
+          "max_output_power": 0.2017585449624352,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-442987": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-442987.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 27.19776682077675,
+          "max_input_power": 0.5257577459852403,
+          "max_output_power": 0.5257577459852403,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-447017": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-447017.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 36.56714032199472,
+          "max_input_power": 0.3526369624007187,
+          "max_output_power": 0.3526369624007187,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-449056": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-449056.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 22.67952519872698,
+          "max_input_power": 0.3031053428377476,
+          "max_output_power": 0.3031053428377476,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-460764": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-460764.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 16.728354675718176,
+          "max_input_power": 0.3130770332039139,
+          "max_output_power": 0.3130770332039139,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-467849": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-467849.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 9.71811538870124,
+          "max_input_power": 0.162678135711857,
+          "max_output_power": 0.162678135711857,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-471744": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-471744.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 21.69232349625902,
+          "max_input_power": 0.2426557663025152,
+          "max_output_power": 0.2426557663025152,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-480837": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-480837.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 7.993606000870996,
+          "max_input_power": 0.0845429983684149,
+          "max_output_power": 0.0845429983684149,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-486818": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-486818.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 8.185332975709006,
+          "max_input_power": 0.1003109490217859,
+          "max_output_power": 0.1003109490217859,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-50813": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-50813.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 30.0730703047243,
+          "max_input_power": 0.2728892333139823,
+          "max_output_power": 0.2728892333139823,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-511121": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-511121.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 24.680147802853284,
+          "max_input_power": 0.4027225487152177,
+          "max_output_power": 0.4027225487152177,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-513318": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-513318.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 24.45729060513876,
+          "max_input_power": 0.3596493170070995,
+          "max_output_power": 0.3596493170070995,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-519230": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-519230.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 19.278866450793537,
+          "max_input_power": 0.290613191283977,
+          "max_output_power": 0.290613191283977,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-523369": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-523369.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 19.502393258476275,
+          "max_input_power": 0.3332239071882601,
+          "max_output_power": 0.3332239071882601,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-530679": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-530679.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 23.76260847698068,
+          "max_input_power": 0.3771031165270516,
+          "max_output_power": 0.3771031165270516,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-534588": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-534588.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 10.610704791718671,
+          "max_input_power": 0.2256150078189009,
+          "max_output_power": 0.2256150078189009,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-538198": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-538198.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 8.973394610684188,
+          "max_input_power": 0.153490118198616,
+          "max_output_power": 0.153490118198616,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-55542": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-55542.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 44.77312270283336,
+          "max_input_power": 1.1310397508752696,
+          "max_output_power": 1.1310397508752696,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-83099": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-83099.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 11.23551293786162,
+          "max_input_power": 0.1449233500803624,
+          "max_output_power": 0.1449233500803624,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-90621": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-90621.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 17.765693106218034,
+          "max_input_power": 0.1670349939517567,
+          "max_output_power": 0.1670349939517567,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-9212": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-9212.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 18.02005005526245,
+          "max_input_power": 0.2924662819265202,
+          "max_output_power": 0.2924662819265202,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    },
+    "resstock-amy2018-2021-release-1-98735": {
+      "include": true,
+      "energy_simulation": "resstock-amy2018-2021-release-1-98735.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": null,
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "attributes": {
+          "capacity": 11.270706356065023,
+          "max_input_power": 0.1924044584262672,
+          "max_output_power": 0.1924044584262672,
+          "loss_coefficient": 0.003
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 13.5,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": null,
+          "nominal_power": 2.5,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      }
+    }
+  },
+  "simulation_id": "alameda",
+  "season": "winter"
+}
