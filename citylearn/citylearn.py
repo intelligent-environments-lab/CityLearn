@@ -27,22 +27,22 @@ class EvaluationCondition(Enum):
     Used in `citylearn.CityLearnEnv.calculate` method.
     """
 
-    # general (private)
-    __DEFAULT = ''
-    __STORAGE_SUFFIX = '_without_storage'
-    __PARTIAL_LOAD_SUFFIX = '_and_partial_load'
-    __PV_SUFFIX = '_and_pv'
+    # general (soft private)
+    _DEFAULT = ''
+    _STORAGE_SUFFIX = '_without_storage'
+    _PARTIAL_LOAD_SUFFIX = '_and_partial_load'
+    _PV_SUFFIX = '_and_pv'
 
     # Building type
-    WITH_STORAGE_AND_PV = __DEFAULT
-    WITHOUT_STORAGE_BUT_WITH_PV = __STORAGE_SUFFIX
-    WITHOUT_STORAGE_AND_PV = WITHOUT_STORAGE_BUT_WITH_PV +__PV_SUFFIX
+    WITH_STORAGE_AND_PV = _DEFAULT
+    WITHOUT_STORAGE_BUT_WITH_PV = _STORAGE_SUFFIX
+    WITHOUT_STORAGE_AND_PV = WITHOUT_STORAGE_BUT_WITH_PV +_PV_SUFFIX
 
     # DynamicsBuilding type
     WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV = WITH_STORAGE_AND_PV
     WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV = WITHOUT_STORAGE_BUT_WITH_PV
-    WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV = WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV + __PARTIAL_LOAD_SUFFIX
-    WITHOUT_STORAGE_AND_PARTIAL_LOAD_AND_PV = WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV + __PV_SUFFIX
+    WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV = WITHOUT_STORAGE_BUT_WITH_PARTIAL_LOAD_AND_PV + _PARTIAL_LOAD_SUFFIX
+    WITHOUT_STORAGE_AND_PARTIAL_LOAD_AND_PV = WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV + _PV_SUFFIX
 
 class CityLearnEnv(Environment, Env):
     r"""CityLearn nvironment class.
@@ -969,7 +969,7 @@ class CityLearnEnv(Environment, Env):
         baseline_condition: EvaluationCondition, default: :code:`EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV`
             Condition for net electricity consumption, cost and emission to use in calculating cost functions for the baseline scenario 
             that is used to normalize the control_condition scenario.
-        comfort_band: float, default = 2.0
+        comfort_band: float, optional
             Comfort band above and below dry_bulb_temperature_set_point beyond 
             which occupant is assumed to be uncomfortable.
         
@@ -992,7 +992,7 @@ class CityLearnEnv(Environment, Env):
         get_net_electricity_consumption_cost = lambda x, c: getattr(x, f'net_electricity_consumption_cost{c.value}')
         get_net_electricity_consumption_emission = lambda x, c: getattr(x, f'net_electricity_consumption_emission{c.value}')
 
-        comfort_band = 2.0 if comfort_band is None else comfort_band
+        comfort_band = EnergySimulation.DEFUALT_COMFORT_BAND if comfort_band is None else comfort_band
         building_level = []
         
         for b in self.buildings:
@@ -1007,7 +1007,7 @@ class CityLearnEnv(Environment, Env):
             discomfort_kwargs = {
                 'indoor_dry_bulb_temperature': b.indoor_dry_bulb_temperature,
                 'dry_bulb_temperature_set_point': b.indoor_dry_bulb_temperature_set_point,
-                'band': comfort_band,
+                'band': b.comfort_band if comfort_band is None else comfort_band,
                 'occupant_count': b.occupant_count,
             }
             unmet, cold, hot,\
@@ -1290,15 +1290,14 @@ class CityLearnEnv(Environment, Env):
             self.schema['simulation_start_time_step']
         simulation_end_time_step = kwargs['simulation_end_time_step'] if kwargs.get('simulation_end_time_step') is not None else\
             self.schema['simulation_end_time_step']
-        random_seed = kwargs.get('random_seed', None)
+        random_seed =  self.schema.get('random_seed', None) if kwargs.get('random_seed', None) is None else self.schema.get('random_seed', None)
         episode_time_steps = kwargs['episode_time_steps'] if kwargs.get('episode_time_steps') is not None else self.schema.get('episode_time_steps', None)
         rolling_episode_split = kwargs['rolling_episode_split'] if kwargs.get('rolling_episode_split') is not None else self.schema.get('rolling_episode_split', None)
         random_episode_split = kwargs['random_episode_split'] if kwargs.get('random_episode_split') is not None else self.schema.get('random_episode_split', None)
         seconds_per_time_step = kwargs['seconds_per_time_step'] if kwargs.get('seconds_per_time_step') is not None else self.schema['seconds_per_time_step']
         episode_tracker = EpisodeTracker(simulation_start_time_step, simulation_end_time_step)
         buildings_to_include = list(self.schema['buildings'].keys())
-        md5 = hashlib.md5()
-        hash_to_integer_badse = 16
+        hash_to_integer_base = 16
         buildings = ()
 
         if kwargs.get('buildings') is not None and len(kwargs['buildings']) > 0:
@@ -1326,21 +1325,20 @@ class CityLearnEnv(Environment, Env):
             building_schema = self.schema['buildings'][building_name]
             # data
             energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation']))
-            energy_simulation = EnergySimulation(*energy_simulation.values.T)
+            energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'))
             weather = pd.read_csv(os.path.join(root_directory,building_schema['weather']))
-            weather = Weather(*weather.values.T)
+            weather = Weather(**weather.to_dict('list'))
 
             if building_schema.get('carbon_intensity', None) is not None:
                 carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity']))
-                carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
-                carbon_intensity = CarbonIntensity(carbon_intensity)
+                carbon_intensity = CarbonIntensity(**carbon_intensity.to_dict('list'))
             
             else:
                 carbon_intensity = None
 
             if building_schema.get('pricing', None) is not None:
                 pricing = pd.read_csv(os.path.join(root_directory,building_schema['pricing']))
-                pricing = Pricing(*pricing.values.T)
+                pricing = Pricing(**pricing.to_dict('list'))
             else:
                 pricing = None
                 
@@ -1396,23 +1394,22 @@ class CityLearnEnv(Environment, Env):
             building_type_name = building_type.split('.')[-1]
             building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
             dynamics = {}
-            dynamics_modes = ['cooling', 'heating']
             
             # set dynamics
             if building_schema.get('dynamics', None) is not None:
                 assert int(citylearn_version.split('.')[0]) >= 2, 'Building dynamics is only supported in CityLearn>=2.x.x'
                 
-                for mode in dynamics_modes:
-                    dynamics_type = building_schema['dynamics'][mode]['type']
-                    dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
-                    dynamics_name = dynamics_type.split('.')[-1]
-                    dynamics_constructor = getattr(importlib.import_module(dynamics_module), dynamics_name)
-                    attributes = building_schema['dynamics'][mode].get('attributes', {})
-                    attributes['filepath'] = os.path.join(root_directory, attributes['filename'])
-                    _ = attributes.pop('filename')
-                    dynamics[f'{mode}_dynamics'] = dynamics_constructor(**attributes)
+                dynamics_type = building_schema['dynamics']['type']
+                dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
+                dynamics_name = dynamics_type.split('.')[-1]
+                dynamics_constructor = getattr(importlib.import_module(dynamics_module), dynamics_name)
+                attributes = building_schema['dynamics'].get('attributes', {})
+                attributes['filepath'] = os.path.join(root_directory, attributes['filename'])
+                _ = attributes.pop('filename')
+                dynamics[f'dynamics'] = dynamics_constructor(**attributes)
+            
             else:
-                dynamics = {m: None for m in dynamics_modes}
+                dynamics['dynamics'] = {}
 
             # set power outage model
             building_schema_power_outage = building_schema.get('power_outage', {})
@@ -1434,7 +1431,6 @@ class CityLearnEnv(Environment, Env):
             
             else:
                 stochastic_power_outage_model = None
-
 
             building: Building = building_constructor(
                 energy_simulation=energy_simulation, 
@@ -1484,10 +1480,15 @@ class CityLearnEnv(Environment, Env):
                     attributes['seconds_per_time_step'] = seconds_per_time_step
 
                     # in case device technical specifications are to be randomly sampled, make sure each device per building has a unique seed
-                    device_random_seed = random_seed \
-                        + int(md5.update(building_name.encode()), hash_to_integer_base) \
-                            + int(md5.update(device_name.encode()), hash_to_integer_base) \
-                                + int(md5.update(device_type.encode()), hash_to_integer_base)
+                    md5 = hashlib.md5()
+                    device_random_seed = 0
+
+                    for string in [building_name, building_type, device_name, device_type]:
+                        md5.update(string.encode())
+                        device_random_seed += int(md5.hexdigest(), hash_to_integer_base)
+
+                    device_random_seed = int(str(device_random_seed*(random_seed + 1))[:9])
+
                     attributes = {
                         **attributes,
                         'random_seed': attributes['random_seed'] if attributes.get('random_seed', None) is not None else device_random_seed
@@ -1503,9 +1504,10 @@ class CityLearnEnv(Environment, Env):
                     
                     else:
                         pass
+
+                    # set back the random seed to to building's random seed
+                    device.random_seed = random_seed
             
-            # set back the random seed to to building's random seed
-            device.random_seed = random_seed
             building.observation_space = building.estimate_observation_space()
             building.action_space = building.estimate_action_space()
             buildings += (building,)
