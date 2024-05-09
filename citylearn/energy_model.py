@@ -308,7 +308,7 @@ class HeatPump(ElectricDevice):
             Cooling demand in [kWh].
         heating_demand : Union[float, Iterable[float]], optional
             Heating demand in [kWh].
-        safety_factor : Union[float, Tuple[float, float]], default: (1.0, 1.25)
+        safety_factor : Union[float, Tuple[float, float]], default: 1.0
             `nominal_power` is oversized by factor of `safety_factor`.
 
         Returns
@@ -321,7 +321,7 @@ class HeatPump(ElectricDevice):
         `nominal_power` = max((cooling_demand/cooling_cop) + (heating_demand/heating_cop))*safety_factor
         """
         
-        safety_factor = self._get_property_value(safety_factor, (1.0, 1.25))
+        safety_factor = self._get_property_value(safety_factor, 1.0)
 
         if cooling_demand is not None:
             cooling_nominal_power = np.array(cooling_demand)/self.get_cop(outdoor_dry_bulb_temperature, False)
@@ -417,7 +417,7 @@ class ElectricHeater(ElectricDevice):
         ----------
         demand : Union[float, Iterable[float]], optional
             Heating emand in [kWh].
-        safety_factor : Union[float, Tuple[float, float]], default: (1.0, 1.25)
+        safety_factor : Union[float, Tuple[float, float]], default: 1.0
             `nominal_power` is oversized by factor of `safety_factor`.
 
         Returns
@@ -430,7 +430,7 @@ class ElectricHeater(ElectricDevice):
         `nominal_power` = max(demand/`efficiency`)*safety_factor
         """
 
-        safety_factor = safety_factor = self._get_property_value(safety_factor, (1.0, 1.25))
+        safety_factor = safety_factor = self._get_property_value(safety_factor, 1.0)
         nominal_power = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
 
         return nominal_power
@@ -579,6 +579,7 @@ class StorageDevice(Device):
     """
     
     def __init__(self, capacity: float = None, efficiency: Union[float, Tuple[float, float]] = None, loss_coefficient: Union[float, Tuple[float, float]] = None, initial_soc: Union[float, Tuple[float, float]] = None, **kwargs: Any):
+        self.random_seed = kwargs.get('random_seed', None)
         self.capacity = capacity
         self.loss_coefficient = loss_coefficient
         self.initial_soc = initial_soc
@@ -830,6 +831,7 @@ class Battery(StorageDevice, ElectricDevice):
     def __init__(self, capacity: float = None, nominal_power: float = None, capacity_loss_coefficient: Union[float, Tuple[float, float]] = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, depth_of_discharge: Union[float, Tuple[float, float]] = None, **kwargs: Any):
         self._efficiency_history = []
         self._capacity_history = []
+        self.random_seed = kwargs.get('random_seed', None)
         self.depth_of_discharge = depth_of_discharge
         super().__init__(capacity=capacity, nominal_power=nominal_power, **kwargs)
         self._capacity_history = [self.capacity]
@@ -888,7 +890,7 @@ class Battery(StorageDevice, ElectricDevice):
     @efficiency.setter
     def efficiency(self, efficiency: Union[float, Tuple[float, float]]):
         StorageDevice.efficiency.fset(self, efficiency)
-        self._efficiency_history.append(efficiency)
+        self._efficiency_history.append(super().efficiency)
 
     @capacity_loss_coefficient.setter
     def capacity_loss_coefficient(self, capacity_loss_coefficient: Union[float, Tuple[float, float]]):
