@@ -6,7 +6,7 @@ from eppy.modeleditor import IDF
 import numpy as np
 import pandas as pd
 
-class EnergyPlusPartialLoadSimulator(EndUseLoadProfilesEnergyPlusSimulator):
+class EndUseLoadProfilesEnergyPlusPartialLoadSimulator(EndUseLoadProfilesEnergyPlusSimulator):
     QUERIES_DIRECTORY = os.path.join(os.path.join(*Path(os.path.dirname(os.path.abspath(__file__))).parts[0:-1]), 'misc', 'queries')
 
     def __init__(
