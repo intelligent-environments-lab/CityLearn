@@ -1,3 +1,4 @@
+import os
 import pickle
 from typing import Any
 import simplejson as json
@@ -43,7 +44,7 @@ def write_json(filepath: str, dictionary: dict, **kwargs):
         Other infrequently used keyword arguments to be parsed to `simplejson.dump`.
     """
 
-    kwargs = {'ignore_nan': True, 'sort_keys': False, 'default': str, 'indent': 4, **kwargs}
+    kwargs = {'ignore_nan': True, 'sort_keys': False, 'default': str, 'indent': 2, **kwargs}
     
     with open(filepath,'w') as f:
         json.dump(dictionary, f, **kwargs)
@@ -83,7 +84,7 @@ def write_yaml(filepath: str, dictionary: dict, **kwargs):
         Other infrequently used keyword arguments to be parsed to `yaml.safe_dump`.
     """
 
-    kwargs = {'sort_keys': False, 'indent': 4, **kwargs}
+    kwargs = {'sort_keys': False, 'indent': 2, **kwargs}
     
     with open(filepath, 'w') as f:
         yaml.safe_dump(dictionary, f, **kwargs)
