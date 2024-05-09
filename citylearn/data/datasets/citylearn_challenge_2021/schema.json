@@ -1,4 +1,5 @@
 {
+  "random_seed": 2021,
   "root_directory": null,
   "central_agent": false,
   "simulation_start_time_step": 0,
@@ -134,19 +135,19 @@
     },
     "electricity_pricing": {
       "active": false,
-      "shared_in_central_agent": false
+      "shared_in_central_agent": true
     },
     "electricity_pricing_predicted_6h": {
       "active": false,
-      "shared_in_central_agent": false
+      "shared_in_central_agent": true
     },
     "electricity_pricing_predicted_12h": {
       "active": false,
-      "shared_in_central_agent": false
+      "shared_in_central_agent": true
     },
     "electricity_pricing_predicted_24h": {
       "active": false,
-      "shared_in_central_agent": false
+      "shared_in_central_agent": true
     },
     "power_outage": {
       "active": false,
