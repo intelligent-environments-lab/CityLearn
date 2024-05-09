@@ -54,21 +54,21 @@ WITH u AS (
 ), p AS (
     SELECT
         u.TimeIndex,
-        MAX(CASE WHEN d.Name = 'Site Direct Solar Radiation Rate per Area' THEN Value END) AS direct_solar_radiation,
-        MAX(CASE WHEN d.Name = 'Site Diffuse Solar Radiation Rate per Area' THEN Value END) AS diffuse_solar_radiation,
-        MAX(CASE WHEN d.Name = 'Site Outdoor Air Drybulb Temperature' THEN Value END) AS outdoor_air_temperature,
-        SUM(CASE WHEN d.Name = 'Zone Air Temperature' THEN Value END) AS average_indoor_air_temperature,
+        MAX(CASE WHEN d.Name = 'Site Direct Solar Radiation Rate per Area' THEN Value END) AS direct_solar_irradiance,
+        MAX(CASE WHEN d.Name = 'Site Diffuse Solar Radiation Rate per Area' THEN Value END) AS diffuse_solar_irradiance,
+        MAX(CASE WHEN d.Name = 'Site Outdoor Air Drybulb Temperature' THEN Value END) AS outdoor_dry_bulb_temperature,
+        SUM(CASE WHEN d.Name = 'Zone Air Temperature' THEN Value END) AS indoor_dry_bulb_temperature,
         SUM(CASE WHEN d.Name = 'Zone People Occupant Count' THEN Value END) AS occupant_count,
-        SUM(CASE WHEN u.label = 'cooling_load' THEN Value/1000.0 END) AS cooling_load,
-        SUM(CASE WHEN u.label = 'heating_load' THEN Value/1000.0 END) AS heating_load
+        SUM(CASE WHEN u.label = 'cooling_load' THEN Value/1000.0 END) AS cooling_demand,
+        SUM(CASE WHEN u.label = 'heating_load' THEN Value/1000.0 END) AS heating_demand
     FROM u
     LEFT JOIN ReportDataDictionary d ON d.ReportDataDictionaryIndex = u.ReportDataDictionaryIndex
     GROUP BY u.TimeIndex
 )
 SELECT
     t.TimeIndex AS timestep,
-    t.Month AS month,
-    t.Day AS day,
+    t.Month AS "month",
+    t.Day AS "day",
     t.DayType AS day_name,
     CASE
         WHEN t.DayType = 'Monday' THEN 1
@@ -80,16 +80,16 @@ SELECT
         WHEN t.DayType = 'Sunday' THEN 7
         WHEN t.DayType = 'Holiday' THEN 8
         ELSE NULL
-    END AS day_of_week,
+    END AS day_type,
     t.Hour AS hour,
     t.Minute AS minute,
-    p.direct_solar_radiation,
-    p.diffuse_solar_radiation,
-    p.outdoor_air_temperature,
-    p.average_indoor_air_temperature,
+    p.direct_solar_irradiance,
+    p.diffuse_solar_irradiance,
+    p.outdoor_dry_bulb_temperature,
+    p.indoor_dry_bulb_temperature,
     p.occupant_count,
-    COALESCE(p.cooling_load, 0) AS cooling_load,
-    COALESCE(p.heating_load, 0) AS heating_load
+    COALESCE(p.cooling_load, 0) AS cooling_demand,
+    COALESCE(p.heating_load, 0) AS heating_demand
 FROM p
 LEFT JOIN Time t ON t.TimeIndex = p.TimeIndex
 WHERE t.DayType NOT IN ('SummerDesignDay', 'WinterDesignDay')
