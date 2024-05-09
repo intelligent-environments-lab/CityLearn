@@ -15,9 +15,9 @@ from typing import Any, List, Mapping, Tuple, Union
 import uuid
 from citylearn.agents.base import Agent as CityLearnAgent
 from citylearn.citylearn import CityLearnEnv
-from citylearn.data import DataSet
+from citylearn.data import DataSet, get_settings
 from citylearn.__init__ import __version__
-from citylearn.utilities import read_pickle, read_yaml, write_json, write_pickle
+from citylearn.utilities import read_pickle, write_json, write_pickle
 import pandas as pd
 import simplejson as json
 
@@ -381,15 +381,7 @@ class Simulator:
 
     @staticmethod
     def get_default_time_series_variables():
-        return Simulator.get_settings()['default_time_series_variables']
-
-    @staticmethod
-    def get_settings():
-        directory = os.path.join(os.path.join(os.path.dirname(__file__), 'misc'))
-        filepath = os.path.join(directory, 'settings.yaml')
-        settings = read_yaml(filepath)
-
-        return settings
+        return get_settings()['default_time_series_variables']
 
 def main():
     parser = argparse.ArgumentParser(
