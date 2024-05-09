@@ -1,4 +1,4 @@
-Electricity Pricing [$/kWh],6h Prediction Electricity Pricing [$/kWh],12h Prediction Electricity Pricing [$/kWh],24h Prediction Electricity Pricing [$/kWh]
+electricity_pricing,outdoor_dry_bulb_temperature_predicted_6h,electricity_pricing_predicted_12h,electricity_pricing_predicted_24h
 0.02893,0.02893,0.02915,0.02893
 0.02893,0.02915,0.02915,0.02893
 0.02893,0.02915,0.02915,0.02893

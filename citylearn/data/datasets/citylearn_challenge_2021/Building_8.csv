@@ -1,4 +1,4 @@
-Month,Hour,Day Type,Daylight Savings Status,Indoor Temperature [C],Average Unmet Cooling Setpoint Difference [C],Indoor Relative Humidity [%],Equipment Electric Power [kWh],DHW Heating [kWh],Cooling Load [kWh],Heating Load [kWh],Solar Generation [W/kW]
+month,hour,day_type,daylight_savings_status,indoor_dry_bulb_temperature,average_unmet_cooling_setpoint_difference,indoor_relative_humidity,non_shiftable_load,dhw_demand,cooling_demand,heating_demand,solar_generation
 1,1,8,0,22.92,0.0,54.43,13.1,1.08,1.2,0.0,0.0
 1,2,8,0,22.71,0.0,51.86,5.4,3.12,0.0,0.0,0.0
 1,3,8,0,22.66,0.0,49.42,5.6,0.48,0.0,0.0,0.0
