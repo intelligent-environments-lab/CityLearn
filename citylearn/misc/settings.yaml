@@ -49,6 +49,7 @@ default_time_series_variables:
   - weather.outdoor_relative_humidity
 schema:
   template:
+    random_seed: 0
     root_directory: null # will be set at runtime
     central_agent: true # assumes one agent controls all DERs
     simulation_start_time_step: 0
@@ -233,7 +234,7 @@ schema:
         active: false
       heating_device:
         active: false
-      cooling_or_heating_device_action:
+      cooling_or_heating_device:
         active: true
     agent:
       type: citylearn.agents.base.BaselineAgent
@@ -266,7 +267,7 @@ schema:
           type: citylearn.energy_model.StorageTank
           autosize: true
         electrical_storage:
-          type: citylearn.energy_model.StorageTank
+          type: citylearn.energy_model.Battery
           autosize: true
         pv:
           type: citylearn.energy_model.PV
@@ -278,7 +279,7 @@ schema:
           attributes:
             # NOTE: older datasets had input size of 13 as either cooling_demand or heating_demand was used but not both.
             # Also, hidden_size and num_layers may vary across models.
-            input_size: 14
+            input_size: null
             hidden_size: 16
             num_layers: 2
             lookback: 12
@@ -314,18 +315,17 @@ schema:
             - 1.0
             - 1.0
           input_observation_names:
-            direct_solar_irradiance
-            diffuse_solar_irradiance
-            outdoor_dry_bulb_temperature
-            indoor_dry_bulb_temperature_set_point
-            occupant_count
-            cooling_demand
-            heating_demand
-            month_sin
-            month_cos
-            hour_sin
-            hour_cos
-            day_type_sin
-            day_type_cos
-            indoor_dry_bulb_temperature
+            - direct_solar_irradiance
+            - diffuse_solar_irradiance
+            - outdoor_dry_bulb_temperature
+            - cooling_demand
+            - heating_demand
+            - month_sin
+            - month_cos
+            - hour_sin
+            - hour_cos
+            - day_type_sin
+            - day_type_cos
+            - occupant_count
+            - indoor_dry_bulb_temperature
 ...

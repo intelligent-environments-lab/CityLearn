@@ -146,14 +146,8 @@ class EnergySimulation(TimeSeriesData):
         Hour time series value ranging from 1 - 24.
     day_type : np.array
         Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.
-    daylight_savings_status : np.array
-        Daylight saving status time series signal of 0 or 1 indicating inactive  or active daylight saving respectively.
     indoor_dry_bulb_temperature : np.array
         Average building dry bulb temperature time series in [C].
-    average_unmet_cooling_setpoint_difference : np.array
-        Average difference between `indoor_dry_bulb_temperature` and cooling temperature setpoints time series in [C].
-    indoor_relative_humidity : np.array
-        Average building relative humidity time series in [%].
     non_shiftable_load : np.array
         Total building non-shiftable plug and equipment loads time series in [kWh].
     dhw_demand : np.array
@@ -164,7 +158,13 @@ class EnergySimulation(TimeSeriesData):
         Total building space heating demand time series in [kWh].
     solar_generation : np.array
         Inverter output per 1 kW of PV system time series in [W/kW].
-    occupant_count: np.array
+    daylight_savings_status : np.array, optional
+        Daylight saving status time series signal of 0 or 1 indicating inactive  or active daylight saving respectively.
+    average_unmet_cooling_setpoint_difference : np.array, optional
+        Average difference between `indoor_dry_bulb_temperature` and cooling temperature setpoints time series in [C].
+    indoor_relative_humidity : np.array, optional
+        Average building relative humidity time series in [%].
+    occupant_count: np.array, optional
         Building occupant count time series in [people].
     indoor_dry_bulb_temperature_set_point: np.array
         Average building dry bulb temperature set point time series in [C].
@@ -191,18 +191,15 @@ class EnergySimulation(TimeSeriesData):
 
     def __init__(
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
-        daylight_savings_status: Iterable[int], indoor_dry_bulb_temperature: Iterable[float], average_unmet_cooling_setpoint_difference: Iterable[float], indoor_relative_humidity: Iterable[float], 
+         indoor_dry_bulb_temperature: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float], solar_generation: Iterable[float], 
-        occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None
+        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.month = np.array(month, dtype='int32')
         self.hour = np.array(hour, dtype='int32')
         self.day_type = np.array(day_type, dtype='int32')
-        self.daylight_savings_status = np.array(daylight_savings_status, dtype='int32')
         self.indoor_dry_bulb_temperature = np.array(indoor_dry_bulb_temperature, dtype='float32')
-        self.average_unmet_cooling_setpoint_difference = np.array(average_unmet_cooling_setpoint_difference, dtype='float32')
-        self.indoor_relative_humidity = np.array(indoor_relative_humidity, dtype = 'float32')
         self.non_shiftable_load = np.array(non_shiftable_load, dtype = 'float32')
         self.dhw_demand = np.array(dhw_demand, dtype = 'float32')
         
@@ -214,6 +211,9 @@ class EnergySimulation(TimeSeriesData):
         self.solar_generation = np.array(solar_generation, dtype = 'float32')
 
         # optional
+        self.daylight_savings_status = np.zeros(len(solar_generation), dtype='int32') if daylight_savings_status is None else np.array(daylight_savings_status, dtype='int32')
+        self.average_unmet_cooling_setpoint_difference = np.zeros(len(solar_generation), dtype='float32') if average_unmet_cooling_setpoint_difference is None else np.array(average_unmet_cooling_setpoint_difference, dtype='float32')
+        self.indoor_relative_humidity = np.zeros(len(solar_generation), dtype='float32') if indoor_relative_humidity is None else np.array(indoor_relative_humidity, dtype = 'float32')
         self.occupant_count = np.zeros(len(solar_generation), dtype='float32') if occupant_count is None else np.array(occupant_count, dtype='float32')
         self.indoor_dry_bulb_temperature_set_point = np.zeros(len(solar_generation), dtype='float32') if indoor_dry_bulb_temperature_set_point is None else np.array(indoor_dry_bulb_temperature_set_point, dtype='float32')
         self.power_outage = np.zeros(len(solar_generation), dtype='float32') if power_outage is None else np.array(power_outage, dtype='float32')
@@ -259,7 +259,7 @@ class EnergySimulation(TimeSeriesData):
         """
 
         filepath = PV_CHOICES_FILEPATH
-        data = pd.read_csv(filepath)
+        data = pd.read_csv(filepath, low_memory=False)
         
         return data
     
@@ -278,6 +278,8 @@ class EnergySimulation(TimeSeriesData):
 
         filepath = BATTERY_CHOICES_FILEPATH
         data = read_yaml(filepath)
+        data = pd.DataFrame([{'model': k, **v['attributes']} for k, v in data.items()])
+        data = data.set_index('model')
 
         return data
 

@@ -55,7 +55,7 @@ class Device(Environment):
         """Returns `value` if it is a float or a number in the uniform distribution whose limits are defined by `value`. If `value`
         is `None`, the defalut value is used. Ideal and primarily used for stochastically setting device parameters."""
 
-        if value is None:
+        if value is None or math.isnan(value):
             if isinstance(default_value, tuple):
                 value = self.numpy_random_state.uniform(*default_value)
 
@@ -512,6 +512,7 @@ class PV(ElectricDevice):
         zero_net_energy_proportion = self._get_property_value(zero_net_energy_proportion, (0.7, 1.0))
         safety_factor = self._get_property_value(safety_factor, 1.0)
         roof_area = np.inf if roof_area is None else roof_area
+        use_sample_target = False if use_sample_target is None else use_sample_target
 
         data = EnergySimulation.get_pv_sizing_data()
         self._autosize_config = data.sample(1, random_state=self.random_seed).iloc[0].to_dict()
@@ -536,7 +537,7 @@ class PV(ElectricDevice):
             target_nominal_power = math.floor(limited_zne_nominal_power*safety_factor/pv_nominal_power)*pv_nominal_power
 
         module_area = self.autosize_config['module_area']
-        pv_area = pv_nominal_power*5.263 if module_area is None else module_area
+        pv_area = pv_nominal_power*5.263 if module_area is None or math.isnan(module_area) else module_area
         roof_limit_nominal_power = math.floor(roof_area/pv_area)*pv_nominal_power
 
         nominal_power = min(max(target_nominal_power, pv_nominal_power), roof_limit_nominal_power)
@@ -1041,7 +1042,7 @@ class Battery(StorageDevice, ElectricDevice):
         return capacity_degrade
     
     def autosize(
-        self, demand: float, duration: Union[float, Tuple[float, float]] = None, parellel: bool = None, safety_factor: Union[float, Tuple[float, float]] = None
+        self, demand: float, duration: Union[float, Tuple[float, float]] = None, parallel: bool = None, safety_factor: Union[float, Tuple[float, float]] = None
     ) -> Tuple[float, float, float, float, float, float]:
         r"""Randomly selects a battery from the internally defined real world manufacturer model and autosizes its parameters.
 
@@ -1057,7 +1058,8 @@ class Battery(StorageDevice, ElectricDevice):
         parallel : bool, default : False
             Whether to assume multiple batteries are connected in parallel so
             that the maximum nominal power is the product of the unit count and
-            the nominal_power of one battery.
+            the nominal_power of one battery i.e., increasing number of battery
+            units also increases nominal power.
         safety_factor : Union[float, Tuple[float, float]], default: 1.0
             The `target capacity is oversized by factor of `safety_factor`.
 
@@ -1083,20 +1085,28 @@ class Battery(StorageDevice, ElectricDevice):
 
         duration = self._get_property_value(duration, (1.5, 3.5))
         safety_factor = self._get_property_value(safety_factor, 1.0)
-        safety_factor = round
-        parallel = False if parellel is None else parallel
+        parallel = False if parallel is None else parallel
 
-        choices = EnergySimulation.get_battery_sizing_data()
+        all_choices = EnergySimulation.get_battery_sizing_data()
+        choices = all_choices[all_choices['nominal_power']<=demand].copy()
+
+        if choices.shape[0] == 0:
+            choices = all_choices.sort_values('nominal_power').iloc[0:1].copy()
+        
+        else:
+            pass
+        
+        choices = choices.to_dict('index')
         choice = self.numpy_random_state.choice(list(choices.keys()))
         target_capacity = demand*duration*safety_factor
-        unit_count = max(1, math.floor(target_capacity/choices[choice]['attributes']['capacity']))
+        unit_count = max(1, math.floor(target_capacity/choices[choice]['capacity']))
         
-        capacity = choices[choice]['attributes']['capacity']*unit_count
-        nominal_power = choices[choice]['attributes']['nominal_power']*max(1.0, unit_count*int(parallel))
-        depth_of_discharge = choices[choice]['attributes']['depth_of_discharge']
-        efficiency = choices[choice]['attributes']['efficiency']
-        loss_coefficient = choices[choice]['attributes']['loss_coefficient']
-        capacity_loss_coefficient = choices[choice]['attributes']['capacity_loss_coefficient']
+        capacity = choices[choice]['capacity']*unit_count
+        nominal_power = choices[choice]['nominal_power']*max(1.0, unit_count*int(parallel))
+        depth_of_discharge = choices[choice]['depth_of_discharge']
+        efficiency = choices[choice]['efficiency']
+        loss_coefficient = choices[choice]['loss_coefficient']
+        capacity_loss_coefficient = choices[choice]['capacity_loss_coefficient']
         
         self._autosize_config = {
             'model': choice,
@@ -1104,7 +1114,7 @@ class Battery(StorageDevice, ElectricDevice):
             'duration': duration,
             'safety_factor': safety_factor,
             'unit_count': unit_count,
-            **choices[choices],
+            **choices[choice],
         }
 
         return capacity, nominal_power, depth_of_discharge, efficiency, loss_coefficient, capacity_loss_coefficient
