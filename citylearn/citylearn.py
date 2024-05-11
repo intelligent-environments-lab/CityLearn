@@ -14,6 +14,7 @@ from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather
+from citylearn.energy_model import PV
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 
@@ -1500,6 +1501,13 @@ class CityLearnEnv(Environment, Env):
                     if autosize:
                         autosizer = device_metadata[device_name]['autosizer']
                         autosize_kwargs = {} if building_schema[device_name].get('autosize_attributes', None) is None else building_schema[device_name]['autosize_attributes']
+
+                        if isinstance(device, PV):
+                            autosize_kwargs['epw_filepath'] = os.path.join(root_directory, autosize_kwargs['epw_filepath'])
+                        
+                        else:
+                            pass
+
                         autosizer(**autosize_kwargs)
                     
                     else:
