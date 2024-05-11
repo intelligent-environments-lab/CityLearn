@@ -1662,7 +1662,7 @@ class Building(Environment):
         """
 
         demand = pd.DataFrame(self._estimate_baseline_electricity_consumption(), columns=['value'])
-        demand['day'] = int(demand.index/(self.seconds_per_time_step*24/self.seconds_per_time_step))
+        demand['day'] = (demand.index/(self.seconds_per_time_step*24/self.seconds_per_time_step)).astype(int)
         demand = demand.groupby('day')['value'].max().mean()
         
         self.electrical_storage.capacity, \
@@ -1685,9 +1685,9 @@ class Building(Environment):
         """
 
         demand = pd.DataFrame(self._estimate_baseline_electricity_consumption(), columns=['value'])
-        demand['year'] = int(demand.index/(self.seconds_per_time_step*24*365/self.seconds_per_time_step))
+        demand['year'] = (demand.index/(self.seconds_per_time_step*24*365/self.seconds_per_time_step)).astype(int)
         demand = demand.groupby('year')['value'].sum().mean()
-        epw_filepath = kwargs['epw_filepath']
+        epw_filepath = kwargs.pop('epw_filepath')
         self.pv.nominal_power, solar_generation = self.pv.autosize(demand, epw_filepath, **kwargs)
         self.energy_simulation.__setattr__('solar_generation', np.array(solar_generation, dtype = 'float32'))
 
