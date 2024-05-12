@@ -152,6 +152,14 @@
     "power_outage": {
       "active": false,
       "shared_in_central_agent": false
+    },
+    "hvac_mode": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "comfort_band": {
+      "active": false,
+      "shared_in_central_agent": false
     }
   },
   "actions": {
