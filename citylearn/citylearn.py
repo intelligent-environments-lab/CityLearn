@@ -14,7 +14,7 @@ from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather
-from citylearn.energy_model import PV
+from citylearn.energy_model import Battery, PV
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 
@@ -127,6 +127,7 @@ class CityLearnEnv(Environment, Env):
         self.random_seed = random_seed
         root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode_split, \
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker = self._load(
+                deepcopy(self.schema),
                 root_directory=root_directory,
                 buildings=buildings,
                 simulation_start_time_step=simulation_start_time_step,
@@ -1238,8 +1239,14 @@ class CityLearnEnv(Environment, Env):
 
         return agent
 
-    def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
+    def _load(self, schema: Union[str, Path, Mapping[str, Any]], **kwargs) -> Tuple[Union[Path, str], List[Building], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
+
+        Parameters
+        ----------
+        schema: Union[str, Path, Mapping[str, Any]]
+            Name of CityLearn data set, filepath to JSON representation or :code:`dict` object of a CityLearn schema.
+            Call :py:meth:`citylearn.data.DataSet.get_names` for list of available CityLearn data sets.
         
         Returns
         -------
@@ -1264,42 +1271,47 @@ class CityLearnEnv(Environment, Env):
             Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
         """
         
-        if isinstance(self.schema, (str, Path)) and os.path.isfile(self.schema):
-            schema_filepath = Path(self.schema) if isinstance(self.schema, str) else self.schema
-            self.schema = read_json(self.schema)
-            self.schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if self.schema['root_directory'] is None\
-                else self.schema['root_directory']
+        if isinstance(schema, (str, Path)) and os.path.isfile(schema):
+            schema_filepath = Path(schema) if isinstance(schema, str) else schema
+            schema = read_json(schema)
+            schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if schema['root_directory'] is None\
+                else schema['root_directory']
         
-        elif isinstance(self.schema, str) and self.schema in DataSet.get_names():
-            self.schema = DataSet.get_schema(self.schema)
-            self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
+        elif isinstance(schema, str) and schema in DataSet.get_names():
+            schema = DataSet.get_schema(schema)
+            schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
         
-        elif isinstance(self.schema, dict):
-            self.schema = deepcopy(self.schema)
-            self.schema['root_directory'] = '' if self.schema['root_directory'] is None else self.schema['root_directory']
+        elif isinstance(schema, dict):
+            schema = deepcopy(schema)
+            schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
         
         else:
             raise UnknownSchemaError()
 
-        root_directory = kwargs['root_directory'] if kwargs.get('root_directory') is not None else self.schema['root_directory']
-        central_agent =  kwargs['central_agent'] if kwargs.get('central_agent') is not None else self.schema['central_agent']
-        observations = self.schema['observations']
-        actions = self.schema['actions']
+        schema['root_directory'] = kwargs['root_directory'] if kwargs.get('root_directory') is not None else schema['root_directory']
+        schema['random_seed'] =  schema.get('random_seed', None) if kwargs.get('random_seed', None) is None else schema.get('random_seed', None)
+        schema['central_agent'] =  kwargs['central_agent'] if kwargs.get('central_agent') is not None else schema['central_agent']
         shared_observations =  kwargs['shared_observations'] if kwargs.get('shared_observations') is not None else\
-            [k for k, v in observations.items() if v['shared_in_central_agent']]
-        simulation_start_time_step = kwargs['simulation_start_time_step'] if kwargs.get('simulation_start_time_step') is not None else\
-            self.schema['simulation_start_time_step']
-        simulation_end_time_step = kwargs['simulation_end_time_step'] if kwargs.get('simulation_end_time_step') is not None else\
-            self.schema['simulation_end_time_step']
-        random_seed =  self.schema.get('random_seed', None) if kwargs.get('random_seed', None) is None else self.schema.get('random_seed', None)
-        episode_time_steps = kwargs['episode_time_steps'] if kwargs.get('episode_time_steps') is not None else self.schema.get('episode_time_steps', None)
-        rolling_episode_split = kwargs['rolling_episode_split'] if kwargs.get('rolling_episode_split') is not None else self.schema.get('rolling_episode_split', None)
-        random_episode_split = kwargs['random_episode_split'] if kwargs.get('random_episode_split') is not None else self.schema.get('random_episode_split', None)
-        seconds_per_time_step = kwargs['seconds_per_time_step'] if kwargs.get('seconds_per_time_step') is not None else self.schema['seconds_per_time_step']
-        episode_tracker = EpisodeTracker(simulation_start_time_step, simulation_end_time_step)
-        buildings_to_include = list(self.schema['buildings'].keys())
-        hash_to_integer_base = 16
-        buildings = ()
+            [k for k, v in schema['observations'].items() if v['shared_in_central_agent']]
+        
+        schema['episode_time_steps'] = kwargs['episode_time_steps'] if kwargs.get('episode_time_steps') is not None else schema.get('episode_time_steps', None)
+        schema['rolling_episode_split'] = kwargs['rolling_episode_split'] if kwargs.get('rolling_episode_split') is not None else schema.get('rolling_episode_split', None)
+        schema['random_episode_split'] = kwargs['random_episode_split'] if kwargs.get('random_episode_split') is not None else schema.get('random_episode_split', None)
+        schema['seconds_per_time_step'] = kwargs['seconds_per_time_step'] if kwargs.get('seconds_per_time_step') is not None else schema['seconds_per_time_step']
+
+        schema['simulation_start_time_step'] = kwargs['simulation_start_time_step'] if kwargs.get('simulation_start_time_step') is not None else\
+            schema['simulation_start_time_step']
+        schema['simulation_end_time_step'] = kwargs['simulation_end_time_step'] if kwargs.get('simulation_end_time_step') is not None else\
+            schema['simulation_end_time_step']
+        episode_tracker = EpisodeTracker(schema['simulation_start_time_step'], schema['simulation_end_time_step'])
+        
+        # get sizing data to reduce read time
+        pv_sizing_data = EnergySimulation.get_pv_sizing_data()
+        battery_sizing_data = EnergySimulation.get_battery_sizing_data()
+
+        # get buildings to include
+        buildings_to_include = list(schema['buildings'].keys())
+        buildings = []
 
         if kwargs.get('buildings') is not None and len(kwargs['buildings']) > 0:
             if isinstance(kwargs['buildings'][0], Building):
@@ -1320,207 +1332,11 @@ class CityLearnEnv(Environment, Env):
                 raise Exception('Unknown buildings type. Allowed types are citylearn.building.Building, int and str.')
             
         else:
-            buildings_to_include = [b for b in buildings_to_include if self.schema['buildings'][b]['include']]
+            buildings_to_include = [b for b in buildings_to_include if schema['buildings'][b]['include']]
 
+        # load buildings
         for i, building_name in enumerate(buildings_to_include):
-            building_schema = self.schema['buildings'][building_name]
-            # data
-            energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation']))
-            energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'))
-            weather = pd.read_csv(os.path.join(root_directory,building_schema['weather']))
-            weather = Weather(**weather.to_dict('list'))
-
-            if building_schema.get('carbon_intensity', None) is not None:
-                carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity']))
-                carbon_intensity = CarbonIntensity(**carbon_intensity.to_dict('list'))
-            
-            else:
-                carbon_intensity = None
-
-            if building_schema.get('pricing', None) is not None:
-                pricing = pd.read_csv(os.path.join(root_directory,building_schema['pricing']))
-                pricing = Pricing(**pricing.to_dict('list'))
-            else:
-                pricing = None
-                
-            # observation metadata
-            observation_metadata = {k: v['active'] for k, v in observations.items()}
-
-            if kwargs.get('active_observations') is not None:
-                active_observations = kwargs['active_observations']
-                active_observations = active_observations[i] if isinstance(active_observations[0], list) else active_observations
-                observation_metadata = {k: True if k in active_observations else False for k in observation_metadata}
-            
-            else:
-                pass
-
-            if kwargs.get('inactive_observations') is not None:
-                inactive_observations = kwargs['inactive_observations']
-                inactive_observations = inactive_observations[i] if isinstance(inactive_observations[0], list) else inactive_observations
-
-            elif building_schema.get('inactive_observations') is not None:
-                inactive_observations = building_schema['inactive_observations']
-
-            else:
-                inactive_observations = []
-
-            observation_metadata = {k: False if k in inactive_observations else v for k, v in observation_metadata.items()}
-
-            # action metadata
-            action_metadata = {k: v['active'] for k, v in actions.items()}
-
-            if kwargs.get('active_actions') is not None:
-                active_actions = kwargs['active_actions']
-                active_actions = active_actions[i] if isinstance(active_actions[0], list) else active_actions
-                action_metadata = {k: True if k in active_actions else False for k in action_metadata}
-            
-            else:
-                pass
-
-            if kwargs.get('inactive_actions') is not None:
-                inactive_actions = kwargs['inactive_actions']
-                inactive_actions = inactive_actions[i] if isinstance(inactive_actions[0], list) else inactive_actions
-
-            elif building_schema.get('inactive_actions') is not None:
-                inactive_actions = building_schema['inactive_actions']
-
-            else:
-                inactive_actions = []
-
-            action_metadata = {k: False if k in inactive_actions else v for k, v in action_metadata.items()}
-
-            # construct building
-            building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
-            building_type_module = '.'.join(building_type.split('.')[0:-1])
-            building_type_name = building_type.split('.')[-1]
-            building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
-            dynamics = {}
-            
-            # set dynamics
-            if building_schema.get('dynamics', None) is not None:
-                assert int(citylearn_version.split('.')[0]) >= 2, 'Building dynamics is only supported in CityLearn>=2.x.x'
-                
-                dynamics_type = building_schema['dynamics']['type']
-                dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
-                dynamics_name = dynamics_type.split('.')[-1]
-                dynamics_constructor = getattr(importlib.import_module(dynamics_module), dynamics_name)
-                attributes = building_schema['dynamics'].get('attributes', {})
-                attributes['filepath'] = os.path.join(root_directory, attributes['filename'])
-                _ = attributes.pop('filename')
-                dynamics[f'dynamics'] = dynamics_constructor(**attributes)
-            
-            else:
-                dynamics['dynamics'] = {}
-
-            # set power outage model
-            building_schema_power_outage = building_schema.get('power_outage', {})
-            simulate_power_outage = kwargs.get('simulate_power_outage')
-            simulate_power_outage = building_schema_power_outage.get('simulate_power_outage') if simulate_power_outage is None else simulate_power_outage
-            simulate_power_outage = simulate_power_outage[i] if isinstance(simulate_power_outage, list) else simulate_power_outage
-            stochastic_power_outage = building_schema_power_outage.get('stochastic_power_outage')
-
-            if building_schema_power_outage.get('stochastic_power_outage_model', None) is not None:
-                stochastic_power_outage_model_type = building_schema_power_outage['stochastic_power_outage_model']['type']
-                stochastic_power_outage_model_module = '.'.join(stochastic_power_outage_model_type.split('.')[0:-1])
-                stochastic_power_outage_model_name = stochastic_power_outage_model_type.split('.')[-1]
-                stochastic_power_outage_model_constructor = getattr(
-                    importlib.import_module(stochastic_power_outage_model_module), 
-                    stochastic_power_outage_model_name
-                )
-                attributes =  building_schema_power_outage.get('stochastic_power_outage_model', {}).get('attributes', {})
-                stochastic_power_outage_model = stochastic_power_outage_model_constructor(**attributes)
-            
-            else:
-                stochastic_power_outage_model = None
-
-            building: Building = building_constructor(
-                energy_simulation=energy_simulation, 
-                weather=weather, 
-                observation_metadata=observation_metadata, 
-                action_metadata=action_metadata, 
-                carbon_intensity=carbon_intensity, 
-                pricing=pricing,
-                name=building_name, 
-                seconds_per_time_step=seconds_per_time_step,
-                random_seed=random_seed,
-                episode_tracker=episode_tracker,
-                simulate_power_outage=simulate_power_outage,
-                stochastic_power_outage=stochastic_power_outage,
-                stochastic_power_outage_model=stochastic_power_outage_model,
-                **dynamics,
-            )
-
-            # update devices
-            device_metadata = {
-                'cooling_device': {'autosizer': building.autosize_cooling_device}, 
-                'heating_device': {'autosizer': building.autosize_heating_device}, 
-                'dhw_device': {'autosizer': building.autosize_dhw_device}, 
-                'dhw_storage': {'autosizer': building.autosize_dhw_storage},  
-                'cooling_storage': {'autosizer': building.autosize_cooling_storage}, 
-                'heating_storage': {'autosizer': building.autosize_heating_storage}, 
-                'electrical_storage': {'autosizer': building.autosize_electrical_storage}, 
-                'pv': {'autosizer': building.autosize_pv}
-            }
-            solar_generation = kwargs.get('solar_generation')
-            solar_generation = True if solar_generation is None else solar_generation
-            solar_generation = solar_generation[i] if isinstance(solar_generation, list) else solar_generation
-
-            for device_name in device_metadata:
-                if building_schema.get(device_name, None) is None:
-                    device = None
-                
-                elif device_name == 'pv' and not solar_generation:
-                    device = None
-                
-                else:
-                    device_type: str = building_schema[device_name]['type']
-                    device_module = '.'.join(device_type.split('.')[0:-1])
-                    device_type_name = device_type.split('.')[-1]
-                    constructor = getattr(importlib.import_module(device_module),device_type_name)
-                    attributes = building_schema[device_name].get('attributes',{})
-                    attributes['seconds_per_time_step'] = seconds_per_time_step
-
-                    # in case device technical specifications are to be randomly sampled, make sure each device per building has a unique seed
-                    md5 = hashlib.md5()
-                    device_random_seed = 0
-
-                    for string in [building_name, building_type, device_name, device_type]:
-                        md5.update(string.encode())
-                        device_random_seed += int(md5.hexdigest(), hash_to_integer_base)
-
-                    device_random_seed = int(str(device_random_seed*(random_seed + 1))[:9])
-
-                    attributes = {
-                        **attributes,
-                        'random_seed': attributes['random_seed'] if attributes.get('random_seed', None) is not None else device_random_seed
-                    }
-                    device = constructor(**attributes)
-                    autosize = False if building_schema[device_name].get('autosize', None) is None else building_schema[device_name]['autosize']
-                    building.__setattr__(device_name, device)
-
-                    if autosize:
-                        autosizer = device_metadata[device_name]['autosizer']
-                        autosize_kwargs = {} if building_schema[device_name].get('autosize_attributes', None) is None else building_schema[device_name]['autosize_attributes']
-
-                        if isinstance(device, PV):
-                            autosize_kwargs['epw_filepath'] = os.path.join(root_directory, autosize_kwargs['epw_filepath'])
-                        
-                        else:
-                            pass
-
-                        autosizer(**autosize_kwargs)
-                    
-                    else:
-                        pass
-
-                    # set back the random seed to to building's random seed
-                    device.random_seed = random_seed
-            
-            building.observation_space = building.estimate_observation_space()
-            building.action_space = building.estimate_action_space()
-            buildings += (building,)
-        
-        buildings = list(buildings)
+            buildings.append(self._load_building(i, building_name, schema, episode_tracker, pv_sizing_data, battery_sizing_data, **kwargs))
 
         # set reward function
         if kwargs.get('reward_function') is not None:
@@ -1534,13 +1350,13 @@ class CityLearnEnv(Environment, Env):
                 pass
 
         else:
-            reward_function_type = self.schema['reward_function']['type']
+            reward_function_type = schema['reward_function']['type']
 
         if kwargs.get('reward_function_kwargs') is not None:
             reward_function_attributes = kwargs['reward_function_kwargs']
         
         else:
-            reward_function_attributes = self.schema['reward_function'].get('attributes', None)
+            reward_function_attributes = schema['reward_function'].get('attributes', None)
             reward_function_attributes = {} if reward_function_attributes is None else reward_function_attributes
         
         reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
@@ -1549,9 +1365,215 @@ class CityLearnEnv(Environment, Env):
         reward_function = reward_function_constructor(None, **reward_function_attributes)
 
         return (
-            root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode_split, 
-            seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker
+            schema['root_directory'], buildings, schema['episode_time_steps'], schema['rolling_episode_split'], schema['random_episode_split'], 
+            schema['seconds_per_time_step'], reward_function, schema['central_agent'], shared_observations, episode_tracker
         )
+    
+    def _load_building(self, index: int, building_name: str, schema: dict, episode_tracker: EpisodeTracker, pv_sizing_data: pd.DataFrame, battery_sizing_data: pd.DataFrame, **kwargs) -> Building:
+        """Initializes and returns a building model."""
+
+        building_schema = schema['buildings'][building_name]
+        # data
+        energy_simulation = pd.read_csv(os.path.join(schema['root_directory'],building_schema['energy_simulation']))
+        energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'))
+        weather = pd.read_csv(os.path.join(schema['root_directory'],building_schema['weather']))
+        weather = Weather(**weather.to_dict('list'))
+
+        if building_schema.get('carbon_intensity', None) is not None:
+            carbon_intensity = pd.read_csv(os.path.join(schema['root_directory'],building_schema['carbon_intensity']))
+            carbon_intensity = CarbonIntensity(**carbon_intensity.to_dict('list'))
+        
+        else:
+            carbon_intensity = None
+
+        if building_schema.get('pricing', None) is not None:
+            pricing = pd.read_csv(os.path.join(schema['root_directory'],building_schema['pricing']))
+            pricing = Pricing(**pricing.to_dict('list'))
+        else:
+            pricing = None
+            
+        # observation metadata
+        observation_metadata = {k: v['active'] for k, v in schema['observations'].items()}
+
+        if kwargs.get('active_observations') is not None:
+            active_observations = kwargs['active_observations']
+            active_observations = active_observations[index] if isinstance(active_observations[0], list) else active_observations
+            observation_metadata = {k: True if k in active_observations else False for k in observation_metadata}
+        
+        else:
+            pass
+
+        if kwargs.get('inactive_observations') is not None:
+            inactive_observations = kwargs['inactive_observations']
+            inactive_observations = inactive_observations[index] if isinstance(inactive_observations[0], list) else inactive_observations
+
+        elif building_schema.get('inactive_observations') is not None:
+            inactive_observations = building_schema['inactive_observations']
+
+        else:
+            inactive_observations = []
+
+        observation_metadata = {k: False if k in inactive_observations else v for k, v in observation_metadata.items()}
+
+        # action metadata
+        action_metadata = {k: v['active'] for k, v in schema['actions'].items()}
+
+        if kwargs.get('active_actions') is not None:
+            active_actions = kwargs['active_actions']
+            active_actions = active_actions[index] if isinstance(active_actions[0], list) else active_actions
+            action_metadata = {k: True if k in active_actions else False for k in action_metadata}
+        
+        else:
+            pass
+
+        if kwargs.get('inactive_actions') is not None:
+            inactive_actions = kwargs['inactive_actions']
+            inactive_actions = inactive_actions[index] if isinstance(inactive_actions[0], list) else inactive_actions
+
+        elif building_schema.get('inactive_actions') is not None:
+            inactive_actions = building_schema['inactive_actions']
+
+        else:
+            inactive_actions = []
+
+        action_metadata = {k: False if k in inactive_actions else v for k, v in action_metadata.items()}
+
+        # construct building
+        building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
+        building_type_module = '.'.join(building_type.split('.')[0:-1])
+        building_type_name = building_type.split('.')[-1]
+        building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
+        dynamics = {}
+        
+        # set dynamics
+        if building_schema.get('dynamics', None) is not None:
+            assert int(citylearn_version.split('.')[0]) >= 2, 'Building dynamics is only supported in CityLearn>=2.x.x'
+            
+            dynamics_type = building_schema['dynamics']['type']
+            dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
+            dynamics_name = dynamics_type.split('.')[-1]
+            dynamics_constructor = getattr(importlib.import_module(dynamics_module), dynamics_name)
+            attributes = building_schema['dynamics'].get('attributes', {})
+            attributes['filepath'] = os.path.join(schema['root_directory'], attributes['filename'])
+            _ = attributes.pop('filename')
+            dynamics[f'dynamics'] = dynamics_constructor(**attributes)
+        
+        else:
+            dynamics['dynamics'] = {}
+
+        # set power outage model
+        building_schema_power_outage = building_schema.get('power_outage', {})
+        simulate_power_outage = kwargs.get('simulate_power_outage')
+        simulate_power_outage = building_schema_power_outage.get('simulate_power_outage') if simulate_power_outage is None else simulate_power_outage
+        simulate_power_outage = simulate_power_outage[index] if isinstance(simulate_power_outage, list) else simulate_power_outage
+        stochastic_power_outage = building_schema_power_outage.get('stochastic_power_outage')
+
+        if building_schema_power_outage.get('stochastic_power_outage_model', None) is not None:
+            stochastic_power_outage_model_type = building_schema_power_outage['stochastic_power_outage_model']['type']
+            stochastic_power_outage_model_module = '.'.join(stochastic_power_outage_model_type.split('.')[0:-1])
+            stochastic_power_outage_model_name = stochastic_power_outage_model_type.split('.')[-1]
+            stochastic_power_outage_model_constructor = getattr(
+                importlib.import_module(stochastic_power_outage_model_module), 
+                stochastic_power_outage_model_name
+            )
+            attributes =  building_schema_power_outage.get('stochastic_power_outage_model', {}).get('attributes', {})
+            stochastic_power_outage_model = stochastic_power_outage_model_constructor(**attributes)
+        
+        else:
+            stochastic_power_outage_model = None
+
+        building: Building = building_constructor(
+            energy_simulation=energy_simulation, 
+            weather=weather, 
+            observation_metadata=observation_metadata, 
+            action_metadata=action_metadata, 
+            carbon_intensity=carbon_intensity, 
+            pricing=pricing,
+            name=building_name, 
+            seconds_per_time_step=schema['seconds_per_time_step'],
+            random_seed=schema['random_seed'],
+            episode_tracker=episode_tracker,
+            simulate_power_outage=simulate_power_outage,
+            stochastic_power_outage=stochastic_power_outage,
+            stochastic_power_outage_model=stochastic_power_outage_model,
+            **dynamics,
+        )
+
+        # update devices
+        device_metadata = {
+            'cooling_device': {'autosizer': building.autosize_cooling_device}, 
+            'heating_device': {'autosizer': building.autosize_heating_device}, 
+            'dhw_device': {'autosizer': building.autosize_dhw_device}, 
+            'dhw_storage': {'autosizer': building.autosize_dhw_storage},  
+            'cooling_storage': {'autosizer': building.autosize_cooling_storage}, 
+            'heating_storage': {'autosizer': building.autosize_heating_storage}, 
+            'electrical_storage': {'autosizer': building.autosize_electrical_storage}, 
+            'pv': {'autosizer': building.autosize_pv}
+        }
+        solar_generation = kwargs.get('solar_generation')
+        solar_generation = True if solar_generation is None else solar_generation
+        solar_generation = solar_generation[index] if isinstance(solar_generation, list) else solar_generation
+
+        for device_name in device_metadata:
+            if building_schema.get(device_name, None) is None:
+                device = None
+            
+            elif device_name == 'pv' and not solar_generation:
+                device = None
+            
+            else:
+                device_type: str = building_schema[device_name]['type']
+                device_module = '.'.join(device_type.split('.')[0:-1])
+                device_type_name = device_type.split('.')[-1]
+                constructor = getattr(importlib.import_module(device_module),device_type_name)
+                attributes = building_schema[device_name].get('attributes',{})
+                attributes['seconds_per_time_step'] = schema['seconds_per_time_step']
+
+                # in case device technical specifications are to be randomly sampled, make sure each device per building has a unique seed
+                md5 = hashlib.md5()
+                device_random_seed = 0
+
+                for string in [building_name, building_type, device_name, device_type]:
+                    md5.update(string.encode())
+                    hash_to_integer_base = 16
+                    device_random_seed += int(md5.hexdigest(), hash_to_integer_base)
+
+                device_random_seed = int(str(device_random_seed*(schema['random_seed'] + 1))[:9])
+
+                attributes = {
+                    **attributes,
+                    'random_seed': attributes['random_seed'] if attributes.get('random_seed', None) is not None else device_random_seed
+                }
+                device = constructor(**attributes)
+                autosize = False if building_schema[device_name].get('autosize', None) is None else building_schema[device_name]['autosize']
+                building.__setattr__(device_name, device)
+
+                if autosize:
+                    autosizer = device_metadata[device_name]['autosizer']
+                    autosize_kwargs = {} if building_schema[device_name].get('autosize_attributes', None) is None else building_schema[device_name]['autosize_attributes']
+
+                    if isinstance(device, PV):
+                        autosize_kwargs['epw_filepath'] = os.path.join(schema['root_directory'], autosize_kwargs['epw_filepath'])
+                        autosize_kwargs['sizing_data'] = pv_sizing_data
+
+                    elif isinstance(device, Battery):
+                        autosize_kwargs['sizing_data'] = battery_sizing_data
+                    
+                    else:
+                        pass
+
+                    autosizer(**autosize_kwargs)
+                
+                else:
+                    pass
+
+                # set back the random seed to to building's random seed
+                device.random_seed = schema['random_seed']
+        
+        building.observation_space = building.estimate_observation_space()
+        building.action_space = building.estimate_action_space()
+
+        return building
         
 class Error(Exception):
     """Base class for other exceptions."""
