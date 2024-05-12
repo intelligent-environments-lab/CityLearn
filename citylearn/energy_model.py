@@ -1,11 +1,15 @@
+import logging
 import math
 from pathlib import Path
 from typing import Any, Iterable, List, Mapping, Tuple, Union
 import numpy as np
+import pandas as pd
 from PySAM import Pvwattsv8
 from citylearn.base import Environment
 from citylearn.data import EnergySimulation, ZERO_DIVISION_PLACEHOLDER
 np.seterr(divide='ignore', invalid='ignore')
+
+LOGGER = logging.getLogger()
 
 class Device(Environment):
     r"""Base device class.
@@ -473,7 +477,7 @@ class PV(ElectricDevice):
 
         return self.nominal_power*np.array(inverter_ac_power_per_kw)/1000.0
 
-    def autosize(self, demand: float, epw_filepath: Union[Path, str], use_sample_target: bool = None, zero_net_energy_proportion: Union[float, Tuple[float, float]] = None, roof_area: float = None, safety_factor: Union[float, Tuple[float, float]] = None) -> Tuple[float, np.ndarray]:
+    def autosize(self, demand: float, epw_filepath: Union[Path, str], use_sample_target: bool = None, zero_net_energy_proportion: Union[float, Tuple[float, float]] = None, roof_area: float = None, safety_factor: Union[float, Tuple[float, float]] = None, sizing_data: pd.DataFrame = None) -> Tuple[float, np.ndarray]:
         r"""Autosize `nominal_power` and `inverter_ac_power_per_kw`.
 
         Samples PV data from Tracking the Sun dataset to set PV system design parameters in System Adivosry Model's `PVWattsNone` model.
@@ -496,6 +500,11 @@ class PV(ElectricDevice):
         safety_factor : Union[float, Tuple[float, float]], default: 1.0
             The `nominal_power` is oversized by factor of `safety_factor`.
             It is only applied to the `zero_net_energy_proportion` estimate.
+        sizing_data: pd.DataFrame, optional
+            The sizing dataframe from which PV systems are sampled from. If initialized from
+            py:class:`citylearn.citylearn.CityLearnEnv`, the data is parsed in when autosizing
+            a building's PV. If the dataframe is not provided it is read in using
+            :py:meth:`citylearn.data.EnergySimulation.get_pv_sizing_data`.
 
         Returns
         -------
@@ -514,18 +523,35 @@ class PV(ElectricDevice):
         roof_area = np.inf if roof_area is None else roof_area
         use_sample_target = False if use_sample_target is None else use_sample_target
 
-        data = EnergySimulation.get_pv_sizing_data()
-        self._autosize_config = data.sample(1, random_state=self.random_seed).iloc[0].to_dict()
-        model = Pvwattsv8.default('PVWattsNone')
-        pv_nominal_power = self.autosize_config['nameplate_capacity_module_1']/1000.0
-        model.SystemDesign.system_capacity = pv_nominal_power
-        model.SystemDesign.dc_ac_ratio = self.autosize_config['inverter_loading_ratio']
-        model.SystemDesign.tilt = self.autosize_config['tilt_1']
-        model.SystemDesign.azimuth = self.autosize_config['azimuth_1']
-        model.SystemDesign.bifaciality = self.autosize_config['bifacial_module_1']*0.65
-        model.SolarResource.solar_resource_file = epw_filepath
+        sizing_data = EnergySimulation.get_pv_sizing_data() if sizing_data is None else sizing_data
+        random_seed = self.random_seed
+        tries = 3
+
+        for i in range(3):
+            self._autosize_config = sizing_data.sample(1, random_state=random_seed + i).iloc[0].to_dict()
+            model = Pvwattsv8.default('PVWattsNone')
+            pv_nominal_power = self.autosize_config['nameplate_capacity_module_1']/1000.0
+            model.SystemDesign.system_capacity = pv_nominal_power
+            model.SystemDesign.dc_ac_ratio = self.autosize_config['inverter_loading_ratio']
+            model.SystemDesign.tilt = self.autosize_config['tilt_1']
+            model.SystemDesign.azimuth = self.autosize_config['azimuth_1']
+            model.SystemDesign.bifaciality = self.autosize_config['bifacial_module_1']*0.65
+            model.SolarResource.solar_resource_file = epw_filepath
         
-        model.execute()
+            try:
+                model.execute()
+                break
+
+            except Exception as e:
+                LOGGER.debug(f'Failed to simulate PVWatts using config: {self._autosize_config}')
+
+                if i == tries - 1:
+                    raise e
+                
+                else:
+                    pass
+                
+        
         inverter_ac_power_per_kw = np.array(model.Outputs.ac, dtype='float32')/pv_nominal_power
 
         if use_sample_target:
@@ -1042,7 +1068,8 @@ class Battery(StorageDevice, ElectricDevice):
         return capacity_degrade
     
     def autosize(
-        self, demand: float, duration: Union[float, Tuple[float, float]] = None, parallel: bool = None, safety_factor: Union[float, Tuple[float, float]] = None
+        self, demand: float, duration: Union[float, Tuple[float, float]] = None, parallel: bool = None, safety_factor: Union[float, Tuple[float, float]] = None,
+        sizing_data: pd.DataFrame = None
     ) -> Tuple[float, float, float, float, float, float]:
         r"""Randomly selects a battery from the internally defined real world manufacturer model and autosizes its parameters.
 
@@ -1077,6 +1104,11 @@ class Battery(StorageDevice, ElectricDevice):
             Selected battery loss coefficient.
         capacity_loss_coefficient : float
             Selected battery capacity loss coefficient.
+        sizing_data: pd.DataFrame, optional
+            The sizing dataframe from which batteries systems are sampled from. If initialized from
+            py:class:`citylearn.citylearn.CityLearnEnv`, the data is parsed in when autosizing
+            a building's battery. If the dataframe is not provided it is read in using
+            :py:meth:`citylearn.data.EnergySimulation.get_battery_sizing_data`.
 
         Notes
         -----
@@ -1087,11 +1119,11 @@ class Battery(StorageDevice, ElectricDevice):
         safety_factor = self._get_property_value(safety_factor, 1.0)
         parallel = False if parallel is None else parallel
 
-        all_choices = EnergySimulation.get_battery_sizing_data()
-        choices = all_choices[all_choices['nominal_power']<=demand].copy()
+        sizing_data = EnergySimulation.get_battery_sizing_data() if sizing_data is None else sizing_data
+        choices = sizing_data[sizing_data['nominal_power']<=demand].copy()
 
         if choices.shape[0] == 0:
-            choices = all_choices.sort_values('nominal_power').iloc[0:1].copy()
+            choices = sizing_data.sort_values('nominal_power').iloc[0:1].copy()
         
         else:
             pass
