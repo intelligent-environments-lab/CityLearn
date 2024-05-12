@@ -6,4 +6,5 @@ hidden_size: 4
 lb: 13
 learning_rate: 0.008
 num_layer: 2
+optimizer_name: "Adam"
 weight_decay: 0.01

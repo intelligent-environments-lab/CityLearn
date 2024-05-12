@@ -12,11 +12,11 @@ from tqdm import tqdm
 import yaml
 
 def reformat_filepath(filepath):
-    return os.path.join(*("/".split(filepath)))
+    return os.path.join(*(filepath.split("/")))
 
-folder = reformat_filepath("citylearn/end_use_load_profiles")
+folder = reformat_filepath("end_use_load_profiles")
 
-config = yaml.safe_load(reformat_filepath("lstm_model/config.yaml"))
+config = yaml.safe_load(open(reformat_filepath("lstm_model/config.yaml"), "r"))
 
 def dataset_dataloader(x, y, BATCH_SIZE, shuffle=True):
     TENSOR = TensorDataset(torch.from_numpy(x.astype(np.float32)), torch.from_numpy(y.astype(np.float32)))

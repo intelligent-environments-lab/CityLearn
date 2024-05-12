@@ -12,6 +12,7 @@ def run_one_model(df_id, df, n_tries=3):
     }
 
 def get_model_pth(df_id, df, n_tries):
+    os.makedirs(f"{folder}/best_models", exist_ok=True)
     errors = []
     for i in range(n_tries):
         errors.append(run(df, i))
