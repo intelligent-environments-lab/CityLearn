@@ -913,6 +913,11 @@ class Battery(StorageDevice, ElectricDevice):
         """Time series of maximum amount of energy the storage device can store in [kWh]."""
 
         return self._capacity_history
+    
+    @StorageDevice.capacity.setter
+    def capacity(self, capacity: Union[float, Tuple[float, float]]):
+        StorageDevice.capacity.fset(self, capacity)
+        self._capacity_history = [super().capacity]
 
     @efficiency.setter
     def efficiency(self, efficiency: Union[float, Tuple[float, float]]):
