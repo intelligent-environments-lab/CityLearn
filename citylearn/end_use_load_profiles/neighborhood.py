@@ -11,10 +11,10 @@ from doe_xstock.simulate import EndUseLoadProfilesEnergyPlusSimulator
 import numpy as np
 import pandas as pd
 from citylearn.base import Environment
+from citylearn.data import get_settings
 from citylearn.end_use_load_profiles.clustering import MetadataClustering
-from citylearn.end_use_load_profiles.simulate import EnergyPlusPartialLoadSimulator
-
 from citylearn.end_use_load_profiles.model_generation_wrapper import run_one_model
+from citylearn.end_use_load_profiles.simulate import EndUseLoadProfilesEnergyPlusPartialLoadSimulator
 
 @unique
 class SampleMethod(Enum):
@@ -28,7 +28,7 @@ class Neighborhood:
 
     def __init__(
         self, weather_data: str = None, year_of_publication: int = None, release: int = None, cache: bool = None,
-        energyplus_output_directory: Union[Path, str] = None, random_seed: int = None
+        energyplus_output_directory: Union[Path, str] = None, dataset_directory: Union[Path, str] = None, random_seed: int = None
     ) -> None:
         self.__end_use_load_profiles = EndUseLoadProfiles(
             dataset_type=VersionDatasetType.RESSTOCK,
@@ -38,6 +38,7 @@ class Neighborhood:
             cache=cache,
         )
         self.energyplus_output_directory = energyplus_output_directory
+        self.dataset_directory = dataset_directory
         self.random_seed = random_seed
 
     @property
@@ -49,12 +50,20 @@ class Neighborhood:
         return self.__energyplus_output_directory
     
     @property
+    def dataset_directory(self) -> Union[Path, str]:
+        return self.__dataset_directory
+    
+    @property
     def random_seed(self) -> int:
         return self.__random_seed
 
     @energyplus_output_directory.setter
     def energyplus_output_directory(self, value: Union[Path, str]):
         self.__energyplus_output_directory = 'energyplus_output' if value is None else value
+
+    @dataset_directory.setter
+    def dataset_directory(self, value: Union[Path, str]):
+        self.__dataset_directory = 'datasets' if value is None else value
 
     @random_seed.setter
     def random_seed(self, value: int):
@@ -78,8 +87,69 @@ class Neighborhood:
         simulators = self.simulate_energy_plus(idd_filepath, **energyplus_simulation_kwargs)
         lstm_training_data = self.get_lstm_training_data(simulators)
 
-    def get_schema(self, simulators: Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EnergyPlusPartialLoadSimulator]]], models: Mapping[str, Path]):
-        raise NotImplementedError
+    def set_schema(self, simulators: Mapping[int, Mapping[str, Union[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusPartialLoadSimulator]]], lstm_models: Mapping[str, Path], template: Mapping[str, Union[dict, float, int, str]] = None, metadata: pd.DataFrame = None, dataset_name: str = None, directory: Union[Path, str] = None):
+        reference_simulator = list(simulators.values())[0]['mechanical']
+        template = get_settings()['schema']['template'] if template is None else template
+        building_template = template.pop('buildings')['Building_1']
+        template['buildings'] = {}
+        metadata = self.end_use_load_profiles.metadata.metadata.get().to_dict('index') if metadata is None else metadata
+        directory = self.dataset_directory if directory is None else directory
+        county = metadata[list(metadata.keys())[0]][self.__COUNTY_COLUMN]
+        county = county.lower().replace(',', '').replace(' ', '_')
+        dataset_name = f'{self.end_use_load_profiles.version}-{county}' if dataset_name is None else dataset_name
+        directory = os.path.join(directory, dataset_name)
+        os.makedirs(directory, exist_ok=True)
+
+        # write weather (csv and epw)
+        
+        _ = shutil.copy(reference_simulator.epw_filepath, os.path.join(directory, 'weather.epw'))
+
+        for bldg_id, building_simulators in simulators.items():
+            simulator: EndUseLoadProfilesEnergyPlusPartialLoadSimulator = building_simulators['partial'][0]
+            building = deepcopy(building_template)
+
+            # set building-specific filepaths
+            building['energy_simulation'] = f'{simulator.simulation_id}.csv'
+            building['dynamics']['attributes']['filepath'] = f'{simulator.simulation_id}.pth'
+
+            # as-modeled DER survey
+            no_space_cooling = metadata[bldg_id]['in.hvac_cooling_type'] == 'None'
+            no_space_heating = metadata[bldg_id]['in.heating_fuel'] == 'None'
+            no_electric_space_heating = metadata[bldg_id]['in.heating_fuel'] != 'Electricity'
+            no_dhw_heating = metadata[bldg_id]['in.water_heater_fuel'] == 'None'
+            no_electric_dhw_heating = metadata[bldg_id]['in.water_heater_fuel'] != 'Electricity'
+            no_dhw_heating_storage = True
+
+            if no_space_cooling:
+                building['cooling_device'] = None
+
+            else:
+                pass
+
+            if no_space_heating:
+                building['heating_device'] = None
+
+            elif no_electric_space_heating:
+                building['inactive_observations'] += [o for o in template['observations'] if 'heating' in o]
+
+            else:
+                pass
+
+            if no_dhw_heating or no_electric_dhw_heating:
+                building['dhw_device'] = None
+                building['dhw_storage'] = None
+                building['inactive_observations'] += [o for o in template['observations'] if 'dhw' in o]
+                building['inactive_actions'] += ['dhw_storage']
+
+            elif no_dhw_heating_storage:
+                building['dhw_storage'] = None
+                building['inactive_observations'] += [o for o in template['observations'] if 'dhw_storage' in o]
+                building['inactive_actions'] += ['dhw_storage']
+            
+            else:
+                pass
+
+            # set epw
     
     def train_lstm(data: Mapping[int, pd.DataFrame], **kwargs) -> Mapping[int, Mapping[str, Any]]:
         """
@@ -101,14 +171,14 @@ class Neighborhood:
             }
         return d
     
-    def get_lstm_training_data(self, simulators: Mapping[int, Mapping[int, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EnergyPlusPartialLoadSimulator]]]) -> Mapping[int, pd.DataFrame]:
+    def get_lstm_training_data(self, simulators: Mapping[int, Mapping[int, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusPartialLoadSimulator]]]) -> Mapping[int, pd.DataFrame]:
         data = {}
 
         for bldg_id, building_simulators in simulators.items():
             data_list = []
 
             for partial_simulator in building_simulators['partial']:
-                query_filepath = os.path.join(EnergyPlusPartialLoadSimulator.QUERIES_DIRECTORY, 'select_lstm_training_data.sql')
+                query_filepath = os.path.join(EndUseLoadProfilesEnergyPlusPartialLoadSimulator.QUERIES_DIRECTORY, 'select_lstm_training_data.sql')
                 pdata = partial_simulator.get_output_database().query_table_from_file(query_filepath)
                 pdata.insert(0, 'reference_name', partial_simulator.simulation_id.split('-')[-2])
                 pdata.insert(0, 'reference', int(partial_simulator.simulation_id.split('-')[-1]))
@@ -123,7 +193,10 @@ class Neighborhood:
         self, bldg_ids: List[int], idd_filepath: Union[Path, str], simulation_ids: List[str] = None, models: List[Union[Path, str]] = None, 
         schedules: Union[Path, pd.DataFrame] = None, osm: bool = None,
         partial_loads_simulations: int = None, partial_loads_kwargs: Mapping[str, Any] = None, max_workers: int = None, **kwargs
-    ) -> Mapping[int, Mapping[str, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EnergyPlusPartialLoadSimulator]]]:
+    ) -> Mapping[int, Mapping[
+        str, 
+        Union[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, List[EndUseLoadProfilesEnergyPlusPartialLoadSimulator]]
+    ]]:
         assert models is None or len(models) == len(bldg_ids), 'There must be as many models as bldg_ids.'
         assert schedules is None or len(schedules) == len(bldg_ids), 'There must be as many schedules as bldg_ids.'
         assert simulation_ids is None or len(simulation_ids) == len(bldg_ids), 'There must be as many simulation_ids as bldg_ids.'
@@ -187,7 +260,7 @@ class Neighborhood:
             ).simulator
 
             # partial loads
-            partial_loads_simulators: List[EnergyPlusPartialLoadSimulator] = []
+            partial_loads_simulators: List[EndUseLoadProfilesEnergyPlusPartialLoadSimulator] = []
             kwargs_multiplier_minimum = partial_loads_kwargs.pop('multiplier_minimum', None)
             kwargs_multiplier_maximum = partial_loads_kwargs.pop('multiplier_maximum', None)
             kwargs_multiplier_probability = partial_loads_kwargs.pop('multiplier_probability', None)
@@ -214,7 +287,7 @@ class Neighborhood:
                 _ = partial_loads_kwargs.pop('simulation_id', None)
                 _ = partial_loads_kwargs.pop('output_directory', None)
                 _ = partial_loads_kwargs.pop('random_seed', None)
-                partial_loads_simulators.append(EnergyPlusPartialLoadSimulator(
+                partial_loads_simulators.append(EndUseLoadProfilesEnergyPlusPartialLoadSimulator(
                     ideal_loads_simulator=deepcopy(ideal_simulator),
                     multiplier_minimum=multiplier_minimum,
                     multiplier_maximum=multiplier_maximum,
@@ -225,7 +298,7 @@ class Neighborhood:
                     **partial_loads_kwargs
                 ))
             
-            EnergyPlusPartialLoadSimulator.multi_simulate(partial_loads_simulators, max_workers=max_workers)
+            EndUseLoadProfilesEnergyPlusPartialLoadSimulator.multi_simulate(partial_loads_simulators, max_workers=max_workers)
 
             simulators[bldg_id] = {
                 'mechanical': mechanical_simulator,
