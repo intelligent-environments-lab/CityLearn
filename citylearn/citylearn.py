@@ -1395,6 +1395,7 @@ class CityLearnEnv(Environment, Env):
                 np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
                 np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
                 np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
+                np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
             )
             
         # observation metadata
