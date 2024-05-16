@@ -11,9 +11,9 @@ from doe_xstock.simulate import EndUseLoadProfilesEnergyPlusSimulator
 import numpy as np
 import pandas as pd
 from citylearn.base import Environment
-from citylearn.data import get_settings
+# from citylearn.data import get_settings
 from citylearn.end_use_load_profiles.clustering import MetadataClustering
-from citylearn.end_use_load_profiles.model_generation_wrapper import run_one_model
+# from citylearn.end_use_load_profiles.model_generation_wrapper import run_one_model
 from citylearn.end_use_load_profiles.simulate import EndUseLoadProfilesEnergyPlusPartialLoadSimulator
 
 @unique
@@ -69,107 +69,107 @@ class Neighborhood:
     def random_seed(self, value: int):
         self.__random_seed = random.randint(*Environment.DEFAULT_RANDOM_SEED_RANGE) if value is None else value
 
-    def build(
-        self, idd_filepath: Union[Path, str], bldg_ids: List[int] = None, sample_buildings_kwargs: Mapping[str, Any] = None, 
-        energyplus_simulation_kwargs: Mapping[str, Any] = None, train_lstm_kwargs: Mapping[str, Any] = None, schema_kwargs: Mapping[str, Any] = None
-    ):
-        sample_buildings_kwargs = {} if sample_buildings_kwargs is None else sample_buildings_kwargs
-        energyplus_simulation_kwargs = {} if energyplus_simulation_kwargs is None else energyplus_simulation_kwargs
-        train_lstm_kwargs = {} if train_lstm_kwargs is None else train_lstm_kwargs
-        schema_kwargs = {} if schema_kwargs is None else schema_kwargs
+    # def build(
+    #     self, idd_filepath: Union[Path, str], bldg_ids: List[int] = None, sample_buildings_kwargs: Mapping[str, Any] = None, 
+    #     energyplus_simulation_kwargs: Mapping[str, Any] = None, train_lstm_kwargs: Mapping[str, Any] = None, schema_kwargs: Mapping[str, Any] = None
+    # ):
+    #     sample_buildings_kwargs = {} if sample_buildings_kwargs is None else sample_buildings_kwargs
+    #     energyplus_simulation_kwargs = {} if energyplus_simulation_kwargs is None else energyplus_simulation_kwargs
+    #     train_lstm_kwargs = {} if train_lstm_kwargs is None else train_lstm_kwargs
+    #     schema_kwargs = {} if schema_kwargs is None else schema_kwargs
 
-        if bldg_ids is None:
-            bldg_ids = self.sample_buildings(**sample_buildings_kwargs)
+    #     if bldg_ids is None:
+    #         bldg_ids = self.sample_buildings(**sample_buildings_kwargs)
         
-        else:
-            pass
+    #     else:
+    #         pass
         
-        simulators = self.simulate_energy_plus(idd_filepath, **energyplus_simulation_kwargs)
-        lstm_training_data = self.get_lstm_training_data(simulators)
+    #     simulators = self.simulate_energy_plus(idd_filepath, **energyplus_simulation_kwargs)
+    #     lstm_training_data = self.get_lstm_training_data(simulators)
 
-    def set_schema(self, simulators: Mapping[int, Mapping[str, Union[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusPartialLoadSimulator]]], lstm_models: Mapping[str, Path], template: Mapping[str, Union[dict, float, int, str]] = None, metadata: pd.DataFrame = None, dataset_name: str = None, directory: Union[Path, str] = None):
-        reference_simulator = list(simulators.values())[0]['mechanical']
-        template = get_settings()['schema']['template'] if template is None else template
-        building_template = template.pop('buildings')['Building_1']
-        template['buildings'] = {}
-        metadata = self.end_use_load_profiles.metadata.metadata.get().to_dict('index') if metadata is None else metadata
-        directory = self.dataset_directory if directory is None else directory
-        county = metadata[list(metadata.keys())[0]][self.__COUNTY_COLUMN]
-        county = county.lower().replace(',', '').replace(' ', '_')
-        dataset_name = f'{self.end_use_load_profiles.version}-{county}' if dataset_name is None else dataset_name
-        directory = os.path.join(directory, dataset_name)
-        os.makedirs(directory, exist_ok=True)
+    # def set_schema(self, simulators: Mapping[int, Mapping[str, Union[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusPartialLoadSimulator]]], lstm_models: Mapping[str, Path], template: Mapping[str, Union[dict, float, int, str]] = None, metadata: pd.DataFrame = None, dataset_name: str = None, directory: Union[Path, str] = None):
+    #     reference_simulator = list(simulators.values())[0]['mechanical']
+    #     template = get_settings()['schema']['template'] if template is None else template
+    #     building_template = template.pop('buildings')['Building_1']
+    #     template['buildings'] = {}
+    #     metadata = self.end_use_load_profiles.metadata.metadata.get().to_dict('index') if metadata is None else metadata
+    #     directory = self.dataset_directory if directory is None else directory
+    #     county = metadata[list(metadata.keys())[0]][self.__COUNTY_COLUMN]
+    #     county = county.lower().replace(',', '').replace(' ', '_')
+    #     dataset_name = f'{self.end_use_load_profiles.version}-{county}' if dataset_name is None else dataset_name
+    #     directory = os.path.join(directory, dataset_name)
+    #     os.makedirs(directory, exist_ok=True)
 
-        # write weather (csv and epw)
+    #     # write weather (csv and epw)
         
-        _ = shutil.copy(reference_simulator.epw_filepath, os.path.join(directory, 'weather.epw'))
+    #     _ = shutil.copy(reference_simulator.epw_filepath, os.path.join(directory, 'weather.epw'))
 
-        for bldg_id, building_simulators in simulators.items():
-            simulator: EndUseLoadProfilesEnergyPlusPartialLoadSimulator = building_simulators['partial'][0]
-            building = deepcopy(building_template)
+    #     for bldg_id, building_simulators in simulators.items():
+    #         simulator: EndUseLoadProfilesEnergyPlusPartialLoadSimulator = building_simulators['partial'][0]
+    #         building = deepcopy(building_template)
 
-            # set building-specific filepaths
-            building['energy_simulation'] = f'{simulator.simulation_id}.csv'
-            building['dynamics']['attributes']['filepath'] = f'{simulator.simulation_id}.pth'
+    #         # set building-specific filepaths
+    #         building['energy_simulation'] = f'{simulator.simulation_id}.csv'
+    #         building['dynamics']['attributes']['filepath'] = f'{simulator.simulation_id}.pth'
 
-            # as-modeled DER survey
-            no_space_cooling = metadata[bldg_id]['in.hvac_cooling_type'] == 'None'
-            no_space_heating = metadata[bldg_id]['in.heating_fuel'] == 'None'
-            no_electric_space_heating = metadata[bldg_id]['in.heating_fuel'] != 'Electricity'
-            no_dhw_heating = metadata[bldg_id]['in.water_heater_fuel'] == 'None'
-            no_electric_dhw_heating = metadata[bldg_id]['in.water_heater_fuel'] != 'Electricity'
-            no_dhw_heating_storage = True
+    #         # as-modeled DER survey
+    #         no_space_cooling = metadata[bldg_id]['in.hvac_cooling_type'] == 'None'
+    #         no_space_heating = metadata[bldg_id]['in.heating_fuel'] == 'None'
+    #         no_electric_space_heating = metadata[bldg_id]['in.heating_fuel'] != 'Electricity'
+    #         no_dhw_heating = metadata[bldg_id]['in.water_heater_fuel'] == 'None'
+    #         no_electric_dhw_heating = metadata[bldg_id]['in.water_heater_fuel'] != 'Electricity'
+    #         no_dhw_heating_storage = True
 
-            if no_space_cooling:
-                building['cooling_device'] = None
+    #         if no_space_cooling:
+    #             building['cooling_device'] = None
 
-            else:
-                pass
+    #         else:
+    #             pass
 
-            if no_space_heating:
-                building['heating_device'] = None
+    #         if no_space_heating:
+    #             building['heating_device'] = None
 
-            elif no_electric_space_heating:
-                building['inactive_observations'] += [o for o in template['observations'] if 'heating' in o]
+    #         elif no_electric_space_heating:
+    #             building['inactive_observations'] += [o for o in template['observations'] if 'heating' in o]
 
-            else:
-                pass
+    #         else:
+    #             pass
 
-            if no_dhw_heating or no_electric_dhw_heating:
-                building['dhw_device'] = None
-                building['dhw_storage'] = None
-                building['inactive_observations'] += [o for o in template['observations'] if 'dhw' in o]
-                building['inactive_actions'] += ['dhw_storage']
+    #         if no_dhw_heating or no_electric_dhw_heating:
+    #             building['dhw_device'] = None
+    #             building['dhw_storage'] = None
+    #             building['inactive_observations'] += [o for o in template['observations'] if 'dhw' in o]
+    #             building['inactive_actions'] += ['dhw_storage']
 
-            elif no_dhw_heating_storage:
-                building['dhw_storage'] = None
-                building['inactive_observations'] += [o for o in template['observations'] if 'dhw_storage' in o]
-                building['inactive_actions'] += ['dhw_storage']
+    #         elif no_dhw_heating_storage:
+    #             building['dhw_storage'] = None
+    #             building['inactive_observations'] += [o for o in template['observations'] if 'dhw_storage' in o]
+    #             building['inactive_actions'] += ['dhw_storage']
             
-            else:
-                pass
+    #         else:
+    #             pass
 
-            # set epw
+    #         # set epw
     
-    def train_lstm(data: Mapping[int, pd.DataFrame], **kwargs) -> Mapping[int, Mapping[str, Any]]:
-        """
-        TODO: Satvik & Pavani
-        1. Install training repo using pip.
-        2. Parse training data and custom kwargs for training to some function in the training package
-           that trains and finds a best model for the building
-        3. Train the building LSTM and return .pth, normalization limits, & error metrics
-        """
-        if "n_tries" in kwargs:
-            d = {
-                df_id: run_one_model(df_id, data[df_id], kwargs["n_tries"])
-                for df_id in data
-            }
-        else:
-            d = {
-                df_id: run_one_model(df_id, data[df_id])
-                for df_id in data
-            }
-        return d
+    # def train_lstm(data: Mapping[int, pd.DataFrame], **kwargs) -> Mapping[int, Mapping[str, Any]]:
+    #     """
+    #     TODO: Satvik & Pavani
+    #     1. Install training repo using pip.
+    #     2. Parse training data and custom kwargs for training to some function in the training package
+    #        that trains and finds a best model for the building
+    #     3. Train the building LSTM and return .pth, normalization limits, & error metrics
+    #     """
+    #     if "n_tries" in kwargs:
+    #         d = {
+    #             df_id: run_one_model(df_id, data[df_id], kwargs["n_tries"])
+    #             for df_id in data
+    #         }
+    #     else:
+    #         d = {
+    #             df_id: run_one_model(df_id, data[df_id])
+    #             for df_id in data
+    #         }
+    #     return d
     
     def get_lstm_training_data(self, simulators: Mapping[int, Mapping[int, Tuple[EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusSimulator, EndUseLoadProfilesEnergyPlusPartialLoadSimulator]]]) -> Mapping[int, pd.DataFrame]:
         data = {}
