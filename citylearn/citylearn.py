@@ -1384,13 +1384,18 @@ class CityLearnEnv(Environment, Env):
             carbon_intensity = CarbonIntensity(**carbon_intensity.to_dict('list'))
         
         else:
-            carbon_intensity = None
+            carbon_intensity = CarbonIntensity(np.zeros(energy_simulation.hour.shape[0], dtype='float32'))
 
         if building_schema.get('pricing', None) is not None:
             pricing = pd.read_csv(os.path.join(schema['root_directory'],building_schema['pricing']))
             pricing = Pricing(**pricing.to_dict('list'))
+        
         else:
-            pricing = None
+            pricing = Pricing(
+                np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
+                np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
+                np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
+            )
             
         # observation metadata
         observation_metadata = {k: v['active'] for k, v in schema['observations'].items()}
