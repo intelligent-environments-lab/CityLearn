@@ -88,8 +88,8 @@ SELECT
     p.outdoor_dry_bulb_temperature,
     p.indoor_dry_bulb_temperature,
     p.occupant_count,
-    COALESCE(p.cooling_load, 0) AS cooling_demand,
-    COALESCE(p.heating_load, 0) AS heating_demand
+    COALESCE(p.cooling_demand, 0) AS cooling_demand,
+    COALESCE(p.heating_demand, 0) AS heating_demand
 FROM p
 LEFT JOIN Time t ON t.TimeIndex = p.TimeIndex
 WHERE t.DayType NOT IN ('SummerDesignDay', 'WinterDesignDay')
