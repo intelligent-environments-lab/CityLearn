@@ -1254,7 +1254,7 @@ class Building(Environment):
             low_limit = list(low_limit.values())
             high_limit = list(high_limit.values())
         
-        return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
+        return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'), dtype='float32')
     
     def estimate_observation_space_limits(self, include_all: bool = None, periodic_normalization: bool = None) -> Tuple[Mapping[str, float], Mapping[str, float]]:
         r"""Get estimate of observation space limits.
@@ -1528,7 +1528,7 @@ class Building(Environment):
                 low_limit.append(-limit)
                 high_limit.append(limit)
  
-        return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
+        return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'), dtype='float32')
 
     def autosize_cooling_device(self, **kwargs):
         """Autosize `cooling_device` `nominal_power` to minimum power needed to always meet `cooling_demand`.
