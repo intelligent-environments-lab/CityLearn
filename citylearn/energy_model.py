@@ -846,7 +846,7 @@ class Battery(StorageDevice, ElectricDevice):
         Charging/Discharging efficiency as a function of nominal power.
     capacity_power_curve: list, default: [[0.0, 1],[0.8, 1],[1.0, 0.2]]   
         Maximum power of the battery as a function of its current state of charge.
-    depth_of_discharge: Union[float, Tuple[float, float]], default: (0.75, 1.0)
+    depth_of_discharge: Union[float, Tuple[float, float]], default: 1.0
         Maximum fraction of the battery that can be discharged relative to the total battery capacity.
 
     Other Parameters
@@ -964,7 +964,7 @@ class Battery(StorageDevice, ElectricDevice):
 
     @depth_of_discharge.setter
     def depth_of_discharge(self, depth_of_discharge: float):
-        self.__depth_of_discharge = self._get_property_value(depth_of_discharge, (0.75, 1.0))
+        self.__depth_of_discharge = self._get_property_value(depth_of_discharge, 1.0)
 
     def get_metadata(self) -> Mapping[str, Any]:
         return {
