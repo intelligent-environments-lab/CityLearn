@@ -87,7 +87,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
         if self.env.unwrapped.central_agent:
             observation_names = []
 
-            for i, b in enumerate(self.env.buildings):
+            for i, b in enumerate(self.env.unwrapped.buildings):
                 for k, _ in b.observations(normalize=True, periodic_normalization=True).items():
                     if i == 0 or k not in self.shared_observations or k not in observation_names:
                         observation_names.append(k)
@@ -113,7 +113,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
         if self.env.unwrapped.central_agent:
             shared_observations = []
 
-            for i, b in enumerate(self.env.buildings):
+            for i, b in enumerate(self.env.unwrapped.buildings):
                 s = b.estimate_observation_space(normalize=True)
                 o = b.observations(normalize=True, periodic_normalization=True)
 
@@ -134,7 +134,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
             observation_space = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
 
         else:
-            observation_space = [b.estimate_observation_space(normalize=True) for b in self.env.buildings]
+            observation_space = [b.estimate_observation_space(normalize=True) for b in self.env.unwrapped.buildings]
         
         return observation_space
 
@@ -145,7 +145,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
             norm_observations = []
             shared_observations = []
 
-            for i, b in enumerate(self.env.buildings):
+            for i, b in enumerate(self.env.unwrapped.buildings):
                 for k, v in b.observations(normalize=True, periodic_normalization=True).items():
                     if i==0 or k not in self.shared_observations or k not in shared_observations:
                         norm_observations.append(v)
@@ -162,7 +162,7 @@ class NormalizedObservationWrapper(ObservationWrapper):
             norm_observations = [norm_observations]
 
         else:
-            norm_observations = [list(b.observations(normalize=True, periodic_normalization=True).values()) for b in self.env.buildings]
+            norm_observations = [list(b.observations(normalize=True, periodic_normalization=True).values()) for b in self.env.unwrapped.buildings]
         
         return norm_observations
     
@@ -190,7 +190,7 @@ class NormalizedActionWrapper(ActionWrapper):
 
         if self.env.unwrapped.central_agent:
 
-            for b in self.env.buildings:
+            for b in self.env.unwrapped.buildings:
                 low_limit += [0.0]*b.action_space.low.size
                 high_limit += [1.0]*b.action_space.high.size
             
@@ -201,7 +201,7 @@ class NormalizedActionWrapper(ActionWrapper):
                 low=np.array([0.0]*b.action_space.low.size), 
                 high=np.array([1.0]*b.action_space.high.size), 
                 dtype=np.float32) 
-            for b in self.env.buildings]
+            for b in self.env.unwrapped.buildings]
         
         return action_space
 
@@ -254,12 +254,12 @@ class DiscreteObservationWrapper(ObservationWrapper):
     def __init__(self, env: CityLearnEnv, bin_sizes: List[Mapping[str, int]] = None, default_bin_size: int = None):
         super().__init__(env)
         self.env: CityLearnEnv
-        assert bin_sizes is None or len(bin_sizes) == len(self.env.buildings), 'length of bin_size must equal number of buildings.'
-        self.bin_sizes = [{} for _ in self.env.buildings] if bin_sizes is None else bin_sizes
+        assert bin_sizes is None or len(bin_sizes) == len(self.env.unwrapped.buildings), 'length of bin_size must equal number of buildings.'
+        self.bin_sizes = [{} for _ in self.env.unwrapped.buildings] if bin_sizes is None else bin_sizes
         self.default_bin_size = 10 if default_bin_size is None else default_bin_size
         self.bin_sizes = [
             {o: s.get(o, self.default_bin_size) for o in b.active_observations} 
-            for b, s in zip(self.env.buildings, self.bin_sizes)
+            for b, s in zip(self.env.unwrapped.buildings, self.bin_sizes)
         ]
         
     @property
@@ -323,12 +323,12 @@ class DiscreteActionWrapper(ActionWrapper):
     def __init__(self, env: CityLearnEnv, bin_sizes: List[Mapping[str, int]] = None, default_bin_size: int = None):
         super().__init__(env)
         self.env: CityLearnEnv
-        assert bin_sizes is None or len(bin_sizes) == len(self.env.buildings), 'length of bin_size must equal number of buildings.'
-        self.bin_sizes = [{} for _ in self.env.buildings] if bin_sizes is None else bin_sizes
+        assert bin_sizes is None or len(bin_sizes) == len(self.env.unwrapped.buildings), 'length of bin_size must equal number of buildings.'
+        self.bin_sizes = [{} for _ in self.env.unwrapped.buildings] if bin_sizes is None else bin_sizes
         self.default_bin_size = 10 if default_bin_size is None else default_bin_size
         self.bin_sizes = [
             {a: s.get(a, self.default_bin_size) for a in b.active_actions} 
-            for b, s in zip(self.env.buildings, self.bin_sizes)
+            for b, s in zip(self.env.unwrapped.buildings, self.bin_sizes)
         ]
         
     @property
@@ -817,19 +817,19 @@ class RLlibMultiAgentEnv(MultiAgentEnv):
     def time_step(self) -> int:
         """Convenience property for :py:meth:`citylearn.citylearn.CityLearnEnv.time_step`."""
 
-        return self.env.time_step
+        return self.env.unwrapped.time_step
 
     @property
     def buildings(self) -> List[Building]:
         """Convenience property for :py:meth:`citylearn.citylearn.CityLearnEnv.buildings`."""
 
-        return self.env.buildings
+        return self.env.unwrapped.buildings
     
     @property
     def terminated(self) -> bool:
         """Convenience property for :py:meth:`citylearn.citylearn.CityLearnEnv.terminated`."""
 
-        return self.env.terminated
+        return self.env.unwrapped.terminated
 
     def step(
             self, action_dict: Mapping[str, np.ndarray]
@@ -846,7 +846,7 @@ class RLlibMultiAgentEnv(MultiAgentEnv):
     def evaluate(self, **kwargs) -> pd.DataFrame:
         """Convenience method for :py:meth:`citylearn.citylearn.CityLearnEnv.evaluate`."""
 
-        return self.env.evaluate(**kwargs)
+        return self.env.unwrapped.evaluate(**kwargs)
 
     def reset(self, *, seed: int = None, options: Mapping[str, Any] = None) -> Tuple[Mapping[str, np.ndarray], Mapping[str, dict]]:
         """Calls :py:meth:`citylearn.citylearn.CityLearnEnv.reset` and parses returned values into dictionaries."""
