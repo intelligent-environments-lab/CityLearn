@@ -4,7 +4,7 @@ from typing import List, Mapping, Tuple, Union, Dict
 from gym import spaces
 import numpy as np
 from citylearn.base import Environment, EpisodeTracker
-from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather, EVSimulation
+from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather, ElectricVehicleSimulation
 from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, StorageTank
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 import random
@@ -12,7 +12,7 @@ import copy
 
 class electric_vehicle(Environment):
 
-    def __init__(self, ev_simulation: EVSimulation,episode_tracker: EpisodeTracker, observation_metadata: Mapping[str, bool],
+    def __init__(self, ev_simulation: ElectricVehicleSimulation,episode_tracker: EpisodeTracker, observation_metadata: Mapping[str, bool],
                  action_metadata: Mapping[str, bool], battery: Battery = None, auxBattery: Battery = None, min_battery_soc: int = 20,
                  image_path: str = None, name: str = None, **kwargs):
         """
@@ -20,7 +20,7 @@ class electric_vehicle(Environment):
 
         Parameters
         ----------
-        ev_simulation : EVSimulation
+        ev_simulation : ElectricVehicleSimulation
             Temporal features, locations, predicted SOCs and more.
         battery : Battery
             An instance of the Battery class.
@@ -61,12 +61,12 @@ class electric_vehicle(Environment):
 
 
     @property
-    def ev_simulation(self) -> EVSimulation:
+    def ev_simulation(self) -> ElectricVehicleSimulation:
         """Return the electric_vehicle simulation data."""
         return self.__ev_simulation
 
     @ev_simulation.setter
-    def ev_simulation(self, ev_simulation: EVSimulation):
+    def ev_simulation(self, ev_simulation: ElectricVehicleSimulation):
         self.__ev_simulation = ev_simulation
 
     @property

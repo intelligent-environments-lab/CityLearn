@@ -336,19 +336,13 @@ class CarbonIntensity(TimeSeriesData):
         self.carbon_intensity = np.array(carbon_intensity, dtype='float32')
 
 
-class EVSimulation(TimeSeriesData):
+class ElectricVehicleSimulation(TimeSeriesData):
     """`electric_vehicle` `ev_simulation` data class.
 
     Month,Hour,Day Type,Location,Estimated Departure Time,Required Soc At Departure
 
     Attributes
     ----------
-    month : np.array
-        Month time series value ranging from 1 - 12.
-    hour : np.array
-        Hour time series value ranging from 1 - 24.
-    day_type : np.array
-        Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.
     ev_charger_state : np.array
         State of the electric_vehicle indicating whether it is 'parked ready to charge' represented as 0, 'in transit', represented as 1.
     charger : np.array
@@ -367,15 +361,12 @@ class EVSimulation(TimeSeriesData):
     """
 
     def __init__(
-            self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int], state: Iterable[str],
+            self, state: Iterable[str],
             charger: Iterable[str], estimated_departure_time: Iterable[int], required_soc_departure: Iterable[float],
             estimated_arrival_time: Iterable[int], estimated_soc_arrival: Iterable[float], start_time_step: int = None, end_time_step: int = None
     ):
-        r"""Initialize `EVSimulation`."""
+        r"""Initialize `ElectricVehicleSimulation`."""
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.month = np.array(month, dtype=int)
-        self.hour = np.array(hour, dtype=int)
-        self.day_type = np.array(day_type, dtype=int)
         self.ev_charger_state = np.array(state, dtype=int)
         self.charger = np.array(charger, dtype=str)
         # NaNs are considered and filled as -1, i.e., when they serve no value or no data is recorded from them

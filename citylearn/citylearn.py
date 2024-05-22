@@ -14,7 +14,7 @@ from citylearn.building import Building, DynamicsBuilding
 from citylearn.electric_vehicle import electric_vehicle
 from citylearn.energy_model import Battery
 from citylearn.cost_function import CostFunction
-from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, EVSimulation
+from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, ElectricVehicleSimulation
 #from citylearn.rendering import get_background, RenderBuilding, get_plots
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
@@ -1624,7 +1624,7 @@ class CityLearnEnv(Environment, Env):
                         ev_simulation = pd.read_csv(
                             os.path.join(root_directory, ev_schema['energy_simulation'])).iloc[
                                         simulation_start_time_step:simulation_end_time_step + 1].copy()
-                        ev_simulation = EVSimulation(*ev_simulation.values.T)
+                        ev_simulation = ElectricVehicleSimulation(*ev_simulation.values.T)
 
                         # energy consumption data from the file, possibly for future work
                         #energy_consumption_rate = ev_schema["energy_consumption_rate"]

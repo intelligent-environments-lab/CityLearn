@@ -1,4 +1,4 @@
-Electricity Pricing [$],6h Prediction Electricity Pricing [$],12h Prediction Electricity Pricing [$],24h Prediction Electricity Pricing [$]
+electricity_pricing [$],electricity_pricing_predicted_6h [$],electricity_pricing_predicted_12h [$],electricity_pricing_predicted_24h [$]
 0.16463999999999998,0.15015,0.13901,0.15394999999999998
 0.15747999999999998,0.15015,0.14513,0.15643
 0.15333000000000002,0.148,0.14065,0.15181
