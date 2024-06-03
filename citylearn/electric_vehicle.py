@@ -10,11 +10,11 @@ from citylearn.preprocessing import Normalize, PeriodicNormalization
 import random
 import copy
 
-class electric_vehicle(Environment):
+class ElectricVehicle(Environment):
 
     def __init__(self, ev_simulation: ElectricVehicleSimulation,episode_tracker: EpisodeTracker, observation_metadata: Mapping[str, bool],
                  action_metadata: Mapping[str, bool], battery: Battery = None, auxBattery: Battery = None, min_battery_soc: int = 20,
-                 image_path: str = None, name: str = None, **kwargs):
+                name: str = None, **kwargs):
         """
         Initialize the EVCar class.
 
@@ -29,7 +29,7 @@ class electric_vehicle(Environment):
         action_metadata : dict
             Mapping od active and inactive actions.
         name : str, optional
-            Unique electric_vehicle name.
+            Unique Electric_Vehicle name.
 
         Other Parameters
         ----------------
@@ -55,14 +55,13 @@ class electric_vehicle(Environment):
         self.observation_space = self.estimate_observation_space()
         self.action_space = self.estimate_action_space()
         self.min_battery_soc = min_battery_soc
-        self.image_path = image_path
         self.__observation_epsilon = 0.0  # to avoid out of bound observations
 
 
 
     @property
     def ev_simulation(self) -> ElectricVehicleSimulation:
-        """Return the electric_vehicle simulation data."""
+        """Return the Electric_Vehicle simulation data."""
         return self.__ev_simulation
 
     @ev_simulation.setter
@@ -90,16 +89,6 @@ class electric_vehicle(Environment):
         self.__min_battery_soc = min_battery_soc
 
     @property
-    def image_path(self) -> str:
-        """Unique building name."""
-
-        return self.__image_path
-
-    @image_path.setter
-    def image_path(self, image_path: str):
-        self.__image_path = image_path
-
-    @property
     def observation_metadata(self) -> Mapping[str, bool]:
         """Mapping of active and inactive observations."""
 
@@ -121,12 +110,12 @@ class electric_vehicle(Environment):
 
     @property
     def battery(self) -> Battery:
-        """Battery for electric_vehicle."""
+        """Battery for Electric_Vehicle."""
         return self.__battery
 
     @property
     def aux_battery(self) -> Battery:
-        """Battery for electric_vehicle."""
+        """Battery for Electric_Vehicle."""
         return self.__aux_battery
 
     @battery.setter
@@ -176,13 +165,13 @@ class electric_vehicle(Environment):
     def action_space(self, action_space: spaces.Box):
         self.__action_space = action_space
 
-    def adjust_ev_soc_on_system_connection(self, soc_system_connection):
+    def adjust_electric_vehicle_soc_on_system_connection(self, soc_system_connection):
         """
-        Adjusts the state of charge (SoC) of an electric vehicle's (electric_vehicle's) battery upon connection to the system.
+        Adjusts the state of charge (SoC) of an electric vehicle's (Electric_Vehicle's) battery upon connection to the system.
 
-        When an electric_vehicle is in transit, the system "loses" the connection and does not know how much battery
-        has been used during travel. As such, when an electric_vehicle enters an incoming or connected state, its battery
-        SoC is updated to be close to the predicted SoC at arrival present in the electric_vehicle dataset.
+        When an Electric_Vehicle is in transit, the system "loses" the connection and does not know how much battery
+        has been used during travel. As such, when an Electric_Vehicle enters an incoming or connected state, its battery
+        SoC is updated to be close to the predicted SoC at arrival present in the Electric_Vehicle dataset.
 
         However, predictions sometimes fail, so this method introduces variability for the simulation by
         randomly creating a discrepancy between the predicted value and a "real-world inspired" value. This discrepancy
@@ -198,8 +187,8 @@ class electric_vehicle(Environment):
         battery's charge method. If the difference is positive, the battery is charged; if the difference is negative,
         the battery is discharged.
 
-        For example, if the electric_vehicle dataset has a predicted SoC at arrival of 20% (of the battery's total capacity),
-        this method can randomly adjust the electric_vehicle's battery to 22% or 19%, or even by a larger margin such as 40%.
+        For example, if the Electric_Vehicle dataset has a predicted SoC at arrival of 20% (of the battery's total capacity),
+        this method can randomly adjust the Electric_Vehicle's battery to 22% or 19%, or even by a larger margin such as 40%.
 
         Args:
         soc_system_connection (float): The predicted SoC at system connection, expressed as a percentage of the
@@ -234,18 +223,18 @@ class electric_vehicle(Environment):
     def next_time_step(self) -> Mapping[int, str]:
 
         """
-        Advance electric_vehicle to the next `time_step` by
+        Advance Electric_Vehicle to the next `time_step` by
         """
 
         self.battery.next_time_step()
         self.aux_battery.next_time_step()
         super().next_time_step()
 
-        if self.ev_simulation.ev_charger_state[self.time_step] == 2:
-            self.adjust_ev_soc_on_system_connection(self.ev_simulation.ev_estimated_soc_arrival[self.time_step])
+        if self.ev_simulation.electric_vehicle_charger_state[self.time_step] == 2:
+            self.adjust_electric_vehicle_soc_on_system_connection(self.ev_simulation.electric_vehicle_estimated_soc_arrival[self.time_step])
 
-        elif self.ev_simulation.ev_charger_state[self.time_step] == 3:
-            self.adjust_ev_soc_on_system_connection((self.battery.soc[-1] / self.battery.capacity)*100)
+        elif self.ev_simulation.electric_vehicle_charger_state[self.time_step] == 3:
+            self.adjust_electric_vehicle_soc_on_system_connection((self.battery.soc[-1] / self.battery.capacity)*100)
 
 
     def reset(self):
@@ -281,7 +270,7 @@ class electric_vehicle(Environment):
             Observation low and high limits.
         """
 
-        unwanted_keys = ['month', 'hour', 'day_type', "ev_charger_state", "charger"]
+        unwanted_keys = ['month', 'hour', 'day_type', "electric_vehicle_charger_state", "charger"]
 
         normalize = False if normalize is None else normalize
         periodic_normalization = False if periodic_normalization is None else periodic_normalization
@@ -292,7 +281,7 @@ class electric_vehicle(Environment):
                 k.lstrip('_'): self.ev_simulation.__getattr__(k.lstrip('_'))[self.time_step]
                 for k, v in vars(self.ev_simulation).items() if isinstance(v, np.ndarray) and k not in unwanted_keys
             },
-            'ev_soc': self.battery.soc[self.time_step] / self.battery.capacity
+            'electric_vehicle_soc': self.battery.soc[self.time_step] / self.battery.capacity
         }
 
 
@@ -410,10 +399,10 @@ class electric_vehicle(Environment):
         periodic_observations = self.get_periodic_observation_metadata()
         low_limit, high_limit = {}, {}
         for key in observation_names:
-            if key in "ev_estimated_departure_time" or key in "ev_estimated_arrival_time":
+            if key in "electric_vehicle_departure_time" or key in "electric_vehicle_estimated_arrival_time":
                     low_limit[key] = 0
                     high_limit[key] = 24
-            elif key in "ev_required_soc_departure" or key in "ev_estimated_soc_arrival"  or key in "ev_soc":
+            elif key in "electric_vehicle_required_soc_departure" or key in "electric_vehicle_estimated_soc_arrival"  or key in "electric_vehicle_soc":
                     low_limit[key] = 0.0
                     high_limit[key] = 1.0
         low_limit = {k: v - 0.05 for k, v in low_limit.items()}
@@ -436,14 +425,14 @@ class electric_vehicle(Environment):
         """
         low_limit, high_limit = [], []
         for key in self.active_actions:
-            if key == 'ev_storage':
+            if key == 'electric_vehicle_storage':
                 limit = self.battery.nominal_power / self.battery.capacity
                 low_limit.append(-limit)
                 high_limit.append(limit)
         return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
 
     def autosize_battery(self, **kwargs):
-        """Autosize `Battery` for a typical electric_vehicle.
+        """Autosize `Battery` for a typical Electric_Vehicle.
 
         Other Parameters
         ----------------
@@ -471,21 +460,21 @@ class electric_vehicle(Environment):
 
     def __str__(self):
         ev_simulation_attrs = [
-            f"electric_vehicle simulation (time_step={self.time_step}):",
+            f"Electric_Vehicle simulation (time_step={self.time_step}):",
             f"Month: {self.ev_simulation.month[self.time_step]}",
             f"Hour: {self.ev_simulation.hour[self.time_step]}",
             f"Day Type: {self.ev_simulation.day_type[self.time_step]}",
-            f"State: {self.ev_simulation.ev_charger_state[self.time_step]}",
-            f"Estimated Departure Time: {self.ev_simulation.ev_estimated_departure_time[self.time_step]}",
-            f"Required Soc At Departure: {self.ev_simulation.ev_required_soc_departure[self.time_step]}",
-            f"Estimated Arrival Time: {self.ev_simulation.ev_estimated_arrival_time[self.time_step]}",
-            f"Estimated Soc Arrival: {self.ev_simulation.ev_estimated_soc_arrival[self.time_step]}"
+            f"State: {self.ev_simulation.electric_vehicle_charger_state[self.time_step]}",
+            f"Estimated Departure Time: {self.ev_simulation.electric_vehicle_departure_time[self.time_step]}",
+            f"Required Soc At Departure: {self.ev_simulation.electric_vehicle_required_soc_departure[self.time_step]}",
+            f"Estimated Arrival Time: {self.ev_simulation.electric_vehicle_estimated_arrival_time[self.time_step]}",
+            f"Estimated Soc Arrival: {self.ev_simulation.electric_vehicle_estimated_soc_arrival[self.time_step]}"
         ]
 
         ev_simulation_str = '\n'.join(ev_simulation_attrs)
 
         return (
-            f"electric_vehicle {self.name}:\n"
+            f"Electric_Vehicle {self.name}:\n"
             f"  Battery: {self.battery}\n\n"
             f"Simulation details:\n"
             f"  {ev_simulation_str}"

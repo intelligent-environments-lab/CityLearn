@@ -11,7 +11,7 @@ import pandas as pd
 from citylearn import __version__ as citylearn_version
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
-from citylearn.electric_vehicle import electric_vehicle
+from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, ElectricVehicleSimulation
@@ -116,7 +116,7 @@ class CityLearnEnv(Environment, Env):
     
     def __init__(self, 
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None,
-        electric_vehicles: Union[List[electric_vehicle], List[str], List[int]] = None,
+        electric_vehicles: Union[List[ElectricVehicle], List[str], List[int]] = None,
         simulation_start_time_step: int = None, simulation_end_time_step: int = None, episode_time_steps: Union[int, List[Tuple[int, int]]] = None, rolling_episode_split: bool = None, 
         random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: Union[RewardFunction, str] = None, reward_function_kwargs: Mapping[str, Any] = None, 
         central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None, 
@@ -198,7 +198,7 @@ class CityLearnEnv(Environment, Env):
         return self.__buildings
 
     @property
-    def electric_vehicles(self) -> List[electric_vehicle]:
+    def electric_vehicles(self) -> List[ElectricVehicle]:
         """Electric Vehicles in CityLearn environment."""
 
         return self.__electric_vehicles
@@ -758,7 +758,7 @@ class CityLearnEnv(Environment, Env):
         self.__buildings = buildings
 
     @electric_vehicles.setter
-    def electric_vehicles(self, electric_vehicles: List[electric_vehicle]):
+    def electric_vehicles(self, electric_vehicles: List[ElectricVehicle]):
         self.__electric_vehicles = electric_vehicles
 
     @Environment.episode_tracker.setter
@@ -1153,7 +1153,7 @@ class CityLearnEnv(Environment, Env):
         for ev in self.electric_vehicles:
 
             charger = ev.ev_simulation.charger[self.time_step]
-            state = ev.ev_simulation.ev_charger_state[self.time_step]
+            state = ev.ev_simulation.electric_vehicle_charger_state[self.time_step]
 
             if charger != "" and charger != "nan":
                 for b in self.buildings:
@@ -1285,7 +1285,7 @@ class CityLearnEnv(Environment, Env):
 
         return agent
 
-    def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], List[electric_vehicle], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
+    def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], List[ElectricVehicle], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
         
         Returns
@@ -1294,7 +1294,7 @@ class CityLearnEnv(Environment, Env):
             Absolute path to directory that contains the data files including the schema.
         buildings : List[Building]
             Buildings in CityLearn environment.
-        electric_vehicles : List[electric_vehicle]
+        electric_vehicles : List[ElectricVehicle]
             Electric Vehicles in CityLearn environment.
         episode_time_steps: Union[int, List[Tuple[int, int]]]
             Number of time steps in an episode. Defaults to (`simulation_end_time_step` - `simulation_start_time_step`) + 1.
@@ -1513,7 +1513,7 @@ class CityLearnEnv(Environment, Env):
                                                    seconds_per_time_step=seconds_per_time_step, )
                     chargers_list.append(charger_object)
 
-                    if 'ev_storage' not in inactive_actions and "ev_storage" in chargers_actions:
+                    if 'electric_vehicle_storage' not in inactive_actions and "electric_vehicle_storage" in chargers_actions:
                         # Add new action for this charger to action_metadata
                         action_metadata[f'ev_storage_{charger_name}'] = True
                         #building.action_metadata = action_metadata
@@ -1521,15 +1521,15 @@ class CityLearnEnv(Environment, Env):
                     # Consider that if chargers_observations is not empty we should populate observations for chargers
                     # Each charger replicates the observations of the original chargers_observations but specific for its own
                     # If shared observations are active for the specific observation, that observation is added to shared_observations
-                    if chargers_observations is not None and 'ev_charger_state' in chargers_observations:
+                    if chargers_observations is not None and 'electric_vehicle_charger_state' in chargers_observations:
                         for state_type in ['connected', 'incoming']:
-                            if chargers_observations['ev_charger_state']["active"]:
+                            if chargers_observations['electric_vehicle_charger_state']["active"]:
                                 observation_metadata[f'charger_{charger_name}_{state_type}_state'] = True  # Add base case
-                            if "ev_charger_state" in chargers_shared_observations:
+                            if "electric_vehicle_charger_state" in chargers_shared_observations:
                                 shared_observations.append(f'charger_{charger_name}_{state_type}_state')
 
                             for obs in chargers_observations:
-                                if chargers_observations[obs]["active"] and obs != 'ev_charger_state':
+                                if chargers_observations[obs]["active"] and obs != 'electric_vehicle_charger_state':
                                     observation_metadata[f'charger_{charger_name}_{state_type}_{obs}'] = True
                                 if obs in chargers_shared_observations:
                                     shared_observations.append(f'charger_{charger_name}_{state_type}_{obs}')
@@ -1612,13 +1612,13 @@ class CityLearnEnv(Environment, Env):
         buildings = list(buildings)
 
         #Loading Electric Vehicles (if present in the schema)
-        if kwargs.get('evs') is not None and len(kwargs['evs']) > 0:
-            evs = kwargs['evs']
+        if kwargs.get('electic_vehicles_def') is not None and len(kwargs['electic_vehicles_def']) > 0:
+            electic_vehicles_def = kwargs['electic_vehicles_def']
         else:
-            evs = ()
-            if self.schema.get('evs', None) is not None:
+            electic_vehicles_def = ()
+            if self.schema.get('electic_vehicles_def', None) is not None:
 
-                for ev_name, ev_schema in self.schema['evs'].items():
+                for ev_name, ev_schema in self.schema['electic_vehicles_def'].items():
                     if ev_schema['include']:
                         # data
                         ev_simulation = pd.read_csv(
@@ -1634,12 +1634,11 @@ class CityLearnEnv(Environment, Env):
                             ev_schema['inactive_observations']
                         ev_inactive_actions = [] if ev_schema.get('inactive_actions', None) is None else ev_schema[
                             'inactive_actions']
-                        ev_observation_metadata = {s: False if s in ev_inactive_observations else True for s in chargers_observations if s != 'ev_charger_state'}
+                        ev_observation_metadata = {s: False if s in ev_inactive_observations else True for s in chargers_observations if s != 'electric_vehicle_charger_state'}
                         ev_action_metadata = {a: False if a in ev_inactive_actions else True for a in chargers_actions}
 
                         # construct ev
                         ev_type = 'citylearn.citylearn.electric_vehicle' if ev_schema.get('type', None) is None else ev_schema['type']
-                        image_path = None if ev_schema.get('type', None) is None else ev_schema["image_path"]
                         ev_type_module = '.'.join(ev_type.split('.')[0:-1])
                         ev_type_name = ev_type.split('.')[-1]
                         ev_constructor = getattr(importlib.import_module(ev_type_module), ev_type_name)
@@ -1664,7 +1663,7 @@ class CityLearnEnv(Environment, Env):
                             random_seed=random_seed,
                             episode_tracker=episode_tracker)
 
-                        ev: electric_vehicle = ev_constructor(
+                        ev: ElectricVehicle = ev_constructor(
                             ev_simulation=ev_simulation,
                             observation_metadata=ev_observation_metadata,
                             action_metadata=ev_action_metadata,
@@ -1673,18 +1672,17 @@ class CityLearnEnv(Environment, Env):
                             name=ev_name,
                             seconds_per_time_step=seconds_per_time_step,
                             random_seed=random_seed,
-                            episode_tracker=episode_tracker,
-                            image_path=image_path
+                            episode_tracker=episode_tracker
                         )
 
                         ev.observation_space = ev.estimate_observation_space()
                         ev.action_space = ev.estimate_action_space()
-                        evs += (ev,)
+                        electic_vehicles_def += (ev,)
 
                     else:
                         continue
 
-        evs = list(evs)
+        electic_vehicles_def = list(electic_vehicles_def)
 
         if kwargs.get('reward_function') is not None:
             reward_function_type = kwargs['reward_function']
@@ -1712,7 +1710,7 @@ class CityLearnEnv(Environment, Env):
         reward_function = reward_function_constructor(None, **reward_function_attributes)
 
         return (
-            root_directory, buildings, evs, episode_time_steps, rolling_episode_split, random_episode_split,
+            root_directory, buildings, electic_vehicles_def, episode_time_steps, rolling_episode_split, random_episode_split,
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker
         )
         

@@ -1,4 +1,4 @@
-ev_charger_state,charger,ev_estimated_departure_time,ev_required_soc_departure,ev_estimated_arrival_time, ev_estimated_soc_arrival
+electric_vehicle_charger_state,charger,electric_vehicle_departure_time,electric_vehicle_required_soc_departure,electric_vehicle_estimated_arrival_time, electric_vehicle_estimated_soc_arrival
 1,charger_12_1,14,86,,
 1,charger_12_1,13,86,,
 1,charger_12_1,12,86,,

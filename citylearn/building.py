@@ -1047,12 +1047,12 @@ class Building(Environment):
         # Initialize an empty list for ev_storage_actions
         ev_storage_actions = []
 
-        # Separate 'ev_storage' actions from other arguments
+        # Separate 'electric_vehicle_storage' actions from other arguments
         for key, value in kwargs.items():
-            if key.startswith('ev_storage'):
+            if key.startswith('electric_vehicle_storage'):
                 ev_storage_actions.append(value)
 
-        if ev_storage_actions is None or 'ev_storage' not in self.active_actions:
+        if ev_storage_actions is None or 'electric_vehicle_storage' not in self.active_actions:
             ev_storage_actions = [0.0] * len(self.ev_chargers)
 
         # set action priority
@@ -1073,7 +1073,7 @@ class Building(Environment):
 
         for i, charger in enumerate(self.ev_chargers): #creating a list of actions for each charger within the building
             action_key = f'ev_storage_{charger.charger_id}'
-            actions[action_key] = (charger.update_connected_ev_soc, (ev_storage_actions[i],)) #the action of each charger is paired with the charger
+            actions[action_key] = (charger.update_connected_electric_vehicle_soc, (ev_storage_actions[i],)) #the action of each charger is paired with the charger
 
         ev_priority_list = [f'ev_storage_{charger.charger_id}' for charger in self.ev_chargers]
         priority_list = priority_list + ev_priority_list #the priority lists are merged
@@ -1128,7 +1128,7 @@ class Building(Environment):
         device_output = min(demand - storage_output, max_device_output)
         self.__energy_from_cooling_device[self.time_step] = device_output
         electricity_consumption = self.cooling_device.get_input_power(device_output, temperature, heating=False)
-        # print('timestep:', self.time_step, 'bldg:', self.name, 'demand:', demand, 'temperature:', temperature, 'storage_capacity:', self.cooling_storage.capacity, 'prev_soc:', self.cooling_storage.soc[self.time_step - 1], 'curr_soc:', self.cooling_storage.soc[self.time_step], 'storage_output:', storage_output, 'max_electric_power:', max_electric_power, 'max_device_output:', max_device_output, 'device_output:', device_output, 'consumption:', electricity_consumption)
+        # print('timestep:', self.time_step, 'bldg:', self.name, 'demand:', demand, 'temperature:', temperature, 'storage_capacity:', self.cooling_storage.capacity, 'prelectric_vehicle_soc:', self.cooling_storage.soc[self.time_step - 1], 'curr_soc:', self.cooling_storage.soc[self.time_step], 'storage_output:', storage_output, 'max_electric_power:', max_electric_power, 'max_device_output:', max_device_output, 'device_output:', device_output, 'consumption:', electricity_consumption)
         self.___electricity_consumption_polarity_check('cooling', device_output, electricity_consumption)
         self.cooling_device.update_electricity_consumption(max(0.0, electricity_consumption))
 
@@ -1412,7 +1412,7 @@ class Building(Environment):
                             + self.dhw_device.nominal_power
                 high_limit[key] = high_limits.max()
 
-            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc', "ev_required_soc_departure", "ev_estimated_soc_arrival", "ev_charger_state", "ev_soc",]:
+            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc', "electric_vehicle_required_soc_departure", "electric_vehicle_estimated_soc_arrival", "electric_vehicle_charger_state", "electric_vehicle_soc",]:
                 low_limit[key] = 0.0
                 high_limit[key] = 1.0
 
@@ -1436,15 +1436,15 @@ class Building(Environment):
                         if key == f'charger_{charger.charger_id}_connected_state' or key == f'charger_{charger.charger_id}_incoming_state':
                             low_limit[key] = 0
                             high_limit[key] = 1
-                        elif 'ev_charger_state' in key:
+                        elif 'electric_vehicle_charger_state' in key:
                             low_limit[key] = 0
                             high_limit[key] = 1
                         elif any(value in key for value in
-                                 ["ev_estimated_departure_time", "ev_estimated_arrival_time"]):
+                                 ["electric_vehicle_departure_time", "electric_vehicle_estimated_arrival_time"]):
                             low_limit[key] = 0
                             high_limit[key] = 24
                         elif any(value in key for value in
-                                   ["ev_required_soc_departure", "ev_estimated_soc_arrival", "ev_soc"]):
+                                   ["electric_vehicle_required_soc_departure", "electric_vehicle_estimated_soc_arrival", "electric_vehicle_soc"]):
                             low_limit[key] = 0.0
                             high_limit[key] = 1.0
             elif key in ['dhw_device_efficiency']:
@@ -1561,7 +1561,7 @@ class Building(Environment):
                 low_limit.append(0.0)
                 high_limit.append(1.0)
             
-            elif "ev_storage" in key:
+            elif "electric_vehicle_storage" in key:
                 if self.ev_chargers is not None:
                     for c in self.ev_chargers:
                         if key == f"ev_storage_{c.charger_id}":
