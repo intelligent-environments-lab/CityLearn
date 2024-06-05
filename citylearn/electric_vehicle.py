@@ -13,8 +13,7 @@ import copy
 class ElectricVehicle(Environment):
 
     def __init__(self, ev_simulation: ElectricVehicleSimulation,episode_tracker: EpisodeTracker, observation_metadata: Mapping[str, bool],
-                 action_metadata: Mapping[str, bool], battery: Battery = None, auxBattery: Battery = None, min_battery_soc: int = 20,
-                name: str = None, **kwargs):
+                 action_metadata: Mapping[str, bool], battery: Battery = None, min_battery_soc: int = None, name: str = None, **kwargs):
         """
         Initialize the EVCar class.
 
@@ -47,7 +46,6 @@ class ElectricVehicle(Environment):
         )
 
         self.battery = battery
-        self.aux_battery = auxBattery
         self.observation_metadata = observation_metadata
         self.action_metadata = action_metadata
         self.non_periodic_normalized_observation_space_limits = None
@@ -58,10 +56,10 @@ class ElectricVehicle(Environment):
         self.__observation_epsilon = 0.0  # to avoid out of bound observations
 
 
-
     @property
     def ev_simulation(self) -> ElectricVehicleSimulation:
         """Return the Electric_Vehicle simulation data."""
+
         return self.__ev_simulation
 
     @ev_simulation.setter
@@ -76,33 +74,36 @@ class ElectricVehicle(Environment):
 
     @name.setter
     def name(self, name: str):
-        self.__name = name    \
+        self.__name = name
 
     @property
     def min_battery_soc(self) -> int:
-        """min battery soc percentage."""
+        """Min battery soc percentage."""
 
         return self.__min_battery_soc
 
     @min_battery_soc.setter
     def min_battery_soc(self, min_battery_soc: str):
-        self.__min_battery_soc = min_battery_soc
+        if min_battery_soc is None:
+            self.__min_battery_soc = 20.0
+        else:
+            self.__min_battery_soc = min_battery_soc
 
     @property
     def observation_metadata(self) -> Mapping[str, bool]:
         """Mapping of active and inactive observations."""
 
         return self.__observation_metadata
+    
+    @observation_metadata.setter
+    def observation_metadata(self, observation_metadata: Mapping[str, bool]):
+        self.__observation_metadata = observation_metadata
 
     @property
     def action_metadata(self) -> Mapping[str, bool]:
         """Mapping od active and inactive actions."""
 
         return self.__action_metadata
-
-    @observation_metadata.setter
-    def observation_metadata(self, observation_metadata: Mapping[str, bool]):
-        self.__observation_metadata = observation_metadata
 
     @action_metadata.setter
     def action_metadata(self, action_metadata: Mapping[str, bool]):
@@ -111,32 +112,38 @@ class ElectricVehicle(Environment):
     @property
     def battery(self) -> Battery:
         """Battery for Electric_Vehicle."""
-        return self.__battery
 
-    @property
-    def aux_battery(self) -> Battery:
-        """Battery for Electric_Vehicle."""
-        return self.__aux_battery
+        return self.__battery
 
     @battery.setter
     def battery(self, battery: Battery):
         self.__battery = Battery(0.0, 0.0) if battery is None else battery
-
-    @aux_battery.setter
-    def aux_battery(self, auxBattery: Battery):
-        self.__aux_battery = Battery(0.0, 0.0) if auxBattery is None else auxBattery
 
     @property
     def observation_space(self) -> spaces.Box:
         """Agent observation space."""
 
         return self.__observation_space
+    
+    @observation_space.setter
+    def observation_space(self, observation_space: spaces.Box):
+        self.__observation_space = observation_space
+        self.non_periodic_normalized_observation_space_limits = self.estimate_observation_space_limits(
+            include_all=True, periodic_normalization=False
+        )
+        self.periodic_normalized_observation_space_limits = self.estimate_observation_space_limits(
+            include_all=True, periodic_normalization=True
+        )
 
     @property
     def action_space(self) -> spaces.Box:
         """Agent action spaces."""
 
         return self.__action_space
+    
+    @action_space.setter
+    def action_space(self, action_space: spaces.Box):
+        self.__action_space = action_space
 
     @property
     def active_observations(self) -> List[str]:
@@ -151,21 +158,8 @@ class ElectricVehicle(Environment):
 
         return [k for k, v in self.action_metadata.items() if v]
 
-    @observation_space.setter
-    def observation_space(self, observation_space: spaces.Box):
-        self.__observation_space = observation_space
-        self.non_periodic_normalized_observation_space_limits = self.estimate_observation_space_limits(
-            include_all=True, periodic_normalization=False
-        )
-        self.periodic_normalized_observation_space_limits = self.estimate_observation_space_limits(
-            include_all=True, periodic_normalization=True
-        )
 
-    @action_space.setter
-    def action_space(self, action_space: spaces.Box):
-        self.__action_space = action_space
-
-    def adjust_electric_vehicle_soc_on_system_connection(self, soc_system_connection):
+    def adjust_electric_vehicle_soc_on_system_connection(self, soc_system_connection : float):
         """
         Adjusts the state of charge (SoC) of an electric vehicle's (Electric_Vehicle's) battery upon connection to the system.
 
@@ -197,11 +191,9 @@ class ElectricVehicle(Environment):
 
         # Get the SoC in kWh from the battery
         soc_init_kwh = self.battery.initial_soc
-        aux_soc_init_kwh = self.aux_battery.initial_soc
 
         # Calculate the system connection SoC in kWh
         soc_system_connection_kwh = self.battery.capacity * (soc_system_connection / 100)
-        aux_soc_system_connection_kwh = self.aux_battery.capacity * (soc_system_connection / 100)
 
         # Determine the range for random variation.
         # Here we use a normal distribution centered at 0 and a standard deviation of 0.1.
@@ -210,24 +202,18 @@ class ElectricVehicle(Environment):
 
         # Apply the variation
         variation_kwh = variation_percentage * soc_system_connection_kwh
-        aux_variation_kwh = variation_percentage * aux_soc_system_connection_kwh
 
         # Calculate the final SoC in kWh
         soc_final_kwh = soc_system_connection_kwh + variation_kwh
-        aux_soc_final_kwh = aux_soc_system_connection_kwh + aux_variation_kwh
 
         # Charge or discharge the battery to the new SoC.
         self.battery.set_ad_hoc_charge(soc_final_kwh - soc_init_kwh)
-        self.aux_battery.set_ad_hoc_charge(aux_soc_final_kwh - aux_soc_init_kwh)
 
     def next_time_step(self) -> Mapping[int, str]:
-
         """
         Advance Electric_Vehicle to the next `time_step` by
         """
-
         self.battery.next_time_step()
-        self.aux_battery.next_time_step()
         super().next_time_step()
 
         if self.ev_simulation.electric_vehicle_charger_state[self.time_step] == 2:
@@ -247,8 +233,6 @@ class ElectricVehicle(Environment):
         #ToDO Problem Here
 
         self.battery.reset()
-        self.aux_battery.reset()
-
 
 
     def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None) -> \

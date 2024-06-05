@@ -1,6 +1,8 @@
 from typing import Any, List, Mapping, Tuple, Union
 import numpy as np
+from citylearn.building import Building
 from citylearn.data import ZERO_DIVISION_PLACEHOLDER
+from citylearn.reward_function import RewardFunction
 
 class RewardFunction:
     r"""Base and default reward function class.
@@ -322,35 +324,195 @@ class V2GPenaltyReward(MARL):
     """
 
     def __init__(self, env_metadata: Mapping[str, Any],
-                 peak_percentage_threshold=0.10,
-                 ramping_percentage_threshold=0.10,
-                 peak_penalty_weight=20,
-                 ramping_penalty_weight=15,
-                 energy_transfer_bonus=10,
-                 window_size=6,
-                 penalty_no_car_charging=-5,
-                 penalty_battery_limits=-2,
-                 penalty_soc_under_5_10=-5,
-                 reward_close_soc=10,
-                 reward_self_ev_consumption=5,
-                 community_weight=0.2,
-                 reward_extra_self_production=5):
+                 peak_percentage_threshold : float = None, ramping_percentage_threshold : float = None, peak_penalty_weight : int = None, ramping_penalty_weight : int = None,
+                 energy_transfer_bonus : int = None, window_size : int = None, penalty_no_car_charging : int = None, penalty_battery_limits : int = None, penalty_soc_under_5_10 : int = None,
+                 reward_close_soc : int = None, reward_self_ev_consumption : int = None, community_weight : float = None, reward_extra_self_production : int = None):
         super().__init__(env_metadata)
 
         # Setting the parameters
-        self.PEAK_PERCENTAGE_THRESHOLD = peak_percentage_threshold
-        self.RAMPING_PERCENTAGE_THRESHOLD = ramping_percentage_threshold
-        self.PEAK_PENALTY_WEIGHT = peak_penalty_weight
-        self.RAMPING_PENALTY_WEIGHT = ramping_penalty_weight
-        self.ENERGY_TRANSFER_BONUS = energy_transfer_bonus
-        self.WINDOW_SIZE = window_size
-        self.PENALTY_NO_CAR_CHARGING = penalty_no_car_charging
-        self.PENALTY_BATTERY_LIMITS = penalty_battery_limits
-        self.PENALTY_SOC_UNDER_5_10 = penalty_soc_under_5_10
-        self.REWARD_CLOSE_SOC = reward_close_soc
-        self.COMMUNITY_WEIGHT = community_weight
-        self.REWARD_EXTRA_SELF_PRODUCTION = reward_extra_self_production
-        self.REWARD_SELF_EV_CONSUMPTION = reward_self_ev_consumption
+        self.peak_percentage_threshold = peak_percentage_threshold
+        self.ramping_percentage_threshold = ramping_percentage_threshold
+        self.peak_penalty_weight = peak_penalty_weight
+        self.ramping_penalty_weight = ramping_penalty_weight
+        self.energy_transfer_bonus = energy_transfer_bonus
+        self.window_size = window_size
+        self.penalty_no_car_charging = penalty_no_car_charging
+        self.penalty_battery_limits = penalty_battery_limits
+        self.penalty_soc_under_5_10 = penalty_soc_under_5_10
+        self.reward_close_soc = reward_close_soc
+        self.community_weight = community_weight
+        self.reward_extra_self_production = reward_extra_self_production
+        self.reward_self_ev_consumption = reward_self_ev_consumption
+
+    @property
+    def peak_percentage_threshold(self) -> float:
+        """Return the peak_percentage_threshold"""
+
+        return self.__peak_percentage_threshold
+
+    @peak_percentage_threshold.setter
+    def peak_percentage_threshold(self, peak_percentage_threshold: float):
+        if peak_percentage_threshold is None:
+            self.__peak_percentage_threshold = 0.10
+        else:
+            self.__peak_percentage_threshold = peak_percentage_threshold
+
+    @property
+    def ramping_percentage_threshold(self) -> float:
+        """Return the ramping_percentage_threshold"""
+
+        return self.__ramping_percentage_threshold
+
+    @ramping_percentage_threshold.setter
+    def ramping_percentage_threshold(self, ramping_percentage_threshold: float):
+        if ramping_percentage_threshold is None:
+            self.__ramping_percentage_threshold = 0.10
+        else:
+            self.__ramping_percentage_threshold = ramping_percentage_threshold
+
+    @property
+    def peak_penalty_weight(self) -> int:
+        """Return the peak_penalty_weight"""
+
+        return self.__peak_penalty_weight
+
+    @peak_penalty_weight.setter
+    def peak_penalty_weight(self, peak_penalty_weight: int):
+        if peak_penalty_weight is None:
+            self.__peak_penalty_weight = 20
+        else:
+            self.__peak_penalty_weight = peak_penalty_weight
+
+    @property
+    def ramping_penalty_weight(self) -> int:
+        """Return the ramping_penalty_weight"""
+
+        return self.__ramping_penalty_weight
+
+    @ramping_penalty_weight.setter
+    def ramping_penalty_weight(self, ramping_penalty_weight: int):
+        if ramping_penalty_weight is None:
+            self.__ramping_penalty_weight = 15
+        else:
+            self.__ramping_penalty_weight = ramping_penalty_weight
+
+    @property
+    def energy_transfer_bonus(self) -> int:
+        """Return the energy_transfer_bonus"""
+
+        return self.__energy_transfer_bonus
+
+    @energy_transfer_bonus.setter
+    def energy_transfer_bonus(self, energy_transfer_bonus: int):
+        if energy_transfer_bonus is None:
+            self.__energy_transfer_bonus = 10
+        else:
+            self.__energy_transfer_bonus = energy_transfer_bonus
+
+    @property
+    def window_size(self) -> int:
+        """Return the window_size"""
+
+        return self.__window_size
+
+    @window_size.setter
+    def window_size(self, window_size: int):
+        if window_size is None:
+            self.__window_size = 6
+        else:
+            self.__window_size = window_size
+
+    @property
+    def penalty_no_car_charging(self) -> int:
+        """Return the penalty_no_car_charging"""
+
+        return self.__penalty_no_car_charging
+
+    @penalty_no_car_charging.setter
+    def penalty_no_car_charging(self, penalty_no_car_charging: int):
+        if penalty_no_car_charging is None:
+            self.__penalty_no_car_charging = -5
+        else:
+            self.__penalty_no_car_charging = penalty_no_car_charging
+
+    @property
+    def penalty_battery_limits(self) -> int:
+        """Return the penalty_battery_limits"""
+
+        return self.__penalty_battery_limits
+
+    @penalty_battery_limits.setter
+    def penalty_battery_limits(self, penalty_battery_limits: int):
+        if penalty_battery_limits is None:
+            self.__penalty_battery_limits = -2
+        else:
+            self.__penalty_battery_limits = penalty_battery_limits
+
+    @property
+    def penalty_soc_under_5_10(self) -> int:
+        """Return the penalty_soc_under_5_10"""
+
+        return self.__penalty_soc_under_5_10
+
+    @penalty_soc_under_5_10.setter
+    def penalty_soc_under_5_10(self, penalty_soc_under_5_10: int):
+        if penalty_soc_under_5_10 is None:
+            self.__penalty_soc_under_5_10 = -5
+        else:
+            self.__penalty_soc_under_5_10 = penalty_soc_under_5_10
+
+    @property
+    def reward_close_soc(self) -> int:
+        """Return the reward_close_soc"""
+
+        return self.__penalty_soc_under_5_10
+
+    @reward_close_soc.setter
+    def reward_close_soc(self, reward_close_soc: int):
+        if reward_close_soc is None:
+            self._reward_close_soc = 10
+        else:
+            self.__reward_close_soc = reward_close_soc      
+
+    @property
+    def reward_self_ev_consumption(self) -> int:
+        """Return the reward_self_ev_consumption"""
+
+        return self.__reward_self_ev_consumption
+
+    @reward_self_ev_consumption.setter
+    def reward_self_ev_consumption(self, reward_self_ev_consumption: int):
+        if reward_self_ev_consumption is None:
+            self._reward_self_ev_consumption = 5
+        else:
+            self.__reward_self_ev_consumption = reward_self_ev_consumption      
+
+    @property
+    def community_weight(self) -> float:
+        """Return the community_weight"""
+
+        return self.__community_weight
+
+    @community_weight.setter
+    def community_weight(self, community_weight: float):
+        if community_weight is None:
+            self._community_weight = 0.2
+        else:
+            self.__community_weight = community_weight   
+
+    @property
+    def reward_extra_self_production(self) -> int:
+        """Return the reward_extra_self_production"""
+
+        return self.__reward_extra_self_production
+
+    @reward_extra_self_production.setter
+    def reward_extra_self_production(self, reward_extra_self_production: int):
+        if reward_extra_self_production is None:
+            self._reward_extra_self_production = 5
+        else:
+            self.__reward_extra_self_production = reward_extra_self_production    
+
 
     def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
 
@@ -372,7 +534,7 @@ class V2GPenaltyReward(MARL):
 
         return reward
 
-    def calculate_ev_penalty(self, b, current_reward) -> float:
+    def calculate_ev_penalty(self, b : Building, current_reward : RewardFunction) -> float:
         """Calculate penalties based on EV specific logic."""
         penalty = 0
         penalty_multiplier = abs(current_reward)  # Multiplier for the penalty

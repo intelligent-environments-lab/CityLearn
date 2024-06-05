@@ -65,6 +65,12 @@ class ElectricDevice(Device):
         r"""Nominal power."""
 
         return self.__nominal_power
+    
+    @nominal_power.setter
+    def nominal_power(self, nominal_power: float):
+        nominal_power = 0.0 if nominal_power is None else nominal_power
+        assert nominal_power >= 0, 'nominal_power must be >= 0.'
+        self.__nominal_power = nominal_power
 
     @property
     def electricity_consumption(self) -> np.ndarray:
@@ -78,11 +84,6 @@ class ElectricDevice(Device):
 
         return None if self.nominal_power is None else self.nominal_power - self.electricity_consumption[self.time_step]
 
-    @nominal_power.setter
-    def nominal_power(self, nominal_power: float):
-        nominal_power = 0.0 if nominal_power is None else nominal_power
-        assert nominal_power >= 0, 'nominal_power must be >= 0.'
-        self.__nominal_power = nominal_power
 
     def get_metadata(self) -> Mapping[str, Any]:
         return {

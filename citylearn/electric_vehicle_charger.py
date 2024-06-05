@@ -1,7 +1,6 @@
 import inspect
 from typing import List, Dict
 from citylearn.base import Environment
-
 from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.data import ZERO_DIVISION_PLACEHOLDER
 
@@ -59,59 +58,109 @@ class Charger(Environment):
         }
         super().__init__(**kwargs)
 
+
+
     @property
     def charger_id(self) -> str:
         """ID of the charger."""
         return self.__charger_id
+    
+    @charger_id.setter
+    def charger_id(self, charger_id: str):
+        self.__charger_id = charger_id
 
     @property
     def charger_type(self) -> int:
         """Type of the charger."""
         return self.__charger_type
+    
+    @charger_type.setter
+    def charger_type(self, charger_type: str):
+        self.__charger_type = charger_type
 
     @property
     def max_charging_power(self) -> float:
         """Maximum charging power in kW."""
         return self.__max_charging_power
+    
+    @max_charging_power.setter
+    def max_charging_power(self, max_charging_power: float):
+        if max_charging_power is None:
+            self.__max_charging_power = 50.0
+        else:
+            self.__max_charging_power = max_charging_power
 
     @property
     def min_charging_power(self) -> float:
         """Minimum charging power in kW."""
         return self.__min_charging_power
+    
+    @min_charging_power.setter
+    def min_charging_power(self, min_charging_power: float):
+        if min_charging_power is None:
+            self.__min_charging_power = 0.0
+        else:
+            self.__min_charging_power = min_charging_power
 
     @property
     def max_discharging_power(self) -> float:
         """Maximum discharging power in kW."""
         return self.__max_discharging_power
+    
+    @max_discharging_power.setter
+    def max_discharging_power(self, max_discharging_power: float):
+        if max_discharging_power is None:
+            self.__max_discharging_power = 50.0
+        else:
+            self.__max_discharging_power = max_discharging_power
 
     @property
     def min_discharging_power(self) -> float:
         """Minimum discharging power in kW."""
         return self.__min_discharging_power
+    
+    @min_discharging_power.setter
+    def min_discharging_power(self, min_discharging_power: float):
+        if min_discharging_power is None:
+            self.__min_discharging_power = 0.0
+        else:
+            self.__min_discharging_power = min_discharging_power
 
     @property
     def charge_efficiency_curve(self) -> dict:
         """Efficiency curve for charging containing power levels and corresponding efficiency values."""
         return self.__charge_efficiency_curve
+    
+    @charge_efficiency_curve.setter
+    def charge_efficiency_curve(self, charge_efficiency_curve: dict):
+        self.__charge_efficiency_curve = charge_efficiency_curve
 
     @property
     def discharge_efficiency_curve(self) -> dict:
         """Efficiency curve for discharging containing power levels and corresponding efficiency values."""
         return self.__discharge_efficiency_curve
+    
+    @discharge_efficiency_curve.setter
+    def discharge_efficiency_curve(self, discharge_efficiency_curve: dict):
+        self.__discharge_efficiency_curve = discharge_efficiency_curve
 
     @property
     def connected_ev(self) -> ElectricVehicle:
         """Electric_Vehicle currently connected to charger"""
         return self.__connected_ev
+    
+    @connected_ev.setter
+    def connected_ev(self, electric_vehicle: ElectricVehicle):
+        self.__connected_ev = electric_vehicle
 
     @property
     def incoming_ev(self) -> ElectricVehicle:
         """Electric_Vehicle incoming to charger"""
         return self.__incoming_ev
-
-    @charger_id.setter
-    def charger_id(self, charger_id: str):
-        self.__charger_id = charger_id
+    
+    @incoming_ev.setter
+    def incoming_ev(self, electric_vehicle: ElectricVehicle):
+        self.__incoming_ev = electric_vehicle
 
     @property
     def efficiency(self) -> float:
@@ -130,39 +179,8 @@ class Charger(Environment):
     @property
     def nominal_power(self) -> float:
         r"""Nominal power."""
-
         return self.__nominal_power
-
-    @property
-    def past_connected_evs(self) -> List[ElectricVehicle]:
-        r"""Each timestep with the list of Past connected Evs or None in the case no electric_vehicle was connected """
-
-        return self.__past_connected_evs
-
-    @property
-    def past_charging_action_values(self) -> List[float]:
-        r"""Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy"""
-
-        return self.__past_charging_action_values
-
-    @property
-    def electricity_consumption(self) -> List[float]:
-        r"""Electricity consumption time series."""
-
-        return self.__electricity_consumption
-
-    @property
-    def electricity_consumption_without_partial_load(self) -> List[float]:
-        r"""Electricity consumption time series in the case of EVs are not being controlled by an algorithm"""
-
-        return self.__electricity_consumption_without_partial_load
-
-    @property
-    def available_nominal_power(self) -> float:
-        r"""Difference between `nominal_power` and `electricity_consumption` at current `time_step`."""
-
-        return None if self.nominal_power is None else self.nominal_power - self.electricity_consumption[self.time_step]
-
+    
     @nominal_power.setter
     def nominal_power(self, nominal_power: float):
         if nominal_power is None or nominal_power == 0:
@@ -171,6 +189,32 @@ class Charger(Environment):
             assert nominal_power >= 0, 'nominal_power must be >= 0.'
             self.__nominal_power = nominal_power
 
+    @property
+    def past_connected_evs(self) -> List[ElectricVehicle]:
+        r"""Each timestep with the list of Past connected Evs or None in the case no electric_vehicle was connected """
+        return self.__past_connected_evs
+
+    @property
+    def past_charging_action_values(self) -> List[float]:
+        r"""Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy"""
+        return self.__past_charging_action_values
+
+    @property
+    def electricity_consumption(self) -> List[float]:
+        r"""Electricity consumption time series."""
+        return self.__electricity_consumption
+
+    @property
+    def electricity_consumption_without_partial_load(self) -> List[float]:
+        r"""Electricity consumption time series in the case of EVs are not being controlled by an algorithm"""
+        return self.__electricity_consumption_without_partial_load
+
+    @property
+    def available_nominal_power(self) -> float:
+        r"""Difference between `nominal_power` and `electricity_consumption` at current `time_step`."""
+        return None if self.nominal_power is None else self.nominal_power - self.electricity_consumption[self.time_step]
+
+    
     def update_electricity_consumption(self, electricity_consumption: float):
         r"""Updates `electricity_consumption` at current `time_step`.
 
@@ -183,53 +227,6 @@ class Charger(Environment):
         assert electricity_consumption >= 0, 'electricity_consumption must be >= 0.'
         self.__electricity_consumption[self.time_step] += electricity_consumption
 
-    @charger_type.setter
-    def charger_type(self, charger_type: str):
-        self.__charger_type = charger_type
-
-    @max_charging_power.setter
-    def max_charging_power(self, max_charging_power: float):
-        if max_charging_power is None:
-            self.__max_charging_power = 50.0
-        else:
-            self.__max_charging_power = max_charging_power
-
-    @min_charging_power.setter
-    def min_charging_power(self, min_charging_power: float):
-        if min_charging_power is None:
-            self.__min_charging_power = 0.0
-        else:
-            self.__min_charging_power = min_charging_power
-
-    @max_discharging_power.setter
-    def max_discharging_power(self, max_discharging_power: float):
-        if max_discharging_power is None:
-            self.__max_discharging_power = 50.0
-        else:
-            self.__max_discharging_power = max_discharging_power
-
-    @min_discharging_power.setter
-    def min_discharging_power(self, min_discharging_power: float):
-        if min_discharging_power is None:
-            self.__min_discharging_power = 0.0
-        else:
-            self.__min_discharging_power = min_discharging_power
-
-    @charge_efficiency_curve.setter
-    def charge_efficiency_curve(self, charge_efficiency_curve: dict):
-        self.__charge_efficiency_curve = charge_efficiency_curve
-
-    @discharge_efficiency_curve.setter
-    def discharge_efficiency_curve(self, discharge_efficiency_curve: dict):
-        self.__discharge_efficiency_curve = discharge_efficiency_curve
-
-    @connected_ev.setter
-    def connected_ev(self, electric_vehicle: ElectricVehicle):
-        self.__connected_ev = electric_vehicle
-
-    @incoming_ev.setter
-    def incoming_ev(self, electric_vehicle: ElectricVehicle):
-        self.__incoming_ev = electric_vehicle
 
     def plug_car(self, electric_vehicle: ElectricVehicle):
         """
