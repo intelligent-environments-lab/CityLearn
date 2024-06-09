@@ -1,17 +1,31 @@
 import os
 from pathlib import Path
 import shutil
-from typing import Any, Iterable, List, Union
+from typing import Any, Iterable, Mapping, List, Union
 import numpy as np
-from citylearn.utilities import read_json
+import pandas as pd
+from citylearn.utilities import read_json, read_yaml
 
 TOLERANCE = 0.0001
 ZERO_DIVISION_PLACEHOLDER = 0.000001
+DATA_DIRECTORY = os.path.join(os.path.dirname(__file__), 'data')
+DATASETS_DIRECTORY = os.path.join(DATA_DIRECTORY, 'datasets')
+MISC_DATA_DIRECTORY = os.path.join(DATA_DIRECTORY, 'misc')
+MISC_DIRECTORY = os.path.join(os.path.dirname(__file__), 'misc')
+QUERIES_DIRECTORY = os.path.join(MISC_DIRECTORY, 'queries')
+SETTINGS_FILEPATH = os.path.join(MISC_DIRECTORY, 'settings.yaml')
+BATTERY_CHOICES_FILEPATH = os.path.join(MISC_DATA_DIRECTORY, 'battery_choices.yaml')
+PV_CHOICES_FILEPATH = os.path.join(MISC_DATA_DIRECTORY, 'lbl-tracking_the_sun-res-pv.csv')
+
+def get_settings():
+    directory = os.path.join(os.path.join(os.path.dirname(__file__), 'misc'))
+    filepath = os.path.join(directory, 'settings.yaml')
+    settings = read_yaml(filepath)
+
+    return settings
 
 class DataSet:
     """CityLearn input data set and schema class."""
-    
-    __ROOT_DIRECTORY = os.path.join(os.path.dirname(__file__), 'data')
 
     @staticmethod
     def get_names() -> List[str]:
@@ -25,8 +39,8 @@ class DataSet:
         """
         
         return sorted([
-            d for d in os.listdir(DataSet.__ROOT_DIRECTORY) 
-            if os.path.isdir(os.path.join(DataSet.__ROOT_DIRECTORY,d))
+            d for d in os.listdir(DATASETS_DIRECTORY) 
+            if os.path.isdir(os.path.join(DATASETS_DIRECTORY, d))
         ])
 
     @staticmethod
@@ -39,7 +53,7 @@ class DataSet:
             Target directory to copy data set files to. Copies to current directory if not specifed.
         """
         
-        source_directory = os.path.join(DataSet.__ROOT_DIRECTORY,name)
+        source_directory = os.path.join(DATASETS_DIRECTORY,name)
         destination_directory = '' if destination_directory is None else destination_directory
         destination_directory = os.path.join(destination_directory,name)
         os.makedirs(destination_directory,exist_ok=True)
@@ -53,7 +67,7 @@ class DataSet:
                 continue
 
     @staticmethod
-    def get_schema(name: str) -> dict:
+    def get_schema(name: str) -> Mapping[str, Union[dict, float, str]]:
         """Returns a data set's schema.
 
         Parameters
@@ -63,11 +77,11 @@ class DataSet:
 
         Returns
         -------
-        schema: dict
+        schema: Mapping[str, Union[dict, float, str]]
             Data set schema.
         """
         
-        root_directory = os.path.join(DataSet.__ROOT_DIRECTORY,name)
+        root_directory = os.path.join(DATASETS_DIRECTORY,name)
         filepath = os.path.join(root_directory,'schema.json')
         schema = read_json(filepath)
         schema['root_directory'] = root_directory
@@ -132,14 +146,8 @@ class EnergySimulation(TimeSeriesData):
         Hour time series value ranging from 1 - 24.
     day_type : np.array
         Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.
-    daylight_savings_status : np.array
-        Daylight saving status time series signal of 0 or 1 indicating inactive  or active daylight saving respectively.
     indoor_dry_bulb_temperature : np.array
         Average building dry bulb temperature time series in [C].
-    average_unmet_cooling_setpoint_difference : np.array
-        Average difference between `indoor_dry_bulb_temperature` and cooling temperature setpoints time series in [C].
-    indoor_relative_humidity : np.array
-        Average building relative humidity time series in [%].
     non_shiftable_load : np.array
         Total building non-shiftable plug and equipment loads time series in [kWh].
     dhw_demand : np.array
@@ -150,38 +158,48 @@ class EnergySimulation(TimeSeriesData):
         Total building space heating demand time series in [kWh].
     solar_generation : np.array
         Inverter output per 1 kW of PV system time series in [W/kW].
-    occupant_count: np.array
+    daylight_savings_status : np.array, optional
+        Daylight saving status time series signal of 0 or 1 indicating inactive  or active daylight saving respectively.
+    average_unmet_cooling_setpoint_difference : np.array, optional
+        Average difference between `indoor_dry_bulb_temperature` and cooling temperature setpoints time series in [C].
+    indoor_relative_humidity : np.array, optional
+        Average building relative humidity time series in [%].
+    occupant_count: np.array, optional
         Building occupant count time series in [people].
     indoor_dry_bulb_temperature_set_point: np.array
         Average building dry bulb temperature set point time series in [C].
     hvac_mode: np.array, default: 1
-        Heat pump and auxilliary electric heating availability. If 0, both HVAC devices are unavailable (off), if 1,
-        the heat pump is available for space cooling and if 2, the heat pump and auxilliary electric heating are available
-        for space heating only. The default is to set the mode to cooling at all times. The HVAC devices are always available
-        for cooling and heating storage charging irrespective of the hvac mode.
+        Cooling and heating device availability. If 0, both HVAC devices are unavailable (off), if 1,
+        the cooling device is available for space cooling and if 2, the heating device is available
+        for space heating only. Automatic (auto) mode is 3 and allows for either cooling or heating 
+        depending on the control action. The default is to set the mode to cooling at all times. 
+        The HVAC devices are always available for cooling and heating storage charging irrespective 
+        of the hvac mode.
     power_outage np.array, default: 0
         Signal for power outage. If 0, there is no outage and building can draw energy from grid. 
         If 1, there is a power outage and building can only use its energy resources to meet loads.
+    comfort_band np.array, default: 2
+        Occupant comfort band about the `indoor_dry_bulb_temperature_set_point` [C]. The value is added
+        to and subtracted from the set point to set the upper and lower bounds of comfort bound.
     start_time_step: int, optional
         Time step to start reading variables.
     end_time_step: int, optional
-         Time step to end reading variables.
+        Time step to end reading variables.
     """
+
+    DEFUALT_COMFORT_BAND = 2.0
 
     def __init__(
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
-        daylight_savings_status: Iterable[int], indoor_dry_bulb_temperature: Iterable[float], average_unmet_cooling_setpoint_difference: Iterable[float], indoor_relative_humidity: Iterable[float], 
+         indoor_dry_bulb_temperature: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float], solar_generation: Iterable[float], 
-        occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, start_time_step: int = None, end_time_step: int = None
+        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.month = np.array(month, dtype = int)
-        self.hour = np.array(hour, dtype = int)
-        self.day_type = np.array(day_type, dtype = int)
-        self.daylight_savings_status = np.array(daylight_savings_status, dtype = int)
+        self.month = np.array(month, dtype='int32')
+        self.hour = np.array(hour, dtype='int32')
+        self.day_type = np.array(day_type, dtype='int32')
         self.indoor_dry_bulb_temperature = np.array(indoor_dry_bulb_temperature, dtype='float32')
-        self.average_unmet_cooling_setpoint_difference = np.array(average_unmet_cooling_setpoint_difference, dtype='float32')
-        self.indoor_relative_humidity = np.array(indoor_relative_humidity, dtype = 'float32')
         self.non_shiftable_load = np.array(non_shiftable_load, dtype = 'float32')
         self.dhw_demand = np.array(dhw_demand, dtype = 'float32')
         
@@ -193,9 +211,13 @@ class EnergySimulation(TimeSeriesData):
         self.solar_generation = np.array(solar_generation, dtype = 'float32')
 
         # optional
+        self.daylight_savings_status = np.zeros(len(solar_generation), dtype='int32') if daylight_savings_status is None else np.array(daylight_savings_status, dtype='int32')
+        self.average_unmet_cooling_setpoint_difference = np.zeros(len(solar_generation), dtype='float32') if average_unmet_cooling_setpoint_difference is None else np.array(average_unmet_cooling_setpoint_difference, dtype='float32')
+        self.indoor_relative_humidity = np.zeros(len(solar_generation), dtype='float32') if indoor_relative_humidity is None else np.array(indoor_relative_humidity, dtype = 'float32')
         self.occupant_count = np.zeros(len(solar_generation), dtype='float32') if occupant_count is None else np.array(occupant_count, dtype='float32')
         self.indoor_dry_bulb_temperature_set_point = np.zeros(len(solar_generation), dtype='float32') if indoor_dry_bulb_temperature_set_point is None else np.array(indoor_dry_bulb_temperature_set_point, dtype='float32')
         self.power_outage = np.zeros(len(solar_generation), dtype='float32') if power_outage is None else np.array(power_outage, dtype='float32')
+        self.comfort_band = np.zeros(len(solar_generation), dtype='float32') + self.DEFUALT_COMFORT_BAND if comfort_band is None else np.array(comfort_band, dtype='float32')
 
         # set controlled variable defaults
         self.indoor_dry_bulb_temperature_without_control = self.indoor_dry_bulb_temperature.copy()
@@ -207,19 +229,59 @@ class EnergySimulation(TimeSeriesData):
         self.indoor_dry_bulb_temperature_set_point_without_control = self.indoor_dry_bulb_temperature_set_point.copy()
 
         if hvac_mode is None:
-            self.hvac_mode = np.zeros(len(solar_generation), dtype='float32') + 1 
+            hvac_mode = np.zeros(len(solar_generation), dtype='int32') + 1 
         
         else:
             unique = list(set(hvac_mode))
 
-            for i in range(3):
+            for i in range(4):
                 try:
                     unique.remove(i)
                 except ValueError:
                     pass
 
-            assert len(unique) == 0, f'Invalid hvac_mode values were found: {unique}. Valid values are 0, 1 and 2 to indicate off, cooling mode and heating mode.'
-            self.hvac_mode = np.array(hvac_mode, dtype=int)
+            assert len(unique) == 0, f'Invalid hvac_mode values were found: {unique}. '\
+                'Valid values are 0, 1, 2, 4 to indicate off, cooling mode, heating mode, and automatic mode.'
+            
+        self.hvac_mode = np.array(hvac_mode, dtype='int32')
+
+    @staticmethod
+    def get_pv_sizing_data() -> pd.DataFrame:
+        """Reads and returns NREL's Tracking The Sun dataset that has been prefilered for completeness.
+        
+        Returns
+        -------
+        data: pd.DataFrame
+
+        Notes
+        -----
+        Data source: https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/lbl-tracking_the_sun_res-pv.csv.
+        """
+
+        filepath = PV_CHOICES_FILEPATH
+        data = pd.read_csv(filepath, low_memory=False)
+        
+        return data
+    
+    @staticmethod
+    def get_battery_sizing_data() -> Mapping[str, Union[float, str]]:
+        """Reads and returns internally defined real world manufacturer models.
+        
+        Returns
+        -------
+        data: Mapping[str, Union[float, str]]
+
+        Notes
+        -----
+        Data source: https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/battery_choices.yaml.
+        """
+
+        filepath = BATTERY_CHOICES_FILEPATH
+        data = read_yaml(filepath)
+        data = pd.DataFrame([{'model': k, **v['attributes']} for k, v in data.items()])
+        data = data.set_index('model')
+
+        return data
 
 class Weather(TimeSeriesData):
     """`Building` `weather` data class.

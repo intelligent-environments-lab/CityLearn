@@ -1,4 +1,5 @@
 gymnasium
+nrel-pysam
 numpy
 pandas
 pyyaml

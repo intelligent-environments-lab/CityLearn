@@ -47,4 +47,285 @@ default_time_series_variables:
   - energy_simulation.power_outage
   - weather.outdoor_dry_bulb_temperature
   - weather.outdoor_relative_humidity
+schema:
+  template:
+    random_seed: 0
+    root_directory: null # will be set at runtime
+    central_agent: true # assumes one agent controls all DERs
+    simulation_start_time_step: 0
+    simulation_end_time_step: 8759 # assumes one year of simulation
+    episode_time_steps: null
+    rolling_episode_split: false
+    random_episode_split: false
+    seconds_per_time_step: 3600 # assumes hourly simulation and control time step
+    observations: # realistic observations in practice are active
+      month:
+        active: true
+        shared_in_central_agent: true
+      hour:
+        active: true
+        shared_in_central_agent: true
+      day_type:
+        active: true
+        shared_in_central_agent: true
+      daylight_savings_status:
+        active: false
+        shared_in_central_agent: true
+      outdoor_dry_bulb_temperature:
+        active: true
+        shared_in_central_agent: true
+      outdoor_relative_humidity:
+        active: true
+        shared_in_central_agent: true
+      diffuse_solar_irradiance:
+        active: true
+        shared_in_central_agent: true
+      direct_solar_irradiance:
+        active: true
+        shared_in_central_agent: true
+      outdoor_dry_bulb_temperature_predicted_6h:
+        active: true
+        shared_in_central_agent: true
+      outdoor_dry_bulb_temperature_predicted_12h:
+        active: true
+        shared_in_central_agent: true
+      outdoor_dry_bulb_temperature_predicted_24h:
+        active: true
+        shared_in_central_agent: true
+      outdoor_relative_humidity_predicted_6h:
+        active: true
+        shared_in_central_agent: true
+      outdoor_relative_humidity_predicted_12h:
+        active: true
+        shared_in_central_agent: true
+      outdoor_relative_humidity_predicted_24h:
+        active: true
+        shared_in_central_agent: true
+      diffuse_solar_irradiance_predicted_6h:
+        active: true
+        shared_in_central_agent: true
+      diffuse_solar_irradiance_predicted_12h:
+        active: true
+        shared_in_central_agent: true
+      diffuse_solar_irradiance_predicted_24h:
+        active: true
+        shared_in_central_agent: true
+      direct_solar_irradiance_predicted_6h:
+        active: true
+        shared_in_central_agent: true
+      direct_solar_irradiance_predicted_12h:
+        active: true
+        shared_in_central_agent: true
+      direct_solar_irradiance_predicted_24h:
+        active: true
+        shared_in_central_agent: true
+      electricity_pricing:
+        active: true
+        shared_in_central_agent: true
+      electricity_pricing_predicted_6h:
+        active: true
+        shared_in_central_agent: true
+      electricity_pricing_predicted_12h:
+        active: true
+        shared_in_central_agent: true
+      electricity_pricing_predicted_24h:
+        active: true
+        shared_in_central_agent: true
+      carbon_intensity:
+        active: true
+        shared_in_central_agent: true
+      indoor_dry_bulb_temperature:
+        active: true
+        shared_in_central_agent: false
+      average_unmet_cooling_setpoint_difference:
+        active: false
+        shared_in_central_agent: false
+      indoor_relative_humidity:
+        active: true
+        shared_in_central_agent: false
+      non_shiftable_load:
+        active: false
+        shared_in_central_agent: false
+      dhw_demand:
+        active: false
+        shared_in_central_agent: false
+      cooling_demand:
+        active: false
+        shared_in_central_agent: false
+      heating_demand:
+        active: false
+        shared_in_central_agent: false
+      solar_generation:
+        active: true
+        shared_in_central_agent: false
+      occupant_count:
+        active: false
+        shared_in_central_agent: false
+      indoor_dry_bulb_temperature_set_point:
+        active: true
+        shared_in_central_agent: false
+      comfort_band:
+        active: true
+        shared_in_central_agent: false
+      indoor_dry_bulb_temperature_delta:
+        active: true
+        shared_in_central_agent: false
+      hvac_mode:
+        active: true
+        shared_in_central_agent: false
+      power_outage:
+        active: true
+        shared_in_central_agent: false
+      cooling_storage_soc:
+        active: false
+        shared_in_central_agent: false
+      heating_storage_soc:
+        active: false
+        shared_in_central_agent: false
+      dhw_storage_soc:
+        active: true
+        shared_in_central_agent: false
+      electrical_storage_soc:
+        active: true
+        shared_in_central_agent: false
+      net_electricity_consumption:
+        active: true
+        shared_in_central_agent: false
+      cooling_electricity_consumption:
+        active: true
+        shared_in_central_agent: false
+      heating_electricity_consumption:
+        active: true
+        shared_in_central_agent: false
+      dhw_electricity_consumption:
+        active: true
+        shared_in_central_agent: false
+      cooling_storage_electricity_consumption:
+        active: false
+        shared_in_central_agent: false
+      heating_storage_electricity_consumption:
+        active: false
+        shared_in_central_agent: false
+      dhw_storage_electricity_consumption:
+        active: true
+        shared_in_central_agent: false
+      electrical_storage_electricity_consumption:
+        active: true
+        shared_in_central_agent: false
+      cooling_device_efficiency:
+        active: false
+        shared_in_central_agent: false
+      heating_device_efficiency:
+        active: false
+        shared_in_central_agent: false
+      dhw_device_efficiency:
+        active: false
+        shared_in_central_agent: false
+    actions: # all actions but cooling and heating storage are active
+      cooling_storage:
+        active: false
+      heating_storage:
+        active: false
+      dhw_storage:
+        active: true
+      electrical_storage:
+        active: true
+      cooling_device:
+        active: false
+      heating_device:
+        active: false
+      cooling_or_heating_device:
+        active: true
+    agent:
+      type: citylearn.agents.base.BaselineAgent
+      attributes: null
+    reward_function:
+      type: citylearn.reward_function.RewardFunction
+      attributes: null
+    buildings: # all building DERs are auto-sized
+      Building_1:
+        type: citylearn.building.LSTMDynamicsBuilding
+        include: true
+        energy_simulation: Building_1.csv
+        weather: weather.csv
+        carbon_intensity: carbon_intensity.csv
+        pricing: pricing.csv
+        inactive_observations: []
+        inactive_actions: []
+        cooling_device:
+          type: citylearn.energy_model.HeatPump
+          autosize: true
+        heating_device:
+          type: citylearn.energy_model.HeatPump
+          autosize: true
+        dhw_device:
+          type: citylearn.energy_model.ElectricHeater
+          autosize: true
+        cooling_storage: null
+        heating_storage: null
+        dhw_storage:
+          type: citylearn.energy_model.StorageTank
+          autosize: true
+        electrical_storage:
+          type: citylearn.energy_model.Battery
+          autosize: true
+        pv:
+          type: citylearn.energy_model.PV
+          autosize: true
+          autosize_attributes:
+            epw_filepath: weather.epw
+        dynamics:
+          type: citylearn.dynamics.LSTMDynamics
+          attributes:
+            # NOTE: older datasets had input size of 13 as either cooling_demand or heating_demand was used but not both.
+            # Also, hidden_size and num_layers may vary across models.
+            input_size: null
+            hidden_size: 16
+            num_layers: 2
+            lookback: 12
+            filename: Building_1.pth
+          input_normalization_minimum: # needs to be updated to model-specific normalization limits
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+            - 0.0
+          input_normalization_maximum: # needs to be updated to model-specific normalization limits
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+            - 1.0
+          input_observation_names:
+            - direct_solar_irradiance
+            - diffuse_solar_irradiance
+            - outdoor_dry_bulb_temperature
+            - cooling_demand
+            - heating_demand
+            - month_sin
+            - month_cos
+            - hour_sin
+            - hour_cos
+            - day_type_sin
+            - day_type_cos
+            - occupant_count
+            - indoor_dry_bulb_temperature
 ...

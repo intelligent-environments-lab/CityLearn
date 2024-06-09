@@ -24,15 +24,15 @@ class Agent(Environment):
     def __init__(self, env: CityLearnEnv, **kwargs: Any):
         self.env = env
         self.observation_names = self.env.observation_names
-        self.action_names = self.env.action_names
+        self.action_names = self.env.unwrapped.action_names
         self.observation_space = self.env.observation_space
         self.action_space = self.env.action_space
-        self.episode_time_steps = self.env.time_steps
-        self.building_metadata = self.env.get_metadata()['buildings']
+        self.episode_time_steps = self.env.unwrapped.time_steps
+        self.building_metadata = self.env.unwrapped.get_metadata()['buildings']
         super().__init__(
-            seconds_per_time_step=self.env.seconds_per_time_step,
-            random_seed=self.env.random_seed,
-            episode_tracker=self.env.episode_tracker,
+            seconds_per_time_step=self.env.unwrapped.seconds_per_time_step,
+            random_seed=self.env.unwrapped.random_seed,
+            episode_tracker=self.env.unwrapped.episode_tracker,
         )
         self.reset()
 
@@ -277,7 +277,7 @@ class BaselineAgent(Agent):
         return env
 
     def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
-        actions = [[0.0 if 'storage' in n else None for n in a] for a in self.action_names]
+        actions = [[] for _ in self.action_names]
         self.actions = actions
         self.next_time_step()
         
