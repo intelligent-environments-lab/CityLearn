@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QuickStart &mdash; CityLearn 2.2.0 documentation</title>
+  <title>QuickStart &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -20,7 +20,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=b21de401"></script>
+        <script src="_static/documentation_options.js?v=350d4d64"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -136,8 +136,12 @@
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="s1">&#39;citylearn_challenge_2023_phase_2_local_evaluation&#39;</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 
-<span class="c1"># train</span>
-<span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># step through environment and apply agent actions</span>
+<span class="n">observations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+    <span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
 
 <span class="c1"># test</span>
 <span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
@@ -146,6 +150,14 @@
 <span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Couldn&#39;t import dot_parser, loading of dot files will not be possible.
+</pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -358,8 +370,12 @@
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="s1">&#39;citylearn_challenge_2023_phase_2_local_evaluation&#39;</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
 
-<span class="c1"># train</span>
-<span class="n">model</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">episodes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># step through environment and apply agent actions</span>
+<span class="n">observations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+    <span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
 
 <span class="c1"># test</span>
 <span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
@@ -421,24 +437,24 @@
     </tr>
     <tr>
       <th>carbon_emissions_total</th>
-      <td>1.997</td>
+      <td>1.998</td>
       <td>1.936</td>
-      <td>1.737</td>
-      <td>1.890</td>
+      <td>1.740</td>
+      <td>1.891</td>
     </tr>
     <tr>
       <th>cost_total</th>
-      <td>1.930</td>
-      <td>1.877</td>
-      <td>1.709</td>
-      <td>1.839</td>
+      <td>1.931</td>
+      <td>1.878</td>
+      <td>1.713</td>
+      <td>1.841</td>
     </tr>
     <tr>
       <th>daily_one_minus_load_factor_average</th>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.721</td>
+      <td>0.720</td>
     </tr>
     <tr>
       <th>daily_peak_average</th>
@@ -512,10 +528,10 @@
     </tr>
     <tr>
       <th>electricity_consumption_total</th>
-      <td>1.993</td>
-      <td>1.962</td>
-      <td>1.751</td>
-      <td>1.902</td>
+      <td>1.995</td>
+      <td>1.963</td>
+      <td>1.755</td>
+      <td>1.904</td>
     </tr>
     <tr>
       <th>monthly_one_minus_load_factor_average</th>
@@ -543,14 +559,14 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.961</td>
+      <td>0.959</td>
     </tr>
     <tr>
       <th>zero_net_energy</th>
-      <td>2.058</td>
-      <td>1.993</td>
-      <td>1.769</td>
-      <td>1.940</td>
+      <td>2.059</td>
+      <td>1.994</td>
+      <td>1.773</td>
+      <td>1.942</td>
     </tr>
   </tbody>
 </table>

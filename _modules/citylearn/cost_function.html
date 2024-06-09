@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.cost_function &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.cost_function &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -18,7 +18,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=b21de401"></script>
+        <script src="../../_static/documentation_options.js?v=350d4d64"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -85,9 +85,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.cost_function</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">EnergySimulation</span>
 
 <div class="viewcode-block" id="CostFunction">
 <a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction">[docs]</a>
@@ -335,7 +336,7 @@
 <div class="viewcode-block" id="CostFunction.discomfort">
 <a class="viewcode-back" href="../../api/citylearn.cost_function.html#citylearn.cost_function.CostFunction.discomfort">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">discomfort</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dry_bulb_temperature_set_point</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">occupant_count</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">discomfort</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dry_bulb_temperature_set_point</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">band</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">occupant_count</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Rolling percentage of discomfort (total, too cold, and too hot) time steps as well as rolling minimum, maximum and average temperature delta.</span>
 
 <span class="sd">        Parameters</span>
@@ -344,9 +345,10 @@
 <span class="sd">            Average building dry bulb temperature time series.</span>
 <span class="sd">        dry_bulb_temperature_set_point: List[float]</span>
 <span class="sd">            Building thermostat setpoint time series.</span>
-<span class="sd">        band: float, default = 2.0</span>
+<span class="sd">        band: Union[float, List[float]], optional</span>
 <span class="sd">            Comfort band above and below dry_bulb_temperature_set_point beyond </span>
-<span class="sd">            which occupant is assumed to be uncomfortable.</span>
+<span class="sd">            which occupant is assumed to be uncomfortable. The default value is</span>
+<span class="sd">            a constant value time series of 2.0.</span>
 <span class="sd">        occupant_count: List[float], optional</span>
 <span class="sd">            Occupant count time series. If provided, the comfort cost is </span>
 <span class="sd">            evaluated for occupied time steps only.</span>
@@ -374,29 +376,28 @@
 <span class="sd">            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature &gt; (dry_bulb_temperature_set_point + band) is met.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">band</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="k">if</span> <span class="n">band</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">band</span>
-
         <span class="c1"># unmet hours</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
             <span class="s1">&#39;indoor_dry_bulb_temperature&#39;</span><span class="p">:</span> <span class="n">indoor_dry_bulb_temperature</span><span class="p">,</span> 
             <span class="s1">&#39;dry_bulb_temperature_set_point&#39;</span><span class="p">:</span> <span class="n">dry_bulb_temperature_set_point</span><span class="p">,</span>
             <span class="s1">&#39;occupant_count&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">)</span> <span class="k">if</span> <span class="n">occupant_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">occupant_count</span>
         <span class="p">})</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;band&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">EnergySimulation</span><span class="o">.</span><span class="n">DEFUALT_COMFORT_BAND</span> <span class="k">if</span> <span class="n">band</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">band</span>
         <span class="n">occupied_time_step_count</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;occupant_count&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;indoor_dry_bulb_temperature&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;dry_bulb_temperature_set_point&#39;</span><span class="p">]</span>
         <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;occupant_count&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">band</span><span class="p">,</span> <span class="s1">&#39;discomfort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;band&#39;</span><span class="p">],</span> <span class="s1">&#39;discomfort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="n">occupied_time_step_count</span>
 
         <span class="c1"># too cold</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_cold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">band</span><span class="p">,</span> <span class="s1">&#39;discomfort_cold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;band&#39;</span><span class="p">],</span> <span class="s1">&#39;discomfort_cold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_cold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_cold&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="n">occupied_time_step_count</span>
 
         <span class="c1"># too hot</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_hot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">band</span><span class="p">,</span> <span class="s1">&#39;discomfort_hot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;delta&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;band&#39;</span><span class="p">],</span> <span class="s1">&#39;discomfort_hot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_hot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discomfort_hot&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="n">occupied_time_step_count</span>
 
         <span class="c1"># minimum cold delta</span>

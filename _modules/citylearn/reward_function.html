@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.reward_function &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.reward_function &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -18,7 +18,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=b21de401"></script>
+        <script src="../../_static/documentation_options.js?v=350d4d64"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -297,8 +297,9 @@
 <span class="sd">    ----------</span>
 <span class="sd">    env_metadata: Mapping[str, Any]:</span>
 <span class="sd">        General static information about the environment.</span>
-<span class="sd">    band: float, default = 2.0</span>
-<span class="sd">        Setpoint comfort band (+/-).</span>
+<span class="sd">    band: float, default: 2.0</span>
+<span class="sd">        Setpoint comfort band (+/-). If not provided, the comfort band time series defined in the</span>
+<span class="sd">        building file, or the default time series value of 2.0 is used.</span>
 <span class="sd">    lower_exponent: float, default = 2.0</span>
 <span class="sd">        Penalty exponent for when in cooling mode but temperature is above setpoint upper</span>
 <span class="sd">        boundary or heating mode but temperature is below setpoint lower boundary.</span>
@@ -327,7 +328,7 @@
     
     <span class="nd">@band</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">band</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__band</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="k">if</span> <span class="n">band</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">band</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__band</span> <span class="o">=</span> <span class="n">band</span>
 
     <span class="nd">@lower_exponent</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">lower_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
@@ -335,7 +336,7 @@
 
     <span class="nd">@higher_exponent</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">higher_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__higher_exponent</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="k">if</span> <span class="n">higher_exponent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">higher_exponent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__higher_exponent</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="k">if</span> <span class="n">higher_exponent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">higher_exponent</span>
 
 <div class="viewcode-block" id="ComfortReward.calculate">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.ComfortReward.calculate">[docs]</a>
@@ -346,14 +347,16 @@
             <span class="n">heating_demand</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;heating_demand&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
             <span class="n">cooling_demand</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cooling_demand&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
             <span class="n">heating</span> <span class="o">=</span> <span class="n">heating_demand</span> <span class="o">&gt;</span> <span class="n">cooling_demand</span>
+            <span class="n">hvac_mode</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;hvac_mode&#39;</span><span class="p">]</span>
             <span class="n">indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;indoor_dry_bulb_temperature&#39;</span><span class="p">]</span>
             <span class="n">set_point</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;indoor_dry_bulb_temperature_set_point&#39;</span><span class="p">]</span>
-            <span class="n">lower_bound_comfortable_indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">set_point</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">band</span>
-            <span class="n">upper_bound_comfortable_indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">set_point</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">band</span>
+            <span class="n">band</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">band</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">band</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;comfort_band&#39;</span><span class="p">]</span>
+            <span class="n">lower_bound_comfortable_indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">set_point</span> <span class="o">-</span> <span class="n">band</span>
+            <span class="n">upper_bound_comfortable_indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">set_point</span> <span class="o">+</span> <span class="n">band</span>
             <span class="n">delta</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature</span> <span class="o">-</span> <span class="n">set_point</span><span class="p">)</span>
             
             <span class="k">if</span> <span class="n">indoor_dry_bulb_temperature</span> <span class="o">&lt;</span> <span class="n">lower_bound_comfortable_indoor_dry_bulb_temperature</span><span class="p">:</span>
-                <span class="n">exponent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_exponent</span> <span class="k">if</span> <span class="n">heating</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">higher_exponent</span>
+                <span class="n">exponent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_exponent</span> <span class="k">if</span> <span class="n">hvac_mode</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">higher_exponent</span>
                 <span class="n">reward</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">delta</span><span class="o">**</span><span class="n">exponent</span><span class="p">)</span>
             
             <span class="k">elif</span> <span class="n">lower_bound_comfortable_indoor_dry_bulb_temperature</span> <span class="o">&lt;=</span> <span class="n">indoor_dry_bulb_temperature</span> <span class="o">&lt;</span> <span class="n">set_point</span><span class="p">:</span>
@@ -388,7 +391,8 @@
 <span class="sd">    env_metadata: Mapping[str, Any]:</span>
 <span class="sd">        General static information about the environment.</span>
 <span class="sd">    band: float, default = 2.0</span>
-<span class="sd">        Setpoint comfort band (+/-).</span>
+<span class="sd">        Setpoint comfort band (+/-). If not provided, the comfort band time series defined in the</span>
+<span class="sd">        building file, or the default time series value of 2.0 is used.</span>
 <span class="sd">    lower_exponent: float, default = 2.0</span>
 <span class="sd">        Penalty exponent for when in cooling mode but temperature is above setpoint upper</span>
 <span class="sd">        boundary or heating mode but temperature is below setpoint lower boundary.</span>

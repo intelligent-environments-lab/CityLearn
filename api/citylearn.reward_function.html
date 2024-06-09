@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.reward_function module &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.reward_function module &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -19,7 +19,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=b21de401"></script>
+        <script src="../_static/documentation_options.js?v=350d4d64"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -126,7 +126,8 @@ and above the setpoint in cooling mode or below the setpoint and in heating mode
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>env_metadata</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>:</em>) – General static information about the environment.</p></li>
-<li><p><strong>band</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Setpoint comfort band (+/-).</p></li>
+<li><p><strong>band</strong> (<em>float</em><em>, </em><em>default: 2.0</em>) – Setpoint comfort band (+/-). If not provided, the comfort band time series defined in the
+building file, or the default time series value of 2.0 is used.</p></li>
 <li><p><strong>lower_exponent</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Penalty exponent for when in cooling mode but temperature is above setpoint upper
 boundary or heating mode but temperature is below setpoint lower boundary.</p></li>
 <li><p><strong>higher_exponent</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Penalty exponent for when in cooling mode but temperature is below setpoint lower
@@ -296,7 +297,8 @@ boundary or heating mode but temperature is above setpoint upper boundary.</p></
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>env_metadata</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>:</em>) – General static information about the environment.</p></li>
-<li><p><strong>band</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Setpoint comfort band (+/-).</p></li>
+<li><p><strong>band</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Setpoint comfort band (+/-). If not provided, the comfort band time series defined in the
+building file, or the default time series value of 2.0 is used.</p></li>
 <li><p><strong>lower_exponent</strong> (<em>float</em><em>, </em><em>default = 2.0</em>) – Penalty exponent for when in cooling mode but temperature is above setpoint upper
 boundary or heating mode but temperature is below setpoint lower boundary.</p></li>
 <li><p><strong>higher_exponent</strong> (<em>float</em><em>, </em><em>default = 3.0</em>) – Penalty exponent for when in cooling mode but temperature is below setpoint lower

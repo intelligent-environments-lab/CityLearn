@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.dynamics &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.dynamics &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -18,7 +18,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=b21de401"></script>
+        <script src="../../_static/documentation_options.js?v=350d4d64"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -120,38 +120,47 @@
 <span class="sd">        List of minumum values used for input observation min-max normalization.</span>
 <span class="sd">    input_normalization_maximum: List[float]</span>
 <span class="sd">        List of maximum values used for input observation min-max normalization.</span>
-<span class="sd">    input_size: int</span>
-<span class="sd">        Number of variables used for prediction. This may not equal `input_observation_names`</span>
-<span class="sd">        e.g. cooling and heating demand may be included in `input_observation_names` but only</span>
-<span class="sd">        one of two may be used for the actual prediction depending on building needs.</span>
 <span class="sd">    hidden_size: int</span>
 <span class="sd">        The number of neurons in hidden layer.</span>
 <span class="sd">    num_layers: int</span>
 <span class="sd">        Number of hidden layers.</span>
 <span class="sd">    lookback: int</span>
 <span class="sd">        Number of samples used for prediction.</span>
+<span class="sd">    input_size: int, optional</span>
+<span class="sd">        Number of variables used for prediction. This may not equal `input_observation_names`</span>
+<span class="sd">        e.g. cooling and heating demand may be included in `input_observation_names` but only</span>
+<span class="sd">        one of two may be used for the actual prediction depending on building needs.</span>
+<span class="sd">        The default is to set set `input_size` to the length of `input_observation_names`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">input_observation_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">input_normalization_minimum</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
-            <span class="n">input_normalization_maximum</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">input_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_layers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lookback</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">input_normalization_maximum</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">hidden_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_layers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lookback</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">input_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
         <span class="n">Dynamics</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_observation_names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_normalization_minimum</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_normalization_maximum</span><span class="p">),</span>\
+            <span class="s1">&#39;input_observation_names, input_normalization_minimum and input_normalization_maximum must have the same length.&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_observation_names</span> <span class="o">=</span> <span class="n">input_observation_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_normalization_minimum</span> <span class="o">=</span> <span class="n">input_normalization_minimum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_normalization_maximum</span> <span class="o">=</span> <span class="n">input_normalization_maximum</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_size</span> <span class="o">=</span> <span class="n">input_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="n">num_layers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lookback</span> <span class="o">=</span> <span class="n">lookback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_observation_names</span> <span class="o">=</span> <span class="n">input_observation_names</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_normalization_minimum</span> <span class="o">=</span> <span class="n">input_normalization_minimum</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_normalization_maximum</span> <span class="o">=</span> <span class="n">input_normalization_maximum</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_observation_names</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_normalization_minimum</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_normalization_maximum</span><span class="p">),</span>\
-            <span class="s1">&#39;input_observation_names, input_normalization_minimum and input_normalization_maximum must have the same length.&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">l_lstm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_lstm</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">l_linear</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_linear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_hidden_state</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model_input</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__input_size</span>
+    
+    <span class="nd">@input_size</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__input_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_observation_names</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
     
 <div class="viewcode-block" id="LSTMDynamics.set_lstm">
 <a class="viewcode-back" href="../../api/citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics.set_lstm">[docs]</a>

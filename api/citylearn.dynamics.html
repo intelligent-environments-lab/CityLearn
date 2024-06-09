@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.dynamics module &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.dynamics module &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -19,7 +19,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=b21de401"></script>
+        <script src="../_static/documentation_options.js?v=350d4d64"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -127,7 +127,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.dynamics.LSTMDynamics">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.dynamics.</span></span><span class="sig-name descname"><span class="pre">LSTMDynamics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_observation_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_normalization_minimum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_normalization_maximum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/dynamics.html#LSTMDynamics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.dynamics.LSTMDynamics" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.dynamics.</span></span><span class="sig-name descname"><span class="pre">LSTMDynamics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_observation_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_normalization_minimum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_normalization_maximum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/dynamics.html#LSTMDynamics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.dynamics.LSTMDynamics" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dynamics</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
 <p>LSTM building dynamics model that predicts indoor temperature based on partial cooling/heating load and other weather variables.</p>
 <dl class="field-list simple">
@@ -137,12 +137,13 @@
 <li><p><strong>input_observation_names</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of maximum values used for input observation min-max normalization.</p></li>
 <li><p><strong>input_normalization_minimum</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – List of minumum values used for input observation min-max normalization.</p></li>
 <li><p><strong>input_normalization_maximum</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – List of maximum values used for input observation min-max normalization.</p></li>
-<li><p><strong>input_size</strong> (<em>int</em>) – Number of variables used for prediction. This may not equal <cite>input_observation_names</cite>
-e.g. cooling and heating demand may be included in <cite>input_observation_names</cite> but only
-one of two may be used for the actual prediction depending on building needs.</p></li>
 <li><p><strong>hidden_size</strong> (<em>int</em>) – The number of neurons in hidden layer.</p></li>
 <li><p><strong>num_layers</strong> (<em>int</em>) – Number of hidden layers.</p></li>
 <li><p><strong>lookback</strong> (<em>int</em>) – Number of samples used for prediction.</p></li>
+<li><p><strong>input_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of variables used for prediction. This may not equal <cite>input_observation_names</cite>
+e.g. cooling and heating demand may be included in <cite>input_observation_names</cite> but only
+one of two may be used for the actual prediction depending on building needs.
+The default is to set set <cite>input_size</cite> to the length of <cite>input_observation_names</cite>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -157,6 +158,11 @@ one of two may be used for the actual prediction depending on building needs.</p
 <span class="sig-name descname"><span class="pre">init_hidden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/dynamics.html#LSTMDynamics.init_hidden"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.dynamics.LSTMDynamics.init_hidden" title="Link to this definition"></a></dt>
 <dd><p>Initialize hidden states.</p>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.dynamics.LSTMDynamics.input_size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.dynamics.LSTMDynamics.input_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.dynamics.LSTMDynamics.reset">

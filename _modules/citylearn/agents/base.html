@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.base &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.agents.base &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -18,7 +18,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=b21de401"></script>
+        <script src="../../../_static/documentation_options.js?v=350d4d64"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -113,15 +113,15 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_names</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">action_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">action_names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">observation_space</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">episode_time_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">time_steps</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">building_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">()[</span><span class="s1">&#39;buildings&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">episode_time_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">time_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">building_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">()[</span><span class="s1">&#39;buildings&#39;</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">seconds_per_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">seconds_per_time_step</span><span class="p">,</span>
-            <span class="n">random_seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
-            <span class="n">episode_tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">episode_tracker</span><span class="p">,</span>
+            <span class="n">seconds_per_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">seconds_per_time_step</span><span class="p">,</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+            <span class="n">episode_tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">unwrapped</span><span class="o">.</span><span class="n">episode_tracker</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
@@ -386,7 +386,7 @@
 <div class="viewcode-block" id="BaselineAgent.predict">
 <a class="viewcode-back" href="../../../api/citylearn.agents.base.html#citylearn.agents.base.BaselineAgent.predict">[docs]</a>
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span> <span class="k">if</span> <span class="s1">&#39;storage&#39;</span> <span class="ow">in</span> <span class="n">n</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_names</span><span class="p">]</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_names</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">actions</span> <span class="o">=</span> <span class="n">actions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
         

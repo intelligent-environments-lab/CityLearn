@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.data &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.data &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -18,7 +18,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=b21de401"></script>
+        <script src="../../_static/documentation_options.js?v=350d4d64"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -88,19 +88,36 @@
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span><span class="p">,</span> <span class="n">read_yaml</span>
 
 <span class="n">TOLERANCE</span> <span class="o">=</span> <span class="mf">0.0001</span>
 <span class="n">ZERO_DIVISION_PLACEHOLDER</span> <span class="o">=</span> <span class="mf">0.000001</span>
+<span class="n">DATA_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+<span class="n">DATASETS_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">)</span>
+<span class="n">MISC_DATA_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
+<span class="n">MISC_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
+<span class="n">QUERIES_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MISC_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;queries&#39;</span><span class="p">)</span>
+<span class="n">SETTINGS_FILEPATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MISC_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;settings.yaml&#39;</span><span class="p">)</span>
+<span class="n">BATTERY_CHOICES_FILEPATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MISC_DATA_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;battery_choices.yaml&#39;</span><span class="p">)</span>
+<span class="n">PV_CHOICES_FILEPATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MISC_DATA_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;lbl-tracking_the_sun-res-pv.csv&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="get_settings">
+<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.get_settings">[docs]</a>
+<span class="k">def</span> <span class="nf">get_settings</span><span class="p">():</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;misc&#39;</span><span class="p">))</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;settings.yaml&#39;</span><span class="p">)</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">settings</span></div>
+
 
 <div class="viewcode-block" id="DataSet">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet">[docs]</a>
 <span class="k">class</span> <span class="nc">DataSet</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CityLearn input data set and schema class.&quot;&quot;&quot;</span>
-    
-    <span class="n">__ROOT_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DataSet.get_names">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_names">[docs]</a>
@@ -116,8 +133,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span>
-            <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">DataSet</span><span class="o">.</span><span class="n">__ROOT_DIRECTORY</span><span class="p">)</span> 
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DataSet</span><span class="o">.</span><span class="n">__ROOT_DIRECTORY</span><span class="p">,</span><span class="n">d</span><span class="p">))</span>
+            <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">DATASETS_DIRECTORY</span><span class="p">)</span> 
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATASETS_DIRECTORY</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
         <span class="p">])</span></div>
 
 
@@ -133,7 +150,7 @@
 <span class="sd">            Target directory to copy data set files to. Copies to current directory if not specifed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
-        <span class="n">source_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DataSet</span><span class="o">.</span><span class="n">__ROOT_DIRECTORY</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">source_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATASETS_DIRECTORY</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
         <span class="n">destination_directory</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">destination_directory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">destination_directory</span>
         <span class="n">destination_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destination_directory</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">destination_directory</span><span class="p">,</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -150,7 +167,7 @@
 <div class="viewcode-block" id="DataSet.get_schema">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_schema">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a data set&#39;s schema.</span>
 
 <span class="sd">        Parameters</span>
@@ -160,11 +177,11 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        schema: dict</span>
+<span class="sd">        schema: Mapping[str, Union[dict, float, str]]</span>
 <span class="sd">            Data set schema.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
-        <span class="n">root_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DataSet</span><span class="o">.</span><span class="n">__ROOT_DIRECTORY</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">root_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATASETS_DIRECTORY</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_directory</span><span class="p">,</span><span class="s1">&#39;schema.json&#39;</span><span class="p">)</span>
         <span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_directory</span>
@@ -236,14 +253,8 @@
 <span class="sd">        Hour time series value ranging from 1 - 24.</span>
 <span class="sd">    day_type : np.array</span>
 <span class="sd">        Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.</span>
-<span class="sd">    daylight_savings_status : np.array</span>
-<span class="sd">        Daylight saving status time series signal of 0 or 1 indicating inactive  or active daylight saving respectively.</span>
 <span class="sd">    indoor_dry_bulb_temperature : np.array</span>
 <span class="sd">        Average building dry bulb temperature time series in [C].</span>
-<span class="sd">    average_unmet_cooling_setpoint_difference : np.array</span>
-<span class="sd">        Average difference between `indoor_dry_bulb_temperature` and cooling temperature setpoints time series in [C].</span>
-<span class="sd">    indoor_relative_humidity : np.array</span>
-<span class="sd">        Average building relative humidity time series in [%].</span>
 <span class="sd">    non_shiftable_load : np.array</span>
 <span class="sd">        Total building non-shiftable plug and equipment loads time series in [kWh].</span>
 <span class="sd">    dhw_demand : np.array</span>
@@ -254,38 +265,48 @@
 <span class="sd">        Total building space heating demand time series in [kWh].</span>
 <span class="sd">    solar_generation : np.array</span>
 <span class="sd">        Inverter output per 1 kW of PV system time series in [W/kW].</span>
-<span class="sd">    occupant_count: np.array</span>
+<span class="sd">    daylight_savings_status : np.array, optional</span>
+<span class="sd">        Daylight saving status time series signal of 0 or 1 indicating inactive  or active daylight saving respectively.</span>
+<span class="sd">    average_unmet_cooling_setpoint_difference : np.array, optional</span>
+<span class="sd">        Average difference between `indoor_dry_bulb_temperature` and cooling temperature setpoints time series in [C].</span>
+<span class="sd">    indoor_relative_humidity : np.array, optional</span>
+<span class="sd">        Average building relative humidity time series in [%].</span>
+<span class="sd">    occupant_count: np.array, optional</span>
 <span class="sd">        Building occupant count time series in [people].</span>
 <span class="sd">    indoor_dry_bulb_temperature_set_point: np.array</span>
 <span class="sd">        Average building dry bulb temperature set point time series in [C].</span>
 <span class="sd">    hvac_mode: np.array, default: 1</span>
-<span class="sd">        Heat pump and auxilliary electric heating availability. If 0, both HVAC devices are unavailable (off), if 1,</span>
-<span class="sd">        the heat pump is available for space cooling and if 2, the heat pump and auxilliary electric heating are available</span>
-<span class="sd">        for space heating only. The default is to set the mode to cooling at all times. The HVAC devices are always available</span>
-<span class="sd">        for cooling and heating storage charging irrespective of the hvac mode.</span>
+<span class="sd">        Cooling and heating device availability. If 0, both HVAC devices are unavailable (off), if 1,</span>
+<span class="sd">        the cooling device is available for space cooling and if 2, the heating device is available</span>
+<span class="sd">        for space heating only. Automatic (auto) mode is 3 and allows for either cooling or heating </span>
+<span class="sd">        depending on the control action. The default is to set the mode to cooling at all times. </span>
+<span class="sd">        The HVAC devices are always available for cooling and heating storage charging irrespective </span>
+<span class="sd">        of the hvac mode.</span>
 <span class="sd">    power_outage np.array, default: 0</span>
 <span class="sd">        Signal for power outage. If 0, there is no outage and building can draw energy from grid. </span>
 <span class="sd">        If 1, there is a power outage and building can only use its energy resources to meet loads.</span>
+<span class="sd">    comfort_band np.array, default: 2</span>
+<span class="sd">        Occupant comfort band about the `indoor_dry_bulb_temperature_set_point` [C]. The value is added</span>
+<span class="sd">        to and subtracted from the set point to set the upper and lower bounds of comfort bound.</span>
 <span class="sd">    start_time_step: int, optional</span>
 <span class="sd">        Time step to start reading variables.</span>
 <span class="sd">    end_time_step: int, optional</span>
-<span class="sd">         Time step to end reading variables.</span>
+<span class="sd">        Time step to end reading variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DEFUALT_COMFORT_BAND</span> <span class="o">=</span> <span class="mf">2.0</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">hour</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">day_type</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-        <span class="n">daylight_savings_status</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">indoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">average_unmet_cooling_setpoint_difference</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">indoor_relative_humidity</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
+         <span class="n">indoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
         <span class="n">non_shiftable_load</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dhw_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">cooling_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">heating_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">solar_generation</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
-        <span class="n">occupant_count</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hvac_mode</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">power_outage</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">daylight_savings_status</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">average_unmet_cooling_setpoint_difference</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indoor_relative_humidity</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">occupant_count</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hvac_mode</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">power_outage</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">comfort_band</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">start_time_step</span><span class="o">=</span><span class="n">start_time_step</span><span class="p">,</span> <span class="n">end_time_step</span><span class="o">=</span><span class="n">end_time_step</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hour</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hour</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">day_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">day_type</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">daylight_savings_status</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">daylight_savings_status</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">month</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hour</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hour</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">day_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">day_type</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">average_unmet_cooling_setpoint_difference</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">average_unmet_cooling_setpoint_difference</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">indoor_relative_humidity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indoor_relative_humidity</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">non_shiftable_load</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">non_shiftable_load</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dhw_demand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dhw_demand</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         
@@ -297,9 +318,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">solar_generation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;float32&#39;</span><span class="p">)</span>
 
         <span class="c1"># optional</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daylight_savings_status</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">daylight_savings_status</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">daylight_savings_status</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">average_unmet_cooling_setpoint_difference</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">average_unmet_cooling_setpoint_difference</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">average_unmet_cooling_setpoint_difference</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indoor_relative_humidity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">indoor_relative_humidity</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indoor_relative_humidity</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">occupant_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">occupant_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">occupant_count</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">indoor_dry_bulb_temperature_set_point</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">power_outage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">power_outage</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">power_outage</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comfort_band</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFUALT_COMFORT_BAND</span> <span class="k">if</span> <span class="n">comfort_band</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">comfort_band</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
 
         <span class="c1"># set controlled variable defaults</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_without_control</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -311,19 +336,65 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point_without_control</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">hvac_mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">hvac_mode</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> 
+            <span class="n">hvac_mode</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">solar_generation</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> 
         
         <span class="k">else</span><span class="p">:</span>
             <span class="n">unique</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">hvac_mode</span><span class="p">))</span>
 
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">unique</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">pass</span>
 
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Invalid hvac_mode values were found: </span><span class="si">{</span><span class="n">unique</span><span class="si">}</span><span class="s1">. Valid values are 0, 1 and 2 to indicate off, cooling mode and heating mode.&#39;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">hvac_mode</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hvac_mode</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span></div>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Invalid hvac_mode values were found: </span><span class="si">{</span><span class="n">unique</span><span class="si">}</span><span class="s1">. &#39;</span>\
+                <span class="s1">&#39;Valid values are 0, 1, 2, 4 to indicate off, cooling mode, heating mode, and automatic mode.&#39;</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">hvac_mode</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hvac_mode</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EnergySimulation.get_pv_sizing_data">
+<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.EnergySimulation.get_pv_sizing_data">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_pv_sizing_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads and returns NREL&#39;s Tracking The Sun dataset that has been prefilered for completeness.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data: pd.DataFrame</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Data source: https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/lbl-tracking_the_sun_res-pv.csv.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">PV_CHOICES_FILEPATH</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">data</span></div>
+
+    
+<div class="viewcode-block" id="EnergySimulation.get_battery_sizing_data">
+<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.EnergySimulation.get_battery_sizing_data">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_battery_sizing_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads and returns internally defined real world manufacturer models.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data: Mapping[str, Union[float, str]]</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Data source: https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/battery_choices.yaml.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">BATTERY_CHOICES_FILEPATH</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([{</span><span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="o">**</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+</div>
 
 
 <div class="viewcode-block" id="Weather">

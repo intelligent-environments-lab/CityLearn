@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.building module &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.building module &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -19,7 +19,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=b21de401"></script>
+        <script src="../_static/documentation_options.js?v=350d4d64"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -177,7 +177,7 @@ indicates which storage systems are to be controlled during simulation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.Building.apply_actions">
-<span class="sig-name descname"><span class="pre">apply_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cooling_device_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heating_device_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooling_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heating_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dhw_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electrical_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.apply_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.apply_actions" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">apply_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cooling_or_heating_device_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooling_device_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heating_device_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooling_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heating_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dhw_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electrical_storage_action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.apply_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.apply_actions" title="Link to this definition"></a></dt>
 <dd><p>Update cooling and heating demand for next timestep and charge/discharge storage devices.</p>
 <p>The order of action execution is dependent on polarity of the storage actions. If the electrical
 storage is to be discharged, its action is executed first before all other actions. Likewise, if
@@ -189,6 +189,8 @@ ensures that comfort is met before attempting to shift loads.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>cooling_or_heating_device_action</strong> (<em>float</em><em>, </em><em>default: np.nan</em>) – Fraction of <cite>cooling_device</cite> or <cite>heating_device</cite> <cite>nominal_power</cite> to make available. An action
+&lt; 0.0 is for the <cite>cooling_device</cite>, while an action &gt; 0.0 is for the <cite>heating_device</cite>.</p></li>
 <li><p><strong>cooling_device_action</strong> (<em>float</em><em>, </em><em>default: np.nan</em>) – Fraction of <cite>cooling_device</cite> <cite>nominal_power</cite> to make available for space cooling.</p></li>
 <li><p><strong>heating_device_action</strong> (<em>float</em><em>, </em><em>default: np.nan</em>) – Fraction of <cite>heating_device</cite> <cite>nominal_power</cite> to make available for space heating.</p></li>
 <li><p><strong>cooling_storage_action</strong> (<em>float</em><em>, </em><em>default: 0.0</em>) – Fraction of <cite>cooling_storage</cite> <cite>capacity</cite> to charge/discharge by.</p></li>
@@ -247,7 +249,8 @@ ensures that comfort is met before attempting to shift loads.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.Building.autosize_electrical_storage">
 <span class="sig-name descname"><span class="pre">autosize_electrical_storage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.autosize_electrical_storage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.autosize_electrical_storage" title="Link to this definition"></a></dt>
-<dd><p>Autosize <cite>electrical_storage</cite> <cite>capacity</cite> to minimum capacity needed to store maximum <cite>solar_generation</cite>.</p>
+<dd><p>Autosize <cite>electrical_storage</cite> <cite>capacity</cite>, <cite>nominal_power</cite>, <cite>depth_of_discharge</cite>, <cite>efficiency</cite>,
+<cite>loss_coefficient</cite>, and <cite>capacity_loss_coefficient</cite> to meet an estimated average peak demand.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>**kwargs</strong> (<em>dict</em>) – Other keyword arguments parsed to <cite>electrical_storage</cite> <cite>autosize</cite> function.</p>
@@ -280,7 +283,8 @@ ensures that comfort is met before attempting to shift loads.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.Building.autosize_pv">
 <span class="sig-name descname"><span class="pre">autosize_pv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#Building.autosize_pv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.Building.autosize_pv" title="Link to this definition"></a></dt>
-<dd><p>Autosize <cite>PV</cite> <cite>nominal_pwer</cite> to minimum nominal_power needed to output maximum <cite>solar_generation</cite>.</p>
+<dd><p>Autosize <cite>pv</cite> <cite>nominal_power</cite> and set <cite>energy_simulation.solar_generation</cite> using sampled PV data from
+LBNL’s Tracking The Sun dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>**kwargs</strong> (<em>dict</em>) – Other keyword arguments parsed to <cite>electrical_storage</cite> <cite>autosize</cite> function.</p>
@@ -292,6 +296,12 @@ ensures that comfort is met before attempting to shift loads.</p>
 <dt class="sig sig-object py" id="citylearn.building.Building.carbon_intensity">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">carbon_intensity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.data.html#citylearn.data.CarbonIntensity" title="citylearn.data.CarbonIntensity"><span class="pre">CarbonIntensity</span></a></em><a class="headerlink" href="#citylearn.building.Building.carbon_intensity" title="Link to this definition"></a></dt>
 <dd><p>Carbon dioxide emission rate time series.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.building.Building.comfort_band">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">comfort_band</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.comfort_band" title="Link to this definition"></a></dt>
+<dd><p>Occupant comfort band about the <cite>indoor_dry_bulb_temperature_set_point</cite>, in [C].</p>
 </dd></dl>
 
 <dl class="py property">
@@ -607,12 +617,6 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="citylearn.building.Building.hvac_mode_switch">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hvac_mode_switch</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#citylearn.building.Building.hvac_mode_switch" title="Link to this definition"></a></dt>
-<dd><p>If HVAC has just switched from cooling to heating or vice versa at current <cite>time_step</cite>.</p>
-</dd></dl>
-
-<dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.indoor_dry_bulb_temperature">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">indoor_dry_bulb_temperature</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.indoor_dry_bulb_temperature" title="Link to this definition"></a></dt>
 <dd><p>dry bulb temperature time series, in [C].</p>
@@ -622,7 +626,7 @@ electricity consumption by discharging <cite>heating_storage</cite> to meet <cit
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.building.Building.indoor_dry_bulb_temperature_set_point">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">indoor_dry_bulb_temperature_set_point</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#citylearn.building.Building.indoor_dry_bulb_temperature_set_point" title="Link to this definition"></a></dt>
-<dd><p>dry bulb temperature set point time series, in [C].</p>
+<dd><p>Dry bulb temperature set point time series, in [C].</p>
 </dd></dl>
 
 <dl class="py property">
@@ -958,15 +962,14 @@ building’s downward flexibility resources.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.building.DynamicsBuilding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.building.</span></span><span class="sig-name descname"><span class="pre">DynamicsBuilding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooling_dynamics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><span class="pre">Dynamics</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">heating_dynamics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><span class="pre">Dynamics</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_dynamics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#DynamicsBuilding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.DynamicsBuilding" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.building.</span></span><span class="sig-name descname"><span class="pre">DynamicsBuilding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><span class="pre">Dynamics</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_dynamics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#DynamicsBuilding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.DynamicsBuilding" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.building.Building" title="citylearn.building.Building"><code class="xref py py-class docutils literal notranslate"><span class="pre">Building</span></code></a></p>
 <p>Base class for temperature dynamic building.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>*args</strong> (<em>Any</em>) – Positional arguments in <a class="reference internal" href="#citylearn.building.Building" title="citylearn.building.Building"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.building.Building</span></code></a>.</p></li>
-<li><p><strong>cooling_dynamics</strong> (<a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><em>Dynamics</em></a>) – Indoor dry-bulb temperature dynamics model for cooling mode.</p></li>
-<li><p><strong>heating_dynamics</strong> (<a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><em>Dynamics</em></a>) – Indoor dry-bulb temperature dynamics model for heating mode.</p></li>
+<li><p><strong>dynamics</strong> (<a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><em>Dynamics</em></a>) – Indoor dry-bulb temperature dynamics model.</p></li>
 <li><p><strong>ignore_dynamics</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Wether to simulate temperature dynamics at any time step.</p></li>
 <li><p><strong>**kwargs</strong> (<em>Any</em>) – Other keyword arguments used to initialize <a class="reference internal" href="#citylearn.building.Building" title="citylearn.building.Building"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.building.Building</span></code></a> super class.</p></li>
 </ul>
@@ -986,6 +989,8 @@ ensures that comfort is met before attempting to shift loads.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>cooling_or_heating_device_action</strong> (<em>float</em><em>, </em><em>default: np.nan</em>) – Fraction of <cite>cooling_device</cite> or <cite>heating_device</cite> <cite>nominal_power</cite> to make available. An action
+&lt; 0.0 is for the <cite>cooling_device</cite>, while an action &gt; 0.0 is for the <cite>heating_device</cite>.</p></li>
 <li><p><strong>cooling_device_action</strong> (<em>float</em><em>, </em><em>default: np.nan</em>) – Fraction of <cite>cooling_device</cite> <cite>nominal_power</cite> to make available for space cooling.</p></li>
 <li><p><strong>heating_device_action</strong> (<em>float</em><em>, </em><em>default: np.nan</em>) – Fraction of <cite>heating_device</cite> <cite>nominal_power</cite> to make available for space heating.</p></li>
 <li><p><strong>cooling_storage_action</strong> (<em>float</em><em>, </em><em>default: 0.0</em>) – Fraction of <cite>cooling_storage</cite> <cite>capacity</cite> to charge/discharge by.</p></li>
@@ -1066,15 +1071,9 @@ partial load cooling and heating devices and self generation time series, in [kW
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="citylearn.building.DynamicsBuilding.next_time_step">
-<span class="sig-name descname"><span class="pre">next_time_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#DynamicsBuilding.next_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.DynamicsBuilding.next_time_step" title="Link to this definition"></a></dt>
-<dd><p>Advance all energy storage and electric devices and, PV to next <cite>time_step</cite>.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="citylearn.building.DynamicsBuilding.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#DynamicsBuilding.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.DynamicsBuilding.reset" title="Link to this definition"></a></dt>
-<dd><p>Reset Building to initial state and sets <cite>dynamics</cite>.</p>
+<dd><p>Reset Building to initial state and resets <cite>dynamics</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1083,13 +1082,6 @@ partial load cooling and heating devices and self generation time series, in [kW
 <dd><p>Resets data file variables that change during control to their initial values.</p>
 <p>Resets cooling demand, heating deamand and indoor temperature time series to their initial value
 at the beginning of an episode.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.building.DynamicsBuilding.set_dynamics">
-<span class="sig-name descname"><span class="pre">set_dynamics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><span class="pre">Dynamics</span></a></span></span><a class="reference internal" href="../_modules/citylearn/building.html#DynamicsBuilding.set_dynamics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.DynamicsBuilding.set_dynamics" title="Link to this definition"></a></dt>
-<dd><p>Resets and returns <cite>cooling_dynamics</cite> if current time step HVAC mode is off or
-cooling otherwise, resets and returns <cite>heating dynamics</cite>.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -1107,15 +1099,14 @@ cooling otherwise, resets and returns <cite>heating dynamics</cite>.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.building.LSTMDynamicsBuilding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.building.</span></span><span class="sig-name descname"><span class="pre">LSTMDynamicsBuilding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cooling_dynamics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics" title="citylearn.dynamics.LSTMDynamics"><span class="pre">LSTMDynamics</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">heating_dynamics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics" title="citylearn.dynamics.LSTMDynamics"><span class="pre">LSTMDynamics</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#LSTMDynamicsBuilding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.LSTMDynamicsBuilding" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.building.</span></span><span class="sig-name descname"><span class="pre">LSTMDynamicsBuilding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.LSTMDynamics" title="citylearn.dynamics.LSTMDynamics"><span class="pre">LSTMDynamics</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/building.html#LSTMDynamicsBuilding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.building.LSTMDynamicsBuilding" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.building.DynamicsBuilding" title="citylearn.building.DynamicsBuilding"><code class="xref py py-class docutils literal notranslate"><span class="pre">DynamicsBuilding</span></code></a></p>
 <p>Class for building with LSTM temperature dynamics model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>*args</strong> (<em>Any</em>) – Positional arguments in <a class="reference internal" href="#citylearn.building.Building" title="citylearn.building.Building"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.building.Building</span></code></a>.</p></li>
-<li><p><strong>cooling_dynamics</strong> (<a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><em>Dynamics</em></a>) – Indoor dry-bulb temperature dynamics model for cooling mode.</p></li>
-<li><p><strong>heating_dynamics</strong> (<a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><em>Dynamics</em></a>) – Indoor dry-bulb temperature dynamics model for heating mode.</p></li>
+<li><p><strong>dynamics</strong> (<a class="reference internal" href="citylearn.dynamics.html#citylearn.dynamics.Dynamics" title="citylearn.dynamics.Dynamics"><em>Dynamics</em></a>) – Indoor dry-bulb temperature dynamics model.</p></li>
 <li><p><strong>**kwargs</strong> (<em>Any</em>) – Other keyword arguments used to initialize <a class="reference internal" href="#citylearn.building.Building" title="citylearn.building.Building"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.building.Building</span></code></a> super class.</p></li>
 </ul>
 </dd>
