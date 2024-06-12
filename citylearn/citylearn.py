@@ -1387,7 +1387,7 @@ class CityLearnEnv(Environment, Env):
 
             if building_schema.get('carbon_intensity', None) is not None:
                 carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity']))
-                carbon_intensity = carbon_intensity['kg_CO2/kWh'].tolist()
+                carbon_intensity = carbon_intensity['carbon_intensity[kg_CO2/kWh]'].tolist()
                 carbon_intensity = CarbonIntensity(carbon_intensity)
             
             else:
