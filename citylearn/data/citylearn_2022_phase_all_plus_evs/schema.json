@@ -213,10 +213,10 @@
     "attributes": {
     }
   },
-  "electic_vehicles_def": {
-    "Electic_Vehicle_1": {
+  "Electric_vehicles_def": {
+    "Electric_Vehicle_1": {
       "include": true,
-      "energy_simulation": "Electic_Vehicle_1.csv",
+      "energy_simulation": "Electric_Vehicle_1.csv",
       "inactive_observations": [],
       "inactive_actions": [],
       "battery": {
@@ -229,9 +229,9 @@
         }
       }
     },
-    "Electic_Vehicle_2": {
+    "Electric_Vehicle_2": {
       "include": true,
-      "energy_simulation": "Electic_Vehicle_2.csv",
+      "energy_simulation": "Electric_Vehicle_2.csv",
       "inactive_observations": [],
       "inactive_actions": [],
       "battery": {
@@ -244,9 +244,9 @@
         }
       }
     },
-    "Electic_Vehicle_3": {
+    "Electric_Vehicle_3": {
       "include": true,
-      "energy_simulation": "Electic_Vehicle_3.csv",
+      "energy_simulation": "Electric_Vehicle_3.csv",
       "inactive_observations": [],
       "inactive_actions": [],
       "battery": {
@@ -259,9 +259,9 @@
         }
       }
     },
-    "Electic_Vehicle_4": {
+    "Electric_Vehicle_4": {
       "include": true,
-      "energy_simulation": "Electic_Vehicle_4.csv",
+      "energy_simulation": "Electric_Vehicle_4.csv",
       "inactive_observations": [],
       "inactive_actions": [],
       "battery": {
@@ -274,9 +274,9 @@
         }
       }
     },
-    "Electic_Vehicle_5": {
+    "Electric_Vehicle_5": {
       "include": true,
-      "energy_simulation": "Electic_Vehicle_5.csv",
+      "energy_simulation": "Electric_Vehicle_5.csv",
       "inactive_observations": [],
       "inactive_actions": [],
       "battery": {
@@ -289,9 +289,9 @@
         }
       }
     },
-    "Electic_Vehicle_6": {
+    "Electric_Vehicle_6": {
       "include": true,
-      "energy_simulation": "Electic_Vehicle_6.csv",
+      "energy_simulation": "Electric_Vehicle_6.csv",
       "inactive_observations": [],
       "inactive_actions": [],
       "battery": {
@@ -304,9 +304,9 @@
         }
       }
     },
-    "Electic_Vehicle_7": {
+    "Electric_Vehicle_7": {
       "include": true,
-      "energy_simulation": "Electic_Vehicle_7.csv",
+      "energy_simulation": "Electric_Vehicle_7.csv",
       "inactive_observations": [],
       "inactive_actions": [],
       "battery": {
@@ -319,9 +319,9 @@
         }
       }
     },
-    "Electic_Vehicle_8": {
+    "Electric_Vehicle_8": {
       "include": true,
-      "energy_simulation": "Electic_Vehicle_8.csv",
+      "energy_simulation": "Electric_Vehicle_8.csv",
       "inactive_observations": [],
       "inactive_actions": [],
       "battery": {

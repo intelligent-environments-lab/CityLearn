@@ -1612,13 +1612,13 @@ class CityLearnEnv(Environment, Env):
         buildings = list(buildings)
 
         #Loading Electric Vehicles (if present in the schema)
-        if kwargs.get('electic_vehicles_def') is not None and len(kwargs['electic_vehicles_def']) > 0:
-            electic_vehicles_def = kwargs['electic_vehicles_def']
+        if kwargs.get('electric_vehicles_def') is not None and len(kwargs['electric_vehicles_def']) > 0:
+            electric_vehicles_def = kwargs['electric_vehicles_def']
         else:
-            electic_vehicles_def = ()
-            if self.schema.get('electic_vehicles_def', None) is not None:
+            electric_vehicles_def = ()
+            if self.schema.get('electric_vehicles_def', None) is not None:
 
-                for ev_name, ev_schema in self.schema['electic_vehicles_def'].items():
+                for ev_name, ev_schema in self.schema['electric_vehicles_def'].items():
                     if ev_schema['include']:
                         # data
                         ev_simulation = pd.read_csv(
@@ -1677,12 +1677,12 @@ class CityLearnEnv(Environment, Env):
 
                         ev.observation_space = ev.estimate_observation_space()
                         ev.action_space = ev.estimate_action_space()
-                        electic_vehicles_def += (ev,)
+                        electric_vehicles_def += (ev,)
 
                     else:
                         continue
 
-        electic_vehicles_def = list(electic_vehicles_def)
+        electric_vehicles_def = list(electric_vehicles_def)
 
         if kwargs.get('reward_function') is not None:
             reward_function_type = kwargs['reward_function']
@@ -1710,7 +1710,7 @@ class CityLearnEnv(Environment, Env):
         reward_function = reward_function_constructor(None, **reward_function_attributes)
 
         return (
-            root_directory, buildings, electic_vehicles_def, episode_time_steps, rolling_episode_split, random_episode_split,
+            root_directory, buildings, electric_vehicles_def, episode_time_steps, rolling_episode_split, random_episode_split,
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker
         )
         
