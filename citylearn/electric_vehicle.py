@@ -62,19 +62,11 @@ class ElectricVehicle(Environment):
 
         return self.__ev_simulation
 
-    @ev_simulation.setter
-    def ev_simulation(self, ev_simulation: ElectricVehicleSimulation):
-        self.__ev_simulation = ev_simulation
-
     @property
     def name(self) -> str:
         """Unique building name."""
 
         return self.__name
-
-    @name.setter
-    def name(self, name: str):
-        self.__name = name
 
     @property
     def min_battery_soc(self) -> int:
@@ -82,22 +74,11 @@ class ElectricVehicle(Environment):
 
         return self.__min_battery_soc
 
-    @min_battery_soc.setter
-    def min_battery_soc(self, min_battery_soc: str):
-        if min_battery_soc is None:
-            self.__min_battery_soc = 20.0
-        else:
-            self.__min_battery_soc = min_battery_soc
-
     @property
     def observation_metadata(self) -> Mapping[str, bool]:
         """Mapping of active and inactive observations."""
 
         return self.__observation_metadata
-    
-    @observation_metadata.setter
-    def observation_metadata(self, observation_metadata: Mapping[str, bool]):
-        self.__observation_metadata = observation_metadata
 
     @property
     def action_metadata(self) -> Mapping[str, bool]:
@@ -105,45 +86,23 @@ class ElectricVehicle(Environment):
 
         return self.__action_metadata
 
-    @action_metadata.setter
-    def action_metadata(self, action_metadata: Mapping[str, bool]):
-        self.__action_metadata = action_metadata
-
     @property
     def battery(self) -> Battery:
         """Battery for Electric_Vehicle."""
 
         return self.__battery
 
-    @battery.setter
-    def battery(self, battery: Battery):
-        self.__battery = Battery(0.0, 0.0) if battery is None else battery
-
     @property
     def observation_space(self) -> spaces.Box:
         """Agent observation space."""
 
         return self.__observation_space
-    
-    @observation_space.setter
-    def observation_space(self, observation_space: spaces.Box):
-        self.__observation_space = observation_space
-        self.non_periodic_normalized_observation_space_limits = self.estimate_observation_space_limits(
-            include_all=True, periodic_normalization=False
-        )
-        self.periodic_normalized_observation_space_limits = self.estimate_observation_space_limits(
-            include_all=True, periodic_normalization=True
-        )
 
     @property
     def action_space(self) -> spaces.Box:
         """Agent action spaces."""
 
         return self.__action_space
-    
-    @action_space.setter
-    def action_space(self, action_space: spaces.Box):
-        self.__action_space = action_space
 
     @property
     def active_observations(self) -> List[str]:
@@ -157,6 +116,47 @@ class ElectricVehicle(Environment):
         indicates which storage systems are to be controlled during simulation."""
 
         return [k for k, v in self.action_metadata.items() if v]
+    
+        @ev_simulation.setter
+        def ev_simulation(self, ev_simulation: ElectricVehicleSimulation):
+            self.__ev_simulation = ev_simulation
+
+    @name.setter
+    def name(self, name: str):
+        self.__name = name
+    
+    @min_battery_soc.setter
+    def min_battery_soc(self, min_battery_soc: str):
+        if min_battery_soc is None:
+            self.__min_battery_soc = 20.0
+        else:
+            self.__min_battery_soc = min_battery_soc
+
+    @observation_metadata.setter
+    def observation_metadata(self, observation_metadata: Mapping[str, bool]):
+        self.__observation_metadata = observation_metadata
+    
+    @action_metadata.setter
+    def action_metadata(self, action_metadata: Mapping[str, bool]):
+        self.__action_metadata = action_metadata
+    
+    @battery.setter
+    def battery(self, battery: Battery):
+        self.__battery = Battery(0.0, 0.0) if battery is None else battery
+        
+    @observation_space.setter
+    def observation_space(self, observation_space: spaces.Box):
+        self.__observation_space = observation_space
+        self.non_periodic_normalized_observation_space_limits = self.estimate_observation_space_limits(
+            include_all=True, periodic_normalization=False
+        )
+        self.periodic_normalized_observation_space_limits = self.estimate_observation_space_limits(
+            include_all=True, periodic_normalization=True
+        )
+        
+    @action_space.setter
+    def action_space(self, action_space: spaces.Box):
+        self.__action_space = action_space
 
 
     def adjust_electric_vehicle_soc_on_system_connection(self, soc_system_connection : float):
@@ -463,4 +463,3 @@ class ElectricVehicle(Environment):
             f"Simulation details:\n"
             f"  {ev_simulation_str}"
         )
-
