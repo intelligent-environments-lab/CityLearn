@@ -48,10 +48,10 @@ class Charger(Environment):
         self.min_charging_power = min_charging_power
         self.max_discharging_power = max_discharging_power
         self.min_discharging_power = min_discharging_power
-        self.charge_efficiency_curve = charge_efficiency_curve or {3.6: 0.95, 7.2: 0.97, 22: 0.98, 50: 0.98}
-        self.discharge_efficiency_curve = discharge_efficiency_curve or {3.6: 0.95, 7.2: 0.97, 22: 0.98, 50: 0.98}
-        self.connected_ev = connected_ev or None
-        self.incoming_ev = incoming_ev or None
+        self.charge_efficiency_curve = charge_efficiency_curve
+        self.discharge_efficiency_curve = discharge_efficiency_curve
+        self.connected_ev = connected_ev
+        self.incoming_ev = incoming_ev
 
         arg_spec = inspect.getfullargspec(super().__init__)
         kwargs = {
@@ -217,11 +217,11 @@ class Charger(Environment):
 
     @connected_ev.setter
     def connected_ev(self, electric_vehicle: ElectricVehicle):
-            self.__connected_ev = electric_vehicle if connected_ev is None else connected_ev 
+            self.__connected_ev = electric_vehicle if electric_vehicle is None else None 
 
     @incoming_ev.setter
     def incoming_ev(self, electric_vehicle: ElectricVehicle):
-            self.__incoming_ev = electric_vehicle
+            self.__incoming_ev = electric_vehicle if electric_vehicle is None else None 
 
     @efficiency.setter
     def efficiency(self, efficiency: float):
