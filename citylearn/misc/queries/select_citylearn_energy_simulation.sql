@@ -15,12 +15,12 @@ WITH u AS (
     SELECT
         r.TimeIndex,
         r.ReportDataDictionaryIndex,
-        'thermal_load' AS label,
+        'setpoint' AS label,
         r.Value
     FROM ReportData r
     LEFT JOIN ReportDataDictionary d ON d.ReportDataDictionaryIndex = r.ReportDataDictionaryIndex
     LEFT JOIN Zones z ON z.ZoneName = d.KeyValue
-    WHERE d.Name = 'Zone Thermostat Cooling Setpoint Temperature'
+    WHERE d.Name IN ('Zone Thermostat Cooling Setpoint Temperature', 'Zone Thermostat Heating Setpoint Temperature')
 
     UNION ALL
 
@@ -63,7 +63,8 @@ WITH u AS (
         SUM(CASE WHEN d.Name = 'Other Equipment Convective Heating Rate' AND u.label = 'cooling_load' THEN ABS(Value)/(1000.0) END) AS cooling_demand,
         SUM(CASE WHEN d.Name = 'Other Equipment Convective Heating Rate' AND u.label = 'heating_load' THEN ABS(Value)/(1000.0) END) AS heating_demand,
         SUM(CASE WHEN d.Name = 'Zone People Occupant Count' THEN Value END) AS occupant_count,
-        MAX(CASE WHEN d.Name = 'Zone Thermostat Cooling Setpoint Temperature' THEN Value END) AS indoor_dry_bulb_temperature_set_point
+        MAX(CASE WHEN d.Name = 'Zone Thermostat Cooling Setpoint Temperature' THEN Value END) AS indoor_dry_bulb_temperature_cooling_set_point,
+        MAX(CASE WHEN d.Name = 'Zone Thermostat Heating Setpoint Temperature' THEN Value END) AS indoor_dry_bulb_temperature_heating_set_point
     FROM u
     LEFT JOIN ReportDataDictionary d ON d.ReportDataDictionaryIndex = u.ReportDataDictionaryIndex
     GROUP BY u.TimeIndex
@@ -96,7 +97,8 @@ SELECT
             THEN COALESCE(p.heating_demand, 0.0) ELSE 0.0 END AS heating_demand,
     0.0 AS solar_generation,
     p.occupant_count,
-    p.indoor_dry_bulb_temperature_set_point,
+    p.indoor_dry_bulb_temperature_cooling_set_point,
+    p.indoor_dry_bulb_temperature_heating_set_point,
     3 AS hvac_mode
 FROM p
 LEFT JOIN Time t ON t.TimeIndex = p.TimeIndex

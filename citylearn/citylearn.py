@@ -972,8 +972,8 @@ class CityLearnEnv(Environment, Env):
             Condition for net electricity consumption, cost and emission to use in calculating cost functions for the baseline scenario 
             that is used to normalize the control_condition scenario.
         comfort_band: float, optional
-            Comfort band above and below dry_bulb_temperature_set_point beyond 
-            which occupant is assumed to be uncomfortable.
+            Comfort band above dry_bulb_temperature_cooling_set_point and below dry_bulb_temperature_heating_set_point beyond 
+            which occupant is assumed to be uncomfortable. Defaults to :py:attr:`citylearn.data.EnergySimulation.DEFUALT_COMFORT_BAND`.
         
         Returns
         -------
@@ -1008,7 +1008,8 @@ class CityLearnEnv(Environment, Env):
 
             discomfort_kwargs = {
                 'indoor_dry_bulb_temperature': b.indoor_dry_bulb_temperature,
-                'dry_bulb_temperature_set_point': b.indoor_dry_bulb_temperature_set_point,
+                'dry_bulb_temperature_cooling_set_point': b.indoor_dry_bulb_temperature_cooling_set_point,
+                'dry_bulb_temperature_heating_set_point': b.indoor_dry_bulb_temperature_heating_set_point,
                 'band': b.comfort_band if comfort_band is None else comfort_band,
                 'occupant_count': b.occupant_count,
             }

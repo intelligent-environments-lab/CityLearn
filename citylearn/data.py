@@ -166,8 +166,10 @@ class EnergySimulation(TimeSeriesData):
         Average building relative humidity time series in [%].
     occupant_count: np.array, optional
         Building occupant count time series in [people].
-    indoor_dry_bulb_temperature_set_point: np.array
-        Average building dry bulb temperature set point time series in [C].
+    indoor_dry_bulb_temperature_cooling_set_point: np.array
+        Average building dry bulb temperature cooling set point time series in [C].
+    indoor_dry_bulb_temperature_heating_set_point: np.array
+        Average building dry bulb temperature heating set point time series in [C].
     hvac_mode: np.array, default: 1
         Cooling and heating device availability. If 0, both HVAC devices are unavailable (off), if 1,
         the cooling device is available for space cooling and if 2, the heating device is available
@@ -179,7 +181,7 @@ class EnergySimulation(TimeSeriesData):
         Signal for power outage. If 0, there is no outage and building can draw energy from grid. 
         If 1, there is a power outage and building can only use its energy resources to meet loads.
     comfort_band np.array, default: 2
-        Occupant comfort band about the `indoor_dry_bulb_temperature_set_point` [C]. The value is added
+        Occupant comfort band above the `indoor_dry_bulb_temperature_cooling_set_point` and below the `indoor_dry_bulb_temperature_heating_set_point` [C]. The value is added
         to and subtracted from the set point to set the upper and lower bounds of comfort bound.
     start_time_step: int, optional
         Time step to start reading variables.
@@ -193,7 +195,7 @@ class EnergySimulation(TimeSeriesData):
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
          indoor_dry_bulb_temperature: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float], solar_generation: Iterable[float], 
-        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None
+        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.month = np.array(month, dtype='int32')
@@ -215,7 +217,8 @@ class EnergySimulation(TimeSeriesData):
         self.average_unmet_cooling_setpoint_difference = np.zeros(len(solar_generation), dtype='float32') if average_unmet_cooling_setpoint_difference is None else np.array(average_unmet_cooling_setpoint_difference, dtype='float32')
         self.indoor_relative_humidity = np.zeros(len(solar_generation), dtype='float32') if indoor_relative_humidity is None else np.array(indoor_relative_humidity, dtype = 'float32')
         self.occupant_count = np.zeros(len(solar_generation), dtype='float32') if occupant_count is None else np.array(occupant_count, dtype='float32')
-        self.indoor_dry_bulb_temperature_set_point = np.zeros(len(solar_generation), dtype='float32') if indoor_dry_bulb_temperature_set_point is None else np.array(indoor_dry_bulb_temperature_set_point, dtype='float32')
+        self.indoor_dry_bulb_temperature_cooling_set_point = np.zeros(len(solar_generation), dtype='float32') if indoor_dry_bulb_temperature_cooling_set_point is None else np.array(indoor_dry_bulb_temperature_cooling_set_point, dtype='float32')
+        self.indoor_dry_bulb_temperature_heating_set_point = np.zeros(len(solar_generation), dtype='float32') if indoor_dry_bulb_temperature_heating_set_point is None else np.array(indoor_dry_bulb_temperature_heating_set_point, dtype='float32')
         self.power_outage = np.zeros(len(solar_generation), dtype='float32') if power_outage is None else np.array(power_outage, dtype='float32')
         self.comfort_band = np.zeros(len(solar_generation), dtype='float32') + self.DEFUALT_COMFORT_BAND if comfort_band is None else np.array(comfort_band, dtype='float32')
 
@@ -226,7 +229,8 @@ class EnergySimulation(TimeSeriesData):
         self.dhw_demand_without_control = self.dhw_demand.copy()
         self.non_shiftable_load_without_control = self.non_shiftable_load.copy()
         self.indoor_relative_humidity_without_control = self.indoor_relative_humidity.copy()
-        self.indoor_dry_bulb_temperature_set_point_without_control = self.indoor_dry_bulb_temperature_set_point.copy()
+        self.indoor_dry_bulb_temperature_cooling_set_point_without_control = self.indoor_dry_bulb_temperature_cooling_set_point.copy()
+        self.indoor_dry_bulb_temperature_heating_set_point_without_control = self.indoor_dry_bulb_temperature_heating_set_point.copy()
 
         if hvac_mode is None:
             hvac_mode = np.zeros(len(solar_generation), dtype='int32') + 1 
@@ -241,7 +245,7 @@ class EnergySimulation(TimeSeriesData):
                     pass
 
             assert len(unique) == 0, f'Invalid hvac_mode values were found: {unique}. '\
-                'Valid values are 0, 1, 2, 4 to indicate off, cooling mode, heating mode, and automatic mode.'
+                'Valid values are 0, 1, 2, 3 to indicate off, cooling mode, heating mode, and automatic mode.'
             
         self.hvac_mode = np.array(hvac_mode, dtype='int32')
 

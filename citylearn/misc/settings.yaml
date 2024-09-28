@@ -40,7 +40,8 @@ default_time_series_variables:
   - electrical_storage.soc
   - indoor_dry_bulb_temperature
   - indoor_dry_bulb_temperature_without_partial_load
-  - energy_simulation.indoor_dry_bulb_temperature_set_point
+  - energy_simulation.indoor_dry_bulb_temperature_cooling_set_point
+  - energy_simulation.indoor_dry_bulb_temperature_heating_set_point
   - energy_simulation.occupant_count
   - pricing.electricity_pricing
   - carbon_intensity.carbon_intensity
@@ -120,19 +121,19 @@ schema:
         active: true
         shared_in_central_agent: true
       electricity_pricing:
-        active: true
+        active: false
         shared_in_central_agent: true
       electricity_pricing_predicted_6h:
-        active: true
+        active: false
         shared_in_central_agent: true
       electricity_pricing_predicted_12h:
-        active: true
+        active: false
         shared_in_central_agent: true
       electricity_pricing_predicted_24h:
-        active: true
+        active: false
         shared_in_central_agent: true
       carbon_intensity:
-        active: true
+        active: false
         shared_in_central_agent: true
       indoor_dry_bulb_temperature:
         active: true
@@ -161,13 +162,19 @@ schema:
       occupant_count:
         active: false
         shared_in_central_agent: false
-      indoor_dry_bulb_temperature_set_point:
+      indoor_dry_bulb_temperature_cooling_set_point:
+        active: true
+        shared_in_central_agent: false
+      indoor_dry_bulb_temperature_heating_set_point:
         active: true
         shared_in_central_agent: false
       comfort_band:
         active: true
         shared_in_central_agent: false
-      indoor_dry_bulb_temperature_delta:
+      indoor_dry_bulb_temperature_cooling_delta:
+        active: true
+        shared_in_central_agent: false
+      indoor_dry_bulb_temperature_heating_delta:
         active: true
         shared_in_central_agent: false
       hvac_mode:

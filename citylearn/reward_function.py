@@ -231,25 +231,53 @@ class ComfortReward(RewardFunction):
             heating = heating_demand > cooling_demand
             hvac_mode = o['hvac_mode']
             indoor_dry_bulb_temperature = o['indoor_dry_bulb_temperature']
-            set_point = o['indoor_dry_bulb_temperature_set_point']
-            band =  self.band if self.band is not None else o['comfort_band']
-            lower_bound_comfortable_indoor_dry_bulb_temperature = set_point - band
-            upper_bound_comfortable_indoor_dry_bulb_temperature = set_point + band
-            delta = abs(indoor_dry_bulb_temperature - set_point)
-            
-            if indoor_dry_bulb_temperature < lower_bound_comfortable_indoor_dry_bulb_temperature:
-                exponent = self.lower_exponent if hvac_mode == 2 else self.higher_exponent
-                reward = -(delta**exponent)
-            
-            elif lower_bound_comfortable_indoor_dry_bulb_temperature <= indoor_dry_bulb_temperature < set_point:
-                reward = 0.0 if heating else -delta
 
-            elif set_point <= indoor_dry_bulb_temperature <= upper_bound_comfortable_indoor_dry_bulb_temperature:
-                reward = -delta if heating else 0.0
+            if hvac_mode in [1, 2]:
+                set_point = o['indoor_dry_bulb_temperature_cooling_set_point'] if hvac_mode == 1 else o['indoor_dry_bulb_temperature_heating_set_point']
+                band =  self.band if self.band is not None else o['comfort_band']
+                lower_bound_comfortable_indoor_dry_bulb_temperature = set_point - band
+                upper_bound_comfortable_indoor_dry_bulb_temperature = set_point + band
+                delta = abs(indoor_dry_bulb_temperature - set_point)
+                
+                if indoor_dry_bulb_temperature < lower_bound_comfortable_indoor_dry_bulb_temperature:
+                    exponent = self.lower_exponent if hvac_mode == 2 else self.higher_exponent
+                    reward = -(delta**exponent)
+                
+                elif lower_bound_comfortable_indoor_dry_bulb_temperature <= indoor_dry_bulb_temperature < set_point:
+                    reward = 0.0 if heating else -delta
+
+                elif set_point <= indoor_dry_bulb_temperature <= upper_bound_comfortable_indoor_dry_bulb_temperature:
+                    reward = -delta if heating else 0.0
+
+                else:
+                    exponent = self.higher_exponent if heating else self.lower_exponent
+                    reward = -(delta**exponent)
 
             else:
-                exponent = self.higher_exponent if heating else self.lower_exponent
-                reward = -(delta**exponent)
+                cooling_set_point = o['indoor_dry_bulb_temperature_cooling_set_point']
+                heating_set_point = o['indoor_dry_bulb_temperature_heating_set_point']
+                band =  self.band if self.band is not None else o['comfort_band']
+                lower_bound_comfortable_indoor_dry_bulb_temperature = heating_set_point - band
+                upper_bound_comfortable_indoor_dry_bulb_temperature = cooling_set_point + band
+                cooling_delta = indoor_dry_bulb_temperature - cooling_set_point
+                heating_delta = indoor_dry_bulb_temperature - heating_set_point
+
+                if indoor_dry_bulb_temperature < lower_bound_comfortable_indoor_dry_bulb_temperature:
+                    exponent = self.higher_exponent if not heating else self.lower_exponent
+                    reward = -(abs(heating_delta)**exponent)
+
+                elif lower_bound_comfortable_indoor_dry_bulb_temperature <= indoor_dry_bulb_temperature < heating_set_point:
+                    reward = -(abs(heating_delta))
+
+                elif heating_set_point <= indoor_dry_bulb_temperature <= cooling_set_point:
+                    reward = 0.0
+
+                elif cooling_set_point < indoor_dry_bulb_temperature < upper_bound_comfortable_indoor_dry_bulb_temperature:
+                    reward = -(abs(cooling_delta))
+
+                else:
+                    exponent = self.higher_exponent if heating else self.lower_exponent
+                    reward = -(abs(cooling_delta)**exponent)
 
             reward_list.append(reward)
 
