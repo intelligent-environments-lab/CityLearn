@@ -947,7 +947,7 @@ class Building(Environment):
 
         return {
             'hour': range(1, 25), 
-            'day_type': range(1, 9), 
+            'day_type': range(1, 8), # TODO: Challenge 2020 and 2021 have daytype range 1-8 compared to 1-7 here. need to update building files.
             'month': range(1, 13)
         }
 
