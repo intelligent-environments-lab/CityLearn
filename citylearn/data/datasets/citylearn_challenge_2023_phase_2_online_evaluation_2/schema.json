@@ -185,14 +185,6 @@
       "active": true,
       "shared_in_central_agent": false
     },
-    "indoor_dry_bulb_temperature_set_point": {
-      "active": true,
-      "shared_in_central_agent": false
-    },
-    "indoor_dry_bulb_temperature_delta": {
-      "active": false,
-      "shared_in_central_agent": false
-    },
     "power_outage": {
       "active": true,
       "shared_in_central_agent": false
@@ -202,6 +194,22 @@
       "shared_in_central_agent": false
     },
     "comfort_band": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "indoor_dry_bulb_temperature_cooling_set_point": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "indoor_dry_bulb_temperature_heating_set_point": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "indoor_dry_bulb_temperature_cooling_delta": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "indoor_dry_bulb_temperature_heating_delta": {
       "active": false,
       "shared_in_central_agent": false
     }
