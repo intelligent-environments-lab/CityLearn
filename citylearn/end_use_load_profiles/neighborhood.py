@@ -139,13 +139,13 @@ class Neighborhood:
     def build(
         self, idd_filepath: Union[Path, str], bldg_ids: List[int] = None, sample_buildings_kwargs: Mapping[str, Any] = None, 
         energyplus_simulation_kwargs: Mapping[str, Any] = None, train_lstm_kwargs: Mapping[str, Any] = None, schema_kwargs: Mapping[str, Any] = None,
-        include_thermal_dynamics: bool = None, test_lstm_models: bool = None, test_initialization: bool = None, delete_simulation_output: bool = None,
+        include_lstm_models: bool = None, test_lstm_models: bool = None, test_initialization: bool = None, delete_simulation_output: bool = None,
     ) -> NeighborhoodBuild:
         sample_buildings_kwargs = {} if sample_buildings_kwargs is None else sample_buildings_kwargs
         energyplus_simulation_kwargs = {} if energyplus_simulation_kwargs is None else energyplus_simulation_kwargs
         train_lstm_kwargs = {} if train_lstm_kwargs is None else train_lstm_kwargs
         schema_kwargs = {} if schema_kwargs is None else schema_kwargs
-        include_thermal_dynamics = False if include_thermal_dynamics is None else include_thermal_dynamics
+        include_lstm_models = False if include_lstm_models is None else include_lstm_models
         test_initialization = True if test_initialization is None else test_initialization
         test_lstm_models = False if test_lstm_models is None else test_lstm_models
         delete_simulation_output = False if delete_simulation_output is None else delete_simulation_output
@@ -153,9 +153,9 @@ class Neighborhood:
         bldg_ids, labels, sample_metadata = self.sample_buildings(**sample_buildings_kwargs) if bldg_ids is None else (bldg_ids, None, None)
         simulators = self.simulate_energy_plus(bldg_ids, idd_filepath, **energyplus_simulation_kwargs)
 
-        if include_thermal_dynamics:
+        if include_lstm_models:
             lstm_training_data = self.get_lstm_training_data(simulators)
-            lstm_models = self.train_lstm(lstm_training_data, **train_lstm_kwargs) if include_thermal_dynamics else None
+            lstm_models = self.train_lstm(lstm_training_data, **train_lstm_kwargs) if include_lstm_models else None
         
         else:
             lstm_models = None
