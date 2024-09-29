@@ -291,48 +291,48 @@ schema:
             num_layers: 2
             lookback: 12
             filename: Building_1.pth
-          input_normalization_minimum: # needs to be updated to model-specific normalization limits
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-            - 0.0
-          input_normalization_maximum: # needs to be updated to model-specific normalization limits
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-            - 1.0
-          input_observation_names:
-            - direct_solar_irradiance
-            - diffuse_solar_irradiance
-            - outdoor_dry_bulb_temperature
-            - cooling_demand
-            - heating_demand
-            - month_sin
-            - month_cos
-            - hour_sin
-            - hour_cos
-            - day_type_sin
-            - day_type_cos
-            - occupant_count
-            - indoor_dry_bulb_temperature
+            input_normalization_minimum: # needs to be updated to model-specific normalization limits
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+              - 0.0
+            input_normalization_maximum: # needs to be updated to model-specific normalization limits
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+              - 1.0
+            input_observation_names:
+              - direct_solar_irradiance
+              - diffuse_solar_irradiance
+              - outdoor_dry_bulb_temperature
+              - cooling_demand
+              - heating_demand
+              - month_sin
+              - month_cos
+              - hour_sin
+              - hour_cos
+              - day_type_sin
+              - day_type_cos
+              - occupant_count
+              - indoor_dry_bulb_temperature
 ...
