@@ -177,6 +177,9 @@ schema:
       indoor_dry_bulb_temperature_heating_delta:
         active: true
         shared_in_central_agent: false
+      occupant_interaction_indoor_dry_bulb_temperature_set_point_delta:
+        active: false
+        shared_in_central_agent: false
       hvac_mode:
         active: true
         shared_in_central_agent: false
