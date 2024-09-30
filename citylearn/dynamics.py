@@ -36,11 +36,16 @@ class LSTMDynamics(Dynamics, torch.nn.Module):
         e.g. cooling and heating demand may be included in `input_observation_names` but only
         one of two may be used for the actual prediction depending on building needs.
         The default is to set set `input_size` to the length of `input_observation_names`.
+    dropout: float, default: 0.0
+        Probability of excluding input and recurrent connections to LSTM units from activation 
+        and weight updates while training a network. This has the effect of reducing overfitting 
+        and improving model performance.
     """
 
     def __init__(
             self, filepath: Union[Path, str], input_observation_names: List[str], input_normalization_minimum: List[float], 
-            input_normalization_maximum: List[float], hidden_size: int, num_layers: int, lookback: int, input_size: int = None
+            input_normalization_maximum: List[float], hidden_size: int, num_layers: int, lookback: int, input_size: int = None,
+            dropout: float = None
     ):
         Dynamics.__init__(self)
         torch.nn.Module.__init__(self)
@@ -58,6 +63,7 @@ class LSTMDynamics(Dynamics, torch.nn.Module):
         self.l_linear = self.set_linear()
         self._hidden_state = None
         self._model_input = None
+        self.dropout = torch.nn.Dropout(dropout if dropout is not None else 0.0)
 
     @property
     def input_size(self) -> int:
@@ -89,6 +95,7 @@ class LSTMDynamics(Dynamics, torch.nn.Module):
         """Predict indoor dry bulb temperature."""
 
         lstm_out, h = self.l_lstm(x, h)
+        lstm_out = self.dropout(lstm_out)
         out = lstm_out[:, -1, :]
         out_linear_transf = self.l_linear(out)
         return out_linear_transf, h
@@ -109,6 +116,10 @@ class LSTMDynamics(Dynamics, torch.nn.Module):
 
         try:
             self.load_state_dict(torch.load(self.filepath)['model_state_dict'])
+        
+        except RuntimeError:
+            self.load_state_dict(torch.load(self.filepath, map_location=torch.device('cpu'))['model_state_dict'])
+        
         except:
             self.load_state_dict(torch.load(self.filepath))
 
