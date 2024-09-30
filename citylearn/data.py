@@ -300,30 +300,30 @@ class Weather(TimeSeriesData):
         Diffuse solar irradiance time series in [W/m^2].
     direct_solar_irradiance : np.array
         Direct solar irradiance time series in [W/m^2].
-    outdoor_dry_bulb_temperature_predicted_6h : np.array
-        Outdoor dry bulb temperature 6 hours ahead prediction time series in [C].
-    outdoor_dry_bulb_temperature_predicted_12h : np.array
-        Outdoor dry bulb temperature 12 hours ahead prediction time series in [C].
-    outdoor_dry_bulb_temperature_predicted_24h : np.array
-        Outdoor dry bulb temperature 24 hours ahead prediction time series in [C].
-    outdoor_relative_humidity_predicted_6h : np.array
-        Outdoor relative humidity 6 hours ahead prediction time series in [%].
-    outdoor_relative_humidity_predicted_12h : np.array
-        Outdoor relative humidity 12 hours ahead prediction time series in [%].
-    outdoor_relative_humidity_predicted_24h : np.array
-        Outdoor relative humidity 24 hours ahead prediction time series in [%].
-    diffuse_solar_irradiance_predicted_6h : np.array
-        Diffuse solar irradiance 6 hours ahead prediction time series in [W/m^2].
-    diffuse_solar_irradiance_predicted_12h : np.array
-        Diffuse solar irradiance 12 hours ahead prediction time series in [W/m^2].
-    diffuse_solar_irradiance_predicted_24h : np.array
-        Diffuse solar irradiance 24 hours ahead prediction time series in [W/m^2].
-    direct_solar_irradiance_predicted_6h : np.array
-        Direct solar irradiance 6 hours ahead prediction time series in [W/m^2].
-    direct_solar_irradiance_predicted_12h : np.array
-        Direct solar irradiance 12 hours ahead prediction time series in [W/m^2].
-    direct_solar_irradiance_predicted_24h : np.array
-        Direct solar irradiance 24 hours ahead prediction time series in [W/m^2].
+    outdoor_dry_bulb_temperature_predicted_1 : np.array
+        Outdoor dry bulb temperature `n` hours ahead prediction time series in [C]. `n` can be any number of hours and is typically 6 hours in existing datasets.
+    outdoor_dry_bulb_temperature_predicted_2 : np.array
+        Outdoor dry bulb temperature `n` hours ahead prediction time series in [C]. `n` can be any number of hours and is typically 12 hours in existing datasets.
+    outdoor_dry_bulb_temperature_predicted_3 : np.array
+        Outdoor dry bulb temperature `n` hours ahead prediction time series in [C]. `n` can be any number of hours and is typically 24 hours in existing datasets.
+    outdoor_relative_humidity_predicted_1 : np.array
+        Outdoor relative humidity `n` hours ahead prediction time series in [%]. `n` can be any number of hours and is typically 6 hours in existing datasets.
+    outdoor_relative_humidity_predicted_2 : np.array
+        Outdoor relative humidity `n` hours ahead prediction time series in [%]. `n` can be any number of hours and is typically 12 hours in existing datasets.
+    outdoor_relative_humidity_predicted_3 : np.array
+        Outdoor relative humidity `n` hours ahead prediction time series in [%]. `n` can be any number of hours and is typically 24 hours in existing datasets.
+    diffuse_solar_irradiance_predicted_1 : np.array
+        Diffuse solar irradiance `n` hours ahead prediction time series in [W/m^2]. `n` can be any number of hours and is typically 6 hours in existing datasets.
+    diffuse_solar_irradiance_predicted_2 : np.array
+        Diffuse solar irradiance `n` hours ahead prediction time series in [W/m^2]. `n` can be any number of hours and is typically 12 hours in existing datasets.
+    diffuse_solar_irradiance_predicted_3 : np.array
+        Diffuse solar irradiance `n` hours ahead prediction time series in [W/m^2]. `n` can be any number of hours and is typically 24 hours in existing datasets.
+    direct_solar_irradiance_predicted_1 : np.array
+        Direct solar irradiance `n` hours ahead prediction time series in [W/m^2]. `n` can be any number of hours and is typically 6 hours in existing datasets.
+    direct_solar_irradiance_predicted_2 : np.array
+        Direct solar irradiance `n` hours ahead prediction time series in [W/m^2]. `n` can be any number of hours and is typically 12 hours in existing datasets.
+    direct_solar_irradiance_predicted_3 : np.array
+        Direct solar irradiance 24 hours ahead prediction time series in [W/m^2]. `n` can be any number of hours and is typically 24 hours in existing datasets.
     start_time_step: int, optional
         Time step to start reading variables.
     end_time_step: int, optional
@@ -332,28 +332,28 @@ class Weather(TimeSeriesData):
 
     def __init__(
         self, outdoor_dry_bulb_temperature: Iterable[float], outdoor_relative_humidity: Iterable[float], diffuse_solar_irradiance: Iterable[float], direct_solar_irradiance: Iterable[float], 
-        outdoor_dry_bulb_temperature_predicted_6h: Iterable[float], outdoor_dry_bulb_temperature_predicted_12h: Iterable[float], outdoor_dry_bulb_temperature_predicted_24h: Iterable[float],
-        outdoor_relative_humidity_predicted_6h: Iterable[float], outdoor_relative_humidity_predicted_12h: Iterable[float], outdoor_relative_humidity_predicted_24h: Iterable[float],
-        diffuse_solar_irradiance_predicted_6h: Iterable[float], diffuse_solar_irradiance_predicted_12h: Iterable[float], diffuse_solar_irradiance_predicted_24h: Iterable[float],
-        direct_solar_irradiance_predicted_6h: Iterable[float], direct_solar_irradiance_predicted_12h: Iterable[float], direct_solar_irradiance_predicted_24h: Iterable[float], start_time_step: int = None, end_time_step: int = None
+        outdoor_dry_bulb_temperature_predicted_1: Iterable[float], outdoor_dry_bulb_temperature_predicted_2: Iterable[float], outdoor_dry_bulb_temperature_predicted_3: Iterable[float],
+        outdoor_relative_humidity_predicted_1: Iterable[float], outdoor_relative_humidity_predicted_2: Iterable[float], outdoor_relative_humidity_predicted_3: Iterable[float],
+        diffuse_solar_irradiance_predicted_1: Iterable[float], diffuse_solar_irradiance_predicted_2: Iterable[float], diffuse_solar_irradiance_predicted_3: Iterable[float],
+        direct_solar_irradiance_predicted_1: Iterable[float], direct_solar_irradiance_predicted_2: Iterable[float], direct_solar_irradiance_predicted_3: Iterable[float], start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.outdoor_dry_bulb_temperature = np.array(outdoor_dry_bulb_temperature, dtype='float32')
         self.outdoor_relative_humidity = np.array(outdoor_relative_humidity, dtype='float32')
         self.diffuse_solar_irradiance = np.array(diffuse_solar_irradiance, dtype='float32')
         self.direct_solar_irradiance = np.array(direct_solar_irradiance, dtype='float32')
-        self.outdoor_dry_bulb_temperature_predicted_6h = np.array(outdoor_dry_bulb_temperature_predicted_6h, dtype='float32')
-        self.outdoor_dry_bulb_temperature_predicted_12h = np.array(outdoor_dry_bulb_temperature_predicted_12h, dtype='float32')
-        self.outdoor_dry_bulb_temperature_predicted_24h = np.array(outdoor_dry_bulb_temperature_predicted_24h, dtype='float32')
-        self.outdoor_relative_humidity_predicted_6h = np.array(outdoor_relative_humidity_predicted_6h, dtype='float32')
-        self.outdoor_relative_humidity_predicted_12h = np.array(outdoor_relative_humidity_predicted_12h, dtype='float32')
-        self.outdoor_relative_humidity_predicted_24h = np.array(outdoor_relative_humidity_predicted_24h, dtype='float32')
-        self.diffuse_solar_irradiance_predicted_6h = np.array(diffuse_solar_irradiance_predicted_6h, dtype='float32')
-        self.diffuse_solar_irradiance_predicted_12h = np.array(diffuse_solar_irradiance_predicted_12h, dtype='float32')
-        self.diffuse_solar_irradiance_predicted_24h = np.array(diffuse_solar_irradiance_predicted_24h, dtype='float32')
-        self.direct_solar_irradiance_predicted_6h = np.array(direct_solar_irradiance_predicted_6h, dtype='float32')
-        self.direct_solar_irradiance_predicted_12h = np.array(direct_solar_irradiance_predicted_12h, dtype='float32')
-        self.direct_solar_irradiance_predicted_24h = np.array(direct_solar_irradiance_predicted_24h, dtype='float32')
+        self.outdoor_dry_bulb_temperature_predicted_1 = np.array(outdoor_dry_bulb_temperature_predicted_1, dtype='float32')
+        self.outdoor_dry_bulb_temperature_predicted_2 = np.array(outdoor_dry_bulb_temperature_predicted_2, dtype='float32')
+        self.outdoor_dry_bulb_temperature_predicted_3 = np.array(outdoor_dry_bulb_temperature_predicted_3, dtype='float32')
+        self.outdoor_relative_humidity_predicted_1 = np.array(outdoor_relative_humidity_predicted_1, dtype='float32')
+        self.outdoor_relative_humidity_predicted_2 = np.array(outdoor_relative_humidity_predicted_2, dtype='float32')
+        self.outdoor_relative_humidity_predicted_3 = np.array(outdoor_relative_humidity_predicted_3, dtype='float32')
+        self.diffuse_solar_irradiance_predicted_1 = np.array(diffuse_solar_irradiance_predicted_1, dtype='float32')
+        self.diffuse_solar_irradiance_predicted_2 = np.array(diffuse_solar_irradiance_predicted_2, dtype='float32')
+        self.diffuse_solar_irradiance_predicted_3 = np.array(diffuse_solar_irradiance_predicted_3, dtype='float32')
+        self.direct_solar_irradiance_predicted_1 = np.array(direct_solar_irradiance_predicted_1, dtype='float32')
+        self.direct_solar_irradiance_predicted_2 = np.array(direct_solar_irradiance_predicted_2, dtype='float32')
+        self.direct_solar_irradiance_predicted_3 = np.array(direct_solar_irradiance_predicted_3, dtype='float32')
 
 class Pricing(TimeSeriesData):
     """`Building` `pricing` data class.
@@ -362,12 +362,12 @@ class Pricing(TimeSeriesData):
     ----------
     electricity_pricing : np.array
         Electricity pricing time series in [$/kWh].
-    electricity_pricing_predicted_6h : np.array
-        Electricity pricing 6 hours ahead prediction time series in [$/kWh].
-    electricity_pricing_predicted_12h : np.array
-        Electricity pricing 12 hours ahead prediction time series in [$/kWh].
-    electricity_pricing_predicted_24h : np.array
-        Electricity pricing 24 hours ahead prediction time series in [$/kWh].
+    electricity_pricing_predicted_1 : np.array
+        Electricity pricing `n` hours ahead prediction time series in [$/kWh]. `n` can be any number of hours and is typically 1 or 6 hours in existing datasets.
+    electricity_pricing_predicted_2 : np.array
+        Electricity pricing `n` hours ahead prediction time series in [$/kWh]. `n` can be any number of hours and is typically 2 or 12 hours in existing datasets.
+    electricity_pricing_predicted_3 : np.array
+        Electricity pricing `n` hours ahead prediction time series in [$/kWh]. `n` can be any number of hours and is typically 3 or 24 hours in existing datasets.
     start_time_step: int, optional
         Time step to start reading variables.
     end_time_step: int, optional
@@ -375,14 +375,14 @@ class Pricing(TimeSeriesData):
     """
 
     def __init__(
-        self, electricity_pricing: Iterable[float], electricity_pricing_predicted_6h: Iterable[float], electricity_pricing_predicted_12h: Iterable[float], 
-        electricity_pricing_predicted_24h: Iterable[float], start_time_step: int = None, end_time_step: int = None
+        self, electricity_pricing: Iterable[float], electricity_pricing_predicted_1: Iterable[float], electricity_pricing_predicted_2: Iterable[float], 
+        electricity_pricing_predicted_3: Iterable[float], start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.electricity_pricing = np.array(electricity_pricing, dtype='float32')
-        self.electricity_pricing_predicted_6h = np.array(electricity_pricing_predicted_6h, dtype='float32')
-        self.electricity_pricing_predicted_12h = np.array(electricity_pricing_predicted_12h, dtype='float32')
-        self.electricity_pricing_predicted_24h = np.array(electricity_pricing_predicted_24h, dtype='float32')
+        self.electricity_pricing_predicted_1 = np.array(electricity_pricing_predicted_1, dtype='float32')
+        self.electricity_pricing_predicted_2 = np.array(electricity_pricing_predicted_2, dtype='float32')
+        self.electricity_pricing_predicted_3 = np.array(electricity_pricing_predicted_3, dtype='float32')
 
 class CarbonIntensity(TimeSeriesData):
     """`Building` `carbon_intensity` data class.

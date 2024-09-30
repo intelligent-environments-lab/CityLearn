@@ -432,14 +432,14 @@ class MARLISA(SAC):
 
         encoders = []
         remove_features = [
-            'outdoor_dry_bulb_temperature', 'outdoor_dry_bulb_temperature_predicted_6h',
-            'outdoor_dry_bulb_temperature_predicted_12h','outdoor_dry_bulb_temperature_predicted_24h',
-            'outdoor_relative_humidity', 'outdoor_relative_humidity_predicted_6h',
-            'outdoor_relative_humidity_predicted_12h','outdoor_relative_humidity_predicted_24h',
-            'diffuse_solar_irradiance', 'diffuse_solar_irradiance_predicted_6h',
-            'diffuse_solar_irradiance_predicted_12h', 'diffuse_solar_irradiance_predicted_24h',
-            'direct_solar_irradiance', 'direct_solar_irradiance_predicted_6h',
-            'direct_solar_irradiance_predicted_12h', 'direct_solar_irradiance_predicted_24h',
+            'outdoor_dry_bulb_temperature', 'outdoor_dry_bulb_temperature_predicted_1',
+            'outdoor_dry_bulb_temperature_predicted_2','outdoor_dry_bulb_temperature_predicted_3',
+            'outdoor_relative_humidity', 'outdoor_relative_humidity_predicted_1',
+            'outdoor_relative_humidity_predicted_2','outdoor_relative_humidity_predicted_3',
+            'diffuse_solar_irradiance', 'diffuse_solar_irradiance_predicted_1',
+            'diffuse_solar_irradiance_predicted_2', 'diffuse_solar_irradiance_predicted_3',
+            'direct_solar_irradiance', 'direct_solar_irradiance_predicted_1',
+            'direct_solar_irradiance_predicted_2', 'direct_solar_irradiance_predicted_3',
         ]
 
         for o, s in zip(self.observation_names, self.observation_space):
