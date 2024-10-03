@@ -1,6 +1,7 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import numpy as np
 import pandas as pd
+from citylearn.data import EnergySimulation
 
 class CostFunction:
     r"""Cost and energy flexibility functions that may be used to evaluate environment performance."""
@@ -220,18 +221,20 @@ class CostFunction:
         return data['quadratic'].tolist()
     
     @staticmethod
-    def discomfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_set_point: List[float], band: float = None, occupant_count: List[int] = None) -> Tuple[list]:
+    def discomfort(indoor_dry_bulb_temperature: List[float], dry_bulb_temperature_cooling_set_point: List[float], dry_bulb_temperature_heating_set_point: List[float], band: Union[float, List[float]] = None, occupant_count: List[int] = None) -> Tuple[list]:
         r"""Rolling percentage of discomfort (total, too cold, and too hot) time steps as well as rolling minimum, maximum and average temperature delta.
 
         Parameters
         ----------
         indoor_dry_bulb_temperature: List[float]
             Average building dry bulb temperature time series.
-        dry_bulb_temperature_set_point: List[float]
-            Building thermostat setpoint time series.
-        band: float, default = 2.0
-            Comfort band above and below dry_bulb_temperature_set_point beyond 
-            which occupant is assumed to be uncomfortable.
+        dry_bulb_temperature_cooling_set_point: List[float]
+            Building thermostat cooling setpoint time series.
+        dry_bulb_temperature_heating_set_point: List[float]
+            Building thermostat heating setpoint time series.
+        band: Union[float, List[float]], optional
+            Comfort band above dry_bulb_temperature_cooling_set_point and below dry_bulb_temperature_heating_set_point beyond which occupant is assumed to be uncomfortable.
+            Defaults to :py:attr:`citylearn.data.EnergySimulation.DEFUALT_COMFORT_BAND`.
         occupant_count: List[float], optional
             Occupant count time series. If provided, the comfort cost is 
             evaluated for occupied time steps only.
@@ -240,67 +243,69 @@ class CostFunction:
         -------
         discomfort: List[float]
             Rolling proportion of occupied timesteps where the condition 
-            (dry_bulb_temperature_set_point - band) <= indoor_dry_bulb_temperature <= (dry_bulb_temperature_set_point + band) is not met.
+            (dry_bulb_temperature_heating_set_point - band) <= indoor_dry_bulb_temperature <= (dry_bulb_temperature_cooling_set_point + band) is not met.
         discomfort_cold: List[float]
-            Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
+            Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_heating_set_point - band) is met.
         discomfort_hot: List[float]
-            Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
+            Rolling proportion of occupied timesteps where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_cooling_set_point + band) is met.
         discomfort_cold_delta_minimum: List[float]
-            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
-        discomfort_hot_delta_maximum: List[float]
-            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
-        discomfort_hot_delta_average: List[float]
-            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_set_point - band) is met.
+            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_heating_set_point where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_heating_set_point - band) is met.
+        discomfort_cold_delta_maximum: List[float]
+            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_heating_set_point where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_heating_set_point - band) is met.
+        discomfort_cold_delta_average: List[float]
+            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_heating_set_point where the condition indoor_dry_bulb_temperature < (dry_bulb_temperature_heating_set_point - band) is met.
         discomfort_hot_delta_minimum: List[float]
-            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
+            Rolling minimum of indoor_dry_bulb_temperature - dry_bulb_temperature_cooling_set_point where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_cooling_set_point + band) is met.
         discomfort_hot_delta_maximum: List[float]
-            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
+            Rolling maximum of indoor_dry_bulb_temperature - dry_bulb_temperature_cooling_set_point where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_cooling_set_point + band) is met.
         discomfort_hot_delta_average: List[float]
-            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_set_point where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_set_point + band) is met.
+            Rolling average of indoor_dry_bulb_temperature - dry_bulb_temperature_cooling_set_point where the condition indoor_dry_bulb_temperature > (dry_bulb_temperature_cooling_set_point + band) is met.
         """
-
-        band = 2.0 if band is None else band
 
         # unmet hours
         data = pd.DataFrame({
             'indoor_dry_bulb_temperature': indoor_dry_bulb_temperature, 
-            'dry_bulb_temperature_set_point': dry_bulb_temperature_set_point,
+            'dry_bulb_temperature_cooling_set_point': dry_bulb_temperature_cooling_set_point,
+            'dry_bulb_temperature_heating_set_point': dry_bulb_temperature_heating_set_point,
             'occupant_count': [1]*len(indoor_dry_bulb_temperature) if occupant_count is None else occupant_count
         })
+        data['band'] = EnergySimulation.DEFUALT_COMFORT_BAND if band is None else band
         occupied_time_step_count = data[data['occupant_count'] > 0.0].shape[0]
-        data['delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_set_point']
+        data['cooling_delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_cooling_set_point']
+        data['heating_delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_heating_set_point']
         data.loc[data['occupant_count'] == 0.0, 'delta'] = 0.0
         data['discomfort'] = 0
-        data.loc[data['delta'].abs() > band, 'discomfort'] = 1
+        data.loc[data['cooling_delta'] > data['band'], 'discomfort'] = 1
+        data.loc[data['heating_delta'] < -data['band'], 'discomfort'] = 1
         data['discomfort'] = data['discomfort'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # too cold
         data['discomfort_cold'] = 0
-        data.loc[data['delta'] < -band, 'discomfort_cold'] = 1
+        data.loc[data['heating_delta'] < -data['band'], 'discomfort_cold'] = 1
         data['discomfort_cold'] = data['discomfort_cold'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # too hot
         data['discomfort_hot'] = 0
-        data.loc[data['delta'] > band, 'discomfort_hot'] = 1
+        data.loc[data['cooling_delta'] > data['band'], 'discomfort_hot'] = 1
         data['discomfort_hot'] = data['discomfort_hot'].rolling(window=data.shape[0],min_periods=1).sum()/occupied_time_step_count
 
         # minimum cold delta
-        data['discomfort_cold_delta_minimum'] = data['delta'].clip(upper=0).abs().rolling(window=data.shape[0],min_periods=1).min()
+        data['discomfort_cold_delta_minimum'] = data['heating_delta'].clip(upper=0).abs().rolling(window=data.shape[0],min_periods=1).min()
 
         # maximum cold delta
-        data['discomfort_cold_delta_maximum'] = data['delta'].clip(upper=0).abs().rolling(window=data.shape[0],min_periods=1).max()
+        data['discomfort_cold_delta_maximum'] = data['heating_delta'].clip(upper=0).abs().rolling(window=data.shape[0],min_periods=1).max()
 
         # average cold delta
-        data['discomfort_cold_delta_average'] = data['delta'].clip(upper=0).abs().rolling(window=data.shape[0],min_periods=1).mean()
+        data['discomfort_cold_delta_average'] = data['heating_delta'].clip(upper=0).abs().rolling(window=data.shape[0],min_periods=1).mean()
 
         # minimum hot delta
-        data['discomfort_hot_delta_minimum'] = data['delta'].clip(lower=0).abs().rolling(window=data.shape[0],min_periods=1).min()
+        data['discomfort_hot_delta_minimum'] = data['cooling_delta'].clip(lower=0).abs().rolling(window=data.shape[0],min_periods=1).min()
 
         # maximum hot delta
-        data['discomfort_hot_delta_maximum'] = data['delta'].clip(lower=0).abs().rolling(window=data.shape[0],min_periods=1).max()
+        data['discomfort_hot_delta_maximum'] = data['cooling_delta'].clip(lower=0).abs().rolling(window=data.shape[0],min_periods=1).max()
 
         # average hot delta
-        data['discomfort_hot_delta_average'] = data['delta'].clip(lower=0).abs().rolling(window=data.shape[0],min_periods=1).mean()
+        data['discomfort_hot_delta_average'] = data['cooling_delta'].clip(lower=0).abs().rolling(window=data.shape[0],min_periods=1).mean()
 
         return (
             data['discomfort'].tolist(),

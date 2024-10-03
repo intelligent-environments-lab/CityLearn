@@ -191,6 +191,12 @@ class Environment:
 
         return self.__seconds_per_time_step
     
+    @property
+    def numpy_random_state(self) -> np.random.RandomState:
+        """Nupy random state object."""
+
+        return np.random.RandomState(self.random_seed)
+    
     @random_seed.setter
     def random_seed(self, random_seed: int):
         random_seed = random.randint(*self.DEFAULT_RANDOM_SEED_RANGE) if random_seed is None else random_seed

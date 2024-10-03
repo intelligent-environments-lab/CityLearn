@@ -15,8 +15,9 @@ from typing import Any, List, Mapping, Tuple, Union
 import uuid
 from citylearn.agents.base import Agent as CityLearnAgent
 from citylearn.citylearn import CityLearnEnv
-from citylearn.data import DataSet
-from citylearn.utilities import read_pickle, read_yaml, write_json, write_pickle
+from citylearn.data import DataSet, get_settings
+from citylearn.__init__ import __version__
+from citylearn.utilities import read_pickle, write_json, write_pickle
 import pandas as pd
 import simplejson as json
 
@@ -28,7 +29,7 @@ except (ImportError, ModuleNotFoundError):
 
 def run_work_order(work_order_filepath, max_workers=None, start_index=None, end_index=None, virtual_environment_path=None, windows_system=None):
     work_order_filepath = Path(work_order_filepath)
-
+    
     if virtual_environment_path is not None:    
         if windows_system:
             virtual_environment_command = f'"{os.path.join(virtual_environment_path, "Scripts", "Activate.ps1")}"'
@@ -380,15 +381,7 @@ class Simulator:
 
     @staticmethod
     def get_default_time_series_variables():
-        return Simulator.get_settings()['default_time_series_variables']
-
-    @staticmethod
-    def get_settings():
-        directory = os.path.join(os.path.join(os.path.dirname(__file__), 'misc'))
-        filepath = os.path.join(directory, 'settings.yaml')
-        settings = read_yaml(filepath)
-
-        return settings
+        return get_settings()['default_time_series_variables']
 
 def main():
     parser = argparse.ArgumentParser(
@@ -399,6 +392,7 @@ def main():
             'Compatible with training and evaluating internally defined CityLearn agents in `citylearn.agents`, '
             'user-defined agents that inherit from `citylearn.agents.base.Agent` and use the same interface as it, and agents '
             'provided by stable-baselines3.'))
+    parser.add_argument('--version', action='version', version='%(prog)s' + f' {__version__}')
     subparsers = parser.add_subparsers(title='subcommands', required=True, dest='subcommands')
 
     # run many simulations in parallel
@@ -409,7 +403,7 @@ def main():
     )
     subparser_run_work_order.add_argument('work_order_filepath', type=Path, help=(
         'Filepath to script containing list of commands to be run in parallel with each command defined on a new line.'))
-    subparser_run_work_order.add_argument('-w', '--max_workers', dest='max_workers', type=int, default=cpu_count(), help=(
+    subparser_run_work_order.add_argument('-w', '--max_workers', dest='max_workers', type=int, help=(
         'Maximum number of commands to run at a time. Default is the number of CPUs.'))
     subparser_run_work_order.add_argument('-is', '--start_index', default=0, dest='start_index', type=int, help=(
         'Line index of first command to execute. Commands above this index are not executed. '

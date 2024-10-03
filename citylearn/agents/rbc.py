@@ -183,6 +183,19 @@ class BasicRBC(HourRBC):
                             value = 0.0
 
                         action_map[n][hour] = value
+
+                elif n == 'cooling_or_heating_device':
+                    for hour in Building.get_periodic_observation_metadata()['hour']:
+                        if hour < 7:
+                            value = 0.4
+                        
+                        elif hour < 21:
+                            value = -0.4
+
+                        else:
+                            value = 0.8
+
+                        action_map[n][hour] = value
                 
                 else:
                     raise ValueError(f'Unknown action name: {n}')
@@ -279,6 +292,19 @@ class OptimizedRBC(BasicRBC):
                             value = 0.0
 
                         action_map[n][hour] = value
+
+                elif n == 'cooling_or_heating_device':
+                    for hour in Building.get_periodic_observation_metadata()['hour']:
+                        if hour < 7:
+                            value = 0.4
+                        
+                        elif hour < 21:
+                            value = -0.4
+
+                        else:
+                            value = 0.8
+
+                        action_map[n][hour] = value
                 
                 else:
                     raise ValueError(f'Unknown action name: {n}')
@@ -342,6 +368,19 @@ class BasicBatteryRBC(BasicRBC):
                             value = 0.3
                         else:
                             value = 0.7
+
+                        action_map[n][hour] = value
+
+                elif n == 'cooling_or_heating_device':
+                    for hour in Building.get_periodic_observation_metadata()['hour']:
+                        if hour < 7:
+                            value = 0.4
+                        
+                        elif hour < 21:
+                            value = -0.4
+
+                        else:
+                            value = 0.8
 
                         action_map[n][hour] = value
                 

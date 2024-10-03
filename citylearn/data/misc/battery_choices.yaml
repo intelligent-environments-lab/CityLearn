@@ -1,0 +1,80 @@
+'Tesla Powerwall 2': # https://www.tesla.com/sites/default/files/pdfs/powerwall/Powerwall%202_AC_Datasheet_en_northamerica.pdf
+  attributes:
+    capacity: 13.5
+    depth_of_discharge: null
+    nominal_power: 3.3
+    efficiency: 0.90
+    loss_coefficient: null
+    capacity_loss_coefficient: null
+'PowerPlus LiFe2433P': # https://www.powerplus-energy.com.au/life-premium-specifications/
+  attributes:
+    capacity: 3.3
+    depth_of_discharge: 1.0
+    nominal_power: 1.61
+    efficiency: 0.96
+    loss_coefficient: 0.00159817 # (14% of capacity per annum)
+    capacity_loss_coefficient: null
+'BYD LVS': # https://www.bydbatterybox.com/uploads/downloads/230318_Premium_Datasheet_LVS%20V2.2%20EN-6415367b258dd.pdf
+  attributes:
+    capacity: 4.0
+    depth_of_discharge: null
+    nominal_power: 3.32
+    efficiency: 0.95
+    loss_coefficient: null
+    capacity_loss_coefficient: null
+'Huawei LUNA2000-5-S0': # https://solar.huawei.com/en-GB/download?p=%2F-%2Fmedia%2FSolar%2Fattachment%2Fpdf%2Feu%2Fdatasheet%2FLUNA2000-5-15-S0.pdf
+  attributes:
+    capacity: 5.0
+    depth_of_discharge: 0.85
+    nominal_power: 2.5
+    efficiency: null
+    loss_coefficient: null
+    capacity_loss_coefficient: null
+'Goodwe LX U5.4-L': # https://en.goodwe.com/Ftp/EN/Downloads/Datasheet/GW_Lynx%20Home%20U%20Series%20(LV)_Datasheet-EN.pdf
+  attributes:
+    capacity: 5.4
+    depth_of_discharge: 0.90
+    nominal_power: 2.88
+    efficiency: null
+    loss_coefficient: null
+    capacity_loss_coefficient: null
+'AES LiFePO4 Solar Stationary Battery': # https://discoverbattery.com/products/search/42-48-6650
+  attributes:
+    capacity: 7.39
+    depth_of_discharge: 0.90
+    nominal_power: 7.07
+    efficiency: 0.98
+    loss_coefficient: 0.0003
+    capacity_loss_coefficient: null
+'Enphase IQ Battery 10': # https://enphase.com/sites/default/files/2021-04/Encharge-10-DS-EN-US.pdf
+  attributes:
+    capacity: 10.5
+    depth_of_discharge: 0.96
+    nominal_power: 3.84
+    efficiency: 0.96
+    loss_coefficient: null
+    capacity_loss_coefficient: null
+'Enphase IQ Battery 3': # https://enphase.com/download/iq-battery-3-data-sheet?_gl=1*1ymirnj*_up*MQ..*_ga*MzQyODU2OTgwLjE3MTQ2OTQwMzQ.*_ga_0L7F5QSJ7V*MTcxNDY5NDAzMy4xLjAuMTcxNDY5NDAzMy4wLjAuMA
+  attributes:
+    capacity: 3.5
+    depth_of_discharge: 0.96
+    nominal_power: 1.28
+    efficiency: 0.96
+    loss_coefficient: null
+    capacity_loss_coefficient: null
+'SolarEdge Home Battery': # https://s3.amazonaws.com/ecodirect_docs/SOLAR_EDGE/StorEdge-EnergyHub-Inverter/Energy-Bank-Battery/SolarEdge-Energy-Bank-BAT-10K1PS0B-02-N-America-20220814-000167-NAM-Datasheet.pdf
+  attributes:
+    capacity: 9.7
+    depth_of_discharge: 1.0
+    nominal_power: 5.0
+    efficiency: 0.945
+    loss_coefficient: null
+    capacity_loss_coefficient: null
+'NeoVolta NV14': # https://neovolta.com/wp-content/uploads/2024/03/NeoVolta_NV14_NV24_Specifications_Sheet_2024.pdf
+  attributes:
+    capacity: 14.4
+    depth_of_discharge: 1.0
+    nominal_power: 7.68
+    efficiency: 0.97
+    loss_coefficient: null
+    capacity_loss_coefficient: null
