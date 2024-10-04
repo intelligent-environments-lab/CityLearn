@@ -1,6 +1,6 @@
-from lstm_model.classes import LSTM
-from lstm_model.preprocessing import import_data, sliding_windows
-from lstm_model.training import training
+from classes import LSTM
+from preprocessing import import_data, sliding_windows
+from training import training
 from matplotlib import pyplot as plt
 import numpy as np
 import os
@@ -14,16 +14,12 @@ import yaml
 def reformat_filepath(filepath):
     return os.path.join(*(filepath.split("/")))
 
-folder = reformat_filepath("end_use_load_profiles")
-
-config = yaml.safe_load(open(reformat_filepath("lstm_model/config.yaml"), "r"))
-
 def dataset_dataloader(x, y, BATCH_SIZE, shuffle=True):
     TENSOR = TensorDataset(torch.from_numpy(x.astype(np.float32)), torch.from_numpy(y.astype(np.float32)))
     LOADER = DataLoader(TENSOR, shuffle=shuffle, batch_size=BATCH_SIZE, drop_last=True)
     return TENSOR, LOADER
 
-def process_df(df, months, train_references=["3", "4", "5"], validation_references=["3", "6"], test_references=["3", "7"]):
+def process_df(config, df, months, train_references=["3", "4", "5"], validation_references=["3", "6"], test_references=["3", "7"]):
     minT, maxT = df["average_indoor_air_temperature"].min(), df["average_indoor_air_temperature"].max()
     df.loc[:, "average_indoor_air_temperature"] -= minT
     df.loc[:, "average_indoor_air_temperature"] /= (maxT - minT)
@@ -96,8 +92,9 @@ def train(lstm, train_loader, val_loader, optimizer, criterion, config, maxT, mi
     plt.savefig(reformat_filepath(f"{folder}/results/{filename}/losses.png"))
     plt.close()
     torch.save(lstm.state_dict(), reformat_filepath(f"{folder}/models/{filename}.pth"))
+    print(reformat_filepath(f"{folder}/models/{filename}.pth"))
 
-def eval(model, test_loader, optimizer, maxT, minT, filename):
+def eval(config, model, test_loader, optimizer, maxT, minT, filename, make_plots=False):
     model.eval()
     h = model.init_hidden(config["batch_size"], config["device"])
     ypred = []
@@ -136,27 +133,28 @@ def eval(model, test_loader, optimizer, maxT, minT, filename):
         plt.axvline(arr.mean(), linestyle="--", color="orange")
         plt.savefig(reformat_filepath(f"{folder}/results/{filename}/{title}.png"))
         plt.close()
-    make_plot(absolute_error, "error")
-    make_plot(losses[:, 0], "MAE")
-    make_plot(losses[:, 1], "MSE")
-    plt.plot(cumulative_error_profiles)
-    plt.title("Cumulative error profiles")
-    plt.savefig(reformat_filepath(f"{folder}/results/{filename}/cumulative_error_profiles.png"))
-    plt.close()
-    for index, (prediction, target) in enumerate(zip(ypred, ylab)):
-        plt.plot(prediction, label="pred")
-        plt.plot(target, label="true")
-        plt.legend()
-        plt.title(f"Batch {index}")
-        plt.savefig(reformat_filepath(f"{folder}/results/{filename}/profile_{index}.png"))
+    if make_plots:
+        make_plot(absolute_error, "error")
+        make_plot(losses[:, 0], "MAE")
+        make_plot(losses[:, 1], "MSE")
+        plt.plot(cumulative_error_profiles)
+        plt.title("Cumulative error profiles")
+        plt.savefig(reformat_filepath(f"{folder}/results/{filename}/cumulative_error_profiles.png"))
         plt.close()
+        for index, (prediction, target) in enumerate(zip(ypred, ylab)):
+            plt.plot(prediction, label="pred")
+            plt.plot(target, label="true")
+            plt.legend()
+            plt.title(f"Batch {index}")
+            plt.savefig(reformat_filepath(f"{folder}/results/{filename}/profile_{index}.png"))
+            plt.close()
     return {
         "absolute error": absolute_error.mean(),
         "MAE": losses[:, 0].mean(),
         "MSE": losses[:, 1].mean()
     }
 
-def run(df, file_suffix=""):
+def run(config, df, file_suffix="", make_plots=False, include_seasonal_errors=False):
     filename = f'{file_suffix}'
     os.makedirs(reformat_filepath(f"{folder}/results/{filename}"), exist_ok=True)
     os.makedirs(reformat_filepath(f"{folder}/results/{filename}/winter"), exist_ok=True)
@@ -165,7 +163,7 @@ def run(df, file_suffix=""):
     os.makedirs(reformat_filepath(f"{folder}/results/{filename}/autumn"), exist_ok=True)
     os.makedirs(reformat_filepath(f"{folder}/models/"), exist_ok=True)
     months = range(1, 13)
-    data_dict = process_df(df, months)
+    data_dict = process_df(config, df, months)
     lstm = LSTM(
         n_features=data_dict["train"]["X"].shape[1],
         n_output=data_dict["train"]["y"].shape[1],
@@ -189,23 +187,28 @@ def run(df, file_suffix=""):
         filename
     )
     total_errors = eval(
+        config,
         lstm,
         data_dict["loaders"]["test"],
         optimizer,
         data_dict["temp_limits"]["max"],
         data_dict["temp_limits"]["min"],
-        filename
+        filename,
+        make_plots
     )
-    seasonal_errors = []
-    for (index, loader) in enumerate(data_dict["loaders"]["test_by_season"]):
-        seasonal_errors.append(
-            eval(
-                lstm,
-                data_dict["loaders"]["test_by_season"][index],
-                optimizer,
-                data_dict["temp_limits"]["max"],
-                data_dict["temp_limits"]["min"],
-                reformat_filepath(f"{filename}/{['winter', 'spring', 'summer', 'autumn'][index]}")
+    if include_seasonal_errors:
+        seasonal_errors = []
+        for (index, loader) in enumerate(data_dict["loaders"]["test_by_season"]):
+            seasonal_errors.append(
+                eval(
+                    lstm,
+                    data_dict["loaders"]["test_by_season"][index],
+                    optimizer,
+                    data_dict["temp_limits"]["max"],
+                    data_dict["temp_limits"]["min"],
+                    reformat_filepath(f"{filename}/{['winter', 'spring', 'summer', 'autumn'][index]}"),
+                    make_plots
+                )
             )
-        )
-    return total_errors, seasonal_errors
+        return toral_errors, seasonal_errors
+    return total_errors

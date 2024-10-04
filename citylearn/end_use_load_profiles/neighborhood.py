@@ -20,7 +20,7 @@ from citylearn.citylearn import CityLearnEnv
 from citylearn.data import get_settings
 from citylearn.dynamics import LSTMDynamics
 from citylearn.end_use_load_profiles.clustering import MetadataClustering
-# from citylearn.end_use_load_profiles.model_generation_wrapper import run_one_model
+from citylearn.end_use_load_profiles.model_generation_wrapper import run_one_model
 from citylearn.end_use_load_profiles.simulate import EndUseLoadProfilesEnergyPlusPartialLoadSimulator
 from citylearn.preprocessing import PeriodicNormalization, Normalize
 from citylearn.utilities import read_json, write_json
@@ -86,7 +86,7 @@ class Neighborhood:
 
     def __init__(
         self, weather_data: str = None, year_of_publication: int = None, release: int = None, cache: bool = None,
-        energyplus_output_directory: Union[Path, str] = None, dataset_directory: Union[Path, str] = None, max_workers: int = None, random_seed: int = None
+        energyplus_output_directory: Union[Path, str] = None, dataset_directory: Union[Path, str] = None, lstm_directory: Union[Path, str] = None, max_workers: int = None, random_seed: int = None
     ) -> None:
         self.__end_use_load_profiles = EndUseLoadProfiles(
             dataset_type=VersionDatasetType.RESSTOCK,
@@ -97,6 +97,7 @@ class Neighborhood:
         )
         self.energyplus_output_directory = energyplus_output_directory
         self.dataset_directory = dataset_directory
+        self.lstm_directory = lstm_directory
         self.max_workers = max_workers
         self.random_seed = random_seed
 
@@ -111,6 +112,10 @@ class Neighborhood:
     @property
     def dataset_directory(self) -> Union[Path, str]:
         return self.__dataset_directory
+
+    @property
+    def lstm_model(self) -> Union[Path, str]:
+        return self.__lstm_directory
     
     @property
     def max_workers(self) -> int:
@@ -127,6 +132,10 @@ class Neighborhood:
     @dataset_directory.setter
     def dataset_directory(self, value: Union[Path, str]):
         self.__dataset_directory = 'datasets' if value is None else value
+
+    @lstm_directory.setter
+    def lstm_directory(self, value: Union[Path, str]):
+        self.__lstm_directory = 'lstm_models' if value is None else value
 
     @max_workers.setter
     def max_workers(self, value: int):
@@ -475,7 +484,7 @@ class Neighborhood:
 
         return data
     
-    def train_lstm(data: Mapping[int, pd.DataFrame], **kwargs) -> Mapping[int, Mapping[str, Any]]:
+    def train_lstm(data: Mapping[int, pd.DataFrame], config: Mapping[str, Any] = None, directory: str = None, seed: int = 0, delete_files: bool = True) -> Mapping[int, Mapping[str, Any]]:
         """
         TODO: Satvik & Pavani
         1. Install training repo using pip.
@@ -483,19 +492,15 @@ class Neighborhood:
            that trains and finds a best model for the building
         3. Train the building LSTM and return .pth, normalization limits, & error metrics
         """
-        # if "n_tries" in kwargs:
-        #     d = {
-        #         df_id: run_one_model(df_id, data[df_id], kwargs["n_tries"])
-        #         for df_id in data
-        #     }
-        # else:
-        #     d = {
-        #         df_id: run_one_model(df_id, data[df_id])
-        #         for df_id in data
-        #     }
-        # return d
-
-        raise NotImplementedError
+        directory = "models" if directory is None else directory
+        config = get_settings()['lstm']['config'] if config is None else config
+        d = {
+            df_id: run_one_model(config, df_id, data[df_id], kwargs["n_tries"], directory, seed)
+            for df_id in data
+        }
+        if delete_files:
+            os.system(f"rm -rf {directory}") # might not be safe
+        return d
     
     def get_lstm_training_data(self, simulators: BuildingsSimulators) -> Mapping[int, pd.DataFrame]:
         data = {}
