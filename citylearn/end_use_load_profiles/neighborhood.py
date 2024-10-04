@@ -20,7 +20,7 @@ from citylearn.citylearn import CityLearnEnv
 from citylearn.data import get_settings
 from citylearn.dynamics import LSTMDynamics
 from citylearn.end_use_load_profiles.clustering import MetadataClustering
-from citylearn.end_use_load_profiles.model_generation_wrapper import run_one_model
+from citylearn.end_use_load_profiles.lstm_model.model_generation_wrapper import run_one_model
 from citylearn.end_use_load_profiles.simulate import EndUseLoadProfilesEnergyPlusPartialLoadSimulator
 from citylearn.preprocessing import PeriodicNormalization, Normalize
 from citylearn.utilities import read_json, write_json
