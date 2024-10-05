@@ -1608,13 +1608,21 @@ class Building(Environment):
             elif key in ['cooling_device', 'heating_device']:
                 low_limit.append(0.0)
                 high_limit.append(1.0)
-            
+
             elif 'electric_vehicle_storage' in key:
                 if self.electric_vehicle_chargers is not None:
                     for c in self.electric_vehicle_chargers:
-                        if key == f'ev_storage_{c.charger_id}':
-                            low_limit.append(-1.0)
-                            high_limit.append(1.0)
+                        if key == f'electric_vehicle_storage_{c.charger_id}':
+                            # Use max charging power to determine the upper limit and  max_discharging_power to determine
+                            # the discharging limit
+                            # The limits are normalized between -1 (max discharge) and 1 (max charge)
+                            charging_limit = c.max_charging_power / max(self.electric_vehicle_storage.capacity,
+                                                             ZERO_DIVISION_PLACEHOLDER)
+                            discharging_limit = c.max_discharging_power / max(self.electric_vehicle_storage.capacity,
+                                                                        ZERO_DIVISION_PLACEHOLDER)
+
+                            low_limit.append(min(discharging_limit, 1.0))  # For discharging limit
+                            high_limit.append(min(charging_limit, 1.0))  # For charging limit
 
             elif 'storage' in key:
                 if key == 'electrical_storage':
