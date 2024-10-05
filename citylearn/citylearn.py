@@ -115,14 +115,14 @@ class CityLearnEnv(Environment, Env):
     -----
     Parameters passed to `citylearn.citylearn.CityLearnEnv.__init__` that are also defined in `schema` will override their `schema` definition.
     """
-    
-    def __init__(self, 
+
+    def __init__(self,
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None,
         electric_vehicles: Union[List[ElectricVehicle], List[str], List[int]] = None,
-        simulation_start_time_step: int = None, simulation_end_time_step: int = None, episode_time_steps: Union[int, List[Tuple[int, int]]] = None, rolling_episode_split: bool = None, 
-        random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: Union[RewardFunction, str] = None, reward_function_kwargs: Mapping[str, Any] = None, 
-        central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None, 
-        inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None, 
+        simulation_start_time_step: int = None, simulation_end_time_step: int = None, episode_time_steps: Union[int, List[Tuple[int, int]]] = None, rolling_episode_split: bool = None,
+        random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: Union[RewardFunction, str] = None, reward_function_kwargs: Mapping[str, Any] = None,
+        central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None,
+        inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None,
         inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, **kwargs: Any
     ):
         self.schema = schema
@@ -181,7 +181,7 @@ class CityLearnEnv(Environment, Env):
 
         # reward history tracker
         self.__episode_rewards = []
-        
+
     @property
     def schema(self) -> Union[str, Path, Mapping[str, Any]]:
         """Filepath to JSON representation or `dict` object of CityLearn schema."""
@@ -205,11 +205,11 @@ class CityLearnEnv(Environment, Env):
         """Electric Vehicles in CityLearn environment."""
 
         return self.__electric_vehicles
-    
+
     @property
     def time_steps(self) -> int:
         """Number of time steps in current episode split."""
-        
+
         return self.episode_tracker.episode_time_steps
 
     @property
@@ -219,20 +219,20 @@ class CityLearnEnv(Environment, Env):
         - `simulation_start_time_step`) + 1. Will ignore `rolling_episode_split` if `episode_splits` is of type `List[Tuple[int, int]]]`."""
 
         return self.__episode_time_steps
-    
+
     @property
     def rolling_episode_split(self) -> bool:
         """True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, 
         False to split episodes in steps of `episode_time_steps`."""
 
         return self.__rolling_episode_split
-    
+
     @property
     def random_episode_split(self) -> bool:
         """True if episode splits are to be selected at random during training otherwise, False to select sequentially."""
 
         return self.__random_episode_split
-    
+
     @property
     def episode(self) -> int:
         """Current episode index."""
@@ -250,7 +250,7 @@ class CityLearnEnv(Environment, Env):
         """Reward time series"""
 
         return self.__rewards
-    
+
     @property
     def episode_rewards(self) -> List[Mapping[str, Union[float, List[float]]]]:
         """Reward summary statistics for elapsed episodes."""
@@ -274,7 +274,7 @@ class CityLearnEnv(Environment, Env):
         """Check if simulation has reached completion."""
 
         return self.time_step == self.time_steps - 1
-    
+
     @property
     def truncated(self) -> bool:
         """Check if episode truncates due to a time limit or a reason that is not defined as part of the task MDP."""
@@ -307,21 +307,21 @@ class CityLearnEnv(Environment, Env):
                     if i == 0 or s not in self.shared_observations or s not in shared_observations:
                         low_limit.append(l)
                         high_limit.append(h)
-                    
+
                     else:
                         pass
 
                     if s in self.shared_observations and s not in shared_observations:
                         shared_observations.append(s)
-                    
+
                     else:
                         pass
 
             observation_space = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
-        
+
         else:
             observation_space = [b.observation_space for b in self.buildings]
-        
+
         return observation_space
 
     @property
@@ -345,7 +345,7 @@ class CityLearnEnv(Environment, Env):
             action_space = [spaces.Box(low=np.array(low_limit), high=np.array(high_limit), dtype=np.float32)]
         else:
             action_space = [b.action_space for b in self.buildings]
-        
+
         return action_space
 
     @property
@@ -367,21 +367,21 @@ class CityLearnEnv(Environment, Env):
                 for k, v in b.observations(normalize=False, periodic_normalization=False, check_limits=True).items():
                     if i == 0 or k not in self.shared_observations or k not in shared_observations:
                         observations.append(v)
-                    
+
                     else:
                         pass
 
                     if k in self.shared_observations and k not in shared_observations:
                         shared_observations.append(k)
-                    
+
                     else:
                         pass
 
             observations = [observations]
-        
+
         else:
             observations = [list(b.observations(normalize=False, periodic_normalization=False, check_limits=True).values()) for b in self.buildings]
-        
+
         return observations
 
     @property
@@ -402,17 +402,17 @@ class CityLearnEnv(Environment, Env):
                 for k, _ in b.observations(normalize=False, periodic_normalization=False).items():
                     if i == 0 or k not in self.shared_observations or k not in observation_names:
                         observation_names.append(k)
-                    
+
                     else:
                         pass
 
             observation_names = [observation_names]
-        
+
         else:
             observation_names = [list(b.observations().keys()) for b in self.buildings]
 
         return observation_names
-    
+
     @property
     def action_names(self) -> List[List[str]]:
         """Names of received actions.
@@ -431,7 +431,7 @@ class CityLearnEnv(Environment, Env):
                 action_names += b.active_actions
 
             action_names = [action_names]
-        
+
         else:
             action_names = [b.active_actions for b in self.buildings]
 
@@ -442,8 +442,8 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv` time series, in [kg_co2]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv 
-            if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_emission_without_storage_and_pv 
+            b.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv
+            if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_emission_without_storage_and_pv
                     for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
@@ -452,8 +452,8 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv` time series, in [$]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv 
-                if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_cost_without_storage_and_pv 
+            b.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv
+                if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_cost_without_storage_and_pv
                     for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
@@ -462,18 +462,18 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_without_storage_and_partial_load_and_pv` time series, in [kWh]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_without_storage_and_partial_load_and_pv 
-                if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_without_storage_and_pv 
+            b.net_electricity_consumption_without_storage_and_partial_load_and_pv
+                if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_without_storage_and_pv
                     for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
-    
+
 
     @property
     def net_electricity_consumption_emission_without_storage_and_partial_load(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_emission_without_storage_and_partial_load` time series, in [kg_co2]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_emission_without_storage_and_partial_load 
+            b.net_electricity_consumption_emission_without_storage_and_partial_load
             if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_emission_without_storage
                 for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
@@ -483,7 +483,7 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_cost_without_storage_and_partial_load` time series, in [$]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_cost_without_storage_and_partial_load 
+            b.net_electricity_consumption_cost_without_storage_and_partial_load
             if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_cost_without_storage
                 for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
@@ -497,13 +497,13 @@ class CityLearnEnv(Environment, Env):
             if isinstance(b, DynamicsBuilding) else b.net_electricity_consumption_without_storage
                 for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
-    
+
     @property
     def net_electricity_consumption_emission_without_storage_and_pv(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_emission_without_storage_and_pv` time series, in [kg_co2]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_emission_without_storage_and_pv 
+            b.net_electricity_consumption_emission_without_storage_and_pv
                 for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
@@ -512,7 +512,7 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_cost_without_storage_and_pv` time series, in [$]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_cost_without_storage_and_pv 
+            b.net_electricity_consumption_cost_without_storage_and_pv
                 for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
@@ -521,17 +521,17 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_without_storage_and_pv` time series, in [kWh]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_without_storage_and_pv 
+            b.net_electricity_consumption_without_storage_and_pv
                 for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
-    
+
 
     @property
     def net_electricity_consumption_emission_without_storage(self) -> np.ndarray:
         """Summed `Building.net_electricity_consumption_emission_without_storage` time series, in [kg_co2]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_emission_without_storage 
+            b.net_electricity_consumption_emission_without_storage
                 for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
@@ -558,7 +558,7 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_emission_without_storage` time series, in [kg_co2]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_emission_without_storage 
+            b.net_electricity_consumption_emission_without_storage
                 for b in self.buildings
         ]).sum(axis = 0, min_count = 1).tolist()
 
@@ -567,7 +567,7 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_cost_without_storage` time series, in [$]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_cost_without_storage 
+            b.net_electricity_consumption_cost_without_storage
                 for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
@@ -576,7 +576,7 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.net_electricity_consumption_without_storage` time series, in [kWh]."""
 
         return pd.DataFrame([
-            b.net_electricity_consumption_without_storage 
+            b.net_electricity_consumption_without_storage
                 for b in self.buildings
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
@@ -681,7 +681,7 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.energy_from_dhw_device` time series, in [kWh]."""
 
         return pd.DataFrame([b.energy_from_dhw_device for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
-    
+
     @property
     def energy_to_non_shiftable_load(self) -> np.ndarray:
         """Summed `Building.energy_to_non_shiftable_load` time series, in [kWh]."""
@@ -697,7 +697,7 @@ class CityLearnEnv(Environment, Env):
     @property
     def energy_from_heating_storage(self) -> np.ndarray:
         """Summed `Building.energy_from_heating_storage` time series, in [kWh]."""
-        
+
         return pd.DataFrame([b.energy_from_heating_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
@@ -896,7 +896,7 @@ class CityLearnEnv(Environment, Env):
 
         else:
             pass
-        
+
         return self.observations, reward, self.terminated, self.truncated, self.get_info()
 
     def get_info(self) -> Mapping[Any, Any]:
@@ -916,7 +916,7 @@ class CityLearnEnv(Environment, Env):
             expected_number_of_actions = self.action_space[0].shape[0]
             assert number_of_actions == expected_number_of_actions,\
                 f'Expected {expected_number_of_actions} actions but {number_of_actions} were parsed to env.step.'
-            
+
             for building in self.buildings:
                 size = building.action_space.shape[0]
                 building_actions.append(actions[0:size])
@@ -998,9 +998,9 @@ class CityLearnEnv(Environment, Env):
             'weight': None,
             'value': value_sum/weight_sum
         }
-        
+
         return evaluation
-    
+
     def evaluate(self, control_condition: EvaluationCondition = None, baseline_condition: EvaluationCondition = None, comfort_band: float = None) -> pd.DataFrame:
         r"""Evaluate cost functions at current time step.
 
@@ -1038,12 +1038,12 @@ class CityLearnEnv(Environment, Env):
 
         comfort_band = EnergySimulation.DEFUALT_COMFORT_BAND if comfort_band is None else comfort_band
         building_level = []
-        
+
         for b in self.buildings:
             if isinstance(b, DynamicsBuilding):
                 control_condition = EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV if control_condition is None else control_condition
                 baseline_condition = EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV if baseline_condition is None else baseline_condition
-            
+
             else:
                 control_condition = EvaluationCondition.WITH_STORAGE_AND_PV if control_condition is None else control_condition
                 baseline_condition = EvaluationCondition.WITHOUT_STORAGE_BUT_WITH_PV if baseline_condition is None else baseline_condition
@@ -1166,34 +1166,34 @@ class CityLearnEnv(Environment, Env):
         for building in self.buildings:
             building.next_time_step()
 
-        # Advance electric vehicles to the nect time step. This function is used as EVs exist even without being connected to any building (e.g. when they are being used to commute)
+        # Advance electric vehicles to the next time step. This function is used as EVs exist even without being connected to any building (e.g. when they are being used to commute)
         # As such, this function simulates the EV to the next time step. EVs simulation (connection status) is based on the dataset corresponding to each one
-        for ev in self.electric_vehicles:
-            ev.next_time_step()
-        
+        for electric_vehicle in self.electric_vehicles:
+            electric_vehicle.next_time_step()
+
         super().next_time_step()
 
         #This function is here so that, when the new time step is reached, the first thing to do is plug in/out the EVs according to their individual dataset
         #It basicly associates an EV to a Building.Charger
-        self.associate_evs_2_chargers()
+        self.associate_electric_vehicles_to_chargers()
 
-    def associate_evs_2_chargers(self):
+    def associate_electric_vehicles_to_chargers(self):
         r"""Associate electric_vehicle to its destination charger for observations."""
 
-        for ev in self.electric_vehicles:
+        for electric_vehicle in self.electric_vehicles:
 
-            charger = ev.ev_simulation.charger[self.time_step]
-            state = ev.ev_simulation.electric_vehicle_charger_state[self.time_step]
+            charger = electric_vehicle.electric_vehicle_simulation.charger[self.time_step]
+            state = electric_vehicle.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step]
 
             if charger != "" and charger != "nan":
                 for b in self.buildings:
-                    if b.ev_chargers is not None:
-                        for c in b.ev_chargers:
+                    if b.electric_vehicle_chargers is not None:
+                        for c in b.electric_vehicle_chargers:
                             if c.charger_id == charger:
                                 if state == 1:  # ev connected to charger
-                                    c.plug_car(ev)
+                                    c.plug_car(electric_vehicle)
                                 if state == 2: #EVs can also be associated as incoming to a given charger
-                                    c.associate_incoming_car(ev)
+                                    c.associate_incoming_car(electric_vehicle)
 
     def reset(self, seed: int = None, options: Mapping[str, Any] = None) -> Tuple[List[List[float]], dict]:
         r"""Reset `CityLearnEnv` to initial state.
@@ -1222,7 +1222,7 @@ class CityLearnEnv(Environment, Env):
         # update seed
         if seed is not None:
             self.random_seed = seed
-        
+
         else:
             pass
 
@@ -1241,7 +1241,7 @@ class CityLearnEnv(Environment, Env):
 
         for ev in self.electric_vehicles:
             ev.reset()
-        self.associate_evs_2_chargers()
+        self.associate_electric_vehicles_to_chargers()
 
         # reset reward function (does nothing by default)
         self.reward_function.reset()
@@ -1294,11 +1294,11 @@ class CityLearnEnv(Environment, Env):
 
             else:
                 pass
-        
+
         # set agent init attributes
         else:
             agent_type = self.schema['agent']['type']
-        
+
         if kwargs is not None and len(kwargs) > 0:
             agent_attributes = kwargs
 
@@ -1307,7 +1307,7 @@ class CityLearnEnv(Environment, Env):
 
         else:
             agent_attributes = None
-        
+
         agent_module = '.'.join(agent_type.split('.')[0:-1])
         agent_name = agent_type.split('.')[-1]
         agent_constructor = getattr(importlib.import_module(agent_module), agent_name)
@@ -1348,37 +1348,44 @@ class CityLearnEnv(Environment, Env):
         shared_observations : List[str]
             Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
         """
-        
+
         if isinstance(schema, (str, Path)) and os.path.isfile(schema):
             schema_filepath = Path(schema) if isinstance(schema, str) else schema
             schema = read_json(schema)
             schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if schema['root_directory'] is None\
                 else schema['root_directory']
-        
+
         elif isinstance(schema, str) and schema in DataSet.get_names():
             schema = DataSet.get_schema(schema)
             schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
-        
+
         elif isinstance(schema, dict):
             schema = deepcopy(schema)
             schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
-        
+
         else:
             raise UnknownSchemaError()
 
-        ##Separated chargers observations to create one for each charger at each building
-        #chargers_observations = {key: value for key, value in self.schema["observations"].items() if key.startswith("ev_")}
-        #chargers_actions = {key: value for key, value in self.schema["actions"].items() if key.startswith("ev_")}
-        #chargers_shared_observations = {key: value for key, value in self.schema["observations"].items() if
-        #                                key.startswith("ev_") and value.get("shared_in_central_agent", False)}
+        schema['root_directory'] = kwargs['root_directory'] if kwargs.get('root_directory') is not None else schema[
+            'root_directory']
+        schema['random_seed'] = schema.get('random_seed', None) if kwargs.get('random_seed',
+                                                                              None) is None else schema.get(
+            'random_seed', None)
+        schema['central_agent'] = kwargs['central_agent'] if kwargs.get('central_agent') is not None else schema[
+            'central_agent']
 
-        schema['root_directory'] = kwargs['root_directory'] if kwargs.get('root_directory') is not None else schema['root_directory']
-        schema['random_seed'] =  schema.get('random_seed', None) if kwargs.get('random_seed', None) is None else schema.get('random_seed', None)
-        schema['central_agent'] =  kwargs['central_agent'] if kwargs.get('central_agent') is not None else schema['central_agent']
-        
-        shared_observations =  kwargs['shared_observations'] if kwargs.get('shared_observations') is not None else\
-            [k for k, v in schema['observations'].items() if v['shared_in_central_agent']]
-        
+        #Separated chargers observations to create one for each charger at each building based on active ones at the schema
+        schema['chargers_observations_helper'] = {key: value for key, value in self.schema["observations"].items() if key.startswith("electric_vehicle_")}
+        schema['chargers_actions_helper'] = {key: value for key, value in self.schema["actions"].items() if key.startswith("electric_vehicle_")}
+        schema['chargers_shared_observations_helper'] = {key: value for key, value in self.schema["observations"].items() if
+                                        key.startswith("electric_vehicle_") and value.get("shared_in_central_agent", True)}
+
+        # Update shared observations, excluding any keys that start with 'electric_vehicle_'
+        schema['shared_observations'] = kwargs['shared_observations'] if kwargs.get('shared_observations') is not None else [
+            k for k, v in schema['observations'].items() if
+            not k.startswith("electric_vehicle_") and v.get('shared_in_central_agent', False)
+        ]
+
         schema['episode_time_steps'] = kwargs['episode_time_steps'] if kwargs.get('episode_time_steps') is not None else schema.get('episode_time_steps', None)
         schema['rolling_episode_split'] = kwargs['rolling_episode_split'] if kwargs.get('rolling_episode_split') is not None else schema.get('rolling_episode_split', None)
         schema['random_episode_split'] = kwargs['random_episode_split'] if kwargs.get('random_episode_split') is not None else schema.get('random_episode_split', None)
@@ -1389,7 +1396,7 @@ class CityLearnEnv(Environment, Env):
         schema['simulation_end_time_step'] = kwargs['simulation_end_time_step'] if kwargs.get('simulation_end_time_step') is not None else\
             schema['simulation_end_time_step']
         episode_tracker = EpisodeTracker(schema['simulation_start_time_step'], schema['simulation_end_time_step'])
-        
+
         # get sizing data to reduce read time
         pv_sizing_data = EnergySimulation.get_pv_sizing_data()
         battery_sizing_data = EnergySimulation.get_battery_sizing_data()
@@ -1406,328 +1413,36 @@ class CityLearnEnv(Environment, Env):
                     b.episode_tracker = episode_tracker
 
                 buildings_to_include = []
-            
+
             elif isinstance(kwargs['buildings'][0], str):
                 buildings_to_include = [b for b in buildings_to_include if b in kwargs['buildings']]
-            
+
             elif isinstance(kwargs['buildings'][0], int):
                 buildings_to_include = [buildings_to_include[i] for i in kwargs['buildings']]
 
             else:
                 raise Exception('Unknown buildings type. Allowed types are citylearn.building.Building, int and str.')
-            
+
         else:
             buildings_to_include = [b for b in buildings_to_include if schema['buildings'][b]['include']]
 
         # load buildings
         for i, building_name in enumerate(buildings_to_include):
-            building_schema = self.schema['buildings'][building_name]
-            # data
-            energy_simulation = pd.read_csv(os.path.join(root_directory,building_schema['energy_simulation']))
-            energy_simulation = EnergySimulation(*energy_simulation.values.T)
-            weather = pd.read_csv(os.path.join(root_directory,building_schema['weather']))
-            weather = Weather(*weather.values.T)
+            buildings.append(
+                self._load_building(i, building_name, schema, episode_tracker, pv_sizing_data, battery_sizing_data,**kwargs))
 
-            if building_schema.get('carbon_intensity', None) is not None:
-                carbon_intensity = pd.read_csv(os.path.join(root_directory,building_schema['carbon_intensity']))
-                carbon_intensity = carbon_intensity['carbon_intensity[kg_CO2/kWh]'].tolist()
-                carbon_intensity = CarbonIntensity(carbon_intensity)
-            
-            else:
-                carbon_intensity = None
-
-            if building_schema.get('pricing', None) is not None:
-                pricing = pd.read_csv(os.path.join(root_directory,building_schema['pricing']))
-                pricing = Pricing(*pricing.values.T)
-            else:
-                pricing = None
-                
-            ## observation and action metadata
-            #inactive_observations = [] if building_schema.get('inactive_observations', None) is None else building_schema['inactive_observations']
-            #inactive_actions = [] if building_schema.get('inactive_actions', None) is None else building_schema['inactive_actions']
-            #observation_metadata = {
-            #    k: False if k in inactive_observations else v['active']
-            #    for k, v in observations.items()
-            #    if k not in chargers_observations
-            #}
-            #action_metadata = {k: False if k in inactive_actions else v['active'] for k, v in actions.items() if k not in chargers_actions}
-
-
-            # observation metadata
-            observation_metadata = {k: v['active'] for k, v in observations.items() if k not in chargers_observations}
-
-            if kwargs.get('active_observations') is not None:
-                active_observations = kwargs['active_observations']
-                active_observations = active_observations[i] if isinstance(active_observations[0], list) else active_observations
-                observation_metadata = {k: True if k in active_observations else False for k in observation_metadata}
-            
-            else:
-                pass
-
-            if kwargs.get('inactive_observations') is not None:
-                inactive_observations = kwargs['inactive_observations']
-                inactive_observations = inactive_observations[i] if isinstance(inactive_observations[0], list) else inactive_observations
-
-            elif building_schema.get('inactive_observations') is not None:
-                inactive_observations = building_schema['inactive_observations']
-
-            else:
-                inactive_observations = []
-
-            observation_metadata = {k: False if k in inactive_observations else v for k, v in observation_metadata.items()}
-
-            # action metadata
-            action_metadata = {k: v['active'] for k, v in actions.items() if k not in chargers_actions}
-
-            if kwargs.get('active_actions') is not None:
-                active_actions = kwargs['active_actions']
-                active_actions = active_actions[i] if isinstance(active_actions[0], list) else active_actions
-                action_metadata = {k: True if k in active_actions else False for k in action_metadata}
-            
-            else:
-                pass
-
-            if kwargs.get('inactive_actions') is not None:
-                inactive_actions = kwargs['inactive_actions']
-                inactive_actions = inactive_actions[i] if isinstance(inactive_actions[0], list) else inactive_actions
-
-            elif building_schema.get('inactive_actions') is not None:
-                inactive_actions = building_schema['inactive_actions']
-
-            else:
-                inactive_actions = []
-
-            action_metadata = {k: False if k in inactive_actions else v for k, v in action_metadata.items()}
-
-            # construct building
-            building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
-            building_type_module = '.'.join(building_type.split('.')[0:-1])
-            building_type_name = building_type.split('.')[-1]
-            building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
-            dynamics = {}
-            dynamics_modes = ['cooling', 'heating']
-            
-            # set dynamics
-            if building_schema.get('dynamics', None) is not None:
-                assert int(citylearn_version.split('.')[0]) >= 2, 'Building dynamics is only supported in CityLearn>=2.x.x'
-                
-                for mode in dynamics_modes:
-                    dynamics_type = building_schema['dynamics'][mode]['type']
-                    dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
-                    dynamics_name = dynamics_type.split('.')[-1]
-                    dynamics_constructor = getattr(importlib.import_module(dynamics_module), dynamics_name)
-                    attributes = building_schema['dynamics'][mode].get('attributes', {})
-                    attributes['filepath'] = os.path.join(root_directory, attributes['filename'])
-                    _ = attributes.pop('filename')
-                    dynamics[f'{mode}_dynamics'] = dynamics_constructor(**attributes)
-            else:
-                dynamics = {m: None for m in dynamics_modes}
-
-            # set power outage model
-            building_schema_power_outage = building_schema.get('power_outage', {})
-            simulate_power_outage = kwargs.get('simulate_power_outage')
-            simulate_power_outage = building_schema_power_outage.get('simulate_power_outage') if simulate_power_outage is None else simulate_power_outage
-            simulate_power_outage = simulate_power_outage[i] if isinstance(simulate_power_outage, list) else simulate_power_outage
-            stochastic_power_outage = building_schema_power_outage.get('stochastic_power_outage')
-
-            if building_schema_power_outage.get('stochastic_power_outage_model', None) is not None:
-                stochastic_power_outage_model_type = building_schema_power_outage['stochastic_power_outage_model']['type']
-                stochastic_power_outage_model_module = '.'.join(stochastic_power_outage_model_type.split('.')[0:-1])
-                stochastic_power_outage_model_name = stochastic_power_outage_model_type.split('.')[-1]
-                stochastic_power_outage_model_constructor = getattr(
-                    importlib.import_module(stochastic_power_outage_model_module), 
-                    stochastic_power_outage_model_name
-                )
-                attributes =  building_schema_power_outage.get('stochastic_power_outage_model', {}).get('attributes', {})
-                stochastic_power_outage_model = stochastic_power_outage_model_constructor(**attributes)
-            
-            else:
-                stochastic_power_outage_model = None
-            #Adding chargers to buildings if they exist
-            if building_schema.get("chargers", None) is not None:
-                chargers_list = []
-                for charger_name, charger_config in building_schema["chargers"].items():
-                    charger_type = charger_config['type']
-                    charger_module = '.'.join(charger_type.split('.')[0:-1])
-                    charger_class_name = charger_type.split('.')[-1]
-                    charger_class = getattr(importlib.import_module(charger_module), charger_class_name)
-                    charger_attributes = charger_config.get('attributes', {})
-                    charger_object = charger_class(charger_id=charger_name, **charger_attributes,
-                                                   seconds_per_time_step=seconds_per_time_step, )
-                    chargers_list.append(charger_object)
-
-                    if 'electric_vehicle_storage' not in inactive_actions and "electric_vehicle_storage" in chargers_actions:
-                        # Add new action for this charger to action_metadata
-                        action_metadata[f'ev_storage_{charger_name}'] = True
-                        #building.action_metadata = action_metadata
-
-                    # Consider that if chargers_observations is not empty we should populate observations for chargers
-                    # Each charger replicates the observations of the original chargers_observations but specific for its own
-                    # If shared observations are active for the specific observation, that observation is added to shared_observations
-                    if chargers_observations is not None and 'electric_vehicle_charger_state' in chargers_observations:
-                        for state_type in ['connected', 'incoming']:
-                            if chargers_observations['electric_vehicle_charger_state']["active"]:
-                                observation_metadata[f'charger_{charger_name}_{state_type}_state'] = True  # Add base case
-                            if "electric_vehicle_charger_state" in chargers_shared_observations:
-                                shared_observations.append(f'charger_{charger_name}_{state_type}_state')
-
-                            for obs in chargers_observations:
-                                if chargers_observations[obs]["active"] and obs != 'electric_vehicle_charger_state':
-                                    observation_metadata[f'charger_{charger_name}_{state_type}_{obs}'] = True
-                                if obs in chargers_shared_observations:
-                                    shared_observations.append(f'charger_{charger_name}_{state_type}_{obs}')
-                        #building.observation_metadata = observation_metadata
-            else:
-                chargers_list = []
-
-            print("Chargers List")
-            print(chargers_list)
-
-            print("Observations")
-            print(observation_metadata)
-
-            print("Actions")
-            print(action_metadata)
-
-            building: Building = building_constructor(
-                energy_simulation=energy_simulation,
-                ev_chargers=chargers_list,
-                weather=weather,
-                observation_metadata=observation_metadata,
-                action_metadata=action_metadata,
-                carbon_intensity=carbon_intensity,
-                pricing=pricing,
-                name=building_name,
-                seconds_per_time_step=seconds_per_time_step,
-                random_seed=random_seed,
-                episode_tracker=episode_tracker,
-                simulate_power_outage=simulate_power_outage,
-                stochastic_power_outage=stochastic_power_outage,
-                stochastic_power_outage_model=stochastic_power_outage_model,
-                **dynamics,
-            )
-
-            # update devices
-            device_metadata = {
-                'dhw_storage': {'autosizer': building.autosize_dhw_storage},  
-                'cooling_storage': {'autosizer': building.autosize_cooling_storage}, 
-                'heating_storage': {'autosizer': building.autosize_heating_storage}, 
-                'electrical_storage': {'autosizer': building.autosize_electrical_storage}, 
-                'cooling_device': {'autosizer': building.autosize_cooling_device}, 
-                'heating_device': {'autosizer': building.autosize_heating_device}, 
-                'dhw_device': {'autosizer': building.autosize_dhw_device}, 
-                'pv': {'autosizer': building.autosize_pv}
-            }
-            solar_generation = kwargs.get('solar_generation')
-            solar_generation = True if solar_generation is None else solar_generation
-            solar_generation = solar_generation[i] if isinstance(solar_generation, list) else solar_generation
-
-            for name in device_metadata:
-                if building_schema.get(name, None) is None:
-                    device = None
-                
-                elif name == 'pv' and not solar_generation:
-                    device = None
-                
-                else:
-                    device_type = building_schema[name]['type']
-                    device_module = '.'.join(device_type.split('.')[0:-1])
-                    device_name = device_type.split('.')[-1]
-                    constructor = getattr(importlib.import_module(device_module),device_name)
-                    attributes = building_schema[name].get('attributes',{})
-                    attributes['seconds_per_time_step'] = seconds_per_time_step
-                    device = constructor(**attributes)
-                    autosize = False if building_schema[name].get('autosize', None) is None else building_schema[name]['autosize']
-                    building.__setattr__(name, device)
-
-                    if autosize:
-                        autosizer = device_metadata[name]['autosizer']
-                        autosize_kwargs = {} if building_schema[name].get('autosize_attributes', None) is None else building_schema[name]['autosize_attributes']
-                        autosizer(**autosize_kwargs)
-                    
-                    else:
-                        pass
-            
-            building.observation_space = building.estimate_observation_space()
-            building.action_space = building.estimate_action_space()
-            buildings += (building,)
-        
-        buildings = list(buildings)
-            buildings.append(self._load_building(i, building_name, schema, episode_tracker, pv_sizing_data, battery_sizing_data, **kwargs))
-
-        #Loading Electric Vehicles (if present in the schema)
+        # Load electric vehicles (if present in the schema)
+        electric_vehicles_def = ()
         if kwargs.get('electric_vehicles_def') is not None and len(kwargs['electric_vehicles_def']) > 0:
-            electric_vehicles_def = kwargs['electric_vehicles_def']
+            ev_schemas = kwargs['electric_vehicles_def']
         else:
-            electric_vehicles_def = ()
-            if self.schema.get('electric_vehicles_def', None) is not None:
+            ev_schemas = self.schema.get('electric_vehicles_def', {})
 
-                for ev_name, ev_schema in self.schema['electric_vehicles_def'].items():
-                    if ev_schema['include']:
-                        # data
-                        ev_simulation = pd.read_csv(
-                            os.path.join(root_directory, ev_schema['energy_simulation'])).iloc[
-                                        simulation_start_time_step:simulation_end_time_step + 1].copy()
-                        ev_simulation = ElectricVehicleSimulation(*ev_simulation.values.T)
+        for ev_name, ev_schema in ev_schemas.items():
+            if ev_schema['include']:
+                electric_vehicles_def.append(self._load_electric_vehicle(ev_name,ev_schema,episode_tracker))
 
-                        # energy consumption data from the file, possibly for future work
-                        #energy_consumption_rate = ev_schema["energy_consumption_rate"]
-
-                        # observation and action metadata
-                        ev_inactive_observations = [] if ev_schema.get('inactive_observations', None) is None else \
-                            ev_schema['inactive_observations']
-                        ev_inactive_actions = [] if ev_schema.get('inactive_actions', None) is None else ev_schema[
-                            'inactive_actions']
-                        ev_observation_metadata = {s: False if s in ev_inactive_observations else True for s in chargers_observations if s != 'electric_vehicle_charger_state'}
-                        ev_action_metadata = {a: False if a in ev_inactive_actions else True for a in chargers_actions}
-
-                        # construct ev
-                        ev_type = 'citylearn.citylearn.electric_vehicle' if ev_schema.get('type', None) is None else ev_schema['type']
-                        ev_type_module = '.'.join(ev_type.split('.')[0:-1])
-                        ev_type_name = ev_type.split('.')[-1]
-                        ev_constructor = getattr(importlib.import_module(ev_type_module), ev_type_name)
-
-                        capacity = ev_schema["battery"]["attributes"]["capacity"]
-                        nominal_power = ev_schema["battery"]["attributes"]["nominal_power"]
-                        initial_soc = ev_schema["battery"]["attributes"]["initial_soc"]
-                        battery = Battery(
-                            capacity= capacity,
-                            nominal_power=nominal_power,
-                            initial_soc=initial_soc,
-                            seconds_per_time_step=seconds_per_time_step,
-                            random_seed=random_seed,
-                            episode_tracker=episode_tracker)
-
-                        #Just for normal operation (without control) tracking purposes
-                        auxBattery = Battery(
-                            capacity= capacity,
-                            nominal_power=nominal_power,
-                            initial_soc=initial_soc,
-                            seconds_per_time_step=seconds_per_time_step,
-                            random_seed=random_seed,
-                            episode_tracker=episode_tracker)
-
-                        ev: ElectricVehicle = ev_constructor(
-                            ev_simulation=ev_simulation,
-                            observation_metadata=ev_observation_metadata,
-                            action_metadata=ev_action_metadata,
-                            battery=battery,
-                            auxBattery=auxBattery,
-                            name=ev_name,
-                            seconds_per_time_step=seconds_per_time_step,
-                            random_seed=random_seed,
-                            episode_tracker=episode_tracker
-                        )
-
-                        ev.observation_space = ev.estimate_observation_space()
-                        ev.action_space = ev.estimate_action_space()
-                        electric_vehicles_def += (ev,)
-
-                    else:
-                        continue
-
-        electric_vehicles_def = list(electric_vehicles_def)
-
+        # set reward function
         if kwargs.get('reward_function') is not None:
             reward_function_type = kwargs['reward_function']
 
@@ -1743,42 +1458,47 @@ class CityLearnEnv(Environment, Env):
 
         if kwargs.get('reward_function_kwargs') is not None:
             reward_function_attributes = kwargs['reward_function_kwargs']
-        
+
         else:
             reward_function_attributes = schema['reward_function'].get('attributes', None)
             reward_function_attributes = {} if reward_function_attributes is None else reward_function_attributes
-        
+
         reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
         reward_function_name = reward_function_type.split('.')[-1]
         reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
         reward_function = reward_function_constructor(None, **reward_function_attributes)
 
         return (
-            schema['root_directory'], buildings, schema['episode_time_steps'], schema['rolling_episode_split'], schema['random_episode_split'], 
-            schema['seconds_per_time_step'], reward_function, schema['central_agent'], shared_observations, episode_tracker
+            schema['root_directory'], buildings, electric_vehicles_def, schema['episode_time_steps'], schema['rolling_episode_split'],
+            schema['random_episode_split'],
+            schema['seconds_per_time_step'], reward_function, schema['central_agent'], schema['shared_observations'],
+            episode_tracker
         )
-    
-    def _load_building(self, index: int, building_name: str, schema: dict, episode_tracker: EpisodeTracker, pv_sizing_data: pd.DataFrame, battery_sizing_data: pd.DataFrame, **kwargs) -> Building:
+
+    def _load_building(self, index: int, building_name: str, schema: dict, episode_tracker: EpisodeTracker,
+                       pv_sizing_data: pd.DataFrame, battery_sizing_data: pd.DataFrame, **kwargs) -> Building:
         """Initializes and returns a building model."""
 
         building_schema = schema['buildings'][building_name]
         # data
-        energy_simulation = pd.read_csv(os.path.join(schema['root_directory'],building_schema['energy_simulation']))
+        energy_simulation = pd.read_csv(
+            os.path.join(schema['root_directory'], building_schema['energy_simulation']))
         energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'))
-        weather = pd.read_csv(os.path.join(schema['root_directory'],building_schema['weather']))
+        weather = pd.read_csv(os.path.join(schema['root_directory'], building_schema['weather']))
         weather = Weather(**weather.to_dict('list'))
 
         if building_schema.get('carbon_intensity', None) is not None:
-            carbon_intensity = pd.read_csv(os.path.join(schema['root_directory'],building_schema['carbon_intensity']))
+            carbon_intensity = pd.read_csv(
+                os.path.join(schema['root_directory'], building_schema['carbon_intensity']))
             carbon_intensity = CarbonIntensity(**carbon_intensity.to_dict('list'))
-        
+
         else:
             carbon_intensity = CarbonIntensity(np.zeros(energy_simulation.hour.shape[0], dtype='float32'))
 
         if building_schema.get('pricing', None) is not None:
-            pricing = pd.read_csv(os.path.join(schema['root_directory'],building_schema['pricing']))
+            pricing = pd.read_csv(os.path.join(schema['root_directory'], building_schema['pricing']))
             pricing = Pricing(**pricing.to_dict('list'))
-        
+
         else:
             pricing = Pricing(
                 np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
@@ -1786,21 +1506,23 @@ class CityLearnEnv(Environment, Env):
                 np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
                 np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
             )
-            
+
         # observation metadata
         observation_metadata = {k: v['active'] for k, v in schema['observations'].items()}
 
         if kwargs.get('active_observations') is not None:
             active_observations = kwargs['active_observations']
-            active_observations = active_observations[index] if isinstance(active_observations[0], list) else active_observations
+            active_observations = active_observations[index] if isinstance(active_observations[0],
+                                                                           list) else active_observations
             observation_metadata = {k: True if k in active_observations else False for k in observation_metadata}
-        
+
         else:
             pass
 
         if kwargs.get('inactive_observations') is not None:
             inactive_observations = kwargs['inactive_observations']
-            inactive_observations = inactive_observations[index] if isinstance(inactive_observations[0], list) else inactive_observations
+            inactive_observations = inactive_observations[index] if isinstance(inactive_observations[0],
+                                                                               list) else inactive_observations
 
         elif building_schema.get('inactive_observations') is not None:
             inactive_observations = building_schema['inactive_observations']
@@ -1808,7 +1530,8 @@ class CityLearnEnv(Environment, Env):
         else:
             inactive_observations = []
 
-        observation_metadata = {k: False if k in inactive_observations else v for k, v in observation_metadata.items()}
+        observation_metadata = {k: False if k in inactive_observations else v for k, v in
+                                observation_metadata.items()}
 
         # action metadata
         action_metadata = {k: v['active'] for k, v in schema['actions'].items()}
@@ -1817,13 +1540,14 @@ class CityLearnEnv(Environment, Env):
             active_actions = kwargs['active_actions']
             active_actions = active_actions[index] if isinstance(active_actions[0], list) else active_actions
             action_metadata = {k: True if k in active_actions else False for k in action_metadata}
-        
+
         else:
             pass
 
         if kwargs.get('inactive_actions') is not None:
             inactive_actions = kwargs['inactive_actions']
-            inactive_actions = inactive_actions[index] if isinstance(inactive_actions[0], list) else inactive_actions
+            inactive_actions = inactive_actions[index] if isinstance(inactive_actions[0],
+                                                                     list) else inactive_actions
 
         elif building_schema.get('inactive_actions') is not None:
             inactive_actions = building_schema['inactive_actions']
@@ -1834,16 +1558,18 @@ class CityLearnEnv(Environment, Env):
         action_metadata = {k: False if k in inactive_actions else v for k, v in action_metadata.items()}
 
         # construct building
-        building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
+        building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else \
+        building_schema['type']
         building_type_module = '.'.join(building_type.split('.')[0:-1])
         building_type_name = building_type.split('.')[-1]
-        building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
+        building_constructor = getattr(importlib.import_module(building_type_module), building_type_name)
         dynamics = {}
-        
+
         # set dynamics
         if building_schema.get('dynamics', None) is not None:
-            assert int(citylearn_version.split('.')[0]) >= 2, 'Building dynamics is only supported in CityLearn>=2.x.x'
-            
+            assert int(
+                citylearn_version.split('.')[0]) >= 2, 'Building dynamics is only supported in CityLearn>=2.x.x'
+
             dynamics_type = building_schema['dynamics']['type']
             dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
             dynamics_name = dynamics_type.split('.')[-1]
@@ -1852,39 +1578,78 @@ class CityLearnEnv(Environment, Env):
             attributes['filepath'] = os.path.join(schema['root_directory'], attributes['filename'])
             _ = attributes.pop('filename')
             dynamics[f'dynamics'] = dynamics_constructor(**attributes)
-        
+
         else:
             dynamics['dynamics'] = {}
 
         # set power outage model
         building_schema_power_outage = building_schema.get('power_outage', {})
         simulate_power_outage = kwargs.get('simulate_power_outage')
-        simulate_power_outage = building_schema_power_outage.get('simulate_power_outage') if simulate_power_outage is None else simulate_power_outage
-        simulate_power_outage = simulate_power_outage[index] if isinstance(simulate_power_outage, list) else simulate_power_outage
+        simulate_power_outage = building_schema_power_outage.get(
+            'simulate_power_outage') if simulate_power_outage is None else simulate_power_outage
+        simulate_power_outage = simulate_power_outage[index] if isinstance(simulate_power_outage,
+                                                                           list) else simulate_power_outage
         stochastic_power_outage = building_schema_power_outage.get('stochastic_power_outage')
 
         if building_schema_power_outage.get('stochastic_power_outage_model', None) is not None:
-            stochastic_power_outage_model_type = building_schema_power_outage['stochastic_power_outage_model']['type']
+            stochastic_power_outage_model_type = building_schema_power_outage['stochastic_power_outage_model'][
+                'type']
             stochastic_power_outage_model_module = '.'.join(stochastic_power_outage_model_type.split('.')[0:-1])
             stochastic_power_outage_model_name = stochastic_power_outage_model_type.split('.')[-1]
             stochastic_power_outage_model_constructor = getattr(
-                importlib.import_module(stochastic_power_outage_model_module), 
+                importlib.import_module(stochastic_power_outage_model_module),
                 stochastic_power_outage_model_name
             )
-            attributes =  building_schema_power_outage.get('stochastic_power_outage_model', {}).get('attributes', {})
+            attributes = building_schema_power_outage.get('stochastic_power_outage_model', {}).get('attributes', {})
             stochastic_power_outage_model = stochastic_power_outage_model_constructor(**attributes)
-        
+
         else:
             stochastic_power_outage_model = None
 
+        #Adding chargers to buildings if they exist
+        if building_schema.get("chargers", None) is not None:
+            chargers_list = []
+            for charger_name, charger_config in building_schema["chargers"].items():
+                charger_type = charger_config['type']
+                charger_module = '.'.join(charger_type.split('.')[0:-1])
+                charger_class_name = charger_type.split('.')[-1]
+                charger_class = getattr(importlib.import_module(charger_module), charger_class_name)
+                charger_attributes = charger_config.get('attributes', {})
+                charger_object = charger_class(charger_id=charger_name, **charger_attributes,
+                                               seconds_per_time_step=schema['seconds_per_time_step'], )
+                chargers_list.append(charger_object)
+
+                if 'electric_vehicle_storage' not in inactive_actions and "electric_vehicle_storage" in schema['chargers_actions_helper']:
+                    # Add new action for this charger to action_metadata
+                    action_metadata[f'electric_vehicle_storage_{charger_name}'] = True
+
+                # Consider that if chargers_observations is not empty we should populate observations for chargers
+                # Each charger replicates the observations of the original chargers_observations but specific for its own
+                # If shared observations are active for the specific observation, that observation is added to shared_observations
+                if schema['chargers_observations_helper'] is not None and 'electric_vehicle_charger_state' in schema['chargers_observations_helper']:
+                    for state_type in ['connected', 'incoming']:
+                        if schema['chargers_observations_helper']['electric_vehicle_charger_state']["active"]:
+                            observation_metadata[f'charger_{charger_name}_{state_type}_state'] = True  # Add base case
+                        if "electric_vehicle_charger_state" in schema['chargers_shared_observations_helper']:
+                            schema['shared_observations'].append(f'charger_{charger_name}_{state_type}_state')
+
+                        for obs in schema['chargers_observations_helper']:
+                            if schema['chargers_observations_helper'][obs]["active"] and obs != 'electric_vehicle_charger_state':
+                                observation_metadata[f'charger_{charger_name}_{state_type}_{obs}'] = True
+                            if obs in schema['chargers_shared_observations_helper']:
+                                schema['shared_observations'].append(f'charger_{charger_name}_{state_type}_{obs}')
+        else:
+            chargers_list = []
+
         building: Building = building_constructor(
-            energy_simulation=energy_simulation, 
-            weather=weather, 
-            observation_metadata=observation_metadata, 
-            action_metadata=action_metadata, 
-            carbon_intensity=carbon_intensity, 
+            energy_simulation=energy_simulation,
+            ev_chargers=chargers_list,
+            weather=weather,
+            observation_metadata=observation_metadata,
+            action_metadata=action_metadata,
+            carbon_intensity=carbon_intensity,
             pricing=pricing,
-            name=building_name, 
+            name=building_name,
             seconds_per_time_step=schema['seconds_per_time_step'],
             random_seed=schema['random_seed'],
             episode_tracker=episode_tracker,
@@ -1896,13 +1661,13 @@ class CityLearnEnv(Environment, Env):
 
         # update devices
         device_metadata = {
-            'cooling_device': {'autosizer': building.autosize_cooling_device}, 
-            'heating_device': {'autosizer': building.autosize_heating_device}, 
-            'dhw_device': {'autosizer': building.autosize_dhw_device}, 
-            'dhw_storage': {'autosizer': building.autosize_dhw_storage},  
-            'cooling_storage': {'autosizer': building.autosize_cooling_storage}, 
-            'heating_storage': {'autosizer': building.autosize_heating_storage}, 
-            'electrical_storage': {'autosizer': building.autosize_electrical_storage}, 
+            'cooling_device': {'autosizer': building.autosize_cooling_device},
+            'heating_device': {'autosizer': building.autosize_heating_device},
+            'dhw_device': {'autosizer': building.autosize_dhw_device},
+            'dhw_storage': {'autosizer': building.autosize_dhw_storage},
+            'cooling_storage': {'autosizer': building.autosize_cooling_storage},
+            'heating_storage': {'autosizer': building.autosize_heating_storage},
+            'electrical_storage': {'autosizer': building.autosize_electrical_storage},
             'pv': {'autosizer': building.autosize_pv}
         }
         solar_generation = kwargs.get('solar_generation')
@@ -1912,16 +1677,16 @@ class CityLearnEnv(Environment, Env):
         for device_name in device_metadata:
             if building_schema.get(device_name, None) is None:
                 device = None
-            
+
             elif device_name == 'pv' and not solar_generation:
                 device = None
-            
+
             else:
                 device_type: str = building_schema[device_name]['type']
                 device_module = '.'.join(device_type.split('.')[0:-1])
                 device_type_name = device_type.split('.')[-1]
-                constructor = getattr(importlib.import_module(device_module),device_type_name)
-                attributes = building_schema[device_name].get('attributes',{})
+                constructor = getattr(importlib.import_module(device_module), device_type_name)
+                attributes = building_schema[device_name].get('attributes', {})
                 attributes['seconds_per_time_step'] = schema['seconds_per_time_step']
 
                 # in case device technical specifications are to be randomly sampled, make sure each device per building has a unique seed
@@ -1933,43 +1698,113 @@ class CityLearnEnv(Environment, Env):
                     hash_to_integer_base = 16
                     device_random_seed += int(md5.hexdigest(), hash_to_integer_base)
 
-                device_random_seed = int(str(device_random_seed*(schema['random_seed'] + 1))[:9])
+                device_random_seed = int(str(device_random_seed * (schema['random_seed'] + 1))[:9])
 
                 attributes = {
                     **attributes,
-                    'random_seed': attributes['random_seed'] if attributes.get('random_seed', None) is not None else device_random_seed
+                    'random_seed': attributes['random_seed'] if attributes.get('random_seed',
+                                                                               None) is not None else device_random_seed
                 }
                 device = constructor(**attributes)
-                autosize = False if building_schema[device_name].get('autosize', None) is None else building_schema[device_name]['autosize']
+                autosize = False if building_schema[device_name].get('autosize', None) is None else \
+                building_schema[device_name]['autosize']
                 building.__setattr__(device_name, device)
 
                 if autosize:
                     autosizer = device_metadata[device_name]['autosizer']
-                    autosize_kwargs = {} if building_schema[device_name].get('autosize_attributes', None) is None else building_schema[device_name]['autosize_attributes']
+                    autosize_kwargs = {} if building_schema[device_name].get('autosize_attributes',
+                                                                             None) is None else \
+                    building_schema[device_name]['autosize_attributes']
 
                     if isinstance(device, PV):
-                        autosize_kwargs['epw_filepath'] = os.path.join(schema['root_directory'], autosize_kwargs['epw_filepath'])
+                        autosize_kwargs['epw_filepath'] = os.path.join(schema['root_directory'],
+                                                                       autosize_kwargs['epw_filepath'])
                         autosize_kwargs['sizing_data'] = pv_sizing_data
 
                     elif isinstance(device, Battery):
                         autosize_kwargs['sizing_data'] = battery_sizing_data
-                    
+
                     else:
                         pass
 
                     autosizer(**autosize_kwargs)
-                
+
                 else:
                     pass
 
                 # set back the random seed to to building's random seed
                 device.random_seed = schema['random_seed']
-        
+
         building.observation_space = building.estimate_observation_space()
         building.action_space = building.estimate_action_space()
 
         return building
-        
+
+    def _load_electric_vehicle(self, ev_name: str, schema: dict, episode_tracker: EpisodeTracker) -> ElectricVehicle:
+        """Initializes and returns an electric vehicle model."""
+        # Load energy simulation data for the EV
+
+        ev_schema = schema['buildings'][ev_name]
+
+        ev_simulation = pd.read_csv(
+            os.path.join(schema['root_directory'], ev_schema['energy_simulation'])
+        ).iloc[schema['simulation_start_time_step']:schema['simulation_end_time_step'] + 1].copy()
+        ev_simulation = ElectricVehicleSimulation(*ev_simulation.values.T)
+
+        # Observation and action metadata
+        ev_inactive_observations = ev_schema.get('inactive_observations', [])
+        ev_inactive_actions = ev_schema.get('inactive_actions', [])
+        ev_observation_metadata = {s: False if s in ev_inactive_observations else True for s in schema['chargers_observations']
+                                   if s != 'electric_vehicle_charger_state'}
+        ev_action_metadata = {a: False if a in ev_inactive_actions else True for a in schema['chargers_actions']}
+
+        # Construct the battery object
+        capacity = ev_schema["battery"]["attributes"]["capacity"]
+        nominal_power = ev_schema["battery"]["attributes"]["nominal_power"]
+        initial_soc = ev_schema["battery"]["attributes"]["initial_soc"]
+
+        battery = Battery(
+            capacity=capacity,
+            nominal_power=nominal_power,
+            initial_soc=initial_soc,
+            seconds_per_time_step=schema['seconds_per_time_step'],
+            random_seed=schema['random_seed'],
+            episode_tracker=episode_tracker
+        )
+
+        auxBattery = Battery(  # For tracking purposes only
+            capacity=capacity,
+            nominal_power=nominal_power,
+            initial_soc=initial_soc,
+            seconds_per_time_step=schema['seconds_per_time_step'],
+            random_seed=schema['random_seed'],
+            episode_tracker=episode_tracker
+        )
+
+        # Get the EV constructor
+        ev_type = 'citylearn.citylearn.electric_vehicle' if ev_schema.get('type', None) is None else ev_schema['type']
+        ev_type_module = '.'.join(ev_type.split('.')[0:-1])
+        ev_type_name = ev_type.split('.')[-1]
+        ev_constructor = getattr(importlib.import_module(ev_type_module), ev_type_name)
+
+        # Initialize EV
+        ev: ElectricVehicle = ev_constructor(
+            ev_simulation=ev_simulation,
+            observation_metadata=ev_observation_metadata,
+            action_metadata=ev_action_metadata,
+            battery=battery,
+            auxBattery=auxBattery,
+            name=ev_name,
+            seconds_per_time_step=schema['seconds_per_time_step'],
+            random_seed=schema['random_seed'],
+            episode_tracker=episode_tracker
+        )
+
+        ev.observation_space = ev.estimate_observation_space()
+        ev.action_space = ev.estimate_action_space()
+
+        return ev
+
 class Error(Exception):
     """Base class for other exceptions."""
 
@@ -1978,6 +1813,6 @@ class UnknownSchemaError(Error):
     __MESSAGE = 'Unknown schema parsed into constructor. Schema must be name of CityLearn data set,'\
         ' a filepath to JSON representation or `dict` object of a CityLearn schema.'\
         ' Call citylearn.data.DataSet.get_names() for list of available CityLearn data sets.'
-  
+
     def __init__(self,message=None):
         super().__init__(self.__MESSAGE if message is None else message)
