@@ -1132,7 +1132,7 @@ class Building(Environment):
         for charger in self.electric_vehicle_chargers:
             action_key = f'electric_vehicle_storage_{charger.charger_id}'
             electric_vehicle_action_value = electric_vehicle_storage_actions.get(charger.charger_id, 0.0)
-            actions[action_key] = (charger.update_connected_electric_vehicle_soc, (electric_vehicle_action_value,)) #Todo
+            actions[action_key] = (charger.update_connected_electric_vehicle_soc, (electric_vehicle_action_value,))
 
         electric_vehicle_priority_list = [f'electric_vehicle_storage_{charger.charger_id}' for charger in self.electric_vehicle_chargers]
         priority_list = priority_list + electric_vehicle_priority_list  # the priority lists are merged

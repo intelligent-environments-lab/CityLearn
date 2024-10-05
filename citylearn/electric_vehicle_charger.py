@@ -50,7 +50,7 @@ class Charger(Environment):
         self.min_discharging_power = min_discharging_power
         self.charge_efficiency_curve = charge_efficiency_curve
         self.discharge_efficiency_curve = discharge_efficiency_curve
-        self.connected_ev = connected_ev
+        self.connected_electric_vehicle = connected_ev
         self.incoming_electric_vehicle = incoming_ev
 
         arg_spec = inspect.getfullargspec(super().__init__)
@@ -109,7 +109,7 @@ class Charger(Environment):
         return self.__discharge_efficiency_curve
 
     @property
-    def connected_ev(self) -> ElectricVehicle:
+    def connected_electric_vehicle(self) -> ElectricVehicle:
         """Electric_Vehicle currently connected to charger"""
 
         return self.__connected_ev
@@ -215,8 +215,8 @@ class Charger(Environment):
             pass
         self.__discharge_efficiency_curve = np.array(discharge_efficiency_curve).T
 
-    @connected_ev.setter
-    def connected_ev(self, electric_vehicle: ElectricVehicle):
+    @connected_electric_vehicle.setter
+    def connected_electric_vehicle(self, electric_vehicle: ElectricVehicle):
             self.__connected_ev = electric_vehicle if electric_vehicle is None else None 
 
     @incoming_electric_vehicle.setter
@@ -268,7 +268,7 @@ class Charger(Environment):
             If the charger has reached its maximum connected electric_vehicle' capacity.
         """
         self.__past_connected_evs[self.time_step] = electric_vehicle
-        self.connected_ev = electric_vehicle
+        self.connected_electric_vehicle = electric_vehicle
 
     def unplug_car(self):
         """
@@ -279,7 +279,7 @@ class Charger(Environment):
         electric_vehicle : object
             electric_vehicle instance to be disconnected from the charger.
         """
-        self.connected_ev = None
+        self.connected_electric_vehicle = None
 
     def associate_incoming_car(self, electric_vehicle: ElectricVehicle):
         """
@@ -312,9 +312,9 @@ class Charger(Environment):
         self.incoming_electric_vehicle = None
 
     def update_connected_electric_vehicle_soc(self, action_value: float):
-        self.__past_charging_action_values[self.time_step] = action_value
-        if self.connected_ev and action_value != 0:
-            electric_vehicle = self.connected_ev
+        self.__past_charging_action_values[self.time_step] = action_value #ToDo
+        if self.connected_electric_vehicle and action_value != 0:
+            electric_vehicle = self.connected_electric_vehicle
             if action_value > 0:
                 energy = action_value * self.max_charging_power
             else:
@@ -327,9 +327,8 @@ class Charger(Environment):
                 energy = min(energy, electric_vehicle.battery.capacity - electric_vehicle.battery.soc[self.time_step])
             else:
                 # make sure we do not discharge beyond the minimum level (assuming it's zero)
-                max_discharge = - (electric_vehicle.battery.soc[self.time_step] - 0.10 * electric_vehicle.battery.capacity)
+                max_discharge = - (electric_vehicle.battery.soc[self.time_step] - electric_vehicle.min_battery_soc/100 * electric_vehicle.battery.capacity)
                 energy = max(energy, max_discharge)
-
 
             energy_kwh = energy * self.efficiency
 
@@ -354,7 +353,7 @@ class Charger(Environment):
         self.__electricity_consumption_without_partial_load.append(0.0)
         self.__past_connected_evs.append(None)
         self.__past_charging_action_values.append(0.0)
-        self.connected_ev = None
+        self.connected_electric_vehicle = None
         self.incoming_electric_vehicle = None
         super().next_time_step()
 
@@ -363,7 +362,7 @@ class Charger(Environment):
         Resets the Charger to its initial state by disconnecting all electric_vehicles.
         """
         super().reset()
-        self.connected_ev = None
+        self.connected_electric_vehicle = None
         self.incoming_electric_vehicle = None
         self.__electricity_consumption = [0.0]
         self.__electricity_consumption_without_partial_load = [0.0]
@@ -377,6 +376,6 @@ class Charger(Environment):
             f"electricity_consumption_without_partial_load: {self.electricity_consumption_without_partial_load} kW\n"
             f"past_connected_evs: {self.past_connected_evs} kW\n"
             f"past_charging_action_values: {self.past_charging_action_values} kW\n"
-            f"Currently Connected electric_vehicle: {self.connected_ev}\n"
+            f"Currently Connected electric_vehicle: {self.connected_electric_vehicle}\n"
             f"Incoming electric_vehicle: {self.incoming_electric_vehicle}\n"
        )
