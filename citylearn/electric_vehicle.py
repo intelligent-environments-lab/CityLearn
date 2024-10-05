@@ -57,7 +57,7 @@ class ElectricVehicle(Environment):
 
 
     @property
-    def ev_simulation(self) -> ElectricVehicleSimulation:
+    def electric_vehicle_simulation(self) -> ElectricVehicleSimulation:
         """Return the Electric_Vehicle simulation data."""
 
         return self.__ev_simulation
@@ -211,15 +211,15 @@ class ElectricVehicle(Environment):
 
     def next_time_step(self) -> Mapping[int, str]:
         """
-        Advance Electric_Vehicle to the next `time_step` by
+        Advance Electric_Vehicle to the next `time_step`s
         """
         self.battery.next_time_step()
         super().next_time_step()
 
-        if self.ev_simulation.electric_vehicle_charger_state[self.time_step] == 2:
-            self.adjust_electric_vehicle_soc_on_system_connection(self.ev_simulation.electric_vehicle_estimated_soc_arrival[self.time_step])
+        if self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step] == 2:
+            self.adjust_electric_vehicle_soc_on_system_connection(self.electric_vehicle_simulation.electric_vehicle_estimated_soc_arrival[self.time_step])
 
-        elif self.ev_simulation.electric_vehicle_charger_state[self.time_step] == 3:
+        elif self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step] == 3:
             self.adjust_electric_vehicle_soc_on_system_connection((self.battery.soc[-1] / self.battery.capacity)*100)
 
 
@@ -262,8 +262,8 @@ class ElectricVehicle(Environment):
 
         data = {
             **{
-                k.lstrip('_'): self.ev_simulation.__getattr__(k.lstrip('_'))[self.time_step]
-                for k, v in vars(self.ev_simulation).items() if isinstance(v, np.ndarray) and k not in unwanted_keys
+                k.lstrip('_'): self.electric_vehicle_simulation.__getattr__(k.lstrip('_'))[self.time_step]
+                for k, v in vars(self.electric_vehicle_simulation).items() if isinstance(v, np.ndarray) and k not in unwanted_keys
             },
             'electric_vehicle_soc': self.battery.soc[self.time_step] / self.battery.capacity
         }
@@ -445,14 +445,14 @@ class ElectricVehicle(Environment):
     def __str__(self):
         ev_simulation_attrs = [
             f"Electric_Vehicle simulation (time_step={self.time_step}):",
-            f"Month: {self.ev_simulation.month[self.time_step]}",
-            f"Hour: {self.ev_simulation.hour[self.time_step]}",
-            f"Day Type: {self.ev_simulation.day_type[self.time_step]}",
-            f"State: {self.ev_simulation.electric_vehicle_charger_state[self.time_step]}",
-            f"Estimated Departure Time: {self.ev_simulation.electric_vehicle_departure_time[self.time_step]}",
-            f"Required Soc At Departure: {self.ev_simulation.electric_vehicle_required_soc_departure[self.time_step]}",
-            f"Estimated Arrival Time: {self.ev_simulation.electric_vehicle_estimated_arrival_time[self.time_step]}",
-            f"Estimated Soc Arrival: {self.ev_simulation.electric_vehicle_estimated_soc_arrival[self.time_step]}"
+            f"Month: {self.electric_vehicle_simulation.month[self.time_step]}",
+            f"Hour: {self.electric_vehicle_simulation.hour[self.time_step]}",
+            f"Day Type: {self.electric_vehicle_simulation.day_type[self.time_step]}",
+            f"State: {self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step]}",
+            f"Estimated Departure Time: {self.electric_vehicle_simulation.electric_vehicle_departure_time[self.time_step]}",
+            f"Required Soc At Departure: {self.electric_vehicle_simulation.electric_vehicle_required_soc_departure[self.time_step]}",
+            f"Estimated Arrival Time: {self.electric_vehicle_simulation.electric_vehicle_estimated_arrival_time[self.time_step]}",
+            f"Estimated Soc Arrival: {self.electric_vehicle_simulation.electric_vehicle_estimated_soc_arrival[self.time_step]}"
         ]
 
         ev_simulation_str = '\n'.join(ev_simulation_attrs)

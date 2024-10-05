@@ -403,7 +403,7 @@ class CarbonIntensity(TimeSeriesData):
 
 
 class ElectricVehicleSimulation(TimeSeriesData):
-    """`Electric_Vehicle` `ev_simulation` data class.
+    """`Electric_Vehicle` `electric_vehicle_simulation` data class.
 
     Month,Hour,Day Type,Location,Estimated Departure Time,Required Soc At Departure
 

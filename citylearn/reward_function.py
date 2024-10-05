@@ -590,10 +590,10 @@ class V2GPenaltyReward(MARL):
 
                 # 4. Penalties (or Reward) for SoC differences
                 if last_connected_car is not None:
-                    required_soc = last_connected_car.ev_simulation.required_soc_departure[-1]
+                    required_soc = last_connected_car.electric_vehicle_simulation.required_soc_departure[-1]
                     actual_soc = last_connected_car.battery.soc[-1]
 
-                    hours_until_departure = last_connected_car.ev_simulation.estimated_departure_time[-1]
+                    hours_until_departure = last_connected_car.electric_vehicle_simulation.estimated_departure_time[-1]
                     max_possible_charge = c.max_charging_power * hours_until_departure
                     max_possible_discharge = c.max_discharging_power * hours_until_departure
 
