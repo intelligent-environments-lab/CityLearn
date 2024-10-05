@@ -10,7 +10,7 @@ class Charger(Environment):
     def __init__(
             self, nominal_power: float, efficiency: float = None, charger_id: str = None, charger_type: int = None, max_charging_power: float = None,
             min_charging_power: float = None, max_discharging_power: float = None,  min_discharging_power: float = None, charge_efficiency_curve: Dict[float, float] = None,
-            discharge_efficiency_curve: Dict[float, float] = None, connected_ev: ElectricVehicle = None, incoming_ev: ElectricVehicle = None,
+            discharge_efficiency_curve: Dict[float, float] = None, connected_electric_vehicle: ElectricVehicle = None, incoming_electric_vehicle: ElectricVehicle = None,
             **kwargs
     ):
         r"""Initializes the `Electric Vehicle Charger` class with the given attributes.
@@ -50,8 +50,8 @@ class Charger(Environment):
         self.min_discharging_power = min_discharging_power
         self.charge_efficiency_curve = charge_efficiency_curve
         self.discharge_efficiency_curve = discharge_efficiency_curve
-        self.connected_electric_vehicle = connected_ev
-        self.incoming_electric_vehicle = incoming_ev
+        self.connected_electric_vehicle = connected_electric_vehicle
+        self.incoming_electric_vehicle = incoming_electric_vehicle
 
         arg_spec = inspect.getfullargspec(super().__init__)
         kwargs = {
@@ -151,12 +151,6 @@ class Charger(Environment):
         return self.__electricity_consumption
 
     @property
-    def electricity_consumption_without_partial_load(self) -> List[float]:
-        r"""Electricity consumption time series in the case of EVs are not being controlled by an algorithm"""
-
-        return self.__electricity_consumption_without_partial_load
-
-    @property
     def available_nominal_power(self) -> float:
         r"""Difference between `nominal_power` and `electricity_consumption` at current `time_step`."""
 
@@ -238,19 +232,6 @@ class Charger(Environment):
             else:
                 assert nominal_power >= 0, 'nominal_power must be >= 0.'
                 self.__nominal_power = nominal_power
-
-    
-    def update_electricity_consumption(self, electricity_consumption: float):
-        r"""Updates `electricity_consumption` at current `time_step`.
-
-        Parameters
-        ----------
-        electricity_consumption : float
-            value to add to current `time_step` `electricity_consumption`. Must be >= 0.
-        """
-
-        assert electricity_consumption >= 0, 'electricity_consumption must be >= 0.'
-        self.__electricity_consumption[self.time_step] += electricity_consumption
 
 
     def plug_car(self, electric_vehicle: ElectricVehicle):
@@ -336,21 +317,13 @@ class Charger(Environment):
             # negative for discharging)
             electric_vehicle.battery.charge(energy_kwh)
             self.__electricity_consumption[self.time_step] = electric_vehicle.battery.electricity_consumption[-1]
-
-            #charge for maintaining the case of no partial load, this is just for result comparison and is done to a no partial load battery
-
-            energy_aux = min(self.max_charging_power, (electric_vehicle.aux_battery.capacity * electric_vehicle.electric_vehicle_simulation.electric_vehicle_required_soc_departure[self.time_step]) - electric_vehicle.aux_battery.soc[self.time_step])
-            electric_vehicle.aux_battery.charge(energy_aux)
-            self.__electricity_consumption_without_partial_load[self.time_step] = electric_vehicle.aux_battery.electricity_consumption[-1]
         else:
             self.__electricity_consumption[self.time_step] = 0
-            self.__electricity_consumption_without_partial_load[self.time_step] = 0
 
     def next_time_step(self):
         r"""Advance to next `time_step` and set `electricity_consumption` at new `time_step` to 0.0."""
 
         self.__electricity_consumption.append(0.0)
-        self.__electricity_consumption_without_partial_load.append(0.0)
         self.__past_connected_evs.append(None)
         self.__past_charging_action_values.append(0.0)
         self.connected_electric_vehicle = None
@@ -365,7 +338,6 @@ class Charger(Environment):
         self.connected_electric_vehicle = None
         self.incoming_electric_vehicle = None
         self.__electricity_consumption = [0.0]
-        self.__electricity_consumption_without_partial_load = [0.0]
         self.__past_connected_evs = [None]
         self.__past_charging_action_values = [0.0]
 
@@ -373,7 +345,6 @@ class Charger(Environment):
        return (
             f"Charger ID: {self.charger_id}\n"
             f"electricity consumption: {self.electricity_consumption} kW\n"
-            f"electricity_consumption_without_partial_load: {self.electricity_consumption_without_partial_load} kW\n"
             f"past_connected_evs: {self.past_connected_evs} kW\n"
             f"past_charging_action_values: {self.past_charging_action_values} kW\n"
             f"Currently Connected electric_vehicle: {self.connected_electric_vehicle}\n"
