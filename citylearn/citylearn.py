@@ -1762,6 +1762,7 @@ class CityLearnEnv(Environment, Env):
         capacity = electric_vehicle_schema["battery"]["attributes"]["capacity"]
         nominal_power = electric_vehicle_schema["battery"]["attributes"]["nominal_power"]
         initial_soc = electric_vehicle_schema["battery"]["attributes"]["initial_soc"]
+        min_battery_soc = electric_vehicle_schema["battery"]["attributes"]["min_battery_soc"]
 
         battery = Battery(
             capacity=capacity,
@@ -1769,6 +1770,7 @@ class CityLearnEnv(Environment, Env):
             initial_soc=initial_soc,
             seconds_per_time_step=schema['seconds_per_time_step'],
             random_seed=schema['random_seed'],
+            min_battery_soc=min_battery_soc,
             episode_tracker=episode_tracker
         )
 

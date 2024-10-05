@@ -128,7 +128,7 @@ class ElectricVehicle(Environment):
     @min_battery_soc.setter
     def min_battery_soc(self, min_battery_soc: str):
         if min_battery_soc is None:
-            self.__min_battery_soc = 20.0
+            self.__min_battery_soc = 10.0
         else:
             self.__min_battery_soc = min_battery_soc
 

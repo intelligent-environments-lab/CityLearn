@@ -225,7 +225,8 @@
         "attributes": {
           "capacity": 40,
           "nominal_power": 50,
-          "initial_soc": 0.25
+          "initial_soc": 0.25,
+          "min_battery_soc": 0.10
         }
       }
     },
