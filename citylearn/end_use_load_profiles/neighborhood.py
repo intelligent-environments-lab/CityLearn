@@ -22,7 +22,6 @@ from citylearn.dynamics import LSTMDynamics
 from citylearn.end_use_load_profiles.clustering import MetadataClustering
 from citylearn.end_use_load_profiles.lstm_model.model_generation_wrapper import run_one_model
 from citylearn.end_use_load_profiles.simulate import EndUseLoadProfilesEnergyPlusPartialLoadSimulator
-from citylearn.end_use_load_profiles.lstm_model.classes import LSTM
 from citylearn.preprocessing import PeriodicNormalization, Normalize
 from citylearn.utilities import read_json, write_json
 
@@ -87,7 +86,8 @@ class Neighborhood:
 
     def __init__(
         self, weather_data: str = None, year_of_publication: int = None, release: int = None, cache: bool = None,
-        energyplus_output_directory: Union[Path, str] = None, dataset_directory: Union[Path, str] = None, lstm_directory: Union[Path, str] = None, max_workers: int = None, random_seed: int = None
+        energyplus_output_directory: Union[Path, str] = None, dataset_directory: Union[Path, str] = None,
+        max_workers: int = None, random_seed: int = None
     ) -> None:
         self.__end_use_load_profiles = EndUseLoadProfiles(
             dataset_type=VersionDatasetType.RESSTOCK,
@@ -98,7 +98,6 @@ class Neighborhood:
         )
         self.energyplus_output_directory = energyplus_output_directory
         self.dataset_directory = dataset_directory
-        self.lstm_directory = lstm_directory
         self.max_workers = max_workers
         self.random_seed = random_seed
 
@@ -113,10 +112,6 @@ class Neighborhood:
     @property
     def dataset_directory(self) -> Union[Path, str]:
         return self.__dataset_directory
-
-    @property
-    def lstm_directory(self) -> Union[Path, str]:
-        return self.__lstm_directory
     
     @property
     def max_workers(self) -> int:
@@ -133,10 +128,6 @@ class Neighborhood:
     @dataset_directory.setter
     def dataset_directory(self, value: Union[Path, str]):
         self.__dataset_directory = 'datasets' if value is None else value
-
-    @lstm_directory.setter
-    def lstm_directory(self, value: Union[Path, str]):
-        self.__lstm_directory = 'lstm_output' if value is None else value
 
     @max_workers.setter
     def max_workers(self, value: int):
@@ -274,9 +265,10 @@ class Neighborhood:
 
         ## cyclic normalization
         for c, m in Building.get_periodic_observation_metadata().items():
-            sin_x, cos_x = training_data[c]*PeriodicNormalization(x_max=m[1])
-            training_data[f'{c}_sin'] = sin_x
-            training_data[f'{c}_cos'] = cos_x
+            result = training_data[c]*PeriodicNormalization(x_max=m[1])
+            result = pd.DataFrame(result.tolist(), index=result.index)
+            training_data[f'{c}_sin'] = result[0].tolist()
+            training_data[f'{c}_cos'] = result[1].tolist()
 
         input_columns = []
         
@@ -328,7 +320,7 @@ class Neighborhood:
 
         return bldg_id, pd.concat(data_list, ignore_index=True)
 
-    def set_schema(self, simulators: BuildingsSimulators, lstm_models: Mapping[int, Mapping[str, Union[LSTM, dict]]] = None, template: Mapping[str, Union[dict, float, int, str]] = None, metadata: pd.DataFrame = None, dataset_name: str = None, schema_directory: Union[Path, str] = None, weather_kwargs: dict = None) -> Path:
+    def set_schema(self, simulators: BuildingsSimulators, lstm_models: Mapping[int, Mapping[str, Any]] = None, template: Mapping[str, Union[dict, float, int, str]] = None, metadata: pd.DataFrame = None, dataset_name: str = None, schema_directory: Union[Path, str] = None, weather_kwargs: dict = None) -> Path:
         template = get_settings()['schema']['template'] if template is None else template
         lstm_models = {} if lstm_models is None else lstm_models
         metadata = self.end_use_load_profiles.metadata.metadata.get().to_dict('index') if metadata is None else metadata
@@ -489,17 +481,10 @@ class Neighborhood:
 
         return data
     
-    def train_lstm(self, data: Mapping[int, pd.DataFrame], config: Mapping[str, Any] = None, seed: int = None, delete_files: bool = None) -> Mapping[int, Mapping[str, Union[LSTM, dict]]]:
+    def train_lstm(self, data: Mapping[int, pd.DataFrame], config: Mapping[str, Any] = None, seed: int = None) -> Mapping[int, Mapping[str, Any]]:
         seed = self.random_seed if seed is None else seed
-        delete_files = True if delete_files is None else delete_files
         config = get_settings()['lstm']['train']['config'] if config is None else config
-        data = {k: run_one_model(config, k, v, self.lstm_directory, seed) for k, v in data.items()}
-        
-        if delete_files and os.path.isdir(self.lstm_directory):
-            shutil.rmtree(self.lstm_directory)
-        
-        else:
-            pass
+        data = {k: run_one_model(config, v, seed) for k, v in data.items()}
 
         return data
     
