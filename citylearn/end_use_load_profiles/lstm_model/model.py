@@ -1,9 +1,8 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 class LSTM(nn.Module):
-    def __init__(self, n_features, n_output, drop_prob, seq_len, num_hidden, num_layers, weight_decay):
+    def __init__(self, n_features: int, n_output: int, drop_prob: float, seq_len: int, num_hidden: int, num_layers: int, weight_decay: float):
         super(LSTM, self).__init__()
 
         self.n_features = n_features  # number of inputs variable
