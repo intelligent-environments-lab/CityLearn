@@ -22,6 +22,7 @@ from citylearn.dynamics import LSTMDynamics
 from citylearn.end_use_load_profiles.clustering import MetadataClustering
 from citylearn.end_use_load_profiles.lstm_model.model_generation_wrapper import run_one_model
 from citylearn.end_use_load_profiles.simulate import EndUseLoadProfilesEnergyPlusPartialLoadSimulator
+from citylearn.end_use_load_profiles.lstm_model.classes import LSTM
 from citylearn.preprocessing import PeriodicNormalization, Normalize
 from citylearn.utilities import read_json, write_json
 
@@ -114,7 +115,7 @@ class Neighborhood:
         return self.__dataset_directory
 
     @property
-    def lstm_model(self) -> Union[Path, str]:
+    def lstm_directory(self) -> Union[Path, str]:
         return self.__lstm_directory
     
     @property
@@ -135,7 +136,7 @@ class Neighborhood:
 
     @lstm_directory.setter
     def lstm_directory(self, value: Union[Path, str]):
-        self.__lstm_directory = 'lstm_models' if value is None else value
+        self.__lstm_directory = 'lstm_output' if value is None else value
 
     @max_workers.setter
     def max_workers(self, value: int):
@@ -228,12 +229,12 @@ class Neighborhood:
                 data_list.append(lstm_prediction_data)
 
             lstm_prediction_data = pd.concat(data_list, ignore_index=True)
-            rmse_data = lstm_prediction_data.groupby(['bldg_id', 'month'])[['indoor_air_temperature','indoor_air_temperature_predicted']].apply(
-                lambda x: mean_squared_error(x['indoor_air_temperature'], x['indoor_air_temperature_predicted']
+            rmse_data = lstm_prediction_data.groupby(['bldg_id', 'month'])[['indoor_dry_bulb_temperature','indoor_dry_bulb_temperature_predicted']].apply(
+                lambda x: mean_squared_error(x['indoor_dry_bulb_temperature'], x['indoor_dry_bulb_temperature_predicted']
             )).reset_index(name='rmse')
             rmse_data['rmse'] = rmse_data['rmse']**0.5
-            mape_data = lstm_prediction_data.groupby(['bldg_id', 'month'])[['indoor_air_temperature','indoor_air_temperature_predicted']].apply(
-                lambda x: mean_absolute_percentage_error(x['indoor_air_temperature'], x['indoor_air_temperature_predicted']
+            mape_data = lstm_prediction_data.groupby(['bldg_id', 'month'])[['indoor_dry_bulb_temperature','indoor_dry_bulb_temperature_predicted']].apply(
+                lambda x: mean_absolute_percentage_error(x['indoor_dry_bulb_temperature'], x['indoor_dry_bulb_temperature_predicted']
             )).reset_index(name='mape')
             mape_data['mape'] = mape_data['mape']*100.0
             lstm_error_data = rmse_data.merge(mape_data, on=['bldg_id', 'month'])
@@ -327,7 +328,7 @@ class Neighborhood:
 
         return bldg_id, pd.concat(data_list, ignore_index=True)
 
-    def set_schema(self, simulators: BuildingsSimulators, lstm_models: Mapping[int, Mapping[str, Any]] = None, template: Mapping[str, Union[dict, float, int, str]] = None, metadata: pd.DataFrame = None, dataset_name: str = None, schema_directory: Union[Path, str] = None, weather_kwargs: dict = None) -> Path:
+    def set_schema(self, simulators: BuildingsSimulators, lstm_models: Mapping[int, Mapping[str, Union[LSTM, dict]]] = None, template: Mapping[str, Union[dict, float, int, str]] = None, metadata: pd.DataFrame = None, dataset_name: str = None, schema_directory: Union[Path, str] = None, weather_kwargs: dict = None) -> Path:
         template = get_settings()['schema']['template'] if template is None else template
         lstm_models = {} if lstm_models is None else lstm_models
         metadata = self.end_use_load_profiles.metadata.metadata.get().to_dict('index') if metadata is None else metadata
@@ -423,6 +424,10 @@ class Neighborhood:
                 building['dynamics']['attributes']['input_observation_names'] = lstm_model['attributes']['observation_names']
                 building['dynamics']['attributes']['input_normalization_minimum'] = lstm_model['attributes']['normalization_minimum']
                 building['dynamics']['attributes']['input_normalization_maximum'] = lstm_model['attributes']['normalization_maximum']
+                torch.save(
+                    lstm_model['model'].state_dict(), 
+                    os.path.join(schema_directory, building['dynamics']['attributes']['filename'])
+                )
 
             # set building schema
             template['buildings'][bldg_key] = building
@@ -454,10 +459,10 @@ class Neighborhood:
             if accuracy is None else accuracy
 
         for c in columns:
-            for s, a in zip(shifts, accuracy[c]):
+            for i, (s, a) in enumerate(zip(shifts, accuracy[c])):
                 arr = np.roll(data[c], shift=-s)
                 nprs = np.random.RandomState(self.random_seed)
-                shift_column = f'{c}_predicted_{s}h'
+                shift_column = f'{c}_predicted_{int(i + 1)}'
 
                 if c in ['outdoor_dry_bulb_temperature']:
                     data[shift_column] = arr + nprs.uniform(-a, a, len(arr))
@@ -484,23 +489,19 @@ class Neighborhood:
 
         return data
     
-    def train_lstm(data: Mapping[int, pd.DataFrame], config: Mapping[str, Any] = None, directory: str = None, seed: int = 0, delete_files: bool = True) -> Mapping[int, Mapping[str, Any]]:
-        """
-        TODO: Satvik & Pavani
-        1. Install training repo using pip.
-        2. Parse training data and custom kwargs for training to some function in the training package
-           that trains and finds a best model for the building
-        3. Train the building LSTM and return .pth, normalization limits, & error metrics
-        """
-        directory = "models" if directory is None else directory
-        config = get_settings()['lstm']['config'] if config is None else config
-        d = {
-            df_id: run_one_model(config, df_id, data[df_id], kwargs["n_tries"], directory, seed)
-            for df_id in data
-        }
-        if delete_files:
-            os.system(f"rm -rf {directory}") # might not be safe
-        return d
+    def train_lstm(self, data: Mapping[int, pd.DataFrame], config: Mapping[str, Any] = None, seed: int = None, delete_files: bool = None) -> Mapping[int, Mapping[str, Union[LSTM, dict]]]:
+        seed = self.random_seed if seed is None else seed
+        delete_files = True if delete_files is None else delete_files
+        config = get_settings()['lstm']['train']['config'] if config is None else config
+        data = {k: run_one_model(config, k, v, self.lstm_directory, seed) for k, v in data.items()}
+        
+        if delete_files and os.path.isdir(self.lstm_directory):
+            shutil.rmtree(self.lstm_directory)
+        
+        else:
+            pass
+
+        return data
     
     def get_lstm_training_data(self, simulators: BuildingsSimulators) -> Mapping[int, pd.DataFrame]:
         data = {}
