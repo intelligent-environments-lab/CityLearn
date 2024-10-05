@@ -933,8 +933,33 @@ class CityLearnEnv(Environment, Env):
                 f'Expected {expected_number_of_actions} for {b.name} but {number_of_actions} actions were provided.'
 
         active_actions = [[k for k, v in b.action_metadata.items() if v] for b in self.buildings]
-        actions = [{k:a for k, a in zip(active_actions[i],building_actions[i])} for i in range(len(active_actions))]
-        actions = [{f'{k}_action':actions[i].get(k, np.nan) for k in b.action_metadata} for i, b in enumerate(self.buildings)]
+
+        # Create a list of dictionaries for actions including EV-specific actions
+        parsed_actions = []
+        for i, building in enumerate(self.buildings):
+            action_dict = {}
+            electric_vehicle_actions = {}
+
+            # Populate the action_dict with regular actions
+            for k, action in zip(active_actions[i], building_actions[i]):
+                if 'electric_vehicle_storage' in k:
+                    # Collect EV actions separately
+                    charger_id = k.split('_')[
+                        -1]  # Assuming the key format contains charger ID, e.g., 'electric_vehicle_storage_1'
+                    electric_vehicle_actions[charger_id] = action
+                else:
+                    action_dict[f'{k}_action'] = action
+
+            # Add EV actions to the action_dict if they exist
+            if electric_vehicle_actions:
+                action_dict['electric_vehicle_storage_actions'] = electric_vehicle_actions
+
+            # Fill missing actions with default NaN
+            for k in building.action_metadata:
+                if f'{k}_action' not in action_dict and 'electric_vehicle_storage' not in k:
+                    action_dict[f'{k}_action'] = np.nan
+
+            parsed_actions.append(action_dict)
 
         return actions
 
