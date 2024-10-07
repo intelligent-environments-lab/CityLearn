@@ -1375,9 +1375,9 @@ class CityLearnEnv(Environment, Env):
             'central_agent']
 
         #Separated chargers observations to create one for each charger at each building based on active ones at the schema
-        schema['chargers_observations_helper'] = {key: value for key, value in self.schema["observations"].items() if key.startswith("electric_vehicle_")}
-        schema['chargers_actions_helper'] = {key: value for key, value in self.schema["actions"].items() if key.startswith("electric_vehicle_")}
-        schema['chargers_shared_observations_helper'] = {key: value for key, value in self.schema["observations"].items() if
+        schema['chargers_observations_helper'] = {key: value for key, value in schema["observations"].items() if key.startswith("electric_vehicle_")}
+        schema['chargers_actions_helper'] = {key: value for key, value in schema["actions"].items() if key.startswith("electric_vehicle_")}
+        schema['chargers_shared_observations_helper'] = {key: value for key, value in schema["observations"].items() if
                                         key.startswith("electric_vehicle_") and value.get("shared_in_central_agent", True)}
 
         # Update shared observations, excluding any keys that start with 'electric_vehicle_'

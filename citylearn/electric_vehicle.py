@@ -221,6 +221,7 @@ class ElectricVehicle(Environment):
 
         elif self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step] == 3:
             self.adjust_electric_vehicle_soc_on_system_connection((self.battery.soc[-1] / self.battery.capacity)*100)
+            #ToDo here might be better to add only Nan as the vehicle is disconnencted
 
 
     def reset(self):
@@ -228,9 +229,6 @@ class ElectricVehicle(Environment):
         Reset the EVCar to its initial state.
         """
         super().reset()
-
-        #object reset
-        #ToDO Problem Here
 
         self.battery.reset()
 

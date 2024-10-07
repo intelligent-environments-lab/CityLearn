@@ -8,7 +8,7 @@ from citylearn.agents.rbc import BasicRBC as Agent
 from citylearn.citylearn import CityLearnEnv
 from citylearn.electric_vehicle import ElectricVehicle
 
-dataset_name = 'citylearn_2022_phase_all_plus_evs'
+dataset_name = 'citylearn_challenge_2022_phase_all_plus_evs'
 
 # dataset_name = 'citylearn_challenge_2023_phase_2_local_evaluation'
 env = CityLearnEnv(dataset_name, central_agent=True)

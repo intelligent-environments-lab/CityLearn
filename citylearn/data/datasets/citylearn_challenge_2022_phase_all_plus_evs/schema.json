@@ -1,196 +1,210 @@
-{ 
-  "random_seed": 12345,
+{
+  "random_seed": 2022,
   "root_directory": null,
   "central_agent": false,
   "simulation_start_time_step": 0,
   "simulation_end_time_step": 8759,
-  "episodes": 1,
+  "episode_time_steps": null,
+  "rolling_episode_split": false,
+  "random_episode_split": false,
   "seconds_per_time_step": 3600,
   "observations": {
-      "month": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "day_type": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "hour": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "daylight_savings_status": {
-        "active": false,
-        "shared_in_central_agent": true
-      },
-      "outdoor_dry_bulb_temperature": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "outdoor_dry_bulb_temperature_predicted_6h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "outdoor_dry_bulb_temperature_predicted_12h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "outdoor_dry_bulb_temperature_predicted_24h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "outdoor_relative_humidity": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "outdoor_relative_humidity_predicted_6h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "outdoor_relative_humidity_predicted_12h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "outdoor_relative_humidity_predicted_24h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "diffuse_solar_irradiance": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "diffuse_solar_irradiance_predicted_6h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "diffuse_solar_irradiance_predicted_12h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "diffuse_solar_irradiance_predicted_24h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "direct_solar_irradiance": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "direct_solar_irradiance_predicted_6h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "direct_solar_irradiance_predicted_12h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "direct_solar_irradiance_predicted_24h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "carbon_intensity": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "indoor_dry_bulb_temperature": {
-        "active": false,
-        "shared_in_central_agent": false
-      },
-      "average_unmet_cooling_setpoint_difference": {
-        "active": false,
-        "shared_in_central_agent": false
-      },
-      "indoor_relative_humidity": {
-        "active": false,
-        "shared_in_central_agent": false
-      },
-      "non_shiftable_load": {
-        "active": true,
-        "shared_in_central_agent": false
-      },
-      "solar_generation": {
-        "active": true,
-        "shared_in_central_agent": false
-      },
-      "cooling_storage_soc": {
-        "active": false,
-        "shared_in_central_agent": false
-      },
-      "heating_storage_soc": {
-        "active": false,
-        "shared_in_central_agent": false
-      },
-      "dhw_storage_soc": {
-        "active": false,
-        "shared_in_central_agent": false
-      },
-      "electrical_storage_soc": {
-        "active": true,
-        "shared_in_central_agent": false
-      },
-      "net_electricity_consumption": {
-        "active": true,
-        "shared_in_central_agent": false
-      },
-      "electricity_pricing": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "electricity_pricing_predicted_6h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "electricity_pricing_predicted_12h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "electricity_pricing_predicted_24h": {
-        "active": true,
-        "shared_in_central_agent": true
-      },
-      "electric_vehicle_charger_state": {
-        "active": true,
-        "shared_in_central_agent": false
-      },
-      "electric_vehicle_departure_time": {
-        "active": true,
-        "shared_in_central_agent": false
-      },
-      "electric_vehicle_required_soc_departure": {
-        "active": true,
-        "shared_in_central_agent": false
-      },
-      "electric_vehicle_estimated_arrival_time": {
-        "active": true,
-        "shared_in_central_agent": false
-      },
-      "electric_vehicle_estimated_soc_arrival": {
-        "active": true,
-        "shared_in_central_agent": false
-      },
-      "electric_vehicle_soc": {
-        "active": true,
-        "shared_in_central_agent": false
-      }
+    "month": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "day_type": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "hour": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "daylight_savings_status": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "carbon_intensity": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "indoor_dry_bulb_temperature": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "average_unmet_cooling_setpoint_difference": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "indoor_relative_humidity": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "non_shiftable_load": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "solar_generation": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "cooling_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "heating_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "dhw_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "electrical_storage_soc": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "net_electricity_consumption": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electricity_pricing": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "electricity_pricing_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "electricity_pricing_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "electricity_pricing_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "power_outage": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "hvac_mode": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "comfort_band": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_charger_state": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_departure_time": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_required_soc_departure": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_estimated_arrival_time": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_estimated_soc_arrival": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_soc": {
+      "active": true,
+      "shared_in_central_agent": false
+    }
   },
   "actions": {
       "cooling_storage": {
-        "active": false
-      },
-      "heating_storage": {
-        "active": false
-      },
-      "dhw_storage": {
-        "active": false
-      },
-      "electrical_storage": {
-        "active": true
-      },
-      "electric_vehicle_storage": {
-        "active": true
-      }
+      "active": false
+    },
+    "heating_storage": {
+      "active": false
+    },
+    "dhw_storage": {
+      "active": false
+    },
+    "electrical_storage": {
+      "active": true
+    },
+    "electric_vehicle_storage": {
+      "active": true
+    }
   },
   "agent": {
-    "type": "citylearn.agents.sac.SAC",
+    "type": "citylearn.agents.rbc.BasicRBC",
     "attributes": {
       "hidden_dimension": [
         256,
@@ -209,9 +223,8 @@
     }
   },
   "reward_function": {
-    "type": "citylearn.reward_function.MARL",
-    "attributes": {
-    }
+    "type": "citylearn.reward_function.RewardFunction",
+    "attributes": null
   },
   "Electric_vehicles_def": {
     "Electric_Vehicle_1": {
