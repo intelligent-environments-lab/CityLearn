@@ -37,11 +37,16 @@ class SampleMethod(Enum):
     METADATA_CLUSTER_FREQUENCY = 1
 
 class NeighborhoodBuild:
-    def __init__(self, schema_filepath: Path, test_evaluation: pd.DataFrame, lstm_prediction_data: pd.DataFrame, lstm_error_data: pd.DataFrame, bldg_ids: List[int], sample_cluster_labels: List[int], sample_metadata: Mapping[str, Any], simulators: BuildingsSimulators):
+    def __init__(
+        self, schema_filepath: Path, citylearn_simulation_test_evaluation: pd.DataFrame, citylearn_simulation_lstm_prediction_data: Mapping[int, pd.DataFrame], 
+        citylearn_simulation_lstm_error_data: Mapping[int, pd.DataFrame], lstm_test_data: Mapping[int, pd.DataFrame], bldg_ids: List[int], sample_cluster_labels: List[int], 
+        sample_metadata: Mapping[str, Any], simulators: BuildingsSimulators
+    ):
         self._schema_filepath = schema_filepath
-        self._test_evaluation = test_evaluation
-        self._lstm_prediction_data = lstm_prediction_data
-        self._lstm_error_data = lstm_error_data
+        self._citylearn_simulation_test_evaluation = citylearn_simulation_test_evaluation
+        self._citylearn_simulation_lstm_prediction_data = citylearn_simulation_lstm_prediction_data
+        self._citylearn_simulation_lstm_error_data = citylearn_simulation_lstm_error_data
+        self._lstm_test_data = lstm_test_data
         self._bldg_ids = bldg_ids
         self._sample_cluster_labels = sample_cluster_labels
         self._sample_metadata = sample_metadata
@@ -52,16 +57,20 @@ class NeighborhoodBuild:
         return self._schema_filepath
 
     @property
-    def test_evaluation(self) -> pd.DataFrame:
-        return self._test_evaluation
+    def citylearn_simulation_test_evaluation(self) -> pd.DataFrame:
+        return self._citylearn_simulation_test_evaluation
     
     @property
-    def lstm_prediction_data(self) -> pd.DataFrame:
-        return self._lstm_prediction_data
+    def citylearn_simulation_lstm_prediction_data(self) -> Mapping[int, pd.DataFrame]:
+        return self._citylearn_simulation_lstm_prediction_data
     
     @property
-    def lstm_error_data(self) -> pd.DataFrame:
-        return self._lstm_error_data
+    def citylearn_simulation_lstm_error_data(self) -> Mapping[int, pd.DataFrame]:
+        return self._citylearn_simulation_lstm_error_data
+    
+    @property
+    def lstm_test_data(self) -> Mapping[int, pd.DataFrame]:
+        return self._lstm_test_data
     
     @property
     def bldg_ids(self) -> List[int]:
@@ -138,53 +147,88 @@ class Neighborhood:
         self.__random_seed = random.randint(*Environment.DEFAULT_RANDOM_SEED_RANGE) if value is None else value
 
     def build(
-        self, idd_filepath: Union[Path, str], bldg_ids: List[int] = None, sample_buildings_kwargs: Mapping[str, Any] = None, 
-        energyplus_simulation_kwargs: Mapping[str, Any] = None, train_lstm_kwargs: Mapping[str, Any] = None, schema_kwargs: Mapping[str, Any] = None,
-        include_lstm_models: bool = None, test_lstm_models: bool = None, test_initialization: bool = None, delete_simulation_output: bool = None,
+        self, idd_filepath: Union[Path, str], bldg_ids: List[int] = None, include_lstm_models: bool = None, test_lstm_models: bool = None, 
+        test_citylearn_simulation: bool = None, delete_energyplus_simulation_output: bool = None, sample_buildings_kwargs: Mapping[str, Any] = None, 
+        energyplus_simulation_kwargs: Mapping[str, Any] = None, train_lstm_kwargs: Mapping[str, Any] = None, schema_kwargs: Mapping[str, Any] = None, 
+        test_citylearn_simulation_kwargs: Mapping[str, Any] = None
     ) -> NeighborhoodBuild:
         sample_buildings_kwargs = {} if sample_buildings_kwargs is None else sample_buildings_kwargs
         energyplus_simulation_kwargs = {} if energyplus_simulation_kwargs is None else energyplus_simulation_kwargs
         train_lstm_kwargs = {} if train_lstm_kwargs is None else train_lstm_kwargs
         schema_kwargs = {} if schema_kwargs is None else schema_kwargs
-        include_lstm_models = False if include_lstm_models is None else include_lstm_models
-        test_initialization = True if test_initialization is None else test_initialization
-        test_lstm_models = False if test_lstm_models is None else test_lstm_models
-        delete_simulation_output = False if delete_simulation_output is None else delete_simulation_output
+        test_citylearn_simulation_kwargs = {} if test_citylearn_simulation_kwargs is None else test_citylearn_simulation_kwargs
+        include_lstm_models = True if include_lstm_models is None else include_lstm_models
+        test_citylearn_simulation = True if test_citylearn_simulation is None else test_citylearn_simulation
+        test_lstm_models = True if test_lstm_models is None else test_lstm_models
+        delete_energyplus_simulation_output = False if delete_energyplus_simulation_output is None else delete_energyplus_simulation_output
 
-        bldg_ids, labels, sample_metadata = self.sample_buildings(**sample_buildings_kwargs) if bldg_ids is None else (bldg_ids, None, None)
-        simulators = self.simulate_energy_plus(bldg_ids, idd_filepath, **energyplus_simulation_kwargs)
+        labels = None
+        sample_metadata = None
+        simulators = None
+        lstm_training_data = None
+        lstm_models = None
+        schema_filepath = None
+        citylearn_simulation_evaluation = None 
+        citylearn_simulation_lstm_prediction_data = None
+        citylearn_simulation_lstm_error_data = None
+        lstm_test_data = None
 
-        if include_lstm_models:
-            lstm_training_data = self.get_lstm_training_data(simulators)
-            lstm_models = self.train_lstm(lstm_training_data, **train_lstm_kwargs) if include_lstm_models else None
+        # sample buildings
+        if bldg_ids is None:
+            bldg_ids, labels, sample_metadata = self.sample_buildings(**sample_buildings_kwargs)
         
         else:
-            lstm_models = None
+            pass
+        
+        # run energyplus simulations
+        simulators = self.simulate_energy_plus(bldg_ids, idd_filepath, **energyplus_simulation_kwargs)
 
+        # train LSTM models
+        if include_lstm_models:
+            lstm_training_data = self.get_lstm_training_data(simulators)
+            lstm_models = self.train_lstm(lstm_training_data, **train_lstm_kwargs)
+        
+        else:
+            pass
+        
+        # generate schema
         schema_filepath = self.set_schema(simulators, lstm_models=lstm_models, **schema_kwargs)
-        evaluation, _, _ = self.test(schema_filepath, test_lstm_models=False) if test_initialization else None
-        _, lstm_prediction_data, lstm_error_data = self.test(schema_filepath, test_lstm_models=test_lstm_models) if test_lstm_models else (None, None, None)
 
-        # lstm_test_data = self.multiprocess_test_lstm(lstm_training_data, schema_filepath) if include_thermal_dynamics and test_lstm_models else None
-
-        if delete_simulation_output:
-            self.delete_simulation_output(simulators)
+        # confirm schema initializes correctly in CityLearn and simulation completes without errors
+        if test_citylearn_simulation:
+            citylearn_simulation_evaluation, citylearn_simulation_lstm_prediction_data, citylearn_simulation_lstm_error_data \
+            = self.test_citylearn_simulation(schema_filepath, **test_citylearn_simulation_kwargs)
+        
+        else:
+            pass
+        
+        # run test on generated LSTM training data for all partial load simulation references
+        if include_lstm_models and test_lstm_models:
+            lstm_test_data = self.multiprocess_test_lstm(lstm_training_data, schema_filepath)
+        
+        else:
+            pass
+        
+        # delete energyplus output files to save space
+        if delete_energyplus_simulation_output:
+            self.delete_energyplus_simulation_output(simulators)
         
         else:
             pass
 
         return NeighborhoodBuild(
             schema_filepath=schema_filepath,
-            test_evaluation=evaluation,
-            lstm_prediction_data=lstm_prediction_data,
-            lstm_error_data=lstm_error_data,
+            citylearn_simulation_test_evaluation=citylearn_simulation_evaluation,
+            citylearn_simulation_lstm_prediction_data=citylearn_simulation_lstm_prediction_data,
+            citylearn_simulation_lstm_error_data=citylearn_simulation_lstm_error_data,
+            lstm_test_data=lstm_test_data,
             bldg_ids=bldg_ids,
             sample_cluster_labels=labels,
             sample_metadata=sample_metadata,
             simulators=simulators
         )
     
-    def delete_simulation_output(self, simulators: BuildingsSimulators):
+    def delete_energyplus_simulation_output(self, simulators: BuildingsSimulators):
         directories = [Path(v['mechanical'].output_directory).parents[0] for _, v in simulators.items()]
 
         for d in directories:
@@ -194,55 +238,13 @@ class Neighborhood:
             else:
                 pass
 
-    def test(self, schema: Path, test_lstm_models: bool = None) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        test_lstm_models = False if test_lstm_models is None else test_lstm_models
-        env = CityLearnEnv(schema)
-        model = BaselineAgent(env) if test_lstm_models else Agent(env)
-        observations, _ = env.reset()
-
-        while not env.terminated:
-            actions = model.predict(observations)
-            observations, _, _, _, _ = env.step(actions)
-
-        evaluation = env.evaluate()
-
-        if test_lstm_models:
-            data_list = []
-
-            for b in env.buildings:
-                lstm_prediction_data = pd.DataFrame({
-                    'bldg_id': int(b.name.split('-')[-1]),
-                    'hour': b.energy_simulation.hour,
-                    'month': b.energy_simulation.month,
-                    'indoor_dry_bulb_temperature': b.energy_simulation.indoor_dry_bulb_temperature_without_control,
-                    'indoor_dry_bulb_temperature_predicted': b.indoor_dry_bulb_temperature,
-                })
-                data_list.append(lstm_prediction_data)
-
-            lstm_prediction_data = pd.concat(data_list, ignore_index=True)
-            rmse_data = lstm_prediction_data.groupby(['bldg_id', 'month'])[['indoor_dry_bulb_temperature','indoor_dry_bulb_temperature_predicted']].apply(
-                lambda x: mean_squared_error(x['indoor_dry_bulb_temperature'], x['indoor_dry_bulb_temperature_predicted']
-            )).reset_index(name='rmse')
-            rmse_data['rmse'] = rmse_data['rmse']**0.5
-            mape_data = lstm_prediction_data.groupby(['bldg_id', 'month'])[['indoor_dry_bulb_temperature','indoor_dry_bulb_temperature_predicted']].apply(
-                lambda x: mean_absolute_percentage_error(x['indoor_dry_bulb_temperature'], x['indoor_dry_bulb_temperature_predicted']
-            )).reset_index(name='mape')
-            mape_data['mape'] = mape_data['mape']*100.0
-            lstm_error_data = rmse_data.merge(mape_data, on=['bldg_id', 'month'])
-
-        else:
-            lstm_prediction_data = None
-            lstm_error_data = None
-
-        return evaluation, lstm_prediction_data, lstm_error_data
-    
     def multiprocess_test_lstm(self, training_data: Mapping[int, pd.DataFrame], schema_filepath: Path) -> Mapping[int, pd.DataFrame]:
         test_data = {}
 
         with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             results = [executor.submit(
                 self.test_lstm, 
-                (b, training_data[b], schema_filepath)
+                *(b, training_data[b], schema_filepath)
             ) for b in training_data]
             
             for future in concurrent.futures.as_completed(results):
@@ -255,17 +257,22 @@ class Neighborhood:
         # set data
         schema = read_json(schema_filepath)
         schema_directory = Path(schema_filepath).parents[0]
-        root_directory = Path(schema_filepath).parent[1]
-        bldg_key = f'{schema_directory.replace(root_directory, "")[1:]}-{bldg_id}' if bldg_key is None else bldg_key
+        root_directory = Path(schema_filepath).parents[1]
+        bldg_key = f'{schema_directory.as_posix().replace(root_directory.as_posix(), "")[1:]}-{bldg_id}' if bldg_key is None else bldg_key
         dynamics_model = schema['buildings'][bldg_key]['dynamics']
-        normalization_minimum = dynamics_model['attributes']['normalization_minimum']
-        normalization_maximum = dynamics_model['attributes']['normalization_maximum']
-        observation_names = dynamics_model['attributes']['observation_names']
+        normalization_minimum = dynamics_model['attributes']['input_normalization_minimum']
+        normalization_maximum = dynamics_model['attributes']['input_normalization_maximum']
+        observation_names = dynamics_model['attributes']['input_observation_names']
+        periodic_observations = Building.get_periodic_observation_metadata()
         training_data = training_data.sort_values(['reference', 'timestep'])
 
+        # type cast
+        columns = [c for c in observation_names + list(periodic_observations.keys()) if not c.endswith('_sin') and not c.endswith('_cos')]
+        training_data[columns] = training_data[columns].astype('float32')
+
         ## cyclic normalization
-        for c, m in Building.get_periodic_observation_metadata().items():
-            result = training_data[c]*PeriodicNormalization(x_max=m[1])
+        for c, m in periodic_observations.items():
+            result = training_data[c]*PeriodicNormalization(x_max=m[-1])
             result = pd.DataFrame(result.tolist(), index=result.index)
             training_data[f'{c}_sin'] = result[0].tolist()
             training_data[f'{c}_cos'] = result[1].tolist()
@@ -277,6 +284,7 @@ class Neighborhood:
             input_columns.append(f'{c}_norm')
             training_data[input_columns[-1]] = training_data[c]*Normalize(normalization_minimum[i], normalization_maximum[i])
 
+        training_data[input_columns] = training_data[input_columns].astype('float32')
         independent_columns = input_columns[:-1]
         dependent_column = input_columns[-1]
 
@@ -301,8 +309,7 @@ class Neighborhood:
             for i in range(model.lookback, reference_data.shape[0]):
                 x_independent = reference_data[independent_columns].iloc[i - model.lookback + 1:i + 1].values
                 x_dependent = reference_data[[dependent_column]].iloc[i - model.lookback:i].values
-                x = np.append(x_independent, x_dependent, axis=1) # 
-                
+                x = np.append(x_independent, x_dependent, axis=1)
                 x = torch.tensor(x.copy())
                 x = x[np.newaxis, :, :]
                 hidden_state = tuple([h.data for h in model._hidden_state])
@@ -312,15 +319,68 @@ class Neighborhood:
 
             predicted_column = dependent_column.replace('norm', 'predicted')
             actual_column = dependent_column.replace('_norm', '')
-            norm_min = normalization_minimum[actual_column]
-            norm_max = normalization_maximum[actual_column]
+            norm_min = normalization_minimum[-1]
+            norm_max = normalization_maximum[-1]
             reference_data[predicted_column] = reference_data[dependent_column]*(norm_max - norm_min) + norm_min
             reference_data = reference_data[['timestep', 'reference', 'reference_name', actual_column, predicted_column]].copy()
             data_list.append(reference_data)
 
         return bldg_id, pd.concat(data_list, ignore_index=True)
 
-    def set_schema(self, simulators: BuildingsSimulators, lstm_models: Mapping[int, Mapping[str, Any]] = None, template: Mapping[str, Union[dict, float, int, str]] = None, metadata: pd.DataFrame = None, dataset_name: str = None, schema_directory: Union[Path, str] = None, weather_kwargs: dict = None) -> Path:
+    def test_citylearn_simulation(
+        self, schema: Path, model: Agent = None, env_kwargs: Mapping[str, Any] = None, model_kwargs: Mapping[str, Any] = None, report_lstm_performance: bool = None
+    ) -> Tuple[pd.DataFrame, Mapping[int, pd.DataFrame], Mapping[int, pd.DataFrame]]:
+        report_lstm_performance = True if report_lstm_performance is None else report_lstm_performance
+        env_kwargs = {} if env_kwargs is None else env_kwargs
+        model_kwargs = {} if model_kwargs is None else model_kwargs
+        
+        # test initialization
+        env = CityLearnEnv(schema, **env_kwargs)
+        model = BaselineAgent if model is None else model
+        model = model(env=env, **model_kwargs)
+        observations, _ = env.reset()
+        
+        # test stepping
+        while not env.terminated:
+            actions = model.predict(observations)
+            observations, _, _, _, _ = env.step(actions)
+
+        evaluation = env.evaluate()
+
+        if report_lstm_performance:
+            lstm_prediction_data = {}
+            lstm_error_data = {}
+
+            for b in env.buildings:
+                bldg_id = int(b.name.split('-')[-1])
+                lstm_prediction_data[bldg_id] = pd.DataFrame({
+                    'hour': b.energy_simulation.hour,
+                    'month': b.energy_simulation.month,
+                    'indoor_dry_bulb_temperature': b.energy_simulation.indoor_dry_bulb_temperature_without_control,
+                    'indoor_dry_bulb_temperature_predicted': b.indoor_dry_bulb_temperature,
+                })
+                
+                rmse_data = lstm_prediction_data[bldg_id].groupby(['month'])[['indoor_dry_bulb_temperature','indoor_dry_bulb_temperature_predicted']].apply(
+                    lambda x: mean_squared_error(x['indoor_dry_bulb_temperature'], x['indoor_dry_bulb_temperature_predicted']
+                )).reset_index(name='rmse')
+                rmse_data['rmse'] = rmse_data['rmse']**0.5
+                mape_data = lstm_prediction_data[bldg_id].groupby(['month'])[['indoor_dry_bulb_temperature','indoor_dry_bulb_temperature_predicted']].apply(
+                    lambda x: mean_absolute_percentage_error(x['indoor_dry_bulb_temperature'], x['indoor_dry_bulb_temperature_predicted']
+                )).reset_index(name='mape')
+                mape_data['mape'] = mape_data['mape']*100.0
+                lstm_error_data[bldg_id] = rmse_data.merge(mape_data, on=['month'])
+        
+        else:
+            lstm_prediction_data = None
+            lstm_error_data = None
+
+
+        return evaluation, lstm_prediction_data, lstm_error_data
+
+    def set_schema(
+        self, simulators: BuildingsSimulators, lstm_models: Mapping[int, Mapping[str, Any]] = None, template: Mapping[str, Union[dict, float, int, str]] = None, 
+        metadata: pd.DataFrame = None, dataset_name: str = None, schema_directory: Union[Path, str] = None, weather_kwargs: dict = None
+    ) -> Path:
         template = get_settings()['schema']['template'] if template is None else template
         lstm_models = {} if lstm_models is None else lstm_models
         metadata = self.end_use_load_profiles.metadata.metadata.get().to_dict('index') if metadata is None else metadata
@@ -413,9 +473,9 @@ class Neighborhood:
                 building['dynamics']['attributes']['hidden_size'] = lstm_model['attributes']['hidden_size']
                 building['dynamics']['attributes']['num_layers'] = lstm_model['attributes']['num_layers']
                 building['dynamics']['attributes']['lookback'] = lstm_model['attributes']['lookback']
-                building['dynamics']['attributes']['input_observation_names'] = lstm_model['attributes']['observation_names']
-                building['dynamics']['attributes']['input_normalization_minimum'] = lstm_model['attributes']['normalization_minimum']
-                building['dynamics']['attributes']['input_normalization_maximum'] = lstm_model['attributes']['normalization_maximum']
+                building['dynamics']['attributes']['input_observation_names'] = lstm_model['attributes']['input_observation_names']
+                building['dynamics']['attributes']['input_normalization_minimum'] = lstm_model['attributes']['input_normalization_minimum']
+                building['dynamics']['attributes']['input_normalization_maximum'] = lstm_model['attributes']['input_normalization_maximum']
                 torch.save(
                     lstm_model['model'].state_dict(), 
                     os.path.join(schema_directory, building['dynamics']['attributes']['filename'])
@@ -484,7 +544,7 @@ class Neighborhood:
     def train_lstm(self, data: Mapping[int, pd.DataFrame], config: Mapping[str, Any] = None, seed: int = None) -> Mapping[int, Mapping[str, Any]]:
         seed = self.random_seed if seed is None else seed
         config = get_settings()['lstm']['train']['config'] if config is None else config
-        data = {k: run_one_model(config, v, seed) for k, v in data.items()}
+        data = {k: run_one_model(config, v.copy(), seed) for k, v in data.items()}
 
         return data
     
@@ -509,7 +569,7 @@ class Neighborhood:
     def simulate_energy_plus(
         self, bldg_ids: List[int], idd_filepath: Union[Path, str], simulation_ids: List[str] = None, models: List[Union[Path, str]] = None, 
         schedules: Union[Path, pd.DataFrame] = None, osm: bool = None,
-        partial_loads_simulations: int = None, partial_loads_kwargs: Mapping[str, Any] = None, max_workers: int = None, **kwargs
+        partial_loads_simulations: int = None, partial_loads_kwargs: Mapping[str, Any] = None, **kwargs
     ) -> BuildingsSimulators:
         assert models is None or len(models) == len(bldg_ids), 'There must be as many models as bldg_ids.'
         assert schedules is None or len(schedules) == len(bldg_ids), 'There must be as many schedules as bldg_ids.'
@@ -523,13 +583,21 @@ class Neighborhood:
             idd_filepath=idd_filepath,
             osm=osm,
             **kwargs,
-            number_of_time_steps_per_hour=kwargs.pop('number_of_time_steps_per_hour', 1)
+            number_of_time_steps_per_hour=1 if kwargs.get('number_of_time_steps_per_hour', None) is None else kwargs['number_of_time_steps_per_hour']
         )
 
         if (
             kwargs.get('default_output_variables', None) is None or not kwargs['default_output_variables']
         ) and kwargs.get('output_variables', None) is None:
             kwargs['default_output_variables'] = True
+
+        else:
+            pass
+
+        if (
+            kwargs.get('default_output_meters', None) is None or not kwargs['default_output_meters']
+        ) and kwargs.get('output_meters', None) is None:
+            kwargs['default_output_meters'] = True
 
         else:
             pass
@@ -612,7 +680,7 @@ class Neighborhood:
                     **partial_loads_kwargs
                 ))
             
-            EndUseLoadProfilesEnergyPlusPartialLoadSimulator.multi_simulate(partial_loads_simulators, max_workers=max_workers)
+            EndUseLoadProfilesEnergyPlusPartialLoadSimulator.multi_simulate(partial_loads_simulators, max_workers=self.max_workers)
 
             simulators[bldg_id] = {
                 'mechanical': mechanical_simulator,
