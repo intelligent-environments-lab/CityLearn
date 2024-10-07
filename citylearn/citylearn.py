@@ -1380,6 +1380,9 @@ class CityLearnEnv(Environment, Env):
         schema['chargers_shared_observations_helper'] = {key: value for key, value in schema["observations"].items() if
                                         key.startswith("electric_vehicle_") and value.get("shared_in_central_agent", True)}
 
+        schema['observations'] =  {key: value for key, value in schema["observations"].items() if key not in schema['chargers_observations_helper']}
+        schema['actions'] = {k: v for k, v in schema['actions'].items() if k not in schema['chargers_actions_helper']}
+
         # Update shared observations, excluding any keys that start with 'electric_vehicle_'
         schema['shared_observations'] = kwargs['shared_observations'] if kwargs.get('shared_observations') is not None else [
             k for k, v in schema['observations'].items() if
@@ -1606,6 +1609,10 @@ class CityLearnEnv(Environment, Env):
         else:
             stochastic_power_outage_model = None
 
+        print("Observation METADATA Antes")
+        print(observation_metadata)
+
+
         #Adding chargers to buildings if they exist
         if building_schema.get("chargers", None) is not None:
             chargers_list = []
@@ -1626,7 +1633,9 @@ class CityLearnEnv(Environment, Env):
                 # Consider that if chargers_observations is not empty we should populate observations for chargers
                 # Each charger replicates the observations of the original chargers_observations but specific for its own
                 # If shared observations are active for the specific observation, that observation is added to shared_observations
+
                 if schema['chargers_observations_helper'] is not None and 'electric_vehicle_charger_state' in schema['chargers_observations_helper']:
+                    print ("AQUIIIIIIIIIIIIIIII")
                     for state_type in ['connected', 'incoming']:
                         if schema['chargers_observations_helper']['electric_vehicle_charger_state']["active"]:
                             observation_metadata[f'charger_{charger_name}_{state_type}_state'] = True  # Add base case
@@ -1640,6 +1649,9 @@ class CityLearnEnv(Environment, Env):
                                 schema['shared_observations'].append(f'charger_{charger_name}_{state_type}_{obs}')
         else:
             chargers_list = []
+
+        print("Observation METADATA DEPOIS")
+        print(observation_metadata)
 
         building: Building = building_constructor(
             energy_simulation=energy_simulation,
