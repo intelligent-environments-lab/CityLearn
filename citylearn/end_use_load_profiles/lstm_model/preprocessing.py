@@ -8,10 +8,15 @@ from citylearn.data import get_settings
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
 def preprocess_df(config:  Mapping[str, Any], df: pd.DataFrame, train_references: List[int] = None, validation_references: List[int] = None, test_references: List[int] = None) -> Mapping[str, Any]:
-    train_references = [3, 4, 5] if train_references is None else train_references
-    validation_references = [3, 6] if validation_references is None else validation_references
-    test_references = [3, 7] if test_references is None else test_references
-
+    ideal_reference = 0
+    # # including in training makes model worse so will exclude for now. 
+    # # Nevertheless, prediction for free-float is still decent despite not including it in the training.
+    # free_float_reference = 1 
+    partial_references = [2, 3, 4, 5]
+    train_references = partial_references[:2] if train_references is None else train_references
+    validation_references = [partial_references[2]] if validation_references is None else validation_references
+    test_references = [partial_references[3]] if test_references is None else test_references
+    
     # observation names
     observation_names = get_settings()['schema']['template']['buildings']['Building_1']['dynamics']['attributes']['input_observation_names']
     target = observation_names[-1]
@@ -19,7 +24,7 @@ def preprocess_df(config:  Mapping[str, Any], df: pd.DataFrame, train_references
     
     # periodic normalization
     for k, v in periodic_observations.items():
-        result = df[k]*PeriodicNormalization(x_max=v[1])
+        result = df[k]*PeriodicNormalization(x_max=v[-1])
         result = pd.DataFrame(result.tolist(), index=result.index)
         df[f'{k}_sin'] = result[0].tolist()
         df[f'{k}_cos'] = result[1].tolist()
@@ -39,7 +44,7 @@ def preprocess_df(config:  Mapping[str, Any], df: pd.DataFrame, train_references
     # training data are ideal load data for every three month step beginning from January
     # and free-float load and 2 partial load datasets for entire year
     train_df = df[
-        ((df['reference']==2) & (df['month'].isin([months[i] for i in range(0, len(months), 3)])))
+        ((df['reference']==ideal_reference) & (df['month'].isin([months[i] for i in range(0, len(months), 3)])))
         | (df['reference'].isin(train_references))
     ][observation_names].copy()
     X_train, y_train = sliding_windows(train_df.to_numpy(), config['lb'], 1)
@@ -48,7 +53,7 @@ def preprocess_df(config:  Mapping[str, Any], df: pd.DataFrame, train_references
     # validation data are ideal load data for every three month step beginning from February
     # and free-float load and 1 partial load dataset for entire year
     validation_df = df[
-        ((df['reference']==2) & (df['month'].isin([months[i] for i in range(1, len(months), 3)])))
+        ((df['reference']==ideal_reference) & (df['month'].isin([months[i] for i in range(1, len(months), 3)])))
         | (df['reference'].isin(validation_references))
     ][observation_names].copy()
     X_val, y_val = sliding_windows(validation_df.to_numpy(), config['lb'], 1)
@@ -57,7 +62,7 @@ def preprocess_df(config:  Mapping[str, Any], df: pd.DataFrame, train_references
     # test data are ideal load data for every three month step beginning from March
     # and free-float load and 1 partial load dataset for entire year
     test_df = df[
-        ((df['reference']==2) & (df['month'].isin([months[i] for i in range(2, len(months), 3)])))
+        ((df['reference']==ideal_reference) & (df['month'].isin([months[i] for i in range(2, len(months), 3)])))
         | (df['reference'].isin(test_references))
     ].copy()
     test_df_by_season = test_df.copy()
@@ -99,9 +104,9 @@ def preprocess_df(config:  Mapping[str, Any], df: pd.DataFrame, train_references
             'y': y_test
         },
         'observation_metadata': {
-            'observation_names': observation_names,
-            'normalization_minimum': normalization_minimum,
-            'normalization_maximum': normalization_maximum, 
+            'input_observation_names': observation_names,
+            'input_normalization_minimum': normalization_minimum,
+            'input_normalization_maximum': normalization_maximum, 
         }
     }
 
