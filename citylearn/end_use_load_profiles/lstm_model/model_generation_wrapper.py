@@ -15,12 +15,18 @@ def run_one_model(config: Mapping[str, Any], df: pd.DataFrame, seed: int) -> Map
             'hidden_size': config['hidden_size'],
             'num_layers': config['num_layer'],
             'lookback': config['lb'],
-            'observation_names': observation_metadata['observation_names'],
-            'normalization_minimum': observation_metadata['normalization_minimum'],
-            'normalization_maximum': observation_metadata['normalization_maximum']
+            'input_observation_names': observation_metadata['input_observation_names'],
+            'input_normalization_minimum': observation_metadata['input_normalization_minimum'],
+            'input_normalization_maximum': observation_metadata['input_normalization_maximum']
         },
         'error_metrics': error_metrics
     }
+
+def get_model(config: Mapping[str, Any], df: pd.DataFrame, seed) -> Tuple[LSTM, Mapping[str, Any], Mapping[str, float]]:
+    set_random_seeds(seed)
+    lstm, observation_metadata, error = run(config, df)
+    
+    return lstm, observation_metadata, error
 
 def set_random_seeds(seed: int, benchmark: bool = None, deterministic: bool = None):
     torch.manual_seed(seed)
@@ -32,9 +38,3 @@ def set_random_seeds(seed: int, benchmark: bool = None, deterministic: bool = No
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.benchmark = False if benchmark is None else benchmark
     torch.backends.cudnn.deterministic = True if deterministic is None else deterministic
-
-def get_model(config: Mapping[str, Any], df: pd.DataFrame, seed) -> Tuple[LSTM, Mapping[str, Any], Mapping[str, float]]:
-    set_random_seeds(seed)
-    lstm, observation_metadata, error = run(config, df)
-    
-    return lstm, observation_metadata, error
