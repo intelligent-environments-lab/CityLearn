@@ -917,6 +917,7 @@ class Building(Environment):
                     sin_x, cos_x = v*pn
                     observations[f'{k}_cos'] = cos_x
                     observations[f'{k}_sin'] = sin_x
+
                 else:
                     observations[k] = v
         else:
@@ -2131,7 +2132,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         self.dynamics._model_input[ix][-1] = indoor_dry_bulb_temperature_norm.item()
 
         # unnormalize temperature
-        low_limit, high_limit = self.dynamics.input_normalization_minimum[-1], self.dynamics.input_normalization_maximum[-1]
+        low_limit, high_limit = self.dynamics.input_normalization_minimum[ix], self.dynamics.input_normalization_maximum[ix]
         indoor_dry_bulb_temperature = indoor_dry_bulb_temperature_norm*(high_limit - low_limit) + low_limit
         
         # update temperature
