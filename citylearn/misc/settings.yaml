@@ -48,6 +48,19 @@ default_time_series_variables:
   - energy_simulation.power_outage
   - weather.outdoor_dry_bulb_temperature
   - weather.outdoor_relative_humidity
+lstm:
+  train:
+    config:
+      batch_size: 168
+      device: cpu
+      dropout: 0.01
+      epochs: 144
+      hidden_size: 4
+      lb: 13
+      learning_rate: 0.008
+      num_layer: 2
+      optimizer_name: Adam
+      weight_decay: 0.01
 schema:
   template:
     random_seed: 0

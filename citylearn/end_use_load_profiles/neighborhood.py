@@ -20,7 +20,7 @@ from citylearn.citylearn import CityLearnEnv
 from citylearn.data import get_settings
 from citylearn.dynamics import LSTMDynamics
 from citylearn.end_use_load_profiles.clustering import MetadataClustering
-# from citylearn.end_use_load_profiles.model_generation_wrapper import run_one_model
+from citylearn.end_use_load_profiles.lstm_model.model_generation_wrapper import run_one_model
 from citylearn.end_use_load_profiles.simulate import EndUseLoadProfilesEnergyPlusPartialLoadSimulator
 from citylearn.preprocessing import PeriodicNormalization, Normalize
 from citylearn.utilities import read_json, write_json
@@ -86,7 +86,8 @@ class Neighborhood:
 
     def __init__(
         self, weather_data: str = None, year_of_publication: int = None, release: int = None, cache: bool = None,
-        energyplus_output_directory: Union[Path, str] = None, dataset_directory: Union[Path, str] = None, max_workers: int = None, random_seed: int = None
+        energyplus_output_directory: Union[Path, str] = None, dataset_directory: Union[Path, str] = None,
+        max_workers: int = None, random_seed: int = None
     ) -> None:
         self.__end_use_load_profiles = EndUseLoadProfiles(
             dataset_type=VersionDatasetType.RESSTOCK,
@@ -219,12 +220,12 @@ class Neighborhood:
                 data_list.append(lstm_prediction_data)
 
             lstm_prediction_data = pd.concat(data_list, ignore_index=True)
-            rmse_data = lstm_prediction_data.groupby(['bldg_id', 'month'])[['indoor_air_temperature','indoor_air_temperature_predicted']].apply(
-                lambda x: mean_squared_error(x['indoor_air_temperature'], x['indoor_air_temperature_predicted']
+            rmse_data = lstm_prediction_data.groupby(['bldg_id', 'month'])[['indoor_dry_bulb_temperature','indoor_dry_bulb_temperature_predicted']].apply(
+                lambda x: mean_squared_error(x['indoor_dry_bulb_temperature'], x['indoor_dry_bulb_temperature_predicted']
             )).reset_index(name='rmse')
             rmse_data['rmse'] = rmse_data['rmse']**0.5
-            mape_data = lstm_prediction_data.groupby(['bldg_id', 'month'])[['indoor_air_temperature','indoor_air_temperature_predicted']].apply(
-                lambda x: mean_absolute_percentage_error(x['indoor_air_temperature'], x['indoor_air_temperature_predicted']
+            mape_data = lstm_prediction_data.groupby(['bldg_id', 'month'])[['indoor_dry_bulb_temperature','indoor_dry_bulb_temperature_predicted']].apply(
+                lambda x: mean_absolute_percentage_error(x['indoor_dry_bulb_temperature'], x['indoor_dry_bulb_temperature_predicted']
             )).reset_index(name='mape')
             mape_data['mape'] = mape_data['mape']*100.0
             lstm_error_data = rmse_data.merge(mape_data, on=['bldg_id', 'month'])
@@ -264,9 +265,10 @@ class Neighborhood:
 
         ## cyclic normalization
         for c, m in Building.get_periodic_observation_metadata().items():
-            sin_x, cos_x = training_data[c]*PeriodicNormalization(x_max=m[1])
-            training_data[f'{c}_sin'] = sin_x
-            training_data[f'{c}_cos'] = cos_x
+            result = training_data[c]*PeriodicNormalization(x_max=m[1])
+            result = pd.DataFrame(result.tolist(), index=result.index)
+            training_data[f'{c}_sin'] = result[0].tolist()
+            training_data[f'{c}_cos'] = result[1].tolist()
 
         input_columns = []
         
@@ -414,6 +416,10 @@ class Neighborhood:
                 building['dynamics']['attributes']['input_observation_names'] = lstm_model['attributes']['observation_names']
                 building['dynamics']['attributes']['input_normalization_minimum'] = lstm_model['attributes']['normalization_minimum']
                 building['dynamics']['attributes']['input_normalization_maximum'] = lstm_model['attributes']['normalization_maximum']
+                torch.save(
+                    lstm_model['model'].state_dict(), 
+                    os.path.join(schema_directory, building['dynamics']['attributes']['filename'])
+                )
 
             # set building schema
             template['buildings'][bldg_key] = building
@@ -445,10 +451,10 @@ class Neighborhood:
             if accuracy is None else accuracy
 
         for c in columns:
-            for s, a in zip(shifts, accuracy[c]):
+            for i, (s, a) in enumerate(zip(shifts, accuracy[c])):
                 arr = np.roll(data[c], shift=-s)
                 nprs = np.random.RandomState(self.random_seed)
-                shift_column = f'{c}_predicted_{s}h'
+                shift_column = f'{c}_predicted_{int(i + 1)}'
 
                 if c in ['outdoor_dry_bulb_temperature']:
                     data[shift_column] = arr + nprs.uniform(-a, a, len(arr))
@@ -475,27 +481,12 @@ class Neighborhood:
 
         return data
     
-    def train_lstm(data: Mapping[int, pd.DataFrame], **kwargs) -> Mapping[int, Mapping[str, Any]]:
-        """
-        TODO: Satvik & Pavani
-        1. Install training repo using pip.
-        2. Parse training data and custom kwargs for training to some function in the training package
-           that trains and finds a best model for the building
-        3. Train the building LSTM and return .pth, normalization limits, & error metrics
-        """
-        # if "n_tries" in kwargs:
-        #     d = {
-        #         df_id: run_one_model(df_id, data[df_id], kwargs["n_tries"])
-        #         for df_id in data
-        #     }
-        # else:
-        #     d = {
-        #         df_id: run_one_model(df_id, data[df_id])
-        #         for df_id in data
-        #     }
-        # return d
+    def train_lstm(self, data: Mapping[int, pd.DataFrame], config: Mapping[str, Any] = None, seed: int = None) -> Mapping[int, Mapping[str, Any]]:
+        seed = self.random_seed if seed is None else seed
+        config = get_settings()['lstm']['train']['config'] if config is None else config
+        data = {k: run_one_model(config, v, seed) for k, v in data.items()}
 
-        raise NotImplementedError
+        return data
     
     def get_lstm_training_data(self, simulators: BuildingsSimulators) -> Mapping[int, pd.DataFrame]:
         data = {}
