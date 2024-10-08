@@ -226,7 +226,7 @@
     "type": "citylearn.reward_function.RewardFunction",
     "attributes": null
   },
-  "Electric_vehicles_def": {
+  "electric_vehicles_def": {
     "Electric_Vehicle_1": {
       "include": true,
       "energy_simulation": "Electric_Vehicle_1.csv",
