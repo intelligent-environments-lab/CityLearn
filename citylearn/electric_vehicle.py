@@ -12,14 +12,14 @@ import copy
 
 class ElectricVehicle(Environment):
 
-    def __init__(self, ev_simulation: ElectricVehicleSimulation,episode_tracker: EpisodeTracker, observation_metadata: Mapping[str, bool],
+    def __init__(self, electric_vehicle_simulation: ElectricVehicleSimulation,episode_tracker: EpisodeTracker, observation_metadata: Mapping[str, bool],
                  action_metadata: Mapping[str, bool], battery: Battery = None, min_battery_soc: int = None, name: str = None, **kwargs):
         """
         Initialize the EVCar class.
 
         Parameters
         ----------
-        ev_simulation : ElectricVehicleSimulation
+        electric_vehicle_simulation : ElectricVehicleSimulation
             Temporal features, locations, predicted SOCs and more.
         battery : Battery
             An instance of the Battery class.
@@ -36,7 +36,7 @@ class ElectricVehicle(Environment):
             Other keyword arguments used to initialize super class.
         """
 
-        self.ev_simulation = ev_simulation
+        self.electric_vehicle_simulation = electric_vehicle_simulation
         self.name = name
 
         super().__init__(
@@ -60,7 +60,7 @@ class ElectricVehicle(Environment):
     def electric_vehicle_simulation(self) -> ElectricVehicleSimulation:
         """Return the Electric_Vehicle simulation data."""
 
-        return self.__ev_simulation
+        return self.__electric_vehicle_simulation
 
     @property
     def name(self) -> str:
@@ -117,9 +117,9 @@ class ElectricVehicle(Environment):
 
         return [k for k, v in self.action_metadata.items() if v]
     
-        @ev_simulation.setter
-        def ev_simulation(self, ev_simulation: ElectricVehicleSimulation):
-            self.__ev_simulation = ev_simulation
+    @electric_vehicle_simulation.setter
+    def electric_vehicle_simulation(self, electric_vehicle_simulation: ElectricVehicleSimulation):
+        self.__electric_vehicle_simulation = electric_vehicle_simulation
 
     @name.setter
     def name(self, name: str):
@@ -439,25 +439,3 @@ class ElectricVehicle(Environment):
             'day_type': range(1, 9),
             'month': range(1, 13)
         }
-
-    def __str__(self):
-        ev_simulation_attrs = [
-            f"Electric_Vehicle simulation (time_step={self.time_step}):",
-            f"Month: {self.electric_vehicle_simulation.month[self.time_step]}",
-            f"Hour: {self.electric_vehicle_simulation.hour[self.time_step]}",
-            f"Day Type: {self.electric_vehicle_simulation.day_type[self.time_step]}",
-            f"State: {self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step]}",
-            f"Estimated Departure Time: {self.electric_vehicle_simulation.electric_vehicle_departure_time[self.time_step]}",
-            f"Required Soc At Departure: {self.electric_vehicle_simulation.electric_vehicle_required_soc_departure[self.time_step]}",
-            f"Estimated Arrival Time: {self.electric_vehicle_simulation.electric_vehicle_estimated_arrival_time[self.time_step]}",
-            f"Estimated Soc Arrival: {self.electric_vehicle_simulation.electric_vehicle_estimated_soc_arrival[self.time_step]}"
-        ]
-
-        ev_simulation_str = '\n'.join(ev_simulation_attrs)
-
-        return (
-            f"Electric_Vehicle {self.name}:\n"
-            f"  Battery: {self.battery}\n\n"
-            f"Simulation details:\n"
-            f"  {ev_simulation_str}"
-        )
