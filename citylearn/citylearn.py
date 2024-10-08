@@ -1237,8 +1237,6 @@ class CityLearnEnv(Environment, Env):
         for building in self.buildings:
             building.reset()
 
-        print("AQUI")
-
         for ev in self.electric_vehicles:
             ev.reset()
         self.associate_electric_vehicles_to_chargers()
@@ -1435,15 +1433,15 @@ class CityLearnEnv(Environment, Env):
                 self._load_building(i, building_name, schema, episode_tracker, pv_sizing_data, battery_sizing_data,**kwargs))
 
         # Load electric vehicles (if present in the schema)
-        electric_vehicles_def = ()
+        electric_vehicles_def = []
         if kwargs.get('electric_vehicles_def') is not None and len(kwargs['electric_vehicles_def']) > 0:
             electric_vehicle_schemas = kwargs['electric_vehicles_def']
         else:
-            electric_vehicle_schemas = self.schema.get('electric_vehicles_def', {})
+            electric_vehicle_schemas = schema.get('electric_vehicles_def', {})
 
         for electric_vehicle_name, electric_vehicle_schema in electric_vehicle_schemas.items():
             if electric_vehicle_schema['include']:
-                electric_vehicles_def.append(self._load_electric_vehicle(electric_vehicle_name,electric_vehicle_schema,episode_tracker))
+                electric_vehicles_def.append(self._load_electric_vehicle(electric_vehicle_name,schema,electric_vehicle_schema,episode_tracker))
 
         # set reward function
         if kwargs.get('reward_function') is not None:
@@ -1470,6 +1468,17 @@ class CityLearnEnv(Environment, Env):
         reward_function_name = reward_function_type.split('.')[-1]
         reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
         reward_function = reward_function_constructor(None, **reward_function_attributes)
+
+
+        print("BUILDINGS")
+        for b in buildings:
+            print(b)
+
+        print("EVS")
+        print(electric_vehicles_def)
+        for ev in electric_vehicles_def:
+            print("AQUIIIUDEBHEFBKIDF")
+            print(ev)
 
         return (
             schema['root_directory'], buildings, electric_vehicles_def, schema['episode_time_steps'], schema['rolling_episode_split'],
@@ -1609,10 +1618,6 @@ class CityLearnEnv(Environment, Env):
         else:
             stochastic_power_outage_model = None
 
-        print("Observation METADATA Antes")
-        print(observation_metadata)
-
-
         #Adding chargers to buildings if they exist
         if building_schema.get("chargers", None) is not None:
             chargers_list = []
@@ -1635,7 +1640,6 @@ class CityLearnEnv(Environment, Env):
                 # If shared observations are active for the specific observation, that observation is added to shared_observations
 
                 if schema['chargers_observations_helper'] is not None and 'electric_vehicle_charger_state' in schema['chargers_observations_helper']:
-                    print ("AQUIIIIIIIIIIIIIIII")
                     for state_type in ['connected', 'incoming']:
                         if schema['chargers_observations_helper']['electric_vehicle_charger_state']["active"]:
                             observation_metadata[f'charger_{charger_name}_{state_type}_state'] = True  # Add base case
@@ -1649,9 +1653,6 @@ class CityLearnEnv(Environment, Env):
                                 schema['shared_observations'].append(f'charger_{charger_name}_{state_type}_{obs}')
         else:
             chargers_list = []
-
-        print("Observation METADATA DEPOIS")
-        print(observation_metadata)
 
         building: Building = building_constructor(
             energy_simulation=energy_simulation,
@@ -1752,11 +1753,9 @@ class CityLearnEnv(Environment, Env):
 
         return building
 
-    def _load_electric_vehicle(self, electric_vehicle_name: str, schema: dict, episode_tracker: EpisodeTracker) -> ElectricVehicle:
+    def _load_electric_vehicle(self, electric_vehicle_name: str, schema: dict, electric_vehicle_schema: dict, episode_tracker: EpisodeTracker) -> ElectricVehicle:
         """Initializes and returns an electric vehicle model."""
         # Load energy simulation data for the EV
-
-        electric_vehicle_schema = schema['buildings'][electric_vehicle_name]
 
         electric_vehicle_simulation = pd.read_csv(
             os.path.join(schema['root_directory'], electric_vehicle_schema['energy_simulation'])
@@ -1766,27 +1765,17 @@ class CityLearnEnv(Environment, Env):
         # Observation and action metadata
         electric_vehicle_inactive_observations = electric_vehicle_schema.get('inactive_observations', [])
         electric_vehicle_inactive_actions = electric_vehicle_schema.get('inactive_actions', [])
-        electric_vehicle_observation_metadata = {s: False if s in electric_vehicle_inactive_observations else True for s in schema['chargers_observations']
+        electric_vehicle_observation_metadata = {s: False if s in electric_vehicle_inactive_observations else True for s in schema['chargers_observations_helper']
                                    if s != 'electric_vehicle_charger_state'}
-        electric_vehicle_action_metadata = {a: False if a in electric_vehicle_inactive_actions else True for a in schema['chargers_actions']}
+        electric_vehicle_action_metadata = {a: False if a in electric_vehicle_inactive_actions else True for a in ['chargers_actions_helper']}
 
         # Construct the battery object
         capacity = electric_vehicle_schema["battery"]["attributes"]["capacity"]
         nominal_power = electric_vehicle_schema["battery"]["attributes"]["nominal_power"]
         initial_soc = electric_vehicle_schema["battery"]["attributes"]["initial_soc"]
-        min_battery_soc = electric_vehicle_schema["battery"]["attributes"]["min_battery_soc"]
+        min_battery_soc = electric_vehicle_schema.get("battery", None).get("attributes", None).get("min_battery_soc", None)
 
         battery = Battery(
-            capacity=capacity,
-            nominal_power=nominal_power,
-            initial_soc=initial_soc,
-            seconds_per_time_step=schema['seconds_per_time_step'],
-            random_seed=schema['random_seed'],
-            min_battery_soc=min_battery_soc,
-            episode_tracker=episode_tracker
-        )
-
-        auxBattery = Battery(  # For tracking purposes only
             capacity=capacity,
             nominal_power=nominal_power,
             initial_soc=initial_soc,
@@ -1796,7 +1785,8 @@ class CityLearnEnv(Environment, Env):
         )
 
         # Get the EV constructor
-        electric_vehicle_type = 'citylearn.citylearn.electric_vehicle' if electric_vehicle_schema.get('type', None) is None else electric_vehicle_schema['type']
+
+        electric_vehicle_type = 'citylearn.citylearn.ElectricVehicle' if electric_vehicle_schema.get('type', None) is None else electric_vehicle_schema['type']
         electric_vehicle_type_module = '.'.join(electric_vehicle_type.split('.')[0:-1])
         electric_vehicle_type_name = electric_vehicle_type.split('.')[-1]
         electric_vehicle_constructor = getattr(importlib.import_module(electric_vehicle_type_module), electric_vehicle_type_name)
@@ -1807,16 +1797,18 @@ class CityLearnEnv(Environment, Env):
             observation_metadata=electric_vehicle_observation_metadata,
             action_metadata=electric_vehicle_action_metadata,
             battery=battery,
-            auxBattery=auxBattery,
             name=electric_vehicle_name,
             seconds_per_time_step=schema['seconds_per_time_step'],
             random_seed=schema['random_seed'],
+            min_battery_soc=min_battery_soc,
             episode_tracker=episode_tracker
         )
 
         ev.observation_space = ev.estimate_observation_space()
         ev.action_space = ev.estimate_action_space()
 
+        print("EVSBNCLCERWBVJEBRV")
+        print(ev)
         return ev
 
 class Error(Exception):
