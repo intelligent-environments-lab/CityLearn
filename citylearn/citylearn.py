@@ -880,7 +880,6 @@ class CityLearnEnv(Environment, Env):
         # env, which is not the best design for competition integrity sake. Will revisit the building.observations() function
         # to see how it can be optimized.
         reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
-        print(reward_observations)
         reward = self.reward_function.calculate(observations=reward_observations)
         self.__rewards.append(reward)
 
@@ -1470,15 +1469,7 @@ class CityLearnEnv(Environment, Env):
         reward_function = reward_function_constructor(None, **reward_function_attributes)
 
 
-        print("BUILDINGS")
-        for b in buildings:
-            print(b)
-
-        print("EVS")
-        print(electric_vehicles_def)
-        for ev in electric_vehicles_def:
-            print("AQUIIIUDEBHEFBKIDF")
-            print(ev)
+        print("FInished loading")
 
         return (
             schema['root_directory'], buildings, electric_vehicles_def, schema['episode_time_steps'], schema['rolling_episode_split'],
@@ -1807,8 +1798,6 @@ class CityLearnEnv(Environment, Env):
         ev.observation_space = ev.estimate_observation_space()
         ev.action_space = ev.estimate_action_space()
 
-        print("EVSBNCLCERWBVJEBRV")
-        print(ev)
         return ev
 
 class Error(Exception):

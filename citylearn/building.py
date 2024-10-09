@@ -332,11 +332,10 @@ class Building(Environment):
         Notes
         -----
         net_electricity_consumption_without_storage = `net_electricity_consumption` - (`cooling_storage_electricity_consumption`
-        + `heating_storage_electricity_consumption` + `dhw_storage_electricity_consumption` + `electrical_storage_electricity_consumption` + `charger_electricity_consumption`) + __chargers_electricity_consumption_without_partial_load)
+        + `heating_storage_electricity_consumption` + `dhw_storage_electricity_consumption` + `electrical_storage_electricity_consumption` + `charger_electricity_consumption`)
 
-        Regarding electric vehicles specifically, there are two variables:
-        charger_electricity_consumption -> the electricity consumption of electric_vehicle_chargers when a control mechanism is in place (either L2V or V2G)
-        __chargers_electricity_consumption_without_partial_load -> the electric_vehicle_chargers energy consumption in a normal day (i.e., no control is applied and the EVs charger per usual)
+        Regarding electric vehicles there is:
+        chargers_electricity_consumption -> Sum of the electricity consumption of all electric_vehicle_chargers in the building
 
         So, the first one is subtracted from the net_electricity_consumption, obtaining the energy consumption as if the cars were not used at all.
         However, if there are chargers and EVs, they need to charge per usual, so that consumption is added
@@ -349,7 +348,7 @@ class Building(Environment):
             self.dhw_storage_electricity_consumption,
             self.electrical_storage_electricity_consumption,
             self.__chargers_electricity_consumption
-        ], axis=0) + self.__chargers_electricity_consumption_without_partial_load
+        ], axis=0)
 
     @property
     def net_electricity_consumption_emission(self) -> np.ndarray:
@@ -2024,8 +2023,7 @@ class Building(Environment):
         self.__net_electricity_consumption_cost = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__power_outage_signal = self.reset_power_outage_signal()
         self.__chargers_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
-        self.__chargers_electricity_consumption_without_partial_load = np.zeros(self.episode_tracker.episode_time_steps,
-                                                                                dtype='float32')
+
         self.update_variables()
 
     def reset_power_outage_signal(self) -> np.ndarray:
@@ -2124,17 +2122,17 @@ class Building(Environment):
         else:
             pass
 
-        total_electricity_consumption = 0
+        building_chargers_total_electricity_consumption = 0
 
         if self.electric_vehicle_chargers is not None:
 
             for c in self.electric_vehicle_chargers:
-                total_electricity_consumption = total_electricity_consumption + c.electricity_consumption[
+                building_chargers_total_electricity_consumption = building_chargers_total_electricity_consumption + c.electricity_consumption[
                     self.time_step - 1]
         else:
             pass
 
-        self.__chargers_electricity_consumption.append(total_electricity_consumption)
+        self.__chargers_electricity_consumption[self.time_step] = building_chargers_total_electricity_consumption
 
         # net electricity consumption
         net_electricity_consumption = 0.0
