@@ -956,7 +956,7 @@ class Building(Environment):
                     observations[charger_key_state] = 0
                     for o in self.observation_metadata:
                         if f'charger_{charger_id}_connected' in o and o != charger_key_state:
-                            observations[o] = -1
+                            observations[o] = -0.1
 
                 # same logic for incoming EV, which states if an EV is routing towards the charger
                 if charger.incoming_electric_vehicle:
@@ -968,7 +968,7 @@ class Building(Environment):
                     observations[charger_key_incoming_state] = 0
                     for o in self.observation_metadata:
                         if f'charger_{charger_id}_incoming' in o and o != charger_key_incoming_state:
-                            observations[o] = -1
+                            observations[o] = -0.1
 
         unknown_observations = list(set(valid_observations).difference(observations.keys()))
         assert len(unknown_observations) == 0, f'Unknown observations: {unknown_observations}'
@@ -1494,9 +1494,12 @@ class Building(Environment):
                 high_limit[key] = high_limits.max()
 
             elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 'electrical_storage_soc',
-                         'electric_vehicle_required_soc_departure', 'electric_vehicle_estimated_soc_arrival',
                          'electric_vehicle_charger_state', 'electric_vehicle_soc']:
                 low_limit[key] = 0.0
+                high_limit[key] = 1.0
+
+            elif key in ['electric_vehicle_required_soc_departure', 'electric_vehicle_estimated_soc_arrival']:
+                low_limit[key] = -0.1
                 high_limit[key] = 1.0
 
             elif key in ['cooling_device_efficiency']:
@@ -1518,18 +1521,18 @@ class Building(Environment):
                     for charger in self.electric_vehicle_chargers:
                         if key == f'charger_{charger.charger_id}_connected_state' or key == f'charger_{charger.charger_id}_incoming_state':
                             low_limit[key] = 0
-                            high_limit[key] = 1
+                            high_limit[key] = 3
                         elif 'electric_vehicle_charger_state' in key:
                             low_limit[key] = 0
                             high_limit[key] = 1
                         elif any(value in key for value in
                                  ['electric_vehicle_departure_time', 'electric_vehicle_estimated_arrival_time']):
-                            low_limit[key] = 0
+                            low_limit[key] = -0.1
                             high_limit[key] = 24
                         elif any(value in key for value in
                                  ['electric_vehicle_required_soc_departure', 'electric_vehicle_estimated_soc_arrival',
                                   'electric_vehicle_soc']):
-                            low_limit[key] = 0.0
+                            low_limit[key] = -0.1
                             high_limit[key] = 1.0
             elif key in ['dhw_device_efficiency']:
                 if isinstance(self.dhw_device, HeatPump):
