@@ -13,7 +13,6 @@ Subpackages
    :maxdepth: 4
 
    citylearn.agents
-   citylearn.end_use_load_profiles
 
 Submodules
 ----------
@@ -28,6 +27,7 @@ Submodules
    citylearn.data
    citylearn.dynamics
    citylearn.energy_model
+   citylearn.occupant
    citylearn.power_outage
    citylearn.preprocessing
    citylearn.reward_function

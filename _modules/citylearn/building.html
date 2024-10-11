@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,25 +7,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.building &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
       <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=350d4d64"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../../_static/copybutton.js?v=f281be69"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=350d4d64"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -95,6 +93,7 @@
 <span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">TOLERANCE</span><span class="p">,</span> <span class="n">Weather</span><span class="p">,</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span>
 <span class="kn">from</span> <span class="nn">citylearn.dynamics</span> <span class="kn">import</span> <span class="n">Dynamics</span><span class="p">,</span> <span class="n">LSTMDynamics</span>
 <span class="kn">from</span> <span class="nn">citylearn.energy_model</span> <span class="kn">import</span> <span class="n">Battery</span><span class="p">,</span> <span class="n">ElectricDevice</span><span class="p">,</span> <span class="n">ElectricHeater</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">,</span> <span class="n">PV</span><span class="p">,</span> <span class="n">StorageTank</span>
+<span class="kn">from</span> <span class="nn">citylearn.occupant</span> <span class="kn">import</span> <span class="n">LogisticRegressionOccupant</span><span class="p">,</span> <span class="n">Occupant</span>
 <span class="kn">from</span> <span class="nn">citylearn.power_outage</span> <span class="kn">import</span> <span class="n">PowerOutage</span>
 <span class="kn">from</span> <span class="nn">citylearn.preprocessing</span> <span class="kn">import</span> <span class="n">Normalize</span><span class="p">,</span> <span class="n">PeriodicNormalization</span>
 
@@ -142,7 +141,7 @@
 <span class="sd">        Unique building name.</span>
 <span class="sd">    observation_space_limit_delta: float, default: 0.0</span>
 <span class="sd">        +/- buffer for observation space limits after they have been dynamically calculated.</span>
-<span class="sd">    maximum_temperature_delta: float, default: 10.0</span>
+<span class="sd">    maximum_temperature_delta: float, default: 20.0</span>
 <span class="sd">        Expected maximum absolute temperature delta above and below indoor dry-bulb temperature in [C].</span>
 <span class="sd">    demand_observation_limit_factor: float, default: 1.15</span>
 <span class="sd">        Multiplier for maximum cooling/heating/dhw demand observations when setting observation limits.</span>
@@ -582,14 +581,20 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">indoor_dry_bulb_temperature_set_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dry bulb temperature set point time series, in [C].&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">indoor_dry_bulb_temperature_cooling_set_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dry bulb temperature cooling set point time series, in [C].&quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">indoor_dry_bulb_temperature_heating_set_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dry bulb temperature heating set point time series, in [C].&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
     
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">comfort_band</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Occupant comfort band about the `indoor_dry_bulb_temperature_set_point`, in [C].&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Occupant comfort band above the `indoor_dry_bulb_temperature_cooling_set_point` and below the `indoor_dry_bulb_temperature_heating_set_point`, in [C].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">comfort_band</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
     
@@ -791,7 +796,7 @@
 
     <span class="nd">@maximum_temperature_delta</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">maximum_temperature_delta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum_temperature_delta</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__maximum_temperature_delta</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="k">if</span> <span class="n">maximum_temperature_delta</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">maximum_temperature_delta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__maximum_temperature_delta</span> <span class="o">=</span> <span class="mf">20.0</span> <span class="k">if</span> <span class="n">maximum_temperature_delta</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">maximum_temperature_delta</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;observation_space&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space</span><span class="p">(</span><span class="n">include_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -906,54 +911,7 @@
         <span class="n">check_limits</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">check_limits</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">check_limits</span>
 
         <span class="n">observations</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="o">**</span><span class="p">{</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> 
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
-            <span class="p">},</span>
-            <span class="o">**</span><span class="p">{</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> 
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
-            <span class="p">},</span>
-            <span class="o">**</span><span class="p">{</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> 
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
-            <span class="p">},</span>
-            <span class="o">**</span><span class="p">{</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> 
-                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
-            <span class="p">},</span>
-            <span class="s1">&#39;solar_generation&#39;</span><span class="p">:</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solar_generation</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]),</span>
-            <span class="o">**</span><span class="p">{</span>
-                <span class="s1">&#39;cooling_storage_soc&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">cooling_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-                <span class="s1">&#39;heating_storage_soc&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-                <span class="s1">&#39;dhw_storage_soc&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">dhw_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-                <span class="s1">&#39;electrical_storage_soc&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="p">},</span>
-            <span class="s1">&#39;cooling_demand&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__energy_from_cooling_device</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cooling_storage</span><span class="o">.</span><span class="n">energy_balance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)),</span>
-            <span class="s1">&#39;heating_demand&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__energy_from_heating_device</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_storage</span><span class="o">.</span><span class="n">energy_balance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)),</span>
-            <span class="s1">&#39;dhw_demand&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__energy_from_dhw_device</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dhw_storage</span><span class="o">.</span><span class="n">energy_balance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)),</span>
-            <span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;cooling_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;heating_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;dhw_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;cooling_storage_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_storage_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;heating_storage_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_storage_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;dhw_storage_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_storage_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;electrical_storage_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrical_storage_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;cooling_device_efficiency&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-            <span class="s1">&#39;heating_device_efficiency&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">True</span>
-                    <span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">efficiency</span><span class="p">,</span>
-            <span class="s1">&#39;dhw_device_efficiency&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_device</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">True</span>
-                    <span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dhw_device</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_device</span><span class="o">.</span><span class="n">efficiency</span><span class="p">,</span>
-            <span class="s1">&#39;indoor_dry_bulb_temperature_set_point&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;indoor_dry_bulb_temperature_delta&#39;</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]),</span>
-            <span class="s1">&#39;comfort_band&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">comfort_band</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;occupant_count&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">occupant_count</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s1">&#39;power_outage&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__power_outage_signal</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-        <span class="p">}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_observations_data</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">include_all</span><span class="p">:</span>
             <span class="n">valid_observations</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -1003,6 +961,7 @@
                     <span class="n">sin_x</span><span class="p">,</span> <span class="n">cos_x</span> <span class="o">=</span> <span class="n">v</span><span class="o">*</span><span class="n">pn</span>
                     <span class="n">observations</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_cos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_x</span>
                     <span class="n">observations</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_sin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sin_x</span>
+
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">observations</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1022,6 +981,58 @@
         <span class="k">return</span> <span class="n">observations</span></div>
 
     
+    <span class="k">def</span> <span class="nf">_get_observations_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> 
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="p">},</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> 
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="p">},</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> 
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="p">},</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> 
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;solar_generation&#39;</span><span class="p">:</span><span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solar_generation</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]),</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="s1">&#39;cooling_storage_soc&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">cooling_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+                <span class="s1">&#39;heating_storage_soc&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+                <span class="s1">&#39;dhw_storage_soc&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">dhw_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+                <span class="s1">&#39;electrical_storage_soc&#39;</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">electrical_storage</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;cooling_demand&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__energy_from_cooling_device</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cooling_storage</span><span class="o">.</span><span class="n">energy_balance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)),</span>
+            <span class="s1">&#39;heating_demand&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__energy_from_heating_device</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_storage</span><span class="o">.</span><span class="n">energy_balance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)),</span>
+            <span class="s1">&#39;dhw_demand&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__energy_from_dhw_device</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dhw_storage</span><span class="o">.</span><span class="n">energy_balance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)),</span>
+            <span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;cooling_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;heating_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;dhw_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;cooling_storage_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_storage_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;heating_storage_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_storage_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;dhw_storage_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_storage_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;electrical_storage_electricity_consumption&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrical_storage_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;cooling_device_efficiency&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling_device</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;heating_device_efficiency&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">heating_device</span><span class="o">.</span><span class="n">efficiency</span><span class="p">,</span>
+            <span class="s1">&#39;dhw_device_efficiency&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_device</span><span class="o">.</span><span class="n">get_cop</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">outdoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span> <span class="n">heating</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dhw_device</span><span class="p">,</span> <span class="n">HeatPump</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">dhw_device</span><span class="o">.</span><span class="n">efficiency</span><span class="p">,</span>
+            <span class="s1">&#39;indoor_dry_bulb_temperature_cooling_set_point&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;indoor_dry_bulb_temperature_heating_set_point&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;indoor_dry_bulb_temperature_cooling_delta&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;indoor_dry_bulb_temperature_heating_delta&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;comfort_band&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">comfort_band</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;occupant_count&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">occupant_count</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s1">&#39;power_outage&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__power_outage_signal</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+        <span class="p">}</span>
+    
 <div class="viewcode-block" id="Building.get_periodic_observation_metadata">
 <a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.get_periodic_observation_metadata">[docs]</a>
     <span class="nd">@staticmethod</span>
@@ -1036,7 +1047,7 @@
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;hour&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> 
-            <span class="s1">&#39;day_type&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span> 
+            <span class="s1">&#39;day_type&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
             <span class="s1">&#39;month&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
         <span class="p">}</span></div>
 
@@ -1427,35 +1438,7 @@
         <span class="n">periodic_normalization</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">periodic_normalization</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">periodic_normalization</span>
         <span class="n">periodic_observations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_periodic_observation_metadata</span><span class="p">()</span>
         <span class="n">low_limit</span><span class="p">,</span> <span class="n">high_limit</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
-
-        <span class="c1"># Use entire dataset length for space limit estimation</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> 
-                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
-                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
-            <span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="p">)},</span>
-            <span class="s1">&#39;solar_generation&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pv</span><span class="o">.</span><span class="n">get_generation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
-                <span class="s1">&#39;solar_generation&#39;</span><span class="p">,</span> 
-                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
-                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
-            <span class="p">))),</span>
-            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> 
-                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
-                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
-            <span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="p">)},</span>
-            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> 
-                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
-                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
-            <span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">)},</span>
-            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> 
-                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
-                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
-            <span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="p">)},</span>
-        <span class="p">}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_observation_space_limits_data</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">observation_names</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span>
@@ -1520,8 +1503,8 @@
                 <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;indoor_dry_bulb_temperature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_temperature_delta</span>
                 <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;indoor_dry_bulb_temperature&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_temperature_delta</span>
 
-            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;indoor_dry_bulb_temperature_delta&#39;</span><span class="p">:</span>
-                <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;indoor_dry_bulb_temperature_cooling_delta&#39;</span><span class="p">,</span> <span class="s1">&#39;indoor_dry_bulb_temperature_heating_delta&#39;</span><span class="p">]:</span>
+                <span class="n">low_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">maximum_temperature_delta</span>
                 <span class="n">high_limit</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_temperature_delta</span>
 
             <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;comfort_band&#39;</span><span class="p">:</span>
@@ -1600,6 +1583,36 @@
 
         <span class="k">return</span> <span class="n">low_limit</span><span class="p">,</span> <span class="n">high_limit</span></div>
 
+    
+    <span class="k">def</span> <span class="nf">_get_observation_space_limits_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
+        <span class="c1"># Use entire dataset length for space limit estimation</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> 
+                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
+                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
+            <span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="p">)},</span>
+            <span class="s1">&#39;solar_generation&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pv</span><span class="o">.</span><span class="n">get_generation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
+                <span class="s1">&#39;solar_generation&#39;</span><span class="p">,</span> 
+                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
+                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
+            <span class="p">))),</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> 
+                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
+                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
+            <span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weather</span><span class="p">)},</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> 
+                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
+                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
+            <span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span><span class="p">)},</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> 
+                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
+                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
+            <span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing</span><span class="p">)},</span>
+        <span class="p">}</span>
     
 <div class="viewcode-block" id="Building.estimate_action_space">
 <a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.Building.estimate_action_space">[docs]</a>
@@ -2328,7 +2341,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">_model_input</span><span class="p">[</span><span class="n">ix</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">indoor_dry_bulb_temperature_norm</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 
         <span class="c1"># unnormalize temperature</span>
-        <span class="n">low_limit</span><span class="p">,</span> <span class="n">high_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_normalization_minimum</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_normalization_maximum</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">low_limit</span><span class="p">,</span> <span class="n">high_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_normalization_minimum</span><span class="p">[</span><span class="n">ix</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="o">.</span><span class="n">input_normalization_maximum</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
         <span class="n">indoor_dry_bulb_temperature</span> <span class="o">=</span> <span class="n">indoor_dry_bulb_temperature_norm</span><span class="o">*</span><span class="p">(</span><span class="n">high_limit</span> <span class="o">-</span> <span class="n">low_limit</span><span class="p">)</span> <span class="o">+</span> <span class="n">low_limit</span>
         
         <span class="c1"># update temperature</span>
@@ -2465,6 +2478,234 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span></div>
+</div>
+
+
+<div class="viewcode-block" id="OccupantInteractionBuilding">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.OccupantInteractionBuilding">[docs]</a>
+<span class="k">class</span> <span class="nc">OccupantInteractionBuilding</span><span class="p">(</span><span class="n">DynamicsBuilding</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base class for temperature dynamic and occupant interaction building.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *args: Any</span>
+<span class="sd">        Positional arguments in :py:class:`citylearn.building.Building`.</span>
+<span class="sd">    occupant: Occupant</span>
+<span class="sd">        Occupant thermostat interaction model.</span>
+<span class="sd">    ignore_occupant: bool, default: False</span>
+<span class="sd">        Wether to ignore occupant interaction.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs : Any</span>
+<span class="sd">        Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">occupant</span><span class="p">:</span> <span class="n">Occupant</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_occupant</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Intialize `OccupantInteractionBuilding`&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span> <span class="o">=</span> <span class="n">occupant</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_occupant</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">ignore_occupant</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ignore_occupant</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    
+    <span class="nd">@DynamicsBuilding</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">episode_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">):</span>
+        <span class="n">DynamicsBuilding</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">episode_tracker</span> <span class="o">=</span> <span class="n">episode_tracker</span>
+
+    <span class="nd">@DynamicsBuilding</span><span class="o">.</span><span class="n">random_seed</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">DynamicsBuilding</span><span class="o">.</span><span class="n">random_seed</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span>
+    
+<div class="viewcode-block" id="OccupantInteractionBuilding.apply_actions">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.OccupantInteractionBuilding.apply_actions">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">apply_actions</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate_dynamics</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_set_points</span><span class="p">()</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="OccupantInteractionBuilding.update_set_points">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.OccupantInteractionBuilding.update_set_points">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_set_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update building indoor temperature dry-bulb temperature, humidity, etc setpoint using occupant interaction model.&quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    
+<div class="viewcode-block" id="OccupantInteractionBuilding.reset_dynamic_variables">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.OccupantInteractionBuilding.reset_dynamic_variables">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_dynamic_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets data file variables that change during control to their initial values.</span>
+<span class="sd">        </span>
+<span class="sd">        Resets cooling demand, heating deamand and indoor temperature time series to their initial value </span>
+<span class="sd">        at the beginning of an episode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">start_ix</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">end_ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_time_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point</span><span class="p">[</span><span class="n">start_ix</span><span class="p">:</span><span class="n">end_ix</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point_without_control</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">start_ix</span><span class="p">:</span><span class="n">end_ix</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point</span><span class="p">[</span><span class="n">start_ix</span><span class="p">:</span><span class="n">end_ix</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point_without_control</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">start_ix</span><span class="p">:</span><span class="n">end_ix</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="OccupantInteractionBuilding.next_time_step">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.OccupantInteractionBuilding.next_time_step">[docs]</a>
+    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="OccupantInteractionBuilding.reset">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.OccupantInteractionBuilding.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset Building to initial state and resets `dynamics` and `occupant`.&quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+</div>
+
+
+<div class="viewcode-block" id="LogisticRegressionOccupantInteractionBuilding">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LogisticRegressionOccupantInteractionBuilding">[docs]</a>
+<span class="k">class</span> <span class="nc">LogisticRegressionOccupantInteractionBuilding</span><span class="p">(</span><span class="n">OccupantInteractionBuilding</span><span class="p">,</span> <span class="n">LSTMDynamicsBuilding</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">occupant</span><span class="p">:</span> <span class="n">LogisticRegressionOccupant</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">set_point_hold_time_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">occupant</span><span class="o">=</span><span class="n">occupant</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="p">:</span> <span class="n">LogisticRegressionOccupant</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_point_hold_time_step_counter</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_point_hold_time_steps</span> <span class="o">=</span> <span class="n">set_point_hold_time_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant_interaction_indoor_dry_bulb_temperature_set_point_delta_summary</span> <span class="o">=</span> <span class="p">[]</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">set_point_hold_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set_point_hold_time_steps</span>
+    
+    <span class="nd">@set_point_hold_time_steps</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">set_point_hold_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;set_point_hold_time_steps must be &gt;= 0&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_point_hold_time_steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LogisticRegressionOccupantInteractionBuilding.update_set_points">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LogisticRegressionOccupantInteractionBuilding.update_set_points">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_set_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">current_cooling_set_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+        <span class="n">previous_cooling_set_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">current_heating_set_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+        <span class="n">previous_heating_set_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">hvac_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">hvac_mode</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">hvac_mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">current_set_point</span> <span class="o">=</span> <span class="n">current_cooling_set_point</span>
+            <span class="n">previous_set_point</span> <span class="o">=</span> <span class="n">previous_cooling_set_point</span>
+
+        <span class="k">elif</span> <span class="n">hvac_mode</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">current_set_point</span> <span class="o">=</span> <span class="n">current_heating_set_point</span>
+            <span class="n">previous_set_point</span> <span class="o">=</span> <span class="n">previous_heating_set_point</span>
+
+        <span class="k">elif</span> <span class="n">hvac_mode</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s1">&#39;Setpoint update not implemented for auto hvac mode.&#39;</span> 
+                <span class="s1">&#39; Set hvac_mode in citylearn.Building.energy_simulation to 0 (off), 1 (cooling mode) or 2 (heating mode).&#39;</span>
+            <span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">current_temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+        <span class="n">previous_temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">interaction_input</span> <span class="o">=</span> <span class="n">current_temperature</span>
+        <span class="n">delta_input</span> <span class="o">=</span> <span class="p">[[</span><span class="n">current_set_point</span><span class="p">,</span> <span class="n">previous_set_point</span><span class="p">,</span> <span class="n">previous_temperature</span> <span class="o">-</span> <span class="n">previous_set_point</span><span class="p">]]</span>
+        <span class="n">model_input</span> <span class="o">=</span> <span class="p">(</span><span class="n">interaction_input</span><span class="p">,</span> <span class="n">delta_input</span><span class="p">)</span> 
+        <span class="n">setpoint_delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">model_input</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">occupant_interaction_indoor_dry_bulb_temperature_set_point_delta</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">=</span> <span class="n">setpoint_delta</span>
+
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">setpoint_delta</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_occupant</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">hvac_mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">:]</span> <span class="o">=</span> <span class="n">current_set_point</span> <span class="o">+</span> <span class="n">setpoint_delta</span>
+
+            <span class="k">elif</span> <span class="n">hvac_mode</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">:]</span> <span class="o">=</span> <span class="n">current_set_point</span> <span class="o">+</span> <span class="n">setpoint_delta</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__set_point_hold_time_step_counter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_point_hold_time_steps</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set_point_hold_time_step_counter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__set_point_hold_time_step_counter</span> <span class="o">-=</span> <span class="mi">1</span>
+        
+        <span class="c1"># revert back to default setpoint schedule if no occupant interaction in defined window</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set_point_hold_time_step_counter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set_point_hold_time_step_counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span> \
+                <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point_without_control</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span> \
+                <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point_without_control</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__set_point_hold_time_step_counter</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_observations_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_observations_data</span><span class="p">(),</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> 
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_get_observation_space_limits_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_get_observation_space_limits_data</span><span class="p">(),</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">),</span> 
+                <span class="n">start_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_start_time_step</span><span class="p">,</span> 
+                <span class="n">end_time_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">simulation_end_time_step</span>
+            <span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">parameters</span><span class="p">)},</span>
+        <span class="p">}</span>
+
+        <span class="c1"># hacky way to set the limits for the occupant setpoint change delta</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">delta_output_map</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;occupant_interaction_indoor_dry_bulb_temperature_set_point_delta&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">delta</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;occupant_interaction_indoor_dry_bulb_temperature_set_point_delta&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">delta</span>
+
+        <span class="k">return</span> <span class="n">data</span>
+
+<div class="viewcode-block" id="LogisticRegressionOccupantInteractionBuilding.reset_data_sets">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LogisticRegressionOccupantInteractionBuilding.reset_data_sets">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_data_sets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset_data_sets</span><span class="p">()</span>
+        <span class="n">start_time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_start_time_step</span>
+        <span class="n">end_time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_end_time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">start_time_step</span> <span class="o">=</span> <span class="n">start_time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">end_time_step</span> <span class="o">=</span> <span class="n">end_time_step</span></div>
+
+
+<div class="viewcode-block" id="LogisticRegressionOccupantInteractionBuilding.reset_dynamic_variables">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LogisticRegressionOccupantInteractionBuilding.reset_dynamic_variables">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_dynamic_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset_dynamic_variables</span><span class="p">()</span>
+        <span class="n">start_ix</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">end_ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_time_steps</span>
+        <span class="n">delta_summary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">occupant_interaction_indoor_dry_bulb_temperature_set_point_delta</span><span class="p">[</span><span class="n">start_ix</span><span class="p">:</span><span class="n">end_ix</span><span class="p">],</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant_interaction_indoor_dry_bulb_temperature_set_point_delta_summary</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">delta_summary</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">delta_summary</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">occupant_interaction_indoor_dry_bulb_temperature_set_point_delta</span><span class="p">[</span><span class="n">start_ix</span><span class="p">:</span><span class="n">end_ix</span><span class="p">]</span> <span class="o">=</span>\
+            <span class="bp">self</span><span class="o">.</span><span class="n">occupant</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">occupant_interaction_indoor_dry_bulb_temperature_set_point_delta_without_control</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">start_ix</span><span class="p">:</span><span class="n">end_ix</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="LogisticRegressionOccupantInteractionBuilding.reset">
+<a class="viewcode-back" href="../../api/citylearn.building.html#citylearn.building.LogisticRegressionOccupantInteractionBuilding.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_point_hold_time_step_counter</span> <span class="o">=</span> <span class="kc">None</span></div>
 </div>
 
 </pre></div>

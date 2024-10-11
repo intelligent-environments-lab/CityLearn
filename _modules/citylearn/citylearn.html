@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,25 +7,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.citylearn &mdash; CityLearn 2.2b0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
       <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=350d4d64"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-        <script src="../../_static/copybutton.js?v=f281be69"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=350d4d64"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -96,11 +94,10 @@
 <span class="kn">from</span> <span class="nn">gymnasium</span> <span class="kn">import</span> <span class="n">Env</span><span class="p">,</span> <span class="n">spaces</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">citylearn</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">citylearn_version</span>
 <span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EpisodeTracker</span>
 <span class="kn">from</span> <span class="nn">citylearn.building</span> <span class="kn">import</span> <span class="n">Building</span><span class="p">,</span> <span class="n">DynamicsBuilding</span>
 <span class="kn">from</span> <span class="nn">citylearn.cost_function</span> <span class="kn">import</span> <span class="n">CostFunction</span>
-<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span><span class="p">,</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">TOLERANCE</span><span class="p">,</span> <span class="n">Weather</span>
+<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span><span class="p">,</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">LogisticRegressionOccupantParameters</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">TOLERANCE</span><span class="p">,</span> <span class="n">Weather</span>
 <span class="kn">from</span> <span class="nn">citylearn.energy_model</span> <span class="kn">import</span> <span class="n">Battery</span><span class="p">,</span> <span class="n">PV</span>
 <span class="kn">from</span> <span class="nn">citylearn.reward_function</span> <span class="kn">import</span> <span class="n">RewardFunction</span>
 <span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
@@ -216,7 +213,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">schema</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">random_seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">random_seed</span>
         <span class="n">root_directory</span><span class="p">,</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">rolling_episode_split</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">,</span> \
             <span class="n">seconds_per_time_step</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">,</span> <span class="n">central_agent</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">,</span> <span class="n">episode_tracker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span>
                 <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">),</span>
@@ -903,16 +900,16 @@
 
         <span class="k">return</span> <span class="p">[</span>
             <span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="s1">&#39;day_type&#39;</span><span class="p">,</span> <span class="s1">&#39;hour&#39;</span><span class="p">,</span> <span class="s1">&#39;daylight_savings_status&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;outdoor_dry_bulb_temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;outdoor_dry_bulb_temperature_predicted_6h&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;outdoor_dry_bulb_temperature_predicted_12h&#39;</span><span class="p">,</span> <span class="s1">&#39;outdoor_dry_bulb_temperature_predicted_24h&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;outdoor_relative_humidity&#39;</span><span class="p">,</span> <span class="s1">&#39;outdoor_relative_humidity_predicted_6h&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;outdoor_relative_humidity_predicted_12h&#39;</span><span class="p">,</span> <span class="s1">&#39;outdoor_relative_humidity_predicted_24h&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;diffuse_solar_irradiance&#39;</span><span class="p">,</span> <span class="s1">&#39;diffuse_solar_irradiance_predicted_6h&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;diffuse_solar_irradiance_predicted_12h&#39;</span><span class="p">,</span> <span class="s1">&#39;diffuse_solar_irradiance_predicted_24h&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;direct_solar_irradiance&#39;</span><span class="p">,</span> <span class="s1">&#39;direct_solar_irradiance_predicted_6h&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;direct_solar_irradiance_predicted_12h&#39;</span><span class="p">,</span> <span class="s1">&#39;direct_solar_irradiance_predicted_24h&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;carbon_intensity&#39;</span><span class="p">,</span> <span class="s1">&#39;electricity_pricing&#39;</span><span class="p">,</span> <span class="s1">&#39;electricity_pricing_predicted_6h&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;electricity_pricing_predicted_12h&#39;</span><span class="p">,</span> <span class="s1">&#39;electricity_pricing_predicted_24h&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;outdoor_dry_bulb_temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;outdoor_dry_bulb_temperature_predicted_1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;outdoor_dry_bulb_temperature_predicted_2&#39;</span><span class="p">,</span> <span class="s1">&#39;outdoor_dry_bulb_temperature_predicted_3&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;outdoor_relative_humidity&#39;</span><span class="p">,</span> <span class="s1">&#39;outdoor_relative_humidity_predicted_1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;outdoor_relative_humidity_predicted_2&#39;</span><span class="p">,</span> <span class="s1">&#39;outdoor_relative_humidity_predicted_3&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;diffuse_solar_irradiance&#39;</span><span class="p">,</span> <span class="s1">&#39;diffuse_solar_irradiance_predicted_1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;diffuse_solar_irradiance_predicted_2&#39;</span><span class="p">,</span> <span class="s1">&#39;diffuse_solar_irradiance_predicted_3&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;direct_solar_irradiance&#39;</span><span class="p">,</span> <span class="s1">&#39;direct_solar_irradiance_predicted_1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;direct_solar_irradiance_predicted_2&#39;</span><span class="p">,</span> <span class="s1">&#39;direct_solar_irradiance_predicted_3&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;carbon_intensity&#39;</span><span class="p">,</span> <span class="s1">&#39;electricity_pricing&#39;</span><span class="p">,</span> <span class="s1">&#39;electricity_pricing_predicted_1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;electricity_pricing_predicted_2&#39;</span><span class="p">,</span> <span class="s1">&#39;electricity_pricing_predicted_3&#39;</span><span class="p">,</span>
         <span class="p">]</span></div>
 
 
@@ -1081,8 +1078,8 @@
 <span class="sd">            Condition for net electricity consumption, cost and emission to use in calculating cost functions for the baseline scenario </span>
 <span class="sd">            that is used to normalize the control_condition scenario.</span>
 <span class="sd">        comfort_band: float, optional</span>
-<span class="sd">            Comfort band above and below dry_bulb_temperature_set_point beyond </span>
-<span class="sd">            which occupant is assumed to be uncomfortable.</span>
+<span class="sd">            Comfort band above dry_bulb_temperature_cooling_set_point and below dry_bulb_temperature_heating_set_point beyond </span>
+<span class="sd">            which occupant is assumed to be uncomfortable. Defaults to :py:attr:`citylearn.data.EnergySimulation.DEFUALT_COMFORT_BAND`.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1117,7 +1114,8 @@
 
             <span class="n">discomfort_kwargs</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s1">&#39;indoor_dry_bulb_temperature&#39;</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature</span><span class="p">,</span>
-                <span class="s1">&#39;dry_bulb_temperature_set_point&#39;</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_set_point</span><span class="p">,</span>
+                <span class="s1">&#39;dry_bulb_temperature_cooling_set_point&#39;</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_cooling_set_point</span><span class="p">,</span>
+                <span class="s1">&#39;dry_bulb_temperature_heating_set_point&#39;</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">indoor_dry_bulb_temperature_heating_set_point</span><span class="p">,</span>
                 <span class="s1">&#39;band&#39;</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">comfort_band</span> <span class="k">if</span> <span class="n">comfort_band</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">comfort_band</span><span class="p">,</span>
                 <span class="s1">&#39;occupant_count&#39;</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">occupant_count</span><span class="p">,</span>
             <span class="p">}</span>
@@ -1495,6 +1493,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes and returns a building model.&quot;&quot;&quot;</span>
 
         <span class="n">building_schema</span> <span class="o">=</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">][</span><span class="n">building_name</span><span class="p">]</span>
+        <span class="n">building_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
         <span class="c1"># data</span>
         <span class="n">energy_simulation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span><span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;energy_simulation&#39;</span><span class="p">]))</span>
         <span class="n">energy_simulation</span> <span class="o">=</span> <span class="n">EnergySimulation</span><span class="p">(</span><span class="o">**</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">))</span>
@@ -1571,12 +1571,9 @@
         <span class="n">building_type_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">building_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">building_type_name</span> <span class="o">=</span> <span class="n">building_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">building_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">building_type_module</span><span class="p">),</span><span class="n">building_type_name</span><span class="p">)</span>
-        <span class="n">dynamics</span> <span class="o">=</span> <span class="p">{}</span>
         
         <span class="c1"># set dynamics</span>
         <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dynamics&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">int</span><span class="p">(</span><span class="n">citylearn_version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Building dynamics is only supported in CityLearn&gt;=2.x.x&#39;</span>
-            
             <span class="n">dynamics_type</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;dynamics&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
             <span class="n">dynamics_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dynamics_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">dynamics_name</span> <span class="o">=</span> <span class="n">dynamics_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -1584,10 +1581,33 @@
             <span class="n">attributes</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;dynamics&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span>
             <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;filepath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">])</span>
             <span class="n">_</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;filename&#39;</span><span class="p">)</span>
-            <span class="n">dynamics</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dynamics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dynamics_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">attributes</span><span class="p">)</span>
+            <span class="n">building_kwargs</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;dynamics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dynamics_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">attributes</span><span class="p">)</span>
         
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">dynamics</span><span class="p">[</span><span class="s1">&#39;dynamics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">building_kwargs</span><span class="p">[</span><span class="s1">&#39;dynamics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># set occupant</span>
+        <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;occupant&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">building_occupant</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;occupant&#39;</span><span class="p">]</span>
+            <span class="n">occupant_type</span> <span class="o">=</span> <span class="n">building_occupant</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+            <span class="n">occupant_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">occupant_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">occupant_name</span> <span class="o">=</span> <span class="n">occupant_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">occupant_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">occupant_module</span><span class="p">),</span> <span class="n">occupant_name</span><span class="p">)</span>
+            <span class="n">attributes</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">building_occupant</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">parameters_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">building_occupant</span><span class="p">[</span><span class="s1">&#39;parameters_filename&#39;</span><span class="p">])</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">parameters_filepath</span><span class="p">)</span>
+            <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">LogisticRegressionOccupantParameters</span><span class="p">(</span><span class="o">**</span><span class="n">parameters</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">))</span>
+            <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;episode_tracker&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">episode_tracker</span>
+            <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;increase&#39;</span><span class="p">,</span> <span class="s1">&#39;decrease&#39;</span><span class="p">]:</span>
+                <span class="n">attributes</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;setpoint_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_model_filepath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">attributes</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;setpoint_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_model_filename&#39;</span><span class="p">])</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;setpoint_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_model_filename&#39;</span><span class="p">)</span>
+
+            <span class="n">building_kwargs</span><span class="p">[</span><span class="s1">&#39;occupant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">occupant_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">attributes</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">building_kwargs</span><span class="p">[</span><span class="s1">&#39;occupant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># set power outage model</span>
         <span class="n">building_schema_power_outage</span> <span class="o">=</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;power_outage&#39;</span><span class="p">,</span> <span class="p">{})</span>
@@ -1624,7 +1644,7 @@
             <span class="n">simulate_power_outage</span><span class="o">=</span><span class="n">simulate_power_outage</span><span class="p">,</span>
             <span class="n">stochastic_power_outage</span><span class="o">=</span><span class="n">stochastic_power_outage</span><span class="p">,</span>
             <span class="n">stochastic_power_outage_model</span><span class="o">=</span><span class="n">stochastic_power_outage_model</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">dynamics</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">building_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># update devices</span>
