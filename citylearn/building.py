@@ -8,6 +8,7 @@ from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
 from citylearn.dynamics import Dynamics, LSTMDynamics
 from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank
+from citylearn.occupant import LogisticRegressionOccupant, Occupant
 from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
@@ -818,56 +819,7 @@ class Building(Environment):
         check_limits = False if check_limits is None else check_limits
 
         observations = {}
-        data = {
-            **{
-                k.lstrip('_'): self.energy_simulation.__getattr__(k.lstrip('_'))[self.time_step] 
-                for k, v in vars(self.energy_simulation).items() if isinstance(v, np.ndarray)
-            },
-            **{
-                k.lstrip('_'): self.weather.__getattr__(k.lstrip('_'))[self.time_step] 
-                for k, v in vars(self.weather).items() if isinstance(v, np.ndarray)
-            },
-            **{
-                k.lstrip('_'): self.pricing.__getattr__(k.lstrip('_'))[self.time_step] 
-                for k, v in vars(self.pricing).items() if isinstance(v, np.ndarray)
-            },
-            **{
-                k.lstrip('_'): self.carbon_intensity.__getattr__(k.lstrip('_'))[self.time_step] 
-                for k, v in vars(self.carbon_intensity).items() if isinstance(v, np.ndarray)
-            },
-            'solar_generation':abs(self.solar_generation[self.time_step]),
-            **{
-                'cooling_storage_soc':self.cooling_storage.soc[self.time_step],
-                'heating_storage_soc':self.heating_storage.soc[self.time_step],
-                'dhw_storage_soc':self.dhw_storage.soc[self.time_step],
-                'electrical_storage_soc':self.electrical_storage.soc[self.time_step],
-            },
-            'cooling_demand': self.__energy_from_cooling_device[self.time_step] + abs(min(self.cooling_storage.energy_balance[self.time_step], 0.0)),
-            'heating_demand': self.__energy_from_heating_device[self.time_step] + abs(min(self.heating_storage.energy_balance[self.time_step], 0.0)),
-            'dhw_demand': self.__energy_from_dhw_device[self.time_step] + abs(min(self.dhw_storage.energy_balance[self.time_step], 0.0)),
-            'net_electricity_consumption': self.net_electricity_consumption[self.time_step],
-            'cooling_electricity_consumption': self.cooling_electricity_consumption[self.time_step],
-            'heating_electricity_consumption': self.heating_electricity_consumption[self.time_step],
-            'dhw_electricity_consumption': self.dhw_electricity_consumption[self.time_step],
-            'cooling_storage_electricity_consumption': self.cooling_storage_electricity_consumption[self.time_step],
-            'heating_storage_electricity_consumption': self.heating_storage_electricity_consumption[self.time_step],
-            'dhw_storage_electricity_consumption': self.dhw_storage_electricity_consumption[self.time_step],
-            'electrical_storage_electricity_consumption': self.electrical_storage_electricity_consumption[self.time_step],
-            'cooling_device_efficiency': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
-            'heating_device_efficiency': self.heating_device.get_cop(
-                self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
-                    ) if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
-            'dhw_device_efficiency': self.dhw_device.get_cop(
-                self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
-                    ) if isinstance(self.dhw_device, HeatPump) else self.dhw_device.efficiency,
-            'indoor_dry_bulb_temperature_cooling_set_point': self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step],
-            'indoor_dry_bulb_temperature_heating_set_point': self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step],
-            'indoor_dry_bulb_temperature_cooling_delta': self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step],
-            'indoor_dry_bulb_temperature_heating_delta': self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step],
-            'comfort_band': self.energy_simulation.comfort_band[self.time_step],
-            'occupant_count': self.energy_simulation.occupant_count[self.time_step],
-            'power_outage': self.__power_outage_signal[self.time_step],
-        }
+        data = self._get_observations_data()
 
         if include_all:
             valid_observations = list(data.keys())
@@ -935,6 +887,58 @@ class Building(Environment):
             pass
 
         return observations
+    
+    def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
+        return {
+            **{
+                k.lstrip('_'): self.energy_simulation.__getattr__(k.lstrip('_'))[self.time_step] 
+                for k, v in vars(self.energy_simulation).items() if isinstance(v, np.ndarray)
+            },
+            **{
+                k.lstrip('_'): self.weather.__getattr__(k.lstrip('_'))[self.time_step] 
+                for k, v in vars(self.weather).items() if isinstance(v, np.ndarray)
+            },
+            **{
+                k.lstrip('_'): self.pricing.__getattr__(k.lstrip('_'))[self.time_step] 
+                for k, v in vars(self.pricing).items() if isinstance(v, np.ndarray)
+            },
+            **{
+                k.lstrip('_'): self.carbon_intensity.__getattr__(k.lstrip('_'))[self.time_step] 
+                for k, v in vars(self.carbon_intensity).items() if isinstance(v, np.ndarray)
+            },
+            'solar_generation':abs(self.solar_generation[self.time_step]),
+            **{
+                'cooling_storage_soc':self.cooling_storage.soc[self.time_step],
+                'heating_storage_soc':self.heating_storage.soc[self.time_step],
+                'dhw_storage_soc':self.dhw_storage.soc[self.time_step],
+                'electrical_storage_soc':self.electrical_storage.soc[self.time_step],
+            },
+            'cooling_demand': self.__energy_from_cooling_device[self.time_step] + abs(min(self.cooling_storage.energy_balance[self.time_step], 0.0)),
+            'heating_demand': self.__energy_from_heating_device[self.time_step] + abs(min(self.heating_storage.energy_balance[self.time_step], 0.0)),
+            'dhw_demand': self.__energy_from_dhw_device[self.time_step] + abs(min(self.dhw_storage.energy_balance[self.time_step], 0.0)),
+            'net_electricity_consumption': self.net_electricity_consumption[self.time_step],
+            'cooling_electricity_consumption': self.cooling_electricity_consumption[self.time_step],
+            'heating_electricity_consumption': self.heating_electricity_consumption[self.time_step],
+            'dhw_electricity_consumption': self.dhw_electricity_consumption[self.time_step],
+            'cooling_storage_electricity_consumption': self.cooling_storage_electricity_consumption[self.time_step],
+            'heating_storage_electricity_consumption': self.heating_storage_electricity_consumption[self.time_step],
+            'dhw_storage_electricity_consumption': self.dhw_storage_electricity_consumption[self.time_step],
+            'electrical_storage_electricity_consumption': self.electrical_storage_electricity_consumption[self.time_step],
+            'cooling_device_efficiency': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
+            'heating_device_efficiency': self.heating_device.get_cop(
+                self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
+                    ) if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
+            'dhw_device_efficiency': self.dhw_device.get_cop(
+                self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
+                    ) if isinstance(self.dhw_device, HeatPump) else self.dhw_device.efficiency,
+            'indoor_dry_bulb_temperature_cooling_set_point': self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step],
+            'indoor_dry_bulb_temperature_heating_set_point': self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step],
+            'indoor_dry_bulb_temperature_cooling_delta': self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step],
+            'indoor_dry_bulb_temperature_heating_delta': self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step],
+            'comfort_band': self.energy_simulation.comfort_band[self.time_step],
+            'occupant_count': self.energy_simulation.occupant_count[self.time_step],
+            'power_outage': self.__power_outage_signal[self.time_step],
+        }
     
     @staticmethod
     def get_periodic_observation_metadata() -> Mapping[str, int]:
@@ -1300,35 +1304,7 @@ class Building(Environment):
         periodic_normalization = False if periodic_normalization is None else periodic_normalization
         periodic_observations = self.get_periodic_observation_metadata()
         low_limit, high_limit = {}, {}
-
-        # Use entire dataset length for space limit estimation
-        data = {
-            **{k.lstrip('_'): self.energy_simulation.__getattr__(
-                k.lstrip('_'), 
-                start_time_step=self.episode_tracker.simulation_start_time_step, 
-                end_time_step=self.episode_tracker.simulation_end_time_step
-            ) for k in vars(self.energy_simulation)},
-            'solar_generation':np.array(self.pv.get_generation(self.energy_simulation.__getattr__(
-                'solar_generation', 
-                start_time_step=self.episode_tracker.simulation_start_time_step, 
-                end_time_step=self.episode_tracker.simulation_end_time_step
-            ))),
-            **{k.lstrip('_'): self.weather.__getattr__(
-                k.lstrip('_'), 
-                start_time_step=self.episode_tracker.simulation_start_time_step, 
-                end_time_step=self.episode_tracker.simulation_end_time_step
-            ) for k in vars(self.weather)},
-            **{k.lstrip('_'): self.carbon_intensity.__getattr__(
-                k.lstrip('_'), 
-                start_time_step=self.episode_tracker.simulation_start_time_step, 
-                end_time_step=self.episode_tracker.simulation_end_time_step
-            ) for k in vars(self.carbon_intensity)},
-            **{k.lstrip('_'): self.pricing.__getattr__(
-                k.lstrip('_'), 
-                start_time_step=self.episode_tracker.simulation_start_time_step, 
-                end_time_step=self.episode_tracker.simulation_end_time_step
-            ) for k in vars(self.pricing)},
-        }
+        data = self._get_observation_space_limits_data()
 
         for key in observation_names:
             if key == 'net_electricity_consumption':
@@ -1472,6 +1448,36 @@ class Building(Environment):
         high_limit = {k: v + self.observation_space_limit_delta for k, v in high_limit.items()}
 
         return low_limit, high_limit
+    
+    def _get_observation_space_limits_data(self) -> Mapping[str, List[Union[float, int]]]:
+        # Use entire dataset length for space limit estimation
+        return {
+            **{k.lstrip('_'): self.energy_simulation.__getattr__(
+                k.lstrip('_'), 
+                start_time_step=self.episode_tracker.simulation_start_time_step, 
+                end_time_step=self.episode_tracker.simulation_end_time_step
+            ) for k in vars(self.energy_simulation)},
+            'solar_generation':np.array(self.pv.get_generation(self.energy_simulation.__getattr__(
+                'solar_generation', 
+                start_time_step=self.episode_tracker.simulation_start_time_step, 
+                end_time_step=self.episode_tracker.simulation_end_time_step
+            ))),
+            **{k.lstrip('_'): self.weather.__getattr__(
+                k.lstrip('_'), 
+                start_time_step=self.episode_tracker.simulation_start_time_step, 
+                end_time_step=self.episode_tracker.simulation_end_time_step
+            ) for k in vars(self.weather)},
+            **{k.lstrip('_'): self.carbon_intensity.__getattr__(
+                k.lstrip('_'), 
+                start_time_step=self.episode_tracker.simulation_start_time_step, 
+                end_time_step=self.episode_tracker.simulation_end_time_step
+            ) for k in vars(self.carbon_intensity)},
+            **{k.lstrip('_'): self.pricing.__getattr__(
+                k.lstrip('_'), 
+                start_time_step=self.episode_tracker.simulation_start_time_step, 
+                end_time_step=self.episode_tracker.simulation_end_time_step
+            ) for k in vars(self.pricing)},
+        }
     
     def estimate_action_space(self) -> spaces.Box:
         r"""Get estimate of action spaces.
@@ -2260,3 +2266,198 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
 
         else:
             pass
+
+class OccupantInteractionBuilding(DynamicsBuilding):
+    r"""Base class for temperature dynamic and occupant interaction building.
+
+    Parameters
+    ----------
+    *args: Any
+        Positional arguments in :py:class:`citylearn.building.Building`.
+    occupant: Occupant
+        Occupant thermostat interaction model.
+    ignore_occupant: bool, default: False
+        Wether to ignore occupant interaction.
+
+    Other Parameters
+    ----------------
+    **kwargs : Any
+        Other keyword arguments used to initialize :py:class:`citylearn.building.Building` super class.
+    """
+
+    def __init__(self, *args: Any, occupant: Occupant = None, ignore_occupant: bool = None, **kwargs: Any):
+        """Intialize `OccupantInteractionBuilding`"""
+
+        self.occupant = occupant
+        self.ignore_occupant = False if ignore_occupant is None else ignore_occupant
+        super().__init__(*args, **kwargs)
+    
+    @DynamicsBuilding.episode_tracker.setter
+    def episode_tracker(self, episode_tracker: EpisodeTracker):
+        DynamicsBuilding.episode_tracker.fset(self, episode_tracker)
+        self.occupant.episode_tracker = episode_tracker
+
+    @DynamicsBuilding.random_seed.setter
+    def random_seed(self, seed: int):
+        DynamicsBuilding.random_seed.fset(self, seed)
+        self.occupant.random_seed = self.random_seed
+    
+    def apply_actions(self, **kwargs):
+        super().apply_actions(**kwargs)
+
+        if self.simulate_dynamics:
+            self.update_set_points()
+        
+        else:
+            pass
+
+    def update_set_points(self):
+        """Update building indoor temperature dry-bulb temperature, humidity, etc setpoint using occupant interaction model."""
+
+        raise NotImplementedError
+    
+    def reset_dynamic_variables(self):
+        """Resets data file variables that change during control to their initial values.
+        
+        Resets cooling demand, heating deamand and indoor temperature time series to their initial value 
+        at the beginning of an episode.
+        """
+
+        start_ix = 0
+        end_ix = self.episode_tracker.episode_time_steps
+        self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[start_ix:end_ix] = self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point_without_control.copy()[start_ix:end_ix]
+        self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[start_ix:end_ix] = self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point_without_control.copy()[start_ix:end_ix]
+
+    def next_time_step(self):
+        super().next_time_step()
+        self.occupant.next_time_step()
+        
+    def reset(self):
+        """Reset Building to initial state and resets `dynamics` and `occupant`."""
+
+        super().reset()
+        self.occupant.reset()
+
+class LogisticRegressionOccupantInteractionBuilding(OccupantInteractionBuilding, LSTMDynamicsBuilding):
+    def __init__(self, *args, occupant: LogisticRegressionOccupant = None, set_point_hold_time_steps: int = None, **kwargs):
+        super().__init__(*args, occupant=occupant, **kwargs)
+        self.occupant: LogisticRegressionOccupant
+        self.__set_point_hold_time_step_counter = None
+        self.set_point_hold_time_steps = set_point_hold_time_steps
+        self.occupant_interaction_indoor_dry_bulb_temperature_set_point_delta_summary = []
+        
+    @property
+    def set_point_hold_time_steps(self) -> int:
+        return self.__set_point_hold_time_steps
+    
+    @set_point_hold_time_steps.setter
+    def set_point_hold_time_steps(self, value: int):
+        assert value is None or value >= 0, 'set_point_hold_time_steps must be >= 0'
+        self.__set_point_hold_time_steps = np.inf if value is None else int(value)
+
+    def update_set_points(self):
+        current_cooling_set_point = self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step]
+        previous_cooling_set_point = self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step - 1]
+        current_heating_set_point = self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step]
+        previous_heating_set_point = self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step - 1]
+        hvac_mode = self.energy_simulation.hvac_mode[self.time_step]
+
+        if hvac_mode == 1:
+            current_set_point = current_cooling_set_point
+            previous_set_point = previous_cooling_set_point
+
+        elif hvac_mode == 2:
+            current_set_point = current_heating_set_point
+            previous_set_point = previous_heating_set_point
+
+        elif hvac_mode == 3:
+            raise NotImplementedError(
+                'Setpoint update not implemented for auto hvac mode.' 
+                ' Set hvac_mode in citylearn.Building.energy_simulation to 0 (off), 1 (cooling mode) or 2 (heating mode).'
+            )
+        
+        else:
+            pass
+
+        current_temperature = self.energy_simulation.indoor_dry_bulb_temperature[self.time_step]
+        previous_temperature = self.energy_simulation.indoor_dry_bulb_temperature[self.time_step - 1]
+        interaction_input = current_temperature
+        delta_input = [[current_set_point, previous_set_point, previous_temperature - previous_set_point]]
+        model_input = (interaction_input, delta_input) 
+        setpoint_delta = self.occupant.predict(x=model_input)
+        self.occupant.parameters.occupant_interaction_indoor_dry_bulb_temperature_set_point_delta[self.time_step] = setpoint_delta
+
+        if abs(setpoint_delta) > 0.0 and not self.ignore_occupant:
+            if hvac_mode == 1:
+                self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step:] = current_set_point + setpoint_delta
+
+            elif hvac_mode == 2:
+                self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step:] = current_set_point + setpoint_delta
+            
+            else:
+                pass
+
+            self.__set_point_hold_time_step_counter = self.set_point_hold_time_steps
+
+        elif self.__set_point_hold_time_step_counter is None:
+            pass
+
+        else:
+            self.__set_point_hold_time_step_counter -= 1
+        
+        # revert back to default setpoint schedule if no occupant interaction in defined window
+        if self.__set_point_hold_time_step_counter is not None and self.__set_point_hold_time_step_counter == 0:
+            self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step + 1:] \
+                = self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point_without_control[self.time_step + 1:]
+            self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step + 1:] \
+                = self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point_without_control[self.time_step + 1:]
+            self.__set_point_hold_time_step_counter = None
+
+        else:
+            pass
+
+    def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
+        return {
+            **super()._get_observations_data(),
+            **{
+                k.lstrip('_'): self.occupant.parameters.__getattr__(k.lstrip('_'))[self.time_step] 
+                for k, v in vars(self.occupant.parameters).items() if isinstance(v, np.ndarray)
+            }
+        }
+
+    def _get_observation_space_limits_data(self) -> Mapping[str, List[Union[float, int]]]:
+        data = {
+            **super()._get_observation_space_limits_data(),
+            **{k.lstrip('_'): self.occupant.parameters.__getattr__(
+                k.lstrip('_'), 
+                start_time_step=self.episode_tracker.simulation_start_time_step, 
+                end_time_step=self.episode_tracker.simulation_end_time_step
+            ) for k in vars(self.occupant.parameters)},
+        }
+
+        # hacky way to set the limits for the occupant setpoint change delta
+        delta = max(list(self.occupant.delta_output_map.values()))
+        data['occupant_interaction_indoor_dry_bulb_temperature_set_point_delta'][0] = delta
+        data['occupant_interaction_indoor_dry_bulb_temperature_set_point_delta'][-1] = -delta
+
+        return data
+
+    def reset_data_sets(self):
+        super().reset_data_sets()
+        start_time_step = self.episode_tracker.episode_start_time_step
+        end_time_step = self.episode_tracker.episode_end_time_step
+        self.occupant.parameters.start_time_step = start_time_step
+        self.occupant.parameters.end_time_step = end_time_step
+
+    def reset_dynamic_variables(self):
+        super().reset_dynamic_variables()
+        start_ix = 0
+        end_ix = self.episode_tracker.episode_time_steps
+        delta_summary = np.unique(self.occupant.parameters.occupant_interaction_indoor_dry_bulb_temperature_set_point_delta[start_ix:end_ix], return_counts=True)
+        self.occupant_interaction_indoor_dry_bulb_temperature_set_point_delta_summary.append([delta_summary[0].tolist(), delta_summary[1].tolist()])
+        self.occupant.parameters.occupant_interaction_indoor_dry_bulb_temperature_set_point_delta[start_ix:end_ix] =\
+            self.occupant.parameters.occupant_interaction_indoor_dry_bulb_temperature_set_point_delta_without_control.copy()[start_ix:end_ix]
+
+    def reset(self):
+        super().reset()
+        self.__set_point_hold_time_step_counter = None

@@ -1,10 +1,10 @@
 doe_xstock @ git+https://github.com/intelligent-environments-lab/DOE_XStock.git@v1-develop
 gymnasium
 nrel-pysam
-numpy
+numpy<2.0.0
 pandas
 pyyaml
-scikit-learn
+scikit-learn<=1.2.2
 simplejson
 torch
 torchvision

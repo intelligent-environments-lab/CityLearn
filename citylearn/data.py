@@ -286,6 +286,16 @@ class EnergySimulation(TimeSeriesData):
         data = data.set_index('model')
 
         return data
+    
+class LogisticRegressionOccupantParameters(TimeSeriesData):
+    def __init__(self, a_increase: Iterable[float], b_increase: Iterable[float], a_decrease: Iterable[float], b_decrease: Iterable[float], start_time_step: int = None, end_time_step: int = None):
+        super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
+        self.a_increase = np.array(a_increase, dtype='float32')
+        self.b_increase = np.array(b_increase, dtype='float32')
+        self.a_decrease = np.array(a_decrease, dtype='float32')
+        self.b_decrease = np.array(b_decrease, dtype='float32')
+        self.occupant_interaction_indoor_dry_bulb_temperature_set_point_delta = np.zeros(len(self.a_increase), dtype='float32')
+        self.occupant_interaction_indoor_dry_bulb_temperature_set_point_delta_without_control = np.zeros(len(self.a_increase), dtype='float32')
 
 class Weather(TimeSeriesData):
     """`Building` `weather` data class.
@@ -323,7 +333,7 @@ class Weather(TimeSeriesData):
     direct_solar_irradiance_predicted_2 : np.array
         Direct solar irradiance `n` hours ahead prediction time series in [W/m^2]. `n` can be any number of hours and is typically 12 hours in existing datasets.
     direct_solar_irradiance_predicted_3 : np.array
-        Direct solar irradiance 24 hours ahead prediction time series in [W/m^2]. `n` can be any number of hours and is typically 24 hours in existing datasets.
+        Direct solar irradiance `n` hours ahead prediction time series in [W/m^2]. `n` can be any number of hours and is typically 24 hours in existing datasets.
     start_time_step: int, optional
         Time step to start reading variables.
     end_time_step: int, optional

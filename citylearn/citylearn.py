@@ -9,11 +9,10 @@ from typing import Any, List, Mapping, Tuple, Union
 from gymnasium import Env, spaces
 import numpy as np
 import pandas as pd
-from citylearn import __version__ as citylearn_version
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
 from citylearn.cost_function import CostFunction
-from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather
+from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, LogisticRegressionOccupantParameters, Pricing, TOLERANCE, Weather
 from citylearn.energy_model import Battery, PV
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
@@ -124,7 +123,7 @@ class CityLearnEnv(Environment, Env):
         self.schema = schema
         self.__rewards = None
         self.buildings = []
-        self.random_seed = random_seed
+        self.random_seed = self.schema['random_seed'] if random_seed is None else random_seed
         root_directory, buildings, episode_time_steps, rolling_episode_split, random_episode_split, \
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker = self._load(
                 deepcopy(self.schema),
@@ -1374,6 +1373,8 @@ class CityLearnEnv(Environment, Env):
         """Initializes and returns a building model."""
 
         building_schema = schema['buildings'][building_name]
+        building_kwargs = {}
+
         # data
         energy_simulation = pd.read_csv(os.path.join(schema['root_directory'],building_schema['energy_simulation']))
         energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'))
@@ -1450,12 +1451,9 @@ class CityLearnEnv(Environment, Env):
         building_type_module = '.'.join(building_type.split('.')[0:-1])
         building_type_name = building_type.split('.')[-1]
         building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
-        dynamics = {}
         
         # set dynamics
         if building_schema.get('dynamics', None) is not None:
-            assert int(citylearn_version.split('.')[0]) >= 2, 'Building dynamics is only supported in CityLearn>=2.x.x'
-            
             dynamics_type = building_schema['dynamics']['type']
             dynamics_module = '.'.join(dynamics_type.split('.')[0:-1])
             dynamics_name = dynamics_type.split('.')[-1]
@@ -1463,10 +1461,33 @@ class CityLearnEnv(Environment, Env):
             attributes = building_schema['dynamics'].get('attributes', {})
             attributes['filepath'] = os.path.join(schema['root_directory'], attributes['filename'])
             _ = attributes.pop('filename')
-            dynamics[f'dynamics'] = dynamics_constructor(**attributes)
+            building_kwargs[f'dynamics'] = dynamics_constructor(**attributes)
         
         else:
-            dynamics['dynamics'] = {}
+            building_kwargs['dynamics'] = None
+
+        # set occupant
+        if building_schema.get('occupant', None) is not None:
+            building_occupant = building_schema['occupant']
+            occupant_type = building_occupant['type']
+            occupant_module = '.'.join(occupant_type.split('.')[0:-1])
+            occupant_name = occupant_type.split('.')[-1]
+            occupant_constructor = getattr(importlib.import_module(occupant_module), occupant_name)
+            attributes: dict = building_occupant.get('attributes', {})
+            parameters_filepath = os.path.join(schema['root_directory'], building_occupant['parameters_filename'])
+            parameters = pd.read_csv(parameters_filepath)
+            attributes['parameters'] = LogisticRegressionOccupantParameters(**parameters.to_dict('list'))
+            attributes['episode_tracker'] = episode_tracker
+            attributes['random_seed'] = schema['random_seed']
+
+            for k in ['increase', 'decrease']:
+                attributes[f'setpoint_{k}_model_filepath'] = os.path.join(schema['root_directory'], attributes[f'setpoint_{k}_model_filename'])
+                _ = attributes.pop(f'setpoint_{k}_model_filename')
+
+            building_kwargs['occupant'] = occupant_constructor(**attributes)
+        
+        else:
+            building_kwargs['occupant'] = None
 
         # set power outage model
         building_schema_power_outage = building_schema.get('power_outage', {})
@@ -1503,7 +1524,7 @@ class CityLearnEnv(Environment, Env):
             simulate_power_outage=simulate_power_outage,
             stochastic_power_outage=stochastic_power_outage,
             stochastic_power_outage_model=stochastic_power_outage_model,
-            **dynamics,
+            **building_kwargs,
         )
 
         # update devices
