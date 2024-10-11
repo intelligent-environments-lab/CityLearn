@@ -806,16 +806,16 @@ class CityLearnEnv(Environment, Env):
 
         return [
             'month', 'day_type', 'hour', 'daylight_savings_status',
-            'outdoor_dry_bulb_temperature', 'outdoor_dry_bulb_temperature_predicted_6h',
-            'outdoor_dry_bulb_temperature_predicted_12h', 'outdoor_dry_bulb_temperature_predicted_24h',
-            'outdoor_relative_humidity', 'outdoor_relative_humidity_predicted_6h',
-            'outdoor_relative_humidity_predicted_12h', 'outdoor_relative_humidity_predicted_24h',
-            'diffuse_solar_irradiance', 'diffuse_solar_irradiance_predicted_6h',
-            'diffuse_solar_irradiance_predicted_12h', 'diffuse_solar_irradiance_predicted_24h',
-            'direct_solar_irradiance', 'direct_solar_irradiance_predicted_6h',
-            'direct_solar_irradiance_predicted_12h', 'direct_solar_irradiance_predicted_24h',
-            'carbon_intensity', 'electricity_pricing', 'electricity_pricing_predicted_6h',
-            'electricity_pricing_predicted_12h', 'electricity_pricing_predicted_24h',
+            'outdoor_dry_bulb_temperature', 'outdoor_dry_bulb_temperature_predicted_1',
+            'outdoor_dry_bulb_temperature_predicted_2', 'outdoor_dry_bulb_temperature_predicted_3',
+            'outdoor_relative_humidity', 'outdoor_relative_humidity_predicted_1',
+            'outdoor_relative_humidity_predicted_2', 'outdoor_relative_humidity_predicted_3',
+            'diffuse_solar_irradiance', 'diffuse_solar_irradiance_predicted_1',
+            'diffuse_solar_irradiance_predicted_2', 'diffuse_solar_irradiance_predicted_3',
+            'direct_solar_irradiance', 'direct_solar_irradiance_predicted_1',
+            'direct_solar_irradiance_predicted_2', 'direct_solar_irradiance_predicted_3',
+            'carbon_intensity', 'electricity_pricing', 'electricity_pricing_predicted_1',
+            'electricity_pricing_predicted_2', 'electricity_pricing_predicted_3',
         ]
 
 
@@ -972,8 +972,8 @@ class CityLearnEnv(Environment, Env):
             Condition for net electricity consumption, cost and emission to use in calculating cost functions for the baseline scenario 
             that is used to normalize the control_condition scenario.
         comfort_band: float, optional
-            Comfort band above and below dry_bulb_temperature_set_point beyond 
-            which occupant is assumed to be uncomfortable.
+            Comfort band above dry_bulb_temperature_cooling_set_point and below dry_bulb_temperature_heating_set_point beyond 
+            which occupant is assumed to be uncomfortable. Defaults to :py:attr:`citylearn.data.EnergySimulation.DEFUALT_COMFORT_BAND`.
         
         Returns
         -------
@@ -1008,7 +1008,8 @@ class CityLearnEnv(Environment, Env):
 
             discomfort_kwargs = {
                 'indoor_dry_bulb_temperature': b.indoor_dry_bulb_temperature,
-                'dry_bulb_temperature_set_point': b.indoor_dry_bulb_temperature_set_point,
+                'dry_bulb_temperature_cooling_set_point': b.indoor_dry_bulb_temperature_cooling_set_point,
+                'dry_bulb_temperature_heating_set_point': b.indoor_dry_bulb_temperature_heating_set_point,
                 'band': b.comfort_band if comfort_band is None else comfort_band,
                 'occupant_count': b.occupant_count,
             }

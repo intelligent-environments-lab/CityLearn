@@ -53,7 +53,7 @@ class Building(Environment):
         Unique building name.
     observation_space_limit_delta: float, default: 0.0
         +/- buffer for observation space limits after they have been dynamically calculated.
-    maximum_temperature_delta: float, default: 10.0
+    maximum_temperature_delta: float, default: 20.0
         Expected maximum absolute temperature delta above and below indoor dry-bulb temperature in [C].
     demand_observation_limit_factor: float, default: 1.15
         Multiplier for maximum cooling/heating/dhw demand observations when setting observation limits.
@@ -493,14 +493,20 @@ class Building(Environment):
         return self.energy_simulation.indoor_dry_bulb_temperature[0:self.time_step + 1]
     
     @property
-    def indoor_dry_bulb_temperature_set_point(self) -> np.ndarray:
-        """Dry bulb temperature set point time series, in [C]."""
+    def indoor_dry_bulb_temperature_cooling_set_point(self) -> np.ndarray:
+        """Dry bulb temperature cooling set point time series, in [C]."""
 
-        return self.energy_simulation.indoor_dry_bulb_temperature_set_point[0:self.time_step + 1]
+        return self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[0:self.time_step + 1]
+    
+    @property
+    def indoor_dry_bulb_temperature_heating_set_point(self) -> np.ndarray:
+        """Dry bulb temperature heating set point time series, in [C]."""
+
+        return self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[0:self.time_step + 1]
     
     @property
     def comfort_band(self) -> np.ndarray:
-        """Occupant comfort band about the `indoor_dry_bulb_temperature_set_point`, in [C]."""
+        """Occupant comfort band above the `indoor_dry_bulb_temperature_cooling_set_point` and below the `indoor_dry_bulb_temperature_heating_set_point`, in [C]."""
 
         return self.energy_simulation.comfort_band[0:self.time_step + 1]
     
@@ -702,7 +708,7 @@ class Building(Environment):
 
     @maximum_temperature_delta.setter
     def maximum_temperature_delta(self, maximum_temperature_delta: float):
-        self.__maximum_temperature_delta = 10.0 if maximum_temperature_delta is None else maximum_temperature_delta
+        self.__maximum_temperature_delta = 20.0 if maximum_temperature_delta is None else maximum_temperature_delta
 
         if hasattr(self, 'observation_space') and self.observation_space is not None:
             self.observation_space = self.estimate_observation_space(include_all=False, normalize=False)
@@ -854,8 +860,10 @@ class Building(Environment):
             'dhw_device_efficiency': self.dhw_device.get_cop(
                 self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True
                     ) if isinstance(self.dhw_device, HeatPump) else self.dhw_device.efficiency,
-            'indoor_dry_bulb_temperature_set_point': self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step],
-            'indoor_dry_bulb_temperature_delta': abs(self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_set_point[self.time_step]),
+            'indoor_dry_bulb_temperature_cooling_set_point': self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step],
+            'indoor_dry_bulb_temperature_heating_set_point': self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step],
+            'indoor_dry_bulb_temperature_cooling_delta': self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step],
+            'indoor_dry_bulb_temperature_heating_delta': self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step],
             'comfort_band': self.energy_simulation.comfort_band[self.time_step],
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
             'power_outage': self.__power_outage_signal[self.time_step],
@@ -909,6 +917,7 @@ class Building(Environment):
                     sin_x, cos_x = v*pn
                     observations[f'{k}_cos'] = cos_x
                     observations[f'{k}_sin'] = sin_x
+
                 else:
                     observations[k] = v
         else:
@@ -939,7 +948,7 @@ class Building(Environment):
 
         return {
             'hour': range(1, 25), 
-            'day_type': range(1, 9), 
+            'day_type': range(1, 8),
             'month': range(1, 13)
         }
 
@@ -1384,8 +1393,8 @@ class Building(Environment):
                 low_limit[key] = data['indoor_dry_bulb_temperature'].min() - self.maximum_temperature_delta
                 high_limit[key] = data['indoor_dry_bulb_temperature'].max() + self.maximum_temperature_delta
 
-            elif key == 'indoor_dry_bulb_temperature_delta':
-                low_limit[key] = 0
+            elif key in ['indoor_dry_bulb_temperature_cooling_delta', 'indoor_dry_bulb_temperature_heating_delta']:
+                low_limit[key] = -self.maximum_temperature_delta
                 high_limit[key] = self.maximum_temperature_delta
 
             elif key == 'comfort_band':
@@ -2123,7 +2132,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         self.dynamics._model_input[ix][-1] = indoor_dry_bulb_temperature_norm.item()
 
         # unnormalize temperature
-        low_limit, high_limit = self.dynamics.input_normalization_minimum[-1], self.dynamics.input_normalization_maximum[-1]
+        low_limit, high_limit = self.dynamics.input_normalization_minimum[ix], self.dynamics.input_normalization_maximum[ix]
         indoor_dry_bulb_temperature = indoor_dry_bulb_temperature_norm*(high_limit - low_limit) + low_limit
         
         # update temperature

@@ -41,72 +41,72 @@
       "active": true,
       "shared_in_central_agent": true
     },
-    "outdoor_dry_bulb_temperature_predicted_6h": {
+    "outdoor_dry_bulb_temperature_predicted_1": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "outdoor_dry_bulb_temperature_predicted_12h": {
+    "outdoor_dry_bulb_temperature_predicted_2": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "outdoor_dry_bulb_temperature_predicted_24h": {
+    "outdoor_dry_bulb_temperature_predicted_3": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "outdoor_relative_humidity_predicted_6h": {
+    "outdoor_relative_humidity_predicted_1": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "outdoor_relative_humidity_predicted_12h": {
+    "outdoor_relative_humidity_predicted_2": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "outdoor_relative_humidity_predicted_24h": {
+    "outdoor_relative_humidity_predicted_3": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "diffuse_solar_irradiance_predicted_6h": {
+    "diffuse_solar_irradiance_predicted_1": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "diffuse_solar_irradiance_predicted_12h": {
+    "diffuse_solar_irradiance_predicted_2": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "diffuse_solar_irradiance_predicted_24h": {
+    "diffuse_solar_irradiance_predicted_3": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "direct_solar_irradiance_predicted_6h": {
+    "direct_solar_irradiance_predicted_1": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "direct_solar_irradiance_predicted_12h": {
+    "direct_solar_irradiance_predicted_2": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "direct_solar_irradiance_predicted_24h": {
+    "direct_solar_irradiance_predicted_3": {
       "active": true,
       "shared_in_central_agent": true
     },
     "electricity_pricing": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
-    "electricity_pricing_predicted_6h": {
-      "active": true,
+    "electricity_pricing_predicted_1": {
+      "active": false,
       "shared_in_central_agent": true
     },
-    "electricity_pricing_predicted_12h": {
-      "active": true,
+    "electricity_pricing_predicted_2": {
+      "active": false,
       "shared_in_central_agent": true
     },
-    "electricity_pricing_predicted_24h": {
-      "active": true,
+    "electricity_pricing_predicted_3": {
+      "active": false,
       "shared_in_central_agent": true
     },
     "carbon_intensity": {
-      "active": true,
+      "active": false,
       "shared_in_central_agent": true
     },
     "indoor_dry_bulb_temperature": {
@@ -145,7 +145,11 @@
       "active": false,
       "shared_in_central_agent": false
     },
-    "indoor_dry_bulb_temperature_set_point": {
+    "indoor_dry_bulb_temperature_cooling_set_point": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "indoor_dry_bulb_temperature_heating_set_point": {
       "active": true,
       "shared_in_central_agent": false
     },
@@ -153,7 +157,11 @@
       "active": true,
       "shared_in_central_agent": false
     },
-    "indoor_dry_bulb_temperature_delta": {
+    "indoor_dry_bulb_temperature_cooling_delta": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "indoor_dry_bulb_temperature_heating_delta": {
       "active": true,
       "shared_in_central_agent": false
     },
@@ -303,25 +311,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-112208.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -351,55 +344,23 @@
             35.6,
             1.999999999999996,
             40.43294604421998
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-116582": {
@@ -445,25 +406,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-116582.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -493,55 +439,23 @@
             35.6,
             1.999999999999996,
             39.07718008620845
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-134804": {
@@ -587,25 +501,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-134804.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -635,55 +534,23 @@
             35.6,
             1.0,
             41.51217543316125
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-147002": {
@@ -731,25 +598,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-147002.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -779,55 +631,23 @@
             35.6,
             2.0,
             34.98970738789759
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-156122": {
@@ -875,25 +695,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-156122.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -923,55 +728,23 @@
             35.6,
             1.0,
             37.18918108542577
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-164087": {
@@ -1019,25 +792,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-164087.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -1067,55 +825,23 @@
             35.6,
             4.0,
             38.19971383852943
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-179247": {
@@ -1163,25 +889,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-179247.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -1211,55 +922,23 @@
             35.6,
             2.0,
             37.30402630004679
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-199613": {
@@ -1307,25 +986,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-199613.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -1355,55 +1019,23 @@
             35.6,
             2.0,
             41.23134480709075
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-20199": {
@@ -1451,25 +1083,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-20199.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -1499,55 +1116,23 @@
             35.6,
             4.0,
             34.68850698422637
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-216895": {
@@ -1593,25 +1178,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-216895.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -1641,55 +1211,23 @@
             35.6,
             1.0,
             43.35920944467957
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-223581": {
@@ -1737,25 +1275,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-223581.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -1785,55 +1308,23 @@
             35.6,
             1.0,
             42.61685735904186
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-230653": {
@@ -1881,25 +1372,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-230653.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -1929,55 +1405,23 @@
             35.6,
             1.0,
             40.85010539417388
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-23587": {
@@ -2023,25 +1467,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-23587.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -2071,55 +1500,23 @@
             35.6,
             1.0,
             37.68423951693519
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-245723": {
@@ -2167,25 +1564,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-245723.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -2215,55 +1597,23 @@
             35.6,
             1.0,
             39.4368500658348
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-247942": {
@@ -2309,25 +1659,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-247942.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -2357,55 +1692,23 @@
             35.6,
             3.0,
             35.625725383978235
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-283620": {
@@ -2453,25 +1756,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-283620.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -2501,55 +1789,23 @@
             35.6,
             1.0,
             39.1788517673867
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-288697": {
@@ -2595,25 +1851,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-288697.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -2643,55 +1884,23 @@
             35.6,
             1.0,
             33.18887843482987
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-319918": {
@@ -2739,25 +1948,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-319918.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -2787,55 +1981,23 @@
             35.6,
             1.0,
             48.92578947077769
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-343568": {
@@ -2883,25 +2045,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-343568.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -2931,55 +2078,23 @@
             35.6,
             3.0,
             42.14582958976508
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-355180": {
@@ -3027,25 +2142,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-355180.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -3075,55 +2175,23 @@
             35.6,
             3.0,
             32.28515931643976
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-373117": {
@@ -3171,25 +2239,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-373117.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -3219,55 +2272,23 @@
             35.6,
             1.0,
             37.12455282251713
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-376570": {
@@ -3315,25 +2336,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-376570.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -3363,55 +2369,23 @@
             35.6,
             2.0,
             37.637965559725856
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-387179": {
@@ -3459,25 +2433,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-387179.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -3507,55 +2466,23 @@
             35.6,
             1.0,
             45.72313340303687
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-391597": {
@@ -3603,25 +2530,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-391597.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -3651,55 +2563,23 @@
             35.6,
             1.0,
             39.79594566520221
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-408344": {
@@ -3747,25 +2627,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-408344.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -3795,55 +2660,23 @@
             35.6,
             2.0,
             38.146900771080304
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-409896": {
@@ -3889,25 +2722,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-409896.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -3937,55 +2755,23 @@
             35.6,
             2.0,
             39.24308059706655
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-411001": {
@@ -4033,25 +2819,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-411001.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -4081,55 +2852,23 @@
             35.6,
             1.0,
             38.526521487571024
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-413928": {
@@ -4177,25 +2916,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-413928.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -4225,55 +2949,23 @@
             35.6,
             1.0,
             39.892232228878775
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-420237": {
@@ -4319,25 +3011,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-420237.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -4367,55 +3044,23 @@
             35.6,
             3.0,
             41.44457418812544
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-425540": {
@@ -4463,25 +3108,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-425540.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -4511,55 +3141,23 @@
             35.6,
             2.0,
             37.98827689363037
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-430942": {
@@ -4607,25 +3205,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-430942.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -4655,55 +3238,23 @@
             35.6,
             1.0,
             44.89240570658883
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-4421": {
@@ -4751,25 +3302,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-4421.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -4799,55 +3335,23 @@
             35.6,
             3.0,
             34.71321225928751
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-450491": {
@@ -4893,25 +3397,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-450491.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -4941,55 +3430,23 @@
             35.6,
             3.0,
             42.196693142272
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-460412": {
@@ -5035,25 +3492,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-460412.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -5083,55 +3525,23 @@
             35.6,
             2.0,
             38.080031151910525
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-467125": {
@@ -5179,25 +3589,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-467125.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -5227,55 +3622,23 @@
             35.6,
             1.999999999999999,
             39.76660406567122
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-481052": {
@@ -5323,25 +3686,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-481052.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -5371,55 +3719,23 @@
             35.6,
             1.0,
             38.09660802261377
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-485614": {
@@ -5467,25 +3783,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-485614.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -5515,55 +3816,23 @@
             35.6,
             1.0,
             42.503900058026254
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-498771": {
@@ -5611,25 +3880,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-498771.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -5659,55 +3913,23 @@
             35.6,
             1.0,
             36.86239277280406
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-508889": {
@@ -5755,25 +3977,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-508889.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -5803,55 +4010,23 @@
             35.6,
             1.999999999999996,
             37.74611594872548
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-525859": {
@@ -5899,25 +4074,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-525859.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -5947,55 +4107,23 @@
             35.6,
             3.0,
             42.580944571524086
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-538628": {
@@ -6043,25 +4171,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-538628.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -6091,55 +4204,23 @@
             35.6,
             2.0,
             36.88203428950252
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-546814": {
@@ -6187,25 +4268,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-546814.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -6235,55 +4301,23 @@
             35.6,
             2.0,
             39.8049181766164
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-5634": {
@@ -6331,25 +4365,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-5634.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -6379,55 +4398,23 @@
             35.6,
             2.0,
             37.521891275724826
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-75252": {
@@ -6475,25 +4462,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-75252.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -6523,55 +4495,23 @@
             35.6,
             4.0,
             33.73055650379629
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-76701": {
@@ -6619,25 +4559,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-76701.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -6667,55 +4592,23 @@
             35.6,
             2.0,
             38.116058449422034
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-79194": {
@@ -6763,25 +4656,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-79194.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -6811,55 +4689,23 @@
             35.6,
             1.999999999999998,
             41.936666624332325
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     },
     "resstock-amy2018-2021-release-1-88386": {
@@ -6905,25 +4751,10 @@
         "type": "citylearn.dynamics.LSTMDynamics",
         "attributes": {
           "input_size": null,
-          "hidden_size": 4,
+          "hidden_size": 8,
           "num_layers": 2,
           "lookback": 13,
           "filename": "resstock-amy2018-2021-release-1-88386.pth",
-          "input_observation_names": [
-            "month_sin",
-            "month_cos",
-            "day_type_sin",
-            "day_type_cos",
-            "hour_sin",
-            "hour_cos",
-            "cooling_demand",
-            "heating_demand",
-            "direct_solar_irradiance",
-            "diffuse_solar_irradiance",
-            "outdoor_dry_bulb_temperature",
-            "occupant_count",
-            "indoor_dry_bulb_temperature"
-          ],
           "input_normalization_minimum": [
             -1.0,
             -1.0,
@@ -6953,55 +4784,23 @@
             35.6,
             2.0,
             38.22257202230893
+          ],
+          "input_observation_names": [
+            "month_sin",
+            "month_cos",
+            "day_type_sin",
+            "day_type_cos",
+            "hour_sin",
+            "hour_cos",
+            "cooling_demand",
+            "heating_demand",
+            "direct_solar_irradiance",
+            "diffuse_solar_irradiance",
+            "outdoor_dry_bulb_temperature",
+            "occupant_count",
+            "indoor_dry_bulb_temperature"
           ]
-        },
-        "input_normalization_minimum": [
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "input_normalization_maximum": [
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
-        "input_observation_names": [
-          "direct_solar_irradiance",
-          "diffuse_solar_irradiance",
-          "outdoor_dry_bulb_temperature",
-          "cooling_demand",
-          "heating_demand",
-          "month_sin",
-          "month_cos",
-          "hour_sin",
-          "hour_cos",
-          "day_type_sin",
-          "day_type_cos",
-          "occupant_count",
-          "indoor_dry_bulb_temperature"
-        ]
+        }
       }
     }
   }

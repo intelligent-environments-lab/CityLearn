@@ -29,15 +29,15 @@
       "active": true,
       "shared_in_central_agent": true
     },
-    "outdoor_dry_bulb_temperature_predicted_6h": {
+    "outdoor_dry_bulb_temperature_predicted_1": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "outdoor_dry_bulb_temperature_predicted_12h": {
+    "outdoor_dry_bulb_temperature_predicted_2": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "outdoor_dry_bulb_temperature_predicted_24h": {
+    "outdoor_dry_bulb_temperature_predicted_3": {
       "active": true,
       "shared_in_central_agent": true
     },
@@ -45,15 +45,15 @@
       "active": false,
       "shared_in_central_agent": true
     },
-    "outdoor_relative_humidity_predicted_6h": {
+    "outdoor_relative_humidity_predicted_1": {
       "active": false,
       "shared_in_central_agent": true
     },
-    "outdoor_relative_humidity_predicted_12h": {
+    "outdoor_relative_humidity_predicted_2": {
       "active": false,
       "shared_in_central_agent": true
     },
-    "outdoor_relative_humidity_predicted_24h": {
+    "outdoor_relative_humidity_predicted_3": {
       "active": false,
       "shared_in_central_agent": true
     },
@@ -61,15 +61,15 @@
       "active": true,
       "shared_in_central_agent": true
     },
-    "diffuse_solar_irradiance_predicted_6h": {
+    "diffuse_solar_irradiance_predicted_1": {
       "active": false,
       "shared_in_central_agent": true
     },
-    "diffuse_solar_irradiance_predicted_12h": {
+    "diffuse_solar_irradiance_predicted_2": {
       "active": false,
       "shared_in_central_agent": true
     },
-    "diffuse_solar_irradiance_predicted_24h": {
+    "diffuse_solar_irradiance_predicted_3": {
       "active": false,
       "shared_in_central_agent": true
     },
@@ -77,15 +77,15 @@
       "active": true,
       "shared_in_central_agent": true
     },
-    "direct_solar_irradiance_predicted_6h": {
+    "direct_solar_irradiance_predicted_1": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "direct_solar_irradiance_predicted_12h": {
+    "direct_solar_irradiance_predicted_2": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "direct_solar_irradiance_predicted_24h": {
+    "direct_solar_irradiance_predicted_3": {
       "active": true,
       "shared_in_central_agent": true
     },
@@ -137,15 +137,15 @@
       "active": true,
       "shared_in_central_agent": true
     },
-    "electricity_pricing_predicted_6h": {
+    "electricity_pricing_predicted_1": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "electricity_pricing_predicted_12h": {
+    "electricity_pricing_predicted_2": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "electricity_pricing_predicted_24h": {
+    "electricity_pricing_predicted_3": {
       "active": true,
       "shared_in_central_agent": true
     },
@@ -169,14 +169,6 @@
       "active": true,
       "shared_in_central_agent": false
     },
-    "indoor_dry_bulb_temperature_set_point": {
-      "active": true,
-      "shared_in_central_agent": false
-    },
-    "indoor_dry_bulb_temperature_delta": {
-      "active": true,
-      "shared_in_central_agent": false
-    },
     "power_outage": {
       "active": false,
       "shared_in_central_agent": false
@@ -186,6 +178,22 @@
       "shared_in_central_agent": false
     },
     "comfort_band": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "indoor_dry_bulb_temperature_cooling_set_point": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "indoor_dry_bulb_temperature_heating_set_point": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "indoor_dry_bulb_temperature_cooling_delta": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "indoor_dry_bulb_temperature_heating_delta": {
       "active": false,
       "shared_in_central_agent": false
     }
@@ -281,12 +289,12 @@
         "dhw_storage_soc",
         "solar_generation",
         "diffuse_solar_irradiance",
-        "diffuse_solar_irradiance_predicted_6h",
-        "diffuse_solar_irradiance_predicted_12h",
-        "diffuse_solar_irradiance_predicted_24h",
-        "direct_solar_irradiance_predicted_6h",
-        "direct_solar_irradiance_predicted_12h",
-        "direct_solar_irradiance_predicted_24h",
+        "diffuse_solar_irradiance_predicted_1",
+        "diffuse_solar_irradiance_predicted_2",
+        "diffuse_solar_irradiance_predicted_3",
+        "direct_solar_irradiance_predicted_1",
+        "direct_solar_irradiance_predicted_2",
+        "direct_solar_irradiance_predicted_3",
         "heating_storage_soc",
         "electrical_storage_soc",
         "carbon_intensity"
@@ -399,12 +407,12 @@
       "inactive_observations": [
         "solar_generation",
         "diffuse_solar_irradiance",
-        "diffuse_solar_irradiance_predicted_6h",
-        "diffuse_solar_irradiance_predicted_12h",
-        "diffuse_solar_irradiance_predicted_24h",
-        "direct_solar_irradiance_predicted_6h",
-        "direct_solar_irradiance_predicted_12h",
-        "direct_solar_irradiance_predicted_24h",
+        "diffuse_solar_irradiance_predicted_1",
+        "diffuse_solar_irradiance_predicted_2",
+        "diffuse_solar_irradiance_predicted_3",
+        "direct_solar_irradiance_predicted_1",
+        "direct_solar_irradiance_predicted_2",
+        "direct_solar_irradiance_predicted_3",
         "heating_storage_soc",
         "electrical_storage_soc",
         "carbon_intensity"
@@ -516,12 +524,12 @@
       "inactive_observations": [
         "solar_generation",
         "diffuse_solar_irradiance",
-        "diffuse_solar_irradiance_predicted_6h",
-        "diffuse_solar_irradiance_predicted_12h",
-        "diffuse_solar_irradiance_predicted_24h",
-        "direct_solar_irradiance_predicted_6h",
-        "direct_solar_irradiance_predicted_12h",
-        "direct_solar_irradiance_predicted_24h",
+        "diffuse_solar_irradiance_predicted_1",
+        "diffuse_solar_irradiance_predicted_2",
+        "diffuse_solar_irradiance_predicted_3",
+        "direct_solar_irradiance_predicted_1",
+        "direct_solar_irradiance_predicted_2",
+        "direct_solar_irradiance_predicted_3",
         "heating_storage_soc",
         "electrical_storage_soc",
         "carbon_intensity"
