@@ -913,6 +913,19 @@ class Battery(StorageDevice, ElectricDevice):
 
         return efficiency
 
+    def set_ad_hoc_charge(self, energy: float):
+        """Charges or discharges storage with disregard to capacity` degradation, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.
+        Considers only `soc_init` limitations and maximum capacity limitations
+        Used for setting EVs Soc after coming from a transit state
+
+        Parameters
+        ----------
+        energy : float
+            Energy to charge if (+) or discharge if (-) in [kWh].
+
+        """
+        super().charge(energy)
+
     def degrade(self) -> float:
         r"""Get amount of capacity degradation.
 
