@@ -1,14 +1,10 @@
-import inspect
-import math
-from typing import List, Mapping, Tuple, Union, Dict
-from gym import spaces
+from typing import List, Mapping, Tuple
+from gymnasium import spaces
 import numpy as np
 from citylearn.base import Environment, EpisodeTracker
-from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, Weather, EVSimulation
-from citylearn.energy_model import Battery, ElectricHeater, HeatPump, PV, StorageTank
+from citylearn.data import EVSimulation
+from citylearn.energy_model import Battery
 from citylearn.preprocessing import Normalize, PeriodicNormalization
-import random
-import copy
 
 class electric_vehicle(Environment):
 

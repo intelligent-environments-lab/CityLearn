@@ -14,8 +14,7 @@ from citylearn.building import Building, DynamicsBuilding
 from citylearn.electric_vehicle import electric_vehicle
 from citylearn.energy_model import Battery
 from citylearn.cost_function import CostFunction
-from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, EVSimulation
-#from citylearn.rendering import get_background, RenderBuilding, get_plots
+from citylearn.data import DataSet, EnergySimulation, EVSimulation, CarbonIntensity, Pricing, TOLERANCE, Weather
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 

@@ -1,7 +1,6 @@
 import inspect
 from typing import List, Dict
 from citylearn.base import Environment
-
 from citylearn.electric_vehicle import electric_vehicle
 
 ZERO_DIVISION_CAPACITY = 0.00001
