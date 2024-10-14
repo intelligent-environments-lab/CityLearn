@@ -6,7 +6,7 @@ from citylearn.data import EVSimulation
 from citylearn.energy_model import Battery
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
-class electric_vehicle(Environment):
+class ElectricVehicle(Environment):
 
     def __init__(self, ev_simulation: EVSimulation,episode_tracker: EpisodeTracker, observation_metadata: Mapping[str, bool],
                  action_metadata: Mapping[str, bool], battery: Battery = None, auxBattery: Battery = None, min_battery_soc: int = 20,

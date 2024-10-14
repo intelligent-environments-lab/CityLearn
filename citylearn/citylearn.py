@@ -11,7 +11,7 @@ import pandas as pd
 from citylearn import __version__ as citylearn_version
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
-from citylearn.electric_vehicle import electric_vehicle
+from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery
 from citylearn.cost_function import CostFunction
 from citylearn.data import DataSet, EnergySimulation, EVSimulation, CarbonIntensity, Pricing, TOLERANCE, Weather
@@ -115,7 +115,7 @@ class CityLearnEnv(Environment, Env):
     
     def __init__(self, 
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None,
-        electric_vehicles: Union[List[electric_vehicle], List[str], List[int]] = None,
+        electric_vehicles: Union[List[ElectricVehicle], List[str], List[int]] = None,
         simulation_start_time_step: int = None, simulation_end_time_step: int = None, episode_time_steps: Union[int, List[Tuple[int, int]]] = None, rolling_episode_split: bool = None, 
         random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: Union[RewardFunction, str] = None, reward_function_kwargs: Mapping[str, Any] = None, 
         central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None, 
@@ -197,7 +197,7 @@ class CityLearnEnv(Environment, Env):
         return self.__buildings
 
     @property
-    def electric_vehicles(self) -> List[electric_vehicle]:
+    def electric_vehicles(self) -> List[ElectricVehicle]:
         """Electric Vehicles in CityLearn environment."""
 
         return self.__electric_vehicles
@@ -757,7 +757,7 @@ class CityLearnEnv(Environment, Env):
         self.__buildings = buildings
 
     @electric_vehicles.setter
-    def electric_vehicles(self, electric_vehicles: List[electric_vehicle]):
+    def electric_vehicles(self, electric_vehicles: List[ElectricVehicle]):
         self.__electric_vehicles = electric_vehicles
 
     @Environment.episode_tracker.setter
@@ -1281,7 +1281,7 @@ class CityLearnEnv(Environment, Env):
 
         return agent
 
-    def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], List[electric_vehicle], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
+    def _load(self, **kwargs) -> Tuple[Union[Path, str], List[Building], List[ElectricVehicle], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
         
         Returns
@@ -1651,7 +1651,7 @@ class CityLearnEnv(Environment, Env):
                             random_seed=random_seed,
                             episode_tracker=episode_tracker)
 
-                        ev: electric_vehicle = ev_constructor(
+                        ev: ElectricVehicle = ev_constructor(
                             ev_simulation=ev_simulation,
                             observation_metadata=ev_observation_metadata,
                             action_metadata=ev_action_metadata,

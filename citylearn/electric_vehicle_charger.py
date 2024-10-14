@@ -1,7 +1,7 @@
 import inspect
 from typing import List, Dict
 from citylearn.base import Environment
-from citylearn.electric_vehicle import electric_vehicle
+from citylearn.electric_vehicle import ElectricVehicle
 
 ZERO_DIVISION_CAPACITY = 0.00001
 
@@ -20,7 +20,7 @@ class Charger(Environment):
             charge_efficiency_curve: Dict[float, float] = None,
             discharge_efficiency_curve: Dict[float, float] = None,
             image_path: str = None,
-            connected_ev: electric_vehicle = None, incoming_ev: electric_vehicle = None,
+            connected_ev: ElectricVehicle = None, incoming_ev: ElectricVehicle = None,
             **kwargs
     ):
         r"""Initializes the `Electric Vehicle Charger` class with the given attributes.
@@ -124,12 +124,12 @@ class Charger(Environment):
         return self.__discharge_efficiency_curve
 
     @property
-    def connected_ev(self) -> electric_vehicle:
+    def connected_ev(self) -> ElectricVehicle:
         """electric_vehicle currently connected to charger"""
         return self.__connected_ev
 
     @property
-    def incoming_ev(self) -> electric_vehicle:
+    def incoming_ev(self) -> ElectricVehicle:
         """electric_vehicle incoming to charger"""
         return self.__incoming_ev
 
@@ -158,7 +158,7 @@ class Charger(Environment):
         return self.__nominal_power
 
     @property
-    def past_connected_evs(self) -> List[electric_vehicle]:
+    def past_connected_evs(self) -> List[ElectricVehicle]:
         r"""Each timestep with the list of Past connected Evs or None in the case no car was connected """
 
         return self.__past_connected_evs
@@ -236,14 +236,14 @@ class Charger(Environment):
         self.__discharge_efficiency_curve = discharge_efficiency_curve
 
     @connected_ev.setter
-    def connected_ev(self, ev: electric_vehicle):
+    def connected_ev(self, ev: ElectricVehicle):
         self.__connected_ev = ev
 
     @incoming_ev.setter
-    def incoming_ev(self, ev: electric_vehicle):
+    def incoming_ev(self, ev: ElectricVehicle):
         self.__incoming_ev = ev
 
-    def plug_car(self, car: electric_vehicle):
+    def plug_car(self, car: ElectricVehicle):
         """
         Connects a car to the charger.
 
@@ -271,7 +271,7 @@ class Charger(Environment):
         """
         self.connected_ev = None
 
-    def associate_incoming_car(self, car: electric_vehicle):
+    def associate_incoming_car(self, car: ElectricVehicle):
         """
         Associates incoming car to the charger.
 
