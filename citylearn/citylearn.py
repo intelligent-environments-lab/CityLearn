@@ -875,7 +875,6 @@ class CityLearnEnv(Environment, Env):
         # env, which is not the best design for competition integrity sake. Will revisit the building.observations() function
         # to see how it can be optimized.
         reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
-        print(reward_observations)
         reward = self.reward_function.calculate(observations=reward_observations)
         self.__rewards.append(reward)
 
@@ -1206,8 +1205,6 @@ class CityLearnEnv(Environment, Env):
         for building in self.buildings:
             building.reset()
 
-        print("AQUI")
-
         for ev in self.electric_vehicles:
             ev.reset()
         self.associate_evs_2_chargers()
@@ -1535,15 +1532,6 @@ class CityLearnEnv(Environment, Env):
                         #building.observation_metadata = observation_metadata
             else:
                 chargers_list = []
-
-            print("Chargers List")
-            print(chargers_list)
-
-            print("Observations")
-            print(observation_metadata)
-
-            print("Actions")
-            print(action_metadata)
 
             building: Building = building_constructor(
                 energy_simulation=energy_simulation,

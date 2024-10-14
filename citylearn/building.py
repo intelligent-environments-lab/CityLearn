@@ -1098,9 +1098,7 @@ class Building(Environment):
             
             else:
                 pass
-        print(self.name)
-        print(self.ev_chargers)
-        print(self.observations())
+
         for k in priority_list:
             func, args = actions[k]
 
