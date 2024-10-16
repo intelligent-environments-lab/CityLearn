@@ -98,6 +98,12 @@ class ElectricDevice(Device):
         r"""Nominal power."""
 
         return self.__nominal_power
+    
+    @nominal_power.setter
+    def nominal_power(self, nominal_power: float):
+        nominal_power = 0.0 if nominal_power is None else nominal_power
+        assert nominal_power >= 0, 'nominal_power must be >= 0.'
+        self.__nominal_power = nominal_power
 
     @property
     def electricity_consumption(self) -> np.ndarray:
@@ -111,11 +117,6 @@ class ElectricDevice(Device):
 
         return None if self.nominal_power is None else self.nominal_power - self.electricity_consumption[self.time_step]
 
-    @nominal_power.setter
-    def nominal_power(self, nominal_power: float):
-        nominal_power = 0.0 if nominal_power is None else nominal_power
-        assert nominal_power >= 0, 'nominal_power must be >= 0.'
-        self.__nominal_power = nominal_power
 
     def get_metadata(self) -> Mapping[str, Any]:
         return {
@@ -1058,6 +1059,19 @@ class Battery(StorageDevice, ElectricDevice):
             )/(self.power_efficiency_curve[0][idx + 1] - self.power_efficiency_curve[0][idx])
 
         return efficiency
+
+    def set_ad_hoc_charge(self, energy: float):
+        """Charges or discharges storage with disregard to capacity` degradation, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.
+        Considers only `soc_init` limitations and maximum capacity limitations
+        Used for setting EVs Soc after coming from a transit state
+
+        Parameters
+        ----------
+        energy : float
+            Energy to charge if (+) or discharge if (-) in [kWh].
+
+        """
+        super().charge(energy)
 
     def degrade(self) -> float:
         r"""Get amount of capacity degradation.

@@ -1,0 +1,931 @@
+{
+  "random_seed": 2022,
+  "root_directory": null,
+  "central_agent": false,
+  "simulation_start_time_step": 0,
+  "simulation_end_time_step": 8759,
+  "episode_time_steps": null,
+  "rolling_episode_split": false,
+  "random_episode_split": false,
+  "seconds_per_time_step": 3600,
+  "observations": {
+    "month": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "day_type": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "hour": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "daylight_savings_status": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "carbon_intensity": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "indoor_dry_bulb_temperature": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "average_unmet_cooling_setpoint_difference": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "indoor_relative_humidity": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "non_shiftable_load": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "solar_generation": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "cooling_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "heating_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "dhw_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "electrical_storage_soc": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "net_electricity_consumption": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electricity_pricing": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "electricity_pricing_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "electricity_pricing_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "electricity_pricing_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "power_outage": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "hvac_mode": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "comfort_band": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_charger_state": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_departure_time": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_required_soc_departure": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_estimated_arrival_time": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_estimated_soc_arrival": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electric_vehicle_soc": {
+      "active": true,
+      "shared_in_central_agent": false
+    }
+  },
+  "actions": {
+      "cooling_storage": {
+      "active": false
+    },
+    "heating_storage": {
+      "active": false
+    },
+    "dhw_storage": {
+      "active": false
+    },
+    "electrical_storage": {
+      "active": true
+    },
+    "electric_vehicle_storage": {
+      "active": true
+    }
+  },
+  "agent": {
+    "type": "citylearn.agents.rbc.BasicRBC",
+    "attributes": {
+      "hidden_dimension": [
+        256,
+        256
+      ],
+      "discount": 0.99,
+      "tau": 0.005,
+      "lr": 0.003,
+      "batch_size": 256,
+      "replay_buffer_capacity": 100000.0,
+      "standardize_start_time_step": 6000,
+      "end_exploration_time_step": 7000,
+      "action_scaling_coef": 0.5,
+      "reward_scaling": 5.0,
+      "update_per_time_step": 2
+    }
+  },
+  "reward_function": {
+    "type": "citylearn.reward_function.RewardFunction",
+    "attributes": null
+  },
+  "electric_vehicles_def": {
+    "Electric_Vehicle_1": {
+      "include": true,
+      "energy_simulation": "Electric_Vehicle_1.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "battery": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 40,
+          "nominal_power": 50,
+          "initial_soc": 0.25,
+          "min_battery_soc": 0.10
+        }
+      }
+    },
+    "Electric_Vehicle_2": {
+      "include": true,
+      "energy_simulation": "Electric_Vehicle_2.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "battery": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 50,
+          "nominal_power": 50,
+          "initial_soc": 0.35
+        }
+      }
+    },
+    "Electric_Vehicle_3": {
+      "include": true,
+      "energy_simulation": "Electric_Vehicle_3.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "battery": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 75,
+          "nominal_power": 50,
+          "initial_soc": 0.5
+        }
+      }
+    },
+    "Electric_Vehicle_4": {
+      "include": true,
+      "energy_simulation": "Electric_Vehicle_4.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "battery": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 45,
+          "nominal_power": 50,
+          "initial_soc": 0.2
+        }
+      }
+    },
+    "Electric_Vehicle_5": {
+      "include": true,
+      "energy_simulation": "Electric_Vehicle_5.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "battery": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 90,
+          "nominal_power": 50,
+          "initial_soc": 0.8
+        }
+      }
+    },
+    "Electric_Vehicle_6": {
+      "include": true,
+      "energy_simulation": "Electric_Vehicle_6.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "battery": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 100,
+          "nominal_power": 50,
+          "initial_soc": 0.8
+        }
+      }
+    },
+    "Electric_Vehicle_7": {
+      "include": true,
+      "energy_simulation": "Electric_Vehicle_7.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "battery": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 60,
+          "nominal_power": 50,
+          "initial_soc": 0.1
+        }
+      }
+    },
+    "Electric_Vehicle_8": {
+      "include": true,
+      "energy_simulation": "Electric_Vehicle_8.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "battery": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 80,
+          "nominal_power": 50,
+          "initial_soc": 0.2
+        }
+      }
+    }
+  },
+  "buildings": {
+    "Building_1": {
+      "include": true,
+      "energy_simulation": "Building_1.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 12.0
+        }
+      },
+      "chargers": {
+        "charger_1_1": {
+          "type": "citylearn.electric_vehicle_charger.Charger",
+          "autosize": false,
+          "attributes": {
+            "nominal_power": 11,
+            "efficiency": 0.95,
+            "charger_type": 0,
+            "max_charging_power": 11,
+            "min_charging_power": 1.4,
+            "max_discharging_power": 7.2,
+            "min_discharging_power": 0.0
+          }
+        }
+      }
+    },
+    "Building_2": {
+      "include": true,
+      "energy_simulation": "Building_2.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 4.0
+        }
+      }
+    },
+    "Building_3": {
+      "include": true,
+      "energy_simulation": "Building_3.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 4.0
+        }
+      }
+    },
+    "Building_4": {
+      "include": true,
+      "energy_simulation": "Building_4.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 8.0
+        }
+      },
+      "chargers": {
+        "charger_4_1": {
+          "type": "citylearn.electric_vehicle_charger.Charger",
+          "autosize": false,
+          "attributes": {
+            "nominal_power": 22,
+            "efficiency": 0.95,
+            "charger_type": 1,
+            "max_charging_power": 22,
+            "min_charging_power": 3.7,
+            "max_discharging_power": 22,
+            "min_discharging_power": 3.7
+          }
+        }
+      }
+    },
+    "Building_5": {
+      "include": true,
+      "energy_simulation": "Building_5.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 10.0
+        }
+      },
+      "chargers": {
+        "charger_5_1": {
+          "type": "citylearn.electric_vehicle_charger.Charger",
+          "autosize": false,
+          "attributes": {
+            "nominal_power": 7.4,
+            "efficiency": 0.95,
+            "charger_type": 1,
+            "max_charging_power": 7.4,
+            "min_charging_power": 0,
+            "max_discharging_power": 7.4,
+            "min_discharging_power": 0
+          }
+        }
+      }
+    },
+    "Building_6": {
+      "include": true,
+      "energy_simulation": "Building_6.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 4.0
+        }
+      }
+    },
+    "Building_7": {
+      "include": true,
+      "energy_simulation": "Building_7.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 9.0
+        }
+      },
+      "chargers": {
+        "charger_7_1": {
+          "type": "citylearn.electric_vehicle_charger.Charger",
+          "autosize": false,
+          "attributes": {
+            "nominal_power": 11,
+            "efficiency": 0.90,
+            "charger_type": 1,
+            "max_charging_power": 11,
+            "min_charging_power": 0,
+            "max_discharging_power": 11,
+            "min_discharging_power": 0
+          }
+        }
+      }
+    },
+    "Building_8": {
+      "include": true,
+      "energy_simulation": "Building_8.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 4.0
+        }
+      }
+    },
+    "Building_9": {
+      "include": true,
+      "energy_simulation": "Building_9.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 4.0
+        }
+      }
+    },
+    "Building_10": {
+      "include": true,
+      "energy_simulation": "Building_10.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 6.0
+        }
+      },
+      "chargers": {
+        "charger_10_1": {
+          "type": "citylearn.electric_vehicle_charger.Charger",
+          "autosize": false,
+          "attributes": {
+            "nominal_power": 7.4,
+            "efficiency": 0.95,
+            "charger_type": 1,
+            "max_charging_power": 7.4,
+            "min_charging_power": 0,
+            "max_discharging_power": 7.4,
+            "min_discharging_power": 0
+          }
+        }
+      }
+    },
+    "Building_11": {
+      "include": true,
+      "energy_simulation": "Building_11.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 5.0
+        }
+      }
+    },
+    "Building_12": {
+      "include": true,
+      "energy_simulation": "Building_12.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 8.0
+        }
+      },
+      "chargers": {
+        "charger_12_1": {
+          "type": "citylearn.electric_vehicle_charger.Charger",
+          "autosize": false,
+          "attributes": {
+            "nominal_power": 7.4,
+            "efficiency": 0.95,
+            "charger_type": 1,
+            "max_charging_power": 7.4,
+            "min_charging_power": 0,
+            "max_discharging_power": 7.4,
+            "min_discharging_power": 0
+          }
+        }
+      }
+    },
+    "Building_13": {
+      "include": true,
+      "energy_simulation": "Building_13.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 5.0
+        }
+      }
+    },
+    "Building_14": {
+      "include": true,
+      "energy_simulation": "Building_14.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 5.0
+        }
+      }
+    },
+    "Building_15": {
+      "include": true,
+      "energy_simulation": "Building_15.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 15.0
+        }
+      },
+      "chargers": {
+        "charger_15_1": {
+          "type": "citylearn.electric_vehicle_charger.Charger",
+          "autosize": false,
+          "attributes": {
+            "nominal_power": 7.4,
+            "efficiency": 0.95,
+            "charger_type": 1,
+            "max_charging_power": 7.4,
+            "min_charging_power": 0,
+            "max_discharging_power": 7.4,
+            "min_discharging_power": 0
+          }
+        },
+        "charger_15_2": {
+          "type": "citylearn.electric_vehicle_charger.Charger",
+          "autosize": false,
+          "attributes": {
+            "nominal_power": 11,
+            "efficiency": 0.95,
+            "charger_type": 1,
+            "max_charging_power": 11,
+            "min_charging_power": 0,
+            "max_discharging_power": 11,
+            "min_discharging_power": 0
+          }
+        }
+      }
+    },
+    "Building_16": {
+      "include": true,
+      "energy_simulation": "Building_16.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 5.0
+        }
+      }
+    },
+    "Building_17": {
+      "include": true,
+      "energy_simulation": "Building_17.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": "pricing.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 6.4,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 5.0
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 5.0
+        }
+      }
+    }
+  }
+}
