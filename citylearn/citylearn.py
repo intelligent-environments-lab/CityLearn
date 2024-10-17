@@ -126,7 +126,7 @@ class CityLearnEnv(Environment, Env):
         self.schema = schema
         self.__rewards = None
         self.buildings = []
-        self.random_seed = self.schema['random_seed'] if random_seed is None else random_seed
+        self.random_seed = self.schema.get('random_seed', None) if random_seed is None else random_seed
         root_directory, buildings, electric_vehicles, episode_time_steps, rolling_episode_split, random_episode_split, \
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker = self._load(
                 deepcopy(self.schema),
@@ -181,8 +181,8 @@ class CityLearnEnv(Environment, Env):
         self.__episode_rewards = []
 
     @property
-    def schema(self) -> Union[str, Path, Mapping[str, Any]]:
-        """Filepath to JSON representation or `dict` object of CityLearn schema."""
+    def schema(self) -> Mapping[str, Any]:
+        """`dict` object of CityLearn schema."""
 
         return self.__schema
 
@@ -748,6 +748,23 @@ class CityLearnEnv(Environment, Env):
 
     @schema.setter
     def schema(self, schema: Union[str, Path, Mapping[str, Any]]):
+        if isinstance(schema, (str, Path)) and os.path.isfile(schema):
+            schema_filepath = Path(schema) if isinstance(schema, str) else schema
+            schema = read_json(schema)
+            schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if schema['root_directory'] is None\
+                else schema['root_directory']
+        
+        elif isinstance(schema, str) and schema in DataSet.get_names():
+            schema = DataSet.get_schema(schema)
+            schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
+        
+        elif isinstance(schema, dict):
+            schema = deepcopy(schema)
+            schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
+        
+        else:
+            raise UnknownSchemaError()
+        
         self.__schema = schema
 
     @root_directory.setter
@@ -1310,14 +1327,13 @@ class CityLearnEnv(Environment, Env):
 
         return agent
 
-    def _load(self, schema: Union[str, Path, Mapping[str, Any]], **kwargs) -> Tuple[Union[Path, str], List[Building], List[ElectricVehicle], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
+    def _load(self, schema: Mapping[str, Any], **kwargs) -> Tuple[Union[Path, str], List[Building], List[ElectricVehicle], Union[int, List[Tuple[int, int]]], bool, bool, float, RewardFunction, bool, List[str], EpisodeTracker]:
         """Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.
 
         Parameters
         ----------
-        schema: Union[str, Path, Mapping[str, Any]]
-            Name of CityLearn data set, filepath to JSON representation or :code:`dict` object of a CityLearn schema.
-            Call :py:meth:`citylearn.data.DataSet.get_names` for list of available CityLearn data sets.
+        schema: Mapping[str, Any]
+            N:code:`dict` object of a CityLearn schema.
         
         Returns
         -------
@@ -1343,23 +1359,6 @@ class CityLearnEnv(Environment, Env):
         shared_observations : List[str]
             Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.
         """
-
-        if isinstance(schema, (str, Path)) and os.path.isfile(schema):
-            schema_filepath = Path(schema) if isinstance(schema, str) else schema
-            schema = read_json(schema)
-            schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if schema['root_directory'] is None\
-                else schema['root_directory']
-
-        elif isinstance(schema, str) and schema in DataSet.get_names():
-            schema = DataSet.get_schema(schema)
-            schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
-
-        elif isinstance(schema, dict):
-            schema = deepcopy(schema)
-            schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
-
-        else:
-            raise UnknownSchemaError()
 
         schema['root_directory'] = kwargs['root_directory'] if kwargs.get('root_directory') is not None else schema[
             'root_directory']
