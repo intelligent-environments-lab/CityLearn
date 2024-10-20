@@ -1440,6 +1440,10 @@ class Building(Environment):
                 low_limit[f'{key}_cos'], high_limit[f'{key}_cos'] = min(x_cos), max(x_cos)
                 low_limit[f'{key}_sin'], high_limit[f'{key}_sin'] = min(x_sin), max(x_sin)
 
+            elif key == 'occupant_interaction_indoor_dry_bulb_temperature_set_point_delta':
+                # will get set in the overriding  LogisticRegressionOccupantInteractionBuilding._get_observation_space_limits_data
+                pass
+
             else:
                 low_limit[key] = min(data[key])
                 high_limit[key] = max(data[key])
