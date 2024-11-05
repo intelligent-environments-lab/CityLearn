@@ -1177,7 +1177,7 @@ class Building(Environment):
         device_output = min(demand - storage_output, max_device_output)
         self.__energy_from_cooling_device[self.time_step] = device_output
         electricity_consumption = self.cooling_device.get_input_power(device_output, temperature, heating=False)
-        # print(
+        # LOGGER.debug(
         #     'timestep:', self.time_step, 'bldg:', self.name, 'demand:', demand, 'temperature:', temperature, 
         #     'storage_capacity:', self.cooling_storage.capacity, 'prev_soc:', self.cooling_storage.soc[self.time_step - 1], 
         #     'curr_soc:', self.cooling_storage.soc[self.time_step], 'storage_output:', storage_output, 

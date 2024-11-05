@@ -4,6 +4,7 @@ import datetime
 import getpass
 import importlib
 import inspect
+import logging
 from multiprocessing import cpu_count
 import os
 from pathlib import Path
@@ -54,16 +55,16 @@ def run_work_order(work_order_filepath, max_workers=None, start_index=None, end_
     max_workers = cpu_count() if max_workers is None else max_workers
     
     with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
-        print(f'Will use {max_workers} workers for job.')
-        print(f'Pooling {len(args)} jobs to run in parallel...')
+        logging.debug(f'Will use {max_workers} workers for job.')
+        logging.debug(f'Pooling {len(args)} jobs to run in parallel...')
         results = [executor.submit(subprocess.run,**{'args':a, 'shell':True}) for a in args]
             
         for future in concurrent.futures.as_completed(results):
             try:
-                print(future.result())
+                logging.debug(future.result())
             
             except Exception as e:
-                print(e)
+                logging.debug(e)
 
 class Simulator:
     def __init__(self, schema: str, agent_name: str = None, env_kwargs: Mapping[str, Any] = None, agent_kwargs: Mapping[str, Any] = None, wrappers: List[str] = None,

@@ -549,7 +549,6 @@ class V2GPenaltyReward(MARL):
 
         ##net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
         current_reward = super.calculate(observations)
-        print (observations)
         reward_list = []
 
         for b in self.env.buildings:

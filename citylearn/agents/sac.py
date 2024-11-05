@@ -1,3 +1,4 @@
+import logging
 from typing import Any, List, Union
 import numpy as np
 import numpy.typing as npt
@@ -223,10 +224,10 @@ class SAC(RLC):
             return (np.array(observations, dtype = float) - self.norm_mean[index])/self.norm_std[index]
         except:
             # self.time_step >= self.standardize_start_time_step and self.batch_size <= len(self.replay_buffer[i])
-            print('obs:',observations)
-            print('mean:',self.norm_mean[index])
-            print('std:',self.norm_std[index])
-            print(self.time_step, self.standardize_start_time_step, self.batch_size, len(self.replay_buffer[0]))
+            logging.debug('obs:',observations)
+            logging.debug('mean:',self.norm_mean[index])
+            logging.debug('std:',self.norm_std[index])
+            logging.debug(self.time_step, self.standardize_start_time_step, self.batch_size, len(self.replay_buffer[0]))
             assert False
 
     def get_encoded_observations(self, index: int, observations: List[float]) -> npt.NDArray[np.float64]:
