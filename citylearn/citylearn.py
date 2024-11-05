@@ -949,6 +949,7 @@ class CityLearnEnv(Environment, Env):
 
         # Create a list of dictionaries for actions including EV-specific actions
         parsed_actions = []
+        
         for i, building in enumerate(self.buildings):
             action_dict = {}
             electric_vehicle_actions = {}
@@ -974,7 +975,7 @@ class CityLearnEnv(Environment, Env):
 
             parsed_actions.append(action_dict)
 
-        return actions
+        return parsed_actions
 
     def evaluate_citylearn_challenge(self) -> Mapping[str, Mapping[str, Union[str, float]]]:
         """Evalation function for The CityLearn Challenge 2023.
@@ -1463,9 +1464,6 @@ class CityLearnEnv(Environment, Env):
         reward_function_name = reward_function_type.split('.')[-1]
         reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
         reward_function = reward_function_constructor(None, **reward_function_attributes)
-
-
-        print("FInished loading")
 
         return (
             schema['root_directory'], buildings, electric_vehicles_def, schema['episode_time_steps'], schema['rolling_episode_split'],
