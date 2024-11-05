@@ -27,6 +27,8 @@ Submodules
    citylearn.cost_function
    citylearn.data
    citylearn.dynamics
+   citylearn.electric_vehicle
+   citylearn.electric_vehicle_charger
    citylearn.energy_model
    citylearn.occupant
    citylearn.power_outage

@@ -97,7 +97,8 @@
 <span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EpisodeTracker</span>
 <span class="kn">from</span> <span class="nn">citylearn.building</span> <span class="kn">import</span> <span class="n">Building</span><span class="p">,</span> <span class="n">DynamicsBuilding</span>
 <span class="kn">from</span> <span class="nn">citylearn.cost_function</span> <span class="kn">import</span> <span class="n">CostFunction</span>
-<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span><span class="p">,</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">LogisticRegressionOccupantParameters</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">TOLERANCE</span><span class="p">,</span> <span class="n">Weather</span>
+<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">CarbonIntensity</span><span class="p">,</span> <span class="n">DataSet</span><span class="p">,</span> <span class="n">ElectricVehicleSimulation</span><span class="p">,</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">LogisticRegressionOccupantParameters</span><span class="p">,</span> <span class="n">Pricing</span><span class="p">,</span> <span class="n">TOLERANCE</span><span class="p">,</span> <span class="n">Weather</span>
+<span class="kn">from</span> <span class="nn">citylearn.electric_vehicle</span> <span class="kn">import</span> <span class="n">ElectricVehicle</span>
 <span class="kn">from</span> <span class="nn">citylearn.energy_model</span> <span class="kn">import</span> <span class="n">Battery</span><span class="p">,</span> <span class="n">PV</span>
 <span class="kn">from</span> <span class="nn">citylearn.reward_function</span> <span class="kn">import</span> <span class="n">RewardFunction</span>
 <span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
@@ -201,24 +202,26 @@
 <span class="sd">    -----</span>
 <span class="sd">    Parameters passed to `citylearn.citylearn.CityLearnEnv.__init__` that are also defined in `schema` will override their `schema` definition.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
-        <span class="n">schema</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">root_directory</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">buildings</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">simulation_start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rolling_episode_split</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RewardFunction</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_function_kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">central_agent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">active_observations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">inactive_observations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">active_actions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+        <span class="n">schema</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">root_directory</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">buildings</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">electric_vehicles</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ElectricVehicle</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">simulation_start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rolling_episode_split</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RewardFunction</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_function_kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">central_agent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">active_observations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">inactive_observations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">active_actions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">inactive_actions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">simulate_power_outage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">solar_generation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">schema</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">random_seed</span>
-        <span class="n">root_directory</span><span class="p">,</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">rolling_episode_split</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">,</span> \
+        <span class="n">root_directory</span><span class="p">,</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">electric_vehicles</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">rolling_episode_split</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">,</span> \
             <span class="n">seconds_per_time_step</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">,</span> <span class="n">central_agent</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">,</span> <span class="n">episode_tracker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span>
                 <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">),</span>
                 <span class="n">root_directory</span><span class="o">=</span><span class="n">root_directory</span><span class="p">,</span>
                 <span class="n">buildings</span><span class="o">=</span><span class="n">buildings</span><span class="p">,</span>
+                <span class="n">electric_vehicles</span><span class="o">=</span><span class="n">electric_vehicles</span><span class="p">,</span>
                 <span class="n">simulation_start_time_step</span><span class="o">=</span><span class="n">simulation_start_time_step</span><span class="p">,</span>
                 <span class="n">simulation_end_time_step</span><span class="o">=</span><span class="n">simulation_end_time_step</span><span class="p">,</span>
                 <span class="n">episode_time_steps</span><span class="o">=</span><span class="n">episode_time_steps</span><span class="p">,</span>
@@ -239,6 +242,7 @@
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_directory</span> <span class="o">=</span> <span class="n">root_directory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span> <span class="o">=</span> <span class="n">buildings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">electric_vehicles</span> <span class="o">=</span> <span class="n">electric_vehicles</span>
 
         <span class="c1"># now call super class initialization and set episode tracker now that buildings are set</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">seconds_per_time_step</span><span class="o">=</span><span class="n">seconds_per_time_step</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="o">=</span><span class="n">episode_tracker</span><span class="p">)</span>
@@ -264,7 +268,7 @@
 
         <span class="c1"># reward history tracker</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__episode_rewards</span> <span class="o">=</span> <span class="p">[]</span>
-        
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;`dict` object of CityLearn schema.&quot;&quot;&quot;</span>
@@ -282,11 +286,17 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Buildings in CityLearn environment.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__buildings</span>
-    
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">electric_vehicles</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ElectricVehicle</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Electric Vehicles in CityLearn environment.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__electric_vehicles</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of time steps in current episode split.&quot;&quot;&quot;</span>
-        
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_time_steps</span>
 
     <span class="nd">@property</span>
@@ -296,20 +306,20 @@
 <span class="sd">        - `simulation_start_time_step`) + 1. Will ignore `rolling_episode_split` if `episode_splits` is of type `List[Tuple[int, int]]]`.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__episode_time_steps</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rolling_episode_split</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;True if episode sequences are split such that each time step is a candidate for `episode_start_time_step` otherwise, </span>
 <span class="sd">        False to split episodes in steps of `episode_time_steps`.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rolling_episode_split</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">random_episode_split</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;True if episode splits are to be selected at random during training otherwise, False to select sequentially.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__random_episode_split</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">episode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Current episode index.&quot;&quot;&quot;</span>
@@ -327,7 +337,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reward time series&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">episode_rewards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reward summary statistics for elapsed episodes.&quot;&quot;&quot;</span>
@@ -351,7 +361,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if simulation has reached completion.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">-</span> <span class="mi">1</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">truncated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if episode truncates due to a time limit or a reason that is not defined as part of the task MDP.&quot;&quot;&quot;</span>
@@ -384,21 +394,21 @@
                     <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">low_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
                         <span class="n">high_limit</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
-                    
+
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
 
                     <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">and</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">shared_observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-                    
+
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
 
             <span class="n">observation_space</span> <span class="o">=</span> <span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">low_limit</span><span class="p">),</span> <span class="n">high</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">high_limit</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)]</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">observation_space</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">observation_space</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
-        
+
         <span class="k">return</span> <span class="n">observation_space</span>
 
     <span class="nd">@property</span>
@@ -422,7 +432,7 @@
             <span class="n">action_space</span> <span class="o">=</span> <span class="p">[</span><span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">low_limit</span><span class="p">),</span> <span class="n">high</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">high_limit</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">action_space</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">action_space</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
-        
+
         <span class="k">return</span> <span class="n">action_space</span>
 
     <span class="nd">@property</span>
@@ -444,21 +454,21 @@
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_limits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-                    
+
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
 
                     <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shared_observations</span><span class="p">:</span>
                         <span class="n">shared_observations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-                    
+
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
 
             <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="n">observations</span><span class="p">]</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_limits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
-        
+
         <span class="k">return</span> <span class="n">observations</span>
 
     <span class="nd">@property</span>
@@ -479,17 +489,17 @@
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_observations</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">observation_names</span><span class="p">:</span>
                         <span class="n">observation_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-                    
+
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
 
             <span class="n">observation_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">observation_names</span><span class="p">]</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">observation_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">observations</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">observation_names</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">action_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Names of received actions.</span>
@@ -508,7 +518,7 @@
                 <span class="n">action_names</span> <span class="o">+=</span> <span class="n">b</span><span class="o">.</span><span class="n">active_actions</span>
 
             <span class="n">action_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">action_names</span><span class="p">]</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">action_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">active_actions</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
 
@@ -519,8 +529,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_emission_without_storage_and_partial_load_and_pv` time series, in [kg_co2].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage_and_partial_load_and_pv</span> 
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">DynamicsBuilding</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage_and_pv</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage_and_partial_load_and_pv</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">DynamicsBuilding</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage_and_pv</span>
                     <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
@@ -529,8 +539,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_cost_without_storage_and_partial_load_and_pv` time series, in [$].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage_and_partial_load_and_pv</span> 
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">DynamicsBuilding</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage_and_pv</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage_and_partial_load_and_pv</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">DynamicsBuilding</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage_and_pv</span>
                     <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
@@ -539,18 +549,18 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_without_storage_and_partial_load_and_pv` time series, in [kWh].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_partial_load_and_pv</span> 
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">DynamicsBuilding</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_pv</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_partial_load_and_pv</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">DynamicsBuilding</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_pv</span>
                     <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-    
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">net_electricity_consumption_emission_without_storage_and_partial_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_emission_without_storage_and_partial_load` time series, in [kg_co2].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage_and_partial_load</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage_and_partial_load</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">DynamicsBuilding</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage</span>
                 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
@@ -560,7 +570,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_cost_without_storage_and_partial_load` time series, in [$].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage_and_partial_load</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage_and_partial_load</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">DynamicsBuilding</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage</span>
                 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
@@ -574,13 +584,13 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">DynamicsBuilding</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span>
                 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">net_electricity_consumption_emission_without_storage_and_pv</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_emission_without_storage_and_pv` time series, in [kg_co2].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage_and_pv</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage_and_pv</span>
                 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
@@ -589,7 +599,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_cost_without_storage_and_pv` time series, in [$].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage_and_pv</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage_and_pv</span>
                 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
@@ -598,17 +608,17 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_without_storage_and_pv` time series, in [kWh].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_pv</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage_and_pv</span>
                 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-    
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">net_electricity_consumption_emission_without_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_emission_without_storage` time series, in [kg_co2].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage</span>
                 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
@@ -635,7 +645,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_emission_without_storage` time series, in [kg_co2].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_emission_without_storage</span>
                 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
@@ -644,7 +654,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_cost_without_storage` time series, in [$].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_cost_without_storage</span>
                 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
@@ -653,7 +663,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.net_electricity_consumption_without_storage` time series, in [kWh].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
-            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span> 
+            <span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption_without_storage</span>
                 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span>
         <span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
@@ -758,7 +768,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.energy_from_dhw_device` time series, in [kWh].&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">energy_from_dhw_device</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-    
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">energy_to_non_shiftable_load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.energy_to_non_shiftable_load` time series, in [kWh].&quot;&quot;&quot;</span>
@@ -774,7 +784,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">energy_from_heating_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Summed `Building.energy_from_heating_storage` time series, in [kWh].&quot;&quot;&quot;</span>
-        
+
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">energy_from_heating_storage</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">min_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -853,6 +863,10 @@
     <span class="nd">@buildings</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">buildings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buildings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__buildings</span> <span class="o">=</span> <span class="n">buildings</span>
+
+    <span class="nd">@electric_vehicles</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">electric_vehicles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ElectricVehicle</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__electric_vehicles</span> <span class="o">=</span> <span class="n">electric_vehicles</span>
 
     <span class="nd">@Environment</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">episode_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">):</span>
@@ -993,7 +1007,7 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
-        
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">truncated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span></div>
 
 
@@ -1017,7 +1031,7 @@
             <span class="n">expected_number_of_actions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">assert</span> <span class="n">number_of_actions</span> <span class="o">==</span> <span class="n">expected_number_of_actions</span><span class="p">,</span>\
                 <span class="sa">f</span><span class="s1">&#39;Expected </span><span class="si">{</span><span class="n">expected_number_of_actions</span><span class="si">}</span><span class="s1"> actions but </span><span class="si">{</span><span class="n">number_of_actions</span><span class="si">}</span><span class="s1"> were parsed to env.step.&#39;</span>
-            
+
             <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
                 <span class="n">size</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">building_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actions</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">size</span><span class="p">])</span>
@@ -1034,10 +1048,36 @@
                 <span class="sa">f</span><span class="s1">&#39;Expected </span><span class="si">{</span><span class="n">expected_number_of_actions</span><span class="si">}</span><span class="s1"> for </span><span class="si">{</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> but </span><span class="si">{</span><span class="n">number_of_actions</span><span class="si">}</span><span class="s1"> actions were provided.&#39;</span>
 
         <span class="n">active_actions</span> <span class="o">=</span> <span class="p">[[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">action_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">[{</span><span class="n">k</span><span class="p">:</span><span class="n">a</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">active_actions</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">building_actions</span><span class="p">[</span><span class="n">i</span><span class="p">])}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">active_actions</span><span class="p">))]</span>
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">[{</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_action&#39;</span><span class="p">:</span><span class="n">actions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">action_metadata</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">)]</span>
 
-        <span class="k">return</span> <span class="n">actions</span>
+        <span class="c1"># Create a list of dictionaries for actions including EV-specific actions</span>
+        <span class="n">parsed_actions</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">building</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">):</span>
+            <span class="n">action_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">electric_vehicle_actions</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="c1"># Populate the action_dict with regular actions</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">action</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">active_actions</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">building_actions</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="s1">&#39;electric_vehicle_storage&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+                    <span class="c1"># Collect EV actions separately</span>
+                    <span class="n">charger_id</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span>
+                        <span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Assuming the key format contains charger ID, e.g., &#39;electric_vehicle_storage_1&#39;</span>
+                    <span class="n">electric_vehicle_actions</span><span class="p">[</span><span class="n">charger_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">action</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">action_dict</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">action</span>
+
+            <span class="c1"># Add EV actions to the action_dict if they exist</span>
+            <span class="k">if</span> <span class="n">electric_vehicle_actions</span><span class="p">:</span>
+                <span class="n">action_dict</span><span class="p">[</span><span class="s1">&#39;electric_vehicle_storage_actions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">electric_vehicle_actions</span>
+
+            <span class="c1"># Fill missing actions with default NaN</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">building</span><span class="o">.</span><span class="n">action_metadata</span><span class="p">:</span>
+                <span class="k">if</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_action&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">action_dict</span> <span class="ow">and</span> <span class="s1">&#39;electric_vehicle_storage&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+                    <span class="n">action_dict</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+            <span class="n">parsed_actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">parsed_actions</span>
 
 <div class="viewcode-block" id="CityLearnEnv.evaluate_citylearn_challenge">
 <a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate_citylearn_challenge">[docs]</a>
@@ -1076,10 +1116,10 @@
             <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">value_sum</span><span class="o">/</span><span class="n">weight_sum</span>
         <span class="p">}</span>
-        
+
         <span class="k">return</span> <span class="n">evaluation</span></div>
 
-    
+
 <div class="viewcode-block" id="CityLearnEnv.evaluate">
 <a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate">[docs]</a>
     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_condition</span><span class="p">:</span> <span class="n">EvaluationCondition</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">baseline_condition</span><span class="p">:</span> <span class="n">EvaluationCondition</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">comfort_band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -1119,12 +1159,12 @@
 
         <span class="n">comfort_band</span> <span class="o">=</span> <span class="n">EnergySimulation</span><span class="o">.</span><span class="n">DEFUALT_COMFORT_BAND</span> <span class="k">if</span> <span class="n">comfort_band</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">comfort_band</span>
         <span class="n">building_level</span> <span class="o">=</span> <span class="p">[]</span>
-        
+
         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">DynamicsBuilding</span><span class="p">):</span>
                 <span class="n">control_condition</span> <span class="o">=</span> <span class="n">EvaluationCondition</span><span class="o">.</span><span class="n">WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV</span> <span class="k">if</span> <span class="n">control_condition</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">control_condition</span>
                 <span class="n">baseline_condition</span> <span class="o">=</span> <span class="n">EvaluationCondition</span><span class="o">.</span><span class="n">WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV</span> <span class="k">if</span> <span class="n">baseline_condition</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">baseline_condition</span>
-            
+
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">control_condition</span> <span class="o">=</span> <span class="n">EvaluationCondition</span><span class="o">.</span><span class="n">WITH_STORAGE_AND_PV</span> <span class="k">if</span> <span class="n">control_condition</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">control_condition</span>
                 <span class="n">baseline_condition</span> <span class="o">=</span> <span class="n">EvaluationCondition</span><span class="o">.</span><span class="n">WITHOUT_STORAGE_BUT_WITH_PV</span> <span class="k">if</span> <span class="n">baseline_condition</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">baseline_condition</span>
@@ -1249,8 +1289,38 @@
 
         <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
             <span class="n">building</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
-        
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span></div>
+
+        <span class="c1"># Advance electric vehicles to the next time step. This function is used as EVs exist even without being connected to any building (e.g. when they are being used to commute)</span>
+        <span class="c1"># As such, this function simulates the EV to the next time step. EVs simulation (connection status) is based on the dataset corresponding to each one</span>
+        <span class="k">for</span> <span class="n">electric_vehicle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">electric_vehicles</span><span class="p">:</span>
+            <span class="n">electric_vehicle</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
+
+        <span class="c1">#This function is here so that, when the new time step is reached, the first thing to do is plug in/out the EVs according to their individual dataset</span>
+        <span class="c1">#It basicly associates an EV to a Building.Charger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">associate_electric_vehicles_to_chargers</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="CityLearnEnv.associate_electric_vehicles_to_chargers">
+<a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.associate_electric_vehicles_to_chargers">[docs]</a>
+    <span class="k">def</span> <span class="nf">associate_electric_vehicles_to_chargers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Associate electric_vehicle to its destination charger for observations.&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">electric_vehicle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">electric_vehicles</span><span class="p">:</span>
+
+            <span class="n">charger</span> <span class="o">=</span> <span class="n">electric_vehicle</span><span class="o">.</span><span class="n">electric_vehicle_simulation</span><span class="o">.</span><span class="n">charger</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">electric_vehicle</span><span class="o">.</span><span class="n">electric_vehicle_simulation</span><span class="o">.</span><span class="n">electric_vehicle_charger_state</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">charger</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="ow">and</span> <span class="n">charger</span> <span class="o">!=</span> <span class="s2">&quot;nan&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">b</span><span class="o">.</span><span class="n">electric_vehicle_chargers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">electric_vehicle_chargers</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">charger_id</span> <span class="o">==</span> <span class="n">charger</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># ev connected to charger</span>
+                                    <span class="n">c</span><span class="o">.</span><span class="n">plug_car</span><span class="p">(</span><span class="n">electric_vehicle</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> <span class="c1">#EVs can also be associated as incoming to a given charger</span>
+                                    <span class="n">c</span><span class="o">.</span><span class="n">associate_incoming_car</span><span class="p">(</span><span class="n">electric_vehicle</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CityLearnEnv.reset">
@@ -1282,7 +1352,7 @@
         <span class="c1"># update seed</span>
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">seed</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
 
@@ -1296,6 +1366,10 @@
 
         <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
             <span class="n">building</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">electric_vehicles</span><span class="p">:</span>
+            <span class="n">ev</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">associate_electric_vehicles_to_chargers</span><span class="p">()</span>
 
         <span class="c1"># reset reward function (does nothing by default)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
@@ -1354,11 +1428,11 @@
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">pass</span>
-        
+
         <span class="c1"># set agent init attributes</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">agent_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
-        
+
         <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">agent_attributes</span> <span class="o">=</span> <span class="n">kwargs</span>
 
@@ -1367,7 +1441,7 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">agent_attributes</span> <span class="o">=</span> <span class="kc">None</span>
-        
+
         <span class="n">agent_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">agent_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">agent_name</span> <span class="o">=</span> <span class="n">agent_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">agent_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">agent_module</span><span class="p">),</span> <span class="n">agent_name</span><span class="p">)</span>
@@ -1376,7 +1450,7 @@
         <span class="k">return</span> <span class="n">agent</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">RewardFunction</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">EpisodeTracker</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Building</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">ElectricVehicle</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">RewardFunction</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">EpisodeTracker</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return `CityLearnEnv` and `Controller` objects as defined by the `schema`.</span>
 
 <span class="sd">        Parameters</span>
@@ -1390,6 +1464,8 @@
 <span class="sd">            Absolute path to directory that contains the data files including the schema.</span>
 <span class="sd">        buildings : List[Building]</span>
 <span class="sd">            Buildings in CityLearn environment.</span>
+<span class="sd">        electric_vehicles : List[ElectricVehicle]</span>
+<span class="sd">            Electric Vehicles in CityLearn environment.</span>
 <span class="sd">        episode_time_steps: Union[int, List[Tuple[int, int]]]</span>
 <span class="sd">            Number of time steps in an episode. Defaults to (`simulation_end_time_step` - `simulation_start_time_step`) + 1.</span>
 <span class="sd">        rolling_episode_split: bool</span>
@@ -1407,12 +1483,29 @@
 <span class="sd">            Names of common observations across all buildings i.e. observations that have the same value irrespective of the building.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;root_directory&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span>
-        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;central_agent&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;central_agent&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;central_agent&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;central_agent&#39;</span><span class="p">]</span>
-        <span class="n">shared_observations</span> <span class="o">=</span>  <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;shared_observations&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;shared_observations&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span>\
-            <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;observations&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;shared_in_central_agent&#39;</span><span class="p">]]</span>
-        
+        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;root_directory&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema</span><span class="p">[</span>
+            <span class="s1">&#39;root_directory&#39;</span><span class="p">]</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span>
+                                                                              <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;central_agent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;central_agent&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;central_agent&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema</span><span class="p">[</span>
+            <span class="s1">&#39;central_agent&#39;</span><span class="p">]</span>
+
+        <span class="c1">#Separated chargers observations to create one for each charger at each building based on active ones at the schema</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_observations_helper&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;observations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;electric_vehicle_&quot;</span><span class="p">)}</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_actions_helper&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;actions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;electric_vehicle_&quot;</span><span class="p">)}</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_shared_observations_helper&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;observations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span>
+                                        <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;electric_vehicle_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shared_in_central_agent&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)}</span>
+
+        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;observations&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s2">&quot;observations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_observations_helper&#39;</span><span class="p">]}</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;actions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;actions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_actions_helper&#39;</span><span class="p">]}</span>
+
+        <span class="c1"># Update shared observations, excluding any keys that start with &#39;electric_vehicle_&#39;</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;shared_observations&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;shared_observations&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;shared_observations&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span>
+            <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;observations&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span>
+            <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;electric_vehicle_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;shared_in_central_agent&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="p">]</span>
+
         <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;episode_time_steps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;episode_time_steps&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;episode_time_steps&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;episode_time_steps&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;rolling_episode_split&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;rolling_episode_split&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rolling_episode_split&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rolling_episode_split&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_episode_split&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;random_episode_split&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_episode_split&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_episode_split&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -1423,7 +1516,7 @@
         <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;simulation_end_time_step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;simulation_end_time_step&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;simulation_end_time_step&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span>\
             <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;simulation_end_time_step&#39;</span><span class="p">]</span>
         <span class="n">episode_tracker</span> <span class="o">=</span> <span class="n">EpisodeTracker</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;simulation_start_time_step&#39;</span><span class="p">],</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;simulation_end_time_step&#39;</span><span class="p">])</span>
-        
+
         <span class="c1"># get sizing data to reduce read time</span>
         <span class="n">pv_sizing_data</span> <span class="o">=</span> <span class="n">EnergySimulation</span><span class="o">.</span><span class="n">get_pv_sizing_data</span><span class="p">()</span>
         <span class="n">battery_sizing_data</span> <span class="o">=</span> <span class="n">EnergySimulation</span><span class="o">.</span><span class="n">get_battery_sizing_data</span><span class="p">()</span>
@@ -1440,22 +1533,34 @@
                     <span class="n">b</span><span class="o">.</span><span class="n">episode_tracker</span> <span class="o">=</span> <span class="n">episode_tracker</span>
 
                 <span class="n">buildings_to_include</span> <span class="o">=</span> <span class="p">[]</span>
-            
+
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">buildings_to_include</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">buildings_to_include</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">]]</span>
-            
+
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">):</span>
                 <span class="n">buildings_to_include</span> <span class="o">=</span> <span class="p">[</span><span class="n">buildings_to_include</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">]]</span>
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unknown buildings type. Allowed types are citylearn.building.Building, int and str.&#39;</span><span class="p">)</span>
-            
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">buildings_to_include</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">buildings_to_include</span> <span class="k">if</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="s1">&#39;include&#39;</span><span class="p">]]</span>
 
         <span class="c1"># load buildings</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">building_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">buildings_to_include</span><span class="p">):</span>
-            <span class="n">buildings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_building</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">building_name</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">,</span> <span class="n">pv_sizing_data</span><span class="p">,</span> <span class="n">battery_sizing_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+            <span class="n">buildings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load_building</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">building_name</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">,</span> <span class="n">pv_sizing_data</span><span class="p">,</span> <span class="n">battery_sizing_data</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+        <span class="c1"># Load electric vehicles (if present in the schema)</span>
+        <span class="n">electric_vehicles_def</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;electric_vehicles_def&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;electric_vehicles_def&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">electric_vehicle_schemas</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;electric_vehicles_def&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">electric_vehicle_schemas</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;electric_vehicles_def&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="k">for</span> <span class="n">electric_vehicle_name</span><span class="p">,</span> <span class="n">electric_vehicle_schema</span> <span class="ow">in</span> <span class="n">electric_vehicle_schemas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">electric_vehicle_schema</span><span class="p">[</span><span class="s1">&#39;include&#39;</span><span class="p">]:</span>
+                <span class="n">electric_vehicles_def</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_electric_vehicle</span><span class="p">(</span><span class="n">electric_vehicle_name</span><span class="p">,</span><span class="n">schema</span><span class="p">,</span><span class="n">electric_vehicle_schema</span><span class="p">,</span><span class="n">episode_tracker</span><span class="p">))</span>
 
         <span class="c1"># set reward function</span>
         <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reward_function&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1473,44 +1578,49 @@
 
         <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reward_function_kwargs&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">reward_function_attributes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;reward_function_kwargs&#39;</span><span class="p">]</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">reward_function_attributes</span> <span class="o">=</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;reward_function&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="n">reward_function_attributes</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">reward_function_attributes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">reward_function_attributes</span>
-        
+
         <span class="n">reward_function_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reward_function_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">reward_function_name</span> <span class="o">=</span> <span class="n">reward_function_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">reward_function_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">reward_function_module</span><span class="p">),</span> <span class="n">reward_function_name</span><span class="p">)</span>
         <span class="n">reward_function</span> <span class="o">=</span> <span class="n">reward_function_constructor</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">reward_function_attributes</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">(</span>
-            <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;episode_time_steps&#39;</span><span class="p">],</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;rolling_episode_split&#39;</span><span class="p">],</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_episode_split&#39;</span><span class="p">],</span> 
-            <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">],</span> <span class="n">reward_function</span><span class="p">,</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;central_agent&#39;</span><span class="p">],</span> <span class="n">shared_observations</span><span class="p">,</span> <span class="n">episode_tracker</span>
+            <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">electric_vehicles_def</span><span class="p">,</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;episode_time_steps&#39;</span><span class="p">],</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;rolling_episode_split&#39;</span><span class="p">],</span>
+            <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_episode_split&#39;</span><span class="p">],</span>
+            <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">],</span> <span class="n">reward_function</span><span class="p">,</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;central_agent&#39;</span><span class="p">],</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;shared_observations&#39;</span><span class="p">],</span>
+            <span class="n">episode_tracker</span>
         <span class="p">)</span>
-    
-    <span class="k">def</span> <span class="nf">_load_building</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">building_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">,</span> <span class="n">pv_sizing_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">battery_sizing_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Building</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">_load_building</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">building_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">,</span>
+                       <span class="n">pv_sizing_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">battery_sizing_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Building</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes and returns a building model.&quot;&quot;&quot;</span>
 
         <span class="n">building_schema</span> <span class="o">=</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">][</span><span class="n">building_name</span><span class="p">]</span>
         <span class="n">building_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># data</span>
-        <span class="n">energy_simulation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span><span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;energy_simulation&#39;</span><span class="p">]))</span>
+        <span class="n">energy_simulation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;energy_simulation&#39;</span><span class="p">]))</span>
         <span class="n">energy_simulation</span> <span class="o">=</span> <span class="n">EnergySimulation</span><span class="p">(</span><span class="o">**</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">))</span>
-        <span class="n">weather</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span><span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;weather&#39;</span><span class="p">]))</span>
+        <span class="n">weather</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;weather&#39;</span><span class="p">]))</span>
         <span class="n">weather</span> <span class="o">=</span> <span class="n">Weather</span><span class="p">(</span><span class="o">**</span><span class="n">weather</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;carbon_intensity&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">carbon_intensity</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span><span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;carbon_intensity&#39;</span><span class="p">]))</span>
+            <span class="n">carbon_intensity</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;carbon_intensity&#39;</span><span class="p">]))</span>
             <span class="n">carbon_intensity</span> <span class="o">=</span> <span class="n">CarbonIntensity</span><span class="p">(</span><span class="o">**</span><span class="n">carbon_intensity</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">))</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">carbon_intensity</span> <span class="o">=</span> <span class="n">CarbonIntensity</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">hour</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pricing&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">pricing</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span><span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;pricing&#39;</span><span class="p">]))</span>
+            <span class="n">pricing</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;pricing&#39;</span><span class="p">]))</span>
             <span class="n">pricing</span> <span class="o">=</span> <span class="n">Pricing</span><span class="p">(</span><span class="o">**</span><span class="n">pricing</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">))</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">pricing</span> <span class="o">=</span> <span class="n">Pricing</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">hour</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span>
@@ -1518,21 +1628,23 @@
                 <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">hour</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">energy_simulation</span><span class="o">.</span><span class="n">hour</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span>
             <span class="p">)</span>
-            
+
         <span class="c1"># observation metadata</span>
         <span class="n">observation_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;observations&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
         <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;active_observations&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">active_observations</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;active_observations&#39;</span><span class="p">]</span>
-            <span class="n">active_observations</span> <span class="o">=</span> <span class="n">active_observations</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">active_observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">active_observations</span>
+            <span class="n">active_observations</span> <span class="o">=</span> <span class="n">active_observations</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">active_observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                           <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">active_observations</span>
             <span class="n">observation_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">active_observations</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">observation_metadata</span><span class="p">}</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
 
         <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">inactive_observations</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">]</span>
-            <span class="n">inactive_observations</span> <span class="o">=</span> <span class="n">inactive_observations</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inactive_observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">inactive_observations</span>
+            <span class="n">inactive_observations</span> <span class="o">=</span> <span class="n">inactive_observations</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inactive_observations</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                               <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">inactive_observations</span>
 
         <span class="k">elif</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">inactive_observations</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">]</span>
@@ -1540,7 +1652,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">inactive_observations</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="n">observation_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inactive_observations</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">observation_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">observation_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inactive_observations</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span>
+                                <span class="n">observation_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
         <span class="c1"># action metadata</span>
         <span class="n">action_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;actions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -1549,13 +1662,14 @@
             <span class="n">active_actions</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;active_actions&#39;</span><span class="p">]</span>
             <span class="n">active_actions</span> <span class="o">=</span> <span class="n">active_actions</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">active_actions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">active_actions</span>
             <span class="n">action_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">active_actions</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">action_metadata</span><span class="p">}</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
 
         <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">inactive_actions</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">]</span>
-            <span class="n">inactive_actions</span> <span class="o">=</span> <span class="n">inactive_actions</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inactive_actions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">inactive_actions</span>
+            <span class="n">inactive_actions</span> <span class="o">=</span> <span class="n">inactive_actions</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inactive_actions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                     <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">inactive_actions</span>
 
         <span class="k">elif</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">inactive_actions</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">]</span>
@@ -1566,7 +1680,8 @@
         <span class="n">action_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">inactive_actions</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">action_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
         <span class="c1"># construct building</span>
-        <span class="n">building_type</span> <span class="o">=</span> <span class="s1">&#39;citylearn.citylearn.Building&#39;</span> <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="n">building_type</span> <span class="o">=</span> <span class="s1">&#39;citylearn.citylearn.Building&#39;</span> <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> \
+        <span class="n">building_schema</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
         <span class="n">building_type_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">building_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">building_type_name</span> <span class="o">=</span> <span class="n">building_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">building_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">building_type_module</span><span class="p">),</span><span class="n">building_type_name</span><span class="p">)</span>
@@ -1611,32 +1726,72 @@
         <span class="c1"># set power outage model</span>
         <span class="n">building_schema_power_outage</span> <span class="o">=</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;power_outage&#39;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">simulate_power_outage</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;simulate_power_outage&#39;</span><span class="p">)</span>
-        <span class="n">simulate_power_outage</span> <span class="o">=</span> <span class="n">building_schema_power_outage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;simulate_power_outage&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">simulate_power_outage</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">simulate_power_outage</span>
-        <span class="n">simulate_power_outage</span> <span class="o">=</span> <span class="n">simulate_power_outage</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">simulate_power_outage</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">simulate_power_outage</span>
+        <span class="n">simulate_power_outage</span> <span class="o">=</span> <span class="n">building_schema_power_outage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;simulate_power_outage&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">simulate_power_outage</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">simulate_power_outage</span>
+        <span class="n">simulate_power_outage</span> <span class="o">=</span> <span class="n">simulate_power_outage</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">simulate_power_outage</span><span class="p">,</span>
+                                                                           <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">simulate_power_outage</span>
         <span class="n">stochastic_power_outage</span> <span class="o">=</span> <span class="n">building_schema_power_outage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stochastic_power_outage&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">building_schema_power_outage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stochastic_power_outage_model&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">stochastic_power_outage_model_type</span> <span class="o">=</span> <span class="n">building_schema_power_outage</span><span class="p">[</span><span class="s1">&#39;stochastic_power_outage_model&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+            <span class="n">stochastic_power_outage_model_type</span> <span class="o">=</span> <span class="n">building_schema_power_outage</span><span class="p">[</span><span class="s1">&#39;stochastic_power_outage_model&#39;</span><span class="p">][</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">]</span>
             <span class="n">stochastic_power_outage_model_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stochastic_power_outage_model_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">stochastic_power_outage_model_name</span> <span class="o">=</span> <span class="n">stochastic_power_outage_model_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">stochastic_power_outage_model_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-                <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">stochastic_power_outage_model_module</span><span class="p">),</span> 
+                <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">stochastic_power_outage_model_module</span><span class="p">),</span>
                 <span class="n">stochastic_power_outage_model_name</span>
             <span class="p">)</span>
-            <span class="n">attributes</span> <span class="o">=</span>  <span class="n">building_schema_power_outage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stochastic_power_outage_model&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">building_schema_power_outage</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stochastic_power_outage_model&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span>
             <span class="n">stochastic_power_outage_model</span> <span class="o">=</span> <span class="n">stochastic_power_outage_model_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">attributes</span><span class="p">)</span>
-        
+
         <span class="k">else</span><span class="p">:</span>
             <span class="n">stochastic_power_outage_model</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="c1">#Adding chargers to buildings if they exist</span>
+        <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chargers&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">chargers_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">charger_name</span><span class="p">,</span> <span class="n">charger_config</span> <span class="ow">in</span> <span class="n">building_schema</span><span class="p">[</span><span class="s2">&quot;chargers&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">charger_type</span> <span class="o">=</span> <span class="n">charger_config</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+                <span class="n">charger_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">charger_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">charger_class_name</span> <span class="o">=</span> <span class="n">charger_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">charger_class</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">charger_module</span><span class="p">),</span> <span class="n">charger_class_name</span><span class="p">)</span>
+                <span class="n">charger_attributes</span> <span class="o">=</span> <span class="n">charger_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span>
+                <span class="n">charger_object</span> <span class="o">=</span> <span class="n">charger_class</span><span class="p">(</span><span class="n">charger_id</span><span class="o">=</span><span class="n">charger_name</span><span class="p">,</span> <span class="o">**</span><span class="n">charger_attributes</span><span class="p">,</span>
+                                               <span class="n">seconds_per_time_step</span><span class="o">=</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">],</span> <span class="p">)</span>
+                <span class="n">chargers_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">charger_object</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="s1">&#39;electric_vehicle_storage&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inactive_actions</span> <span class="ow">and</span> <span class="s2">&quot;electric_vehicle_storage&quot;</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_actions_helper&#39;</span><span class="p">]:</span>
+                    <span class="c1"># Add new action for this charger to action_metadata</span>
+                    <span class="n">action_metadata</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;electric_vehicle_storage_</span><span class="si">{</span><span class="n">charger_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="c1"># Consider that if chargers_observations is not empty we should populate observations for chargers</span>
+                <span class="c1"># Each charger replicates the observations of the original chargers_observations but specific for its own</span>
+                <span class="c1"># If shared observations are active for the specific observation, that observation is added to shared_observations</span>
+
+                <span class="k">if</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_observations_helper&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;electric_vehicle_charger_state&#39;</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_observations_helper&#39;</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">state_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;connected&#39;</span><span class="p">,</span> <span class="s1">&#39;incoming&#39;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_observations_helper&#39;</span><span class="p">][</span><span class="s1">&#39;electric_vehicle_charger_state&#39;</span><span class="p">][</span><span class="s2">&quot;active&quot;</span><span class="p">]:</span>
+                            <span class="n">observation_metadata</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;charger_</span><span class="si">{</span><span class="n">charger_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">state_type</span><span class="si">}</span><span class="s1">_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Add base case</span>
+                        <span class="k">if</span> <span class="s2">&quot;electric_vehicle_charger_state&quot;</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_shared_observations_helper&#39;</span><span class="p">]:</span>
+                            <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;shared_observations&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;charger_</span><span class="si">{</span><span class="n">charger_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">state_type</span><span class="si">}</span><span class="s1">_state&#39;</span><span class="p">)</span>
+
+                        <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_observations_helper&#39;</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_observations_helper&#39;</span><span class="p">][</span><span class="n">obs</span><span class="p">][</span><span class="s2">&quot;active&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">obs</span> <span class="o">!=</span> <span class="s1">&#39;electric_vehicle_charger_state&#39;</span><span class="p">:</span>
+                                <span class="n">observation_metadata</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;charger_</span><span class="si">{</span><span class="n">charger_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">state_type</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">obs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">if</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_shared_observations_helper&#39;</span><span class="p">]:</span>
+                                <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;shared_observations&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;charger_</span><span class="si">{</span><span class="n">charger_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">state_type</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">obs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chargers_list</span> <span class="o">=</span> <span class="p">[]</span>
+
         <span class="n">building</span><span class="p">:</span> <span class="n">Building</span> <span class="o">=</span> <span class="n">building_constructor</span><span class="p">(</span>
-            <span class="n">energy_simulation</span><span class="o">=</span><span class="n">energy_simulation</span><span class="p">,</span> 
-            <span class="n">weather</span><span class="o">=</span><span class="n">weather</span><span class="p">,</span> 
-            <span class="n">observation_metadata</span><span class="o">=</span><span class="n">observation_metadata</span><span class="p">,</span> 
-            <span class="n">action_metadata</span><span class="o">=</span><span class="n">action_metadata</span><span class="p">,</span> 
-            <span class="n">carbon_intensity</span><span class="o">=</span><span class="n">carbon_intensity</span><span class="p">,</span> 
+            <span class="n">energy_simulation</span><span class="o">=</span><span class="n">energy_simulation</span><span class="p">,</span>
+            <span class="n">electric_vehicle_chargers</span><span class="o">=</span><span class="n">chargers_list</span><span class="p">,</span>
+            <span class="n">weather</span><span class="o">=</span><span class="n">weather</span><span class="p">,</span>
+            <span class="n">observation_metadata</span><span class="o">=</span><span class="n">observation_metadata</span><span class="p">,</span>
+            <span class="n">action_metadata</span><span class="o">=</span><span class="n">action_metadata</span><span class="p">,</span>
+            <span class="n">carbon_intensity</span><span class="o">=</span><span class="n">carbon_intensity</span><span class="p">,</span>
             <span class="n">pricing</span><span class="o">=</span><span class="n">pricing</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">building_name</span><span class="p">,</span> 
+            <span class="n">name</span><span class="o">=</span><span class="n">building_name</span><span class="p">,</span>
             <span class="n">seconds_per_time_step</span><span class="o">=</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">],</span>
             <span class="n">random_seed</span><span class="o">=</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">],</span>
             <span class="n">episode_tracker</span><span class="o">=</span><span class="n">episode_tracker</span><span class="p">,</span>
@@ -1648,13 +1803,13 @@
 
         <span class="c1"># update devices</span>
         <span class="n">device_metadata</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;cooling_device&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_cooling_device</span><span class="p">},</span> 
-            <span class="s1">&#39;heating_device&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_heating_device</span><span class="p">},</span> 
-            <span class="s1">&#39;dhw_device&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_dhw_device</span><span class="p">},</span> 
-            <span class="s1">&#39;dhw_storage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_dhw_storage</span><span class="p">},</span>  
-            <span class="s1">&#39;cooling_storage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_cooling_storage</span><span class="p">},</span> 
-            <span class="s1">&#39;heating_storage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_heating_storage</span><span class="p">},</span> 
-            <span class="s1">&#39;electrical_storage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_electrical_storage</span><span class="p">},</span> 
+            <span class="s1">&#39;cooling_device&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_cooling_device</span><span class="p">},</span>
+            <span class="s1">&#39;heating_device&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_heating_device</span><span class="p">},</span>
+            <span class="s1">&#39;dhw_device&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_dhw_device</span><span class="p">},</span>
+            <span class="s1">&#39;dhw_storage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_dhw_storage</span><span class="p">},</span>
+            <span class="s1">&#39;cooling_storage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_cooling_storage</span><span class="p">},</span>
+            <span class="s1">&#39;heating_storage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_heating_storage</span><span class="p">},</span>
+            <span class="s1">&#39;electrical_storage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_electrical_storage</span><span class="p">},</span>
             <span class="s1">&#39;pv&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;autosizer&#39;</span><span class="p">:</span> <span class="n">building</span><span class="o">.</span><span class="n">autosize_pv</span><span class="p">}</span>
         <span class="p">}</span>
         <span class="n">solar_generation</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;solar_generation&#39;</span><span class="p">)</span>
@@ -1664,16 +1819,16 @@
         <span class="k">for</span> <span class="n">device_name</span> <span class="ow">in</span> <span class="n">device_metadata</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">building_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">device_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">device</span> <span class="o">=</span> <span class="kc">None</span>
-            
+
             <span class="k">elif</span> <span class="n">device_name</span> <span class="o">==</span> <span class="s1">&#39;pv&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">solar_generation</span><span class="p">:</span>
                 <span class="n">device</span> <span class="o">=</span> <span class="kc">None</span>
-            
+
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">device_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
                 <span class="n">device_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">device_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
                 <span class="n">device_type_name</span> <span class="o">=</span> <span class="n">device_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">device_module</span><span class="p">),</span><span class="n">device_type_name</span><span class="p">)</span>
-                <span class="n">attributes</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,{})</span>
+                <span class="n">constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">device_module</span><span class="p">),</span> <span class="n">device_type_name</span><span class="p">)</span>
+                <span class="n">attributes</span> <span class="o">=</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">]</span>
 
                 <span class="c1"># in case device technical specifications are to be randomly sampled, make sure each device per building has a unique seed</span>
@@ -1685,44 +1840,105 @@
                     <span class="n">hash_to_integer_base</span> <span class="o">=</span> <span class="mi">16</span>
                     <span class="n">device_random_seed</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">md5</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span> <span class="n">hash_to_integer_base</span><span class="p">)</span>
 
-                <span class="n">device_random_seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">device_random_seed</span><span class="o">*</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))[:</span><span class="mi">9</span><span class="p">])</span>
+                <span class="n">device_random_seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">device_random_seed</span> <span class="o">*</span> <span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))[:</span><span class="mi">9</span><span class="p">])</span>
 
                 <span class="n">attributes</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="o">**</span><span class="n">attributes</span><span class="p">,</span>
-                    <span class="s1">&#39;random_seed&#39;</span><span class="p">:</span> <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">device_random_seed</span>
+                    <span class="s1">&#39;random_seed&#39;</span><span class="p">:</span> <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span>
+                                                                               <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">device_random_seed</span>
                 <span class="p">}</span>
                 <span class="n">device</span> <span class="o">=</span> <span class="n">constructor</span><span class="p">(</span><span class="o">**</span><span class="n">attributes</span><span class="p">)</span>
-                <span class="n">autosize</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;autosize&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">][</span><span class="s1">&#39;autosize&#39;</span><span class="p">]</span>
+                <span class="n">autosize</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;autosize&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> \
+                <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">][</span><span class="s1">&#39;autosize&#39;</span><span class="p">]</span>
                 <span class="n">building</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">device_name</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">autosize</span><span class="p">:</span>
                     <span class="n">autosizer</span> <span class="o">=</span> <span class="n">device_metadata</span><span class="p">[</span><span class="n">device_name</span><span class="p">][</span><span class="s1">&#39;autosizer&#39;</span><span class="p">]</span>
-                    <span class="n">autosize_kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;autosize_attributes&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">][</span><span class="s1">&#39;autosize_attributes&#39;</span><span class="p">]</span>
+                    <span class="n">autosize_kwargs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;autosize_attributes&#39;</span><span class="p">,</span>
+                                                                             <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> \
+                    <span class="n">building_schema</span><span class="p">[</span><span class="n">device_name</span><span class="p">][</span><span class="s1">&#39;autosize_attributes&#39;</span><span class="p">]</span>
 
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">PV</span><span class="p">):</span>
-                        <span class="n">autosize_kwargs</span><span class="p">[</span><span class="s1">&#39;epw_filepath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">autosize_kwargs</span><span class="p">[</span><span class="s1">&#39;epw_filepath&#39;</span><span class="p">])</span>
+                        <span class="n">autosize_kwargs</span><span class="p">[</span><span class="s1">&#39;epw_filepath&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span>
+                                                                       <span class="n">autosize_kwargs</span><span class="p">[</span><span class="s1">&#39;epw_filepath&#39;</span><span class="p">])</span>
                         <span class="n">autosize_kwargs</span><span class="p">[</span><span class="s1">&#39;sizing_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv_sizing_data</span>
 
                     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">Battery</span><span class="p">):</span>
                         <span class="n">autosize_kwargs</span><span class="p">[</span><span class="s1">&#39;sizing_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">battery_sizing_data</span>
-                    
+
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
 
                     <span class="n">autosizer</span><span class="p">(</span><span class="o">**</span><span class="n">autosize_kwargs</span><span class="p">)</span>
-                
+
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">pass</span>
 
                 <span class="c1"># set back the random seed to to building&#39;s random seed</span>
                 <span class="n">device</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">]</span>
-        
+
         <span class="n">building</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">estimate_observation_space</span><span class="p">()</span>
         <span class="n">building</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">estimate_action_space</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">building</span></div>
+        <span class="k">return</span> <span class="n">building</span>
 
-        
+    <span class="k">def</span> <span class="nf">_load_electric_vehicle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">electric_vehicle_schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectricVehicle</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes and returns an electric vehicle model.&quot;&quot;&quot;</span>
+        <span class="c1"># Load energy simulation data for the EV</span>
+
+        <span class="n">electric_vehicle_simulation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">],</span> <span class="n">electric_vehicle_schema</span><span class="p">[</span><span class="s1">&#39;energy_simulation&#39;</span><span class="p">])</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;simulation_start_time_step&#39;</span><span class="p">]:</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;simulation_end_time_step&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">electric_vehicle_simulation</span> <span class="o">=</span> <span class="n">ElectricVehicleSimulation</span><span class="p">(</span><span class="o">*</span><span class="n">electric_vehicle_simulation</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+        <span class="c1"># Observation and action metadata</span>
+        <span class="n">electric_vehicle_inactive_observations</span> <span class="o">=</span> <span class="n">electric_vehicle_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_observations&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">electric_vehicle_inactive_actions</span> <span class="o">=</span> <span class="n">electric_vehicle_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;inactive_actions&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">electric_vehicle_observation_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">electric_vehicle_inactive_observations</span> <span class="k">else</span> <span class="kc">True</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;chargers_observations_helper&#39;</span><span class="p">]</span>
+                                   <span class="k">if</span> <span class="n">s</span> <span class="o">!=</span> <span class="s1">&#39;electric_vehicle_charger_state&#39;</span><span class="p">}</span>
+        <span class="n">electric_vehicle_action_metadata</span> <span class="o">=</span> <span class="p">{</span><span class="n">a</span><span class="p">:</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">electric_vehicle_inactive_actions</span> <span class="k">else</span> <span class="kc">True</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;chargers_actions_helper&#39;</span><span class="p">]}</span>
+
+        <span class="c1"># Construct the battery object</span>
+        <span class="n">capacity</span> <span class="o">=</span> <span class="n">electric_vehicle_schema</span><span class="p">[</span><span class="s2">&quot;battery&quot;</span><span class="p">][</span><span class="s2">&quot;attributes&quot;</span><span class="p">][</span><span class="s2">&quot;capacity&quot;</span><span class="p">]</span>
+        <span class="n">nominal_power</span> <span class="o">=</span> <span class="n">electric_vehicle_schema</span><span class="p">[</span><span class="s2">&quot;battery&quot;</span><span class="p">][</span><span class="s2">&quot;attributes&quot;</span><span class="p">][</span><span class="s2">&quot;nominal_power&quot;</span><span class="p">]</span>
+        <span class="n">initial_soc</span> <span class="o">=</span> <span class="n">electric_vehicle_schema</span><span class="p">[</span><span class="s2">&quot;battery&quot;</span><span class="p">][</span><span class="s2">&quot;attributes&quot;</span><span class="p">][</span><span class="s2">&quot;initial_soc&quot;</span><span class="p">]</span>
+        <span class="n">min_battery_soc</span> <span class="o">=</span> <span class="n">electric_vehicle_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;battery&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attributes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min_battery_soc&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">battery</span> <span class="o">=</span> <span class="n">Battery</span><span class="p">(</span>
+            <span class="n">capacity</span><span class="o">=</span><span class="n">capacity</span><span class="p">,</span>
+            <span class="n">nominal_power</span><span class="o">=</span><span class="n">nominal_power</span><span class="p">,</span>
+            <span class="n">initial_soc</span><span class="o">=</span><span class="n">initial_soc</span><span class="p">,</span>
+            <span class="n">seconds_per_time_step</span><span class="o">=</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">],</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">],</span>
+            <span class="n">episode_tracker</span><span class="o">=</span><span class="n">episode_tracker</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get the EV constructor</span>
+
+        <span class="n">electric_vehicle_type</span> <span class="o">=</span> <span class="s1">&#39;citylearn.citylearn.ElectricVehicle&#39;</span> <span class="k">if</span> <span class="n">electric_vehicle_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">electric_vehicle_schema</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="n">electric_vehicle_type_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">electric_vehicle_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">electric_vehicle_type_name</span> <span class="o">=</span> <span class="n">electric_vehicle_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">electric_vehicle_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">electric_vehicle_type_module</span><span class="p">),</span> <span class="n">electric_vehicle_type_name</span><span class="p">)</span>
+
+        <span class="c1"># Initialize EV</span>
+        <span class="n">ev</span><span class="p">:</span> <span class="n">ElectricVehicle</span> <span class="o">=</span> <span class="n">electric_vehicle_constructor</span><span class="p">(</span>
+            <span class="n">electric_vehicle_simulation</span><span class="o">=</span><span class="n">electric_vehicle_simulation</span><span class="p">,</span>
+            <span class="n">observation_metadata</span><span class="o">=</span><span class="n">electric_vehicle_observation_metadata</span><span class="p">,</span>
+            <span class="n">action_metadata</span><span class="o">=</span><span class="n">electric_vehicle_action_metadata</span><span class="p">,</span>
+            <span class="n">battery</span><span class="o">=</span><span class="n">battery</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">electric_vehicle_name</span><span class="p">,</span>
+            <span class="n">seconds_per_time_step</span><span class="o">=</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">],</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;random_seed&#39;</span><span class="p">],</span>
+            <span class="n">min_battery_soc</span><span class="o">=</span><span class="n">min_battery_soc</span><span class="p">,</span>
+            <span class="n">episode_tracker</span><span class="o">=</span><span class="n">episode_tracker</span>
+        <span class="p">)</span>
+
+        <span class="n">ev</span><span class="o">.</span><span class="n">observation_space</span> <span class="o">=</span> <span class="n">ev</span><span class="o">.</span><span class="n">estimate_observation_space</span><span class="p">()</span>
+        <span class="n">ev</span><span class="o">.</span><span class="n">action_space</span> <span class="o">=</span> <span class="n">ev</span><span class="o">.</span><span class="n">estimate_action_space</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">ev</span></div>
+
+
 <div class="viewcode-block" id="Error">
 <a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.Error">[docs]</a>
 <span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -1736,7 +1952,7 @@
     <span class="n">__MESSAGE</span> <span class="o">=</span> <span class="s1">&#39;Unknown schema parsed into constructor. Schema must be name of CityLearn data set,&#39;</span>\
         <span class="s1">&#39; a filepath to JSON representation or `dict` object of a CityLearn schema.&#39;</span>\
         <span class="s1">&#39; Call citylearn.data.DataSet.get_names() for list of available CityLearn data sets.&#39;</span>
-  
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__MESSAGE</span> <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">message</span><span class="p">)</span></div>
 

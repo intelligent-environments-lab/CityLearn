@@ -29,7 +29,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="citylearn.occupant module" href="citylearn.occupant.html" />
-    <link rel="prev" title="citylearn.dynamics module" href="citylearn.dynamics.html" /> 
+    <link rel="prev" title="citylearn.electric_vehicle_charger module" href="citylearn.electric_vehicle_charger.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -67,6 +67,8 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.cost_function.html">citylearn.cost_function module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.electric_vehicle.html">citylearn.electric_vehicle module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.electric_vehicle_charger.html">citylearn.electric_vehicle_charger module</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.energy_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.occupant.html">citylearn.occupant module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.power_outage.html">citylearn.power_outage module</a></li>
@@ -308,6 +310,19 @@ limitations, losses to the environment quantified by <cite>efficiency</cite>, <c
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.reset" title="Link to this definition"></a></dt>
 <dd><p>Reset <cite>Battery</cite> to initial state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.Battery.set_ad_hoc_charge">
+<span class="sig-name descname"><span class="pre">set_ad_hoc_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.set_ad_hoc_charge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.set_ad_hoc_charge" title="Link to this definition"></a></dt>
+<dd><p>Charges or discharges storage with disregard to capacity` degradation, losses to the environment quantified by <cite>efficiency</cite>, <cite>power_efficiency_curve</cite> and <cite>capacity_power_curve</cite>.
+Considers only <cite>soc_init</cite> limitations and maximum capacity limitations
+Used for setting EVs Soc after coming from a transit state</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>energy</strong> (<em>float</em>) – Energy to charge if (+) or discharge if (-) in [kWh].</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -886,7 +901,7 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>efficiency</ci
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="citylearn.dynamics.html" class="btn btn-neutral float-left" title="citylearn.dynamics module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="citylearn.electric_vehicle_charger.html" class="btn btn-neutral float-left" title="citylearn.electric_vehicle_charger module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="citylearn.occupant.html" class="btn btn-neutral float-right" title="citylearn.occupant module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

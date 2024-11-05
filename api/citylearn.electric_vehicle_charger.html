@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citylearn.electric_vehicle_charger module &mdash; CityLearn 2.3b0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=44d8073d"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="citylearn.energy_model module" href="citylearn.energy_model.html" />
+    <link rel="prev" title="citylearn.electric_vehicle module" href="citylearn.electric_vehicle.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="citylearn.html">citylearn package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="citylearn.html#subpackages">Subpackages</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="citylearn.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="citylearn.base.html">citylearn.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.building.html">citylearn.building module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.citylearn.html">citylearn.citylearn module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.cost_function.html">citylearn.cost_function module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.data.html">citylearn.data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.electric_vehicle.html">citylearn.electric_vehicle module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.electric_vehicle_charger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.occupant.html">citylearn.occupant module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.power_outage.html">citylearn.power_outage module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.reward_function.html">citylearn.reward_function module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.rl.html">citylearn.rl module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.utilities.html">citylearn.utilities module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.wrappers.html">citylearn.wrappers module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">citylearn</a></li>
+          <li class="breadcrumb-item"><a href="citylearn.html">citylearn package</a></li>
+      <li class="breadcrumb-item active">citylearn.electric_vehicle_charger module</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/intelligent-environments-lab/CityLearn/blob/master/docs/source/api/citylearn.electric_vehicle_charger.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-citylearn.electric_vehicle_charger">
+<span id="citylearn-electric-vehicle-charger-module"></span><h1>citylearn.electric_vehicle_charger module<a class="headerlink" href="#module-citylearn.electric_vehicle_charger" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.electric_vehicle_charger.</span></span><span class="sig-name descname"><span class="pre">Charger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nominal_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">efficiency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charger_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charger_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_charging_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_charging_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_discharging_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_discharging_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_efficiency_curve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discharge_efficiency_curve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connected_electric_vehicle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle" title="citylearn.electric_vehicle.ElectricVehicle"><span class="pre">ElectricVehicle</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incoming_electric_vehicle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle" title="citylearn.electric_vehicle.ElectricVehicle"><span class="pre">ElectricVehicle</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle_charger.html#Charger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="citylearn.base.html#citylearn.base.Environment" title="citylearn.base.Environment"><code class="xref py py-class docutils literal notranslate"><span class="pre">Environment</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.associate_incoming_car">
+<span class="sig-name descname"><span class="pre">associate_incoming_car</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electric_vehicle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle" title="citylearn.electric_vehicle.ElectricVehicle"><span class="pre">ElectricVehicle</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle_charger.html#Charger.associate_incoming_car"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.associate_incoming_car" title="Link to this definition"></a></dt>
+<dd><p>Associates incoming electric_vehicle to the charger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>electric_vehicle</strong> (<em>object</em>) – electric_vehicle instance to be connected to the charger.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the charger has reached its maximum associated electric_vehicle’ capacity.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.available_nominal_power">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">available_nominal_power</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.available_nominal_power" title="Link to this definition"></a></dt>
+<dd><p>Difference between <cite>nominal_power</cite> and <cite>electricity_consumption</cite> at current <cite>time_step</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.charge_efficiency_curve">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">charge_efficiency_curve</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.charge_efficiency_curve" title="Link to this definition"></a></dt>
+<dd><p>Efficiency curve for charging containing power levels and corresponding efficiency values.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.charger_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">charger_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.charger_id" title="Link to this definition"></a></dt>
+<dd><p>ID of the charger.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.charger_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">charger_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.charger_type" title="Link to this definition"></a></dt>
+<dd><p>Type of the charger.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.connected_electric_vehicle">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connected_electric_vehicle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle" title="citylearn.electric_vehicle.ElectricVehicle"><span class="pre">ElectricVehicle</span></a></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.connected_electric_vehicle" title="Link to this definition"></a></dt>
+<dd><p>Electric_Vehicle currently connected to charger</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.disassociate_incoming_car">
+<span class="sig-name descname"><span class="pre">disassociate_incoming_car</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle_charger.html#Charger.disassociate_incoming_car"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.disassociate_incoming_car" title="Link to this definition"></a></dt>
+<dd><p>Disassociates incoming electric_vehicle from the charger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>electric_vehicle</strong> (<em>object</em>) – electric_vehicle instance to be disconnected from the charger.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.discharge_efficiency_curve">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">discharge_efficiency_curve</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.discharge_efficiency_curve" title="Link to this definition"></a></dt>
+<dd><p>Efficiency curve for discharging containing power levels and corresponding efficiency values.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.efficiency">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">efficiency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.efficiency" title="Link to this definition"></a></dt>
+<dd><p>Technical efficiency.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.electricity_consumption">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electricity_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.electricity_consumption" title="Link to this definition"></a></dt>
+<dd><p>Electricity consumption time series.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.incoming_electric_vehicle">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">incoming_electric_vehicle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle" title="citylearn.electric_vehicle.ElectricVehicle"><span class="pre">ElectricVehicle</span></a></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.incoming_electric_vehicle" title="Link to this definition"></a></dt>
+<dd><p>Electric_Vehicle incoming to charger</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.max_charging_power">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_charging_power</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.max_charging_power" title="Link to this definition"></a></dt>
+<dd><p>Maximum charging power in kW.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.max_discharging_power">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_discharging_power</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.max_discharging_power" title="Link to this definition"></a></dt>
+<dd><p>Maximum discharging power in kW.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.min_charging_power">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_charging_power</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.min_charging_power" title="Link to this definition"></a></dt>
+<dd><p>Minimum charging power in kW.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.min_discharging_power">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_discharging_power</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.min_discharging_power" title="Link to this definition"></a></dt>
+<dd><p>Minimum discharging power in kW.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.next_time_step">
+<span class="sig-name descname"><span class="pre">next_time_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle_charger.html#Charger.next_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.next_time_step" title="Link to this definition"></a></dt>
+<dd><p>Advance to next <cite>time_step</cite> and set <cite>electricity_consumption</cite> at new <cite>time_step</cite> to 0.0.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.nominal_power">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nominal_power</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.nominal_power" title="Link to this definition"></a></dt>
+<dd><p>Nominal power.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.past_charging_action_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">past_charging_action_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.past_charging_action_values" title="Link to this definition"></a></dt>
+<dd><p>Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.past_connected_evs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">past_connected_evs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle" title="citylearn.electric_vehicle.ElectricVehicle"><span class="pre">ElectricVehicle</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.past_connected_evs" title="Link to this definition"></a></dt>
+<dd><p>Each timestep with the list of Past connected Evs or None in the case no electric_vehicle was connected</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.plug_car">
+<span class="sig-name descname"><span class="pre">plug_car</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electric_vehicle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle" title="citylearn.electric_vehicle.ElectricVehicle"><span class="pre">ElectricVehicle</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle_charger.html#Charger.plug_car"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.plug_car" title="Link to this definition"></a></dt>
+<dd><p>Connects a electric_vehicle to the charger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>electric_vehicle</strong> (<em>object</em>) – electric_vehicle instance to be connected to the charger.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the charger has reached its maximum connected electric_vehicle’ capacity.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle_charger.html#Charger.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.reset" title="Link to this definition"></a></dt>
+<dd><p>Resets the Charger to its initial state by disconnecting all electric_vehicles.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.unplug_car">
+<span class="sig-name descname"><span class="pre">unplug_car</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle_charger.html#Charger.unplug_car"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.unplug_car" title="Link to this definition"></a></dt>
+<dd><p>Disconnects a electric_vehicle from the charger.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>electric_vehicle</strong> (<em>object</em>) – electric_vehicle instance to be disconnected from the charger.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.electric_vehicle_charger.Charger.update_connected_electric_vehicle_soc">
+<span class="sig-name descname"><span class="pre">update_connected_electric_vehicle_soc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle_charger.html#Charger.update_connected_electric_vehicle_soc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle_charger.Charger.update_connected_electric_vehicle_soc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="citylearn.electric_vehicle.html" class="btn btn-neutral float-left" title="citylearn.electric_vehicle module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="citylearn.energy_model.html" class="btn btn-neutral float-right" title="citylearn.energy_model module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

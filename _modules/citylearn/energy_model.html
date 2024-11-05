@@ -191,6 +191,12 @@
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Nominal power.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nominal_power</span>
+    
+    <span class="nd">@nominal_power</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">nominal_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">nominal_power</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">nominal_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">nominal_power</span>
+        <span class="k">assert</span> <span class="n">nominal_power</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;nominal_power must be &gt;= 0.&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__nominal_power</span> <span class="o">=</span> <span class="n">nominal_power</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -204,11 +210,6 @@
 
         <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
 
-    <span class="nd">@nominal_power</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">nominal_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-        <span class="n">nominal_power</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">nominal_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">nominal_power</span>
-        <span class="k">assert</span> <span class="n">nominal_power</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;nominal_power must be &gt;= 0.&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__nominal_power</span> <span class="o">=</span> <span class="n">nominal_power</span>
 
 <div class="viewcode-block" id="ElectricDevice.get_metadata">
 <a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.ElectricDevice.get_metadata">[docs]</a>
@@ -1240,6 +1241,22 @@
             <span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">power_efficiency_curve</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">power_efficiency_curve</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">idx</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">efficiency</span></div>
+
+
+<div class="viewcode-block" id="Battery.set_ad_hoc_charge">
+<a class="viewcode-back" href="../../api/citylearn.energy_model.html#citylearn.energy_model.Battery.set_ad_hoc_charge">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_ad_hoc_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Charges or discharges storage with disregard to capacity` degradation, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.</span>
+<span class="sd">        Considers only `soc_init` limitations and maximum capacity limitations</span>
+<span class="sd">        Used for setting EVs Soc after coming from a transit state</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        energy : float</span>
+<span class="sd">            Energy to charge if (+) or discharge if (-) in [kWh].</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">charge</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Battery.degrade">

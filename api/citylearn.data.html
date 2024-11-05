@@ -65,6 +65,8 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.cost_function.html">citylearn.cost_function module</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.data module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.dynamics.html">citylearn.dynamics module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.electric_vehicle.html">citylearn.electric_vehicle module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.electric_vehicle_charger.html">citylearn.electric_vehicle_charger module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.occupant.html">citylearn.occupant module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.power_outage.html">citylearn.power_outage module</a></li>
@@ -172,6 +174,82 @@ names and can be used to initialize <cite>citylearn.citylearn.CityLearnEnv</cite
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Mapping[str, Union[dict, float, str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.data.ElectricVehicleSimulation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.data.</span></span><span class="sig-name descname"><span class="pre">ElectricVehicleSimulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimated_departure_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_soc_departure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimated_arrival_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimated_soc_arrival</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/data.html#ElectricVehicleSimulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.data.ElectricVehicleSimulation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.data.TimeSeriesData" title="citylearn.data.TimeSeriesData"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesData</span></code></a></p>
+<p><cite>Electric_Vehicle</cite> <cite>electric_vehicle_simulation</cite> data class.</p>
+<p>Month,Hour,Day Type,Location,Estimated Departure Time,Required Soc At Departure</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.ElectricVehicleSimulation.electric_vehicle_charger_state">
+<span class="sig-name descname"><span class="pre">electric_vehicle_charger_state</span></span><a class="headerlink" href="#citylearn.data.ElectricVehicleSimulation.electric_vehicle_charger_state" title="Link to this definition"></a></dt>
+<dd><p>State of the electric_vehicle indicating whether it is ‘parked ready to charge’ represented as 0, ‘in transit’, represented as 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.ElectricVehicleSimulation.charger">
+<span class="sig-name descname"><span class="pre">charger</span></span><a class="headerlink" href="#citylearn.data.ElectricVehicleSimulation.charger" title="Link to this definition"></a></dt>
+<dd><p>(available only for ‘in transit’ state) Charger where the electric_vehicle will plug in the next “parked ready to charge” state.
+It can be nan if no destination charger is specified or the charger id in the format “Charger_X_Y”, where X is
+the number of the building and Y the number of the charger within that building.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.ElectricVehicleSimulation.electric_vehicle_departure_time">
+<span class="sig-name descname"><span class="pre">electric_vehicle_departure_time</span></span><a class="headerlink" href="#citylearn.data.ElectricVehicleSimulation.electric_vehicle_departure_time" title="Link to this definition"></a></dt>
+<dd><p>Number of time steps  expected until the vehicle departs (available only for ‘parked ready to charge’ state)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.ElectricVehicleSimulation.electric_vehicle_required_soc_departure">
+<span class="sig-name descname"><span class="pre">electric_vehicle_required_soc_departure</span></span><a class="headerlink" href="#citylearn.data.ElectricVehicleSimulation.electric_vehicle_required_soc_departure" title="Link to this definition"></a></dt>
+<dd><p>Estimated SOC percentage required for the electric_vehicle at departure time. (available only for ‘parked ready to charge’ state)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.ElectricVehicleSimulation.electric_vehicle_estimated_arrival_time">
+<span class="sig-name descname"><span class="pre">electric_vehicle_estimated_arrival_time</span></span><a class="headerlink" href="#citylearn.data.ElectricVehicleSimulation.electric_vehicle_estimated_arrival_time" title="Link to this definition"></a></dt>
+<dd><p>Number of time steps  expected until the vehicle arrives at the charger (available only for ‘in transit’ state)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.data.ElectricVehicleSimulation.electric_vehicle_estimated_soc_arrival">
+<span class="sig-name descname"><span class="pre">electric_vehicle_estimated_soc_arrival</span></span><a class="headerlink" href="#citylearn.data.ElectricVehicleSimulation.electric_vehicle_estimated_soc_arrival" title="Link to this definition"></a></dt>
+<dd><p>Estimated SOC percentage for the electric_vehicle at arrival time. (available only for ‘in transit’ state)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
 </dd>
 </dl>
 </dd></dl>

@@ -83,7 +83,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.agents.sac</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
 
@@ -327,10 +328,10 @@
             <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_mean</span><span class="p">[</span><span class="n">index</span><span class="p">])</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_std</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="c1"># self.time_step &gt;= self.standardize_start_time_step and self.batch_size &lt;= len(self.replay_buffer[i])</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;obs:&#39;</span><span class="p">,</span><span class="n">observations</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;mean:&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_mean</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;std:&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_std</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
-            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">standardize_start_time_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replay_buffer</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;obs:&#39;</span><span class="p">,</span><span class="n">observations</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;mean:&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_mean</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;std:&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_std</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">standardize_start_time_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replay_buffer</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
             <span class="k">assert</span> <span class="kc">False</span></div>
 
 
