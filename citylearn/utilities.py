@@ -1,4 +1,3 @@
-import os
 import pickle
 from typing import Any
 import simplejson as json

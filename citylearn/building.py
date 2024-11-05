@@ -5,16 +5,15 @@ import numpy as np
 import pandas as pd
 import torch
 from citylearn.base import Environment, EpisodeTracker
-from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
+from citylearn.data import CarbonIntensity, EnergySimulation, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
 from citylearn.dynamics import Dynamics, LSTMDynamics
+from citylearn.electric_vehicle_charger import Charger
 from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank
 from citylearn.occupant import LogisticRegressionOccupant, Occupant
 from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
-from citylearn.electric_vehicle_charger import Charger
 
 LOGGER = logging.getLogger()
-
 
 class Building(Environment):
     r"""Base class for building.
