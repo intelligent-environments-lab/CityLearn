@@ -42,51 +42,51 @@ class NeighborhoodBuild:
         citylearn_simulation_lstm_error_data: Mapping[int, pd.DataFrame], lstm_test_data: Mapping[int, pd.DataFrame], bldg_ids: List[int], sample_cluster_labels: List[int], 
         sample_metadata: Mapping[str, Any], simulators: BuildingsSimulators
     ):
-        self._schema_filepath = schema_filepath
-        self._citylearn_simulation_test_evaluation = citylearn_simulation_test_evaluation
-        self._citylearn_simulation_lstm_prediction_data = citylearn_simulation_lstm_prediction_data
-        self._citylearn_simulation_lstm_error_data = citylearn_simulation_lstm_error_data
-        self._lstm_test_data = lstm_test_data
-        self._bldg_ids = bldg_ids
-        self._sample_cluster_labels = sample_cluster_labels
-        self._sample_metadata = sample_metadata
-        self._simulators = simulators
+        self.__schema_filepath = schema_filepath
+        self.__citylearn_simulation_test_evaluation = citylearn_simulation_test_evaluation
+        self.__citylearn_simulation_lstm_prediction_data = citylearn_simulation_lstm_prediction_data
+        self.__citylearn_simulation_lstm_error_data = citylearn_simulation_lstm_error_data
+        self.__lstm_test_data = lstm_test_data
+        self.__bldg_ids = bldg_ids
+        self.__sample_cluster_labels = sample_cluster_labels
+        self.__sample_metadata = sample_metadata
+        self.__simulators = simulators
 
     @property
     def schema_filepath(self) -> Path:
-        return self._schema_filepath
+        return self.__schema_filepath
 
     @property
     def citylearn_simulation_test_evaluation(self) -> pd.DataFrame:
-        return self._citylearn_simulation_test_evaluation
+        return self.__citylearn_simulation_test_evaluation
     
     @property
     def citylearn_simulation_lstm_prediction_data(self) -> List[pd.DataFrame]:
-        return self._citylearn_simulation_lstm_prediction_data
+        return self.__citylearn_simulation_lstm_prediction_data
     
     @property
     def citylearn_simulation_lstm_error_data(self) -> List[pd.DataFrame]:
-        return self._citylearn_simulation_lstm_error_data
+        return self.__citylearn_simulation_lstm_error_data
     
     @property
     def lstm_test_data(self) -> List[pd.DataFrame]:
-        return self._lstm_test_data
+        return self.__lstm_test_data
     
     @property
     def bldg_ids(self) -> List[int]:
-        return self._bldg_ids
+        return self.__bldg_ids
     
     @property
     def sample_cluster_labels(self) -> List[int]:
-        return self._sample_cluster_labels
+        return self.__sample_cluster_labels
     
     @property
     def sample_metadata(self) -> Mapping[str, Any]:
-        return self._sample_metadata
+        return self.__sample_metadata
     
     @property
     def simulators(self) -> BuildingsSimulators:
-        return self._simulators
+        return self.__simulators
 
 class Neighborhood:
     __BUILDING_TYPE_COLUMN = 'in.geometry_building_type_recs'
