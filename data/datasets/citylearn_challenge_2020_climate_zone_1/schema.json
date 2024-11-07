@@ -1,0 +1,1091 @@
+{
+  "random_seed": 2020,
+  "root_directory": null,
+  "central_agent": false,
+  "simulation_start_time_step": 0,
+  "simulation_end_time_step": 8759,
+  "episode_time_steps": null,
+  "rolling_episode_split": false,
+  "random_episode_split": false,
+  "seconds_per_time_step": 3600.0,
+  "observations": {
+    "month": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "day_type": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "hour": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "daylight_savings_status": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_1": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_2": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance_predicted_3": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "carbon_intensity": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "indoor_dry_bulb_temperature": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "average_unmet_cooling_setpoint_difference": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "indoor_relative_humidity": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "non_shiftable_load": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "solar_generation": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "cooling_storage_soc": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "heating_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "dhw_storage_soc": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electrical_storage_soc": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "net_electricity_consumption": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electricity_pricing": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "electricity_pricing_predicted_1": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "electricity_pricing_predicted_2": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "electricity_pricing_predicted_3": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "power_outage": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "hvac_mode": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "comfort_band": {
+      "active": false,
+      "shared_in_central_agent": false
+    }
+  },
+  "actions": {
+    "cooling_storage": {
+      "active": true
+    },
+    "heating_storage": {
+      "active": false
+    },
+    "dhw_storage": {
+      "active": true
+    },
+    "electrical_storage": {
+      "active": true
+    }
+  },
+  "agent": {
+    "type": "citylearn.agents.sac.SAC",
+    "attributes": {
+      "hidden_dimension": [
+        256,
+        256
+      ],
+      "discount": 0.99,
+      "tau": 0.005,
+      "lr": 0.003,
+      "batch_size": 256,
+      "replay_buffer_capacity": 100000.0,
+      "standardize_start_time_step": 6000,
+      "end_exploration_time_step": 7000,
+      "action_scaling_coef": 0.5,
+      "reward_scaling": 5.0,
+      "update_per_time_step": 2
+    }
+  },
+  "reward_function": {
+    "type": "citylearn.reward_function.IndependentSACReward",
+    "attributes": null
+  },
+  "buildings": {
+    "Building_1": {
+      "include": true,
+      "energy_simulation": "Building_1.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": null,
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "cooling_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 2.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.006
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 2.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.008
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 140.0,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 100.0,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1
+            ],
+            [
+              0.8,
+              1
+            ],
+            [
+              1.0,
+              0.2
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 120.0
+        }
+      }
+    },
+    "Building_2": {
+      "include": true,
+      "energy_simulation": "Building_2.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": null,
+      "inactive_observations": [
+        "solar_generation"
+      ],
+      "inactive_actions": [],
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.21,
+          "target_cooling_temperature": 9.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.92
+        }
+      },
+      "cooling_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 3.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.006
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 3.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.008
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 80.0,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 40.0,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.8
+            ],
+            [
+              0.3,
+              0.85
+            ],
+            [
+              0.7,
+              0.92
+            ],
+            [
+              0.8,
+              0.91
+            ],
+            [
+              1,
+              0.82
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1
+            ],
+            [
+              0.8,
+              0.8
+            ],
+            [
+              1.0,
+              0.23
+            ]
+          ]
+        }
+      }
+    },
+    "Building_3": {
+      "include": true,
+      "energy_simulation": "Building_3.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": null,
+      "inactive_observations": [
+        "dhw_storage_soc",
+        "solar_generation"
+      ],
+      "inactive_actions": [
+        "dhw_storage"
+      ],
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.23,
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.87
+        }
+      },
+      "cooling_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 2.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.006
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 50.0,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 20.0,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1.0,
+              0.27
+            ]
+          ]
+        }
+      }
+    },
+    "Building_4": {
+      "include": true,
+      "energy_simulation": "Building_4.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": null,
+      "inactive_observations": [
+        "dhw_storage_soc"
+      ],
+      "inactive_actions": [
+        "dhw_storage"
+      ],
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.22,
+          "target_cooling_temperature": 9.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "cooling_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 1.5
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.006
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 75.0,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 30.0,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1
+            ],
+            [
+              0.8,
+              0.95
+            ],
+            [
+              1.0,
+              0.2
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 40.0
+        }
+      }
+    },
+    "Building_5": {
+      "include": true,
+      "energy_simulation": "Building_5.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": null,
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.24,
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "cooling_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 3.5
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.006
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 1.5
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.008
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 50.0,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 25.0,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.8
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.87
+            ],
+            [
+              0.8,
+              0.85
+            ],
+            [
+              1,
+              0.8
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1
+            ],
+            [
+              0.8,
+              0.83
+            ],
+            [
+              1.0,
+              0.35
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 25.0
+        }
+      }
+    },
+    "Building_6": {
+      "include": true,
+      "energy_simulation": "Building_6.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": null,
+      "inactive_observations": [],
+      "inactive_actions": [],
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.2,
+          "target_cooling_temperature": 9.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.85
+        }
+      },
+      "cooling_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 1.5
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.006
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 3.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.008
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 30.0,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 10.0,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1
+            ],
+            [
+              0.8,
+              1
+            ],
+            [
+              1.0,
+              0.2
+            ]
+          ]
+        }
+      },
+      "pv": {
+        "type": "citylearn.energy_model.PV",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 20.0
+        }
+      }
+    },
+    "Building_7": {
+      "include": true,
+      "energy_simulation": "Building_7.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": null,
+      "inactive_observations": [
+        "solar_generation"
+      ],
+      "inactive_actions": [],
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.22,
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "cooling_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 2.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.006
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 2.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.008
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 40.0,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 15.0,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1
+            ],
+            [
+              0.8,
+              0.85
+            ],
+            [
+              1.0,
+              0.25
+            ]
+          ]
+        }
+      }
+    },
+    "Building_8": {
+      "include": true,
+      "energy_simulation": "Building_8.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": null,
+      "inactive_observations": [
+        "solar_generation"
+      ],
+      "inactive_actions": [],
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.24,
+          "target_cooling_temperature": 9.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.93
+        }
+      },
+      "cooling_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 3.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.006
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 3.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.008
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 30.0,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 10.0,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.8
+            ],
+            [
+              0.3,
+              0.85
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1
+            ],
+            [
+              0.8,
+              1
+            ],
+            [
+              1.0,
+              0.3
+            ]
+          ]
+        }
+      }
+    },
+    "Building_9": {
+      "include": true,
+      "energy_simulation": "Building_9.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": "carbon_intensity.csv",
+      "pricing": null,
+      "inactive_observations": [
+        "solar_generation"
+      ],
+      "inactive_actions": [],
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.22,
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "dhw_device": {
+        "type": "citylearn.energy_model.ElectricHeater",
+        "autosize": true,
+        "attributes": {
+          "nominal_power": null,
+          "efficiency": 0.9
+        }
+      },
+      "cooling_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 3.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.006
+        }
+      },
+      "dhw_storage": {
+        "type": "citylearn.energy_model.StorageTank",
+        "autosize": true,
+        "autosize_attributes": {
+          "safety_factor": 3.0
+        },
+        "attributes": {
+          "capacity": null,
+          "loss_coefficient": 0.008
+        }
+      },
+      "electrical_storage": {
+        "type": "citylearn.energy_model.Battery",
+        "autosize": false,
+        "attributes": {
+          "capacity": 35.0,
+          "efficiency": 0.9,
+          "capacity_loss_coefficient": 1e-05,
+          "loss_coefficient": 0.0,
+          "nominal_power": 20.0,
+          "power_efficiency_curve": [
+            [
+              0,
+              0.83
+            ],
+            [
+              0.3,
+              0.83
+            ],
+            [
+              0.7,
+              0.9
+            ],
+            [
+              0.8,
+              0.9
+            ],
+            [
+              1,
+              0.85
+            ]
+          ],
+          "capacity_power_curve": [
+            [
+              0.0,
+              1
+            ],
+            [
+              0.8,
+              1
+            ],
+            [
+              1.0,
+              0.3
+            ]
+          ]
+        }
+      }
+    }
+  }
+}
