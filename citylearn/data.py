@@ -126,7 +126,7 @@ class DataSet:
         # check that dataset does not already exist using the schema as a proxy
         if not os.path.isfile(schema_filepath):
             LOGGER.info(f'The {name} dataset DNE in cache. Will download from '
-                f'{self.github_account}/{self.repository}/tree/v{self.tag} GitHub repository and write to {datasets_directory}. '
+                f'{self.github_account}/{self.repository}/tree/{self.tag} GitHub repository and write to {datasets_directory}. '
                     f'Next time DataSet.get_dataset(\'{name}\') is called, it will read '
                         'from cache unless DataSet.clear_cache is run first.')
             contents = self.get_github_contents(path)
@@ -173,7 +173,7 @@ class DataSet:
         
         else:
             LOGGER.info(f'The dataset names DNE in cache. Will download from '
-                f'{self.github_account}/{self.repository}/tree/v{self.tag} GitHub repository and write to {filepath}. '
+                f'{self.github_account}/{self.repository}/tree/{self.tag} GitHub repository and write to {filepath}. '
                     'Next time DataSet.get_dataset_names is called, it will read '
                         'from cache unless DataSet.clear_cache is run first.')
             contents = [
@@ -203,7 +203,7 @@ class DataSet:
         # check that file DNE
         if not os.path.isfile(filepath):
             LOGGER.info(f'The PV sizing data DNE in cache. Will download from '
-                f'{self.github_account}/{self.repository}/tree/v{self.tag} GitHub repository and write to {misc_directory}. '
+                f'{self.github_account}/{self.repository}/tree/{self.tag} GitHub repository and write to {misc_directory}. '
                     'Next time DataSet.get_pv_sizing_data is called, it will read '
                         'from cache unless DataSet.clear_cache is run first.')
             contents = self.get_github_contents(path)
@@ -236,7 +236,7 @@ class DataSet:
         # check that file DNE
         if not os.path.isfile(filepath):
             LOGGER.info(f'The battery sizing data DNE in cache. Will download from '
-                f'{self.github_account}/{self.repository}/tree/v{self.tag} GitHub repository and write to {misc_directory}. '
+                f'{self.github_account}/{self.repository}/tree/{self.tag} GitHub repository and write to {misc_directory}. '
                     'Next time DataSet.get_battery_sizing_data is called, it will read '
                         'from cache unless DataSet.clear_cache is run first.')
             contents = self.get_github_contents(path)
