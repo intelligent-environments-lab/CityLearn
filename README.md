@@ -16,4 +16,4 @@ pip install CityLearn
 ```
 
 ## Documentation
-Refer to the [docs](https://intelligent-environments-lab.github.io/CityLearn/) for documentation of the CityLearn API.
+Refer to the [docs](https://intelligent-environments-lab.github.io/CityLearn/).
