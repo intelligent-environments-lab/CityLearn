@@ -225,11 +225,11 @@
 
     <span class="nd">@energyplus_output_directory</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">energyplus_output_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__energyplus_output_directory</span> <span class="o">=</span> <span class="s1">&#39;energyplus_output&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__energyplus_output_directory</span> <span class="o">=</span> <span class="s1">&#39;neighborhood_energyplus_output&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@dataset_directory</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">dataset_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__dataset_directory</span> <span class="o">=</span> <span class="s1">&#39;datasets&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dataset_directory</span> <span class="o">=</span> <span class="s1">&#39;neighborhood_datasets&#39;</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@max_workers</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">max_workers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>

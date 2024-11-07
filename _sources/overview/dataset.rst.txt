@@ -60,4 +60,4 @@ Schema Data File
 The schema file is a :code:`.json` file that references all other data files and is used to define the simulation environment. Refer to :ref:`schema-page` for more information.
 
 .. warning::
-   Do not change the order of columns in any of the :code:`.csv` data files!
+   If using version ``2.1.2`` or earlier, do not change the order of columns in any of the :code:`.csv` data files!

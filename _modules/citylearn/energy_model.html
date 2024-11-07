@@ -91,7 +91,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">PySAM</span> <span class="kn">import</span> <span class="n">Pvwattsv8</span>
 <span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span>
-<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">EnergySimulation</span><span class="p">,</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span>
+<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span><span class="p">,</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span>
 <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
@@ -645,7 +645,7 @@
 <span class="sd">            The sizing dataframe from which PV systems are sampled from. If initialized from</span>
 <span class="sd">            py:class:`citylearn.citylearn.CityLearnEnv`, the data is parsed in when autosizing</span>
 <span class="sd">            a building&#39;s PV. If the dataframe is not provided it is read in using</span>
-<span class="sd">            :py:meth:`citylearn.data.EnergySimulation.get_pv_sizing_data`.</span>
+<span class="sd">            :py:meth:`citylearn.data.DataSet.get_pv_sizing_data`.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -664,7 +664,7 @@
         <span class="n">roof_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span> <span class="k">if</span> <span class="n">roof_area</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">roof_area</span>
         <span class="n">use_sample_target</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">use_sample_target</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">use_sample_target</span>
 
-        <span class="n">sizing_data</span> <span class="o">=</span> <span class="n">EnergySimulation</span><span class="o">.</span><span class="n">get_pv_sizing_data</span><span class="p">()</span> <span class="k">if</span> <span class="n">sizing_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sizing_data</span>
+        <span class="n">sizing_data</span> <span class="o">=</span> <span class="n">DataSet</span><span class="p">()</span><span class="o">.</span><span class="n">get_pv_sizing_data</span><span class="p">()</span> <span class="k">if</span> <span class="n">sizing_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sizing_data</span>
         <span class="n">random_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span>
         <span class="n">tries</span> <span class="o">=</span> <span class="mi">3</span>
 
@@ -1318,7 +1318,7 @@
 <span class="sd">            The sizing dataframe from which batteries systems are sampled from. If initialized from</span>
 <span class="sd">            py:class:`citylearn.citylearn.CityLearnEnv`, the data is parsed in when autosizing</span>
 <span class="sd">            a building&#39;s battery. If the dataframe is not provided it is read in using</span>
-<span class="sd">            :py:meth:`citylearn.data.EnergySimulation.get_battery_sizing_data`.</span>
+<span class="sd">            :py:meth:`citylearn.data.DataSet.get_battery_sizing_data`.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -1329,7 +1329,7 @@
         <span class="n">safety_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_property_value</span><span class="p">(</span><span class="n">safety_factor</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
         <span class="n">parallel</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">parallel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">parallel</span>
 
-        <span class="n">sizing_data</span> <span class="o">=</span> <span class="n">EnergySimulation</span><span class="o">.</span><span class="n">get_battery_sizing_data</span><span class="p">()</span> <span class="k">if</span> <span class="n">sizing_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sizing_data</span>
+        <span class="n">sizing_data</span> <span class="o">=</span> <span class="n">DataSet</span><span class="p">()</span><span class="o">.</span><span class="n">get_battery_sizing_data</span><span class="p">()</span> <span class="k">if</span> <span class="n">sizing_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sizing_data</span>
         <span class="n">choices</span> <span class="o">=</span> <span class="n">sizing_data</span><span class="p">[</span><span class="n">sizing_data</span><span class="p">[</span><span class="s1">&#39;nominal_power&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="n">demand</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">choices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>

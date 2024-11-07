@@ -83,24 +83,28 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.data</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">platformdirs</span> <span class="kn">import</span> <span class="n">user_cache_dir</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span><span class="p">,</span> <span class="n">read_yaml</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">requests.adapters</span> <span class="kn">import</span> <span class="n">HTTPAdapter</span>
+<span class="kn">from</span> <span class="nn">urllib3.util.retry</span> <span class="kn">import</span> <span class="n">Retry</span>
+<span class="kn">from</span> <span class="nn">citylearn.__init__</span> <span class="kn">import</span> <span class="n">__version__</span>
+<span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">join_url</span><span class="p">,</span> <span class="n">read_json</span><span class="p">,</span> <span class="n">read_yaml</span><span class="p">,</span> <span class="n">write_json</span>
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 
 <span class="n">TOLERANCE</span> <span class="o">=</span> <span class="mf">0.0001</span>
 <span class="n">ZERO_DIVISION_PLACEHOLDER</span> <span class="o">=</span> <span class="mf">0.000001</span>
-<span class="n">DATA_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
-<span class="n">DATASETS_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">)</span>
-<span class="n">MISC_DATA_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
 <span class="n">MISC_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
 <span class="n">QUERIES_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MISC_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;queries&#39;</span><span class="p">)</span>
 <span class="n">SETTINGS_FILEPATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MISC_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;settings.yaml&#39;</span><span class="p">)</span>
-<span class="n">BATTERY_CHOICES_FILEPATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MISC_DATA_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;battery_choices.yaml&#39;</span><span class="p">)</span>
-<span class="n">PV_CHOICES_FILEPATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MISC_DATA_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;lbl-tracking_the_sun-res-pv.csv&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="get_settings">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.get_settings">[docs]</a>
@@ -117,74 +121,287 @@
 <span class="k">class</span> <span class="nc">DataSet</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CityLearn input data set and schema class.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="DataSet.get_names">
-<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_names">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_names</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of internally stored CityLearn datasets that are `schema` </span>
-<span class="sd">        names and can be used to initialize `citylearn.citylearn.CityLearnEnv`.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        names: List[str]</span>
-<span class="sd">            schema names </span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="n">GITHUB_ACCOUNT</span> <span class="o">=</span> <span class="s1">&#39;intelligent-environments-lab&#39;</span>
+    <span class="n">REPOSITORY_NAME</span> <span class="o">=</span> <span class="s1">&#39;CityLearn&#39;</span>
+    <span class="n">REPOSITORY_TAG</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;v</span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">REPOSITORY_DATA_PATH</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="n">REPOSITORY_DATA_DATASETS_PATH</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="n">REPOSITORY_DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">)</span>
+    <span class="n">REPOSITORY_DATA_MISC_PATH</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="n">REPOSITORY_DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
+    <span class="n">GITHUB_API_CONTENT_URL</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="s1">&#39;https://api.github.com/repos/&#39;</span><span class="p">,</span> <span class="n">GITHUB_ACCOUNT</span><span class="p">,</span> <span class="n">REPOSITORY_NAME</span><span class="p">,</span> <span class="s1">&#39;contents&#39;</span><span class="p">)</span>
+    <span class="n">DEFAULT_CACHE_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">user_cache_dir</span><span class="p">(</span><span class="s1">&#39;citylearn&#39;</span><span class="p">),</span> <span class="n">REPOSITORY_TAG</span><span class="p">)</span>
+    <span class="n">BATTERY_CHOICES_FILENAME</span> <span class="o">=</span> <span class="s1">&#39;battery_choices.yaml&#39;</span>
+    <span class="n">PV_CHOICES_FILENAME</span> <span class="o">=</span> <span class="s1">&#39;lbl-tracking_the_sun-res-pv.csv&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">github_account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">repository</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">datasets_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">misc_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logging_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">github_account</span> <span class="o">=</span> <span class="n">github_account</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repository</span> <span class="o">=</span> <span class="n">repository</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">datasets_path</span> <span class="o">=</span> <span class="n">datasets_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">misc_path</span> <span class="o">=</span> <span class="n">misc_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logging_level</span> <span class="o">=</span> <span class="n">logging_level</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">github_account</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span>  <span class="bp">self</span><span class="o">.</span><span class="n">__github_account</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">repository</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__repository</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tag</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">datasets_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datasets_path</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">misc_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__misc_path</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cache_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">user_cache_dir</span><span class="p">(</span>
+            <span class="n">appname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+            <span class="n">appauthor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">github_account</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span>
-            <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">DATASETS_DIRECTORY</span><span class="p">)</span> 
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATASETS_DIRECTORY</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
-        <span class="p">])</span></div>
+        <span class="k">return</span> <span class="n">directory</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">logging_level</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__logging_level</span>
+    
+    <span class="nd">@github_account</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">github_account</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__github_account</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GITHUB_ACCOUNT</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
+    <span class="nd">@repository</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">repository</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__repository</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPOSITORY_NAME</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="DataSet.copy">
-<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.copy">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">destination_directory</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copies an internally stored CityLearn dataset to a location of choice.</span>
+    <span class="nd">@tag</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPOSITORY_TAG</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        destination_directory: Union[Path, str], optional</span>
-<span class="sd">            Target directory to copy data set files to. Copies to current directory if not specifed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        
-        <span class="n">source_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATASETS_DIRECTORY</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">destination_directory</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">destination_directory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">destination_directory</span>
-        <span class="n">destination_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destination_directory</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">destination_directory</span><span class="p">,</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nd">@datasets_path</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">datasets_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__datasets_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPOSITORY_DATA_DATASETS_PATH</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
-        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">source_directory</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
-                <span class="n">source_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_directory</span><span class="p">,</span><span class="n">f</span><span class="p">)</span>
-                <span class="n">destination_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destination_directory</span><span class="p">,</span><span class="n">f</span><span class="p">)</span>
-                <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">source_filepath</span><span class="p">,</span><span class="n">destination_filepath</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">continue</span></div>
+    <span class="nd">@misc_path</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">misc_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__misc_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPOSITORY_DATA_MISC_PATH</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
+    <span class="nd">@logging_level</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">logging_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__logging_level</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logging_level</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DataSet.get_schema">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_schema">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a data set&#39;s schema.</span>
+    <span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">schema_filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
+        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        name: str</span>
-<span class="sd">            Name of data set.</span>
+        <span class="k">return</span> <span class="n">schema</span></div>
 
+
+<div class="viewcode-block" id="DataSet.get_dataset">
+<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_dataset">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">datasets_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">)</span>
+        <span class="n">root_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">datasets_directory</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">schema_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_directory</span><span class="p">,</span> <span class="s1">&#39;schema.json&#39;</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets_path</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># check that dataset does not already exist using the schema as a proxy</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> dataset DNE in cache. Will download from &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">github_account</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="si">}</span><span class="s1">/tree/v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> GitHub repository and write to </span><span class="si">{</span><span class="n">datasets_directory</span><span class="si">}</span><span class="s1">. &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Next time DataSet.get_dataset(</span><span class="se">\&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1">) is called, it will read &#39;</span>
+                        <span class="s1">&#39;from cache unless DataSet.clear_cache is run first.&#39;</span><span class="p">)</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_github_contents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">root_directory</span><span class="p">):</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">root_directory</span><span class="p">)</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
+                    <span class="n">relative_directory_content</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">content_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_directory</span><span class="p">,</span> <span class="o">*</span><span class="n">relative_directory_content</span><span class="p">)</span>
+                    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">content_directory</span><span class="p">,</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">content_directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_requests_session</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;download_url&#39;</span><span class="p">])</span>
+
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="n">directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">root_directory</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">schema_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;schema.json&#39;</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+    
+        <span class="k">return</span> <span class="n">schema_filepath</span></div>
+
+
+<div class="viewcode-block" id="DataSet.get_dataset_names">
+<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_dataset_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dataset_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_github_contents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets_path</span><span class="p">)</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">,</span> <span class="s1">&#39;dataset_names.json&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The dataset names DNE in cache. Will download from &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">github_account</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="si">}</span><span class="s1">/tree/v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> GitHub repository and write to </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">. &#39;</span>
+                    <span class="s1">&#39;Next time DataSet.get_dataset_names is called, it will read &#39;</span>
+                        <span class="s1">&#39;from cache unless DataSet.clear_cache is run first.&#39;</span><span class="p">)</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">r</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">contents</span> 
+                    <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;dir&#39;</span> 
+                        <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets_path</span>
+            <span class="p">]</span>
+            <span class="n">write_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span>
+            
+        <span class="n">contents</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">contents</span></div>
+
+    
+<div class="viewcode-block" id="DataSet.get_pv_sizing_data">
+<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_pv_sizing_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_pv_sizing_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads and returns NREL&#39;s Tracking The Sun dataset that has been prefilered for completeness.</span>
+<span class="sd">        </span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        schema: Mapping[str, Union[dict, float, str]]</span>
-<span class="sd">            Data set schema.</span>
+<span class="sd">        data: pd.DataFrame</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">misc_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">misc_directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">misc_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_CHOICES_FILENAME</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">misc_path</span><span class="p">)</span>
+
+        <span class="c1"># check that file DNE</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The PV sizing data DNE in cache. Will download from &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">github_account</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="si">}</span><span class="s1">/tree/v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> GitHub repository and write to </span><span class="si">{</span><span class="n">misc_directory</span><span class="si">}</span><span class="s1">. &#39;</span>
+                    <span class="s1">&#39;Next time DataSet.get_pv_sizing_data is called, it will read &#39;</span>
+                        <span class="s1">&#39;from cache unless DataSet.clear_cache is run first.&#39;</span><span class="p">)</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_github_contents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;download_url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">contents</span> <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_CHOICES_FILENAME</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_requests_session</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         
-        <span class="n">root_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATASETS_DIRECTORY</span><span class="p">,</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_directory</span><span class="p">,</span><span class="s1">&#39;schema.json&#39;</span><span class="p">)</span>
-        <span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-        <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_directory</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+    
+<div class="viewcode-block" id="DataSet.get_battery_sizing_data">
+<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_battery_sizing_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_battery_sizing_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads and returns internally defined real world manufacturer models.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data: Mapping[str, Union[float, str]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">misc_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">misc_directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">misc_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BATTERY_CHOICES_FILENAME</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">misc_path</span><span class="p">)</span>
+
+        <span class="c1"># check that file DNE</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The battery sizing data DNE in cache. Will download from &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">github_account</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="si">}</span><span class="s1">/tree/v</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1"> GitHub repository and write to </span><span class="si">{</span><span class="n">misc_directory</span><span class="si">}</span><span class="s1">. &#39;</span>
+                    <span class="s1">&#39;Next time DataSet.get_battery_sizing_data is called, it will read &#39;</span>
+                        <span class="s1">&#39;from cache unless DataSet.clear_cache is run first.&#39;</span><span class="p">)</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_github_contents</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="s1">&#39;download_url&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">contents</span> <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">BATTERY_CHOICES_FILENAME</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_requests_session</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([{</span><span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="o">**</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+    
+<div class="viewcode-block" id="DataSet.clear_cache">
+<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.clear_cache">[docs]</a>
+    <span class="k">def</span> <span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">)</span>
         
-        <span class="k">return</span> <span class="n">schema</span></div>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="DataSet.get_github_contents">
+<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_github_contents">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_github_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GITHUB_API_CONTENT_URL</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GITHUB_API_CONTENT_URL</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> 
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_requests_session</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">contents</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="n">contents</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to get response from GitHub API for endpoint: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">.&#39;</span>\
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">Returned status code: </span><span class="si">{</span><span class="n">contents</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s1">;</span><span class="se">\r</span><span class="s1">Content: </span><span class="si">{</span><span class="n">contents</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">contents</span></div>
+
+    
+<div class="viewcode-block" id="DataSet.get_requests_session">
+<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_requests_session">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_requests_session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">:</span>
+        <span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s1">&#39;backoff_factor&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;status_forcelist&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">502</span><span class="p">,</span> <span class="mi">503</span><span class="p">,</span> <span class="mi">504</span><span class="p">],</span>
+            <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">}</span>
+        <span class="n">retries</span> <span class="o">=</span> <span class="n">Retry</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s1">&#39;http://&#39;</span><span class="p">,</span> <span class="n">HTTPAdapter</span><span class="p">(</span><span class="n">max_retries</span><span class="o">=</span><span class="n">retries</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">session</span></div>
 </div>
 
     
@@ -352,51 +569,7 @@
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Invalid hvac_mode values were found: </span><span class="si">{</span><span class="n">unique</span><span class="si">}</span><span class="s1">. &#39;</span>\
                 <span class="s1">&#39;Valid values are 0, 1, 2, 3 to indicate off, cooling mode, heating mode, and automatic mode.&#39;</span>
             
-        <span class="bp">self</span><span class="o">.</span><span class="n">hvac_mode</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hvac_mode</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span>
-
-<div class="viewcode-block" id="EnergySimulation.get_pv_sizing_data">
-<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.EnergySimulation.get_pv_sizing_data">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_pv_sizing_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads and returns NREL&#39;s Tracking The Sun dataset that has been prefilered for completeness.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        data: pd.DataFrame</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Data source: https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/lbl-tracking_the_sun_res-pv.csv.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">filepath</span> <span class="o">=</span> <span class="n">PV_CHOICES_FILEPATH</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        
-        <span class="k">return</span> <span class="n">data</span></div>
-
-    
-<div class="viewcode-block" id="EnergySimulation.get_battery_sizing_data">
-<a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.EnergySimulation.get_battery_sizing_data">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_battery_sizing_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads and returns internally defined real world manufacturer models.</span>
-<span class="sd">        </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        data: Mapping[str, Union[float, str]]</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Data source: https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/battery_choices.yaml.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">filepath</span> <span class="o">=</span> <span class="n">BATTERY_CHOICES_FILEPATH</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([{</span><span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="o">**</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">data</span></div>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hvac_mode</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hvac_mode</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span></div>
 
     
 <div class="viewcode-block" id="LogisticRegressionOccupantParameters">

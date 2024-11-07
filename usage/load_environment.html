@@ -121,10 +121,18 @@
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span>
 
-<span class="n">dataset_names</span> <span class="o">=</span> <span class="n">DataSet</span><span class="o">.</span><span class="n">get_names</span><span class="p">()</span>
+<span class="n">dataset_names</span> <span class="o">=</span> <span class="n">DataSet</span><span class="p">()</span><span class="o">.</span><span class="n">get_dataset_names</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">dataset_names</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:root:The dataset names DNE in cache. Will download from intelligent-environments-lab/CityLearn GitHub repository and write to /Users/kingsleyenweye/Library/Caches/citylearn/v2.2.0/dataset_names.json. Next time DataSet.get_dataset_names is called, it will read from cache unless DataSet.clear_cache is run first.
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -145,7 +153,7 @@
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -153,16 +161,35 @@
 Couldn&#39;t import dot_parser, loading of dot files will not be possible.
 </pre></div></div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:root:The citylearn_challenge_2020_climate_zone_1 dataset DNE in cache. Will download from intelligent-environments-lab/CityLearn GitHub repository and write to /Users/kingsleyenweye/Library/Caches/citylearn/v2.2.0/datasets. Next time DataSet.get_dataset(&#39;citylearn_challenge_2020_climate_zone_1&#39;) is called, it will read from cache unless DataSet.clear_cache is run first.
+INFO:root:The PV sizing data DNE in cache. Will download from intelligent-environments-lab/CityLearn GitHub repository and write to /Users/kingsleyenweye/Library/Caches/citylearn/v2.2.0/misc. Next time DataSet.get_pv_sizing_data is called, it will read from cache unless DataSet.clear_cache is run first.
+INFO:root:The battery sizing data DNE in cache. Will download from intelligent-environments-lab/CityLearn GitHub repository and write to /Users/kingsleyenweye/Library/Caches/citylearn/v2.2.0/misc. Next time DataSet.get_battery_sizing_data is called, it will read from cache unless DataSet.clear_cache is run first.
+</pre></div></div>
+</div>
 <p>The dataset can also be download to a path of choice for inspection. The following code copies a dataset to the current directory:</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span>
 
-<span class="n">DataSet</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s1">&#39;citylearn_challenge_2020_climate_zone_1&#39;</span><span class="p">)</span>
+<span class="n">schema_filepath</span> <span class="o">=</span> <span class="n">DataSet</span><span class="p">()</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="s1">&#39;citylearn_challenge_2020_climate_zone_1&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;citylearn_dataset&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Schema filepath:&#39;</span><span class="p">,</span> <span class="n">schema_filepath</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Schema filepath: citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schema.json
+</pre></div></div>
 </div>
 </section>
 <section id="Load-an-Environment-Using-Schema-Filepath">
@@ -174,7 +201,7 @@ Couldn&#39;t import dot_parser, loading of dot files will not be possible.
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
-<span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
+<span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -191,9 +218,9 @@ Couldn&#39;t import dot_parser, loading of dot files will not be possible.
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 <span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
 
-<span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
+<span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
 <span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
-<span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2020_climate_zone_1&#39;</span>
+<span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1&#39;</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -206,11 +233,11 @@ Couldn&#39;t import dot_parser, loading of dot files will not be possible.
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
 <span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
 
-<span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
+<span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
 <span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span>
     <span class="n">schema</span><span class="p">,</span>
-    <span class="n">root_directory</span><span class="o">=</span><span class="s1">&#39;citylearn_challenge_2020_climate_zone_1&#39;</span><span class="p">,</span>
+    <span class="n">root_directory</span><span class="o">=</span><span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1&#39;</span><span class="p">,</span>
     <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">simulation_start_time_step</span><span class="o">=</span><span class="mi">10</span>
 <span class="p">)</span>
