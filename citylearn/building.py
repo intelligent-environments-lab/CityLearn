@@ -14,6 +14,7 @@ from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
 LOGGER = logging.getLogger()
+logging.basicConfig(level=logging.INFO)
 
 class Building(Environment):
     r"""Base class for building.

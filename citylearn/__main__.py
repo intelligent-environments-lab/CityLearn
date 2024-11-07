@@ -420,7 +420,7 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter, 
         help='Lists available dataset names that can be parsed as `schema` in `citylearn simulate schema`.'
     )
-    subparser_datasets.set_defaults(func=DataSet.get_names)
+    subparser_datasets.set_defaults(func=DataSet().get_dataset_names)
 
      # get default time series variables
     subparser_time_series_variables = subparsers.add_parser(

@@ -33,7 +33,7 @@ central_agent_setting = [
 ]
 
 # load all datasets
-for schema in DataSet.get_names():
+for schema in DataSet().get_dataset_names():
     try:
         env = CityLearnEnv(schema)
         print(f'Successfully loaded schema: "{schema}"')
