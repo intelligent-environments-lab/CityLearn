@@ -747,14 +747,16 @@ class CityLearnEnv(Environment, Env):
 
     @schema.setter
     def schema(self, schema: Union[str, Path, Mapping[str, Any]]):
+        dataset = DataSet()
+
         if isinstance(schema, (str, Path)) and os.path.isfile(schema):
             schema_filepath = Path(schema) if isinstance(schema, str) else schema
             schema = read_json(schema)
             schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if schema['root_directory'] is None\
                 else schema['root_directory']
         
-        elif isinstance(schema, str) and schema in DataSet.get_names():
-            schema = DataSet.get_schema(schema)
+        elif isinstance(schema, str) and schema in dataset.get_dataset_names():
+            schema = dataset.get_schema(schema)
             schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
         
         elif isinstance(schema, dict):
@@ -1395,8 +1397,9 @@ class CityLearnEnv(Environment, Env):
         episode_tracker = EpisodeTracker(schema['simulation_start_time_step'], schema['simulation_end_time_step'])
 
         # get sizing data to reduce read time
-        pv_sizing_data = EnergySimulation.get_pv_sizing_data()
-        battery_sizing_data = EnergySimulation.get_battery_sizing_data()
+        dataset = DataSet()
+        pv_sizing_data = dataset.get_pv_sizing_data()
+        battery_sizing_data = dataset.get_battery_sizing_data()
 
         # get buildings to include
         buildings_to_include = list(schema['buildings'].keys())

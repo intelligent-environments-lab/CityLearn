@@ -132,11 +132,11 @@ class Neighborhood:
 
     @energyplus_output_directory.setter
     def energyplus_output_directory(self, value: Union[Path, str]):
-        self.__energyplus_output_directory = 'energyplus_output' if value is None else value
+        self.__energyplus_output_directory = 'neighborhood_energyplus_output' if value is None else value
 
     @dataset_directory.setter
     def dataset_directory(self, value: Union[Path, str]):
-        self.__dataset_directory = 'datasets' if value is None else value
+        self.__dataset_directory = 'neighborhood_datasets' if value is None else value
 
     @max_workers.setter
     def max_workers(self, value: int):
