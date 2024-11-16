@@ -247,7 +247,7 @@ class OptimizedRBC(BasicRBC):
                         if 7 <= hour <= 15:
                             value = -0.02
                         elif 16 <= hour <= 18:
-                            value = -0.0044
+                            value = -0.044
                         elif 19 <= hour <= 22:
                             value = -0.024
                         elif 23 <= hour <= 24:
