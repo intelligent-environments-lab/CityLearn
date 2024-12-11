@@ -7,7 +7,7 @@ CityLearn is an open source Farama Foundation Gymnasium environment for the impl
 
 CityLearn includes energy models of buildings and distributed energy resources (DER) including air-to-water heat pumps, electric heaters and batteries. A collection of building energy models makes up a virtual district (a.k.a neighborhood or community). In each building, space cooling, space heating and domestic hot water end-use loads may be independently satisfied through air-to-water heat pumps. Alternatively, space heating and domestic hot water loads can be satisfied through electric heaters.
 
-![Citylearn](https://github.com/intelligent-environments-lab/CityLearn/blob/master/assets/images/citylearn_systems.png)
+![Citylearn](https://github.com/intelligent-environments-lab/CityLearn/blob/master/assets/images/environment.jpg)
 
 ## Installation
 Install latest release in PyPi with `pip`:
@@ -16,4 +16,4 @@ pip install CityLearn
 ```
 
 ## Documentation
-Refer to the [docs](https://intelligent-environments-lab.github.io/CityLearn/) for documentation of the CityLearn API.
+Refer to the [docs](https://intelligent-environments-lab.github.io/CityLearn/).

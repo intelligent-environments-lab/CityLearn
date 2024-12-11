@@ -273,7 +273,8 @@ class CostFunction:
         occupied_time_step_count = data[data['occupant_count'] > 0.0].shape[0]
         data['cooling_delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_cooling_set_point']
         data['heating_delta'] = data['indoor_dry_bulb_temperature'] - data['dry_bulb_temperature_heating_set_point']
-        data.loc[data['occupant_count'] == 0.0, 'delta'] = 0.0
+        data.loc[data['occupant_count'] == 0.0, 'cooling_delta'] = 0.0
+        data.loc[data['occupant_count'] == 0.0, 'heating_delta'] = 0.0
         data['discomfort'] = 0
         data.loc[data['cooling_delta'] > data['band'], 'discomfort'] = 1
         data.loc[data['heating_delta'] < -data['band'], 'discomfort'] = 1

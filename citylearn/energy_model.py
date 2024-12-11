@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from PySAM import Pvwattsv8
 from citylearn.base import Environment
-from citylearn.data import EnergySimulation, ZERO_DIVISION_PLACEHOLDER
+from citylearn.data import DataSet, ZERO_DIVISION_PLACEHOLDER
 np.seterr(divide='ignore', invalid='ignore')
 
 LOGGER = logging.getLogger()
@@ -505,7 +505,7 @@ class PV(ElectricDevice):
             The sizing dataframe from which PV systems are sampled from. If initialized from
             py:class:`citylearn.citylearn.CityLearnEnv`, the data is parsed in when autosizing
             a building's PV. If the dataframe is not provided it is read in using
-            :py:meth:`citylearn.data.EnergySimulation.get_pv_sizing_data`.
+            :py:meth:`citylearn.data.DataSet.get_pv_sizing_data`.
 
         Returns
         -------
@@ -524,7 +524,7 @@ class PV(ElectricDevice):
         roof_area = np.inf if roof_area is None else roof_area
         use_sample_target = False if use_sample_target is None else use_sample_target
 
-        sizing_data = EnergySimulation.get_pv_sizing_data() if sizing_data is None else sizing_data
+        sizing_data = DataSet().get_pv_sizing_data() if sizing_data is None else sizing_data
         random_seed = self.random_seed
         tries = 3
 
@@ -1127,7 +1127,7 @@ class Battery(StorageDevice, ElectricDevice):
             The sizing dataframe from which batteries systems are sampled from. If initialized from
             py:class:`citylearn.citylearn.CityLearnEnv`, the data is parsed in when autosizing
             a building's battery. If the dataframe is not provided it is read in using
-            :py:meth:`citylearn.data.EnergySimulation.get_battery_sizing_data`.
+            :py:meth:`citylearn.data.DataSet.get_battery_sizing_data`.
 
         Notes
         -----
@@ -1138,7 +1138,7 @@ class Battery(StorageDevice, ElectricDevice):
         safety_factor = self._get_property_value(safety_factor, 1.0)
         parallel = False if parallel is None else parallel
 
-        sizing_data = EnergySimulation.get_battery_sizing_data() if sizing_data is None else sizing_data
+        sizing_data = DataSet().get_battery_sizing_data() if sizing_data is None else sizing_data
         choices = sizing_data[sizing_data['nominal_power']<=demand].copy()
 
         if choices.shape[0] == 0:

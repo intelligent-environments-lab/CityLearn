@@ -11,10 +11,9 @@ import numpy as np
 import pandas as pd
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
-from citylearn.electric_vehicle import ElectricVehicle
-from citylearn.energy_model import Battery
 from citylearn.cost_function import CostFunction
-from citylearn.data import DataSet, EnergySimulation, CarbonIntensity, LogisticRegressionOccupantParameters, Pricing, TOLERANCE, Weather, ElectricVehicleSimulation
+from citylearn.data import CarbonIntensity, DataSet, ElectricVehicleSimulation, EnergySimulation, LogisticRegressionOccupantParameters, Pricing, TOLERANCE, Weather
+from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery, PV
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
@@ -748,14 +747,16 @@ class CityLearnEnv(Environment, Env):
 
     @schema.setter
     def schema(self, schema: Union[str, Path, Mapping[str, Any]]):
+        dataset = DataSet()
+
         if isinstance(schema, (str, Path)) and os.path.isfile(schema):
             schema_filepath = Path(schema) if isinstance(schema, str) else schema
             schema = read_json(schema)
             schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if schema['root_directory'] is None\
                 else schema['root_directory']
         
-        elif isinstance(schema, str) and schema in DataSet.get_names():
-            schema = DataSet.get_schema(schema)
+        elif isinstance(schema, str) and schema in dataset.get_dataset_names():
+            schema = dataset.get_schema(schema)
             schema['root_directory'] = '' if schema['root_directory'] is None else schema['root_directory']
         
         elif isinstance(schema, dict):
@@ -950,6 +951,7 @@ class CityLearnEnv(Environment, Env):
 
         # Create a list of dictionaries for actions including EV-specific actions
         parsed_actions = []
+        
         for i, building in enumerate(self.buildings):
             action_dict = {}
             electric_vehicle_actions = {}
@@ -975,7 +977,7 @@ class CityLearnEnv(Environment, Env):
 
             parsed_actions.append(action_dict)
 
-        return actions
+        return parsed_actions
 
     def evaluate_citylearn_challenge(self) -> Mapping[str, Mapping[str, Union[str, float]]]:
         """Evalation function for The CityLearn Challenge 2023.
@@ -1395,8 +1397,9 @@ class CityLearnEnv(Environment, Env):
         episode_tracker = EpisodeTracker(schema['simulation_start_time_step'], schema['simulation_end_time_step'])
 
         # get sizing data to reduce read time
-        pv_sizing_data = EnergySimulation.get_pv_sizing_data()
-        battery_sizing_data = EnergySimulation.get_battery_sizing_data()
+        dataset = DataSet()
+        pv_sizing_data = dataset.get_pv_sizing_data()
+        battery_sizing_data = dataset.get_battery_sizing_data()
 
         # get buildings to include
         buildings_to_include = list(schema['buildings'].keys())
@@ -1464,9 +1467,6 @@ class CityLearnEnv(Environment, Env):
         reward_function_name = reward_function_type.split('.')[-1]
         reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
         reward_function = reward_function_constructor(None, **reward_function_attributes)
-
-
-        print("FInished loading")
 
         return (
             schema['root_directory'], buildings, electric_vehicles_def, schema['episode_time_steps'], schema['rolling_episode_split'],

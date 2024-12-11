@@ -5,16 +5,16 @@ import numpy as np
 import pandas as pd
 import torch
 from citylearn.base import Environment, EpisodeTracker
-from citylearn.data import EnergySimulation, CarbonIntensity, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
+from citylearn.data import CarbonIntensity, EnergySimulation, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
 from citylearn.dynamics import Dynamics, LSTMDynamics
+from citylearn.electric_vehicle_charger import Charger
 from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank
 from citylearn.occupant import LogisticRegressionOccupant, Occupant
 from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
-from citylearn.electric_vehicle_charger import Charger
 
 LOGGER = logging.getLogger()
-
+logging.basicConfig(level=logging.INFO)
 
 class Building(Environment):
     r"""Base class for building.
@@ -1079,18 +1079,18 @@ class Building(Environment):
         """
 
         # hvac devices
-        if 'cooling_or_heating_device_action' in self.active_actions:
+        if 'cooling_or_heating_device' in self.active_actions:
             assert 'cooling_device' not in self.active_actions and 'heating_device' not in self.active_actions, \
-                'cooling_device and heating_device actions must be set to False when cooling_or_heating_device_action is True.' \
-                ' They will be implicitly set based on the polarity of cooling_or_heating_device_action.'
+                'cooling_device and heating_device actions must be set to False when cooling_or_heating_device is True.' \
+                    ' They will be implicitly set based on the polarity of cooling_or_heating_device.'
             cooling_device_action = abs(min(cooling_or_heating_device_action, 0.0))
             heating_device_action = abs(max(cooling_or_heating_device_action, 0.0))
 
         else:
             assert not ('cooling_device' in self.active_actions and 'heating_device' in self.active_actions), \
                 'cooling_device and heating_device actions cannot both be set to True to avoid both actions having' \
-                ' values > 0.0 in the same time step. Use cooling_or_heating_device_action action instead to control' \
-                ' both cooling_device and heating_device in a building.'
+                    ' values > 0.0 in the same time step. Use cooling_or_heating_device action instead to control' \
+                        ' both cooling_device and heating_device in a building.'
             cooling_device_action = np.nan if 'cooling_device' not in self.active_actions else cooling_device_action
             heating_device_action = np.nan if 'heating_device' not in self.active_actions else heating_device_action
 
@@ -1178,7 +1178,7 @@ class Building(Environment):
         device_output = min(demand - storage_output, max_device_output)
         self.__energy_from_cooling_device[self.time_step] = device_output
         electricity_consumption = self.cooling_device.get_input_power(device_output, temperature, heating=False)
-        # print(
+        # LOGGER.debug(
         #     'timestep:', self.time_step, 'bldg:', self.name, 'demand:', demand, 'temperature:', temperature, 
         #     'storage_capacity:', self.cooling_storage.capacity, 'prev_soc:', self.cooling_storage.soc[self.time_step - 1], 
         #     'curr_soc:', self.cooling_storage.soc[self.time_step], 'storage_output:', storage_output, 
@@ -1586,6 +1586,10 @@ class Building(Environment):
                 low_limit[f'{key}_cos'], high_limit[f'{key}_cos'] = min(x_cos), max(x_cos)
                 low_limit[f'{key}_sin'], high_limit[f'{key}_sin'] = min(x_sin), max(x_sin)
 
+            elif key == 'occupant_interaction_indoor_dry_bulb_temperature_set_point_delta':
+                # will get set in the overriding  LogisticRegressionOccupantInteractionBuilding._get_observation_space_limits_data
+                pass
+
             else:
                 low_limit[key] = min(data[key])
                 high_limit[key] = max(data[key])
@@ -1646,7 +1650,7 @@ class Building(Environment):
         low_limit, high_limit = [], []
 
         for key in self.active_actions:
-            if key == 'cooling_or_heating_device_action':
+            if key == 'cooling_or_heating_device':
                 if self.cooling_device.nominal_power > ZERO_DIVISION_PLACEHOLDER:
                     low_limit.append(-1.0)
 
@@ -2463,8 +2467,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         # to use in lookback. Alternatively, one can use the rolled observation values at the end of the time series
         # but it complicates things and is not too realistic.
 
-        if (
-                'cooling_device' in self.active_actions or 'cooling_or_heating_device_action' in self.active_actions) and self.simulate_dynamics:
+        if ('cooling_device' in self.active_actions or 'cooling_or_heating_device' in self.active_actions) and self.simulate_dynamics:
             if self.energy_simulation.hvac_mode[self.time_step] in [1, 3]:
                 electric_power = action * self.cooling_device.nominal_power
                 demand = self.cooling_device.get_max_output_power(
@@ -2499,9 +2502,8 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         lookback. Taking this approach as a 'warm-up' because realistically, there will be no preceding observations to use in 
         lookback.
         """
-
-        if (
-                'heating_device' in self.active_actions or 'cooling_or_heating_device_action' in self.active_actions) and self.simulate_dynamics:
+        
+        if ('heating_device' in self.active_actions or 'cooling_or_heating_device' in self.active_actions) and self.simulate_dynamics:
             if self.energy_simulation.hvac_mode[self.time_step] in [2, 3]:
                 electric_power = action * self.heating_device.nominal_power
                 demand = self.heating_device.get_max_output_power(

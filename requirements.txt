@@ -1,4 +1,4 @@
-doe_xstock @ git+https://github.com/intelligent-environments-lab/DOE_XStock.git@v1-develop
+doe_xstock>=1.0.0
 gymnasium
 nrel-pysam
 numpy<2.0.0

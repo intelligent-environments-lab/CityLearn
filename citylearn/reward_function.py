@@ -2,7 +2,6 @@ from typing import Any, List, Mapping, Tuple, Union
 import numpy as np
 from citylearn.building import Building
 from citylearn.data import ZERO_DIVISION_PLACEHOLDER
-# from citylearn.reward_function import RewardFunction
 
 class RewardFunction:
     r"""Base and default reward function class.
@@ -550,7 +549,6 @@ class V2GPenaltyReward(MARL):
 
         ##net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
         current_reward = super.calculate(observations)
-        print (observations)
         reward_list = []
 
         for b in self.env.buildings:
