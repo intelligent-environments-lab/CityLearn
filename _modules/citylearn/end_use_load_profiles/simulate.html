@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.end_use_load_profiles.simulate &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.end_use_load_profiles.simulate &mdash; CityLearn 2.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../../../_static/documentation_options.js?v=c3c8ae58"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -115,7 +115,10 @@
             <span class="n">ideal_loads</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
             <span class="n">edit_ems</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
             <span class="n">simulation_id</span><span class="o">=</span><span class="n">simulation_id</span><span class="p">,</span>
-            <span class="n">output_directory</span><span class="o">=</span><span class="n">output_directory</span>
+            <span class="n">output_directory</span><span class="o">=</span><span class="n">output_directory</span><span class="p">,</span>
+            <span class="n">cache</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ideal_loads_simulator</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span>
+            <span class="n">idf_preprocessing_customization_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ideal_loads_simulator</span><span class="o">.</span><span class="n">idf_preprocessing_customization_function</span>
+
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_multi_load_time_step</span> <span class="o">=</span> <span class="n">allow_multi_load_time_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">multiplier_minimum</span> <span class="o">=</span> <span class="n">multiplier_minimum</span>

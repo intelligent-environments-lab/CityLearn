@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.energy_model module &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.energy_model module &mdash; CityLearn 2.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -17,7 +17,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../_static/documentation_options.js?v=c3c8ae58"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -670,10 +670,10 @@ the building’s roof is suitable for the installation tilt and azimuth in the s
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>demand</strong> (<em>float</em>) – Building annual demand in [kWh].</p></li>
 <li><p><strong>epw_filepath</strong> (<em>Union</em><em>[</em><em>Path</em><em>, </em><em>str</em><em>]</em>) – EnergyPlus weather file path used as input to <code class="code docutils literal notranslate"><span class="pre">PVWattsNone</span></code> model.</p></li>
-<li><p><strong>use_sample_target</strong> (<em>bool</em>) – Whether to directly use the sizing in the sampled instance instead of sizing for <cite>zero_net_energy_proportion</cite>.
+<li><p><strong>use_sample_target</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Whether to directly use the sizing in the sampled instance instead of sizing for <cite>zero_net_energy_proportion</cite>.
 Will still limit the size to the <cite>roof_area</cite>.</p></li>
 <li><p><strong>zero_net_energy_proportion</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>]</em><em>, </em><em>default:</em><em> (</em><em>0.7</em><em>, </em><em>1.0</em><em>)</em>) – Proportion</p></li>
-<li><p><strong>roof_area</strong> (<em>float</em><em>, </em><em>optional</em>) – Roof area where the PV is mounted in m^2.</p></li>
+<li><p><strong>roof_area</strong> (<em>float</em><em>, </em><em>optional</em>) – Roof area where the PV is mounted in m^2. The default is to assume an infinite roof area.</p></li>
 <li><p><strong>safety_factor</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>]</em><em>]</em><em>, </em><em>default: 1.0</em>) – The <cite>nominal_power</cite> is oversized by factor of <cite>safety_factor</cite>.
 It is only applied to the <cite>zero_net_energy_proportion</cite> estimate.</p></li>
 <li><p><strong>sizing_data</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – The sizing dataframe from which PV systems are sampled from. If initialized from

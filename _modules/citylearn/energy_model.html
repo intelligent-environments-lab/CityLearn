@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.energy_model &mdash; CityLearn 2.2.0 documentation</title>
+  <title>citylearn.energy_model &mdash; CityLearn 2.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../../_static/documentation_options.js?v=c3c8ae58"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -631,13 +631,13 @@
 <span class="sd">            Building annual demand in [kWh].</span>
 <span class="sd">        epw_filepath : Union[Path, str]</span>
 <span class="sd">            EnergyPlus weather file path used as input to :code:`PVWattsNone` model.</span>
-<span class="sd">        use_sample_target : bool</span>
+<span class="sd">        use_sample_target : bool, default: False</span>
 <span class="sd">            Whether to directly use the sizing in the sampled instance instead of sizing for `zero_net_energy_proportion`.</span>
 <span class="sd">            Will still limit the size to the `roof_area`.</span>
 <span class="sd">        zero_net_energy_proportion : Union[float, Tuple[float, float]], default: (0.7, 1.0)</span>
 <span class="sd">            Proportion</span>
 <span class="sd">        roof_area : float, optional</span>
-<span class="sd">            Roof area where the PV is mounted in m^2.</span>
+<span class="sd">            Roof area where the PV is mounted in m^2. The default is to assume an infinite roof area.</span>
 <span class="sd">        safety_factor : Union[float, Tuple[float, float]], default: 1.0</span>
 <span class="sd">            The `nominal_power` is oversized by factor of `safety_factor`.</span>
 <span class="sd">            It is only applied to the `zero_net_energy_proportion` estimate.</span>
@@ -668,7 +668,7 @@
         <span class="n">random_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span>
         <span class="n">tries</span> <span class="o">=</span> <span class="mi">3</span>
 
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tries</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_autosize_config</span> <span class="o">=</span> <span class="n">sizing_data</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_seed</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
             <span class="n">model</span> <span class="o">=</span> <span class="n">Pvwattsv8</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="s1">&#39;PVWattsNone&#39;</span><span class="p">)</span>
             <span class="n">pv_nominal_power</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">autosize_config</span><span class="p">[</span><span class="s1">&#39;nameplate_capacity_module_1&#39;</span><span class="p">]</span><span class="o">/</span><span class="mf">1000.0</span>
@@ -691,7 +691,6 @@
                 
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">pass</span>
-                
         
         <span class="n">inverter_ac_power_per_kw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">Outputs</span><span class="o">.</span><span class="n">ac</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span><span class="o">/</span><span class="n">pv_nominal_power</span>
 
