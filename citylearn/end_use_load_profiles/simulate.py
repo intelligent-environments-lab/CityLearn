@@ -28,7 +28,10 @@ class EndUseLoadProfilesEnergyPlusPartialLoadSimulator(EndUseLoadProfilesEnergyP
             ideal_loads=False, 
             edit_ems=False, 
             simulation_id=simulation_id,
-            output_directory=output_directory
+            output_directory=output_directory,
+            cache=self.ideal_loads_simulator.cache,
+            idf_preprocessing_customization_function=self.ideal_loads_simulator.idf_preprocessing_customization_function
+
         )
         self.allow_multi_load_time_step = allow_multi_load_time_step
         self.multiplier_minimum = multiplier_minimum
