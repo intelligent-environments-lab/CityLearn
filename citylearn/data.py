@@ -575,46 +575,76 @@ class CarbonIntensity(TimeSeriesData):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.carbon_intensity = np.array(carbon_intensity, dtype='float32')
 
-
 class ElectricVehicleSimulation(TimeSeriesData):
-    """`Electric_Vehicle` `electric_vehicle_simulation` data class.
-
-    Month,Hour,Day Type,Location,Estimated Departure Time,Required Soc At Departure
+    """Electric Vehicle Simulation data class.
 
     Attributes
     ----------
     electric_vehicle_charger_state : np.array
-        State of the electric_vehicle indicating whether it is 'parked ready to charge' represented as 0, 'in transit', represented as 1.
+        State of the electric vehicle indicating:
+            1: 'Parked, plugged in, and ready to charge'
+            2: 'Incoming to a charger'
+            3: 'Commuting'
     charger : np.array
-        (available only for 'in transit' state) Charger where the electric_vehicle will plug in the next "parked ready to charge" state.
-        It can be nan if no destination charger is specified or the charger id in the format "Charger_X_Y", where X is
-        the number of the building and Y the number of the charger within that building.
+        (Available only for states 1 and 2)
+            - If in 'parked, plugged in, and ready to charge' state (1), this represents the charger where the EV is connected.
+            - If in 'incoming to a charger' state (2), this represents the charger where the EV will plug in next.
+            - It is `-1` if no destination charger is specified or if in 'commuting' state (3).
     electric_vehicle_departure_time : np.array
-        Number of time steps  expected until the vehicle departs (available only for 'parked ready to charge' state)
+        Number of time steps expected until the vehicle departs (only for state 1).
+        Defaults to -1 when not present.
     electric_vehicle_required_soc_departure : np.array
-        Estimated SOC percentage required for the electric_vehicle at departure time. (available only for 'parked ready to charge' state)
+        Estimated SOC percentage required for the EV at departure time (only for state 1).
+        Defaults to -1 when not present.
     electric_vehicle_estimated_arrival_time : np.array
-        Number of time steps  expected until the vehicle arrives at the charger (available only for 'in transit' state)
+        Number of time steps expected until the vehicle arrives at the charger (only for state 2).
+        Defaults to -1 when not present.
     electric_vehicle_estimated_soc_arrival : np.array
-        Estimated SOC percentage for the electric_vehicle at arrival time. (available only for 'in transit' state)
-
+        Estimated SOC percentage for the EV at arrival time (only for state 2).
+        Defaults to -1 when not present.
     """
 
     def __init__(
-            self, state: Iterable[str],
-            charger: Iterable[str], estimated_departure_time: Iterable[int], required_soc_departure: Iterable[float],
-            estimated_arrival_time: Iterable[int], estimated_soc_arrival: Iterable[float], start_time_step: int = None, end_time_step: int = None
+        self,
+        state: Iterable[int],
+        charger: Iterable[str],
+        estimated_departure_time: Iterable[int],
+        required_soc_departure: Iterable[float],
+        estimated_arrival_time: Iterable[int],
+        estimated_soc_arrival: Iterable[float],
+        start_time_step: int = None,
+        end_time_step: int = None
     ):
-        r"""Initialize `ElectricVehicleSimulation`."""
+        """Initialize `ElectricVehicleSimulation`."""
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
+
         self.electric_vehicle_charger_state = np.array(state, dtype=int)
-        self.charger = np.array(charger, dtype=str)
-        # NaNs are considered and filled as -1, i.e., when they serve no value or no data is recorded from them
+
+        # Convert charger from string to int, ensuring NaN values become -1
+        self.charger = np.array(
+            [int(c) if c.strip().isdigit() else -1 for c in charger], dtype=int
+        )
+
         default_value = -1
-        self.electric_vehicle_departure_time = np.nan_to_num(np.array(estimated_departure_time, dtype=float),
-                                                         nan=default_value).astype(int)
-        self.electric_vehicle_required_soc_departure = np.nan_to_num(np.array(required_soc_departure, dtype=float), nan=default_value)
-        self.electric_vehicle_estimated_arrival_time = np.nan_to_num(np.array(estimated_arrival_time, dtype=float),
-                                                       nan=default_value).astype(int)
-        self.electric_vehicle_estimated_soc_arrival = np.nan_to_num(np.array(estimated_soc_arrival, dtype=float), nan=default_value)
+
+        self.electric_vehicle_departure_time = np.where(
+            np.isnan(estimated_departure_time), default_value, np.array(estimated_departure_time, dtype=float).astype(int)
+        )
+
+        self.electric_vehicle_required_soc_departure = np.where(
+            np.isnan(required_soc_departure),
+            default_value,
+            np.array(required_soc_departure, dtype=float) / 100
+        )
+
+        self.electric_vehicle_estimated_soc_arrival = np.where(
+            np.isnan(estimated_soc_arrival),
+            default_value,
+            np.array(estimated_soc_arrival, dtype=float) / 100
+        )
+
+        self.electric_vehicle_estimated_arrival_time = np.where(
+            np.isnan(estimated_arrival_time), default_value, np.array(estimated_arrival_time, dtype=float).astype(int)
+        )
+
 
