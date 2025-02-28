@@ -150,13 +150,6 @@ class Charger(Environment):
 
         return self.__electricity_consumption
 
-    @property
-    def available_nominal_power(self) -> float:
-        r"""Difference between `nominal_power` and `electricity_consumption` at current `time_step`."""
-
-        return None if self.nominal_power is None else self.nominal_power - self.electricity_consumption[self.time_step]
-    
-
     @charger_id.setter
     def charger_id(self, charger_id: str):
         self.__charger_id = charger_id
@@ -211,11 +204,11 @@ class Charger(Environment):
 
     @connected_electric_vehicle.setter
     def connected_electric_vehicle(self, electric_vehicle: ElectricVehicle):
-            self.__connected_ev = electric_vehicle if electric_vehicle is None else None 
+            self.__connected_ev = electric_vehicle
 
     @incoming_electric_vehicle.setter
     def incoming_electric_vehicle(self, electric_vehicle: ElectricVehicle):
-            self.__incoming_ev = electric_vehicle if electric_vehicle is None else None 
+            self.__incoming_ev = electric_vehicle
 
     @efficiency.setter
     def efficiency(self, efficiency: float):
@@ -293,7 +286,7 @@ class Charger(Environment):
         self.incoming_electric_vehicle = None
 
     def update_connected_electric_vehicle_soc(self, action_value: float):
-        self.__past_charging_action_values[self.time_step] = action_value #ToDo
+        self.__past_charging_action_values[self.time_step] = action_value
         if self.connected_electric_vehicle and action_value != 0:
             electric_vehicle = self.connected_electric_vehicle
             if action_value > 0:
