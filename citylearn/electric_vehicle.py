@@ -6,6 +6,8 @@ from citylearn.data import ElectricVehicleSimulation
 from citylearn.energy_model import Battery
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
+ZERO_DIVISION_PLACEHOLDER = 0.000001
+
 class ElectricVehicle(Environment):
 
     def __init__(self, electric_vehicle_simulation: ElectricVehicleSimulation,episode_tracker: EpisodeTracker, observation_metadata: Mapping[str, bool],
@@ -124,7 +126,7 @@ class ElectricVehicle(Environment):
     @min_battery_soc.setter
     def min_battery_soc(self, min_battery_soc: str):
         if min_battery_soc is None:
-            self.__min_battery_soc = 10.0
+            self.__min_battery_soc = 0.10
         else:
             self.__min_battery_soc = min_battery_soc
 
@@ -154,8 +156,7 @@ class ElectricVehicle(Environment):
     def action_space(self, action_space: spaces.Box):
         self.__action_space = action_space
 
-
-    def adjust_electric_vehicle_soc_on_system_connection(self, soc_system_connection : float):
+    def adjust_electric_vehicle_soc_on_system_connection(self, soc_system_connection: float):
         """
         Adjusts the state of charge (SoC) of an electric vehicle's (Electric_Vehicle's) battery upon connection to the system.
 
@@ -181,15 +182,14 @@ class ElectricVehicle(Environment):
         this method can randomly adjust the Electric_Vehicle's battery to 22% or 19%, or even by a larger margin such as 40%.
 
         Args:
-        soc_system_connection (float): The predicted SoC at system connection, expressed as a percentage of the
-        battery's total capacity.
+        soc_system_connection (float): The predicted SoC at system connection, expressed between 0 and 1
         """
 
         # Get the SoC in kWh from the battery
-        soc_init_kwh = self.battery.initial_soc
+        soc_kwh = self.battery.soc[-1] * self.battery.capacity
 
         # Calculate the system connection SoC in kWh
-        soc_system_connection_kwh = self.battery.capacity * (soc_system_connection / 100)
+        soc_system_connection_kwh = self.battery.capacity * soc_system_connection
 
         # Determine the range for random variation.
         # Here we use a normal distribution centered at 0 and a standard deviation of 0.1.
@@ -201,9 +201,10 @@ class ElectricVehicle(Environment):
 
         # Calculate the final SoC in kWh
         soc_final_kwh = soc_system_connection_kwh + variation_kwh
+        soc_final_kwh = max(0, soc_final_kwh)
 
         # Charge or discharge the battery to the new SoC.
-        self.battery.set_ad_hoc_charge(soc_final_kwh - soc_init_kwh)
+        self.battery.set_ad_hoc_charge(soc_final_kwh - soc_kwh)
 
     def next_time_step(self) -> Mapping[int, str]:
         """
@@ -213,11 +214,11 @@ class ElectricVehicle(Environment):
         super().next_time_step()
 
         if self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step] == 2:
-            self.adjust_electric_vehicle_soc_on_system_connection(self.electric_vehicle_simulation.electric_vehicle_estimated_soc_arrival[self.time_step])
+            self.adjust_electric_vehicle_soc_on_system_connection(
+                self.electric_vehicle_simulation.electric_vehicle_estimated_soc_arrival[self.time_step])
 
         elif self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step] == 3:
-            self.adjust_electric_vehicle_soc_on_system_connection((self.battery.soc[-1] / self.battery.capacity)*100)
-            #ToDo here might be better to add only Nan as the vehicle is disconnencted
+            self.adjust_electric_vehicle_soc_on_system_connection(self.battery.soc[-1])
 
 
     def reset(self):
@@ -259,7 +260,7 @@ class ElectricVehicle(Environment):
                 k.lstrip('_'): self.electric_vehicle_simulation.__getattr__(k.lstrip('_'))[self.time_step]
                 for k, v in vars(self.electric_vehicle_simulation).items() if isinstance(v, np.ndarray) and k not in unwanted_keys
             },
-            'electric_vehicle_soc': self.battery.soc[self.time_step] / self.battery.capacity
+            'electric_vehicle_soc': self.battery.soc[self.time_step]
         }
 
 
@@ -404,21 +405,11 @@ class ElectricVehicle(Environment):
         low_limit, high_limit = [], []
         for key in self.active_actions:
             if key == 'electric_vehicle_storage':
-                limit = self.battery.nominal_power / self.battery.capacity
+                limit = self.electrical_storage.nominal_power/max(self.electrical_storage.capacity, ZERO_DIVISION_PLACEHOLDER)
+                limit = min(limit, 1.0)
                 low_limit.append(-limit)
                 high_limit.append(limit)
         return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
-
-    def autosize_battery(self, **kwargs):
-        """Autosize `Battery` for a typical Electric_Vehicle.
-
-        Other Parameters
-        ----------------
-        **kwargs : dict
-            Other keyword arguments parsed to `electrical_storage` `autosize` function.
-        """
-
-        self.battery.autosize_for_EV()
 
     @staticmethod
     def observations_length() -> Mapping[str, int]:
