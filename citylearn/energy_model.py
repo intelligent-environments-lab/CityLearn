@@ -609,6 +609,8 @@ class StorageDevice(Device):
         self.random_seed = kwargs.get('random_seed', None)
         self.capacity = capacity
         self.loss_coefficient = loss_coefficient
+        print("AQUI DENTRO")
+        print(initial_soc)
         self.initial_soc = initial_soc
         super().__init__(efficiency = efficiency, **kwargs)
 
@@ -1059,18 +1061,24 @@ class Battery(StorageDevice, ElectricDevice):
 
         return efficiency
 
-    def set_ad_hoc_charge(self, energy: float):
-        """Charges or discharges storage with disregard to capacity` degradation, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.
-        Considers only `soc_init` limitations and maximum capacity limitations
-        Used for setting EVs Soc after coming from a transit state
+    def force_set_soc(self, soc: float):
+        """
+        Forcefully set the battery's state-of-charge (SOC) for the current time step,
+        bypassing restrictions such as efficiency losses, power limits, and degradation.
+
+        This is used for reconnections of the EV to the platform.
 
         Parameters
         ----------
-        energy : float
-            Energy to charge if (+) or discharge if (-) in [kWh].
-
+        soc : float
+            Desired state-of-charge as a fraction (between 0 and 1). Values outside this range are not accepted.
         """
-        super().charge(energy)
+        # Ensure soc is between 0 and 1
+        if soc < 0 or soc > 1:
+            raise AttributeError("Soc must be between 0 and 1. Check your dataset")
+        # Directly update the internal SOC array.
+        # Note: __soc is defined in the StorageDevice class, so we access it via name mangling.
+        self.__soc[self.time_step] = soc
 
     def degrade(self) -> float:
         r"""Get amount of capacity degradation.

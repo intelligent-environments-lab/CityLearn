@@ -605,46 +605,64 @@ class ElectricVehicleSimulation(TimeSeriesData):
     """
 
     def __init__(
-        self,
-        state: Iterable[int],
-        charger: Iterable[str],
-        estimated_departure_time: Iterable[int],
-        required_soc_departure: Iterable[float],
-        estimated_arrival_time: Iterable[int],
-        estimated_soc_arrival: Iterable[float],
-        start_time_step: int = None,
-        end_time_step: int = None
+            self,
+            state: Iterable[int],
+            charger: Iterable[str],
+            estimated_departure_time: Iterable[int],
+            required_soc_departure: Iterable[float],
+            estimated_arrival_time: Iterable[int],
+            estimated_soc_arrival: Iterable[float],
+            start_time_step: int = None,
+            end_time_step: int = None
     ):
-        """Initialize `ElectricVehicleSimulation`."""
+        """Initialize ElectricVehicleSimulation."""
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
 
-        self.electric_vehicle_charger_state = np.array(state, dtype=int)
-
-        # Convert charger from string to int, ensuring NaN values become -1
-        self.charger = np.array(
-            [int(c) if c.strip().isdigit() else -1 for c in charger], dtype=int
+        # Convert state to an array of floats.
+        # If a value is not a valid digit, set it to NaN.
+        self.electric_vehicle_charger_state = np.array(
+            [int(str(s)) if str(s).isdigit() else np.nan for s in state],
+            dtype=float
         )
 
-        default_value = -1
+        # Process charger values:
+        # - If the entry is a string and not "nan" (case-insensitive), keep it.
+        # - Otherwise, replace with np.nan.
+        self.charger = np.array(
+            [c if isinstance(c, str) and c.strip().lower() != "nan" else np.nan for c in charger],
+            dtype=object
+        )
+
+        # For time values, first convert to a float array.
+        # Use a default missing value (here, -1) for times.
+        default_time_value = -1
+        departure_time_arr = np.array(estimated_departure_time, dtype=float)
+        arrival_time_arr = np.array(estimated_arrival_time, dtype=float)
 
         self.electric_vehicle_departure_time = np.where(
-            np.isnan(estimated_departure_time), default_value, np.array(estimated_departure_time, dtype=float).astype(int)
-        )
-
-        self.electric_vehicle_required_soc_departure = np.where(
-            np.isnan(required_soc_departure),
-            default_value,
-            np.array(required_soc_departure, dtype=float) / 100
-        )
-
-        self.electric_vehicle_estimated_soc_arrival = np.where(
-            np.isnan(estimated_soc_arrival),
-            default_value,
-            np.array(estimated_soc_arrival, dtype=float) / 100
-        )
+            np.isnan(departure_time_arr), default_time_value, departure_time_arr
+        ).astype(int)
 
         self.electric_vehicle_estimated_arrival_time = np.where(
-            np.isnan(estimated_arrival_time), default_value, np.array(estimated_arrival_time, dtype=float).astype(int)
-        )
+            np.isnan(arrival_time_arr), default_time_value, arrival_time_arr
+        ).astype(int)
+
+        # For state-of-charge (SOC) values, convert to float arrays.
+        # Use a default missing value (here, -0.1) and then scale by 1/100.
+        default_soc_value = -0.1
+        soc_departure_arr = np.array(required_soc_departure, dtype=float)
+        soc_arrival_arr = np.array(estimated_soc_arrival, dtype=float)
+
+        self.electric_vehicle_required_soc_departure = np.where(
+            np.isnan(soc_departure_arr), default_soc_value, soc_departure_arr
+        ) / 100
+
+        self.electric_vehicle_estimated_soc_arrival = np.where(
+            np.isnan(soc_arrival_arr), default_soc_value, soc_arrival_arr
+        ) / 100
+
+
+
+
 
 

@@ -1,4 +1,4 @@
-# Run using python test_file.py
+# Run using python test_evs.py
 
 import sys
 sys.path.insert(0, "..")
@@ -6,7 +6,6 @@ import citylearn
 from citylearn.agents.rbc import BasicRBC as Agent
 # RandomAgent, RLAgent
 from citylearn.citylearn import CityLearnEnv
-from citylearn.electric_vehicle import ElectricVehicle
 
 dataset_name = 'citylearn_challenge_2022_phase_all_plus_evs'
 

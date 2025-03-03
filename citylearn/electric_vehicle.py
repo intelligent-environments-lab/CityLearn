@@ -1,3 +1,4 @@
+import logging
 from typing import List, Mapping, Tuple
 from gymnasium import spaces
 import numpy as np
@@ -7,11 +8,12 @@ from citylearn.energy_model import Battery
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
 ZERO_DIVISION_PLACEHOLDER = 0.000001
+LOGGER = logging.getLogger()
 
 class ElectricVehicle(Environment):
 
-    def __init__(self, electric_vehicle_simulation: ElectricVehicleSimulation,episode_tracker: EpisodeTracker, observation_metadata: Mapping[str, bool],
-                 action_metadata: Mapping[str, bool], battery: Battery = None, min_battery_soc: int = None, name: str = None, **kwargs):
+    def __init__(self, electric_vehicle_simulation: ElectricVehicleSimulation, episode_tracker: EpisodeTracker,
+                 battery: Battery = None, name: str = None, **kwargs):
         """
         Initialize the EVCar class.
 
@@ -21,10 +23,6 @@ class ElectricVehicle(Environment):
             Temporal features, locations, predicted SOCs and more.
         battery : Battery
             An instance of the Battery class.
-        observation_metadata : dict
-            Mapping of active and inactive observations.
-        action_metadata : dict
-            Mapping od active and inactive actions.
         name : str, optional
             Unique Electric_Vehicle name.
 
@@ -44,13 +42,6 @@ class ElectricVehicle(Environment):
         )
 
         self.battery = battery
-        self.observation_metadata = observation_metadata
-        self.action_metadata = action_metadata
-        self.non_periodic_normalized_observation_space_limits = None
-        self.periodic_normalized_observation_space_limits = None
-        self.observation_space = self.estimate_observation_space()
-        self.action_space = self.estimate_action_space()
-        self.min_battery_soc = min_battery_soc
         self.__observation_epsilon = 0.0  # to avoid out of bound observations
 
 
@@ -67,53 +58,10 @@ class ElectricVehicle(Environment):
         return self.__name
 
     @property
-    def min_battery_soc(self) -> int:
-        """Min battery soc percentage."""
-
-        return self.__min_battery_soc
-
-    @property
-    def observation_metadata(self) -> Mapping[str, bool]:
-        """Mapping of active and inactive observations."""
-
-        return self.__observation_metadata
-
-    @property
-    def action_metadata(self) -> Mapping[str, bool]:
-        """Mapping od active and inactive actions."""
-
-        return self.__action_metadata
-
-    @property
     def battery(self) -> Battery:
         """Battery for Electric_Vehicle."""
 
         return self.__battery
-
-    @property
-    def observation_space(self) -> spaces.Box:
-        """Agent observation space."""
-
-        return self.__observation_space
-
-    @property
-    def action_space(self) -> spaces.Box:
-        """Agent action spaces."""
-
-        return self.__action_space
-
-    @property
-    def active_observations(self) -> List[str]:
-        """Observations in `observation_metadata` with True value i.e. obeservable."""
-
-        return [k for k, v in self.observation_metadata.items() if v]
-
-    @property
-    def active_actions(self) -> List[str]:
-        """Actions in `action_metadata` with True value i.e.
-        indicates which storage systems are to be controlled during simulation."""
-
-        return [k for k, v in self.action_metadata.items() if v]
     
     @electric_vehicle_simulation.setter
     def electric_vehicle_simulation(self, electric_vehicle_simulation: ElectricVehicleSimulation):
@@ -123,103 +71,34 @@ class ElectricVehicle(Environment):
     def name(self, name: str):
         self.__name = name
     
-    @min_battery_soc.setter
-    def min_battery_soc(self, min_battery_soc: str):
-        if min_battery_soc is None:
-            self.__min_battery_soc = 0.10
-        else:
-            self.__min_battery_soc = min_battery_soc
-
-    @observation_metadata.setter
-    def observation_metadata(self, observation_metadata: Mapping[str, bool]):
-        self.__observation_metadata = observation_metadata
-    
-    @action_metadata.setter
-    def action_metadata(self, action_metadata: Mapping[str, bool]):
-        self.__action_metadata = action_metadata
-    
     @battery.setter
     def battery(self, battery: Battery):
         self.__battery = Battery(0.0, 0.0) if battery is None else battery
-        
-    @observation_space.setter
-    def observation_space(self, observation_space: spaces.Box):
-        self.__observation_space = observation_space
-        self.non_periodic_normalized_observation_space_limits = self.estimate_observation_space_limits(
-            include_all=True, periodic_normalization=False
-        )
-        self.periodic_normalized_observation_space_limits = self.estimate_observation_space_limits(
-            include_all=True, periodic_normalization=True
-        )
-        
-    @action_space.setter
-    def action_space(self, action_space: spaces.Box):
-        self.__action_space = action_space
-
-    def adjust_electric_vehicle_soc_on_system_connection(self, soc_system_connection: float):
-        """
-        Adjusts the state of charge (SoC) of an electric vehicle's (Electric_Vehicle's) battery upon connection to the system.
-
-        When an Electric_Vehicle is in transit, the system "loses" the connection and does not know how much battery
-        has been used during travel. As such, when an Electric_Vehicle enters an incoming or connected state, its battery
-        SoC is updated to be close to the predicted SoC at arrival present in the Electric_Vehicle dataset.
-
-        However, predictions sometimes fail, so this method introduces variability for the simulation by
-        randomly creating a discrepancy between the predicted value and a "real-world inspired" value. This discrepancy
-        is generated using a normal (Gaussian) distribution, which is more likely to produce values near 0 and less
-        likely to produce extreme values.
-
-        The range of potential variation is between -30% to +30% of the predicted SoC, with most of the values
-        being close to 0 (i.e., the prediction). The exact amount of variation is calculated by taking a random
-        value from the normal distribution and scaling it by the predicted SoC. This value is then added to the
-        predicted SoC to get the actual SoC, which can be higher or lower than the prediction.
-
-        The difference between the actual SoC and the initial SoC (before the adjustment) is passed to the
-        battery's charge method. If the difference is positive, the battery is charged; if the difference is negative,
-        the battery is discharged.
-
-        For example, if the Electric_Vehicle dataset has a predicted SoC at arrival of 20% (of the battery's total capacity),
-        this method can randomly adjust the Electric_Vehicle's battery to 22% or 19%, or even by a larger margin such as 40%.
-
-        Args:
-        soc_system_connection (float): The predicted SoC at system connection, expressed between 0 and 1
-        """
-
-        # Get the SoC in kWh from the battery
-        soc_kwh = self.battery.soc[-1] * self.battery.capacity
-
-        # Calculate the system connection SoC in kWh
-        soc_system_connection_kwh = self.battery.capacity * soc_system_connection
-
-        # Determine the range for random variation.
-        # Here we use a normal distribution centered at 0 and a standard deviation of 0.1.
-        # We also make sure that the values are truncated at -20% and +20%.
-        variation_percentage = np.clip(np.random.normal(0, 0.1), -0.2, 0.2)
-
-        # Apply the variation
-        variation_kwh = variation_percentage * soc_system_connection_kwh
-
-        # Calculate the final SoC in kWh
-        soc_final_kwh = soc_system_connection_kwh + variation_kwh
-        soc_final_kwh = max(0, soc_final_kwh)
-
-        # Charge or discharge the battery to the new SoC.
-        self.battery.set_ad_hoc_charge(soc_final_kwh - soc_kwh)
 
     def next_time_step(self) -> Mapping[int, str]:
-        """
-        Advance Electric_Vehicle to the next `time_step`s
-        """
+        LOGGER.debug(f"[{self.name}] next_time_step: Starting new time step {self.time_step}")
+        LOGGER.debug(
+            f"[{self.name}] characteristics: Current battery SoC (% 0 to 1): {self.battery.soc[-1]}, Battery Capacity {self.battery.capacity}")
+
+        # Check if the next time step exists in the charger state array
+        if self.time_step + 1 < len(self.electric_vehicle_simulation.electric_vehicle_charger_state):
+            current_charger_state = self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step]
+            next_charger_state = self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step + 1]
+            if (current_charger_state in [2, 3]) and (next_charger_state == 1):
+                soc_arrival = self.electric_vehicle_simulation.electric_vehicle_soc_arrival[self.time_step]
+                self.battery.force_set_soc(soc_arrival)
+
+        if current_charger_state in [2, 3] and next_charger_state != 1 and self.time_step > 0:
+            last_soc = self.battery.soc[self.time_step - 1]
+            # Generate a variability factor from a normal distribution centered at 1 with std 0.2.
+            variability_factor = np.random.normal(loc=1.0, scale=0.2)
+            # Clip the factor to ensure it doesn't deviate by more than 40% (i.e., factor in [0.6, 1.4])
+            variability_factor = np.clip(variability_factor, 0.6, 1.4)
+            new_soc = np.clip(last_soc * variability_factor, 0.0, 1.0)
+            self.battery.force_set_soc(new_soc)
+
         self.battery.next_time_step()
         super().next_time_step()
-
-        if self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step] == 2:
-            self.adjust_electric_vehicle_soc_on_system_connection(
-                self.electric_vehicle_simulation.electric_vehicle_estimated_soc_arrival[self.time_step])
-
-        elif self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step] == 3:
-            self.adjust_electric_vehicle_soc_on_system_connection(self.battery.soc[-1])
-
 
     def reset(self):
         """
@@ -379,10 +258,10 @@ class ElectricVehicle(Environment):
         low_limit, high_limit = {}, {}
         for key in observation_names:
             if key in "electric_vehicle_departure_time" or key in "electric_vehicle_estimated_arrival_time":
-                    low_limit[key] = 0
+                    low_limit[key] = -1
                     high_limit[key] = 24
             elif key in "electric_vehicle_required_soc_departure" or key in "electric_vehicle_estimated_soc_arrival"  or key in "electric_vehicle_soc":
-                    low_limit[key] = 0.0
+                    low_limit[key] = -0.1
                     high_limit[key] = 1.0
         low_limit = {k: v - 0.05 for k, v in low_limit.items()}
         high_limit = {k: v + 0.05 for k, v in high_limit.items()}

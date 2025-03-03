@@ -882,6 +882,9 @@ class CityLearnEnv(Environment, Env):
         """
 
         self.next_time_step()
+        andar para a frente no time step dos evs e das baterias. Mas nao associar a novo carregador (pq esta a ser carregado com as coisas
+        do anterior, ou seja se ele tiver saido ja noa carrega...)
+
         actions = self._parse_actions(actions)
 
         for building, building_actions in zip(self.buildings, actions):
@@ -1424,6 +1427,10 @@ class CityLearnEnv(Environment, Env):
         reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
         reward_function = reward_function_constructor(None, **reward_function_attributes)
 
+        for ev in electric_vehicles:
+            LOGGER.debug(f"[{ev.name}] Loaded: Current battery SoC (% 0 to 1): {ev.battery.soc[-1]}, Battery Capacity {ev.battery.capacity}")
+
+
         return (
             schema['root_directory'], buildings, electric_vehicles, schema['episode_time_steps'], schema['rolling_episode_split'],
             schema['random_episode_split'],
@@ -1709,21 +1716,14 @@ class CityLearnEnv(Environment, Env):
         electric_vehicle_simulation = pd.read_csv(
             os.path.join(schema['root_directory'], electric_vehicle_schema['energy_simulation'])
         ).iloc[schema['simulation_start_time_step']:schema['simulation_end_time_step'] + 1].copy()
-        electric_vehicle_simulation = ElectricVehicleSimulation(*electric_vehicle_simulation.values.T)
 
-        # Observation and action metadata
-        electric_vehicle_inactive_observations = electric_vehicle_schema.get('inactive_observations', [])
-        electric_vehicle_inactive_actions = electric_vehicle_schema.get('inactive_actions', [])
-        electric_vehicle_observation_metadata = {
-            s: False if s in electric_vehicle_inactive_observations else True 
-                for s in schema['chargers_observations_helper'] if s != 'electric_vehicle_charger_state'}
-        electric_vehicle_action_metadata = {a: False if a in electric_vehicle_inactive_actions else True for a in ['chargers_actions_helper']}
+        electric_vehicle_simulation = ElectricVehicleSimulation(*electric_vehicle_simulation.values.T)
 
         # Construct the battery object
         capacity = electric_vehicle_schema["battery"]["attributes"]["capacity"]
         nominal_power = electric_vehicle_schema["battery"]["attributes"]["nominal_power"]
         initial_soc = electric_vehicle_schema["battery"]["attributes"]["initial_soc"]
-        min_battery_soc = electric_vehicle_schema.get("battery", None).get("attributes", None).get("min_battery_soc", None)
+        depth_of_discharge = electric_vehicle_schema.get("battery", None).get("attributes", None).get("depth_of_discharge", None)
 
         battery = Battery(
             capacity=capacity,
@@ -1731,8 +1731,15 @@ class CityLearnEnv(Environment, Env):
             initial_soc=initial_soc,
             seconds_per_time_step=schema['seconds_per_time_step'],
             random_seed=schema['random_seed'],
-            episode_tracker=episode_tracker
+            episode_tracker=episode_tracker,
+            depth_of_discharge=depth_of_discharge
         )
+
+        print(battery.capacity)
+        battery.reset()
+        print(battery.initial_soc)
+        print(battery.soc)
+
 
         # Get the EV constructor
         electric_vehicle_type = 'citylearn.citylearn.ElectricVehicle' \
@@ -1744,18 +1751,12 @@ class CityLearnEnv(Environment, Env):
         # Initialize EV
         ev: ElectricVehicle = electric_vehicle_constructor(
             electric_vehicle_simulation=electric_vehicle_simulation,
-            observation_metadata=electric_vehicle_observation_metadata,
-            action_metadata=electric_vehicle_action_metadata,
             battery=battery,
             name=electric_vehicle_name,
             seconds_per_time_step=schema['seconds_per_time_step'],
             random_seed=schema['random_seed'],
-            min_battery_soc=min_battery_soc,
             episode_tracker=episode_tracker
         )
-
-        ev.observation_space = ev.estimate_observation_space()
-        ev.action_space = ev.estimate_action_space()
 
         return ev
 

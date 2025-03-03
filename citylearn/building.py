@@ -867,7 +867,7 @@ class Building(Environment):
         # Observations for electric_vehicle_chargers
         # Connected is 1 and disconnected is 0
         if self.electric_vehicle_chargers is not None:
-            for charger in self.electric_vehicle_chargers:  # If present, itrerate to each charger
+            for charger in self.electric_vehicle_chargers:  # If present, iterate each charger
                 charger_id = charger.charger_id
                 charger_key_state = f'charger_{charger_id}_connected_state'  # Observations names are composed from the charger unique ID
                 charger_key_incoming_state = f'charger_{charger_id}_incoming_state'
@@ -877,7 +877,7 @@ class Building(Environment):
                     obs = charger.connected_electric_vehicle.observations(include_all, normalize, periodic_normalization)
                     for k, v in obs.items():
                         observations[f'charger_{charger_id}_connected_{k}'] = v  # for the connected EV several observations are added (according to the observations specified in Electric_Vehicle class
-                else:  # otherwise, when not connected, 0 is given and observations are filled with -1
+                else:  # otherwise, when not connected, 0 is given and observations are filled with -0.1
                     observations[charger_key_state] = 0
                     for o in self.observation_metadata:
                         if f'charger_{charger_id}_connected' in o and o != charger_key_state:
@@ -1424,13 +1424,8 @@ class Building(Environment):
                 high_limit[key] = high_limits.max()
 
             elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 
-                'electrical_storage_soc', 'electric_vehicle_charger_state', 'electric_vehicle_soc'
-            ]:
+                'electrical_storage_soc']:
                 low_limit[key] = 0.0
-                high_limit[key] = 1.0
-
-            elif key in ['electric_vehicle_required_soc_departure', 'electric_vehicle_estimated_soc_arrival']:
-                low_limit[key] = -0.1
                 high_limit[key] = 1.0
 
             elif key in ['cooling_device_efficiency']:
@@ -1452,13 +1447,13 @@ class Building(Environment):
                     for charger in self.electric_vehicle_chargers:
                         if key == f'charger_{charger.charger_id}_connected_state' or key == f'charger_{charger.charger_id}_incoming_state':
                             low_limit[key] = 0
-                            high_limit[key] = 3
+                            high_limit[key] = 1
                         elif 'electric_vehicle_charger_state' in key:
                             low_limit[key] = 0
                             high_limit[key] = 1
                         elif any(value in key for value in
                                  ['electric_vehicle_departure_time', 'electric_vehicle_estimated_arrival_time']):
-                            low_limit[key] = -0.1
+                            low_limit[key] = -1
                             high_limit[key] = 24
                         elif any(value in key for value in
                                  ['electric_vehicle_required_soc_departure', 'electric_vehicle_estimated_soc_arrival',
@@ -1943,7 +1938,6 @@ class Building(Environment):
 
         if self.electric_vehicle_chargers is not None:
             for c in self.electric_vehicle_chargers:
-                pass
                 c.next_time_step()
 
         super().next_time_step()

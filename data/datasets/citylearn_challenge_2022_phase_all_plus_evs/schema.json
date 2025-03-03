@@ -230,8 +230,6 @@
     "Electric_Vehicle_1": {
       "include": true,
       "energy_simulation": "Electric_Vehicle_1.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
@@ -239,105 +237,91 @@
           "capacity": 40,
           "nominal_power": 50,
           "initial_soc": 0.25,
-          "min_battery_soc": 0.10
+          "depth_of_discharge": 0.10
         }
       }
     },
     "Electric_Vehicle_2": {
       "include": true,
       "energy_simulation": "Electric_Vehicle_2.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 50,
           "nominal_power": 50,
-          "initial_soc": 0.35
+          "depth_of_discharge": 0.35
         }
       }
     },
     "Electric_Vehicle_3": {
       "include": true,
       "energy_simulation": "Electric_Vehicle_3.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 75,
           "nominal_power": 50,
-          "initial_soc": 0.5
+          "depth_of_discharge": 0.5
         }
       }
     },
     "Electric_Vehicle_4": {
       "include": true,
       "energy_simulation": "Electric_Vehicle_4.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 45,
           "nominal_power": 50,
-          "initial_soc": 0.2
+          "depth_of_discharge": 0.2
         }
       }
     },
     "Electric_Vehicle_5": {
       "include": true,
       "energy_simulation": "Electric_Vehicle_5.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 90,
           "nominal_power": 50,
-          "initial_soc": 0.8
+          "depth_of_discharge": 0.8
         }
       }
     },
     "Electric_Vehicle_6": {
       "include": true,
       "energy_simulation": "Electric_Vehicle_6.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 100,
           "nominal_power": 50,
-          "initial_soc": 0.8
+          "depth_of_discharge": 0.8
         }
       }
     },
     "Electric_Vehicle_7": {
       "include": true,
       "energy_simulation": "Electric_Vehicle_7.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 60,
           "nominal_power": 50,
-          "initial_soc": 0.1
+          "depth_of_discharge": 0.1
         }
       }
     },
     "Electric_Vehicle_8": {
       "include": true,
       "energy_simulation": "Electric_Vehicle_8.csv",
-      "inactive_observations": [],
-      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
