@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.utilities &mdash; CityLearn 2.3.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -83,14 +83,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.utilities</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
-<span class="kn">import</span> <span class="nn">simplejson</span> <span class="k">as</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">simplejson</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
 <div class="viewcode-block" id="read_json">
 <a class="viewcode-back" href="../../api/citylearn.utilities.html#citylearn.utilities.read_json">[docs]</a>
-<span class="k">def</span> <span class="nf">read_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return JSON document as dictionary.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -117,7 +117,7 @@
 
 <div class="viewcode-block" id="write_json">
 <a class="viewcode-back" href="../../api/citylearn.utilities.html#citylearn.utilities.write_json">[docs]</a>
-<span class="k">def</span> <span class="nf">write_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write dictionary to JSON file.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -141,7 +141,7 @@
 
 <div class="viewcode-block" id="read_yaml">
 <a class="viewcode-back" href="../../api/citylearn.utilities.html#citylearn.utilities.read_yaml">[docs]</a>
-<span class="k">def</span> <span class="nf">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return YAML document as dictionary.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -163,7 +163,7 @@
 
 <div class="viewcode-block" id="write_yaml">
 <a class="viewcode-back" href="../../api/citylearn.utilities.html#citylearn.utilities.write_yaml">[docs]</a>
-<span class="k">def</span> <span class="nf">write_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write dictionary to YAML file. </span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -187,7 +187,7 @@
 
 <div class="viewcode-block" id="read_pickle">
 <a class="viewcode-back" href="../../api/citylearn.utilities.html#citylearn.utilities.read_pickle">[docs]</a>
-<span class="k">def</span> <span class="nf">read_pickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_pickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return pickle file as some Python class object.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -214,7 +214,7 @@
 
 <div class="viewcode-block" id="write_pickle">
 <a class="viewcode-back" href="../../api/citylearn.utilities.html#citylearn.utilities.write_pickle">[docs]</a>
-<span class="k">def</span> <span class="nf">write_pickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_pickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write Python object to pickle file. </span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
@@ -237,7 +237,7 @@
 <div class="viewcode-block" id="join_url">
 <a class="viewcode-back" href="../../api/citylearn.utilities.html#citylearn.utilities.join_url">[docs]</a>
 <span class="nd">@staticmethod</span>
-<span class="k">def</span> <span class="nf">join_url</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">join_url</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">url</span></div>

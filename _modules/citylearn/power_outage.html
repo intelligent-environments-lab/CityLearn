@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.power_outage &mdash; CityLearn 2.3.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -83,13 +83,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.power_outage</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span>
 
 <div class="viewcode-block" id="PowerOutage">
 <a class="viewcode-back" href="../../api/citylearn.power_outage.html#citylearn.power_outage.PowerOutage">[docs]</a>
-<span class="k">class</span> <span class="nc">PowerOutage</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PowerOutage</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base stochastic power outage model class.</span>
 <span class="sd">    </span>
 <span class="sd">    Randomly assigns power outage signal to time steps.</span>
@@ -100,20 +100,20 @@
 <span class="sd">        Pseudorandom number generator seed for repeatable results.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">random_seed</span> 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">*</span><span class="n">Environment</span><span class="o">.</span><span class="n">DEFAULT_RANDOM_SEED_RANGE</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">__random_seed</span>
 
     <span class="nd">@random_seed</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__random_seed</span> <span class="o">=</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="PowerOutage.get_signals">
 <a class="viewcode-back" href="../../api/citylearn.power_outage.html#citylearn.power_outage.PowerOutage.get_signals">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns power outage signal time series.</span>
 
 <span class="sd">        Returns time series with randomly selected time steps set as candidates for power outage.</span>
@@ -145,7 +145,7 @@
 
 <div class="viewcode-block" id="ReliabilityMetricsPowerOutage">
 <a class="viewcode-back" href="../../api/citylearn.power_outage.html#citylearn.power_outage.ReliabilityMetricsPowerOutage">[docs]</a>
-<span class="k">class</span> <span class="nc">ReliabilityMetricsPowerOutage</span><span class="p">(</span><span class="n">PowerOutage</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReliabilityMetricsPowerOutage</span><span class="p">(</span><span class="n">PowerOutage</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Power outage signal stochastic model based on Distribution System Reliability Metrics.</span>
 
 <span class="sd">    Generates time series of power outage signals based on System Average Interruption Frequency Index (SAIFI)</span>
@@ -180,39 +180,39 @@
 <span class="sd">    The reliability metrics are sourced from https://www.eia.gov/electricity/annual/html/epa_11_01.html.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saifi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">caidi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start_time_steps</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saifi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">caidi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start_time_steps</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">saifi</span> <span class="o">=</span> <span class="n">saifi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">caidi</span> <span class="o">=</span> <span class="n">caidi</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time_steps</span> <span class="o">=</span> <span class="n">start_time_steps</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">saifi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">saifi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__saifi</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">caidi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">caidi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__caidi</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">start_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__start_time_steps</span>
     
     <span class="nd">@saifi</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">saifi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">saifi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__saifi</span> <span class="o">=</span> <span class="mf">1.436</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@caidi</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">caidi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">caidi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__caidi</span> <span class="o">=</span> <span class="mf">331.2</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@start_time_steps</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">start_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__start_time_steps</span> <span class="o">=</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="ReliabilityMetricsPowerOutage.get_signals">
 <a class="viewcode-back" href="../../api/citylearn.power_outage.html#citylearn.power_outage.ReliabilityMetricsPowerOutage.get_signals">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns power outage signal time series.</span>
 
 <span class="sd">        Returns time series with randomly selected time steps set as candidates for power outage.</span>

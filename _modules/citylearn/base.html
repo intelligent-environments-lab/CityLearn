@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.base &mdash; CityLearn 2.3.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -83,14 +83,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.base</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">import</span> <span class="nn">uuid</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <div class="viewcode-block" id="EpisodeTracker">
 <a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.EpisodeTracker">[docs]</a>
-<span class="k">class</span> <span class="nc">EpisodeTracker</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EpisodeTracker</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for keeping track of current episode time steps for reading observations from data files.</span>
 
 <span class="sd">    An EpisodeTracker object is shared amongst the environment, buildings in environment and all descendant </span>
@@ -110,7 +110,7 @@
 <span class="sd">        Time step to end reading from data files.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulation_start_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulation_start_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">simulation_end_time_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__episode</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__episode_start_time_step</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__episode_end_time_step</span> <span class="o">=</span> <span class="kc">None</span>
@@ -119,50 +119,50 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_episode_index</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">episode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">episode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Current episode index&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__episode</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">episode_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">episode_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of time steps in current episode split.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_end_time_step</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_start_time_step</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">simulation_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">simulation_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of time steps between `simulation_start_time_step` and `simulation_end_time_step`.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__simulation_end_time_step</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__simulation_start_time_step</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">simulation_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">simulation_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Time step to start reading from data files.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__simulation_start_time_step</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">simulation_end_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">simulation_end_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Time step to end reading from data files.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__simulation_end_time_step</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">episode_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">episode_start_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Start time step in current episode split.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__episode_start_time_step</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">episode_end_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">episode_end_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;End time step in current episode split.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__episode_end_time_step</span>
 
 <div class="viewcode-block" id="EpisodeTracker.next_episode">
 <a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.EpisodeTracker.next_episode">[docs]</a>
-    <span class="k">def</span> <span class="nf">next_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">rolling_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">next_episode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">rolling_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Advance to next episode and set `episode_start_time_step` and `episode_end_time_step` for reading data files.</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
@@ -187,7 +187,7 @@
         <span class="p">)</span></div>
 
         
-    <span class="k">def</span> <span class="nf">__next_episode_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">rolling_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__next_episode_time_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">rolling_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets `episode_start_time_step` and `episode_end_time_step` for reading data files.&quot;&quot;&quot;</span>
 
         <span class="n">splits</span> <span class="o">=</span> <span class="kc">None</span>
@@ -220,7 +220,7 @@
 
 <div class="viewcode-block" id="EpisodeTracker.reset_episode_index">
 <a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.EpisodeTracker.reset_episode_index">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset_episode_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_episode_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets episode index to -1 before any simulation.&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__episode</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></div>
@@ -229,7 +229,7 @@
 
 <div class="viewcode-block" id="Environment">
 <a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment">[docs]</a>
-<span class="k">class</span> <span class="nc">Environment</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Environment</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all `citylearn` classes that have a spatio-temporal dimension.</span>
 
 <span class="sd">    Parameters</span>
@@ -249,7 +249,7 @@
     <span class="n">DEFAULT_SECONDS_PER_TIME_STEP</span> <span class="o">=</span> <span class="mf">3600.0</span>
     <span class="n">DEFAULT_RANDOM_SEED_RANGE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100_000_000</span><span class="p">)</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seconds_per_time_step</span> <span class="o">=</span> <span class="n">seconds_per_time_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__uid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">random_seed</span>
@@ -257,49 +257,49 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span> <span class="o">=</span> <span class="n">episode_tracker</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">uid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">uid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Unique environment ID.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__uid</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Pseudorandom number generator seed for repeatable results.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__random_seed</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">episode_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EpisodeTracker</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">episode_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EpisodeTracker</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;:py:class:`citylearn.base.EpisodeTracker` object used to keep track of </span>
 <span class="sd">        current episode time steps for reading observations from data files.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__episode_tracker</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Current environment time step.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__time_step</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">seconds_per_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seconds_per_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Number of seconds in 1 time step.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__seconds_per_time_step</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">numpy_random_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">numpy_random_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Nupy random state object.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span>
     
     <span class="nd">@random_seed</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="n">random_seed</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_RANDOM_SEED_RANGE</span><span class="p">)</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">random_seed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__random_seed</span> <span class="o">=</span> <span class="n">random_seed</span>
 
     <span class="nd">@seconds_per_time_step</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">seconds_per_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seconds_per_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">seconds_per_time_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">seconds_per_time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_SECONDS_PER_TIME_STEP</span>
         <span class="k">else</span><span class="p">:</span>
@@ -307,12 +307,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__seconds_per_time_step</span> <span class="o">=</span> <span class="n">seconds_per_time_step</span>
 
     <span class="nd">@episode_tracker</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">episode_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">episode_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__episode_tracker</span> <span class="o">=</span> <span class="n">episode_tracker</span>
 
 <div class="viewcode-block" id="Environment.get_metadata">
 <a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.get_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns general static information.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">{</span>
@@ -325,7 +325,7 @@
 
 <div class="viewcode-block" id="Environment.next_time_step">
 <a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.next_time_step">[docs]</a>
-    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Advance to next `time_step` value.</span>
 
 <span class="sd">        Notes</span>
@@ -338,7 +338,7 @@
 
 <div class="viewcode-block" id="Environment.reset">
 <a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.reset">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset environment to initial state.</span>
 
 <span class="sd">        Calls `reset_time_step`.</span>
@@ -353,7 +353,7 @@
 
 <div class="viewcode-block" id="Environment.reset_time_step">
 <a class="viewcode-back" href="../../api/citylearn.base.html#citylearn.base.Environment.reset_time_step">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset `time_step` to initial state.</span>
 
 <span class="sd">        Sets `time_step` to 0.</span>

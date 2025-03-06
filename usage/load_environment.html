@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How to Load an Environment &mdash; CityLearn 2.3.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -119,7 +119,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSet</span>
 
 <span class="n">dataset_names</span> <span class="o">=</span> <span class="n">DataSet</span><span class="p">()</span><span class="o">.</span><span class="n">get_dataset_names</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">dataset_names</span><span class="p">)</span>
@@ -147,7 +147,7 @@ INFO:root:The dataset names DNE in cache. Will download from intelligent-environ
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="s1">&#39;citylearn_challenge_2020_climate_zone_1&#39;</span><span class="p">)</span>
 </pre></div>
@@ -176,7 +176,7 @@ INFO:root:The battery sizing data DNE in cache. Will download from intelligent-e
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">DataSet</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSet</span>
 
 <span class="n">schema_filepath</span> <span class="o">=</span> <span class="n">DataSet</span><span class="p">()</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="s1">&#39;citylearn_challenge_2020_climate_zone_1&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;citylearn_dataset&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Schema filepath:&#39;</span><span class="p">,</span> <span class="n">schema_filepath</span><span class="p">)</span>
@@ -199,7 +199,7 @@ Schema filepath: citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schem
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
 <span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
@@ -215,8 +215,8 @@ Schema filepath: citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schem
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
-<span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_json</span>
 
 <span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
 <span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
@@ -230,8 +230,8 @@ Schema filepath: citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schem
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
-<span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">read_json</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_json</span>
 
 <span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
 <span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>

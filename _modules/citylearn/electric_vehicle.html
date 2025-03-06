@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.electric_vehicle &mdash; CityLearn 2.3.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -83,19 +83,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.electric_vehicle</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">from</span> <span class="nn">gymnasium</span> <span class="kn">import</span> <span class="n">spaces</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EpisodeTracker</span>
-<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">ElectricVehicleSimulation</span>
-<span class="kn">from</span> <span class="nn">citylearn.energy_model</span> <span class="kn">import</span> <span class="n">Battery</span>
-<span class="kn">from</span> <span class="nn">citylearn.preprocessing</span> <span class="kn">import</span> <span class="n">Normalize</span><span class="p">,</span> <span class="n">PeriodicNormalization</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="kn">import</span> <span class="n">spaces</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">EpisodeTracker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ElectricVehicleSimulation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.energy_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Battery</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Normalize</span><span class="p">,</span> <span class="n">PeriodicNormalization</span>
 
 <div class="viewcode-block" id="ElectricVehicle">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle">[docs]</a>
-<span class="k">class</span> <span class="nc">ElectricVehicle</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ElectricVehicle</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle_simulation</span><span class="p">:</span> <span class="n">ElectricVehicleSimulation</span><span class="p">,</span><span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">,</span> <span class="n">observation_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle_simulation</span><span class="p">:</span> <span class="n">ElectricVehicleSimulation</span><span class="p">,</span><span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">,</span> <span class="n">observation_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span>
                  <span class="n">action_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">battery</span><span class="p">:</span> <span class="n">Battery</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_battery_soc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the EVCar class.</span>
@@ -140,95 +140,95 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">electric_vehicle_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectricVehicleSimulation</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">electric_vehicle_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectricVehicleSimulation</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the Electric_Vehicle simulation data.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__electric_vehicle_simulation</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Unique building name.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__name</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">min_battery_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_battery_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Min battery soc percentage.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__min_battery_soc</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">observation_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">observation_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Mapping of active and inactive observations.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__observation_metadata</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">action_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">action_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Mapping od active and inactive actions.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_metadata</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">battery</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Battery</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">battery</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Battery</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Battery for Electric_Vehicle.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__battery</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Agent observation space.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__observation_space</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Agent action spaces.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__action_space</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">active_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">active_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Observations in `observation_metadata` with True value i.e. obeservable.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">observation_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">active_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">active_actions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Actions in `action_metadata` with True value i.e.</span>
 <span class="sd">        indicates which storage systems are to be controlled during simulation.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_metadata</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">]</span>
     
     <span class="nd">@electric_vehicle_simulation</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">electric_vehicle_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle_simulation</span><span class="p">:</span> <span class="n">ElectricVehicleSimulation</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">electric_vehicle_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle_simulation</span><span class="p">:</span> <span class="n">ElectricVehicleSimulation</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__electric_vehicle_simulation</span> <span class="o">=</span> <span class="n">electric_vehicle_simulation</span>
 
     <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
     
     <span class="nd">@min_battery_soc</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">min_battery_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_battery_soc</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_battery_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_battery_soc</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">min_battery_soc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__min_battery_soc</span> <span class="o">=</span> <span class="mf">10.0</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__min_battery_soc</span> <span class="o">=</span> <span class="n">min_battery_soc</span>
 
     <span class="nd">@observation_metadata</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">observation_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">observation_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__observation_metadata</span> <span class="o">=</span> <span class="n">observation_metadata</span>
     
     <span class="nd">@action_metadata</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">action_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">action_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__action_metadata</span> <span class="o">=</span> <span class="n">action_metadata</span>
     
     <span class="nd">@battery</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">battery</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">battery</span><span class="p">:</span> <span class="n">Battery</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">battery</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">battery</span><span class="p">:</span> <span class="n">Battery</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__battery</span> <span class="o">=</span> <span class="n">Battery</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">if</span> <span class="n">battery</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">battery</span>
         
     <span class="nd">@observation_space</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_space</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observation_space</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__observation_space</span> <span class="o">=</span> <span class="n">observation_space</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">non_periodic_normalized_observation_space_limits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_observation_space_limits</span><span class="p">(</span>
             <span class="n">include_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="o">=</span><span class="kc">False</span>
@@ -238,13 +238,13 @@
         <span class="p">)</span>
         
     <span class="nd">@action_space</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_space</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_space</span><span class="p">:</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__action_space</span> <span class="o">=</span> <span class="n">action_space</span>
 
 
 <div class="viewcode-block" id="ElectricVehicle.adjust_electric_vehicle_soc_on_system_connection">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.adjust_electric_vehicle_soc_on_system_connection">[docs]</a>
-    <span class="k">def</span> <span class="nf">adjust_electric_vehicle_soc_on_system_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soc_system_connection</span> <span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">adjust_electric_vehicle_soc_on_system_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soc_system_connection</span> <span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts the state of charge (SoC) of an electric vehicle&#39;s (Electric_Vehicle&#39;s) battery upon connection to the system.</span>
 
@@ -297,7 +297,7 @@
 
 <div class="viewcode-block" id="ElectricVehicle.next_time_step">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.next_time_step">[docs]</a>
-    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Advance Electric_Vehicle to the next `time_step`s</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -315,7 +315,7 @@
 
 <div class="viewcode-block" id="ElectricVehicle.reset">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.reset">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reset the EVCar to its initial state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -327,7 +327,7 @@
 
 <div class="viewcode-block" id="ElectricVehicle.observations">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.observations">[docs]</a>
-    <span class="k">def</span> <span class="nf">observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> \
+    <span class="k">def</span><span class="w"> </span><span class="nf">observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> \
             <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Observations at current time step.</span>
 
@@ -405,7 +405,7 @@
 <div class="viewcode-block" id="ElectricVehicle.get_periodic_observation_metadata">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.get_periodic_observation_metadata">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_periodic_observation_metadata</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_periodic_observation_metadata</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get periodic observation names and their minimum and maximum values for periodic/cyclic normalization.</span>
 
 <span class="sd">        Returns</span>
@@ -423,7 +423,7 @@
 
 <div class="viewcode-block" id="ElectricVehicle.estimate_observation_space">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.estimate_observation_space">[docs]</a>
-    <span class="k">def</span> <span class="nf">estimate_observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">estimate_observation_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                                    <span class="n">periodic_normalization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get estimate of observation spaces.</span>
 <span class="sd">        Parameters</span>
@@ -459,7 +459,7 @@
 
 <div class="viewcode-block" id="ElectricVehicle.estimate_observation_space_limits">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.estimate_observation_space_limits">[docs]</a>
-    <span class="k">def</span> <span class="nf">estimate_observation_space_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">estimate_observation_space_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">periodic_normalization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span>
         <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get estimate of observation space limits.</span>
 <span class="sd">        Find minimum and maximum possible values of all the observations, which can then be used by the RL agent to scale the observations and train any function approximators more effectively.</span>
@@ -497,7 +497,7 @@
 
 <div class="viewcode-block" id="ElectricVehicle.estimate_action_space">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.estimate_action_space">[docs]</a>
-    <span class="k">def</span> <span class="nf">estimate_action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">estimate_action_space</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Box</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get estimate of action spaces.</span>
 <span class="sd">        Find minimum and maximum possible values of all the actions, which can then be used by the RL agent to scale the selected actions.</span>
 <span class="sd">        Returns</span>
@@ -522,7 +522,7 @@
 
 <div class="viewcode-block" id="ElectricVehicle.autosize_battery">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.autosize_battery">[docs]</a>
-    <span class="k">def</span> <span class="nf">autosize_battery</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">autosize_battery</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Autosize `Battery` for a typical Electric_Vehicle.</span>
 
 <span class="sd">        Other Parameters</span>
@@ -537,7 +537,7 @@
 <div class="viewcode-block" id="ElectricVehicle.observations_length">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.observations_length">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">observations_length</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">observations_length</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Get periodic observation names and their minimum and maximum values for periodic/cyclic normalization.</span>
 
 <span class="sd">        Returns</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.agents.sac &mdash; CityLearn 2.3.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -83,28 +83,28 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.agents.sac</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">torch</span>
-    <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
-    <span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">optim</span>
 <span class="k">except</span> <span class="p">(</span><span class="ne">ModuleNotFoundError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org.&quot;</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">citylearn.agents.rbc</span> <span class="kn">import</span> <span class="n">RBC</span>
-<span class="kn">from</span> <span class="nn">citylearn.agents.rlc</span> <span class="kn">import</span> <span class="n">RLC</span>
-<span class="kn">from</span> <span class="nn">citylearn.citylearn</span> <span class="kn">import</span> <span class="n">CityLearnEnv</span>
-<span class="kn">from</span> <span class="nn">citylearn.preprocessing</span> <span class="kn">import</span> <span class="n">Encoder</span><span class="p">,</span> <span class="n">RemoveFeature</span>
-<span class="kn">from</span> <span class="nn">citylearn.rl</span> <span class="kn">import</span> <span class="n">PolicyNetwork</span><span class="p">,</span> <span class="n">ReplayBuffer</span><span class="p">,</span> <span class="n">SoftQNetwork</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.agents.rbc</span><span class="w"> </span><span class="kn">import</span> <span class="n">RBC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.agents.rlc</span><span class="w"> </span><span class="kn">import</span> <span class="n">RLC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Encoder</span><span class="p">,</span> <span class="n">RemoveFeature</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.rl</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolicyNetwork</span><span class="p">,</span> <span class="n">ReplayBuffer</span><span class="p">,</span> <span class="n">SoftQNetwork</span>
 
 <div class="viewcode-block" id="SAC">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC">[docs]</a>
-<span class="k">class</span> <span class="nc">SAC</span><span class="p">(</span><span class="n">RLC</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SAC</span><span class="p">(</span><span class="n">RLC</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Custom soft actor-critic algorithm.</span>
 
 <span class="sd">        Parameters</span>
@@ -142,7 +142,7 @@
 
 <div class="viewcode-block" id="SAC.update">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.update">[docs]</a>
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">reward</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">next_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">terminated</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">truncated</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">reward</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">next_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">terminated</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">truncated</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update replay buffer.</span>
 
 <span class="sd">        Parameters</span>
@@ -256,7 +256,7 @@
 
 <div class="viewcode-block" id="SAC.predict">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.predict">[docs]</a>
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
 
 <span class="sd">        Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` &lt;= :attr:`time_step` </span>
@@ -290,7 +290,7 @@
 
 <div class="viewcode-block" id="SAC.get_post_exploration_prediction">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_post_exploration_prediction">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_post_exploration_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_post_exploration_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Action sampling using policy, post-exploration time step&quot;&quot;&quot;</span>
 
         <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
@@ -308,7 +308,7 @@
             
 <div class="viewcode-block" id="SAC.get_exploration_prediction">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_exploration_prediction">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_exploration_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exploration_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return randomly sampled actions from `action_space` multiplied by :attr:`action_scaling_coefficient`.&quot;&quot;&quot;</span>
 
         <span class="c1"># random actions</span>
@@ -317,13 +317,13 @@
 
 <div class="viewcode-block" id="SAC.get_normalized_reward">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_normalized_reward">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_normalized_reward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">reward</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_normalized_reward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">reward</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">reward</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_norm_mean</span><span class="p">[</span><span class="n">index</span><span class="p">])</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">r_norm_std</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="SAC.get_normalized_observations">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_normalized_observations">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_normalized_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_normalized_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_mean</span><span class="p">[</span><span class="n">index</span><span class="p">])</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_std</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">except</span><span class="p">:</span>
@@ -337,13 +337,13 @@
 
 <div class="viewcode-block" id="SAC.get_encoded_observations">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_encoded_observations">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_encoded_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_encoded_observations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoders</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span> <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SAC.set_networks">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.set_networks">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_networks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">internal_observation_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_networks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">internal_observation_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">internal_observation_count</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">internal_observation_count</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">internal_observation_count</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_dimension</span><span class="p">)):</span>
@@ -370,7 +370,7 @@
 
 <div class="viewcode-block" id="SAC.set_encoders">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.set_encoders">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_encoders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Encoder</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_encoders</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Encoder</span><span class="p">]]:</span>
         <span class="n">encoders</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_encoders</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_names</span><span class="p">):</span>
@@ -387,7 +387,7 @@
 
 <div class="viewcode-block" id="SACRBC">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SACRBC">[docs]</a>
-<span class="k">class</span> <span class="nc">SACRBC</span><span class="p">(</span><span class="n">SAC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SACRBC</span><span class="p">(</span><span class="n">SAC</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Uses :py:class:`citylearn.agents.rbc.RBC` to select actions during exploration before using :py:class:`citylearn.agents.sac.SAC`.</span>
 
 <span class="sd">    Parameters</span>
@@ -403,18 +403,18 @@
 <span class="sd">        Other keyword arguments used to initialize super class.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">rbc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RBC</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">rbc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RBC</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__set_rbc</span><span class="p">(</span><span class="n">rbc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rbc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RBC</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rbc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RBC</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;:py:class:`citylearn.agents.rbc.RBC` class child class or string path to an RBC </span>
 <span class="sd">        class e.g. &#39;citylearn.agents.rbc.RBC&#39;, used to select actions during exploration.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rbc</span>
     
-    <span class="k">def</span> <span class="nf">__set_rbc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rbc</span><span class="p">:</span> <span class="n">RBC</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__set_rbc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rbc</span><span class="p">:</span> <span class="n">RBC</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">rbc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">rbc</span> <span class="o">=</span> <span class="n">RBC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         
@@ -431,7 +431,7 @@
 
 <div class="viewcode-block" id="SACRBC.get_exploration_prediction">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SACRBC.get_exploration_prediction">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_exploration_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exploration_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return actions using :class:`RBC`.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rbc</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span></div>

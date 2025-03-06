@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.electric_vehicle_charger &mdash; CityLearn 2.3.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -83,18 +83,18 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.electric_vehicle_charger</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">citylearn.base</span> <span class="kn">import</span> <span class="n">Environment</span>
-<span class="kn">from</span> <span class="nn">citylearn.electric_vehicle</span> <span class="kn">import</span> <span class="n">ElectricVehicle</span>
-<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.electric_vehicle</span><span class="w"> </span><span class="kn">import</span> <span class="n">ElectricVehicle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span>
 <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Charger">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger">[docs]</a>
-<span class="k">class</span> <span class="nc">Charger</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Charger</span><span class="p">(</span><span class="n">Environment</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">charger_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">charger_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_charging_power</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">min_charging_power</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_discharging_power</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="n">min_discharging_power</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">charge_efficiency_curve</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">discharge_efficiency_curve</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">connected_electric_vehicle</span><span class="p">:</span> <span class="n">ElectricVehicle</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">incoming_electric_vehicle</span><span class="p">:</span> <span class="n">ElectricVehicle</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -148,140 +148,140 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">charger_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">charger_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;ID of the charger.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__charger_id</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">charger_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">charger_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Type of the charger.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__charger_type</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">max_charging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_charging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Maximum charging power in kW.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__max_charging_power</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">min_charging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_charging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Minimum charging power in kW.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__min_charging_power</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">max_discharging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_discharging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Maximum discharging power in kW.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__max_discharging_power</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">min_discharging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_discharging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Minimum discharging power in kW.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__min_discharging_power</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">charge_efficiency_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">charge_efficiency_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Efficiency curve for charging containing power levels and corresponding efficiency values.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__charge_efficiency_curve</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">discharge_efficiency_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">discharge_efficiency_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Efficiency curve for discharging containing power levels and corresponding efficiency values.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__discharge_efficiency_curve</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">connected_electric_vehicle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectricVehicle</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connected_electric_vehicle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectricVehicle</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Electric_Vehicle currently connected to charger&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__connected_ev</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">incoming_electric_vehicle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectricVehicle</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">incoming_electric_vehicle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectricVehicle</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Electric_Vehicle incoming to charger&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__incoming_ev</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Technical efficiency.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__efficiency</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">nominal_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nominal_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Nominal power.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nominal_power</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">past_connected_evs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ElectricVehicle</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">past_connected_evs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ElectricVehicle</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Each timestep with the list of Past connected Evs or None in the case no electric_vehicle was connected &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__past_connected_evs</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">past_charging_action_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">past_charging_action_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy&quot;&quot;&quot;</span>
        
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__past_charging_action_values</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">electricity_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Electricity consumption time series.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_consumption</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">available_nominal_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">available_nominal_power</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Difference between `nominal_power` and `electricity_consumption` at current `time_step`.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_power</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
     
 
     <span class="nd">@charger_id</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">charger_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charger_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">charger_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charger_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__charger_id</span> <span class="o">=</span> <span class="n">charger_id</span>
 
     <span class="nd">@charger_type</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">charger_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charger_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">charger_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charger_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__charger_type</span> <span class="o">=</span> <span class="n">charger_type</span>
 
     <span class="nd">@max_charging_power</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">max_charging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_charging_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_charging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_charging_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">max_charging_power</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__max_charging_power</span> <span class="o">=</span> <span class="mf">50.0</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__max_charging_power</span> <span class="o">=</span> <span class="n">max_charging_power</span>
 
     <span class="nd">@min_charging_power</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">min_charging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_charging_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_charging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_charging_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">min_charging_power</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__min_charging_power</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__min_charging_power</span> <span class="o">=</span> <span class="n">min_charging_power</span>
 
     <span class="nd">@max_discharging_power</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">max_discharging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_discharging_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_discharging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_discharging_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">max_discharging_power</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__max_discharging_power</span> <span class="o">=</span> <span class="mf">50.0</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__max_discharging_power</span> <span class="o">=</span> <span class="n">max_discharging_power</span>
 
     <span class="nd">@min_discharging_power</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">min_discharging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_discharging_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min_discharging_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_discharging_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">min_discharging_power</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__min_discharging_power</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__min_discharging_power</span> <span class="o">=</span> <span class="n">min_discharging_power</span>
 
     <span class="nd">@charge_efficiency_curve</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">charge_efficiency_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge_efficiency_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">charge_efficiency_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge_efficiency_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]):</span>
         <span class="k">if</span> <span class="n">charge_efficiency_curve</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">charge_efficiency_curve</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">3.6</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">],[</span><span class="mf">7.2</span><span class="p">,</span> <span class="mf">0.97</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">],[</span><span class="mi">50</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">]]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -289,7 +289,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__charge_efficiency_curve</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">charge_efficiency_curve</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
     
     <span class="nd">@discharge_efficiency_curve</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">discharge_efficiency_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">discharge_efficiency_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">discharge_efficiency_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">discharge_efficiency_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]):</span>
         <span class="k">if</span> <span class="n">discharge_efficiency_curve</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">discharge_efficiency_curve</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">3.6</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">],[</span><span class="mf">7.2</span><span class="p">,</span> <span class="mf">0.97</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">],[</span><span class="mi">50</span><span class="p">,</span> <span class="mf">0.98</span><span class="p">]]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -297,15 +297,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__discharge_efficiency_curve</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">discharge_efficiency_curve</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
     <span class="nd">@connected_electric_vehicle</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">connected_electric_vehicle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle</span><span class="p">:</span> <span class="n">ElectricVehicle</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connected_electric_vehicle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle</span><span class="p">:</span> <span class="n">ElectricVehicle</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__connected_ev</span> <span class="o">=</span> <span class="n">electric_vehicle</span> <span class="k">if</span> <span class="n">electric_vehicle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span> 
 
     <span class="nd">@incoming_electric_vehicle</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">incoming_electric_vehicle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle</span><span class="p">:</span> <span class="n">ElectricVehicle</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">incoming_electric_vehicle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle</span><span class="p">:</span> <span class="n">ElectricVehicle</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__incoming_ev</span> <span class="o">=</span> <span class="n">electric_vehicle</span> <span class="k">if</span> <span class="n">electric_vehicle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span> 
 
     <span class="nd">@efficiency</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">efficiency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">efficiency</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">efficiency</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__efficiency</span> <span class="o">=</span> <span class="mf">1.0</span>
             <span class="k">else</span><span class="p">:</span>
@@ -313,7 +313,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">__efficiency</span> <span class="o">=</span> <span class="n">efficiency</span>
 
     <span class="nd">@nominal_power</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">nominal_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nominal_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nominal_power</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">nominal_power</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">nominal_power</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nominal_power</span> <span class="o">=</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span>
             <span class="k">else</span><span class="p">:</span>
@@ -323,7 +323,7 @@
 
 <div class="viewcode-block" id="Charger.plug_car">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.plug_car">[docs]</a>
-    <span class="k">def</span> <span class="nf">plug_car</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle</span><span class="p">:</span> <span class="n">ElectricVehicle</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plug_car</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle</span><span class="p">:</span> <span class="n">ElectricVehicle</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Connects a electric_vehicle to the charger.</span>
 
@@ -343,7 +343,7 @@
 
 <div class="viewcode-block" id="Charger.unplug_car">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.unplug_car">[docs]</a>
-    <span class="k">def</span> <span class="nf">unplug_car</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unplug_car</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Disconnects a electric_vehicle from the charger.</span>
 
@@ -357,7 +357,7 @@
 
 <div class="viewcode-block" id="Charger.associate_incoming_car">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.associate_incoming_car">[docs]</a>
-    <span class="k">def</span> <span class="nf">associate_incoming_car</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle</span><span class="p">:</span> <span class="n">ElectricVehicle</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">associate_incoming_car</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">electric_vehicle</span><span class="p">:</span> <span class="n">ElectricVehicle</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Associates incoming electric_vehicle to the charger.</span>
 
@@ -379,7 +379,7 @@
 
 <div class="viewcode-block" id="Charger.disassociate_incoming_car">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.disassociate_incoming_car">[docs]</a>
-    <span class="k">def</span> <span class="nf">disassociate_incoming_car</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">disassociate_incoming_car</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Disassociates incoming electric_vehicle from the charger.</span>
 
@@ -393,7 +393,7 @@
 
 <div class="viewcode-block" id="Charger.update_connected_electric_vehicle_soc">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.update_connected_electric_vehicle_soc">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_connected_electric_vehicle_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_connected_electric_vehicle_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__past_charging_action_values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="o">=</span> <span class="n">action_value</span> <span class="c1">#ToDo</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected_electric_vehicle</span> <span class="ow">and</span> <span class="n">action_value</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">electric_vehicle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connected_electric_vehicle</span>
@@ -424,7 +424,7 @@
 
 <div class="viewcode-block" id="Charger.next_time_step">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.next_time_step">[docs]</a>
-    <span class="k">def</span> <span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Advance to next `time_step` and set `electricity_consumption` at new `time_step` to 0.0.&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__electricity_consumption</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
@@ -437,7 +437,7 @@
 
 <div class="viewcode-block" id="Charger.reset">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.reset">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Resets the Charger to its initial state by disconnecting all electric_vehicles.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -449,7 +449,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__past_charging_action_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
        <span class="k">return</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Charger ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">charger_id</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;electricity consumption: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">electricity_consumption</span><span class="si">}</span><span class="s2"> kW</span><span class="se">\n</span><span class="s2">&quot;</span>

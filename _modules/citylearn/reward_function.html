@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.reward_function &mdash; CityLearn 2.3.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -83,14 +83,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.reward_function</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">citylearn.building</span> <span class="kn">import</span> <span class="n">Building</span>
-<span class="kn">from</span> <span class="nn">citylearn.data</span> <span class="kn">import</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.building</span><span class="w"> </span><span class="kn">import</span> <span class="n">Building</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZERO_DIVISION_PLACEHOLDER</span>
 
 <div class="viewcode-block" id="RewardFunction">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction">[docs]</a>
-<span class="k">class</span> <span class="nc">RewardFunction</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RewardFunction</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Base and default reward function class.</span>
 
 <span class="sd">    The default reward is the electricity consumption from the grid at the current time step returned as a negative value.</span>
@@ -103,37 +103,37 @@
 <span class="sd">        Other keyword arguments for custom reward calculation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env_metadata</span> <span class="o">=</span> <span class="n">env_metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exponent</span> <span class="o">=</span> <span class="n">exponent</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">env_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">env_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;General static information about the environment.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__env_metadata</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">central_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">central_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Expect 1 central agent to control all buildings.&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_metadata</span><span class="p">[</span><span class="s1">&#39;central_agent&#39;</span><span class="p">]</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__exponent</span>
     
     <span class="nd">@env_metadata</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">env_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">env_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__env_metadata</span> <span class="o">=</span> <span class="n">env_metadata</span>
 
     <span class="nd">@exponent</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__exponent</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">exponent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">exponent</span>
 
 <div class="viewcode-block" id="RewardFunction.reset">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction.reset">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Use to reset variables at the start of an episode.&quot;&quot;&quot;</span>
 
         <span class="k">pass</span></div>
@@ -141,7 +141,7 @@
 
 <div class="viewcode-block" id="RewardFunction.calculate">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.RewardFunction.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates reward.</span>
 
 <span class="sd">        Parameters</span>
@@ -170,7 +170,7 @@
 
 <div class="viewcode-block" id="MARL">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.MARL">[docs]</a>
-<span class="k">class</span> <span class="nc">MARL</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MARL</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;MARL reward function class.</span>
 
 <span class="sd">    Parameters</span>
@@ -179,12 +179,12 @@
 <span class="sd">        General static information about the environment.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env_metadata</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MARL.calculate">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.MARL.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="n">net_electricity_consumption</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">observations</span><span class="p">]</span>
         <span class="n">district_electricity_consumption</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">)</span>
         <span class="n">building_electricity_consumption</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">net_electricity_consumption</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span>
@@ -201,7 +201,7 @@
 
 <div class="viewcode-block" id="IndependentSACReward">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.IndependentSACReward">[docs]</a>
-<span class="k">class</span> <span class="nc">IndependentSACReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IndependentSACReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Recommended for use with the `SAC` controllers.</span>
 <span class="sd">    </span>
 <span class="sd">    Returned reward assumes that the building-agents act independently of each other, without sharing information through the reward.</span>
@@ -212,12 +212,12 @@
 <span class="sd">        General static information about the environment.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env_metadata</span><span class="p">)</span>
 
 <div class="viewcode-block" id="IndependentSACReward.calculate">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.IndependentSACReward.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="n">net_electricity_consumption</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">observations</span><span class="p">]</span>
         <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">v</span><span class="o">*-</span><span class="mi">1</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">net_electricity_consumption</span><span class="p">]</span>
 
@@ -232,7 +232,7 @@
     
 <div class="viewcode-block" id="SolarPenaltyReward">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyReward">[docs]</a>
-<span class="k">class</span> <span class="nc">SolarPenaltyReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolarPenaltyReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The reward is designed to minimize electricity consumption and maximize solar generation to charge energy storage systems.</span>
 
 <span class="sd">    The reward is calculated for each building, i and summed to provide the agent with a reward that is representative of all the</span>
@@ -248,12 +248,12 @@
 <span class="sd">        General static information about the environment.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env_metadata</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SolarPenaltyReward.calculate">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyReward.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_metadata</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">]):</span>
@@ -284,7 +284,7 @@
     
 <div class="viewcode-block" id="ComfortReward">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.ComfortReward">[docs]</a>
-<span class="k">class</span> <span class="nc">ComfortReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ComfortReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Reward for occupant thermal comfort satisfaction.</span>
 
 <span class="sd">    The reward is calculated as the negative difference between the setpoint and indoor dry-bulb temperature raised to some exponent</span>
@@ -307,39 +307,39 @@
 <span class="sd">        boundary or heating mode but temperature is above setpoint upper boundary.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env_metadata</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">band</span> <span class="o">=</span> <span class="n">band</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lower_exponent</span> <span class="o">=</span> <span class="n">lower_exponent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">higher_exponent</span> <span class="o">=</span> <span class="n">higher_exponent</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">band</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">band</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__band</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">lower_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lower_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__lower_exponent</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">higher_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">higher_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__higher_exponent</span>
     
     <span class="nd">@band</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">band</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">band</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__band</span> <span class="o">=</span> <span class="n">band</span>
 
     <span class="nd">@lower_exponent</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">lower_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lower_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__lower_exponent</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="k">if</span> <span class="n">lower_exponent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">lower_exponent</span>
 
     <span class="nd">@higher_exponent</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">higher_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">higher_exponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__higher_exponent</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="k">if</span> <span class="n">higher_exponent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">higher_exponent</span>
 
 <div class="viewcode-block" id="ComfortReward.calculate">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.ComfortReward.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">observations</span><span class="p">:</span>
@@ -410,7 +410,7 @@
     
 <div class="viewcode-block" id="SolarPenaltyAndComfortReward">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyAndComfortReward">[docs]</a>
-<span class="k">class</span> <span class="nc">SolarPenaltyAndComfortReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SolarPenaltyAndComfortReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Addition of :py:class:`citylearn.reward_function.SolarPenaltyReward` and :py:class:`citylearn.reward_function.ComfortReward`.</span>
 
 <span class="sd">    Parameters</span>
@@ -430,7 +430,7 @@
 <span class="sd">        Coefficents for `citylearn.reward_function.SolarPenaltyReward` and :py:class:`citylearn.reward_function.ComfortReward` values respectively.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">:</span> <span class="n">Tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">band</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">:</span> <span class="n">Tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RewardFunction</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">SolarPenaltyReward</span><span class="p">(</span><span class="n">env_metadata</span><span class="p">),</span>
             <span class="n">ComfortReward</span><span class="p">(</span><span class="n">env_metadata</span><span class="p">,</span> <span class="n">band</span><span class="o">=</span><span class="n">band</span><span class="p">,</span> <span class="n">lower_exponent</span><span class="o">=</span><span class="n">lower_exponent</span><span class="p">,</span> <span class="n">higher_exponent</span><span class="o">=</span><span class="n">higher_exponent</span><span class="p">)</span>
@@ -439,25 +439,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span> <span class="o">=</span> <span class="n">coefficients</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__coefficients</span>
     
     <span class="nd">@RewardFunction</span><span class="o">.</span><span class="n">env_metadata</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">env_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">env_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="n">RewardFunction</span><span class="o">.</span><span class="n">env_metadata</span><span class="o">.</span><span class="n">fset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">env_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_metadata</span>
     
     <span class="nd">@coefficients</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">):</span>
         <span class="n">coefficients</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">)</span> <span class="k">if</span> <span class="n">coefficients</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">coefficients</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">coefficients</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> needs </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">)</span><span class="si">}</span><span class="s1"> coefficients.&#39;</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">__coefficients</span> <span class="o">=</span> <span class="n">coefficients</span>
 
 <div class="viewcode-block" id="SolarPenaltyAndComfortReward.calculate">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyAndComfortReward.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="n">reward</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">f</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__functions</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="n">reward</span> <span class="o">=</span> <span class="n">reward</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">reward</span> <span class="o">=</span> <span class="n">reward</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
@@ -469,7 +469,7 @@
 
 <div class="viewcode-block" id="V2GPenaltyReward">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.V2GPenaltyReward">[docs]</a>
-<span class="k">class</span> <span class="nc">V2GPenaltyReward</span><span class="p">(</span><span class="n">MARL</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">V2GPenaltyReward</span><span class="p">(</span><span class="n">MARL</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Rewards with considerations for electric vehicle charging behaviours in a V2G setting.</span>
 <span class="sd">    Note that this function rewards/penalizes only the electric vehicle part. For a comprehensive reward strategy</span>
 <span class="sd">    please use one of the super classes or rewrite your own</span>
@@ -480,7 +480,7 @@
 <span class="sd">        General static information about the environment.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
                  <span class="n">peak_percentage_threshold</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ramping_percentage_threshold</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">peak_penalty_weight</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ramping_penalty_weight</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">energy_transfer_bonus</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">window_size</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">penalty_no_car_charging</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">penalty_battery_limits</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">penalty_soc_under_5_10</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">reward_close_soc</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_self_ev_consumption</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">community_weight</span> <span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">reward_extra_self_production</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -502,169 +502,169 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">reward_self_ev_consumption</span> <span class="o">=</span> <span class="n">reward_self_ev_consumption</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">peak_percentage_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">peak_percentage_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the peak_percentage_threshold&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__peak_percentage_threshold</span>
 
     <span class="nd">@peak_percentage_threshold</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">peak_percentage_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">peak_percentage_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">peak_percentage_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">peak_percentage_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">peak_percentage_threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__peak_percentage_threshold</span> <span class="o">=</span> <span class="mf">0.10</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__peak_percentage_threshold</span> <span class="o">=</span> <span class="n">peak_percentage_threshold</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ramping_percentage_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ramping_percentage_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ramping_percentage_threshold&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ramping_percentage_threshold</span>
 
     <span class="nd">@ramping_percentage_threshold</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">ramping_percentage_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ramping_percentage_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ramping_percentage_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ramping_percentage_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">ramping_percentage_threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__ramping_percentage_threshold</span> <span class="o">=</span> <span class="mf">0.10</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__ramping_percentage_threshold</span> <span class="o">=</span> <span class="n">ramping_percentage_threshold</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">peak_penalty_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">peak_penalty_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the peak_penalty_weight&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__peak_penalty_weight</span>
 
     <span class="nd">@peak_penalty_weight</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">peak_penalty_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">peak_penalty_weight</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">peak_penalty_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">peak_penalty_weight</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">peak_penalty_weight</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__peak_penalty_weight</span> <span class="o">=</span> <span class="mi">20</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__peak_penalty_weight</span> <span class="o">=</span> <span class="n">peak_penalty_weight</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ramping_penalty_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ramping_penalty_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ramping_penalty_weight&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ramping_penalty_weight</span>
 
     <span class="nd">@ramping_penalty_weight</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">ramping_penalty_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ramping_penalty_weight</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ramping_penalty_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ramping_penalty_weight</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">ramping_penalty_weight</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__ramping_penalty_weight</span> <span class="o">=</span> <span class="mi">15</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__ramping_penalty_weight</span> <span class="o">=</span> <span class="n">ramping_penalty_weight</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">energy_transfer_bonus</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">energy_transfer_bonus</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the energy_transfer_bonus&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__energy_transfer_bonus</span>
 
     <span class="nd">@energy_transfer_bonus</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">energy_transfer_bonus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy_transfer_bonus</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">energy_transfer_bonus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy_transfer_bonus</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">energy_transfer_bonus</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__energy_transfer_bonus</span> <span class="o">=</span> <span class="mi">10</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__energy_transfer_bonus</span> <span class="o">=</span> <span class="n">energy_transfer_bonus</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">window_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">window_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the window_size&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__window_size</span>
 
     <span class="nd">@window_size</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">window_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">window_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">window_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__window_size</span> <span class="o">=</span> <span class="mi">6</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__window_size</span> <span class="o">=</span> <span class="n">window_size</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">penalty_no_car_charging</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">penalty_no_car_charging</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the penalty_no_car_charging&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__penalty_no_car_charging</span>
 
     <span class="nd">@penalty_no_car_charging</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">penalty_no_car_charging</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">penalty_no_car_charging</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">penalty_no_car_charging</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">penalty_no_car_charging</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">penalty_no_car_charging</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__penalty_no_car_charging</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__penalty_no_car_charging</span> <span class="o">=</span> <span class="n">penalty_no_car_charging</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">penalty_battery_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">penalty_battery_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the penalty_battery_limits&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__penalty_battery_limits</span>
 
     <span class="nd">@penalty_battery_limits</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">penalty_battery_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">penalty_battery_limits</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">penalty_battery_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">penalty_battery_limits</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">penalty_battery_limits</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__penalty_battery_limits</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__penalty_battery_limits</span> <span class="o">=</span> <span class="n">penalty_battery_limits</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">penalty_soc_under_5_10</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">penalty_soc_under_5_10</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the penalty_soc_under_5_10&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__penalty_soc_under_5_10</span>
 
     <span class="nd">@penalty_soc_under_5_10</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">penalty_soc_under_5_10</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">penalty_soc_under_5_10</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">penalty_soc_under_5_10</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">penalty_soc_under_5_10</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">penalty_soc_under_5_10</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__penalty_soc_under_5_10</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__penalty_soc_under_5_10</span> <span class="o">=</span> <span class="n">penalty_soc_under_5_10</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">reward_close_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reward_close_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the reward_close_soc&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__penalty_soc_under_5_10</span>
 
     <span class="nd">@reward_close_soc</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">reward_close_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward_close_soc</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reward_close_soc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward_close_soc</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">reward_close_soc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reward_close_soc</span> <span class="o">=</span> <span class="mi">10</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__reward_close_soc</span> <span class="o">=</span> <span class="n">reward_close_soc</span>      
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">reward_self_ev_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reward_self_ev_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the reward_self_ev_consumption&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__reward_self_ev_consumption</span>
 
     <span class="nd">@reward_self_ev_consumption</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">reward_self_ev_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward_self_ev_consumption</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reward_self_ev_consumption</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward_self_ev_consumption</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">reward_self_ev_consumption</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reward_self_ev_consumption</span> <span class="o">=</span> <span class="mi">5</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__reward_self_ev_consumption</span> <span class="o">=</span> <span class="n">reward_self_ev_consumption</span>      
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">community_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">community_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the community_weight&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__community_weight</span>
 
     <span class="nd">@community_weight</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">community_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">community_weight</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">community_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">community_weight</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">community_weight</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_community_weight</span> <span class="o">=</span> <span class="mf">0.2</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__community_weight</span> <span class="o">=</span> <span class="n">community_weight</span>   
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">reward_extra_self_production</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reward_extra_self_production</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the reward_extra_self_production&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__reward_extra_self_production</span>
 
     <span class="nd">@reward_extra_self_production</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">reward_extra_self_production</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward_extra_self_production</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reward_extra_self_production</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward_extra_self_production</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">reward_extra_self_production</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reward_extra_self_production</span> <span class="o">=</span> <span class="mi">5</span>
         <span class="k">else</span><span class="p">:</span>
@@ -673,7 +673,7 @@
 
 <div class="viewcode-block" id="V2GPenaltyReward.calculate">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.V2GPenaltyReward.calculate">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 
         <span class="c1">##net_electricity_consumption = [o[&#39;net_electricity_consumption&#39;] for o in observations]</span>
         <span class="n">current_reward</span> <span class="o">=</span> <span class="nb">super</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
@@ -695,7 +695,7 @@
 
 <div class="viewcode-block" id="V2GPenaltyReward.calculate_ev_penalty">
 <a class="viewcode-back" href="../../api/citylearn.reward_function.html#citylearn.reward_function.V2GPenaltyReward.calculate_ev_penalty">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate_ev_penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span> <span class="p">:</span> <span class="n">Building</span><span class="p">,</span> <span class="n">current_reward</span> <span class="p">:</span> <span class="n">RewardFunction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_ev_penalty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span> <span class="p">:</span> <span class="n">Building</span><span class="p">,</span> <span class="n">current_reward</span> <span class="p">:</span> <span class="n">RewardFunction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate penalties based on EV specific logic.&quot;&quot;&quot;</span>
         <span class="n">penalty</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">penalty_multiplier</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">current_reward</span><span class="p">)</span>  <span class="c1"># Multiplier for the penalty</span>

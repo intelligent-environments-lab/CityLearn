@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.data &mdash; CityLearn 2.3.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -83,19 +83,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.data</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">platformdirs</span> <span class="kn">import</span> <span class="n">user_cache_dir</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">from</span> <span class="nn">requests.adapters</span> <span class="kn">import</span> <span class="n">HTTPAdapter</span>
-<span class="kn">from</span> <span class="nn">urllib3.util.retry</span> <span class="kn">import</span> <span class="n">Retry</span>
-<span class="kn">from</span> <span class="nn">citylearn.__init__</span> <span class="kn">import</span> <span class="n">__version__</span>
-<span class="kn">from</span> <span class="nn">citylearn.utilities</span> <span class="kn">import</span> <span class="n">join_url</span><span class="p">,</span> <span class="n">read_json</span><span class="p">,</span> <span class="n">read_yaml</span><span class="p">,</span> <span class="n">write_json</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">platformdirs</span><span class="w"> </span><span class="kn">import</span> <span class="n">user_cache_dir</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">requests.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPAdapter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib3.util.retry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Retry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.__init__</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">join_url</span><span class="p">,</span> <span class="n">read_json</span><span class="p">,</span> <span class="n">read_yaml</span><span class="p">,</span> <span class="n">write_json</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -108,7 +108,7 @@
 
 <div class="viewcode-block" id="get_settings">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.get_settings">[docs]</a>
-<span class="k">def</span> <span class="nf">get_settings</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_settings</span><span class="p">():</span>
     <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;misc&#39;</span><span class="p">))</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;settings.yaml&#39;</span><span class="p">)</span>
     <span class="n">settings</span> <span class="o">=</span> <span class="n">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
@@ -118,7 +118,7 @@
 
 <div class="viewcode-block" id="DataSet">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet">[docs]</a>
-<span class="k">class</span> <span class="nc">DataSet</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DataSet</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CityLearn input data set and schema class.&quot;&quot;&quot;</span>
 
     <span class="n">GITHUB_ACCOUNT</span> <span class="o">=</span> <span class="s1">&#39;intelligent-environments-lab&#39;</span>
@@ -132,7 +132,7 @@
     <span class="n">BATTERY_CHOICES_FILENAME</span> <span class="o">=</span> <span class="s1">&#39;battery_choices.yaml&#39;</span>
     <span class="n">PV_CHOICES_FILENAME</span> <span class="o">=</span> <span class="s1">&#39;lbl-tracking_the_sun-res-pv.csv&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">github_account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">repository</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">datasets_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">misc_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logging_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">github_account</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">repository</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">datasets_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">misc_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logging_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">github_account</span> <span class="o">=</span> <span class="n">github_account</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">repository</span> <span class="o">=</span> <span class="n">repository</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span>
@@ -141,27 +141,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logging_level</span> <span class="o">=</span> <span class="n">logging_level</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">github_account</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">github_account</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span>  <span class="bp">self</span><span class="o">.</span><span class="n">__github_account</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">repository</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">repository</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__repository</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__tag</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">datasets_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datasets_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datasets_path</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">misc_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">misc_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__misc_path</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cache_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cache_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="n">directory</span> <span class="o">=</span> <span class="n">user_cache_dir</span><span class="p">(</span>
             <span class="n">appname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repository</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
             <span class="n">appauthor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">github_account</span><span class="p">,</span>
@@ -172,37 +172,37 @@
         <span class="k">return</span> <span class="n">directory</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">logging_level</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">logging_level</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__logging_level</span>
     
     <span class="nd">@github_account</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">github_account</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">github_account</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__github_account</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GITHUB_ACCOUNT</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@repository</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">repository</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">repository</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__repository</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPOSITORY_NAME</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@tag</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPOSITORY_TAG</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@datasets_path</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">datasets_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datasets_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__datasets_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPOSITORY_DATA_DATASETS_PATH</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@misc_path</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">misc_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">misc_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__misc_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPOSITORY_DATA_MISC_PATH</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@logging_level</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">logging_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">logging_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__logging_level</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logging_level</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DataSet.get_schema">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_schema">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">schema_filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
         <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
@@ -212,7 +212,7 @@
 
 <div class="viewcode-block" id="DataSet.get_dataset">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_dataset">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">datasets_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">)</span>
         <span class="n">root_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">datasets_directory</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="n">schema_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_directory</span><span class="p">,</span> <span class="s1">&#39;schema.json&#39;</span><span class="p">)</span>
@@ -262,7 +262,7 @@
 
 <div class="viewcode-block" id="DataSet.get_dataset_names">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_dataset_names">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_dataset_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_github_contents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets_path</span><span class="p">)</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">,</span> <span class="s1">&#39;dataset_names.json&#39;</span><span class="p">)</span>
 
@@ -288,7 +288,7 @@
     
 <div class="viewcode-block" id="DataSet.get_pv_sizing_data">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_pv_sizing_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_pv_sizing_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pv_sizing_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads and returns NREL&#39;s Tracking The Sun dataset that has been prefilered for completeness.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
@@ -324,7 +324,7 @@
     
 <div class="viewcode-block" id="DataSet.get_battery_sizing_data">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_battery_sizing_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_battery_sizing_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_battery_sizing_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads and returns internally defined real world manufacturer models.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns</span>
@@ -362,7 +362,7 @@
     
 <div class="viewcode-block" id="DataSet.clear_cache">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.clear_cache">[docs]</a>
-    <span class="k">def</span> <span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">):</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">)</span>
         
@@ -372,7 +372,7 @@
 
 <div class="viewcode-block" id="DataSet.get_github_contents">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_github_contents">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_github_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_github_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
         <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GITHUB_API_CONTENT_URL</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GITHUB_API_CONTENT_URL</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> 
         <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
         <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_requests_session</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
@@ -390,7 +390,7 @@
 <div class="viewcode-block" id="DataSet.get_requests_session">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_requests_session">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_requests_session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_requests_session</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">:</span>
         <span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
@@ -407,7 +407,7 @@
     
 <div class="viewcode-block" id="TimeSeriesData">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.TimeSeriesData">[docs]</a>
-<span class="k">class</span> <span class="nc">TimeSeriesData</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic time series data class.</span>
 <span class="sd">    </span>
 <span class="sd">    </span>
@@ -421,12 +421,12 @@
 <span class="sd">         Time step to end reading variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">Iterable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">Iterable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variable</span> <span class="o">=</span> <span class="n">variable</span> <span class="k">if</span> <span class="n">variable</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time_step</span> <span class="o">=</span> <span class="n">start_time_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_time_step</span> <span class="o">=</span> <span class="n">end_time_step</span>
 
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns values of the named variable within the specified time steps and</span>
 <span class="sd">        is useful for selecting episode-specific observation.&quot;&quot;&quot;</span>
         
@@ -446,7 +446,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">variable</span>
         
-    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets named variable.</span>
 <span class="sd">        </span>
 <span class="sd">        Variables are named with a single underscore prefix.</span>
@@ -457,7 +457,7 @@
 
 <div class="viewcode-block" id="EnergySimulation">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.EnergySimulation">[docs]</a>
-<span class="k">class</span> <span class="nc">EnergySimulation</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EnergySimulation</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;`Building` `energy_simulation` data class.</span>
 
 <span class="sd">    Parameters</span>
@@ -513,7 +513,7 @@
 
     <span class="n">DEFUALT_COMFORT_BAND</span> <span class="o">=</span> <span class="mf">2.0</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">month</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">hour</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">day_type</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
          <span class="n">indoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
         <span class="n">non_shiftable_load</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">dhw_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">cooling_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">heating_demand</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">solar_generation</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
@@ -574,8 +574,8 @@
     
 <div class="viewcode-block" id="LogisticRegressionOccupantParameters">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.LogisticRegressionOccupantParameters">[docs]</a>
-<span class="k">class</span> <span class="nc">LogisticRegressionOccupantParameters</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_increase</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">b_increase</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">a_decrease</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">b_decrease</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogisticRegressionOccupantParameters</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_increase</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">b_increase</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">a_decrease</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">b_decrease</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">start_time_step</span><span class="o">=</span><span class="n">start_time_step</span><span class="p">,</span> <span class="n">end_time_step</span><span class="o">=</span><span class="n">end_time_step</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">a_increase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a_increase</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">b_increase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b_increase</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
@@ -587,7 +587,7 @@
 
 <div class="viewcode-block" id="Weather">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.Weather">[docs]</a>
-<span class="k">class</span> <span class="nc">Weather</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Weather</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;`Building` `weather` data class.</span>
 
 <span class="sd">    Parameters</span>
@@ -630,7 +630,7 @@
 <span class="sd">         Time step to end reading variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">outdoor_dry_bulb_temperature</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">outdoor_relative_humidity</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">diffuse_solar_irradiance</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">direct_solar_irradiance</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
         <span class="n">outdoor_dry_bulb_temperature_predicted_1</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">outdoor_dry_bulb_temperature_predicted_2</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">outdoor_dry_bulb_temperature_predicted_3</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">outdoor_relative_humidity_predicted_1</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">outdoor_relative_humidity_predicted_2</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">outdoor_relative_humidity_predicted_3</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -658,7 +658,7 @@
 
 <div class="viewcode-block" id="Pricing">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.Pricing">[docs]</a>
-<span class="k">class</span> <span class="nc">Pricing</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Pricing</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;`Building` `pricing` data class.</span>
 
 <span class="sd">    Parameters</span>
@@ -677,7 +677,7 @@
 <span class="sd">         Time step to end reading variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">electricity_pricing</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">electricity_pricing_predicted_1</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">electricity_pricing_predicted_2</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> 
         <span class="n">electricity_pricing_predicted_3</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
@@ -690,7 +690,7 @@
 
 <div class="viewcode-block" id="CarbonIntensity">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.CarbonIntensity">[docs]</a>
-<span class="k">class</span> <span class="nc">CarbonIntensity</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CarbonIntensity</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;`Building` `carbon_intensity` data class.</span>
 
 <span class="sd">    Parameters</span>
@@ -703,7 +703,7 @@
 <span class="sd">         Time step to end reading variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">carbon_intensity</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">carbon_intensity</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">start_time_step</span><span class="o">=</span><span class="n">start_time_step</span><span class="p">,</span> <span class="n">end_time_step</span><span class="o">=</span><span class="n">end_time_step</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">carbon_intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">carbon_intensity</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span></div>
 
@@ -711,7 +711,7 @@
 
 <div class="viewcode-block" id="ElectricVehicleSimulation">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.ElectricVehicleSimulation">[docs]</a>
-<span class="k">class</span> <span class="nc">ElectricVehicleSimulation</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ElectricVehicleSimulation</span><span class="p">(</span><span class="n">TimeSeriesData</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;`Electric_Vehicle` `electric_vehicle_simulation` data class.</span>
 
 <span class="sd">    Month,Hour,Day Type,Location,Estimated Departure Time,Required Soc At Departure</span>
@@ -735,7 +735,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
             <span class="n">charger</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">estimated_departure_time</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">required_soc_departure</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
             <span class="n">estimated_arrival_time</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">estimated_soc_arrival</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">start_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_time_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>

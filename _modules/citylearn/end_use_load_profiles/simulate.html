@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>citylearn.end_use_load_profiles.simulate &mdash; CityLearn 2.3.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
@@ -83,20 +83,20 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.end_use_load_profiles.simulate</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">doe_xstock.simulate</span> <span class="kn">import</span> <span class="n">EndUseLoadProfilesEnergyPlusSimulator</span>
-<span class="kn">from</span> <span class="nn">eppy.modeleditor</span> <span class="kn">import</span> <span class="n">IDF</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">doe_xstock.simulate</span><span class="w"> </span><span class="kn">import</span> <span class="n">EndUseLoadProfilesEnergyPlusSimulator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">eppy.modeleditor</span><span class="w"> </span><span class="kn">import</span> <span class="n">IDF</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <div class="viewcode-block" id="EndUseLoadProfilesEnergyPlusPartialLoadSimulator">
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.simulate.html#citylearn.end_use_load_profiles.simulate.EndUseLoadProfilesEnergyPlusPartialLoadSimulator">[docs]</a>
-<span class="k">class</span> <span class="nc">EndUseLoadProfilesEnergyPlusPartialLoadSimulator</span><span class="p">(</span><span class="n">EndUseLoadProfilesEnergyPlusSimulator</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EndUseLoadProfilesEnergyPlusPartialLoadSimulator</span><span class="p">(</span><span class="n">EndUseLoadProfilesEnergyPlusSimulator</span><span class="p">):</span>
     <span class="n">QUERIES_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;misc&#39;</span><span class="p">,</span> <span class="s1">&#39;queries&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ideal_loads_simulator</span><span class="p">:</span> <span class="n">EndUseLoadProfilesEnergyPlusSimulator</span><span class="p">,</span> <span class="n">allow_multi_load_time_step</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">multiplier_minimum</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">multiplier_maximum</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">multiplier_probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">output_variables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">output_meters</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
         <span class="n">simulation_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">output_directory</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -127,59 +127,59 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">random_seed</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ideal_loads_simulator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EndUseLoadProfilesEnergyPlusSimulator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ideal_loads_simulator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EndUseLoadProfilesEnergyPlusSimulator</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__ideal_loads_simulator</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">allow_multi_load_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">allow_multi_load_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__allow_multi_load_time_step</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">multiplier_minimum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiplier_minimum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier_minimum</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">multiplier_maximum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiplier_maximum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier_maximum</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">multiplier_probability</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiplier_probability</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier_probability</span>
     
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__random_seed</span>
     
     <span class="nd">@ideal_loads_simulator</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">ideal_loads_simulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">EndUseLoadProfilesEnergyPlusSimulator</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ideal_loads_simulator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">EndUseLoadProfilesEnergyPlusSimulator</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__ideal_loads_simulator</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@allow_multi_load_time_step</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">allow_multi_load_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">allow_multi_load_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__allow_multi_load_time_step</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@multiplier_minimum</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">multiplier_minimum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiplier_minimum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier_minimum</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@multiplier_maximum</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">multiplier_maximum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiplier_maximum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier_maximum</span> <span class="o">=</span> <span class="mf">1.7</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
     <span class="nd">@multiplier_probability</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">multiplier_probability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiplier_probability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="n">value</span> <span class="o">=</span> <span class="mf">0.6</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
         <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;multiplier_probability must be &gt; 0 and &lt;= 1.&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__multiplier_probability</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@random_seed</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">random_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__random_seed</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="EndUseLoadProfilesEnergyPlusPartialLoadSimulator.multi_simulate">
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.simulate.html#citylearn.end_use_load_profiles.simulate.EndUseLoadProfilesEnergyPlusPartialLoadSimulator.multi_simulate">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">multi_simulate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">simulators</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multi_simulate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">simulators</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">multi_simulate</span><span class="p">(</span><span class="n">simulators</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simulators</span><span class="p">:</span>
@@ -188,14 +188,14 @@
 
 <div class="viewcode-block" id="EndUseLoadProfilesEnergyPlusPartialLoadSimulator.simulate">
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.simulate.html#citylearn.end_use_load_profiles.simulate.EndUseLoadProfilesEnergyPlusPartialLoadSimulator.simulate">[docs]</a>
-    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">run_kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">run_kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="o">**</span><span class="n">run_kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">insert_zone_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EndUseLoadProfilesEnergyPlusPartialLoadSimulator.preprocess_idf_for_simulation">
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.simulate.html#citylearn.end_use_load_profiles.simulate.EndUseLoadProfilesEnergyPlusPartialLoadSimulator.preprocess_idf_for_simulation">[docs]</a>
-    <span class="k">def</span> <span class="nf">preprocess_idf_for_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess_idf_for_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDF</span><span class="p">:</span>
         <span class="n">idf</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">preprocess_idf_for_simulation</span><span class="p">()</span>
         <span class="n">idf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_ideal_loads_air_system</span><span class="p">(</span><span class="n">idf</span><span class="p">)</span>
         <span class="n">idf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_other_equipment</span><span class="p">(</span><span class="n">idf</span><span class="p">)</span>
@@ -205,7 +205,7 @@
     
 <div class="viewcode-block" id="EndUseLoadProfilesEnergyPlusPartialLoadSimulator.add_other_equipment">
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.simulate.html#citylearn.end_use_load_profiles.simulate.EndUseLoadProfilesEnergyPlusPartialLoadSimulator.add_other_equipment">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_other_equipment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idf</span><span class="p">:</span> <span class="n">IDF</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_other_equipment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idf</span><span class="p">:</span> <span class="n">IDF</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDF</span><span class="p">:</span>
         <span class="c1"># schedule type limit object</span>
         <span class="n">schedule_type_limit_name</span> <span class="o">=</span> <span class="s1">&#39;other equipment hvac power&#39;</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">idf</span><span class="o">.</span><span class="n">newidfobject</span><span class="p">(</span><span class="s1">&#39;ScheduleTypeLimits&#39;</span><span class="p">)</span>
@@ -265,7 +265,7 @@
     
 <div class="viewcode-block" id="EndUseLoadProfilesEnergyPlusPartialLoadSimulator.get_multipliers">
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.simulate.html#citylearn.end_use_load_profiles.simulate.EndUseLoadProfilesEnergyPlusPartialLoadSimulator.get_multipliers">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_multipliers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_multipliers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="n">nprs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">nprs</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">multiplier_minimum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplier_maximum</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
         <span class="n">data</span><span class="p">[</span><span class="n">nprs</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplier_probability</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -275,7 +275,7 @@
     
 <div class="viewcode-block" id="EndUseLoadProfilesEnergyPlusPartialLoadSimulator.get_ideal_loads">
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.simulate.html#citylearn.end_use_load_profiles.simulate.EndUseLoadProfilesEnergyPlusPartialLoadSimulator.get_ideal_loads">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_ideal_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ideal_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">insert_zone_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ideal_loads_simulator</span><span class="p">)</span>
         <span class="n">zones</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_zone_conditioning_metadata</span><span class="p">()</span>
         <span class="n">cooled_zone_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="se">\&#39;</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">zones</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;is_cooled&#39;</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
@@ -304,7 +304,7 @@
     
 <div class="viewcode-block" id="EndUseLoadProfilesEnergyPlusPartialLoadSimulator.insert_zone_metadata">
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.simulate.html#citylearn.end_use_load_profiles.simulate.EndUseLoadProfilesEnergyPlusPartialLoadSimulator.insert_zone_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">insert_zone_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulator</span><span class="p">:</span> <span class="n">EndUseLoadProfilesEnergyPlusSimulator</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">insert_zone_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulator</span><span class="p">:</span> <span class="n">EndUseLoadProfilesEnergyPlusSimulator</span><span class="p">):</span>
         <span class="n">zones</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_zone_conditioning_metadata</span><span class="p">()</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">v</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">zones</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
         <span class="n">query_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">QUERIES_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;create_zone_metadata.sql&#39;</span><span class="p">)</span>
@@ -314,7 +314,7 @@
 
 <div class="viewcode-block" id="EndUseLoadProfilesEnergyPlusPartialLoadSimulator.get_zone_conditioning_metadata">
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.simulate.html#citylearn.end_use_load_profiles.simulate.EndUseLoadProfilesEnergyPlusPartialLoadSimulator.get_zone_conditioning_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_zone_conditioning_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_zone_conditioning_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
         <span class="n">query_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">QUERIES_DIRECTORY</span><span class="p">,</span> <span class="s1">&#39;select_zone_conditioning_metadata.sql&#39;</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ideal_loads_simulator</span><span class="o">.</span><span class="n">get_output_database</span><span class="p">()</span><span class="o">.</span><span class="n">query_table_from_file</span><span class="p">(</span><span class="n">query_filepath</span><span class="p">)</span>
         <span class="n">zones</span> <span class="o">=</span> <span class="p">{</span><span class="n">z</span><span class="p">[</span><span class="s1">&#39;zone_name&#39;</span><span class="p">]:</span> <span class="n">z</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">)}</span>
@@ -324,7 +324,7 @@
 
 <div class="viewcode-block" id="EndUseLoadProfilesEnergyPlusPartialLoadSimulator.remove_ideal_loads_air_system">
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.simulate.html#citylearn.end_use_load_profiles.simulate.EndUseLoadProfilesEnergyPlusPartialLoadSimulator.remove_ideal_loads_air_system">[docs]</a>
-    <span class="k">def</span> <span class="nf">remove_ideal_loads_air_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idf</span><span class="p">:</span> <span class="n">IDF</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_ideal_loads_air_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idf</span><span class="p">:</span> <span class="n">IDF</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDF</span><span class="p">:</span>
         <span class="n">idf</span><span class="o">.</span><span class="n">idfobjects</span><span class="p">[</span><span class="s1">&#39;HVACTemplate:Zone:IdealLoadsAirSystem&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">obj_names</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s1">&#39;ZoneControl:Thermostat&#39;</span><span class="p">,</span> <span class="s1">&#39;ZoneControl:Humidistat&#39;</span><span class="p">,</span> <span class="s1">&#39;ZoneControl:Thermostat:ThermalComfort&#39;</span><span class="p">,</span> <span class="s1">&#39;ThermostatSetpoint:DualSetpoint&#39;</span><span class="p">,</span> 
