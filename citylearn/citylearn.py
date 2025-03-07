@@ -850,7 +850,6 @@ class CityLearnEnv(Environment, Env):
             'electricity_pricing_predicted_2', 'electricity_pricing_predicted_3',
         ]
 
-
     def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, bool, dict]:
         """Advance to next time step then apply actions to `buildings` and update variables.
         
@@ -881,14 +880,15 @@ class CityLearnEnv(Environment, Env):
             Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
 
-        self.next_time_step()
-        andar para a frente no time step dos evs e das baterias. Mas nao associar a novo carregador (pq esta a ser carregado com as coisas
-        do anterior, ou seja se ele tiver saido ja noa carrega...)
-
         actions = self._parse_actions(actions)
 
         for building, building_actions in zip(self.buildings, actions):
             building.apply_actions(**building_actions)
+
+        #Currently at time_step t
+        self.next_time_step()
+
+        #Currently at time_step t+1
 
         self.update_variables()
 
@@ -1202,7 +1202,6 @@ class CityLearnEnv(Environment, Env):
         # update seed
         if seed is not None:
             self.random_seed = seed
-
         else:
             pass
 
@@ -1219,6 +1218,7 @@ class CityLearnEnv(Environment, Env):
 
         for ev in self.electric_vehicles:
             ev.reset()
+
         self.associate_electric_vehicles_to_chargers()
 
         # reset reward function (does nothing by default)

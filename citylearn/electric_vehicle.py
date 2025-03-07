@@ -73,15 +73,18 @@ class ElectricVehicle(Environment):
     
     @battery.setter
     def battery(self, battery: Battery):
-        self.__battery = Battery(0.0, 0.0) if battery is None else battery
+        if battery is None:
+            raise AttributeError("Battery set to None")
+        else:
+            self.__battery = battery
 
     def next_time_step(self) -> Mapping[int, str]:
-        LOGGER.debug(f"[{self.name}] next_time_step: Starting new time step {self.time_step}")
+        LOGGER.debug(f"[{self.name}] next_time_step: Starting new time step. Current one {self.time_step}")
         LOGGER.debug(
             f"[{self.name}] characteristics: Current battery SoC (% 0 to 1): {self.battery.soc[-1]}, Battery Capacity {self.battery.capacity}")
 
         # Check if the next time step exists in the charger state array
-        if self.time_step + 1 < len(self.electric_vehicle_simulation.electric_vehicle_charger_state):
+        if self.time_step + 1 < self.episode_tracker.episode_time_steps:
             current_charger_state = self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step]
             next_charger_state = self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step + 1]
             if (current_charger_state in [2, 3]) and (next_charger_state == 1):
@@ -99,209 +102,114 @@ class ElectricVehicle(Environment):
 
         self.battery.next_time_step()
         super().next_time_step()
+        LOGGER.debug(f"[{self.name}] next_time_step: Starting new time step. Current one +1?? {self.time_step}")
 
     def reset(self):
         """
         Reset the EVCar to its initial state.
         """
-        super().reset()
 
+        super().reset()
         self.battery.reset()
 
-
-    def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None) -> \
-            Mapping[str, float]:
+    def observations(self) -> Mapping[str, float]:
         r"""Observations at current time step.
 
         Parameters
         ----------
-        include_all: bool, default: False,
-            Whether to estimate for all observations as listed in `observation_metadata` or only those that are active.
-        normalize : bool, default: False
-            Whether to apply min-max normalization bounded between [0, 1].
-        periodic_normalization: bool, default: False
-            Whether to apply sine-cosine normalization to cyclic observations.
 
         Returns
         -------
-        observation_space : spaces.Box
-            Observation low and high limits.
+        observations
         """
+        unwanted_keys = ["electric_vehicle_charger_state", "charger", "electric_vehicle_soc_arrival"]
 
-        unwanted_keys = ['month', 'hour', 'day_type', "electric_vehicle_charger_state", "charger"]
-
-        normalize = False if normalize is None else normalize
-        periodic_normalization = False if periodic_normalization is None else periodic_normalization
-        include_all = False if include_all is None else include_all
-
-        data = {
+        observations = {
             **{
                 k.lstrip('_'): self.electric_vehicle_simulation.__getattr__(k.lstrip('_'))[self.time_step]
-                for k, v in vars(self.electric_vehicle_simulation).items() if isinstance(v, np.ndarray) and k not in unwanted_keys
+                for k, v in vars(self.electric_vehicle_simulation).items()
+                if isinstance(v, np.ndarray) and k not in unwanted_keys
             },
             'electric_vehicle_soc': self.battery.soc[self.time_step]
         }
 
-
-        if include_all:
-            valid_observations = list(self.observation_metadata.keys())
-        else:
-            valid_observations = self.active_observations
-
-        observations = {k: data[k] for k in valid_observations if k in data.keys()}
-        unknown_observations = list(set(valid_observations).difference(observations.keys()))
-        assert len(unknown_observations) == 0, f'Unknown observations: {unknown_observations}'
-
-        low_limit, high_limit = self.periodic_normalized_observation_space_limits
-        periodic_observations = self.get_periodic_observation_metadata()
-
-        if periodic_normalization:
-            observations_copy = {k: v for k, v in observations.items()}
-            observations = {}
-            pn = PeriodicNormalization(x_max=0)
-
-            for k, v in observations_copy.items():
-                if k in periodic_observations:
-                    pn.x_max = max(periodic_observations[k])
-                    sin_x, cos_x = v * pn
-                    observations[f'{k}_cos'] = cos_x
-                    observations[f'{k}_sin'] = sin_x
-                else:
-                    observations[k] = v
-        else:
-            pass
-
-        if normalize:
-            nm = Normalize(0.0, 1.0)
-
-            for k, v in observations.items():
-                nm.x_min = low_limit[k]
-                nm.x_max = high_limit[k]
-                observations[k] = v * nm
-        else:
-            pass
         return observations
 
+    # --- String / Object Representation Methods ---
 
-    @staticmethod
-    def get_periodic_observation_metadata() -> dict[str, range]:
-        r"""Get periodic observation names and their minimum and maximum values for periodic/cyclic normalization.
-
-        Returns
-        -------
-        periodic_observation_metadata: Mapping[str, int]
-            Observation low and high limits.
+    def __str__(self) -> str:
         """
+        Return a text representation of the current state.
+        """
+        return str(self.as_dict())
 
+    def as_dict(self) -> dict:
+        """
+        Return a dictionary representation of the current state for use in rendering or logging.
+        """
         return {
-            'hour': range(1, 25),
-            'day_type': range(1, 9),
-            'month': range(1, 13)
+            'name': self.name,
+            'time_step': self.time_step,
+            'battery': {
+                'soc': self.battery.soc[self.time_step],
+                'capacity': self.battery.capacity,
+                'battery_obj': self.battery
+            },
+            'observations': self.observations()
         }
 
-    def estimate_observation_space(self, include_all: bool = None, normalize: bool = None,
-                                   periodic_normalization: bool = None) -> spaces.Box:
-        r"""Get estimate of observation spaces.
-        Parameters
-        ----------
-        include_all: bool, default: False,
-            Whether to estimate for all observations as listed in `observation_metadata` or only those that are active.
-        normalize : bool, default: False
-            Whether to apply min-max normalization bounded between [0, 1].
-        periodic_normalization: bool, default: False
-            Whether to apply sine-cosine normalization to cyclic observations including hour, day_type and month.
-        Returns
-        -------
-        observation_space : spaces.Box
-            Observation low and high limits.
+    def render_simulation_end_data(self) -> dict:
         """
-        normalize = False if normalize is None else normalize
-        normalized_observation_space_limits = self.estimate_observation_space_limits(
-            include_all=include_all, periodic_normalization=True
-        )
-        unnormalized_observation_space_limits = self.estimate_observation_space_limits(
-            include_all=include_all, periodic_normalization=False
-        )
-        if normalize:
-            low_limit, high_limit = normalized_observation_space_limits
-            low_limit = [0.0] * len(low_limit)
-            high_limit = [1.0] * len(high_limit)
-        else:
-            low_limit, high_limit = unnormalized_observation_space_limits
-            low_limit = list(low_limit.values())
-            high_limit = list(high_limit.values())
-        return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
-
-    def estimate_observation_space_limits(self, include_all: bool = None, periodic_normalization: bool = None) -> Tuple[
-        Mapping[str, float], Mapping[str, float]]:
-        r"""Get estimate of observation space limits.
-        Find minimum and maximum possible values of all the observations, which can then be used by the RL agent to scale the observations and train any function approximators more effectively.
-        Parameters
-        ----------
-        include_all: bool, default: False,
-            Whether to estimate for all observations as listed in `observation_metadata` or only those that are active.
-        periodic_normalization: bool, default: False
-            Whether to apply sine-cosine normalization to cyclic observations including hour, day_type and month.
-        Returns
-        -------
-        observation_space_limits : Tuple[Mapping[str, float], Mapping[str, float]]
-            Observation low and high limits.
-        Notes
-        -----
-        Lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate hence,
-        scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.
-        """
-        include_all = False if include_all is None else include_all
-        observation_names = list(self.observation_metadata.keys()) if include_all else self.active_observations
-        periodic_normalization = False if periodic_normalization is None else periodic_normalization
-        periodic_observations = self.get_periodic_observation_metadata()
-        low_limit, high_limit = {}, {}
-        for key in observation_names:
-            if key in "electric_vehicle_departure_time" or key in "electric_vehicle_estimated_arrival_time":
-                    low_limit[key] = -1
-                    high_limit[key] = 24
-            elif key in "electric_vehicle_required_soc_departure" or key in "electric_vehicle_estimated_soc_arrival"  or key in "electric_vehicle_soc":
-                    low_limit[key] = -0.1
-                    high_limit[key] = 1.0
-        low_limit = {k: v - 0.05 for k, v in low_limit.items()}
-        high_limit = {k: v + 0.05 for k, v in high_limit.items()}
-        return low_limit, high_limit
-
-    def estimate_action_space(self) -> spaces.Box:
-        r"""Get estimate of action spaces.
-        Find minimum and maximum possible values of all the actions, which can then be used by the RL agent to scale the selected actions.
-        Returns
-        -------
-        action_space : spaces.Box
-            Action low and high limits.
-        Notes
-        -----
-        The lower and upper bounds for the `cooling_storage`, `heating_storage` and `dhw_storage` actions are set to (+/-) 1/maximum_demand for each respective end use,
-        as the energy storage device can't provide the building with more energy than it will ever need for a given time step. .
-        For example, if `cooling_storage` capacity is 20 kWh and the maximum `cooling_demand` is 5 kWh, its actions will be bounded between -5/20 and 5/20.
-        These boundaries should speed up the learning process of the agents and make them more stable compared to setting them to -1 and 1.
-        """
-        low_limit, high_limit = [], []
-        for key in self.active_actions:
-            if key == 'electric_vehicle_storage':
-                limit = self.electrical_storage.nominal_power/max(self.electrical_storage.capacity, ZERO_DIVISION_PLACEHOLDER)
-                limit = min(limit, 1.0)
-                low_limit.append(-limit)
-                high_limit.append(limit)
-        return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'))
-
-    @staticmethod
-    def observations_length() -> Mapping[str, int]:
-        r"""Get periodic observation names and their minimum and maximum values for periodic/cyclic normalization.
+        Return a dictionary containing all simulation data across all time steps.
+        The returned dictionary is structured with a general simulation name and, for each time step,
+        a dictionary with the simulation data and battery data.
 
         Returns
         -------
-        periodic_observation_metadata: Mapping[str, int]
-            Observation low and high limits.
+        result : dict
+            A JSON-like dictionary with the simulation name and per-time-step data.
         """
+        # Determine the number of time steps.
+        num_steps = self.episode_tracker.episode_time_steps
 
-        return {
-            'hour': range(1, 25),
-            'day_type': range(1, 9),
-            'month': range(1, 13)
+        # Gather simulation attributes (only those that are numpy arrays).
+        simulation_attrs = {
+            key: value
+            for key, value in vars(self.electric_vehicle_simulation).items()
+            if isinstance(value, np.ndarray)
         }
+
+        # Build a list of dictionaries for each time step.
+        time_steps = []
+        for i in range(num_steps):
+            step_data = {"time_step": i, "simulation": {}, "battery": {}}
+
+            # Add simulation data for this time step.
+            for key, array in simulation_attrs.items():
+                value = array[i]
+                # Convert numpy scalar types to native Python types if needed.
+                if isinstance(value, np.generic):
+                    value = value.item()
+                step_data["simulation"][key] = value
+
+            # Add battery data for this time step.
+            soc_value = self.battery.soc[i]
+            if isinstance(soc_value, np.generic):
+                soc_value = soc_value.item()
+            step_data["battery"] = {
+                "soc": soc_value,
+                "capacity": self.battery.capacity  # capacity is assumed constant over time.
+            }
+
+            time_steps.append(step_data)
+
+        result = {
+            "simulation_name": self.name if self.name else "ElectricVehicleSimulation",
+            "data": time_steps
+        }
+        return result
+
+
+
+
+
