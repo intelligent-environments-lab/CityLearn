@@ -288,8 +288,6 @@ class Charger(Environment):
                 energy = power * time_step_hours_ratio  # Convert to energy (kWh)
                 energy = max(min(energy, -self.min_discharging_power), -self.max_discharging_power)  # For discharging
 
-                COnfirmar se a energia e limits vem negativos ou positivos e ver a matematica da coisa
-
             # Apply efficiency
             energy_kwh = energy * efficiency
 
