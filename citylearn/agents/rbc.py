@@ -388,3 +388,43 @@ class BasicBatteryRBC(BasicRBC):
                     raise ValueError(f'Unknown action name: {n}')
 
         HourRBC.action_map.fset(self, action_map)
+
+    class BasicEVRBC(BasicRBC):
+        r"""A rule-based controller that charges EVs to the maximum of the chargers and to the maximum of the battery upon connection.
+
+        The EV battery is charged at the maximum available charging power whenever it is connected.
+
+        Parameters
+        ----------
+        env: CityLearnEnv
+            CityLearn environment.
+
+        Other Parameters
+        ----------------
+        **kwargs: Any
+            Other keyword arguments used to initialize super class.
+        """
+
+        def __init__(self, env: CityLearnEnv, **kwargs: Any):
+            super().__init__(env, **kwargs)
+
+        @HourRBC.action_map.setter
+        def action_map(self, action_map: Union[
+            List[Mapping[str, Mapping[int, float]]], Mapping[str, Mapping[int, float]], Mapping[int, float]]):
+            if action_map is None:
+                action_map = {}
+                action_names = [a_ for a in self.action_names for a_ in a]
+                action_names = list(set(action_names))
+
+                for n in action_names:
+                    action_map[n] = {}
+
+                    if 'ev_charger' in n:
+                        for hour in Building.get_periodic_observation_metadata()['hour']:
+                            value = 1.0  # Charge at full capacity when EV is connected
+                            action_map[n][hour] = value
+
+                    else:
+                        raise ValueError(f'Unknown action name: {n}')
+
+            HourRBC.action_map.fset(self, action_map)

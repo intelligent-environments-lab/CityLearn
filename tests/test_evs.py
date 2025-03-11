@@ -7,7 +7,7 @@ from citylearn.agents.rbc import BasicRBC as Agent
 # RandomAgent, RLAgent
 from citylearn.citylearn import CityLearnEnv
 
-dataset_name = 'citylearn_challenge_2022_phase_all_plus_evs'
+dataset_name = '/mnt/c/Users/Tiago Fonseca/Documents/GitHub/CityLearn/data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json'
 
 # dataset_name = 'citylearn_challenge_2023_phase_2_local_evaluation'
 env = CityLearnEnv(dataset_name, central_agent=True)

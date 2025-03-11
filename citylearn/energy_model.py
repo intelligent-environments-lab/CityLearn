@@ -609,8 +609,6 @@ class StorageDevice(Device):
         self.random_seed = kwargs.get('random_seed', None)
         self.capacity = capacity
         self.loss_coefficient = loss_coefficient
-        print("AQUI DENTRO")
-        print(initial_soc)
         self.initial_soc = initial_soc
         super().__init__(efficiency = efficiency, **kwargs)
 
@@ -707,6 +705,9 @@ class StorageDevice(Device):
             else max(0.0, self.energy_init + energy/self.round_trip_efficiency)
         self.__soc[self.time_step] = energy_final/max(self.capacity, ZERO_DIVISION_PLACEHOLDER)
         self.__energy_balance[self.time_step] = self.set_energy_balance(energy_final)
+
+    def force_set_soc(self, soc: float):
+        self.__soc[self.time_step] = soc
 
     def set_energy_balance(self, energy: float) -> float:
         r"""Calculate energy balance.
@@ -1078,7 +1079,7 @@ class Battery(StorageDevice, ElectricDevice):
             raise AttributeError("Soc must be between 0 and 1. Check your dataset")
         # Directly update the internal SOC array.
         # Note: __soc is defined in the StorageDevice class, so we access it via name mangling.
-        self.__soc[self.time_step] = soc
+        super().force_set_soc(soc)
 
     def degrade(self) -> float:
         r"""Get amount of capacity degradation.

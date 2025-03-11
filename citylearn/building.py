@@ -874,7 +874,8 @@ class Building(Environment):
 
                 if charger.connected_electric_vehicle:
                     observations[charger_key_state] = 1  # attributes the f'charger_{charger_id}_connected_state' the value of one (connected EV)
-                    obs = charger.connected_electric_vehicle.observations(include_all, normalize, periodic_normalization)
+                    obs = charger.connected_electric_vehicle.observations()
+
                     for k, v in obs.items():
                         observations[f'charger_{charger_id}_connected_{k}'] = v  # for the connected EV several observations are added (according to the observations specified in Electric_Vehicle class
                 else:  # otherwise, when not connected, 0 is given and observations are filled with -0.1
@@ -886,7 +887,7 @@ class Building(Environment):
                 # same logic for incoming EV, which states if an EV is routing towards the charger
                 if charger.incoming_electric_vehicle:
                     observations[charger_key_incoming_state] = 1
-                    obs = charger.incoming_electric_vehicle.observations(include_all, normalize, periodic_normalization)
+                    obs = charger.incoming_electric_vehicle.observations()
                     for k, v in obs.items():
                         observations[f'charger_{charger_id}_incoming_{k}'] = v
                 else:
@@ -901,6 +902,8 @@ class Building(Environment):
         non_periodic_low_limit, non_periodic_high_limit = self.non_periodic_normalized_observation_space_limits
         periodic_low_limit, periodic_high_limit = self.periodic_normalized_observation_space_limits
         periodic_observations = self.get_periodic_observation_metadata()
+
+
 
         if check_limits:
             for k in self.active_observations:
@@ -953,7 +956,8 @@ class Building(Environment):
 
         else:
             pass
-
+        print()
+        print(observations)
         return observations
     
     def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
@@ -1297,7 +1301,6 @@ class Building(Environment):
         demand = min(self.non_shiftable_load[self.time_step], self.downward_electrical_flexibility)
         self.__energy_to_non_shiftable_load[self.time_step] = demand
         self.non_shiftable_load_device.update_electricity_consumption(demand)
-        # ToDo might need to add chargers here
 
     def update_electrical_storage(self, action: float):
         r"""Charge/discharge `electrical_storage` for current time step.

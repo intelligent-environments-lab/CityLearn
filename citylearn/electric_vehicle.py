@@ -89,10 +89,10 @@ class ElectricVehicle(Environment):
             next_charger_state = self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step + 1]
             if (current_charger_state in [2, 3]) and (next_charger_state == 1):
                 soc_arrival = self.electric_vehicle_simulation.electric_vehicle_soc_arrival[self.time_step]
-                if 0 < soc_arrival < 1:
+                if 0 <= soc_arrival <= 1:
                     self.battery.force_set_soc(soc_arrival)
                 else:
-                    raise AttributeError("electric_vehicle_soc_arrival should be valid")
+                    raise AttributeError(f"electric_vehicle_soc_arrival should be valid {soc_arrival}")
 
         if current_charger_state in [2, 3] and next_charger_state != 1 and self.time_step > 0:
             last_soc = self.battery.soc[self.time_step - 1]

@@ -612,6 +612,7 @@ class ElectricVehicleSimulation(TimeSeriesData):
             required_soc_departure: Iterable[float],
             estimated_arrival_time: Iterable[int],
             estimated_soc_arrival: Iterable[float],
+            electric_vehicle_soc_arrival: Iterable[float],
             start_time_step: int = None,
             end_time_step: int = None
     ):
@@ -647,20 +648,29 @@ class ElectricVehicleSimulation(TimeSeriesData):
             np.isnan(arrival_time_arr), default_time_value, arrival_time_arr
         ).astype(int)
 
-        # For state-of-charge (SOC) values, convert to float arrays.
-        # Use a default missing value (here, -0.1) and then scale by 1/100.
+        # Define the default value and input arrays
         default_soc_value = -0.1
         soc_departure_arr = np.array(required_soc_departure, dtype=float)
-        soc_arrival_arr = np.array(estimated_soc_arrival, dtype=float)
+        est_soc_arrival_arr = np.array(estimated_soc_arrival, dtype=float)
+        soc_arrival_arr = np.array(electric_vehicle_soc_arrival, dtype=float)
 
+        # Replace NaNs with the default value
+        soc_departure_arr = np.where(np.isnan(soc_departure_arr), default_soc_value, soc_departure_arr)
+        est_soc_arrival_arr = np.where(np.isnan(est_soc_arrival_arr), default_soc_value, est_soc_arrival_arr)
+        soc_arrival_arr = np.where(np.isnan(soc_arrival_arr), default_soc_value, soc_arrival_arr)
+
+        # Divide only the values that are NOT equal to the default value
         self.electric_vehicle_required_soc_departure = np.where(
-            np.isnan(soc_departure_arr), default_soc_value, soc_departure_arr
-        ) / 100
+            soc_departure_arr != default_soc_value, soc_departure_arr / 100, soc_departure_arr
+        )
 
         self.electric_vehicle_estimated_soc_arrival = np.where(
-            np.isnan(soc_arrival_arr), default_soc_value, soc_arrival_arr
-        ) / 100
+            est_soc_arrival_arr != default_soc_value, est_soc_arrival_arr / 100, est_soc_arrival_arr
+        )
 
+        self.electric_vehicle_soc_arrival = np.where(
+            soc_arrival_arr != default_soc_value, soc_arrival_arr / 100, soc_arrival_arr
+        )
 
 
 

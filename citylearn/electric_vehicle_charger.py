@@ -302,9 +302,6 @@ class Charger(Environment):
     def next_time_step(self):
         r"""Advance to next `time_step` and set `electricity_consumption` at new `time_step` to 0.0."""
 
-        self.__electricity_consumption.append(0.0)
-        self.__past_connected_evs.append(None)
-        self.__past_charging_action_values.append(0.0)
         self.connected_electric_vehicle = None
         self.incoming_electric_vehicle = None
         super().next_time_step()
