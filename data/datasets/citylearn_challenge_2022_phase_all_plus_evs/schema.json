@@ -161,29 +161,33 @@
       "active": false,
       "shared_in_central_agent": false
     },
-    "electric_vehicle_charger_state": {
+    "electric_vehicle_charger_connected_state": {
       "active": true,
-      "shared_in_central_agent": false
+      "shared_in_central_agent": true
     },
-    "electric_vehicle_departure_time": {
+    "connected_electric_vehicle_at_charger_departure_time": {
       "active": true,
-      "shared_in_central_agent": false
+      "shared_in_central_agent": true
     },
-    "electric_vehicle_required_soc_departure": {
+    "connected_electric_vehicle_at_charger_required_soc_departure": {
       "active": true,
-      "shared_in_central_agent": false
+      "shared_in_central_agent": true
     },
-    "electric_vehicle_estimated_arrival_time": {
+    "connected_electric_vehicle_at_charger_soc": {
       "active": true,
-      "shared_in_central_agent": false
+      "shared_in_central_agent": true
     },
-    "electric_vehicle_estimated_soc_arrival": {
+    "electric_vehicle_charger_incoming_state": {
       "active": true,
-      "shared_in_central_agent": false
+      "shared_in_central_agent": true
     },
-    "electric_vehicle_soc": {
+    "incoming_electric_vehicle_at_charger_estimated_arrival_time": {
       "active": true,
-      "shared_in_central_agent": false
+      "shared_in_central_agent": true
+    },
+    "incoming_electric_vehicle_at_charger_estimated_soc_arrival": {
+      "active": true,
+      "shared_in_central_agent": true
     }
   },
   "actions": {
@@ -204,22 +208,8 @@
     }
   },
   "agent": {
-    "type": "citylearn.agents.rbc.BasicRBC",
+    "type": "citylearn.agents.rbc.BasicElectricVehicleRBC_ReferenceController",
     "attributes": {
-      "hidden_dimension": [
-        256,
-        256
-      ],
-      "discount": 0.99,
-      "tau": 0.005,
-      "lr": 0.003,
-      "batch_size": 256,
-      "replay_buffer_capacity": 100000.0,
-      "standardize_start_time_step": 6000,
-      "end_exploration_time_step": 7000,
-      "action_scaling_coef": 0.5,
-      "reward_scaling": 5.0,
-      "update_per_time_step": 2
     }
   },
   "reward_function": {
@@ -315,6 +305,7 @@
         "attributes": {
           "capacity": 60,
           "nominal_power": 50,
+          "initial_soc": 0.25,
           "depth_of_discharge": 0.1
         }
       }

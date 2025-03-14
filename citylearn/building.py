@@ -864,45 +864,14 @@ class Building(Environment):
 
         observations = {k: data[k] for k in valid_observations if k in data.keys()}
 
-        # Observations for electric_vehicle_chargers
-        # Connected is 1 and disconnected is 0
-        if self.electric_vehicle_chargers is not None:
-            for charger in self.electric_vehicle_chargers:  # If present, iterate each charger
-                charger_id = charger.charger_id
-                charger_key_state = f'charger_{charger_id}_connected_state'  # Observations names are composed from the charger unique ID
-                charger_key_incoming_state = f'charger_{charger_id}_incoming_state'
+        observations = self.update_ev_charger_observations(observations, valid_observations, self.electric_vehicle_chargers)
 
-                if charger.connected_electric_vehicle:
-                    observations[charger_key_state] = 1  # attributes the f'charger_{charger_id}_connected_state' the value of one (connected EV)
-                    obs = charger.connected_electric_vehicle.observations()
-
-                    for k, v in obs.items():
-                        observations[f'charger_{charger_id}_connected_{k}'] = v  # for the connected EV several observations are added (according to the observations specified in Electric_Vehicle class
-                else:  # otherwise, when not connected, 0 is given and observations are filled with -0.1
-                    observations[charger_key_state] = 0
-                    for o in self.observation_metadata:
-                        if f'charger_{charger_id}_connected' in o and o != charger_key_state:
-                            observations[o] = -0.1
-
-                # same logic for incoming EV, which states if an EV is routing towards the charger
-                if charger.incoming_electric_vehicle:
-                    observations[charger_key_incoming_state] = 1
-                    obs = charger.incoming_electric_vehicle.observations()
-                    for k, v in obs.items():
-                        observations[f'charger_{charger_id}_incoming_{k}'] = v
-                else:
-                    observations[charger_key_incoming_state] = 0
-                    for o in self.observation_metadata:
-                        if f'charger_{charger_id}_incoming' in o and o != charger_key_incoming_state:
-                            observations[o] = -0.1
-
-        unknown_observations = list(set(valid_observations).difference(observations.keys()))
+        unknown_observations = set(observations.keys()).difference(set(valid_observations))
         assert len(unknown_observations) == 0, f'Unknown observations: {unknown_observations}'
 
         non_periodic_low_limit, non_periodic_high_limit = self.non_periodic_normalized_observation_space_limits
         periodic_low_limit, periodic_high_limit = self.periodic_normalized_observation_space_limits
         periodic_observations = self.get_periodic_observation_metadata()
-
 
 
         if check_limits:
@@ -956,8 +925,98 @@ class Building(Environment):
 
         else:
             pass
-        print()
-        print(observations)
+        #print()
+        #print(observations)
+        return observations
+
+    def update_ev_charger_observations(self, observations, valid_observations, ev_chargers):
+        """
+        Update the observations for each electric vehicle charger.
+
+        Parameters:
+            observations (dict): The dictionary to update with observation values.
+            valid_observations (set or list): Collection of valid observation keys.
+            ev_chargers (iterable): List of charger objects. Each charger is expected to have:
+                - charger_id attribute
+                - connected_electric_vehicle attribute (object or None)
+                - incoming_electric_vehicle attribute (object or None)
+                  Both EV objects should implement an observations() method that returns a dictionary.
+        """
+        for charger in ev_chargers:
+            charger_id = charger.charger_id
+
+            # Keys for charger states
+            connected_state_key = f'electric_vehicle_charger_{charger_id}_connected_state'
+            incoming_state_key = f'electric_vehicle_charger_{charger_id}_incoming_state'
+
+            # ---------------------------
+            # Update Connected EV Section
+            # ---------------------------
+            if charger.connected_electric_vehicle:
+                if connected_state_key in valid_observations:
+                    observations[connected_state_key] = 1
+
+                connected_obs = charger.connected_electric_vehicle.observations()
+                # Update departure time if valid
+                departure_key = f'connected_electric_vehicle_at_charger_{charger_id}_departure_time'
+                if departure_key in valid_observations:
+                    observations[departure_key] = next((value for key, value in connected_obs.items() if "_departure_time" in key),-1)
+
+                # Update required SOC at departure if valid
+                req_soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_required_soc_departure'
+                if req_soc_key in valid_observations:
+                    observations[req_soc_key] = next((value for key, value in connected_obs.items() if "_required_soc_departure" in key),-0.1)
+
+                # Update current state of charge (soc) if valid
+                soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_soc'
+                if soc_key in valid_observations:
+                    observations[soc_key] = next((value for key, value in connected_obs.items() if key.endswith("soc")), -0.1)
+            else:
+                if connected_state_key in valid_observations:
+                    observations[connected_state_key] = 0
+                # Use default values when no connected EV is present
+                departure_key = f'connected_electric_vehicle_at_charger_{charger_id}_departure_time'
+                if departure_key in valid_observations:
+                    observations[departure_key] = -1
+
+                req_soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_required_soc_departure'
+                if req_soc_key in valid_observations:
+                    observations[req_soc_key] = -0.1
+
+                soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_soc'
+                if soc_key in valid_observations:
+                    observations[soc_key] = -0.1
+
+            # ---------------------------
+            # Update Incoming EV Section
+            # ---------------------------
+            if charger.incoming_electric_vehicle:
+                if incoming_state_key in valid_observations:
+                    observations[incoming_state_key] = 1
+
+                incoming_obs = charger.incoming_electric_vehicle.observations()
+                # Update estimated arrival time if valid
+                arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_arrival_time'
+                if arrival_key in valid_observations:
+                    observations[arrival_key] = next((value for key, value in incoming_obs.items() if "_estimated_arrival_time" in key),-1)
+
+
+                # Update estimated SOC at arrival if valid
+                soc_arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_soc_arrival'
+                if soc_arrival_key in valid_observations:
+                    observations[soc_arrival_key] = next((value for key, value in incoming_obs.items() if "_estimated_soc_arrival" in key),-0.1)
+            else:
+                if incoming_state_key in valid_observations:
+                    observations[incoming_state_key] = 0
+
+                arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_arrival_time'
+                if arrival_key in valid_observations:
+                    observations[arrival_key] = -1
+
+                soc_arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_soc_arrival'
+                if soc_arrival_key in valid_observations:
+                    observations[soc_arrival_key] = -0.1
+
         return observations
     
     def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
@@ -1087,10 +1146,6 @@ class Building(Environment):
         dhw_storage_action = 0.0 if 'dhw_storage' not in self.active_actions else dhw_storage_action
         electrical_storage_action = 0.0 if 'electrical_storage' not in self.active_actions else electrical_storage_action
 
-        # Initialize electric_vehicle_storage_actions dictionary if not provided
-        if electric_vehicle_storage_actions is None:
-            electric_vehicle_storage_actions = {charger.charger_id: 0.0 for charger in self.electric_vehicle_chargers}
-
         # set action priority
         actions = {
             'cooling_demand': (self.update_cooling_demand, (cooling_device_action,)),
@@ -1107,13 +1162,17 @@ class Building(Environment):
 
         priority_list = list(actions.keys())
 
-        for charger in self.electric_vehicle_chargers:
-            action_key = f'electric_vehicle_storage_{charger.charger_id}'
-            electric_vehicle_action_value = electric_vehicle_storage_actions.get(charger.charger_id, 0.0)
-            actions[action_key] = (charger.update_connected_electric_vehicle_soc, (electric_vehicle_action_value,))
-
-        electric_vehicle_priority_list = [f'electric_vehicle_storage_{charger.charger_id}' for charger in self.electric_vehicle_chargers]
-        priority_list = priority_list + electric_vehicle_priority_list  # the priority lists are merged
+        if electric_vehicle_storage_actions is not None:
+            electric_vehicle_priority_list = []
+            for charger_id, action in electric_vehicle_storage_actions.items():
+                action_key = f'electric_vehicle_storage_{charger_id}'
+                if action_key not in self.active_actions:
+                    raise ValueError("This action should not be applied. Verify")
+                for charger in self.electric_vehicle_chargers:
+                    if charger.charger_id == charger_id:
+                        actions[action_key] = (charger.update_connected_electric_vehicle_soc, (action,))
+                        electric_vehicle_priority_list.append(action_key)
+            priority_list = priority_list + electric_vehicle_priority_list  # the priority lists are merged
 
         if electrical_storage_action < 0.0:
             key = 'electrical_storage'
@@ -1445,6 +1504,18 @@ class Building(Environment):
                     low_limit[key] = self.heating_device.efficiency
                     high_limit[key] = self.heating_device.efficiency
 
+            elif 'connected_state' in key or "_incoming_state" in key:
+                low_limit[key] = 0
+                high_limit[key] = 1
+
+            elif "_departure_time" in key or "_estimated_arrival_time" in key:
+                low_limit[key] = -1
+                high_limit[key] = 24
+
+            elif "_soc" in key and "_electric_vehicle" in key:
+                low_limit[key] = -0.1
+                high_limit[key] = 1.0
+
             elif 'charger' in key:
                 if self.electric_vehicle_chargers is not None:
                     for charger in self.electric_vehicle_chargers:
@@ -1634,7 +1705,6 @@ class Building(Environment):
                     for c in self.electric_vehicle_chargers:
                         if key == f'electric_vehicle_storage_{c.charger_id}':
                             discharging_limit = 0 if c.max_discharging_power == 0 else -1
-
                             high_limit.append(1.0)  # For discharging limit
                             low_limit.append(discharging_limit)  # For charging limit
 

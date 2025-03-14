@@ -3,7 +3,7 @@
 import sys
 sys.path.insert(0, "..")
 import citylearn
-from citylearn.agents.rbc import BasicRBC as Agent
+from citylearn.agents.rbc import BasicElectricVehicleRBC_ReferenceController as Agent
 # RandomAgent, RLAgent
 from citylearn.citylearn import CityLearnEnv
 
@@ -19,5 +19,3 @@ kpis = model.env.evaluate()
 kpis = kpis.pivot(index='cost_function', columns='name', values='value').round(3)
 kpis = kpis.dropna(how='all')
 print(kpis)
-
-print(citylearn.data.DataSet.get_names())

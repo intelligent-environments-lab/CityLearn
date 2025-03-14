@@ -79,9 +79,8 @@ class ElectricVehicle(Environment):
             self.__battery = battery
 
     def next_time_step(self) -> Mapping[int, str]:
-        LOGGER.debug(f"[{self.name}] next_time_step: Starting new time step. Current one {self.time_step}")
         LOGGER.debug(
-            f"[{self.name}] characteristics: Current battery SoC (% 0 to 1): {self.battery.soc[-1]}, Battery Capacity {self.battery.capacity}")
+            f"[{self.name}] characteristics at {self.time_step}: Current battery SoC (% 0 to 1): {self.battery.soc[self.time_step]}, Battery Capacity {self.battery.capacity}")
 
         # Check if the next time step exists in the charger state array
         if self.time_step + 1 < self.episode_tracker.episode_time_steps:
@@ -105,7 +104,6 @@ class ElectricVehicle(Environment):
 
         self.battery.next_time_step()
         super().next_time_step()
-        LOGGER.debug(f"[{self.name}] next_time_step: Starting new time step. Current one +1?? {self.time_step}")
 
     def reset(self):
         """
@@ -129,9 +127,10 @@ class ElectricVehicle(Environment):
 
         observations = {
             **{
-                k.lstrip('_'): self.electric_vehicle_simulation.__getattr__(k.lstrip('_'))[self.time_step]
+                k.lstrip('_'): v[self.time_step]
                 for k, v in vars(self.electric_vehicle_simulation).items()
-                if isinstance(v, np.ndarray) and k not in unwanted_keys
+                if isinstance(v, np.ndarray) and k.lstrip('_') not in unwanted_keys
+                # Ensure filtering is done after stripping
             },
             'electric_vehicle_soc': self.battery.soc[self.time_step]
         }

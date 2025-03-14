@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c815e2bd-b2ff-408a-9abb-36ffaab68867" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/citylearn/agents/rbc.py" beforeDir="false" afterPath="$PROJECT_DIR$/citylearn/agents/rbc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/citylearn/building.py" beforeDir="false" afterPath="$PROJECT_DIR$/citylearn/building.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/citylearn/citylearn.py" beforeDir="false" afterPath="$PROJECT_DIR$/citylearn/citylearn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/citylearn/electric_vehicle.py" beforeDir="false" afterPath="$PROJECT_DIR$/citylearn/electric_vehicle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/citylearn/electric_vehicle_charger.py" beforeDir="false" afterPath="$PROJECT_DIR$/citylearn/electric_vehicle_charger.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/citylearn/energy_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/citylearn/energy_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_evs.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_evs.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2nX8sOZ1dq5exltHhvBaQDctMnT" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;electric__vehicles__fix__errors&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Tiago Fonseca\Documents\GitHub\CityLearn" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c815e2bd-b2ff-408a-9abb-36ffaab68867" name="Changes" comment="" />
+      <created>1729108268484</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1729108268484</updated>
+      <workItem from="1729108271197" duration="2224000" />
+      <workItem from="1729160527963" duration="1106000" />
+      <workItem from="1729180863815" duration="424000" />
+      <workItem from="1729498123599" duration="1610000" />
+      <workItem from="1729591775576" duration="1820000" />
+      <workItem from="1729779976880" duration="688000" />
+      <workItem from="1729786089886" duration="16000" />
+      <workItem from="1730160205132" duration="395000" />
+      <workItem from="1730160676415" duration="5000" />
+      <workItem from="1737650913620" duration="1391000" />
+      <workItem from="1737740070839" duration="17000" />
+      <workItem from="1738337355249" duration="2419000" />
+      <workItem from="1738576866554" duration="7000" />
+      <workItem from="1739374675948" duration="344000" />
+      <workItem from="1739375685401" duration="21000" />
+      <workItem from="1740695117313" duration="16143000" />
+      <workItem from="1740754324184" duration="13471000" />
+      <workItem from="1740873456607" duration="15000" />
+      <workItem from="1740956358247" duration="11031000" />
+      <workItem from="1741133765645" duration="7000" />
+      <workItem from="1741189381531" duration="1521000" />
+      <workItem from="1741277893498" duration="5773000" />
+      <workItem from="1741364778202" duration="7568000" />
+      <workItem from="1741558812768" duration="7056000" />
+      <workItem from="1741621657442" duration="16512000" />
+      <workItem from="1741704359740" duration="47000" />
+      <workItem from="1741704536337" duration="1393000" />
+      <workItem from="1741728482452" duration="5000" />
+      <workItem from="1741795307268" duration="22916000" />
+      <workItem from="1741877346652" duration="23334000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/CityLearn$electric_vehicle_charger.coverage" NAME="electric_vehicle_charger Coverage Results" MODIFIED="1741881039153" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/citylearn" />
+  </component>
+</project>

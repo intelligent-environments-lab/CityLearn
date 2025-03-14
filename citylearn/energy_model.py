@@ -639,7 +639,8 @@ class StorageDevice(Device):
     @property
     def energy_init(self) -> float:
         r"""Latest energy level after accounting for standby hourly lossses in [kWh]."""
-
+        if self.time_step == 0:
+            return max(0.0, self.__soc[self.time_step]*self.capacity*(1 - self.loss_coefficient))
         return max(0.0, self.__soc[self.time_step - 1]*self.capacity*(1 - self.loss_coefficient))
 
     @property
@@ -699,23 +700,31 @@ class StorageDevice(Device):
         If charging, soc = min(`soc_init` + energy*`round_trip_efficiency`, `capacity`)
         If discharging, soc = max(0, `soc_init` + energy/`round_trip_efficiency`)
         """
-        
+        energy_init = self.energy_init
         # The initial State Of Charge (SOC) is the previous SOC minus the energy losses
-        energy_final = min(self.energy_init + energy*self.round_trip_efficiency, self.capacity) if energy >= 0\
-            else max(0.0, self.energy_init + energy/self.round_trip_efficiency)
+        energy_final = min(energy_init + energy*self.round_trip_efficiency, self.capacity) if energy >= 0\
+            else max(0.0, energy_init + energy/self.round_trip_efficiency)
+
+        print("VALUES INSIDE")
+        print(energy_init)
+        print(energy_final)
+        print(self.capacity)
+
         self.__soc[self.time_step] = energy_final/max(self.capacity, ZERO_DIVISION_PLACEHOLDER)
-        self.__energy_balance[self.time_step] = self.set_energy_balance(energy_final)
+        self.__energy_balance[self.time_step] = self.set_energy_balance(energy_final, energy_init)
 
     def force_set_soc(self, soc: float):
         self.__soc[self.time_step] = soc
 
-    def set_energy_balance(self, energy: float) -> float:
+    def set_energy_balance(self, energy: float, energy_init:float) -> float:
         r"""Calculate energy balance.
 
         Parameters
         ----------
         energy: float
             Energy equivalent of state-of-charge in [kWh].
+        energy_init: float
+            Latest energy level after accounting for standby hourly lossses in [kWh]
 
         Returns
         -------
@@ -728,9 +737,8 @@ class StorageDevice(Device):
         e.g. maximum power input/output, capacity.
         """
 
-        energy -= self.energy_init
+        energy -= energy_init
         energy_balance = energy/self.round_trip_efficiency if energy >= 0 else energy*self.round_trip_efficiency
-        
         return energy_balance
 
     def autosize(self, demand: Iterable[float], safety_factor: Union[float, Tuple[float, float]] = None) -> float:
@@ -997,13 +1005,22 @@ class Battery(StorageDevice, ElectricDevice):
             self.efficiency = self.get_current_efficiency(min(action_energy, max_input_power))
 
         else:
-            soc_limit_wrt_dod = 1.0 - self.depth_of_discharge
-            soc_init = self.soc[self.time_step - 1]
-            soc_difference = soc_init - soc_limit_wrt_dod
+            print("Discharging")
+            soc_init = self.soc[self.time_step - 1] if self.time_step > 0 else self.soc[self.time_step]
+            soc_difference = soc_init - self.depth_of_discharge #if difference is positive thats the maximum amount i can discharge by, if it is negative, i cannot discharge at all
+            print(soc_init)
+            print(soc_difference)
             energy_limit_wrt_dod = max(soc_difference*self.capacity*self.round_trip_efficiency, 0.0)*-1
             max_output_power = self.get_max_output_power()
+            print(-max_output_power)
+            print(energy_limit_wrt_dod)
+            print(energy)
+
             energy = max(-max_output_power, energy_limit_wrt_dod, energy)
             self.efficiency = self.get_current_efficiency(min(abs(action_energy), max_output_power))
+
+        print("Enegryshbjecwe")
+        print(energy)
 
         super().charge(energy)
         degraded_capacity = max(self.degraded_capacity - self.degrade(), 0.0)
