@@ -705,11 +705,6 @@ class StorageDevice(Device):
         energy_final = min(energy_init + energy*self.round_trip_efficiency, self.capacity) if energy >= 0\
             else max(0.0, energy_init + energy/self.round_trip_efficiency)
 
-        print("VALUES INSIDE")
-        print(energy_init)
-        print(energy_final)
-        print(self.capacity)
-
         self.__soc[self.time_step] = energy_final/max(self.capacity, ZERO_DIVISION_PLACEHOLDER)
         self.__energy_balance[self.time_step] = self.set_energy_balance(energy_final, energy_init)
 
@@ -1005,22 +1000,13 @@ class Battery(StorageDevice, ElectricDevice):
             self.efficiency = self.get_current_efficiency(min(action_energy, max_input_power))
 
         else:
-            print("Discharging")
+            soc_limit_wrt_dod = 1.0 - self.depth_of_discharge
             soc_init = self.soc[self.time_step - 1] if self.time_step > 0 else self.soc[self.time_step]
-            soc_difference = soc_init - self.depth_of_discharge #if difference is positive thats the maximum amount i can discharge by, if it is negative, i cannot discharge at all
-            print(soc_init)
-            print(soc_difference)
-            energy_limit_wrt_dod = max(soc_difference*self.capacity*self.round_trip_efficiency, 0.0)*-1
+            soc_difference = soc_init - soc_limit_wrt_dod
+            energy_limit_wrt_dod = max(soc_difference * self.capacity * self.round_trip_efficiency, 0.0) * -1
             max_output_power = self.get_max_output_power()
-            print(-max_output_power)
-            print(energy_limit_wrt_dod)
-            print(energy)
-
             energy = max(-max_output_power, energy_limit_wrt_dod, energy)
             self.efficiency = self.get_current_efficiency(min(abs(action_energy), max_output_power))
-
-        print("Enegryshbjecwe")
-        print(energy)
 
         super().charge(energy)
         degraded_capacity = max(self.degraded_capacity - self.degrade(), 0.0)

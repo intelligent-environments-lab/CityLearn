@@ -474,4 +474,3 @@ class BasicElectricVehicleRBC_ReferenceController(BasicRBC): #change the name
                     raise ValueError(f'Unknown action name: {n}')
 
         HourRBC.action_map.fset(self, action_map)
-        print(action_map)

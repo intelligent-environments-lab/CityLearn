@@ -884,18 +884,8 @@ class CityLearnEnv(Environment, Env):
         actions = self._parse_actions(actions)
 
         for building, building_actions in zip(self.buildings, actions):
-            print("ACTIONS")
-            print(building_actions)
-            print()
             building.apply_actions(**building_actions)
 
-        #for ev in self.electric_vehicles:
-        #    print()
-        #    print(f" time step {self.time_step} - [{ev.name}] Loaded: Current battery SoC (% 0 to 1): {ev.battery.soc[-1]}, Battery Capacity {ev.battery.capacity}, Ev Init {ev.battery.initial_soc}")
-
-
-        #Currently at time_step t
-        #print("NEXTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
         self.next_time_step()
         #todo test the tempratures citylearn learn chalenge 2023 challenge phase 2 (dont want big difference between set points and temp)
 

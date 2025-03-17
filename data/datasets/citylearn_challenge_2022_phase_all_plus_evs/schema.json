@@ -227,7 +227,7 @@
           "capacity": 40,
           "nominal_power": 50,
           "initial_soc": 0.25,
-          "depth_of_discharge": 0.10
+          "depth_of_discharge": 0.85
         }
       }
     },
@@ -240,7 +240,7 @@
         "attributes": {
           "capacity": 50,
           "nominal_power": 50,
-          "depth_of_discharge": 0.35
+          "depth_of_discharge": 0.90
         }
       }
     },
@@ -253,7 +253,7 @@
         "attributes": {
           "capacity": 75,
           "nominal_power": 50,
-          "depth_of_discharge": 0.5
+          "depth_of_discharge": 0.80
         }
       }
     },
@@ -266,7 +266,7 @@
         "attributes": {
           "capacity": 45,
           "nominal_power": 50,
-          "depth_of_discharge": 0.2
+          "depth_of_discharge": 0.90
         }
       }
     },
@@ -279,7 +279,7 @@
         "attributes": {
           "capacity": 90,
           "nominal_power": 50,
-          "depth_of_discharge": 0.8
+          "depth_of_discharge": 0.85
         }
       }
     },
@@ -292,7 +292,7 @@
         "attributes": {
           "capacity": 100,
           "nominal_power": 50,
-          "depth_of_discharge": 0.8
+          "depth_of_discharge": 0.90
         }
       }
     },
@@ -306,7 +306,7 @@
           "capacity": 60,
           "nominal_power": 50,
           "initial_soc": 0.25,
-          "depth_of_discharge": 0.1
+          "depth_of_discharge": 0.8
         }
       }
     },
@@ -319,7 +319,8 @@
         "attributes": {
           "capacity": 80,
           "nominal_power": 50,
-          "initial_soc": 0.2
+          "initial_soc": 0.2,
+          "depth_of_discharge": 0.85
         }
       }
     }

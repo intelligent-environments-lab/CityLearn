@@ -858,7 +858,7 @@ class Building(Environment):
         data = self._get_observations_data()
 
         if include_all:
-            valid_observations = list(data.keys())
+            valid_observations = list(set(data.keys()) | set(self.active_observations))
         else:
             valid_observations = self.active_observations
 
@@ -925,8 +925,7 @@ class Building(Environment):
 
         else:
             pass
-        #print()
-        #print(observations)
+
         return observations
 
     def update_ev_charger_observations(self, observations, valid_observations, ev_chargers):

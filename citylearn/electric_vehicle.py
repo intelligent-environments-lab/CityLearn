@@ -79,8 +79,6 @@ class ElectricVehicle(Environment):
             self.__battery = battery
 
     def next_time_step(self) -> Mapping[int, str]:
-        LOGGER.debug(
-            f"[{self.name}] characteristics at {self.time_step}: Current battery SoC (% 0 to 1): {self.battery.soc[self.time_step]}, Battery Capacity {self.battery.capacity}")
 
         # Check if the next time step exists in the charger state array
         if self.time_step + 1 < self.episode_tracker.episode_time_steps:

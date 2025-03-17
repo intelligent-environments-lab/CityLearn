@@ -85,7 +85,7 @@ class Charger(Environment):
         """Minimum discharging power in kW."""
 
         return self.__min_discharging_power
-    
+
     @property
     def charge_efficiency_curve(self) -> dict:
         """Efficiency curve for charging containing power levels and corresponding efficiency values."""
@@ -126,7 +126,7 @@ class Charger(Environment):
     @property
     def past_charging_action_values(self) -> List[float]:
         r"""Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy"""
-       
+
         return self.__past_charging_action_values
 
     @property
@@ -276,56 +276,34 @@ class Charger(Environment):
         """
         self.__past_charging_action_values[self.time_step] = action_value
 
-        print()
-        print(f"Action Value {action_value}")
-
         if self.connected_electric_vehicle and action_value != 0:
             charging = action_value > 0
             efficiency = self.get_efficiency(abs(action_value), charging)  # Charging if action_value > 0
             electric_vehicle = self.connected_electric_vehicle
 
-            print(f"EV: {electric_vehicle.name}")
-            print(f"Energy init in kWh: {electric_vehicle.battery.energy_init}")
-            print(f"Soc in 0 to 1: {electric_vehicle.battery.soc[self.time_step-1] if self.time_step >0 else electric_vehicle.battery.soc[self.time_step]}")
-
             # Convert power (kW) to energy (kWh) for this time step
             time_step_hours_ratio = self.seconds_per_time_step / 3600  # Convert seconds to fraction of an hour
+            energy_kwh = 0
 
             if charging:
-                print("CHARGING")
                 power = action_value * self.max_charging_power  # Power in kW
                 energy = power * time_step_hours_ratio  # Convert to energy (kWh)
-                energy = max(min(energy, self.max_charging_power), self.min_charging_power)  # For charging
-                print(energy)
+                energy = max(min(energy, self.max_charging_power), self.min_charging_power)
+                energy_kwh = energy * efficiency# For charging
             else:
-                print("DISCHARGING")
                 power = action_value * self.max_discharging_power  # Power in kW
                 energy = power * time_step_hours_ratio  # Convert to energy (kWh)
-                print(energy)
                 energy = max(min(energy, -self.min_discharging_power), -self.max_discharging_power)  # For discharging
-
-                print(power)
-                print(energy)
-
-            # Apply efficiency
-            energy_kwh = energy * efficiency
-
-            print(energy_kwh)
+                energy_kwh = energy/efficiency
 
             # Charge or discharge the battery
             electric_vehicle.battery.charge(energy_kwh)
 
-
             battery_energy_balance = electric_vehicle.battery.energy_balance[self.time_step]
             # Store electricity consumption
             self.__electricity_consumption[self.time_step] = battery_energy_balance/efficiency if battery_energy_balance >= 0 else battery_energy_balance*efficiency
-
-            print("BATERIA Depois")
-            print(electric_vehicle.battery.soc[self.time_step])
-            print(self.__electricity_consumption[self.time_step])
         else:
             self.__electricity_consumption[self.time_step] = 0
-            print(self.__electricity_consumption[self.time_step])
 
     def next_time_step(self):
         r"""Advance to next `time_step` and set `electricity_consumption` at new `time_step` to 0.0."""
