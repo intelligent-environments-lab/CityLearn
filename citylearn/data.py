@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from platformdirs import user_cache_dir
 import shutil
-from typing import Any, Iterable, Mapping, List, Union
+from typing import Any, Iterable, Mapping, List, Optional, Union
 import numpy as np
 import pandas as pd
 import requests
@@ -11,6 +11,12 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from citylearn.__init__ import __version__
 from citylearn.utilities import join_url, read_json, read_yaml, write_json
+from citylearn.utilities import read_json, read_yaml, write_json
+
+def join_url(*args: str) -> str:
+    url = '/'.join([a.strip('/') for a in args])
+
+    return url
 
 LOGGER = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
@@ -124,6 +130,7 @@ class DataSet:
         path = join_url(self.datasets_path, name)
 
         # check that dataset does not already exist using the schema as a proxy
+        LOGGER.info(f'Go here {schema_filepath} ')
         if not os.path.isfile(schema_filepath):
             LOGGER.info(f'The {name} dataset DNE in cache. Will download from '
                 f'{self.github_account}/{self.repository}/tree/{self.tag} GitHub repository and write to {datasets_directory}. '
@@ -346,6 +353,8 @@ class EnergySimulation(TimeSeriesData):
         Month time series value ranging from 1 - 12.
     hour : np.array
         Hour time series value ranging from 1 - 24.
+    minutes : np.array
+        Minutes time series value ranging from 0 - 60.
     day_type : np.array
         Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.
     indoor_dry_bulb_temperature : np.array
@@ -397,7 +406,7 @@ class EnergySimulation(TimeSeriesData):
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
          indoor_dry_bulb_temperature: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float], solar_generation: Iterable[float], 
-        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None
+        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None,  seconds_per_time_step: int = None, minutes: Iterable[int] = None, time_step_ratios: list[int]= []
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.month = np.array(month, dtype='int32')
@@ -415,6 +424,36 @@ class EnergySimulation(TimeSeriesData):
         self.solar_generation = np.array(solar_generation, dtype = 'float32')
 
         # optional
+        self.minutes = np.array(minutes, dtype='int32') if minutes is not None else None
+        # delta between t1 and t2
+        time_delta = self.hour[1] * 60 - self.hour[0] * 60  
+
+        # Compute time difference if minutes exist
+        if self.minutes is not None and len(self.minutes) > 1:
+            print(self.hour, self.minutes)
+            t0 = self.hour[0] * 60 + self.minutes[0]  # Convert to total minutes
+            t1 = self.hour[1] * 60 + self.minutes[1]  # Convert to total minutes
+
+            time_delta = t1 - t0
+
+            print("Time difference between t and t+1 in minutes:", time_delta)
+
+        # Fix negative difference if crossing midnight
+            # Add a full day in minutes
+        if time_delta < 0:
+                time_delta += 1440    
+
+        print("Time difference between t and t+1 in minutes:", time_delta)
+
+        time_step_ratio = (
+            seconds_per_time_step / (max(time_delta, seconds_per_time_step / 60) * 60) # Make sure seconds_per_timestamp isn't more than time_delta e.g. 30 mins time_delta but 60 minutes seconds_per_timestamp
+            if time_delta is not None and seconds_per_time_step
+            else None
+        )
+
+        time_step_ratios.append(time_step_ratio)
+        self.time_step_ratios = time_step_ratios # Store the ratio for this building
+
         self.daylight_savings_status = np.zeros(len(solar_generation), dtype='int32') if daylight_savings_status is None else np.array(daylight_savings_status, dtype='int32')
         self.average_unmet_cooling_setpoint_difference = np.zeros(len(solar_generation), dtype='float32') if average_unmet_cooling_setpoint_difference is None else np.array(average_unmet_cooling_setpoint_difference, dtype='float32')
         self.indoor_relative_humidity = np.zeros(len(solar_generation), dtype='float32') if indoor_relative_humidity is None else np.array(indoor_relative_humidity, dtype = 'float32')
@@ -450,6 +489,16 @@ class EnergySimulation(TimeSeriesData):
                 'Valid values are 0, 1, 2, 3 to indicate off, cooling mode, heating mode, and automatic mode.'
             
         self.hvac_mode = np.array(hvac_mode, dtype='int32')
+
+    @property
+    def time_step_ratios(self):
+        """Getter for the time_step_ratio variable."""
+        return self.__time_step_ratios
+
+    @time_step_ratios.setter
+    def time_step_ratios(self, value):
+        """Setter for the time_step_ratio variable."""
+        self.__time_step_ratios = value    
     
 class LogisticRegressionOccupantParameters(TimeSeriesData):
     def __init__(self, a_increase: Iterable[float], b_increase: Iterable[float], a_decrease: Iterable[float], b_decrease: Iterable[float], start_time_step: int = None, end_time_step: int = None):

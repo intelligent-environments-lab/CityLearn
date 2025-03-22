@@ -149,11 +149,10 @@ class ElectricVehicle(Environment):
         """
         return {
             'name': self.name,
-            'time_step': self.time_step,
+            "EV Charger State": self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step],
             'battery': {
                 'soc': self.battery.soc[self.time_step],
                 'capacity': self.battery.capacity,
-                'battery_obj': self.battery
             },
             'observations': self.observations()
         }

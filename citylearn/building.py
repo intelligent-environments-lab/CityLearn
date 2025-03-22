@@ -100,13 +100,15 @@ class Building(Environment):
         self.dhw_device = dhw_device
         self.cooling_device = cooling_device
         self.heating_device = heating_device
-        self.__non_shiftable_load_device = ElectricDevice(0.0)
+        self.__non_shiftable_load_device = ElectricDevice(nominal_power=0.0, **kwargs)
         self.pv = pv
         super().__init__(
             seconds_per_time_step=kwargs.get('seconds_per_time_step'),
             random_seed=kwargs.get('random_seed'),
-            episode_tracker=episode_tracker
+            episode_tracker=episode_tracker,
+            time_step_ratio=kwargs.get('time_step_ratio', 1.0)
         )
+        self.algorithm_action_based_time_step_hours_ratio = self.seconds_per_time_step / 3600
         self.stochastic_power_outage_model = stochastic_power_outage_model
         self.electric_vehicle_chargers = electric_vehicle_chargers
         self.energy_simulation = energy_simulation
@@ -566,6 +568,21 @@ class Building(Environment):
         """Domestic hot water demand to be met by `dhw_device` and/or `dhw_storage` time series, in [kWh]."""
 
         return self.energy_simulation.dhw_demand[0:self.time_step + 1]
+
+    @property
+    def energy_production_from_ev(self) -> np.ndarray:
+        """Summed energy retrieved from EVs for a single building, in [kWh], considering only discharging (negative) values."""
+
+        total_ev_production = np.zeros_like(self.electrical_storage_electricity_consumption)
+
+        for charger in self.electric_vehicle_chargers:
+            # Convert list to NumPy array (ensures compatibility)
+            consumption = np.array(charger.electricity_consumption)
+            # Sum only negative values (discharging), using absolute value
+            discharging = np.where(consumption < 0, np.abs(consumption), 0)
+            total_ev_production += discharging[self.time_step]
+
+        return total_ev_production
 
     @property
     def non_shiftable_load(self) -> np.ndarray:
@@ -1289,7 +1306,7 @@ class Building(Environment):
             Fraction of `heating_storage` `capacity` to charge/discharge by.
         """
 
-        energy = action * self.heating_storage.capacity
+        energy = action * self.cooling_storage.capacity * self.algorithm_action_based_time_step_hours_ratio
         temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
 
         if energy > 0.0:
@@ -1334,7 +1351,7 @@ class Building(Environment):
             Fraction of `dhw_storage` `capacity` to charge/discharge by.
         """
 
-        energy = action * self.dhw_storage.capacity
+        energy = action * self.heating_storage.capacity * self.algorithm_action_based_time_step_hours_ratio
         temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
 
         if energy > 0.0:
@@ -1369,7 +1386,7 @@ class Building(Environment):
             Fraction of `electrical_storage` `capacity` to charge/discharge by.
         """
 
-        energy = min(action * self.electrical_storage.capacity, self.downward_electrical_flexibility)
+        energy = min(action * self.electrical_storage.capacity, self.downward_electrical_flexibility) * self.algorithm_action_based_time_step_hours_ratio
         self.electrical_storage.charge(energy)
 
     def ___demand_limit_check(self, end_use: str, demand: float, max_device_output: float):
@@ -2175,7 +2192,108 @@ class Building(Environment):
 
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission[self.time_step] = max(0.0, net_electricity_consumption*self.carbon_intensity.carbon_intensity[self.time_step])
+    
+    def __str__(self) -> str:
+        """
+        Return a text representation of the current state.
+        """
+        return str(self.as_dict())
+    
+    def as_dict(self) -> dict:
+        """
+        Return a dictionary representation of the current state for use in rendering or logging.
+        """
+        return {
+            "Net Electricity Consumption-kWh": f"{self.net_electricity_consumption[self.time_step]}",
+            "Non-shiftable Load-kWh": f"{self.non_shiftable_load[self.time_step]}",
+            "Non-shiftable Load Electricity Consumption-kWh": f"{self.non_shiftable_load_electricity_consumption[self.time_step]}",
+            "Energy Production from PV-kWh": f"{self.solar_generation[self.time_step]}",
+            "Energy Production From EV-kWh": f"{self.energy_production_from_ev[self.time_step]}",
+        }
+    
+    def render_simulation_end_data(self) -> dict:
+        """
+        Return a dictionary containing all simulation data across all time steps.
+        The returned dictionary is structured with the building name and, for each time step,
+        a dictionary with the simulation data, including energy, weather, storage, and device information.
 
+        Returns
+        -------
+        result : dict
+            A JSON-like dictionary with the building name and per-time-step data.
+        """
+        if not hasattr(self, 'episode_tracker') or self.episode_tracker is None:
+            raise AttributeError("Episode tracker is not initialized.")
+
+        num_steps = self.episode_tracker.episode_time_steps  # Total number of time steps in the simulation
+
+        result = {
+            'name': self.name,
+            'simulation_data': []
+        }
+
+        for t in range(num_steps):
+            time_step_data = {
+                'time_step': t,
+                'name': self.name,
+                'energy_simulation': {
+                    'cooling_demand': self.energy_simulation.cooling_demand[t],
+                    'heating_demand': self.energy_simulation.heating_demand[t],
+                    'dhw_demand': self.energy_simulation.dhw_demand[t],
+                    'solar_generation': self.energy_simulation.solar_generation[t],
+                    'indoor_temperature': self.energy_simulation.indoor_dry_bulb_temperature[t],
+                    'solar_generation': self.energy_simulation.solar_generation[t]
+                },
+                'weather': {
+                    'outdoor_temperature': self.weather.outdoor_dry_bulb_temperature[t],
+                    'direct_solar_irradiance': self.weather.direct_solar_irradiance[t]
+                },
+                'carbon_intensity': self.carbon_intensity.carbon_intensity[t] if self.carbon_intensity else None,
+                'pricing': {
+                    'electricity_price': self.pricing.electricity_pricing[t] if self.pricing else None,
+                },
+                'storage': {
+                    'dhw_storage': {
+                        'soc': self.dhw_storage.soc[t] if self.dhw_storage else None,
+                        'capacity': self.dhw_storage.capacity if self.dhw_storage else None
+                    },
+                    'cooling_storage': {
+                        'soc': self.cooling_storage.soc[t] if self.cooling_storage else None,
+                        'capacity': self.cooling_storage.capacity if self.cooling_storage else None
+                    },
+                    'heating_storage': {
+                        'soc': self.heating_storage.soc[t] if self.heating_storage else None,
+                        'capacity': self.heating_storage.capacity if self.heating_storage else None
+                    },
+                    'electrical_storage': {
+                        'soc': self.electrical_storage.soc[t] if self.electrical_storage else None,
+                        'capacity': self.electrical_storage.capacity if self.electrical_storage else None
+                    }
+                },
+                'devices': {
+                    'dhw_device': {
+                        'electricity_consumption': self.dhw_device.electricity_consumption[t] if self.dhw_device else None,
+                        'nominal_power': self.dhw_device.nominal_power if self.dhw_device else None
+                    },
+                    'cooling_device': {
+                        'electricity_consumption': self.cooling_device.electricity_consumption[t] if self.cooling_device else None,
+                        'nominal_power': self.cooling_device.nominal_power if self.cooling_device else None
+                    },
+                    'heating_device': {
+                        'electricity_consumption': self.heating_device.electricity_consumption[t] if self.heating_device else None,
+                        'nominal_power': self.heating_device.nominal_power if self.heating_device else None
+                    }
+                },
+                'pv': {
+                    'power_generation': self.pv.electricity_consumption[t] if self.pv else None,
+                    'nominal_power': self.pv.nominal_power if self.pv else None
+                },
+                'observations': self.observations(t) if hasattr(self, 'observations') else None
+            }
+
+            result['simulation_data'].append(time_step_data)
+
+        return result
 
 class DynamicsBuilding(Building):
     r"""Base class for temperature dynamic building.
@@ -2483,7 +2601,7 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
 
         if ('cooling_device' in self.active_actions or 'cooling_or_heating_device' in self.active_actions) and self.simulate_dynamics:
             if self.energy_simulation.hvac_mode[self.time_step] in [1, 3]:
-                electric_power = action * self.cooling_device.nominal_power
+                electric_power = action * self.cooling_device.nominal_power * self.algorithm_action_based_time_step_hours_ratio
                 demand = self.cooling_device.get_max_output_power(
                     self.weather.outdoor_dry_bulb_temperature[self.time_step],
                     heating=False,

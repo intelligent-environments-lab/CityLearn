@@ -153,12 +153,13 @@ class Environment:
     DEFAULT_SECONDS_PER_TIME_STEP = 3600.0
     DEFAULT_RANDOM_SEED_RANGE = (0, 100_000_000)
     
-    def __init__(self, seconds_per_time_step: float = None, random_seed: int = None, episode_tracker: EpisodeTracker = None):
+    def __init__(self, seconds_per_time_step: float = None, random_seed: int = None, episode_tracker: EpisodeTracker = None, time_step_ratio: int = None):
         self.seconds_per_time_step = seconds_per_time_step
         self.__uid = uuid.uuid4().hex
         self.random_seed = random_seed
         self.__time_step = None
         self.episode_tracker = episode_tracker
+        self.time_step_ratio = time_step_ratio
 
     @property
     def uid(self) -> str:
@@ -178,6 +179,13 @@ class Environment:
         current episode time steps for reading observations from data files."""
 
         return self.__episode_tracker
+    
+    @property
+    def time_step_ratio(self) -> int:
+        """:py:class:`citylearn.base.EpisodeTracker` object used to keep track of 
+        current episode time steps for reading observations from data files."""
+
+        return self.__time_step_ratio
 
     @property
     def time_step(self) -> int:
@@ -213,6 +221,10 @@ class Environment:
     @episode_tracker.setter
     def episode_tracker(self, episode_tracker: EpisodeTracker):
         self.__episode_tracker = episode_tracker
+    
+    @time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: int):
+        self.__time_step_ratio = time_step_ratio
 
     def get_metadata(self) -> Mapping[str, Any]:
         """Returns general static information."""

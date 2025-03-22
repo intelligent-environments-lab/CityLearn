@@ -7,6 +7,10 @@ import os
 from pathlib import Path
 from typing import Any, List, Mapping, Tuple, Union
 from gymnasium import Env, spaces
+import csv
+import shutil
+import datetime
+from itertools import zip_longest
 import numpy as np
 import pandas as pd
 import random
@@ -124,6 +128,9 @@ class CityLearnEnv(Environment, Env):
         inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, **kwargs: Any
     ):
         self.schema = schema
+        self.previous_month = None
+        self.current_day = 1  # Start from day 1
+        self.year = 2024
         self.__rewards = None
         self.buildings = []
         self.random_seed = self.schema.get('random_seed', None) if random_seed is None else random_seed
@@ -179,6 +186,29 @@ class CityLearnEnv(Environment, Env):
 
         # reward history tracker
         self.__episode_rewards = []
+
+        # reward history tracker
+
+        if root_directory is None:
+            root_directory = os.path.dirname(os.path.abspath(__file__))  # Get the current file's directory
+
+        print(root_directory)
+        self.root_directory = root_directory
+
+        if schema:  # Check if schema is provided
+            # Construct the dataset path using the schema
+            dataset_path = root_directory
+
+            # Generate a timestamp for the new folder name
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            self.new_folder_path = os.path.join(self.root_directory, "..", "..", "..", "..", "results", timestamp)
+
+            # Check if the dataset path exists and copy it to the new folder
+            if os.path.exists(dataset_path):
+                shutil.copytree(dataset_path, self.new_folder_path)  # Copy the dataset to the new folder
+                print(f"Dataset '{dataset_path}' copied to '{self.new_folder_path}'")
+            else:
+                raise FileNotFoundError(f"Error: The dataset '{dataset_path}' does not exist.")
 
     @property
     def schema(self) -> Mapping[str, Any]:
@@ -692,6 +722,17 @@ class CityLearnEnv(Environment, Env):
 
         return pd.DataFrame([b.energy_from_cooling_storage for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
+
+    @property
+    def total_self_consumption(self) -> np.ndarray:
+        """Total self-consumption from electrical and thermal storage, in [kWh]."""
+        return (
+            self.energy_from_electrical_storage +
+            self.energy_from_cooling_storage +
+            self.energy_from_heating_storage +
+            self.energy_from_dhw_storage
+        )
+
     @property
     def energy_from_heating_storage(self) -> np.ndarray:
         """Summed `Building.energy_from_heating_storage` time series, in [kWh]."""
@@ -739,6 +780,20 @@ class CityLearnEnv(Environment, Env):
         """Summed `Building.solar_generation, in [kWh]`."""
 
         return pd.DataFrame([b.solar_generation for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
+
+    @property
+    def energy_production_from_ev(self) -> np.ndarray:
+        """Summed energy retrieved from all connected EVs across buildings, in [kWh]."""
+        
+        total_ev_production = np.zeros_like(self.buildings[0].electrical_storage_electricity_consumption)  
+        
+        for building in self.buildings:
+            for charger in building.ev_chargers:
+                connected_ev = charger.connected_electric_vehicle
+                if connected_ev:
+                    total_ev_production += building.electrical_storage_electricity_consumption
+
+        return total_ev_production
 
     @property
     def power_outage(self) -> np.ndarray:
@@ -1143,7 +1198,7 @@ class CityLearnEnv(Environment, Env):
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
-
+        self.render()
         for building in self.buildings:
             building.next_time_step()
 
@@ -1176,6 +1231,77 @@ class CityLearnEnv(Environment, Env):
                                 if state == 2: #EVs can also be associated as incoming to a given charger
                                     c.associate_incoming_car(electric_vehicle)
 
+    
+
+  
+    def render(self):
+        """
+        Renders the current state of the CityLearn environment, logging data into separate CSV files.
+        """
+        
+        iso_timestamp = self._get_iso_timestamp()
+        os.makedirs(self.new_folder_path, exist_ok=True)
+        LOGGER.info("Ver aqui", self.new_folder_path)
+
+
+        # Save community data
+        self._save_to_csv("exported_data_community.csv", {"Time Step": iso_timestamp, **self.as_dict()})
+
+        # Save building data
+        for idx, building in enumerate(self.buildings):
+            self._save_to_csv(f"exported_data_building_{idx+1}.csv", {"Time Step": iso_timestamp, **building.as_dict()})
+            
+            for charger_idx, charger in enumerate(building.electric_vehicle_chargers):
+                self._save_to_csv(f"exported_data_B{idx}C{charger_idx}.csv", {"Time Step": iso_timestamp, **charger.as_dict()})
+        
+        # Save EV data
+        for idx, ev in enumerate(self.__electric_vehicles):
+            #if idx == 0: print(ev.render_simulation_end_data())
+            #if idx == 0: self._save_to_csv(f"test{ev.name}.csv", ev.render_simulation_end_data())
+            self._save_to_csv(f"exported_data_ev_{idx}.csv", {"Time Step": iso_timestamp, **ev.as_dict()})
+
+    def _save_to_csv(self, filename, data):
+        """
+        Saves data to a CSV file, appending it if the file exists.
+        """
+        file_path = os.path.join(self.new_folder_path, filename)
+        file_exists = os.path.isfile(file_path)
+        
+        with open(file_path, 'a', newline='') as csvfile:
+            fieldnames = list(data.keys())
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            
+            if not file_exists:
+                writer.writeheader()
+            writer.writerow(data)
+
+    def _get_iso_timestamp(self):
+        energy_sim = self.buildings[0].energy_simulation
+        energy_sim_month = energy_sim.month
+        energy_sim_hour = energy_sim.hour
+        energy_sim_minutes = getattr(energy_sim, "minutes", None)
+        
+        month = energy_sim_month[self.time_step]
+        hour = energy_sim_hour[self.time_step]
+        minutes = energy_sim_minutes[self.time_step] if energy_sim_minutes is not None and len(energy_sim_minutes) > 0 else 0
+        
+        next_time_step = self.time_step + 1
+        next_month = energy_sim_month[next_time_step] if next_time_step < len(energy_sim_month) else month
+        next_hour = energy_sim_hour[next_time_step] if next_time_step < len(energy_sim_hour) else hour
+        next_minutes = (
+            energy_sim_minutes[next_time_step] if energy_sim_minutes is not None and next_time_step < len(energy_sim_minutes) else minutes
+        )
+        
+        if next_month != month:
+            self.current_day = 1
+            self.year += (month == 12 and next_month == 1)  # If current month is 12 and next month is 1, increment year
+            month = next_month
+        elif next_hour == 1 and (next_minutes == 0 if energy_sim_minutes is not None else True):  # Roll over to a new day
+            self.current_day += 1
+        
+        return f"{self.year:04d}-{month:02d}-{self.current_day:02d}T{hour % 24:02d}:{minutes:02d}:00"
+    
+    
     def reset(self, seed: int = None, options: Mapping[str, Any] = None) -> Tuple[List[List[float]], dict]:
         r"""Reset `CityLearnEnv` to initial state.
 
@@ -1440,10 +1566,12 @@ class CityLearnEnv(Environment, Env):
 
         building_schema = schema['buildings'][building_name]
         building_kwargs = {}
+        seconds_per_time_step = schema['seconds_per_time_step']
 
         # data
         energy_simulation = pd.read_csv(os.path.join(schema['root_directory'], building_schema['energy_simulation']))
-        energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'))
+        energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'), seconds_per_time_step=seconds_per_time_step)
+        building_kwargs['time_step_ratio'] = energy_simulation.time_step_ratios[index]
         weather = pd.read_csv(os.path.join(schema['root_directory'], building_schema['weather']))
         weather = Weather(**weather.to_dict('list'))
 
@@ -1540,7 +1668,7 @@ class CityLearnEnv(Environment, Env):
                 charger_class = getattr(importlib.import_module(charger_module), charger_class_name)
                 charger_attributes = charger_config.get('attributes', {})
                 charger_attributes['episode_tracker'] = episode_tracker
-                charger_object = charger_class(charger_id=charger_name, **charger_attributes, seconds_per_time_step=schema['seconds_per_time_step'], )
+                charger_object = charger_class(charger_id=charger_name, **charger_attributes, seconds_per_time_step=schema['seconds_per_time_step'])
                 chargers_list.append(charger_object)
 
         observation_metadata, action_metadata = self.process_metadata(schema, building_schema, chargers_list, index, **kwargs)
@@ -1807,6 +1935,38 @@ class CityLearnEnv(Environment, Env):
         )
 
         return ev
+    
+    def __str__(self) -> str:
+        """
+        Return a text representation of the current state.
+        """
+        return str(self.as_dict())
+    
+    def as_dict(self) -> dict:
+        """
+        Return a dictionary representation of the current state for use in rendering or logging.
+        """
+        return {
+            "Net Electricity Consumption-kWh": self.net_electricity_consumption[self.time_step],
+            "Self Consumption-kWh": self.total_self_consumption[self.time_step],
+            "Stored energy by community- kWh": self.energy_to_electrical_storage[self.time_step],
+            "Total Solar Generation-kWh": self.solar_generation[self.time_step],
+            "CO2-kg_co2": self.net_electricity_consumption_emission[self.time_step],
+            "Price-$": self.net_electricity_consumption_cost[self.time_step],
+        }
+    
+    def render_simulation_end_data(self) -> dict:
+        """
+        Return a dictionary containing all simulation data across all time steps.
+        The returned dictionary is structured with a general simulation name and, for each time step,
+        a dictionary with the simulation data and battery data.
+        Returns
+        -------
+        result : dict
+        A JSON-like dictionary with the simulation name and per-time-step data.
+        """
+        # Determine the number of time steps.
+        num_steps = self.episode_tracker.episode_time_steps
 
 class Error(Exception):
     """Base class for other exceptions."""
