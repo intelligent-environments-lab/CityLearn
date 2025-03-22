@@ -8,7 +8,7 @@ np.seterr(divide='ignore', invalid='ignore')
 
 class Charger(Environment):
     def __init__(
-            self, nominal_power: float, efficiency: float = None, charger_id: str = None, charger_type: int = None, max_charging_power: float = None,
+            self, charger_id: str = None, efficiency: float = None, max_charging_power: float = None,
             min_charging_power: float = None, max_discharging_power: float = None,  min_discharging_power: float = None, charge_efficiency_curve: Dict[float, float] = None,
             discharge_efficiency_curve: Dict[float, float] = None, connected_electric_vehicle: ElectricVehicle = None, incoming_electric_vehicle: ElectricVehicle = None,
             **kwargs
@@ -19,8 +19,6 @@ class Charger(Environment):
         ----------
         charger_id: str
             Id through which the charger is uniquely identified in the system
-        charger_type: int
-            Either private (0) or public (1) charger
         max_charging_power : float, default 50
             Maximum charging power in kW.
         min_charging_power : float, default 0
@@ -29,9 +27,9 @@ class Charger(Environment):
             Maximum discharging power in kW.
         min_discharging_power : float, default 0
             Minimum discharging power in kW.
-        charge_efficiency_curve : dict, default {3.6: 0.95, 7.2: 0.97, 22: 0.98, 50: 0.98}
+        charge_efficiency_curve : List, none [[0, 0.83],[0.3, 0.83],[0.7, 0.9],[0.8, 0.9],[1, 0.85]]
             Efficiency curve for charging containing power levels and corresponding efficiency values.
-        discharge_efficiency_curve : dict, default {3.6: 0.95, 7.2: 0.97, 22: 0.98, 50: 0.98}
+        discharge_efficiency_curve : List, none [[0, 0.83],[0.3, 0.83],[0.7, 0.9],[0.8, 0.9],[1, 0.85]]
             Efficiency curve for discharging containing power levels and corresponding efficiency values.
 
         Other Parameters
@@ -40,10 +38,8 @@ class Charger(Environment):
             Other keyword arguments used to initialize super classes.
         """
 
-        self.nominal_power = nominal_power
         self.efficiency = efficiency
         self.charger_id = charger_id
-        self.charger_type = charger_type
         self.max_charging_power = max_charging_power
         self.min_charging_power = min_charging_power
         self.max_discharging_power = max_discharging_power
@@ -65,12 +61,6 @@ class Charger(Environment):
         """ID of the charger."""
 
         return self.__charger_id
-
-    @property
-    def charger_type(self) -> int:
-        """Type of the charger."""
-
-        return self.__charger_type
 
     @property
     def max_charging_power(self) -> float:
@@ -95,7 +85,7 @@ class Charger(Environment):
         """Minimum discharging power in kW."""
 
         return self.__min_discharging_power
-    
+
     @property
     def charge_efficiency_curve(self) -> dict:
         """Efficiency curve for charging containing power levels and corresponding efficiency values."""
@@ -126,11 +116,6 @@ class Charger(Environment):
 
         return self.__efficiency
 
-    @property
-    def nominal_power(self) -> float:
-        r"""Nominal power."""
-
-        return self.__nominal_power
 
     @property
     def past_connected_evs(self) -> List[ElectricVehicle]:
@@ -141,7 +126,7 @@ class Charger(Environment):
     @property
     def past_charging_action_values(self) -> List[float]:
         r"""Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy"""
-       
+
         return self.__past_charging_action_values
 
     @property
@@ -150,20 +135,9 @@ class Charger(Environment):
 
         return self.__electricity_consumption
 
-    @property
-    def available_nominal_power(self) -> float:
-        r"""Difference between `nominal_power` and `electricity_consumption` at current `time_step`."""
-
-        return None if self.nominal_power is None else self.nominal_power - self.electricity_consumption[self.time_step]
-    
-
     @charger_id.setter
     def charger_id(self, charger_id: str):
         self.__charger_id = charger_id
-
-    @charger_type.setter
-    def charger_type(self, charger_type: str):
-        self.__charger_type = charger_type
 
     @max_charging_power.setter
     def max_charging_power(self, max_charging_power: float):
@@ -195,44 +169,33 @@ class Charger(Environment):
 
     @charge_efficiency_curve.setter
     def charge_efficiency_curve(self, charge_efficiency_curve: List[List[float]]):
-        if charge_efficiency_curve is None:
-            charge_efficiency_curve = [[3.6, 0.95],[7.2, 0.97],[22, 0.98],[50, 0.98]]
+        if charge_efficiency_curve is not None:
+            self.__charge_efficiency_curve = np.array(charge_efficiency_curve).T
         else:
-            pass
-        self.__charge_efficiency_curve = np.array(charge_efficiency_curve).T
-    
+            self.__charge_efficiency_curve = None
+
     @discharge_efficiency_curve.setter
     def discharge_efficiency_curve(self, discharge_efficiency_curve: List[List[float]]):
-        if discharge_efficiency_curve is None:
-            discharge_efficiency_curve = [[3.6, 0.95],[7.2, 0.97],[22, 0.98],[50, 0.98]]
+        if discharge_efficiency_curve is not None:
+            self.__discharge_efficiency_curve = np.array(discharge_efficiency_curve).T
         else:
-            pass
-        self.__discharge_efficiency_curve = np.array(discharge_efficiency_curve).T
+            self.__discharge_efficiency_curve = None
 
     @connected_electric_vehicle.setter
     def connected_electric_vehicle(self, electric_vehicle: ElectricVehicle):
-            self.__connected_ev = electric_vehicle if electric_vehicle is None else None 
+        self.__connected_ev = electric_vehicle
 
     @incoming_electric_vehicle.setter
     def incoming_electric_vehicle(self, electric_vehicle: ElectricVehicle):
-            self.__incoming_ev = electric_vehicle if electric_vehicle is None else None 
+        self.__incoming_ev = electric_vehicle
 
     @efficiency.setter
     def efficiency(self, efficiency: float):
-            if efficiency is None:
-                self.__efficiency = 1.0
-            else:
-                assert efficiency > 0, 'efficiency must be > 0.'
-                self.__efficiency = efficiency
-
-    @nominal_power.setter
-    def nominal_power(self, nominal_power: float):
-            if nominal_power is None or nominal_power == 0:
-                self.__nominal_power = ZERO_DIVISION_PLACEHOLDER
-            else:
-                assert nominal_power >= 0, 'nominal_power must be >= 0.'
-                self.__nominal_power = nominal_power
-
+        if efficiency is None:
+            self.__efficiency = 1.0
+        else:
+            assert 0 < efficiency <= 1, 'efficiency must be > 0.'
+            self.__efficiency = efficiency
 
     def plug_car(self, electric_vehicle: ElectricVehicle):
         """
@@ -248,19 +211,10 @@ class Charger(Environment):
         ValueError
             If the charger has reached its maximum connected electric_vehicle' capacity.
         """
-        self.__past_connected_evs[self.time_step] = electric_vehicle
+        if self.connected_electric_vehicle is not None:
+            raise ValueError("Charger is already in use.")
         self.connected_electric_vehicle = electric_vehicle
-
-    def unplug_car(self):
-        """
-        Disconnects a electric_vehicle from the charger.
-
-        Parameters
-        ----------
-        electric_vehicle : object
-            electric_vehicle instance to be disconnected from the charger.
-        """
-        self.connected_electric_vehicle = None
+        self.__past_connected_evs[self.time_step] = self.connected_electric_vehicle
 
     def associate_incoming_car(self, electric_vehicle: ElectricVehicle):
         """
@@ -278,54 +232,82 @@ class Charger(Environment):
         """
         self.incoming_electric_vehicle = electric_vehicle
 
-        # else:
-        #    raise ValueError("Charger has reached its maximum associated electric_vehicle capacity")
+    import numpy as np
 
-    def disassociate_incoming_car(self):
+    def get_efficiency(self, power: float, charging: bool) -> float:
         """
-        Disassociates incoming electric_vehicle from the charger.
+        Returns the efficiency corresponding to a given power level.
+
+        If no efficiency curve is set, returns self.efficiency.
+        If a curve is set, interpolates efficiency from the appropriate curve.
 
         Parameters
         ----------
-        electric_vehicle : object
-            electric_vehicle instance to be disconnected from the charger.
+        power : float
+            The charging or discharging power level (normalized between 0 and 1).
+        charging : bool
+            Whether the power level corresponds to charging (True) or discharging (False).
+
+        Returns
+        -------
+        float
+            The interpolated efficiency at the given power level.
         """
-        self.incoming_electric_vehicle = None
+        # Select the correct efficiency curve
+        efficiency_curve = self.__charge_efficiency_curve if charging else self.__discharge_efficiency_curve
+        # If no curve is set, return default efficiency
+        if efficiency_curve is None:
+            return self.efficiency  # Default efficiency
+
+        # Ensure efficiency_curve is properly shaped
+        assert efficiency_curve.shape[0] == 2, "Efficiency curve must have shape (2, N)."
+
+        power_levels, efficiencies = efficiency_curve  # Unpack rows
+        return np.interp(power, power_levels, efficiencies)  # Interpolated efficiency
 
     def update_connected_electric_vehicle_soc(self, action_value: float):
-        self.__past_charging_action_values[self.time_step] = action_value #ToDo
-        if self.connected_electric_vehicle and action_value != 0:
-            electric_vehicle = self.connected_electric_vehicle
-            if action_value > 0:
-                energy = action_value * self.max_charging_power
-            else:
-                energy = action_value * self.max_discharging_power
+        """
+        Updates the SOC of the connected electric vehicle based on the charging/discharging action.
 
-            charging = energy >= 0
+        Parameters
+        ----------
+        action_value : float
+            The normalized charging or discharging action (range [-1, 1]).
+        """
+        self.__past_charging_action_values[self.time_step] = action_value
+
+        if self.connected_electric_vehicle and action_value != 0:
+            charging = action_value > 0
+            efficiency = self.get_efficiency(abs(action_value), charging)  # Charging if action_value > 0
+            electric_vehicle = self.connected_electric_vehicle
+
+            # Convert power (kW) to energy (kWh) for this time step
+            time_step_hours_ratio = self.seconds_per_time_step / 3600  # Convert seconds to fraction of an hour
+            energy_kwh = 0
 
             if charging:
-                # make sure we do not charge beyond the maximum capacity
-                energy = min(energy, electric_vehicle.battery.capacity - electric_vehicle.battery.soc[self.time_step])
+                power = action_value * self.max_charging_power  # Power in kW
+                energy = power * time_step_hours_ratio  # Convert to energy (kWh)
+                energy = max(min(energy, self.max_charging_power), self.min_charging_power)
+                energy_kwh = energy * efficiency# For charging
             else:
-                # make sure we do not discharge beyond the minimum level (assuming it's zero)
-                max_discharge = - (electric_vehicle.battery.soc[self.time_step] - electric_vehicle.min_battery_soc/100 * electric_vehicle.battery.capacity)
-                energy = max(energy, max_discharge)
+                power = action_value * self.max_discharging_power  # Power in kW
+                energy = power * time_step_hours_ratio  # Convert to energy (kWh)
+                energy = max(min(energy, -self.min_discharging_power), -self.max_discharging_power)  # For discharging
+                energy_kwh = energy/efficiency
 
-            energy_kwh = energy * self.efficiency
-
-            # Here we call the electric_vehicle's battery's charge method directly, passing the energy (positive for charging,
-            # negative for discharging)
+            # Charge or discharge the battery
             electric_vehicle.battery.charge(energy_kwh)
-            self.__electricity_consumption[self.time_step] = electric_vehicle.battery.electricity_consumption[-1]
+
+            battery_energy_balance = electric_vehicle.battery.energy_balance[self.time_step]
+            # Store electricity consumption
+            self.__electricity_consumption[self.time_step] = battery_energy_balance/efficiency if battery_energy_balance >= 0 else battery_energy_balance*efficiency
         else:
             self.__electricity_consumption[self.time_step] = 0
 
     def next_time_step(self):
         r"""Advance to next `time_step` and set `electricity_consumption` at new `time_step` to 0.0."""
 
-        self.__electricity_consumption.append(0.0)
-        self.__past_connected_evs.append(None)
-        self.__past_charging_action_values.append(0.0)
         self.connected_electric_vehicle = None
         self.incoming_electric_vehicle = None
         super().next_time_step()
@@ -337,9 +319,9 @@ class Charger(Environment):
         super().reset()
         self.connected_electric_vehicle = None
         self.incoming_electric_vehicle = None
-        self.__electricity_consumption = [0.0]
-        self.__past_connected_evs = [None]
-        self.__past_charging_action_values = [0.0]
+        self.__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.__past_charging_action_values = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.__past_connected_evs = [None] * self.episode_tracker.episode_time_steps
 
     def __str__(self):
        return (

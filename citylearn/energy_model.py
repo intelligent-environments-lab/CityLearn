@@ -491,13 +491,13 @@ class PV(ElectricDevice):
             Building annual demand in [kWh].
         epw_filepath : Union[Path, str]
             EnergyPlus weather file path used as input to :code:`PVWattsNone` model.
-        use_sample_target : bool
+        use_sample_target : bool, default: False
             Whether to directly use the sizing in the sampled instance instead of sizing for `zero_net_energy_proportion`.
             Will still limit the size to the `roof_area`.
         zero_net_energy_proportion : Union[float, Tuple[float, float]], default: (0.7, 1.0)
             Proportion
         roof_area : float, optional
-            Roof area where the PV is mounted in m^2.
+            Roof area where the PV is mounted in m^2. The default is to assume an infinite roof area.
         safety_factor : Union[float, Tuple[float, float]], default: 1.0
             The `nominal_power` is oversized by factor of `safety_factor`.
             It is only applied to the `zero_net_energy_proportion` estimate.
@@ -528,7 +528,7 @@ class PV(ElectricDevice):
         random_seed = self.random_seed
         tries = 3
 
-        for i in range(3):
+        for i in range(tries):
             self._autosize_config = sizing_data.sample(1, random_state=random_seed + i).iloc[0].to_dict()
             model = Pvwattsv8.default('PVWattsNone')
             pv_nominal_power = self.autosize_config['nameplate_capacity_module_1']/1000.0
@@ -551,7 +551,6 @@ class PV(ElectricDevice):
                 
                 else:
                     pass
-                
         
         inverter_ac_power_per_kw = np.array(model.Outputs.ac, dtype='float32')/pv_nominal_power
 
@@ -640,7 +639,8 @@ class StorageDevice(Device):
     @property
     def energy_init(self) -> float:
         r"""Latest energy level after accounting for standby hourly lossses in [kWh]."""
-
+        if self.time_step == 0:
+            return max(0.0, self.__soc[self.time_step]*self.capacity*(1 - self.loss_coefficient))
         return max(0.0, self.__soc[self.time_step - 1]*self.capacity*(1 - self.loss_coefficient))
 
     @property
@@ -700,20 +700,26 @@ class StorageDevice(Device):
         If charging, soc = min(`soc_init` + energy*`round_trip_efficiency`, `capacity`)
         If discharging, soc = max(0, `soc_init` + energy/`round_trip_efficiency`)
         """
-        
+        energy_init = self.energy_init
         # The initial State Of Charge (SOC) is the previous SOC minus the energy losses
-        energy_final = min(self.energy_init + energy*self.round_trip_efficiency, self.capacity) if energy >= 0\
-            else max(0.0, self.energy_init + energy/self.round_trip_efficiency)
-        self.__soc[self.time_step] = energy_final/max(self.capacity, ZERO_DIVISION_PLACEHOLDER)
-        self.__energy_balance[self.time_step] = self.set_energy_balance(energy_final)
+        energy_final = min(energy_init + energy*self.round_trip_efficiency, self.capacity) if energy >= 0\
+            else max(0.0, energy_init + energy/self.round_trip_efficiency)
 
-    def set_energy_balance(self, energy: float) -> float:
+        self.__soc[self.time_step] = energy_final/max(self.capacity, ZERO_DIVISION_PLACEHOLDER)
+        self.__energy_balance[self.time_step] = self.set_energy_balance(energy_final, energy_init)
+
+    def force_set_soc(self, soc: float):
+        self.__soc[self.time_step] = soc
+
+    def set_energy_balance(self, energy: float, energy_init:float) -> float:
         r"""Calculate energy balance.
 
         Parameters
         ----------
         energy: float
             Energy equivalent of state-of-charge in [kWh].
+        energy_init: float
+            Latest energy level after accounting for standby hourly lossses in [kWh]
 
         Returns
         -------
@@ -726,9 +732,8 @@ class StorageDevice(Device):
         e.g. maximum power input/output, capacity.
         """
 
-        energy -= self.energy_init
+        energy -= energy_init
         energy_balance = energy/self.round_trip_efficiency if energy >= 0 else energy*self.round_trip_efficiency
-        
         return energy_balance
 
     def autosize(self, demand: Iterable[float], safety_factor: Union[float, Tuple[float, float]] = None) -> float:
@@ -996,9 +1001,9 @@ class Battery(StorageDevice, ElectricDevice):
 
         else:
             soc_limit_wrt_dod = 1.0 - self.depth_of_discharge
-            soc_init = self.soc[self.time_step - 1]
+            soc_init = self.soc[self.time_step - 1] if self.time_step > 0 else self.soc[self.time_step]
             soc_difference = soc_init - soc_limit_wrt_dod
-            energy_limit_wrt_dod = max(soc_difference*self.capacity*self.round_trip_efficiency, 0.0)*-1
+            energy_limit_wrt_dod = max(soc_difference * self.capacity * self.round_trip_efficiency, 0.0) * -1
             max_output_power = self.get_max_output_power()
             energy = max(-max_output_power, energy_limit_wrt_dod, energy)
             self.efficiency = self.get_current_efficiency(min(abs(action_energy), max_output_power))
@@ -1060,18 +1065,24 @@ class Battery(StorageDevice, ElectricDevice):
 
         return efficiency
 
-    def set_ad_hoc_charge(self, energy: float):
-        """Charges or discharges storage with disregard to capacity` degradation, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.
-        Considers only `soc_init` limitations and maximum capacity limitations
-        Used for setting EVs Soc after coming from a transit state
+    def force_set_soc(self, soc: float):
+        """
+        Forcefully set the battery's state-of-charge (SOC) for the current time step,
+        bypassing restrictions such as efficiency losses, power limits, and degradation.
+
+        This is used for reconnections of the EV to the platform.
 
         Parameters
         ----------
-        energy : float
-            Energy to charge if (+) or discharge if (-) in [kWh].
-
+        soc : float
+            Desired state-of-charge as a fraction (between 0 and 1). Values outside this range are not accepted.
         """
-        super().charge(energy)
+        # Ensure soc is between 0 and 1
+        if soc < 0 or soc > 1:
+            raise AttributeError("Soc must be between 0 and 1. Check your dataset")
+        # Directly update the internal SOC array.
+        # Note: __soc is defined in the StorageDevice class, so we access it via name mangling.
+        super().force_set_soc(soc)
 
     def degrade(self) -> float:
         r"""Get amount of capacity degradation.
