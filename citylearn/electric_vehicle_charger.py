@@ -351,6 +351,7 @@ class Charger(Environment):
 
         # Check if EV is connected
         connected_ev = self.connected_electric_vehicle
+        incoming_electric_vehicle = self.incoming_electric_vehicle
         if connected_ev:
             ev_data = {
                 "EV SOC-%": f"{connected_ev.battery.soc[self.time_step]:.2f}",
@@ -361,6 +362,17 @@ class Charger(Environment):
                 "EV Departure Time": f"{connected_ev.electric_vehicle_simulation.electric_vehicle_departure_time[self.time_step]:.2f}",
                 "Is EV Connected": True,
                 "EV Name": connected_ev.name
+            }
+        elif incoming_electric_vehicle:
+            ev_data = {
+                "EV SOC-%": f"{incoming_electric_vehicle.battery.soc[self.time_step]:.2f}",
+                "EV Charger State": incoming_electric_vehicle.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step],
+                "EV Required SOC Departure-%": f"{incoming_electric_vehicle.electric_vehicle_simulation.electric_vehicle_required_soc_departure[self.time_step] / 100:.2f}",
+                "EV Estimated SOC Arrival-%": f"{incoming_electric_vehicle.electric_vehicle_simulation.electric_vehicle_estimated_soc_arrival[self.time_step] / 100:.2f}",
+                "EV Arrival Time": f"{incoming_electric_vehicle.electric_vehicle_simulation.electric_vehicle_estimated_arrival_time[self.time_step]:.2f}",
+                "EV Departure Time": f"{incoming_electric_vehicle.electric_vehicle_simulation.electric_vehicle_departure_time[self.time_step]:.2f}",
+                "Is EV Connected": True,
+                "EV Name": incoming_electric_vehicle.name
             }
         else:
             ev_data = {
