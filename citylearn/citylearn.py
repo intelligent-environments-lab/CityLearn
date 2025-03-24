@@ -1241,7 +1241,6 @@ class CityLearnEnv(Environment, Env):
         
         iso_timestamp = self._get_iso_timestamp()
         os.makedirs(self.new_folder_path, exist_ok=True)
-        LOGGER.info("Ver aqui", self.new_folder_path)
 
 
         # Save community data
