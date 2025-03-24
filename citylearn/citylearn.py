@@ -1249,16 +1249,16 @@ class CityLearnEnv(Environment, Env):
 
         # Save building data
         for idx, building in enumerate(self.buildings):
-            self._save_to_csv(f"exported_data_building_{idx+1}.csv", {"Time Step": iso_timestamp, **building.as_dict()})
+            self._save_to_csv(f"exported_data_{building.name.lower()}.csv", {"Time Step": iso_timestamp, **building.as_dict()})
             
             for charger_idx, charger in enumerate(building.electric_vehicle_chargers):
-                self._save_to_csv(f"exported_data_B{idx}C{charger_idx}.csv", {"Time Step": iso_timestamp, **charger.as_dict()})
+                self._save_to_csv(f"exported_data_{building.name.lower()}{charger.charger_id}.csv", {"Time Step": iso_timestamp, **charger.as_dict()})
         
         # Save EV data
         for idx, ev in enumerate(self.__electric_vehicles):
             #if idx == 0: print(ev.render_simulation_end_data())
             #if idx == 0: self._save_to_csv(f"test{ev.name}.csv", ev.render_simulation_end_data())
-            self._save_to_csv(f"exported_data_ev_{idx}.csv", {"Time Step": iso_timestamp, **ev.as_dict()})
+            self._save_to_csv(f"exported_data_{ev.name.lower()}.csv", {"Time Step": iso_timestamp, **ev.as_dict()})
 
     def _save_to_csv(self, filename, data):
         """

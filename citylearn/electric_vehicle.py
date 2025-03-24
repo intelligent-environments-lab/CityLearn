@@ -150,11 +150,8 @@ class ElectricVehicle(Environment):
         return {
             'name': self.name,
             "EV Charger State": self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step],
-            'battery': {
-                'soc': self.battery.soc[self.time_step],
-                'capacity': self.battery.capacity,
-            },
-            'observations': self.observations()
+            'Battery capacity': self.battery.capacity,  
+            **self.observations() 
         }
 
     def render_simulation_end_data(self) -> dict:
