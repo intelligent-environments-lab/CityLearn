@@ -379,8 +379,6 @@ class CityLearnEnv(Environment, Env):
             observations = [observations]
 
         else:
-
-            print("AQUIIIIIIII")
             observations = [list(b.observations(normalize=False, periodic_normalization=False, check_limits=True).values()) for b in self.buildings]
 
         return observations
@@ -917,11 +915,7 @@ class CityLearnEnv(Environment, Env):
 
         else:
             pass
-        if (self.time_step<30):
-            print("TESTEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE TIME STEP")
-            print(self.time_step)
-        else:
-            raise Error
+
         return self.observations, reward, self.terminated, self.truncated, self.get_info()
 
     def get_info(self) -> Mapping[Any, Any]:

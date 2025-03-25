@@ -1015,7 +1015,6 @@ class Building(Environment):
                 if soc_arrival_key in valid_observations:
                     observations[soc_arrival_key] = -0.1
 
-        print(observations)
         return observations
     
     def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
