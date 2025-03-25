@@ -151,6 +151,7 @@ class CityLearnEnv(Environment, Env):
                 solar_generation=solar_generation,
                 random_seed=self.random_seed,
             )
+
         self.root_directory = root_directory
         self.buildings = buildings
         self.electric_vehicles = electric_vehicles
@@ -378,6 +379,8 @@ class CityLearnEnv(Environment, Env):
             observations = [observations]
 
         else:
+
+            print("AQUIIIIIIII")
             observations = [list(b.observations(normalize=False, periodic_normalization=False, check_limits=True).values()) for b in self.buildings]
 
         return observations
@@ -886,12 +889,11 @@ class CityLearnEnv(Environment, Env):
         for building, building_actions in zip(self.buildings, actions):
             building.apply_actions(**building_actions)
 
+        self.update_variables() #Updates KPIs variables at time step t before advancing
+
         self.next_time_step()
-        #todo test the tempratures citylearn learn chalenge 2023 challenge phase 2 (dont want big difference between set points and temp)
 
         #Currently at time_step t+1
-
-        self.update_variables()
 
         # NOTE:
         # This call to retrieve each building's observation dictionary is an expensive call especially since the observations 
@@ -915,7 +917,11 @@ class CityLearnEnv(Environment, Env):
 
         else:
             pass
-
+        if (self.time_step<30):
+            print("TESTEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE TIME STEP")
+            print(self.time_step)
+        else:
+            raise Error
         return self.observations, reward, self.terminated, self.truncated, self.get_info()
 
     def get_info(self) -> Mapping[Any, Any]:
@@ -1330,6 +1336,8 @@ class CityLearnEnv(Environment, Env):
         schema['root_directory'] = kwargs['root_directory'] if kwargs.get('root_directory') is not None else schema['root_directory']
         schema['random_seed'] = schema.get('random_seed', None) if kwargs.get('random_seed', None) is None else schema.get('random_seed', None)
         schema['central_agent'] = kwargs['central_agent'] if kwargs.get('central_agent') is not None else schema['central_agent']
+
+
 
         #Separated chargers observations to create one for each charger at each building based on active ones at the schema
         schema['chargers_observations_helper'] = {key: value for key, value in schema["observations"].items() if "electric_vehicle_" in key}

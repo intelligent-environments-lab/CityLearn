@@ -873,7 +873,6 @@ class Building(Environment):
         periodic_low_limit, periodic_high_limit = self.periodic_normalized_observation_space_limits
         periodic_observations = self.get_periodic_observation_metadata()
 
-
         if check_limits:
             for k in self.active_observations:
                 value = observations[k]
@@ -994,11 +993,11 @@ class Building(Environment):
                     observations[incoming_state_key] = 1
 
                 incoming_obs = charger.incoming_electric_vehicle.observations()
+
                 # Update estimated arrival time if valid
                 arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_arrival_time'
                 if arrival_key in valid_observations:
                     observations[arrival_key] = next((value for key, value in incoming_obs.items() if "_estimated_arrival_time" in key),-1)
-
 
                 # Update estimated SOC at arrival if valid
                 soc_arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_soc_arrival'
@@ -1016,6 +1015,7 @@ class Building(Environment):
                 if soc_arrival_key in valid_observations:
                     observations[soc_arrival_key] = -0.1
 
+        print(observations)
         return observations
     
     def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
@@ -2144,16 +2144,13 @@ class Building(Environment):
 
         building_chargers_total_electricity_consumption = 0
 
-        if self.electric_vehicle_chargers is not None:
-
-            for c in self.electric_vehicle_chargers:
-                building_chargers_total_electricity_consumption = \
-                    building_chargers_total_electricity_consumption + c.electricity_consumption[self.time_step - 1]
-        else:
-            pass
+        if self.electric_vehicle_chargers:
+            building_chargers_total_electricity_consumption += sum(
+                c.electricity_consumption[self.time_step] for c in self.electric_vehicle_chargers
+            )
 
         self.__chargers_electricity_consumption[self.time_step] = building_chargers_total_electricity_consumption
-
+        
         # net electricity consumption
         net_electricity_consumption = 0.0
 

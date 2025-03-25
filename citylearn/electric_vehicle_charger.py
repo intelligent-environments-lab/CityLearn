@@ -258,11 +258,11 @@ class Charger(Environment):
         # If no curve is set, return default efficiency
         if efficiency_curve is None:
             return self.efficiency  # Default efficiency
-
         # Ensure efficiency_curve is properly shaped
         assert efficiency_curve.shape[0] == 2, "Efficiency curve must have shape (2, N)."
 
         power_levels, efficiencies = efficiency_curve  # Unpack rows
+
         return np.interp(power, power_levels, efficiencies)  # Interpolated efficiency
 
     def update_connected_electric_vehicle_soc(self, action_value: float):
@@ -301,6 +301,7 @@ class Charger(Environment):
 
             battery_energy_balance = electric_vehicle.battery.energy_balance[self.time_step]
             # Store electricity consumption
+
             self.__electricity_consumption[self.time_step] = battery_energy_balance/efficiency if battery_energy_balance >= 0 else battery_energy_balance*efficiency
         else:
             self.__electricity_consumption[self.time_step] = 0

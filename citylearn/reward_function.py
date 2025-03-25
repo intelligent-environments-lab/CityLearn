@@ -542,12 +542,11 @@ class V2GPenaltyReward(MARL):
         if reward_extra_self_production is None:
             self._reward_extra_self_production = 5
         else:
-            self.__reward_extra_self_production = reward_extra_self_production    
-
+            self.__reward_extra_self_production = reward_extra_self_production
 
     def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
 
-        ##net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
+        #net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
         current_reward = super.calculate(observations)
         reward_list = []
 
@@ -571,8 +570,9 @@ class V2GPenaltyReward(MARL):
 
         if b.chargers:
             for c in b.chargers:
-                last_connected_car = c.past_connected_evs[-2]
-                last_charged_value = c.past_charging_action_values[-2]
+                last_connected_car = c.past_connected_evs[b.time_step-1]
+                last_charged_value = c.past_charging_action_values[b.time_step-1]
+                last_connected_car_battery_capacity = last_connected_car.battery.capacity
 
                 # 1. Penalty for charging when no car is present
                 if last_connected_car is None and last_charged_value > 0.1 or last_charged_value < 0.1:
@@ -580,43 +580,55 @@ class V2GPenaltyReward(MARL):
 
                 # 3. Penalty for exceeding the battery's limits
                 if last_connected_car is not None:
-                   if last_connected_car.battery.soc[-2] + last_charged_value > last_connected_car.battery.capacity:
-                       penalty += self.PENALTY_BATTERY_LIMITS * penalty_multiplier
-                   if last_connected_car.battery.soc[-2] + last_charged_value < last_connected_car.min_battery_soc:
-                       penalty += self.PENALTY_BATTERY_LIMITS * penalty_multiplier
+                    soc = (
+                        last_connected_car.battery.soc[b.time_step - 2]
+                        if b.time_step > 1
+                        else last_connected_car.battery.initial_soc
+                    )
+                    current_energy = soc * last_connected_car_battery_capacity + last_charged_value
+                    max_capacity = last_connected_car_battery_capacity
+                    min_capacity = (1 - last_connected_car.battery.depth_of_discharge) * max_capacity
+
+                    if current_energy > max_capacity:
+                        penalty += self.PENALTY_BATTERY_LIMITS * penalty_multiplier
+                    if current_energy < min_capacity:
+                        penalty += self.PENALTY_BATTERY_LIMITS * penalty_multiplier
 
 
                 # 4. Penalties (or Reward) for SoC differences
                 if last_connected_car is not None:
-                    required_soc = last_connected_car.electric_vehicle_simulation.required_soc_departure[-1]
-                    actual_soc = last_connected_car.battery.soc[-1]
+                    required_soc = last_connected_car.electric_vehicle_simulation.required_soc_departure[b.time_step-1]
+                    actual_soc = last_connected_car.battery.soc[b.time_step-1]
 
-                    hours_until_departure = last_connected_car.electric_vehicle_simulation.estimated_departure_time[-1]
+                    hours_until_departure = last_connected_car.electric_vehicle_simulation.estimated_departure_time[b.time_step-1]
                     max_possible_charge = c.max_charging_power * hours_until_departure
                     max_possible_discharge = c.max_discharging_power * hours_until_departure
 
-                    soc_diff = ((actual_soc * 100) / last_connected_car.battery.capacity) - required_soc
+                    soc_diff = actual_soc - required_soc
+                    soc_diff_kWh = soc_diff * last_connected_car_battery_capacity
 
                     # If the car needs more charge than it currently has and it's impossible to achieve the required SoC
-                    if soc_diff > 0 and soc_diff > max_possible_charge:
-                        penalty += self.PENALTY_SOC_UNDER_5_10 ** 2 * penalty_multiplier
+                    if soc_diff_kWh > 0 and soc_diff_kWh > max_possible_charge:
+                        penalty += -(self.PENALTY_SOC_UNDER_5_10 ** 2 * penalty_multiplier)
 
                     # Adjusted penalties/rewards based on SoC difference at departure
                     if hours_until_departure == 0:
-                        if -25 < soc_diff <= -10:
+                        if -0.25 < soc_diff <= -0.10:
                             penalty += 2 * self.PENALTY_SOC_UNDER_5_10 * penalty_multiplier
-                        elif soc_diff <= -25:
+                        elif soc_diff <= -0.25:
                             penalty += self.PENALTY_SOC_UNDER_5_10 ** 3 * penalty_multiplier
-                        elif -10 < soc_diff <= 10:
+                        elif -0.10 < soc_diff <= 0.10:
                             penalty += self.REWARD_CLOSE_SOC * penalty_multiplier  # Reward for leaving with SOC close to the requested value
 
-                    if (soc_diff > 0 and soc_diff <= max_possible_charge) or (
-                            soc_diff < 0 and abs(soc_diff) <= max_possible_discharge):
+                    if (soc_diff_kWh > 0 and soc_diff_kWh <= max_possible_charge) or (
+                            soc_diff_kWh < 0 and abs(soc_diff_kWh) <= max_possible_discharge):
                         reward_multiplier = 1 / (
                                 hours_until_departure + 0.1)  # Adding 0.1 to prevent division by zero
                         penalty += self.REWARD_CLOSE_SOC * penalty_multiplier * reward_multiplier
 
                 net_energy_before = b.net_electricity_consumption[b.time_step-1]
+
+
                 # 5. Reward for charging the car during times of extra self-production
                 if last_connected_car is not None and last_charged_value > 0 and net_energy_before < 0:
                     penalty += self.REWARD_EXTRA_SELF_PRODUCTION * penalty_multiplier

@@ -10,7 +10,7 @@ from citylearn.citylearn import CityLearnEnv
 dataset_name = '/mnt/c/Users/Tiago Fonseca/Documents/GitHub/CityLearn/data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json'
 
 # dataset_name = 'citylearn_challenge_2023_phase_2_local_evaluation'
-env = CityLearnEnv(dataset_name, central_agent=True)
+env = CityLearnEnv(dataset_name, central_agent=False)
 model = Agent(env)
 model.learn(episodes=1, logging_level=1)
 
