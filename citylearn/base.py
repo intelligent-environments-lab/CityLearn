@@ -226,6 +226,10 @@ class Environment:
     def time_step_ratio(self, time_step_ratio: int):
         self.__time_step_ratio = time_step_ratio
 
+    @time_step.setter
+    def time_step(self, time_step: int):
+        self.__time_step = time_step    
+
     def get_metadata(self) -> Mapping[str, Any]:
         """Returns general static information."""
 
