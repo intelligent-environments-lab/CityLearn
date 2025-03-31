@@ -24,6 +24,5 @@ jobs:
           pip install pytest
 
       - name: Run tests
-        run: 
-          cd /citylearn/tests
-          pytest
+        run: pytest citylearn/tests
+
