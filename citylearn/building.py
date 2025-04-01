@@ -2209,6 +2209,8 @@ class Building(Environment):
             "Non-shiftable Load Electricity Consumption-kWh": f"{self.non_shiftable_load_electricity_consumption[self.time_step]}",
             "Energy Production from PV-kWh": f"{self.solar_generation[self.time_step]}",
             "Energy Production From EV-kWh": f"{self.energy_production_from_ev[self.time_step]}",
+            'Battery Soc-%': self.electrical_storage.soc[self.time_step],
+            'Battery (Dis)Charge-kWh': self.electrical_storage.energy_balance[self.time_step]
         }
     
     def render_simulation_end_data(self) -> dict:
