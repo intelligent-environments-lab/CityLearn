@@ -124,10 +124,10 @@ class Charger(Environment):
         return self.__past_connected_evs
 
     @property
-    def past_charging_action_values(self) -> List[float]:
+    def past_charging_action_values_kwh(self) -> List[float]:
         r"""Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy"""
 
-        return self.__past_charging_action_values
+        return self.__past_charging_action_values_kwh
 
     @property
     def electricity_consumption(self) -> List[float]:
@@ -274,40 +274,45 @@ class Charger(Environment):
         action_value : float
             The normalized charging or discharging action (range [-1, 1]).
         """
-        self.__past_charging_action_values[self.time_step] = action_value
-
-        if self.connected_electric_vehicle and action_value != 0:
+        if action_value != 0:
             charging = action_value > 0
             efficiency = self.get_efficiency(abs(action_value), charging)  # Charging if action_value > 0
-            electric_vehicle = self.connected_electric_vehicle
 
             # Convert power (kW) to energy (kWh) for this time step
             time_step_hours_ratio = self.seconds_per_time_step / 3600  # Convert seconds to fraction of an hour
-            energy_kwh = 0
 
             if charging:
                 power = action_value * self.max_charging_power  # Power in kW
                 energy = power * time_step_hours_ratio  # Convert to energy (kWh)
                 energy = max(min(energy, self.max_charging_power), self.min_charging_power)
-                energy_kwh = energy * efficiency# For charging
+                energy_kwh = energy * efficiency  # For charging
             else:
                 power = action_value * self.max_discharging_power  # Power in kW
                 energy = power * time_step_hours_ratio  # Convert to energy (kWh)
                 energy = max(min(energy, -self.min_discharging_power), -self.max_discharging_power)  # For discharging
-                energy_kwh = energy/efficiency
+                energy_kwh = energy / efficiency
 
-            # Charge or discharge the battery
-            electric_vehicle.battery.charge(energy_kwh)
+            self.__past_charging_action_values_kwh[self.time_step] = energy
 
-            battery_energy_balance = electric_vehicle.battery.energy_balance[self.time_step]
-            # Store electricity consumption
+            if self.connected_electric_vehicle:
+                electric_vehicle = self.connected_electric_vehicle
 
-            self.__electricity_consumption[self.time_step] = battery_energy_balance/efficiency if battery_energy_balance >= 0 else battery_energy_balance*efficiency
+                # Charge or discharge the battery
+                electric_vehicle.battery.charge(energy_kwh)
+
+                battery_energy_balance = electric_vehicle.battery.energy_balance[self.time_step]
+                # Store electricity consumption
+
+                self.__electricity_consumption[self.time_step] = battery_energy_balance/efficiency if battery_energy_balance >= 0 else battery_energy_balance*efficiency
+            else:
+                self.__electricity_consumption[self.time_step] = 0
+
         else:
             self.__electricity_consumption[self.time_step] = 0
+            self.__past_charging_action_values_kwh[self.time_step] = 0
 
     def next_time_step(self):
-        r"""Advance to next `time_step` and set `electricity_consumption` at new `time_step` to 0.0."""
+        r"""Advance to next `time_step`"""
 
         self.connected_electric_vehicle = None
         self.incoming_electric_vehicle = None
@@ -321,7 +326,8 @@ class Charger(Environment):
         self.connected_electric_vehicle = None
         self.incoming_electric_vehicle = None
         self.__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
-        self.__past_charging_action_values = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.__ = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.__past_charging_action_values_kwh = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__past_connected_evs = [None] * self.episode_tracker.episode_time_steps
 
     def __str__(self):
@@ -329,7 +335,7 @@ class Charger(Environment):
             f"Charger ID: {self.charger_id}\n"
             f"electricity consumption: {self.electricity_consumption} kW\n"
             f"past_connected_evs: {self.past_connected_evs} kW\n"
-            f"past_charging_action_values: {self.past_charging_action_values} kW\n"
+            f"past_charging_action_values: {self.past_charging_action_values_kwh} kW\n"
             f"Currently Connected electric_vehicle: {self.connected_electric_vehicle}\n"
             f"Incoming electric_vehicle: {self.incoming_electric_vehicle}\n"
        )

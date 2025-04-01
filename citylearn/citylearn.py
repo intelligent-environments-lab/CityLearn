@@ -901,6 +901,9 @@ class CityLearnEnv(Environment, Env):
         # to see how it can be optimized.
         reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
         reward = self.reward_function.calculate(observations=reward_observations)
+
+        #ToDo
+
         self.__rewards.append(reward)
 
         # store episode reward summary
@@ -1233,6 +1236,10 @@ class CityLearnEnv(Environment, Env):
         self.update_variables()
 
         return self.observations, self.get_info()
+
+
+
+
 
     def update_variables(self):
         # net electricity consumption

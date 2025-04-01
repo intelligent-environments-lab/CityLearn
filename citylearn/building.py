@@ -1368,6 +1368,13 @@ class Building(Environment):
             Fraction of `electrical_storage` `capacity` to charge/discharge by.
         """
 
+        #Todo Here the action is a fraction o fthe capacity, but should be fraction of max charging power
+        #As that would provide action as power, (in kw) and then multiply by time later to have kWh
+        #The conversion should always be made inside the battery or outside ?
+        #Colocar action history nos EV chargers
+        #nominalpower/capacity
+
+
         energy = min(action * self.electrical_storage.capacity, self.downward_electrical_flexibility)
         self.electrical_storage.charge(energy)
 
@@ -1604,6 +1611,7 @@ class Building(Environment):
                 high_limit[key] = self.dhw_device.nominal_power
 
             elif key == 'electrical_storage_electricity_consumption':
+                #Todo here is to power Kw
                 low_limit[key] = -self.electrical_storage.nominal_power
                 high_limit[key] = self.electrical_storage.nominal_power
 
@@ -2102,6 +2110,8 @@ class Building(Environment):
     def update_variables(self):
         """Update cooling, heating, dhw and net electricity consumption as well as net electricity consumption cost and carbon emissions."""
 
+
+        #Todo What is this
         if self.time_step == 0:
             temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
 

@@ -214,7 +214,8 @@
   },
   "reward_function": {
     "type": "citylearn.reward_function.RewardFunction",
-    "attributes": null
+    "attributes": {
+    }
   },
   "electric_vehicles_def": {
     "Electric_Vehicle_1": {
