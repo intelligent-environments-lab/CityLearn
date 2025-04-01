@@ -1704,7 +1704,9 @@ class CityLearnEnv(Environment, Env):
             'cooling_storage': {'autosizer': building.autosize_cooling_storage},
             'heating_storage': {'autosizer': building.autosize_heating_storage},
             'electrical_storage': {'autosizer': building.autosize_electrical_storage},
-            'pv': {'autosizer': building.autosize_pv}
+            'washing_machine': {'autosizer': building.autosize_electrical_storage},
+            'pv': {'autosizer': building.autosize_pv},
+
         }
         solar_generation = kwargs.get('solar_generation')
         solar_generation = True if solar_generation is None else solar_generation
