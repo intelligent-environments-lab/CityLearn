@@ -1018,6 +1018,61 @@ class Building(Environment):
         return observations
     
     def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
+        electric_vehicle_chargers_dict = {}
+
+        for charger in self.electric_vehicle_chargers:
+            charger_id = charger.charger_id
+            connected_car = charger.connected_electric_vehicle
+
+            if connected_car is not None:
+                # Time-safe access for last charging action
+                if self.time_step > 0:
+                    last_charged_kwh = charger.past_charging_action_values_kwh[self.time_step - 1]
+                    battery_soc = connected_car.battery.soc[self.time_step - 1]
+                    required_soc = connected_car.electric_vehicle_simulation.electric_vehicle_required_soc_departure[self.time_step - 1]
+                    hours_until_departure = connected_car.electric_vehicle_simulation.electric_vehicle_departure_time[
+                        self.time_step - 1]
+                else:
+                    last_charged_kwh = None
+                    required_soc = None
+                    hours_until_departure = None
+                    battery_soc = connected_car.battery.initial_soc  # assume at t=0 it's still the initial
+
+                if self.time_step > 1:
+                    previous_battery_soc = connected_car.battery.soc[self.time_step - 2]
+                else:
+                    previous_battery_soc = connected_car.battery.initial_soc
+
+                battery_capacity = connected_car.battery.capacity
+                min_capacity = (1 - connected_car.battery.depth_of_discharge) * battery_capacity
+
+                electric_vehicle_chargers_dict[charger_id] = {
+                    "connected": True,
+                    "last_charged_kwh": last_charged_kwh,
+                    "previous_battery_soc": previous_battery_soc,
+                    "battery_soc": battery_soc,
+                    "battery_capacity": battery_capacity,
+                    "min_capacity": min_capacity,
+                    "required_soc": required_soc,
+                    "hours_until_departure": hours_until_departure,
+                    "max_charging_power": charger.max_charging_power,
+                    "max_discharging_power": charger.max_discharging_power,
+                }
+
+            else:
+                electric_vehicle_chargers_dict[charger_id] = {
+                    "connected": False,
+                    "last_charged_kwh": None,
+                    "previous_battery_soc": None,
+                    "battery_soc": None,
+                    "battery_capacity": None,
+                    "min_capacity": None,
+                    "required_soc": None,
+                    "hours_until_departure": None,
+                    "max_charging_power": charger.max_charging_power,
+                    "max_discharging_power": charger.max_discharging_power,
+                }
+
         return {
             **{
                 k.lstrip('_'): self.energy_simulation.__getattr__(k.lstrip('_'))[self.time_step] 
@@ -1065,6 +1120,7 @@ class Building(Environment):
             'comfort_band': self.energy_simulation.comfort_band[self.time_step],
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
             'power_outage': self.__power_outage_signal[self.time_step],
+            'electric_vehicles_chargers_dict': electric_vehicle_chargers_dict
         }
     
     @staticmethod
