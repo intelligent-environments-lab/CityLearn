@@ -1212,7 +1212,7 @@ class WashingMachine(Device):
     def __init__(
         self, 
         efficiency: Union[float, Tuple[float, float]] = 0.85,  # Default 85% efficiency
-        load_profile: Dict[float, float] = None,  # Dict of {hour: kWh}
+        load_profile: Dict[float, float] = None,  # Dict of {hour: kWh} [[0, 0.83],[0.3, 0.83],[0.7, 0.9],[0.8, 0.9],[1, 0.85]]
         loss_coefficient: Union[float, Tuple[float, float]] = None,
         flexible_start: Tuple[int, int] = (10, 20),  # Earliest and latest start time
         **kwargs
@@ -1293,6 +1293,37 @@ class WashingMachine(Device):
     def get_total_energy(self) -> float:
         """Get total energy consumed in kWh."""
         return self._total_energy_consumed
+    
+    def get_energy_load(self, power: float, charging: bool) -> float:
+        """
+        Returns the efficiency corresponding to a given power level.
+
+        If no efficiency curve is set, returns self.efficiency.
+        If a curve is set, interpolates efficiency from the appropriate curve.
+
+        Parameters
+        ----------
+        power : float
+            The charging or discharging power level (normalized between 0 and 1).
+        charging : bool
+            Whether the power level corresponds to charging (True) or discharging (False).
+
+        Returns
+        -------
+        float
+            The interpolated efficiency at the given power level.
+        """
+        # Select the correct load curve
+        load_profile = self.__load_profile
+        # If no curve is set, return default load
+        if load_profile is None:
+            return self.load_profile  # Default loads
+
+        # Ensure efficiency_curve is properly shaped
+        assert load_profile.shape[0] == 2, "Load Profile curve must have shape (2, N)."
+
+        power_levels, efficiencies = load_profile  # Unpack rows
+        return np.interp(power, power_levels, efficiencies)  # Interpolated loads
     
 
 
