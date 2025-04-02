@@ -2169,8 +2169,6 @@ class Building(Environment):
     def update_variables(self):
         """Update cooling, heating, dhw and net electricity consumption as well as net electricity consumption cost and carbon emissions."""
 
-
-        #Todo What is this
         if self.time_step == 0:
             temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
 
@@ -2206,7 +2204,6 @@ class Building(Environment):
             # electrical storage
             electrical_storage_electricity_consumption = self.electrical_storage.energy_balance[self.time_step]
             self.electrical_storage.update_electricity_consumption(electrical_storage_electricity_consumption, enforce_polarity=False)
-
         else:
             pass
 
