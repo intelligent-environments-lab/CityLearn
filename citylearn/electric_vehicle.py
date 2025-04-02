@@ -79,6 +79,8 @@ class ElectricVehicle(Environment):
             self.__battery = battery
 
     def next_time_step(self) -> Mapping[int, str]:
+        self.battery.next_time_step()
+        super().next_time_step()
 
         # Check if the next time step exists in the charger state array
         if self.time_step + 1 < self.episode_tracker.episode_time_steps:
@@ -99,9 +101,6 @@ class ElectricVehicle(Environment):
             variability_factor = np.clip(variability_factor, 0.6, 1.4)
             new_soc = np.clip(last_soc * variability_factor, 0.0, 1.0)
             self.battery.force_set_soc(new_soc)
-
-        self.battery.next_time_step()
-        super().next_time_step()
 
     def reset(self):
         """
