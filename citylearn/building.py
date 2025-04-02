@@ -1036,6 +1036,61 @@ class Building(Environment):
         return observations
     
     def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
+        electric_vehicle_chargers_dict = {}
+
+        for charger in self.electric_vehicle_chargers:
+            charger_id = charger.charger_id
+            connected_car = charger.connected_electric_vehicle
+
+            if connected_car is not None:
+                # Time-safe access for last charging action
+                if self.time_step > 0:
+                    last_charged_kwh = charger.past_charging_action_values_kwh[self.time_step - 1]
+                    battery_soc = connected_car.battery.soc[self.time_step - 1]
+                    required_soc = connected_car.electric_vehicle_simulation.electric_vehicle_required_soc_departure[self.time_step - 1]
+                    hours_until_departure = connected_car.electric_vehicle_simulation.electric_vehicle_departure_time[
+                        self.time_step - 1]
+                else:
+                    last_charged_kwh = None
+                    required_soc = None
+                    hours_until_departure = None
+                    battery_soc = connected_car.battery.initial_soc  # assume at t=0 it's still the initial
+
+                if self.time_step > 1:
+                    previous_battery_soc = connected_car.battery.soc[self.time_step - 2]
+                else:
+                    previous_battery_soc = connected_car.battery.initial_soc
+
+                battery_capacity = connected_car.battery.capacity
+                min_capacity = (1 - connected_car.battery.depth_of_discharge) * battery_capacity
+
+                electric_vehicle_chargers_dict[charger_id] = {
+                    "connected": True,
+                    "last_charged_kwh": last_charged_kwh,
+                    "previous_battery_soc": previous_battery_soc,
+                    "battery_soc": battery_soc,
+                    "battery_capacity": battery_capacity,
+                    "min_capacity": min_capacity,
+                    "required_soc": required_soc,
+                    "hours_until_departure": hours_until_departure,
+                    "max_charging_power": charger.max_charging_power,
+                    "max_discharging_power": charger.max_discharging_power,
+                }
+
+            else:
+                electric_vehicle_chargers_dict[charger_id] = {
+                    "connected": False,
+                    "last_charged_kwh": None,
+                    "previous_battery_soc": None,
+                    "battery_soc": None,
+                    "battery_capacity": None,
+                    "min_capacity": None,
+                    "required_soc": None,
+                    "hours_until_departure": None,
+                    "max_charging_power": charger.max_charging_power,
+                    "max_discharging_power": charger.max_discharging_power,
+                }
+
         return {
             **{
                 k.lstrip('_'): self.energy_simulation.__getattr__(k.lstrip('_'))[self.time_step] 
@@ -1083,6 +1138,7 @@ class Building(Environment):
             'comfort_band': self.energy_simulation.comfort_band[self.time_step],
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
             'power_outage': self.__power_outage_signal[self.time_step],
+            'electric_vehicles_chargers_dict': electric_vehicle_chargers_dict
         }
     
     @staticmethod
@@ -1134,7 +1190,7 @@ class Building(Environment):
         dhw_storage_action : float, default: 0.0
             Fraction of `dhw_storage` `capacity` to charge/discharge by.
         electrical_storage_action : float, default: 0.0
-            Fraction of `electrical_storage` `capacity` to charge/discharge by.
+            Fraction of `electrical_storage` `nominal power` to charge/discharge by.
         electric_vehicle_storage_actions : dict, default: None
             A dictionary where keys are charger IDs and values are the fraction of connected EV battery `capacity`
         **kwargs
@@ -1378,15 +1434,26 @@ class Building(Environment):
         self.non_shiftable_load_device.update_electricity_consumption(demand)
 
     def update_electrical_storage(self, action: float):
-        r"""Charge/discharge `electrical_storage` for current time step.
+        """
+        Charge/discharge the electrical storage (BESS) for the current time step.
 
         Parameters
         ----------
         action : float
-            Fraction of `electrical_storage` `capacity` to charge/discharge by.
+            Normalized charging or discharging action (range [-1, 1]).
         """
 
-        energy = min(action * self.electrical_storage.capacity, self.downward_electrical_flexibility) * self.algorithm_action_based_time_step_hours_ratio
+        # Convert normalized action to power (kW)
+        power = action * self.electrical_storage.nominal_power  # kW
+
+        # Convert power (kW) to energy (kWh) based on time step duration
+        time_step_hours_ratio = self.seconds_per_time_step / 3600  # Convert seconds to fraction of hour
+        energy = power * time_step_hours_ratio  # Energy in kWh
+
+        # Optionally clamp to flexibility range if needed
+        energy = min(energy, self.downward_electrical_flexibility)
+
+
         self.electrical_storage.charge(energy)
 
     def ___demand_limit_check(self, end_use: str, demand: float, max_device_output: float):
@@ -1726,7 +1793,7 @@ class Building(Environment):
 
             elif 'storage' in key:
                 if key == 'electrical_storage':
-                    limit = self.electrical_storage.nominal_power/max(self.electrical_storage.capacity, ZERO_DIVISION_PLACEHOLDER)
+                    limit = 1
 
                 else:
                     if key == 'cooling_storage':
@@ -2209,8 +2276,6 @@ class Building(Environment):
             "Non-shiftable Load Electricity Consumption-kWh": f"{self.non_shiftable_load_electricity_consumption[self.time_step]}",
             "Energy Production from PV-kWh": f"{self.solar_generation[self.time_step]}",
             "Energy Production From EV-kWh": f"{self.energy_production_from_ev[self.time_step]}",
-            'Battery Soc-%': self.electrical_storage.soc[self.time_step],
-            'Battery (Dis)Charge-kWh': self.electrical_storage.energy_balance[self.time_step]
         }
     
     def render_simulation_end_data(self) -> dict:

@@ -1191,6 +1191,15 @@ class Battery(StorageDevice, ElectricDevice):
 
         return capacity, nominal_power, depth_of_discharge, efficiency, loss_coefficient, capacity_loss_coefficient
 
+    def as_dict(self) -> dict:
+        """
+        Return a dictionary representation of the current state for use in rendering or logging.
+        """
+        return {
+            'Battery Soc-%': self.soc[self.time_step],
+            'Battery (Dis)Charge-kWh': self.energy_balance[self.time_step]
+        }
+
     def reset(self):
         r"""Reset `Battery` to initial state."""
 

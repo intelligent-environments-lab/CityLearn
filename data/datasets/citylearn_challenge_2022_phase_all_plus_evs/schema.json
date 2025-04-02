@@ -216,7 +216,7 @@
     }
   },
   "reward_function": {
-    "type": "citylearn.reward_function.RewardFunction",
+    "type": "citylearn.reward_function.Electric_Vehicles_Reward_Function",
     "attributes": {
     }  
   },

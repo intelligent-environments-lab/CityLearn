@@ -1250,8 +1250,11 @@ class CityLearnEnv(Environment, Env):
         for idx, building in enumerate(self.buildings):
             self._save_to_csv(f"exported_data_{building.name.lower()}.csv", {"Time Step": iso_timestamp, **building.as_dict()})
             
+            battery = building.electrical_storage # save battery to render
+            self._save_to_csv(f"exported_data_{building.name.lower()}_battery.csv", {"Time Step": iso_timestamp, **battery.as_dict()})
+
             for charger_idx, charger in enumerate(building.electric_vehicle_chargers):
-                self._save_to_csv(f"exported_data_{building.name.lower()}{charger.charger_id}.csv", {"Time Step": iso_timestamp, **charger.as_dict()})
+                self._save_to_csv(f"exported_data_{building.name.lower()}_{charger.charger_id}.csv", {"Time Step": iso_timestamp, **charger.as_dict()})
         
         # Save EV data
         for idx, ev in enumerate(self.__electric_vehicles):
