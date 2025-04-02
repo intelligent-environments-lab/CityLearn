@@ -1172,7 +1172,7 @@ class Building(Environment):
         dhw_storage_action : float, default: 0.0
             Fraction of `dhw_storage` `capacity` to charge/discharge by.
         electrical_storage_action : float, default: 0.0
-            Fraction of `electrical_storage` `capacity` to charge/discharge by.
+            Fraction of `electrical_storage` `nominal power` to charge/discharge by.
         electric_vehicle_storage_actions : dict, default: None
             A dictionary where keys are charger IDs and values are the fraction of connected EV battery `capacity`
         **kwargs
@@ -1416,23 +1416,27 @@ class Building(Environment):
         self.non_shiftable_load_device.update_electricity_consumption(demand)
 
     def update_electrical_storage(self, action: float):
-        r"""Charge/discharge `electrical_storage` for current time step.
+        """
+        Charge/discharge the electrical storage (BESS) for the current time step.
 
         Parameters
         ----------
         action : float
-            Fraction of `electrical_storage` `capacity` to charge/discharge by.
+            Normalized charging or discharging action (range [-1, 1]).
         """
 
-        #Todo Here the action is a fraction o fthe capacity, but should be fraction of max charging power
-        #As that would provide action as power, (in kw) and then multiply by time later to have kWh
-        #The conversion should always be made inside the battery or outside ?
-        #Colocar action history nos EV chargers
-        #nominalpower/capacity
+        # Convert normalized action to power (kW)
+        power = action * self.electrical_storage.nominal_power  # kW
 
+        # Convert power (kW) to energy (kWh) based on time step duration
+        time_step_hours_ratio = self.seconds_per_time_step / 3600  # Convert seconds to fraction of hour
+        energy = power * time_step_hours_ratio  # Energy in kWh
 
-        energy = min(action * self.electrical_storage.capacity, self.downward_electrical_flexibility)
+        # Optionally clamp to flexibility range if needed
+        energy = min(energy, self.downward_electrical_flexibility)
+
         self.electrical_storage.charge(energy)
+
 
     def ___demand_limit_check(self, end_use: str, demand: float, max_device_output: float):
         message = f'timestep: {self.time_step}, building: {self.name}, outage: {self.power_outage}, demand: {demand},' \
@@ -1667,7 +1671,6 @@ class Building(Environment):
                 high_limit[key] = self.dhw_device.nominal_power
 
             elif key == 'electrical_storage_electricity_consumption':
-                #Todo here is to power Kw
                 low_limit[key] = -self.electrical_storage.nominal_power
                 high_limit[key] = self.electrical_storage.nominal_power
 
@@ -1772,7 +1775,7 @@ class Building(Environment):
 
             elif 'storage' in key:
                 if key == 'electrical_storage':
-                    limit = self.electrical_storage.nominal_power/max(self.electrical_storage.capacity, ZERO_DIVISION_PLACEHOLDER)
+                    limit = 1
 
                 else:
                     if key == 'cooling_storage':
