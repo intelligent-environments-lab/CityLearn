@@ -1707,7 +1707,6 @@ class CityLearnEnv(Environment, Env):
             'cooling_storage': {'autosizer': building.autosize_cooling_storage},
             'heating_storage': {'autosizer': building.autosize_heating_storage},
             'electrical_storage': {'autosizer': building.autosize_electrical_storage},
-            'washing_machine': {'autosizer': building.autosize_electrical_storage},
             'pv': {'autosizer': building.autosize_pv},
 
         }
