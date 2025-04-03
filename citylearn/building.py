@@ -415,7 +415,7 @@ class Building(Environment):
 
         if isinstance(self.heating_device, HeatPump):
             consumption = self.heating_device.get_input_power(
-                self.heating_storage.energy_balance[:self.time_step + 1], 
+                self.heating_storage.energy_balance[:self.time_step + 1],
                 self.weather.outdoor_dry_bulb_temperature[:self.time_step + 1], True)
         else:
             consumption = self.heating_device.get_input_power(self.heating_storage.energy_balance[:self.time_step + 1])
@@ -1034,7 +1034,7 @@ class Building(Environment):
                     observations[soc_arrival_key] = -0.1
 
         return observations
-    
+
     def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
         electric_vehicle_chargers_dict = {}
 
@@ -1568,7 +1568,7 @@ class Building(Environment):
                                         + self.dhw_device.nominal_power
                 high_limit[key] = high_limits.max()
 
-            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc', 
+            elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc',
                 'electrical_storage_soc']:
                 low_limit[key] = 0.0
                 high_limit[key] = 1.0
@@ -1617,7 +1617,7 @@ class Building(Environment):
                                   'electric_vehicle_soc']):
                             low_limit[key] = -0.1
                             high_limit[key] = 1.0
-            
+
             elif key in ['dhw_device_efficiency']:
                 if isinstance(self.dhw_device, HeatPump):
                     cop = self.dhw_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=True)
@@ -1853,7 +1853,7 @@ class Building(Environment):
                 try:
                     low_limit.append(max(-maximum_demand_ratio, -1.0))
                     high_limit.append(min(maximum_demand_ratio, 1.0))
-                
+
                 except ZeroDivisionError:
                     low_limit.append(-1.0)
                     high_limit.append(1.0)
@@ -2259,13 +2259,13 @@ class Building(Environment):
 
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission[self.time_step] = max(0.0, net_electricity_consumption*self.carbon_intensity.carbon_intensity[self.time_step])
-    
+
     def __str__(self) -> str:
         """
         Return a text representation of the current state.
         """
         return str(self.as_dict())
-    
+
     def as_dict(self) -> dict:
         """
         Return a dictionary representation of the current state for use in rendering or logging.
@@ -2277,7 +2277,7 @@ class Building(Environment):
             "Energy Production from PV-kWh": f"{self.solar_generation[self.time_step]}",
             "Energy Production From EV-kWh": f"{self.energy_production_from_ev[self.time_step]}",
         }
-    
+
     def render_simulation_end_data(self) -> dict:
         """
         Return a dictionary containing all simulation data across all time steps.
@@ -2359,8 +2359,6 @@ class Building(Environment):
             }
 
             result['simulation_data'].append(time_step_data)
-
-        return result
 
 class DynamicsBuilding(Building):
     r"""Base class for temperature dynamic building.

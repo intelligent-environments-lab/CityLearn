@@ -784,9 +784,9 @@ class CityLearnEnv(Environment, Env):
     @property
     def energy_production_from_ev(self) -> np.ndarray:
         """Summed energy retrieved from all connected EVs across buildings, in [kWh]."""
-        
-        total_ev_production = np.zeros_like(self.buildings[0].electrical_storage_electricity_consumption)  
-        
+
+        total_ev_production = np.zeros_like(self.buildings[0].electrical_storage_electricity_consumption)
+
         for building in self.buildings:
             for charger in building.ev_chargers:
                 connected_ev = charger.connected_electric_vehicle
@@ -1231,14 +1231,14 @@ class CityLearnEnv(Environment, Env):
                                 if state == 2: #EVs can also be associated as incoming to a given charger
                                     c.associate_incoming_car(electric_vehicle)
 
-    
 
-  
+
+
     def render(self):
         """
         Renders the current state of the CityLearn environment, logging data into separate CSV files.
         """
-        
+
         iso_timestamp = self._get_iso_timestamp()
         os.makedirs(self.new_folder_path, exist_ok=True)
 
@@ -1249,13 +1249,13 @@ class CityLearnEnv(Environment, Env):
         # Save building data
         for idx, building in enumerate(self.buildings):
             self._save_to_csv(f"exported_data_{building.name.lower()}.csv", {"Time Step": iso_timestamp, **building.as_dict()})
-            
+
             battery = building.electrical_storage # save battery to render
             self._save_to_csv(f"exported_data_{building.name.lower()}_battery.csv", {"Time Step": iso_timestamp, **battery.as_dict()})
 
             for charger_idx, charger in enumerate(building.electric_vehicle_chargers):
                 self._save_to_csv(f"exported_data_{building.name.lower()}_{charger.charger_id}.csv", {"Time Step": iso_timestamp, **charger.as_dict()})
-        
+
         # Save EV data
         for idx, ev in enumerate(self.__electric_vehicles):
             #if idx == 0: print(ev.render_simulation_end_data())
@@ -1268,11 +1268,11 @@ class CityLearnEnv(Environment, Env):
         """
         file_path = os.path.join(self.new_folder_path, filename)
         file_exists = os.path.isfile(file_path)
-        
+
         with open(file_path, 'a', newline='') as csvfile:
             fieldnames = list(data.keys())
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            
+
             if not file_exists:
                 writer.writeheader()
             writer.writerow(data)
@@ -1282,28 +1282,28 @@ class CityLearnEnv(Environment, Env):
         energy_sim_month = energy_sim.month
         energy_sim_hour = energy_sim.hour
         energy_sim_minutes = getattr(energy_sim, "minutes", None)
-        
+
         month = energy_sim_month[self.time_step]
         hour = energy_sim_hour[self.time_step]
         minutes = energy_sim_minutes[self.time_step] if energy_sim_minutes is not None and len(energy_sim_minutes) > 0 else 0
-        
+
         next_time_step = self.time_step + 1
         next_month = energy_sim_month[next_time_step] if next_time_step < len(energy_sim_month) else month
         next_hour = energy_sim_hour[next_time_step] if next_time_step < len(energy_sim_hour) else hour
         next_minutes = (
             energy_sim_minutes[next_time_step] if energy_sim_minutes is not None and next_time_step < len(energy_sim_minutes) else minutes
         )
-        
+
         if next_month != month:
             self.current_day = 1
             self.year += (month == 12 and next_month == 1)  # If current month is 12 and next month is 1, increment year
             month = next_month
         elif next_hour == 1 and (next_minutes == 0 if energy_sim_minutes is not None else True):  # Roll over to a new day
             self.current_day += 1
-        
+
         return f"{self.year:04d}-{month:02d}-{self.current_day:02d}T{hour % 24:02d}:{minutes:02d}:00"
-    
-    
+
+
     def reset(self, seed: int = None, options: Mapping[str, Any] = None) -> Tuple[List[List[float]], dict]:
         r"""Reset `CityLearnEnv` to initial state.
 
@@ -1938,13 +1938,13 @@ class CityLearnEnv(Environment, Env):
         )
 
         return ev
-    
+
     def __str__(self) -> str:
         """
         Return a text representation of the current state.
         """
         return str(self.as_dict())
-    
+
     def as_dict(self) -> dict:
         """
         Return a dictionary representation of the current state for use in rendering or logging.
@@ -1957,7 +1957,7 @@ class CityLearnEnv(Environment, Env):
             "CO2-kg_co2": self.net_electricity_consumption_emission[self.time_step],
             "Price-$": self.net_electricity_consumption_cost[self.time_step],
         }
-    
+
     def render_simulation_end_data(self) -> dict:
         """
         Return a dictionary containing all simulation data across all time steps.
