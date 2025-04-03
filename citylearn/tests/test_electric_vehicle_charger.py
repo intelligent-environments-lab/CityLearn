@@ -20,7 +20,7 @@ def mock_battery():
     battery.initial_soc = 0.5  # Start at 50% SOC
     battery.soc = np.array([0.5] * 24)  # SOC time series
     battery.energy_balance = np.zeros(24)  # Track energy changes
-    battery.efficiency = 0.9  # 90% efficiency
+    battery.efficiency = 1  # 90% efficiency
     battery.round_trip_efficiency = 0.9**0.5  # sqrt(efficiency)
     battery.time_step = 0
     
@@ -236,3 +236,47 @@ def test_reset(charger, mock_electric_vehicle):
     assert all(ec == 0 for ec in charger._Charger__electricity_consumption)
     assert all(pc == 0 for pc in charger._Charger__past_charging_action_values_kwh)
     assert all(ev is None for ev in charger._Charger__past_connected_evs)
+
+
+# --- INTEGRATION TESTS ---
+
+def test_charger_battery_integration(charger, mock_electric_vehicle, mock_battery):
+    """Test integration between charger and battery - verify SOC changes correctly"""
+    # Connect the EV to the charger
+    charger.plug_car(mock_electric_vehicle)
+    
+    # Initial state checks
+    initial_soc = mock_battery.soc[0]
+    assert initial_soc == 0.5  # From mock_battery fixture
+    
+    # Test charging
+    charging_action = 0.5  # 50% of max charging power (10kW * 0.5 = 5kW)
+    charger.update_connected_electric_vehicle_soc(charging_action)
+    
+    # Verify battery was charged
+    expected_energy = 5.0 * 1.0  # 5kW * 1 hour = 5kWh
+    expected_soc_change = (expected_energy * mock_battery.round_trip_efficiency) / mock_battery.capacity
+    expected_new_soc = initial_soc + expected_soc_change
+    assert mock_battery.soc[0] == pytest.approx(expected_new_soc)
+    assert mock_battery.energy_balance[0] == pytest.approx(expected_energy * mock_battery.round_trip_efficiency)
+    
+    # Test discharging
+    mock_battery.time_step = 1  # Advance time step
+    charger.time_step = 1
+    
+    discharging_action = -0.3  # 30% of max discharging power (10kW * 0.3 = 3kW)
+    charger.update_connected_electric_vehicle_soc(discharging_action)
+    
+    # Verify battery was discharged
+    expected_energy = -3.0 * 1.0  # -3kW * 1 hour = -3kWh
+    expected_soc_change = (expected_energy / mock_battery.round_trip_efficiency) / mock_battery.capacity
+    expected_new_soc = mock_battery.soc[0] + expected_soc_change  # Starts from previous SOC
+    
+    assert mock_battery.soc[1] == pytest.approx(expected_new_soc)
+    assert mock_battery.energy_balance[1] == pytest.approx(expected_energy / mock_battery.round_trip_efficiency)
+
+    # Verify charger recorded the correct electricity consumption
+    # Charging: consumption is energy / efficiency
+
+    # Discharging: consumption is energy * efficiency (negative)
+    assert charger._Charger__electricity_consumption[1] == pytest.approx(mock_battery.energy_balance[1] * mock_battery.efficiency)
