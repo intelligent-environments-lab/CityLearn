@@ -491,13 +491,13 @@ class PV(ElectricDevice):
             Building annual demand in [kWh].
         epw_filepath : Union[Path, str]
             EnergyPlus weather file path used as input to :code:`PVWattsNone` model.
-        use_sample_target : bool
+        use_sample_target : bool, default: False
             Whether to directly use the sizing in the sampled instance instead of sizing for `zero_net_energy_proportion`.
             Will still limit the size to the `roof_area`.
         zero_net_energy_proportion : Union[float, Tuple[float, float]], default: (0.7, 1.0)
             Proportion
         roof_area : float, optional
-            Roof area where the PV is mounted in m^2.
+            Roof area where the PV is mounted in m^2. The default is to assume an infinite roof area.
         safety_factor : Union[float, Tuple[float, float]], default: 1.0
             The `nominal_power` is oversized by factor of `safety_factor`.
             It is only applied to the `zero_net_energy_proportion` estimate.
@@ -528,7 +528,7 @@ class PV(ElectricDevice):
         random_seed = self.random_seed
         tries = 3
 
-        for i in range(3):
+        for i in range(tries):
             self._autosize_config = sizing_data.sample(1, random_state=random_seed + i).iloc[0].to_dict()
             model = Pvwattsv8.default('PVWattsNone')
             pv_nominal_power = self.autosize_config['nameplate_capacity_module_1']/1000.0
@@ -551,7 +551,6 @@ class PV(ElectricDevice):
                 
                 else:
                     pass
-                
         
         inverter_ac_power_per_kw = np.array(model.Outputs.ac, dtype='float32')/pv_nominal_power
 

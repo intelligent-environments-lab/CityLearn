@@ -1,4 +1,4 @@
-doe_xstock>=1.0.0
+doe_xstock>=1.1.0
 gymnasium
 nrel-pysam
 numpy<2.0.0

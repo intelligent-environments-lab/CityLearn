@@ -5,7 +5,7 @@ from enum import Enum, unique
 from pathlib import Path
 import random
 import shutil
-from typing import Any, List, Mapping, Tuple, Union
+from typing import Any, Callable, List, Mapping, Tuple, Union
 from doe_xstock.data import VersionDatasetType
 from doe_xstock.end_use_load_profiles import EndUseLoadProfiles
 from doe_xstock.simulate import EndUseLoadProfilesEnergyPlusSimulator, OpenStudioModelEditor
@@ -229,7 +229,7 @@ class Neighborhood:
         )
     
     def delete_energyplus_simulation_output(self, simulators: BuildingsSimulators):
-        directories = [Path(s['mechanical'].output_directory).parents[0] for s in simulators]
+        directories = [Path(s['ideal'].output_directory).parents[0] for s in simulators]
 
         for d in directories:
             if os.path.isdir(d):
@@ -353,7 +353,6 @@ class Neighborhood:
 
             for b in env.buildings:
                 lstm_prediction_data.append(pd.DataFrame({
-                    'bldg_name': b.name,
                     'hour': b.energy_simulation.hour,
                     'month': b.energy_simulation.month,
                     'indoor_dry_bulb_temperature': b.energy_simulation.indoor_dry_bulb_temperature_without_control,
@@ -368,7 +367,9 @@ class Neighborhood:
                     lambda x: mean_absolute_percentage_error(x['indoor_dry_bulb_temperature'], x['indoor_dry_bulb_temperature_predicted']
                 )).reset_index(name='mape')
                 mape_data['mape'] = mape_data['mape']*100.0
-                lstm_error_data.append(rmse_data.merge(mape_data, on=['month']))
+                error_data = rmse_data.merge(mape_data, on=['month'])
+                error_data.insert(0, 'bldg_name', b.name)
+                lstm_error_data.append(error_data)
         
         else:
             lstm_prediction_data = None
@@ -378,9 +379,16 @@ class Neighborhood:
         return evaluation, lstm_prediction_data, lstm_error_data
 
     def set_schema(
-        self, simulators: BuildingsSimulators, bldg_ids: List[int], lstm_models: List[Mapping[str, Any]] = None, template: Mapping[str, Union[dict, float, int, str]] = None, 
-        metadata: pd.DataFrame = None, dataset_name: str = None, schema_directory: Union[Path, str] = None, weather_kwargs: dict = None
+        self, simulators: BuildingsSimulators, bldg_ids: List[int], lstm_models: List[Mapping[str, Any]] = None, 
+        pricing: Union[List[Union[Path, pd.DataFrame, str]], Path, pd.DataFrame, str] = None, carbon_intensity: List[Union[Path, pd.DataFrame, str]] = None,
+        template: Mapping[str, Union[dict, float, int, str]] = None, 
+        metadata: pd.DataFrame = None, dataset_name: str = None, schema_directory: Union[Path, str] = None, weather_kwargs: dict = None,
+        user_customization_function: Callable[[dict], dict] = None
     ) -> Path:
+        assert pricing is None or not isinstance(pricing, list) or len(pricing) == len(bldg_ids), \
+            'There must be as many pricing as bldg_ids.'
+        assert carbon_intensity is None or not isinstance(carbon_intensity, list) or len(carbon_intensity) == len(bldg_ids), \
+            'There must be as many carbon_intensity as bldg_ids.'
         template = get_settings()['schema']['template'] if template is None else template
         lstm_models = [None]*len(simulators) if lstm_models is None else lstm_models
         metadata = self.end_use_load_profiles.metadata.metadata.get().to_dict('index') if metadata is None else metadata
@@ -398,8 +406,9 @@ class Neighborhood:
         # write weather (csv and epw)
         reference_simulator = simulators[0]['partial'][0]
         weather_data = self.get_weather_data(reference_simulator, **weather_kwargs)
-        weather_data.to_csv(os.path.join(schema_directory, 'weather.csv'), index=False)
-        _ = shutil.copy(reference_simulator.epw_filepath, os.path.join(schema_directory, 'weather.epw'))
+        weather_filename = building_template['weather'] if building_template['weather'] is not None else 'weather.csv'
+        weather_data.to_csv(os.path.join(schema_directory, weather_filename), index=False)
+        _ = shutil.copy(reference_simulator.epw_filepath, os.path.join(schema_directory, weather_filename.replace('.csv', '.epw')))
 
         for i, (bldg_id, building_simulators, lstm_model) in enumerate(zip(bldg_ids, simulators, lstm_models)):
             bldg_key = '-'.join(building_simulators['ideal'].simulation_id.split('-')[:-1])
@@ -417,9 +426,14 @@ class Neighborhood:
 
             # set building-specific filepaths
             building['energy_simulation'] = f'{bldg_key}.csv'
-            building['carbon_intensity'] = None
-            building['pricing'] = None
-
+            building['pricing'], building['carbon_intensity'] = self.__get_building_pricing_and_carbon_intensity(
+                bldg_key,
+                i,
+                building_template,
+                schema_directory,
+                pricing,
+                carbon_intensity)
+            
             # as-modeled DER survey
             no_space_cooling = building_data['cooling_demand'].sum() == 0
             no_space_heating = building_data['heating_demand'].sum() == 0
@@ -496,9 +510,63 @@ class Neighborhood:
             building_data.to_csv(os.path.join(schema_directory, building['energy_simulation']), index=False)
 
         schema_filepath = os.path.join(schema_directory, f'schema.json')
+        template = user_customization_function(template) if user_customization_function is not None else template
         write_json(schema_filepath, template)
         
         return schema_filepath
+    
+    def __get_building_pricing_and_carbon_intensity(
+        self, bldg_key: str, bldg_ix: int, 
+        building_template: Mapping[str, Union[dict, float, int, str]], schema_directory: Union[str, Path],
+        pricing: Union[List[Union[Path, pd.DataFrame, str]], Path, pd.DataFrame, str] = None,
+        carbon_intensity: Union[List[Union[Path, pd.DataFrame, str]], Path, pd.DataFrame, str] = None
+    ) -> Tuple[str, str]:
+        data = dict(
+            pricing=dict(
+                default_filename=building_template['pricing'] if building_template['pricing'] is not None else 'pricing.csv',
+                data=pricing,
+                schema_filename=None
+            ),
+            carbon_intensity=dict(
+                default_filename=building_template['carbon_intensity'] if building_template['carbon_intensity'] is not None else 'carbon_intensity.csv',
+                data=carbon_intensity,
+                schema_filename=None
+            )
+        )
+
+        for k, v in data.items():
+            if v['data'] is None:
+                if os.path.isfile(os.path.join(schema_directory, v['default_filename'])):
+                    data[k]['schema_filename'] = v['default_filename']
+
+                else:
+                    pass
+
+            elif isinstance(v['data'], (Path, str)):
+                destination_filepath = os.path.join(schema_directory, v['default_filename'])
+                shutil.copy(v['data'], destination_filepath)
+                data[k]['schema_filename'] = v['default_filename']
+
+            elif isinstance(v['data'], pd.DataFrame):
+                destination_filepath = os.path.join(schema_directory, v['default_filename'])
+                v['data'].to_csv(destination_filepath, index=False)
+                data[k]['schema_filename'] = v['default_filename']
+
+            elif isinstance(v['data'], list):
+                destination_filename = f'{bldg_key}-pricing.csv'
+                data[k]['schema_filename'] = destination_filename
+                destination_filepath = os.path.join(schema_directory, destination_filename)
+                
+                if isinstance(v['data'][bldg_ix], (Path, str)):
+                    shutil.copy(v['data'][bldg_ix], destination_filepath)
+
+                elif isinstance(v['data'][bldg_ix], pd.DataFrame):
+                    v['data'][bldg_ix].to_csv(destination_filepath, index=False)
+
+            else:
+                raise ValueError(f'Invalid {k} value type: {type(v["data"])}')
+
+        return data['pricing']['schema_filename'], data['carbon_intensity']['schema_filename']
 
     def get_weather_data(self, simulator: EndUseLoadProfilesEnergyPlusPartialLoadSimulator, shifts: Tuple[int, int, int] = None, accuracy: Mapping[str, Tuple[float, float, float]] = None) -> pd.DataFrame:
         database = simulator.get_output_database()
@@ -567,14 +635,19 @@ class Neighborhood:
     
     def simulate_energy_plus(
         self, bldg_ids: List[int], idd_filepath: Union[Path, str], simulation_ids: List[str] = None, models: List[Union[Path, str]] = None, 
-        schedules: Union[Path, pd.DataFrame] = None, osm: bool = None,
-        partial_loads_simulations: int = None, partial_loads_kwargs: Mapping[str, Any] = None, **kwargs
+        schedules: List[Union[Path, pd.DataFrame]] = None, thermostat_setpoints: List[Union[Path, pd.DataFrame]] = None, 
+        fixed_ideal_loads_idf: List[Union[Path, str]] = None, osm: bool = None, partial_loads_simulations: int = None, simulate_mechanical: bool = None, 
+        delete_existing_simulation: bool = None, partial_loads_kwargs: Mapping[str, Any] = None, **kwargs
     ) -> BuildingsSimulators:
         assert models is None or len(models) == len(bldg_ids), 'There must be as many models as bldg_ids.'
         assert schedules is None or len(schedules) == len(bldg_ids), 'There must be as many schedules as bldg_ids.'
+        assert thermostat_setpoints is None or len(thermostat_setpoints) == len(bldg_ids), 'There must be as many thermostat_setpoints as bldg_ids.'
+        assert fixed_ideal_loads_idf is None or len(fixed_ideal_loads_idf) == len(bldg_ids), 'There must be as many fixed_ideal_loads_idf as bldg_ids.'
         assert simulation_ids is None or len(simulation_ids) == len(bldg_ids), 'There must be as many simulation_ids as bldg_ids.'
         os.makedirs(self.energyplus_output_directory, exist_ok=True)
         partial_loads_simulations = 4 if partial_loads_simulations is None else partial_loads_simulations
+        simulate_mechanical = True if simulate_mechanical is None else simulate_mechanical
+        delete_existing_simulation = True if delete_existing_simulation is None else delete_existing_simulation
         partial_loads_kwargs = {} if partial_loads_kwargs is None else partial_loads_kwargs
         simulators = []
 
@@ -606,7 +679,7 @@ class Neighborhood:
             simulation_id = f'{self.end_use_load_profiles.version}-{bldg_id}-{bldg_id_ix}' if simulation_ids is None else simulation_ids[i]
             output_directory = os.path.join(self.energyplus_output_directory, simulation_id)
 
-            if os.path.isdir(output_directory):
+            if os.path.isdir(output_directory) and delete_existing_simulation:
                 shutil.rmtree(output_directory)
             
             else:
@@ -619,26 +692,40 @@ class Neighborhood:
                 bldg_id=bldg_id,
                 model=models[i] if models is not None else models,
                 schedules=schedules[i] if schedules is not None else schedules,
+                thermostat_setpoint=thermostat_setpoints[i] if thermostat_setpoints is not None else thermostat_setpoints,
             )
 
             # mechanical loads
-            _simulation_id = f'{simulation_id}-mechanical'
-            _output_directory = os.path.join(output_directory, _simulation_id)
-            mechanical_simulator = self.end_use_load_profiles.simulate_building(
-                ideal_loads=False,
-                simulation_id=_simulation_id,
-                output_directory=_output_directory,
-                **_kwargs
-            ).simulator
+            if simulate_mechanical:
+                _simulation_id = f'{simulation_id}-mechanical'
+                _output_directory = os.path.join(output_directory, _simulation_id)
+                mechanical_simulator = self.end_use_load_profiles.simulate_building(
+                    ideal_loads=False,
+                    simulation_id=_simulation_id,
+                    output_directory=_output_directory,
+                    **_kwargs
+                ).simulator
+            
+            else:
+                mechanical_simulator = None
 
             # ideal loads
+            _ideal_kwargs = deepcopy(_kwargs)
+
+            if fixed_ideal_loads_idf is not None:
+                _ideal_kwargs['model'] = fixed_ideal_loads_idf[i]
+                _ideal_kwargs['osm'] = False
+            
+            else:
+                pass
+            
             _simulation_id = f'{simulation_id}-ideal'
             _output_directory = os.path.join(output_directory, _simulation_id)
             ideal_simulator = self.end_use_load_profiles.simulate_building(
                 ideal_loads=True,
                 simulation_id=_simulation_id,
                 output_directory=_output_directory,
-                **_kwargs
+                **_ideal_kwargs
             ).simulator
 
             # partial loads
