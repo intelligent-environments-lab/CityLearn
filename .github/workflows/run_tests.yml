@@ -30,6 +30,7 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
+
       - name: Run tests
         run: python3 -m pytest citylearn/tests
 
