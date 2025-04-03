@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from platformdirs import user_cache_dir
 import shutil
-from typing import Any, Iterable, Mapping, List, Union
+from typing import Any, Iterable, Mapping, List, Optional, Union
 import numpy as np
 import pandas as pd
 import requests
@@ -11,6 +11,12 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from citylearn.__init__ import __version__
 from citylearn.utilities import join_url, read_json, read_yaml, write_json
+from citylearn.utilities import read_json, read_yaml, write_json
+
+def join_url(*args: str) -> str:
+    url = '/'.join([a.strip('/') for a in args])
+
+    return url
 
 LOGGER = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
@@ -124,6 +130,7 @@ class DataSet:
         path = join_url(self.datasets_path, name)
 
         # check that dataset does not already exist using the schema as a proxy
+        LOGGER.info(f'Go here {schema_filepath} ')
         if not os.path.isfile(schema_filepath):
             LOGGER.info(f'The {name} dataset DNE in cache. Will download from '
                 f'{self.github_account}/{self.repository}/tree/{self.tag} GitHub repository and write to {datasets_directory}. '
@@ -346,6 +353,8 @@ class EnergySimulation(TimeSeriesData):
         Month time series value ranging from 1 - 12.
     hour : np.array
         Hour time series value ranging from 1 - 24.
+    minutes : np.array
+        Minutes time series value ranging from 0 - 60.
     day_type : np.array
         Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.
     indoor_dry_bulb_temperature : np.array
@@ -397,7 +406,7 @@ class EnergySimulation(TimeSeriesData):
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
          indoor_dry_bulb_temperature: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float], solar_generation: Iterable[float], 
-        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None
+        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None,  seconds_per_time_step: int = None, minutes: Iterable[int] = None, time_step_ratios: list[int]= []
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.month = np.array(month, dtype='int32')
@@ -415,6 +424,36 @@ class EnergySimulation(TimeSeriesData):
         self.solar_generation = np.array(solar_generation, dtype = 'float32')
 
         # optional
+        self.minutes = np.array(minutes, dtype='int32') if minutes is not None else None
+        # delta between t1 and t2
+        time_delta = self.hour[1] * 60 - self.hour[0] * 60  
+
+        # Compute time difference if minutes exist
+        if self.minutes is not None and len(self.minutes) > 1:
+            print(self.hour, self.minutes)
+            t0 = self.hour[0] * 60 + self.minutes[0]  # Convert to total minutes
+            t1 = self.hour[1] * 60 + self.minutes[1]  # Convert to total minutes
+
+            time_delta = t1 - t0
+
+            print("Time difference between t and t+1 in minutes:", time_delta)
+
+        # Fix negative difference if crossing midnight
+            # Add a full day in minutes
+        if time_delta < 0:
+                time_delta += 1440    
+
+        print("Time difference between t and t+1 in minutes:", time_delta)
+
+        time_step_ratio = (
+            seconds_per_time_step / (max(time_delta, seconds_per_time_step / 60) * 60) # Make sure seconds_per_timestamp isn't more than time_delta e.g. 30 mins time_delta but 60 minutes seconds_per_timestamp
+            if time_delta is not None and seconds_per_time_step
+            else None
+        )
+
+        time_step_ratios.append(time_step_ratio)
+        self.time_step_ratios = time_step_ratios # Store the ratio for this building
+
         self.daylight_savings_status = np.zeros(len(solar_generation), dtype='int32') if daylight_savings_status is None else np.array(daylight_savings_status, dtype='int32')
         self.average_unmet_cooling_setpoint_difference = np.zeros(len(solar_generation), dtype='float32') if average_unmet_cooling_setpoint_difference is None else np.array(average_unmet_cooling_setpoint_difference, dtype='float32')
         self.indoor_relative_humidity = np.zeros(len(solar_generation), dtype='float32') if indoor_relative_humidity is None else np.array(indoor_relative_humidity, dtype = 'float32')
@@ -450,6 +489,16 @@ class EnergySimulation(TimeSeriesData):
                 'Valid values are 0, 1, 2, 3 to indicate off, cooling mode, heating mode, and automatic mode.'
             
         self.hvac_mode = np.array(hvac_mode, dtype='int32')
+
+    @property
+    def time_step_ratios(self):
+        """Getter for the time_step_ratio variable."""
+        return self.__time_step_ratios
+
+    @time_step_ratios.setter
+    def time_step_ratios(self, value):
+        """Setter for the time_step_ratio variable."""
+        self.__time_step_ratios = value    
     
 class LogisticRegressionOccupantParameters(TimeSeriesData):
     def __init__(self, a_increase: Iterable[float], b_increase: Iterable[float], a_decrease: Iterable[float], b_decrease: Iterable[float], start_time_step: int = None, end_time_step: int = None):
@@ -575,46 +624,104 @@ class CarbonIntensity(TimeSeriesData):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.carbon_intensity = np.array(carbon_intensity, dtype='float32')
 
-
 class ElectricVehicleSimulation(TimeSeriesData):
-    """`Electric_Vehicle` `electric_vehicle_simulation` data class.
-
-    Month,Hour,Day Type,Location,Estimated Departure Time,Required Soc At Departure
+    """Electric Vehicle Simulation data class.
 
     Attributes
     ----------
     electric_vehicle_charger_state : np.array
-        State of the electric_vehicle indicating whether it is 'parked ready to charge' represented as 0, 'in transit', represented as 1.
+        State of the electric vehicle indicating:
+            1: 'Parked, plugged in, and ready to charge'
+            2: 'Incoming to a charger'
+            3: 'Commuting'
     charger : np.array
-        (available only for 'in transit' state) Charger where the electric_vehicle will plug in the next "parked ready to charge" state.
-        It can be nan if no destination charger is specified or the charger id in the format "Charger_X_Y", where X is
-        the number of the building and Y the number of the charger within that building.
+        (Available only for states 1 and 2)
+            - If in 'parked, plugged in, and ready to charge' state (1), this represents the charger where the EV is connected.
+            - If in 'incoming to a charger' state (2), this represents the charger where the EV will plug in next.
+            - It is `-1` if no destination charger is specified or if in 'commuting' state (3).
     electric_vehicle_departure_time : np.array
-        Number of time steps  expected until the vehicle departs (available only for 'parked ready to charge' state)
+        Number of time steps expected until the vehicle departs (only for state 1).
+        Defaults to -1 when not present.
     electric_vehicle_required_soc_departure : np.array
-        Estimated SOC percentage required for the electric_vehicle at departure time. (available only for 'parked ready to charge' state)
+        Estimated SOC percentage required for the EV at departure time (only for state 1).
+        Defaults to -1 when not present.
     electric_vehicle_estimated_arrival_time : np.array
-        Number of time steps  expected until the vehicle arrives at the charger (available only for 'in transit' state)
+        Number of time steps expected until the vehicle arrives at the charger (only for state 2).
+        Defaults to -1 when not present.
     electric_vehicle_estimated_soc_arrival : np.array
-        Estimated SOC percentage for the electric_vehicle at arrival time. (available only for 'in transit' state)
-
+        Estimated SOC percentage for the EV at arrival time (only for state 2).
+        Defaults to -1 when not present.
     """
 
     def __init__(
-            self, state: Iterable[str],
-            charger: Iterable[str], estimated_departure_time: Iterable[int], required_soc_departure: Iterable[float],
-            estimated_arrival_time: Iterable[int], estimated_soc_arrival: Iterable[float], start_time_step: int = None, end_time_step: int = None
+            self,
+            state: Iterable[int],
+            charger: Iterable[str],
+            estimated_departure_time: Iterable[int],
+            required_soc_departure: Iterable[float],
+            estimated_arrival_time: Iterable[int],
+            estimated_soc_arrival: Iterable[float],
+            electric_vehicle_soc_arrival: Iterable[float],
+            start_time_step: int = None,
+            end_time_step: int = None
     ):
-        r"""Initialize `ElectricVehicleSimulation`."""
+        """Initialize ElectricVehicleSimulation."""
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.electric_vehicle_charger_state = np.array(state, dtype=int)
-        self.charger = np.array(charger, dtype=str)
-        # NaNs are considered and filled as -1, i.e., when they serve no value or no data is recorded from them
-        default_value = -1
-        self.electric_vehicle_departure_time = np.nan_to_num(np.array(estimated_departure_time, dtype=float),
-                                                         nan=default_value).astype(int)
-        self.electric_vehicle_required_soc_departure = np.nan_to_num(np.array(required_soc_departure, dtype=float), nan=default_value)
-        self.electric_vehicle_estimated_arrival_time = np.nan_to_num(np.array(estimated_arrival_time, dtype=float),
-                                                       nan=default_value).astype(int)
-        self.electric_vehicle_estimated_soc_arrival = np.nan_to_num(np.array(estimated_soc_arrival, dtype=float), nan=default_value)
+
+        # Convert state to an array of floats.
+        # If a value is not a valid digit, set it to NaN.
+        self.electric_vehicle_charger_state = np.array(
+            [int(str(s)) if str(s).isdigit() else np.nan for s in state],
+            dtype=float
+        )
+
+        # Process charger values:
+        # - If the entry is a string and not "nan" (case-insensitive), keep it.
+        # - Otherwise, replace with np.nan.
+        self.charger = np.array(
+            [c if isinstance(c, str) and c.strip().lower() != "nan" else np.nan for c in charger],
+            dtype=object
+        )
+
+        # For time values, first convert to a float array.
+        # Use a default missing value (here, -1) for times.
+        default_time_value = -1
+        departure_time_arr = np.array(estimated_departure_time, dtype=float)
+        arrival_time_arr = np.array(estimated_arrival_time, dtype=float)
+
+        self.electric_vehicle_departure_time = np.where(
+            np.isnan(departure_time_arr), default_time_value, departure_time_arr
+        ).astype(int)
+
+        self.electric_vehicle_estimated_arrival_time = np.where(
+            np.isnan(arrival_time_arr), default_time_value, arrival_time_arr
+        ).astype(int)
+
+        # Define the default value and input arrays
+        default_soc_value = -0.1
+        soc_departure_arr = np.array(required_soc_departure, dtype=float)
+        est_soc_arrival_arr = np.array(estimated_soc_arrival, dtype=float)
+        soc_arrival_arr = np.array(electric_vehicle_soc_arrival, dtype=float)
+
+        # Replace NaNs with the default value
+        soc_departure_arr = np.where(np.isnan(soc_departure_arr), default_soc_value, soc_departure_arr)
+        est_soc_arrival_arr = np.where(np.isnan(est_soc_arrival_arr), default_soc_value, est_soc_arrival_arr)
+        soc_arrival_arr = np.where(np.isnan(soc_arrival_arr), default_soc_value, soc_arrival_arr)
+
+        # Divide only the values that are NOT equal to the default value
+        self.electric_vehicle_required_soc_departure = np.where(
+            soc_departure_arr != default_soc_value, soc_departure_arr / 100, soc_departure_arr
+        )
+
+        self.electric_vehicle_estimated_soc_arrival = np.where(
+            est_soc_arrival_arr != default_soc_value, est_soc_arrival_arr / 100, est_soc_arrival_arr
+        )
+
+        self.electric_vehicle_soc_arrival = np.where(
+            soc_arrival_arr != default_soc_value, soc_arrival_arr / 100, soc_arrival_arr
+        )
+
+
+
+
 

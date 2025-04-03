@@ -343,7 +343,7 @@ class BasicBatteryRBC(BasicRBC):
 
             for n in action_names:
                 action_map[n] = {}
-                
+
                 if 'storage' in n:
                     for hour in Building.get_periodic_observation_metadata()['hour']:
                         if 6 <= hour <= 14:
@@ -384,6 +384,92 @@ class BasicBatteryRBC(BasicRBC):
 
                         action_map[n][hour] = value
                 
+                else:
+                    raise ValueError(f'Unknown action name: {n}')
+
+        HourRBC.action_map.fset(self, action_map)
+
+class BasicElectricVehicleRBC_ReferenceController(BasicRBC): #change the name
+    r"""A rule-based controller that charges EVs to the maximum of the chargers and to the maximum of the battery upon connection.
+
+    The EV battery is charged at the maximum available charging power whenever it is connected.
+
+    Parameters
+    ----------
+    env: CityLearnEnv
+        CityLearn environment.
+
+    Other Parameters
+    ----------------
+    **kwargs: Any
+        Other keyword arguments used to initialize super class.
+    """
+
+    def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        super().__init__(env, **kwargs)
+
+    @HourRBC.action_map.setter
+    def action_map(self, action_map: Union[
+        List[Mapping[str, Mapping[int, float]]], Mapping[str, Mapping[int, float]], Mapping[int, float]]):
+        if action_map is None:
+            action_map = {}
+            action_names = [a_ for a in self.action_names for a_ in a]
+            action_names = list(set(action_names))
+
+            for n in action_names:
+                action_map[n] = {}
+
+                if n == "electrical_storage":
+                    for hour in Building.get_periodic_observation_metadata()['hour']:
+                        if 9 <= hour <= 21:
+                            value = -0.08
+                        elif (1 <= hour <= 8) or (22 <= hour <= 24):
+                            value = 0.091
+                        else:
+                            value = 0.0
+
+                        action_map[n][hour] = value
+
+                elif n == 'cooling_device':
+                    for hour in Building.get_periodic_observation_metadata()['hour']:
+                        if 9 <= hour <= 21:
+                            value = 0.8
+                        elif (1 <= hour <= 8) or (22 <= hour <= 24):
+                            value = 0.4
+                        else:
+                            value = 0.0
+
+                        action_map[n][hour] = value
+
+                elif n == 'heating_device':
+                    for hour in Building.get_periodic_observation_metadata()['hour']:
+                        if 9 <= hour <= 21:
+                            value = 0.4
+                        elif (1 <= hour <= 8) or (22 <= hour <= 24):
+                            value = 0.8
+                        else:
+                            value = 0.0
+
+                        action_map[n][hour] = value
+
+                elif n == 'cooling_or_heating_device':
+                    for hour in Building.get_periodic_observation_metadata()['hour']:
+                        if hour < 7:
+                            value = 0.4
+
+                        elif hour < 21:
+                            value = -0.4
+
+                        else:
+                            value = 0.8
+
+                        action_map[n][hour] = value
+
+                elif "electric_vehicle" in n:
+                    for hour in Building.get_periodic_observation_metadata()['hour']:
+                        value = 1
+                        action_map[n][hour] = value
+
                 else:
                     raise ValueError(f'Unknown action name: {n}')
 
