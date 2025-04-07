@@ -93,14 +93,12 @@ class ElectricVehicle(Environment):
                 else:
                     raise AttributeError(f"electric_vehicle_soc_arrival should be valid {soc_arrival}")
 
-        if current_charger_state in [2, 3] and next_charger_state != 1 and self.time_step > 0:
-            last_soc = self.battery.soc[self.time_step - 1]
-            # Generate a variability factor from a normal distribution centered at 1 with std 0.2.
-            variability_factor = np.random.normal(loc=1.0, scale=0.2)
-            # Clip the factor to ensure it doesn't deviate by more than 40% (i.e., factor in [0.6, 1.4])
-            variability_factor = np.clip(variability_factor, 0.6, 1.4)
-            new_soc = np.clip(last_soc * variability_factor, 0.0, 1.0)
-            self.battery.force_set_soc(new_soc)
+            if current_charger_state in [2, 3] and next_charger_state != 1 and self.time_step > 0:
+                last_soc = self.battery.soc[self.time_step - 1]
+                variability_factor = np.random.normal(loc=1.0, scale=0.2)
+                variability_factor = np.clip(variability_factor, 0.6, 1.4)
+                new_soc = np.clip(last_soc * variability_factor, 0.0, 1.0)
+                self.battery.force_set_soc(new_soc)
 
     def reset(self):
         """
