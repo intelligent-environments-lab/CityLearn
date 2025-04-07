@@ -1231,8 +1231,15 @@ class CityLearnEnv(Environment, Env):
                                 if state == 2: #EVs can also be associated as incoming to a given charger
                                     c.associate_incoming_car(electric_vehicle)
 
-
-
+    def export_final_kpis(self, model: 'citylearn.agents.base.Agent', filepath="exported_kpis.csv"):
+        file_path = os.path.join(self.new_folder_path, filepath)
+        kpis = model.env.evaluate()
+        kpis = kpis.pivot(index='cost_function', columns='name', values='value').round(3)
+        kpis = kpis.dropna(how='all')
+        kpis = kpis.fillna('')
+        kpis = kpis.reset_index()
+        kpis = kpis.rename(columns={'cost_function': 'KPI'})
+        kpis.to_csv(file_path, index=False, encoding='utf-8')
 
     def render(self):
         """

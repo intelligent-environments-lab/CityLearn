@@ -11,3 +11,8 @@ env = CityLearnEnv(dataset_name, central_agent=False)
 model = Agent(env)
 model.learn(episodes=1)#, logging_level=1)
 # print cost functions at the end of episode
+
+# Get KPIs and pivot
+
+env.export_final_kpis(model=model)
+
