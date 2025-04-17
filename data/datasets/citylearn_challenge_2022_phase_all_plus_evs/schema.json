@@ -185,7 +185,15 @@
       "active": true,
       "shared_in_central_agent": true
     },
-    "incoming_electric_vehicle_at_charger_estimated_soc_arrival": {
+    "washing_machine_start_time_step": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "washing_machine_end_time_step": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "washing_machine_load_profile": {
       "active": true,
       "shared_in_central_agent": true
     }

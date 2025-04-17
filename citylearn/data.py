@@ -743,8 +743,8 @@ class WashingMachineSimulation(TimeSeriesData):
             self,
             day_type: Iterable[int],
             hour: Iterable[int],
-            start_time_step: Iterable[int],
-            end_time_step: Iterable[int],
+            wm_start_time_step: Iterable[int],
+            wm_end_time_step: Iterable[int],
             load_profile: Iterable[str],
             start: int = None,
             end: int = None
@@ -757,12 +757,12 @@ class WashingMachineSimulation(TimeSeriesData):
         self.day_type = np.array(day_type, dtype=int)
         self.hour = np.array(hour, dtype=int)
 
-        start_time_step_arr = np.array(start_time_step, dtype=float)
-        end_time_step_arr = np.array(end_time_step, dtype=float)
+        start_time_step_arr = np.array(wm_start_time_step, dtype=float)
+        end_time_step_arr = np.array(wm_end_time_step, dtype=float)
         
 
-        self.start_time_step = np.where(np.isnan(start_time_step_arr), default_time_value, start_time_step_arr).astype(int)
-        self.end_time_step = np.where(np.isnan(end_time_step_arr), default_time_value, end_time_step_arr).astype(int)
+        self.wm_start_time_step = np.where(np.isnan(start_time_step_arr), default_time_value, start_time_step_arr).astype(int)
+        self.wm_end_time_step = np.where(np.isnan(end_time_step_arr), default_time_value, end_time_step_arr).astype(int)
 
         # Parse load_profile strings like '[10,20,30]' into lists of floats
         def parse_profile(profile_str):

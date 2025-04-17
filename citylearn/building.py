@@ -889,11 +889,14 @@ class Building(Environment):
         if include_all:
             valid_observations = list(set(data.keys()) | set(self.active_observations))
         else:
+            print("deixa ver isto", self.active_observations)
             valid_observations = self.active_observations
 
         observations = {k: data[k] for k in valid_observations if k in data.keys()}
 
         observations = self.update_ev_charger_observations(observations, valid_observations, self.electric_vehicle_chargers)
+
+        observations = self.update_washing_machine_observations(observations, valid_observations, self.washing_machines)
 
         unknown_observations = set(observations.keys()).difference(set(valid_observations))
         assert len(unknown_observations) == 0, f'Unknown observations: {unknown_observations}'
@@ -905,10 +908,11 @@ class Building(Environment):
 
         if check_limits:
             for k in self.active_observations:
+                print("ks", k)
                 value = observations[k]
                 lower = non_periodic_low_limit[k]
                 upper = non_periodic_high_limit[k]
-
+                print("let's go", k, lower, value, upper)
                 if not lower <= value <= upper:
                     report = {
                         'Building': self.name,
@@ -1046,9 +1050,44 @@ class Building(Environment):
                     observations[soc_arrival_key] = -0.1
 
         return observations
+    
+    def update_washing_machine_observations(self, observations, valid_observations, washing_machines):
+        """
+        Update the observations for each washing machine simulation.
+
+        Parameters
+        ----------
+        observations : dict
+            Dictionary to update with washing machine observations.
+        valid_observations : list or set
+            Collection of valid observation keys.
+        washing_machines : list
+            List of WashingMachineSimulation objects.
+        """
+        for wm in washing_machines:
+            prefix = f"{wm.washing_machine_name}"  # e.g., washing_machine_0, washing_machine_1, etc.
+
+            print("prefix ", prefix)
+
+            
+            # Start time
+            start_key = f"{prefix}_start_time_step"
+            if start_key in valid_observations:
+                observations[f"{prefix}_start_time_step"] = wm.washing_machine_simulation.wm_start_time_step[self.time_step]
+
+            # End time
+            end_key = f"{prefix}_end_time_step"
+            if end_key in valid_observations:
+                observations[end_key] = wm.washing_machine_simulation.wm_end_time_step[self.time_step]
+
+        return observations
+
+
+
 
     def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
         electric_vehicle_chargers_dict = {}
+        washing_machines_dict = {}
 
         for charger in self.electric_vehicle_chargers:
             charger_id = charger.charger_id
@@ -1103,7 +1142,27 @@ class Building(Environment):
                     "max_discharging_power": charger.max_discharging_power,
                 }
 
-                #vera qui
+        for wm in self.washing_machines:
+            washing_machine_id = wm.washing_machine_name
+                # Time-safe access for last charging action
+            if self.time_step > 0:
+                    start_time_step = wm.washing_machine_simulation.wm_start_time_step[self.time_step - 1]
+                    end_time_step =  wm.washing_machine_simulation.wm_end_time_step[self.time_step - 1]
+                    load_profile =  wm.washing_machine_simulation.load_profile[self.time_step - 1]
+            else:
+                    start_time_step = wm.washing_machine_simulation.wm_start_time_step[self.time_step]
+                    end_time_step =  wm.washing_machine_simulation.wm_end_time_step[self.time_step]
+                    load_profile =  wm.washing_machine_simulation.load_profile[self.time_step]
+
+            washing_machines_dict[washing_machine_id] = { # vai ser parecido para os actions
+                    "wm_start_time_step": start_time_step,
+                    "wm_end_time_step": end_time_step,
+                    "load_profile": load_profile,
+            }
+
+        print("electric_vehicle_chargers_dict",electric_vehicle_chargers_dict)    
+
+        print("washing_machines_dict",washing_machines_dict)
 
         return {
             **{
@@ -1152,7 +1211,8 @@ class Building(Environment):
             'comfort_band': self.energy_simulation.comfort_band[self.time_step],
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
             'power_outage': self.__power_outage_signal[self.time_step],
-            'electric_vehicles_chargers_dict': electric_vehicle_chargers_dict
+            'electric_vehicles_chargers_dict': electric_vehicle_chargers_dict,
+            'washing_machines_dict': washing_machines_dict,
         }
     
     @staticmethod
@@ -1650,10 +1710,12 @@ class Building(Environment):
             elif 'washing_machine' in key:
                 if self.washing_machines is not None:
                     for washing_machine in self.washing_machines:
-                        print("dqwkdqkwdkqkwdqwkdkqw", key)
-                        low_limit[key] = 0
-                        high_limit[key] = 1      
-
+                        if key == f'{washing_machine.washing_machine_name}_start_time_step':
+                            low_limit[key] = -1
+                            high_limit[key] = 24
+                        elif f'{washing_machine.washing_machine_name}_end_time_step' in key:
+                            low_limit[key] = -1
+                            high_limit[key] = 24
             elif key in ['dhw_device_efficiency']:
                 if isinstance(self.dhw_device, HeatPump):
                     cop = self.dhw_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=True)
