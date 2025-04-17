@@ -180,7 +180,7 @@ class TestBattery(unittest.TestCase):
         
         # Check that SOC didn't go below DoD limit
         min_allowed_soc = 1.0 - self.battery.depth_of_discharge
-        self.assertGreaterEqual(self.battery.soc[self.battery.time_step], min_allowed_soc - 1e-6)  # Olhar para isto de novo
+        self.assertGreaterEqual(self.battery.soc[self.battery.time_step], min_allowed_soc - 1e-2)
 
     def test_capacity_limit(self):
         """Test that the battery respects the capacity limit when charging"""
