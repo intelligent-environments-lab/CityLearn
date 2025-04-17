@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from PySAM import Pvwattsv8
 from citylearn.base import Environment, EpisodeTracker
-from citylearn.data import DataSet, ZERO_DIVISION_PLACEHOLDER, EnergySimulation
+from citylearn.data import DataSet, ZERO_DIVISION_PLACEHOLDER, EnergySimulation, WashingMachineSimulation
 np.seterr(divide='ignore', invalid='ignore')
 
 LOGGER = logging.getLogger()
@@ -1177,6 +1177,7 @@ class Battery(StorageDevice, ElectricDevice):
         nominal_power = choices[choice]['nominal_power']*max(1.0, unit_count*int(parallel))
         depth_of_discharge = choices[choice]['depth_of_discharge']
         efficiency = choices[choice]['efficiency']
+        print("dqwdqwqd", choices)
         loss_coefficient = choices[choice]['loss_coefficient']
         capacity_loss_coefficient = choices[choice]['capacity_loss_coefficient']
         
@@ -1207,121 +1208,176 @@ class Battery(StorageDevice, ElectricDevice):
         self._efficiency_history = self._efficiency_history[0:1]
         self._capacity_history = self._capacity_history[0:1]
 
-class WashingMachine(Device):
-     """Washing machine class using a load profile (kWh vs. time) instead of fixed cycles."""
- 
-     def __init__(
-         self, 
-         efficiency: Union[float, Tuple[float, float]] = 0.85,  # Default 85% efficiency
-         load_profile: Dict[float, float] = None,  # Dict of {hour: kWh} [[0, 0.83],[0.3, 0.83],[0.7, 0.9],[0.8, 0.9],[1, 0.85]]
-         loss_coefficient: Union[float, Tuple[float, float]] = None,
-         flexible_start: Tuple[int, int] = (10, 20),  # Earliest and latest start time
-         **kwargs
-     ):        
-         self.random_seed = kwargs.get('random_seed', None)
-         
-         # Initialize properties via setters to ensure validation
-         self.efficiency = efficiency
-         self.load_profile = load_profile if load_profile else {}
-         self.loss_coefficient = loss_coefficient if loss_coefficient is not None else 1 - self.efficiency
-         self.flexible_start = flexible_start
-         
-         super().__init__(**kwargs)
- 
-         # State Tracking
-         self._is_running = False
-         self._current_hour = 0
-         self._power_history = []
-         self._energy_history = []
-         self._total_energy_consumed = 0.0
- 
-     @property
-     def load_profile(self) -> Dict[float, float]:
-         """Get the load profile of the washing machine."""
-         return self.__load_profile
- 
-     @load_profile.setter
-     def load_profile(self, value: Dict[float, float]):
-         if isinstance(value, str):
-             try:
-                 # Convert string to dictionary
-                 value = ast.literal_eval(value)
-             except (ValueError, SyntaxError) as e:
-                 raise ValueError(f"Invalid load_profile string format: {e}")
-     
-         if not isinstance(value, dict):
-             raise ValueError("Load profile must be a dictionary or valid dictionary string.")
-         
-         # Validate all values are positive
-         for k, v in value.items():
-             if v < 0:
-                 raise ValueError("All values in load_profile must be non-negative")
-         
-         self.__load_profile = value
- 
-     def next_time_step(self) -> Mapping[int, str]:
-         """Update the washing machine state for the next time step."""
-         super().next_time_step()
-         
-         if self._is_running:
-             # Get power consumption for current hour in the cycle
-             current_power = self.load_profile.get(self._current_hour, 0)
-             
-             # Apply efficiency factor
-             effective_power = current_power * self.efficiency
-             
-             # Store power and energy data
-             self._power_history.append(effective_power)
-             energy_this_step = effective_power * (self.time_resolution / 60)  # Convert to kWh if resolution is in minutes
-             self._energy_history.append(energy_this_step)
-             self._total_energy_consumed += energy_this_step
-             
-             # Move to next hour in the cycle
-             self._current_hour += 1
-             
-             # Check if washing cycle is complete
-             if self._current_hour >= len(self.load_profile):
-                 self._is_running = False
-                 self._current_hour = 0
-         
-         return {"power": self._power_history[-1] if self._power_history else 0,
-                 "energy": self._total_energy_consumed}
- 
-     def get_current_power(self) -> float:
-         """Get current power consumption in kW."""
-         return self._power_history[-1] if self._power_history else 0
- 
-     def get_total_energy(self) -> float:
-         """Get total energy consumed in kWh."""
-         return self._total_energy_consumed
-     
-     def get_energy_load(self, power: float, charging: bool) -> float:
-         """
-         Returns the efficiency corresponding to a given power level.
- 
-         If no efficiency curve is set, returns self.efficiency.
-         If a curve is set, interpolates efficiency from the appropriate curve.
- 
-         Parameters
-         ----------
-         power : float
-             The charging or discharging power level (normalized between 0 and 1).
-         charging : bool
-             Whether the power level corresponds to charging (True) or discharging (False).
- 
-         Returns
-         -------
-         float
-             The interpolated efficiency at the given power level.
-         """
-         # Select the correct load curve
-         load_profile = self.__load_profile
-         # If no curve is set, return default load
-         if load_profile is None:
-             return self.load_profile  # Default loads
- 
-         # Ensure efficiency_curve is properly shaped
-         assert load_profile.shape[0] == 2, "Load Profile curve must have shape (2, N)."
- 
-         power_levels, efficiencies = load_profile  # Unpack rows
-         return np.interp(power, power_levels, efficiencies)  # Interpolated loads
+class WashingMachine(ElectricDevice):
+    """Washing machine class using a load profile (kWh vs. time) instead of fixed cycles."""
+
+    def __init__(
+        self,
+        washing_machine_simulation: WashingMachineSimulation = None,
+        washing_machine_name: str = None,
+        initiated: bool = False,
+        **kwargs
+        
+    ):  
+        self.washing_machine_simulation = washing_machine_simulation
+        self.washing_machine_name = washing_machine_name
+        self.initiated = initiated
+
+        super().__init__(**kwargs)
+
+    @property
+    def washing_machine_simulation(self) -> WashingMachineSimulation:
+        """Time series of maximum amount of energy the storage device can store in [kWh]."""
+
+        return self.__washing_machine_simulation
+    
+    @washing_machine_simulation.setter
+    def washing_machine_simulation(self, washing_machine_simulation: WashingMachineSimulation):
+        self.__washing_machine_simulation = washing_machine_simulation    
+    
+    @property
+    def washing_machine_name(self) -> str:
+        """Time series of maximum amount of energy the storage device can store in [kWh]."""
+
+        return self.__washing_machine_name
+    
+    @washing_machine_name.setter
+    def washing_machine_name(self, washing_machine_name: str):
+        self.__washing_machine_name = washing_machine_name        
+
+    @property
+    def initiated(self) -> bool:
+        """Time series of maximum amount of energy the storage device can store in [kWh]."""
+
+        return self._initiated
+    
+    @initiated.setter
+    def initiated(self, initiated: bool):
+        self._initiated = initiated
+
+    @property
+    def past_action_values(self) -> List[float]:
+        r"""Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy"""
+
+        return self.__past_action_values
+    
+    @property
+    def past_action_values(self) -> List[float]:
+        r"""Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy"""
+
+        return self.__past_action_values
+    
+    def next_time_step(self):
+        """Update the washing machine state for the next time step."""
+        super().next_time_step()
+        #if
+
+    def start_cycle(self, action_value: float):
+        self.__past_action_values[self.time_step] = action_value
+
+        if action_value != 0 and self.initiated == False:
+            self.initiated = True
+            self.__electricity_consumption[self.time_step] = self.washing_machine_simulation.load_profile[0]
+        else:
+            self.__electricity_consumption[self.time_step] = 0    
+
+
+        return
+        #if(action_value == 1 and self.activated == 0 and self.washing_machine_simulation.):
+        #    self.activated = 1
+        #if(self.washing_machine_simulation. or (action_value == 1 and self.activated == 1) or action_value == 0 and self.activated == 1)    
+        
+    def observations(self) -> Mapping[str, float]:
+        r"""Observations at current time step.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        observations
+        """
+        unwanted_keys = []
+
+        observations = {
+            **{
+                k.lstrip('_'): v[self.time_step]
+                for k, v in vars(self.washing_machine_simulation).items()
+                if isinstance(v, np.ndarray) and k.lstrip('_') not in unwanted_keys
+                # Ensure filtering is done after stripping
+            },
+        }
+
+        return observations    
+        
+    def reset(self):
+        """Reset the Washing Machine to its initial state."""
+        super().reset()
+        self._initiated = False
+        self.__past_action_values = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def __str__(self) -> str:
+        """Return a text representation of the current state."""
+        return str(self.as_dict())
+
+    def as_dict(self) -> dict:
+        """Return a dictionary representation of the current state."""
+        return {
+            **self.observations()
+        }
+
+    def render_simulation_end_data(self) -> dict:
+        """Return a dictionary containing all simulation data across all time steps."""
+        # Determine time step count
+        num_steps = len(self._power_history)
+        
+        # Build time step data
+        time_steps = []
+        for i in range(num_steps):
+            step_data = {
+                "time_step": i,
+            }
+            time_steps.append(step_data)
+            
+        # Final result
+        result = {
+            "simulation_name": getattr(self, 'name', 'WashingMachine'),
+            "data": time_steps,
+        }
+        return result

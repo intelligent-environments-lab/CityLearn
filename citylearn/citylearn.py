@@ -17,9 +17,9 @@ import random
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
 from citylearn.cost_function import CostFunction
-from citylearn.data import CarbonIntensity, DataSet, ElectricVehicleSimulation, EnergySimulation, LogisticRegressionOccupantParameters, Pricing, Weather
+from citylearn.data import CarbonIntensity, DataSet, ElectricVehicleSimulation, EnergySimulation, LogisticRegressionOccupantParameters, Pricing, WashingMachineSimulation, Weather
 from citylearn.electric_vehicle import ElectricVehicle
-from citylearn.energy_model import Battery, PV
+from citylearn.energy_model import Battery, PV, WashingMachine
 from citylearn.reward_function import RewardFunction
 from citylearn.utilities import read_json
 
@@ -935,10 +935,12 @@ class CityLearnEnv(Environment, Env):
             `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
             Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
+        print(actions)
 
         actions = self._parse_actions(actions)
 
         for building, building_actions in zip(self.buildings, actions):
+            #print("fkwqfkqkwfqwkf", building_actions)
             building.apply_actions(**building_actions)
 
         self.next_time_step()
@@ -997,12 +999,15 @@ class CityLearnEnv(Environment, Env):
                 actions = actions[size:]
 
         else:
+            print("dqwdqwd", actions)
             building_actions = [list(a) for a in actions]
 
         # check that appropriate number of building actions have been provided
         for b, a in zip(self.buildings, building_actions):
             number_of_actions = len(a)
+            print("dqdwwqdqwqd", number_of_actions, a)
             expected_number_of_actions = b.action_space.shape[0]
+            print("dqdwwqdqwqd", expected_number_of_actions)
             assert number_of_actions == expected_number_of_actions,\
                 f'Expected {expected_number_of_actions} for {b.name} but {number_of_actions} actions were provided.'
 
@@ -1014,6 +1019,7 @@ class CityLearnEnv(Environment, Env):
         for i, building in enumerate(self.buildings):
             action_dict = {}
             electric_vehicle_actions = {}
+            washing_machine_actions = {}
 
             # Populate the action_dict with regular actions
             for k, action in zip(active_actions[i], building_actions[i]):
@@ -1026,7 +1032,10 @@ class CityLearnEnv(Environment, Env):
 
             # Add EV actions to the action_dict if they exist
             if electric_vehicle_actions:
-                action_dict['electric_vehicle_storage_actions'] = electric_vehicle_actions
+                action_dict['electric_vehicle_storage_actions'] = electric_vehicle_actions # aqui podes criar dicionario
+
+            if washing_machine_actions:
+                action_dict['washing_machine_actions'] = washing_machine_actions    
 
             # Fill missing actions with default NaN
             for k in building.action_metadata:
@@ -1680,15 +1689,22 @@ class CityLearnEnv(Environment, Env):
                 charger_object = charger_class(charger_id=charger_name, **charger_attributes, seconds_per_time_step=schema['seconds_per_time_step'])
                 chargers_list.append(charger_object)
 
-        observation_metadata, action_metadata = self.process_metadata(schema, building_schema, chargers_list, index, **kwargs)
+        washing_machines_list = []
+        # Adding washing machines to buildings if they exist
+        if kwargs.get('washing_machines') is not None and len(kwargs['washing_machines']) > 0:
+            washing_machine_schemas = kwargs['washing_machines']
+        else:
+            washing_machine_schemas = building_schema.get('washing_machines', {})
 
-        #Mandar dados para o shared se necessario
-        #mudar nos outros sitios
-        #ver kpis
+        for washing_machine_name, washing_machine_schema in washing_machine_schemas.items():
+                washing_machines_list.append(self._load_washing_machine(washing_machine_name,schema,washing_machine_schema,episode_tracker))
+
+        observation_metadata, action_metadata = self.process_metadata(schema, building_schema, chargers_list, washing_machines_list, index, **kwargs)
 
 
         building: Building = building_constructor(
             energy_simulation=energy_simulation,
+            washing_machines = washing_machines_list,
             electric_vehicle_chargers=chargers_list,
             weather=weather,
             observation_metadata=observation_metadata,
@@ -1784,7 +1800,7 @@ class CityLearnEnv(Environment, Env):
 
         return building
 
-    def process_metadata(self, schema, building_schema, chargers_list, index, **kwargs):
+    def process_metadata(self, schema, building_schema, chargers_list, washing_machines_list, index, **kwargs):
 
         observation_metadata = {k: v['active'] for k, v in schema['observations'].items()}
         chargers_observations_metadata_helper = {k: v['active'] for k, v in schema['chargers_observations_helper'].items()}
@@ -1894,6 +1910,11 @@ class CityLearnEnv(Environment, Env):
                 if chargers_actions_metadata_helper.get("electric_vehicle_storage", False):
                     action_metadata[f'electric_vehicle_storage_{charger.charger_id}'] = True
 
+        if len(washing_machines_list) > 0:
+            for washing_machine in washing_machines_list:  # If present, iterate each charger
+                washing_machine = washing_machine.washing_machine_name
+            print("o que fazer aqui")            
+
         return observation_metadata, action_metadata
 
 
@@ -1946,7 +1967,37 @@ class CityLearnEnv(Environment, Env):
         )
 
         return ev
+    
+    def _load_washing_machine(self, washing_machine_name: str, schema: dict, washing_machine_schema: dict, episode_tracker: EpisodeTracker) -> WashingMachine:
+        """Initializes and returns an electric vehicle model."""
+        # Load energy simulation data for the EV
 
+        file_path = os.path.join(schema['root_directory'], washing_machine_schema['washing_machine_energy_simulation'])
+        df = pd.read_csv(
+            os.path.join(schema['root_directory'], washing_machine_schema['washing_machine_energy_simulation']), dtype=str
+        )
+
+        # Load only expected columns
+        washing_machine_simulation = pd.read_csv(
+            os.path.join(schema['root_directory'], washing_machine_schema['washing_machine_energy_simulation'])
+        ).iloc[schema['simulation_start_time_step']:schema['simulation_end_time_step'] + 1].copy()
+
+
+        washing_machine_simulation = WashingMachineSimulation(*washing_machine_simulation.values.T)
+
+        print(washing_machine_simulation)
+        print("jjjjjjjjj", episode_tracker.simulation_end_time_step)
+        # Initialize EV
+        ev: WashingMachine = WashingMachine(
+            washing_machine_simulation=washing_machine_simulation,
+            episode_tracker=episode_tracker,
+            washing_machine_name=washing_machine_name,
+            seconds_per_time_step=schema['seconds_per_time_step'],
+            random_seed=schema['random_seed'],
+        )
+
+        return ev
+    
     def __str__(self) -> str:
         """
         Return a text representation of the current state.

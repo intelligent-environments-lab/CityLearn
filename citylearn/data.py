@@ -722,6 +722,54 @@ class ElectricVehicleSimulation(TimeSeriesData):
         )
 
 
+class WashingMachineSimulation(TimeSeriesData):
+    """Washing Machine Simulation data class.
 
+    Attributes
+    ----------
+    day_type : np.array
+        Type of the day (e.g., weekday/weekend).
+    hour : np.array
+        Hour of the day when the washing machine is scheduled.
+    start_time_step : np.array
+        Start time step of the washing machine usage.
+    end_time_step : np.array
+        End time step of the washing machine usage.
+    load_profile : np.array
+        List of power consumption values during the washing machine's cycle.
+    """
 
+    def __init__(
+            self,
+            day_type: Iterable[int],
+            hour: Iterable[int],
+            start_time_step: Iterable[int],
+            end_time_step: Iterable[int],
+            load_profile: Iterable[str],
+            start: int = None,
+            end: int = None
+    ):
+        """Initialize WashingMachineSimulation."""
+        super().__init__(start_time_step=start, end_time_step=end)
 
+        default_time_value = -1
+
+        self.day_type = np.array(day_type, dtype=int)
+        self.hour = np.array(hour, dtype=int)
+
+        start_time_step_arr = np.array(start_time_step, dtype=float)
+        end_time_step_arr = np.array(end_time_step, dtype=float)
+        
+
+        self.start_time_step = np.where(np.isnan(start_time_step_arr), default_time_value, start_time_step_arr).astype(int)
+        self.end_time_step = np.where(np.isnan(end_time_step_arr), default_time_value, end_time_step_arr).astype(int)
+
+        # Parse load_profile strings like '[10,20,30]' into lists of floats
+        def parse_profile(profile_str):
+            try:
+                return np.array(eval(profile_str), dtype=float)
+            except:
+                return np.array([], dtype=float)
+            
+
+        self.load_profile = np.array([parse_profile(lp) for lp in load_profile], dtype=object)

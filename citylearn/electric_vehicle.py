@@ -82,7 +82,7 @@ class ElectricVehicle(Environment):
         self.battery.next_time_step()
         super().next_time_step()
 
-        # Check if the next time step exists in the charger state array
+        # Check if the next time step exists in the charger state array   - 1 ligado 2 arriving 3 commuting
         if self.time_step + 1 < self.episode_tracker.episode_time_steps:
             current_charger_state = self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step]
             next_charger_state = self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step + 1]
