@@ -1214,20 +1214,19 @@ class WashingMachine(ElectricDevice):
         self,
         washing_machine_simulation: WashingMachineSimulation = None,
         name: str = None,
-        initiated: bool = False,
         **kwargs
         
     ):  
         self.washing_machine_simulation = washing_machine_simulation
         self.name = name
-        self.initiated = initiated
+        self.__initiated = False
+        self.__past_action_values = None
 
         super().__init__(**kwargs)
 
     @property
     def washing_machine_simulation(self) -> WashingMachineSimulation:
-        """Time series of maximum amount of energy the storage device can store in [kWh]."""
-
+        """The washing machine simulation data."""
         return self.__washing_machine_simulation
     
     @washing_machine_simulation.setter
@@ -1236,8 +1235,7 @@ class WashingMachine(ElectricDevice):
     
     @property
     def name(self) -> str:
-        """Time series of maximum amount of energy the storage device can store in [kWh]."""
-
+        """Unique washing machine name."""
         return self.__name
     
     @name.setter
@@ -1246,67 +1244,47 @@ class WashingMachine(ElectricDevice):
 
     @property
     def initiated(self) -> bool:
-        """Time series of maximum amount of energy the storage device can store in [kWh]."""
-
-        return self._initiated
-    
-    @initiated.setter
-    def initiated(self, initiated: bool):
-        self._initiated = initiated
-
-    @property
-    def past_action_values(self) -> List[float]:
-        r"""Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy"""
-
-        return self.__past_action_values
+        """Whether the washing machine cycle has been initiated."""
+        return self.__initiated
     
     @property
-    def past_action_values(self) -> List[float]:
-        r"""Actions given to charge/discharge in [kWh]. Different from the electricity consumption as in this an action can be given but no electric_vehicle being connect it will not consume such energy"""
-
+    def past_action_values(self) -> np.ndarray:
+        """History of actions given to the washing machine."""
         return self.__past_action_values
-    
+
     def next_time_step(self):
         """Update the washing machine state for the next time step."""
         super().next_time_step()
-        #if
+        
+        # Initialize past_action_values if not done yet
+        if self.__past_action_values is None:
+            self.__past_action_values = np.zeros(
+                self.episode_tracker.episode_time_steps, 
+                dtype='float32'
+            )
 
     def start_cycle(self, action_value: float):
-        self.__past_action_values[self.time_step] = action_value
-
-        if action_value != 0 and self.initiated == False:
-            self.initiated = True
-            print("CHEGUEI AQUI")
-            # self.__electricity_consumption[self.time_step] = self.washing_machine_simulation.load_profile[0]
-        else:
-            print("CHEGUEI AQUI")
-            #self.__electricity_consumption[self.time_step] = 0    
-
-
-        return
-        #if(action_value == 1 and self.activated == 0 and self.washing_machine_simulation.):
-        #    self.activated = 1
-        #if(self.washing_machine_simulation. or (action_value == 1 and self.activated == 1) or action_value == 0 and self.activated == 1)    
+        """Start a washing cycle if not already initiated."""
+        print("CHEGUEI AQUI")
+        if not self.initiated and action_value > 0:
+            self.__initiated = True
+            self.__past_action_values[self.time_step] = action_value
+            
+            # TODO: Additional logic for starting the cycle could go here
+            # For example: self.__electricity_consumption[self.time_step] = self.washing_machine_simulation.load_profile[0]
         
     def observations(self) -> Mapping[str, float]:
-        r"""Observations at current time step.
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-        observations
-        """
-        unwanted_keys = []
-
+        """Observations at current time step."""
+        unwanted_keys = []  # Add any keys you want to exclude
+        
         observations = {
             **{
                 k.lstrip('_'): v[self.time_step]
                 for k, v in vars(self.washing_machine_simulation).items()
                 if isinstance(v, np.ndarray) and k.lstrip('_') not in unwanted_keys
-                # Ensure filtering is done after stripping
             },
+            'washing_machine_initiated': float(self.initiated),
+            'washing_machine_action': self.past_action_values[self.time_step] if self.past_action_values is not None else 0.0
         }
 
         return observations    
@@ -1314,44 +1292,8 @@ class WashingMachine(ElectricDevice):
     def reset(self):
         """Reset the Washing Machine to its initial state."""
         super().reset()
-        self._initiated = False
-        self.__past_action_values = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        self.__initiated = False
+        self.__past_action_values = None  # Will be initialized in next_time_step
 
     def __str__(self) -> str:
         """Return a text representation of the current state."""
@@ -1360,25 +1302,40 @@ class WashingMachine(ElectricDevice):
     def as_dict(self) -> dict:
         """Return a dictionary representation of the current state."""
         return {
+            'name': self.name,
+            'initiated': self.initiated,
             **self.observations()
         }
 
     def render_simulation_end_data(self) -> dict:
-        """Return a dictionary containing all simulation data across all time steps."""
-        # Determine time step count
-        num_steps = len(self._power_history)
-        
-        # Build time step data
+        """Return all simulation data across all time steps."""
+        num_steps = self.episode_tracker.episode_time_steps
+        simulation_attrs = {
+            key: value
+            for key, value in vars(self.washing_machine_simulation).items()
+            if isinstance(value, np.ndarray)
+        }
+
         time_steps = []
         for i in range(num_steps):
             step_data = {
                 "time_step": i,
+                "simulation": {},
+                "status": {
+                    "initiated": self.initiated if i == self.time_step else None,
+                    "action_value": self.past_action_values[i] if self.past_action_values is not None else None
+                }
             }
+
+            for key, array in simulation_attrs.items():
+                value = array[i]
+                if isinstance(value, np.generic):
+                    value = value.item()
+                step_data["simulation"][key] = value
+
             time_steps.append(step_data)
-            
-        # Final result
-        result = {
-            "simulation_name": getattr(self, 'name', 'WashingMachine'),
-            "data": time_steps,
+
+        return {
+            "simulation_name": self.name if self.name else "WashingMachineSimulation",
+            "data": time_steps
         }
-        return result
