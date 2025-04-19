@@ -940,7 +940,7 @@ class CityLearnEnv(Environment, Env):
         actions = self._parse_actions(actions)
 
         for building, building_actions in zip(self.buildings, actions):
-            #print("fkwqfkqkwfqwkf", building_actions)
+            print("mnmnmnmnmnmnmmnmnm", building_actions)
             building.apply_actions(**building_actions)
 
         self.next_time_step()
@@ -1005,9 +1005,7 @@ class CityLearnEnv(Environment, Env):
         # check that appropriate number of building actions have been provided
         for b, a in zip(self.buildings, building_actions):
             number_of_actions = len(a)
-            print("dqdwwqdqwqd", number_of_actions, a)
             expected_number_of_actions = b.action_space.shape[0]
-            print("dqdwwqdqwqd", expected_number_of_actions)
             assert number_of_actions == expected_number_of_actions,\
                 f'Expected {expected_number_of_actions} for {b.name} but {number_of_actions} actions were provided.'
 
@@ -1028,9 +1026,16 @@ class CityLearnEnv(Environment, Env):
                     print("test this", k)
                     charger_id = k.replace("electric_vehicle_storage_", "")
                     electric_vehicle_actions[charger_id] = action
+                    print("siiiiiiiiiiing ", electric_vehicle_actions)
+                elif 'washing_machine' in k:
+                    # Collect EV actions separately
+                    print("trabalha aqui", k)
+                    washing_machine_actions[k] = action
+                    print("siiiiiiiiiiing ", washing_machine_actions)
                 else:
                     action_dict[f'{k}_action'] = action
 
+            print("antes de adicionar stuff", action_dict)
             # Add EV actions to the action_dict if they exist
             if electric_vehicle_actions:
                 action_dict['electric_vehicle_storage_actions'] = electric_vehicle_actions # aqui podes criar dicionario
@@ -1040,10 +1045,17 @@ class CityLearnEnv(Environment, Env):
 
             # Fill missing actions with default NaN
             for k in building.action_metadata:
-                if f'{k}_action' not in action_dict and 'electric_vehicle_storage' not in k:
+                if (
+                    f'{k}_action' not in action_dict and
+                    'electric_vehicle_storage' not in k and
+                    'washing_machine' not in k
+                ):
                     action_dict[f'{k}_action'] = np.nan
 
+   
+
             parsed_actions.append(action_dict)
+
 
         return parsed_actions
 
@@ -1483,6 +1495,8 @@ class CityLearnEnv(Environment, Env):
             if "electric_vehicle_" in key and value.get("shared_in_central_agent", True)}
         
         schema['washing_machine_observations_helper'] = {key: value for key, value in schema["observations"].items() if "washing_machine_" in key}
+        schema['washing_machine_actions_helper'] = {key: value for key, value in schema["actions"].items() if "washing_machine" in key}
+
 
 
         schema['observations'] = {
@@ -1490,13 +1504,22 @@ class CityLearnEnv(Environment, Env):
             for key, value in schema["observations"].items()
             if key not in set(schema['chargers_observations_helper']) | set(schema['washing_machine_observations_helper'])
         }        
-        schema['actions'] = {k: v for k, v in schema['actions'].items() if k not in schema['chargers_actions_helper']}
+        schema['actions'] = {
+            key: value
+            for key, value in schema['actions'].items()
+            if key not in set(schema['chargers_actions_helper']) | set(schema['washing_machine_actions_helper'])
+        }
 
         # Update shared observations, excluding any keys that start with 'electric_vehicle_'
-        schema['shared_observations'] = kwargs['shared_observations'] if kwargs.get('shared_observations') is not None else [
-            k for k, v in schema['observations'].items()
-                if not "electric_vehicle_" in k and v.get('shared_in_central_agent', False)
-        ]
+        schema['shared_observations'] = (
+            kwargs['shared_observations'] if kwargs.get('shared_observations') is not None else [
+                k for k, v in schema['observations'].items()
+                if not k.startswith("electric_vehicle_")
+                and "washing_machine" not in k
+                and v.get('shared_in_central_agent', False)
+            ]
+        )
+
 
         schema['episode_time_steps'] = kwargs['episode_time_steps'] if kwargs.get('episode_time_steps') is not None else schema.get('episode_time_steps', None)
         schema['rolling_episode_split'] = kwargs['rolling_episode_split'] if kwargs.get('rolling_episode_split') is not None else schema.get('rolling_episode_split', None)
@@ -1873,7 +1896,7 @@ class CityLearnEnv(Environment, Env):
         # action metadata
         action_metadata = {k: v['active'] for k, v in schema['actions'].items()}
         chargers_actions_metadata_helper = {k: v['active'] for k, v in schema['chargers_actions_helper'].items()}
-        #washing_machine_actions_metadata_helper = {k: v['active'] for k, v in schema['washing_machine__helper'].items()} TODO: FAZER DEPOIS
+        washing_machine_actions_metadata_helper = {k: v['active'] for k, v in schema['washing_machine_actions_helper'].items()}
 
 
         if kwargs.get('active_actions') is not None:
@@ -1881,7 +1904,7 @@ class CityLearnEnv(Environment, Env):
             active_actions = active_actions[index] if isinstance(active_actions[0], list) else active_actions
             action_metadata = {k: True if k in active_actions else False for k in action_metadata}
             chargers_actions_metadata_helper = {k: True if k in active_actions else False for k in chargers_actions_metadata_helper}
-            #washing_machine_actions_metadata_helper = {k: True if k in active_actions else False for k in washing_machine_actions_metadata_helper} TODO: FAZER DEPOIS
+            washing_machine_actions_metadata_helper = {k: True if k in active_actions else False for k in washing_machine_actions_metadata_helper}
 
         else:
             pass
@@ -1898,7 +1921,7 @@ class CityLearnEnv(Environment, Env):
 
         action_metadata = {k: False if k in inactive_actions else v for k, v in action_metadata.items()}
         chargers_actions_metadata_helper = {k: False if k in inactive_actions else v for k, v in chargers_actions_metadata_helper.items()}
-        #washing_machine_actions_metadata_helper = {k: False if k in inactive_actions else v for k, v in washing_machine_actions_metadata_helper.items()} TODO: FAZER DEPOIS
+        washing_machine_actions_metadata_helper = {k: False if k in inactive_actions else v for k, v in washing_machine_actions_metadata_helper.items()}
 
 
         if len(chargers_list) > 0:
@@ -1935,7 +1958,6 @@ class CityLearnEnv(Environment, Env):
                 #Actions
                 if chargers_actions_metadata_helper.get("electric_vehicle_storage", False):
                     action_metadata[f'electric_vehicle_storage_{charger.charger_id}'] = True
-
         if len(washing_machines_list) > 0:
             for washing_machine in washing_machines_list:  # If present, iterate each charger
                 washing_machine_name = washing_machine.washing_machine_name
@@ -1944,6 +1966,10 @@ class CityLearnEnv(Environment, Env):
 
                 if washing_machine_observations_metadata_helper.get("washing_machine_end_time_step", False):
                     observation_metadata[f'{washing_machine_name}_end_time_step'] = True
+
+
+                if washing_machine_actions_metadata_helper.get("washing_machine", False):
+                    action_metadata[f'{washing_machine_name}'] = True   
 
             print("====================================\n")    
             print("o que fazer aqui 2", observation_metadata) 

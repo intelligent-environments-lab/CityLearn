@@ -143,10 +143,6 @@ def test_power_clamping(charger, mock_electric_vehicle):
         assert actual_power_kw == pytest.approx(expected_power)
         mock_electric_vehicle.battery.charge.reset_mock()
 
-def test_electricity_consumption_calculation(charger, mock_electric_vehicle): #TODO: Rever isto
-    # TODO
-    assert True == True
-
 def test_no_action_when_no_ev(charger):
     """Verify no action is taken when no EV is connected"""
     action = 0.5

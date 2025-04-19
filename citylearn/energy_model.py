@@ -1277,9 +1277,11 @@ class WashingMachine(ElectricDevice):
 
         if action_value != 0 and self.initiated == False:
             self.initiated = True
-            self.__electricity_consumption[self.time_step] = self.washing_machine_simulation.load_profile[0]
+            print("CHEGUEI AQUI")
+            # self.__electricity_consumption[self.time_step] = self.washing_machine_simulation.load_profile[0]
         else:
-            self.__electricity_consumption[self.time_step] = 0    
+            print("CHEGUEI AQUI")
+            #self.__electricity_consumption[self.time_step] = 0    
 
 
         return

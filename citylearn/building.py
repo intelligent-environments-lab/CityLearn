@@ -908,11 +908,9 @@ class Building(Environment):
 
         if check_limits:
             for k in self.active_observations:
-                print("ks", k)
                 value = observations[k]
                 lower = non_periodic_low_limit[k]
                 upper = non_periodic_high_limit[k]
-                print("let's go", k, lower, value, upper)
                 if not lower <= value <= upper:
                     report = {
                         'Building': self.name,
@@ -1162,7 +1160,7 @@ class Building(Environment):
 
         print("electric_vehicle_chargers_dict",electric_vehicle_chargers_dict)    
 
-        print("washing_machines_dict",washing_machines_dict)
+        print("washing_machines_dict",washing_machines_dict) # TODO: The values seem to not be reaching it. Need to Fix
 
         return {
             **{
@@ -1235,7 +1233,7 @@ class Building(Environment):
         cooling_or_heating_device_action: float = None,
         cooling_device_action: float = None, heating_device_action: float = None,
         cooling_storage_action: float = None, heating_storage_action: float = None,
-        dhw_storage_action: float = None, electrical_storage_action: float = None, washing_machine_action: dict = None,
+        dhw_storage_action: float = None, electrical_storage_action: float = None, washing_machine_actions: dict = None,
         electric_vehicle_storage_actions: dict = None,
     ):
         r"""Update cooling and heating demand for next timestep and charge/discharge storage devices.
@@ -1323,17 +1321,17 @@ class Building(Environment):
         if self.washing_machines is not None and len(self.washing_machines)!=0:
             print("ver observations", self.washing_machines[0].observations())
 
-        # if washing_machine_action is not None:
-        #     washing_machine_priority_list = []
-        #     for washing_machine_name, action in washing_machine_action.items():
-        #         action_key = f'washing_machine_{washing_machine_name}'
-        #         if action_key not in self.active_actions:
-        #             raise ValueError("This action should not be applied. Verify")
-        #         for wm in self.washing_machines:
-        #             if wm.washing_machine_name == washing_machine_name:
-        #                 actions[action_key] = (wm.start_cycle, (action,))
-        #                 washing_machine_priority_list.append(action_key)
-        #     priority_list = priority_list + washing_machine_priority_list  # the priority lists are merged    
+        if washing_machine_actions is not None:
+            washing_machine_priority_list = []
+            for washing_machine_name, action in washing_machine_actions.items():
+                action_key = f'{washing_machine_name}'
+                if action_key not in self.active_actions:
+                    raise ValueError("This action should not be applied. Verify")
+                for wm in self.washing_machines:
+                    if wm.washing_machine_name == washing_machine_name:
+                        actions[action_key] = (wm.start_cycle, (action,))
+                        washing_machine_priority_list.append(action_key)
+            priority_list = priority_list + washing_machine_priority_list
 
         if electrical_storage_action < 0.0:
             key = 'electrical_storage'
@@ -1864,6 +1862,7 @@ class Building(Environment):
         low_limit, high_limit = [], []
 
         for key in self.active_actions:
+            print("keys13212321", key)
             if key == 'cooling_or_heating_device':
                 if self.cooling_device.nominal_power > ZERO_DIVISION_PLACEHOLDER:
                     low_limit.append(-1.0)
@@ -1890,9 +1889,11 @@ class Building(Environment):
                             low_limit.append(discharging_limit)  # For charging limit
             
             elif 'washing_machine' in key:
-                if(self.washing_machines is not None): # ter varios, para por exemplo as datas serem de 0-23, dias 0-7
-                    low_limit.append(0.0)
-                    high_limit.append(1.0)                
+                if(self.washing_machines is not None):
+                    for wm in self.washing_machines:
+                        if key == f'{wm.washing_machine_name}':
+                            low_limit.append(0.0)
+                            high_limit.append(1.0)                
 
             elif 'storage' in key:
                 if key == 'electrical_storage':
