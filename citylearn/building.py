@@ -889,7 +889,6 @@ class Building(Environment):
         if include_all:
             valid_observations = list(set(data.keys()) | set(self.active_observations))
         else:
-            print("deixa ver isto", self.active_observations)
             valid_observations = self.active_observations
 
         observations = {k: data[k] for k in valid_observations if k in data.keys()}
@@ -1051,33 +1050,37 @@ class Building(Environment):
     
     def update_washing_machine_observations(self, observations, valid_observations, washing_machines):
         """
-        Update the observations for each washing machine simulation.
+        Update the observations for each washing machine.
 
-        Parameters
-        ----------
-        observations : dict
-            Dictionary to update with washing machine observations.
-        valid_observations : list or set
-            Collection of valid observation keys.
-        washing_machines : list
-            List of WashingMachineSimulation objects.
+        Parameters:
+            observations (dict): The dictionary to update with observation values.
+            valid_observations (set or list): Collection of valid observation keys.
+            washing_machines (iterable): List of washing machine objects. Each machine is expected to have:
+                - name attribute
+                - washing_machine_simulation attribute with wm_start_time_step and wm_end_time_step arrays
+                - observations() method that returns a dictionary
         """
         for wm in washing_machines:
-            prefix = f"{wm.washing_machine_name}"  # e.g., washing_machine_0, washing_machine_1, etc.
+            wm_name = wm.name
 
-            print("prefix ", prefix)
-
+            # Get all observations from the washing machine
+            wm_obs = wm.observations()
             
-            # Start time
-            start_key = f"{prefix}_start_time_step"
+            # Update start time if valid
+            start_key = f'{wm_name}_start_time_step'
             if start_key in valid_observations:
-                observations[f"{prefix}_start_time_step"] = wm.washing_machine_simulation.wm_start_time_step[self.time_step]
+                observations[start_key] = next(
+                    (value for key, value in wm_obs.items() if "_start_time_step" in key),
+                    -1  # default value if not found
+                )
 
-            # End time
-            end_key = f"{prefix}_end_time_step"
+            # Update end time if valid
+            end_key = f'{wm_name}_end_time_step'
             if end_key in valid_observations:
-                observations[end_key] = wm.washing_machine_simulation.wm_end_time_step[self.time_step]
-
+                observations[end_key] = next(
+                    (value for key, value in wm_obs.items() if "_end_time_step" in key),
+                    -1  # default value if not found
+                )
         return observations
 
 
@@ -1141,7 +1144,7 @@ class Building(Environment):
                 }
 
         for wm in self.washing_machines:
-            washing_machine_id = wm.washing_machine_name
+            washing_machine_name = wm.name
                 # Time-safe access for last charging action
             if self.time_step > 0:
                     start_time_step = wm.washing_machine_simulation.wm_start_time_step[self.time_step - 1]
@@ -1152,15 +1155,11 @@ class Building(Environment):
                     end_time_step =  wm.washing_machine_simulation.wm_end_time_step[self.time_step]
                     load_profile =  wm.washing_machine_simulation.load_profile[self.time_step]
 
-            washing_machines_dict[washing_machine_id] = { # vai ser parecido para os actions
+            washing_machines_dict[washing_machine_name] = {
                     "wm_start_time_step": start_time_step,
                     "wm_end_time_step": end_time_step,
                     "load_profile": load_profile,
             }
-
-        print("electric_vehicle_chargers_dict",electric_vehicle_chargers_dict)    
-
-        print("washing_machines_dict",washing_machines_dict) # TODO: The values seem to not be reaching it. Need to Fix
 
         return {
             **{
@@ -1318,9 +1317,6 @@ class Building(Environment):
                         electric_vehicle_priority_list.append(action_key)
             priority_list = priority_list + electric_vehicle_priority_list  # the priority lists are merged
 
-        if self.washing_machines is not None and len(self.washing_machines)!=0:
-            print("ver observations", self.washing_machines[0].observations())
-
         if washing_machine_actions is not None:
             washing_machine_priority_list = []
             for washing_machine_name, action in washing_machine_actions.items():
@@ -1328,7 +1324,7 @@ class Building(Environment):
                 if action_key not in self.active_actions:
                     raise ValueError("This action should not be applied. Verify")
                 for wm in self.washing_machines:
-                    if wm.washing_machine_name == washing_machine_name:
+                    if wm.name == washing_machine_name:
                         actions[action_key] = (wm.start_cycle, (action,))
                         washing_machine_priority_list.append(action_key)
             priority_list = priority_list + washing_machine_priority_list
@@ -1708,10 +1704,10 @@ class Building(Environment):
             elif 'washing_machine' in key:
                 if self.washing_machines is not None:
                     for washing_machine in self.washing_machines:
-                        if key == f'{washing_machine.washing_machine_name}_start_time_step':
+                        if key == f'{washing_machine.name}_start_time_step':
                             low_limit[key] = -1
                             high_limit[key] = 24
-                        elif f'{washing_machine.washing_machine_name}_end_time_step' in key:
+                        elif f'{washing_machine.name}_end_time_step' in key:
                             low_limit[key] = -1
                             high_limit[key] = 24
             elif key in ['dhw_device_efficiency']:
@@ -1862,7 +1858,6 @@ class Building(Environment):
         low_limit, high_limit = [], []
 
         for key in self.active_actions:
-            print("keys13212321", key)
             if key == 'cooling_or_heating_device':
                 if self.cooling_device.nominal_power > ZERO_DIVISION_PLACEHOLDER:
                     low_limit.append(-1.0)
@@ -1891,7 +1886,7 @@ class Building(Environment):
             elif 'washing_machine' in key:
                 if(self.washing_machines is not None):
                     for wm in self.washing_machines:
-                        if key == f'{wm.washing_machine_name}':
+                        if key == f'{wm.name}':
                             low_limit.append(0.0)
                             high_limit.append(1.0)                
 

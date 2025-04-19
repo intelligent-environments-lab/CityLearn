@@ -169,11 +169,8 @@ class TestBattery(unittest.TestCase):
         """Test that the battery respects the depth of discharge limit when discharging"""
         # Set initial state to just above the DoD limit
         initial_soc = 1.0 - self.battery.depth_of_discharge + 0.05
-        print("gtes, ", initial_soc)
         self.battery.force_set_soc(initial_soc)
 
-        print("gtes, ", self.battery.soc)
-        
         # Try to discharge more than allowed by DoD
         big_discharge = -self.battery.capacity  # Try to completely discharge
         self.battery.charge(big_discharge)

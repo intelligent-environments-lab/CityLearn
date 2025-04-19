@@ -935,12 +935,9 @@ class CityLearnEnv(Environment, Env):
             `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
             Override :meth"`get_info` to get custom key-value pairs in `info`.
         """
-        print(actions)
-
         actions = self._parse_actions(actions)
 
         for building, building_actions in zip(self.buildings, actions):
-            print("mnmnmnmnmnmnmmnmnm", building_actions)
             building.apply_actions(**building_actions)
 
         self.next_time_step()
@@ -999,7 +996,6 @@ class CityLearnEnv(Environment, Env):
                 actions = actions[size:]
 
         else:
-            print("dqwdqwd", actions)
             building_actions = [list(a) for a in actions]
 
         # check that appropriate number of building actions have been provided
@@ -1023,19 +1019,14 @@ class CityLearnEnv(Environment, Env):
             for k, action in zip(active_actions[i], building_actions[i]):
                 if 'electric_vehicle_storage' in k:
                     # Collect EV actions separately
-                    print("test this", k)
                     charger_id = k.replace("electric_vehicle_storage_", "")
                     electric_vehicle_actions[charger_id] = action
-                    print("siiiiiiiiiiing ", electric_vehicle_actions)
                 elif 'washing_machine' in k:
                     # Collect EV actions separately
-                    print("trabalha aqui", k)
                     washing_machine_actions[k] = action
-                    print("siiiiiiiiiiing ", washing_machine_actions)
                 else:
                     action_dict[f'{k}_action'] = action
 
-            print("antes de adicionar stuff", action_dict)
             # Add EV actions to the action_dict if they exist
             if electric_vehicle_actions:
                 action_dict['electric_vehicle_storage_actions'] = electric_vehicle_actions # aqui podes criar dicionario
@@ -1836,9 +1827,6 @@ class CityLearnEnv(Environment, Env):
         observation_metadata = {k: v['active'] for k, v in schema['observations'].items()}
         chargers_observations_metadata_helper = {k: v['active'] for k, v in schema['chargers_observations_helper'].items()}
         washing_machine_observations_metadata_helper = {k: v['active'] for k, v in schema['washing_machine_observations_helper'].items()}
-        print("====================================\n")    
-        print("siiiing o que fazer aqui 1", observation_metadata) 
-        print("====================================\n") 
 
         if kwargs.get('active_observations') is not None:
             active_observations = kwargs['active_observations']
@@ -1960,7 +1948,7 @@ class CityLearnEnv(Environment, Env):
                     action_metadata[f'electric_vehicle_storage_{charger.charger_id}'] = True
         if len(washing_machines_list) > 0:
             for washing_machine in washing_machines_list:  # If present, iterate each charger
-                washing_machine_name = washing_machine.washing_machine_name
+                washing_machine_name = washing_machine.name
                 if washing_machine_observations_metadata_helper.get("washing_machine_start_time_step", False):
                     observation_metadata[f'{washing_machine_name}_start_time_step'] = True
 
@@ -1970,10 +1958,6 @@ class CityLearnEnv(Environment, Env):
 
                 if washing_machine_actions_metadata_helper.get("washing_machine", False):
                     action_metadata[f'{washing_machine_name}'] = True   
-
-            print("====================================\n")    
-            print("o que fazer aqui 2", observation_metadata) 
-            print("====================================\n")           
 
         return observation_metadata, action_metadata
 
@@ -2046,17 +2030,16 @@ class CityLearnEnv(Environment, Env):
         washing_machine_simulation = WashingMachineSimulation(*washing_machine_simulation.values.T)
 
         print(washing_machine_simulation)
-        print("jjjjjjjjj", episode_tracker.simulation_end_time_step)
         # Initialize EV
-        ev: WashingMachine = WashingMachine(
+        wm: WashingMachine = WashingMachine(
             washing_machine_simulation=washing_machine_simulation,
             episode_tracker=episode_tracker,
-            washing_machine_name=washing_machine_name,
+            name=washing_machine_name,
             seconds_per_time_step=schema['seconds_per_time_step'],
             random_seed=schema['random_seed'],
         )
 
-        return ev
+        return wm
     
     def __str__(self) -> str:
         """

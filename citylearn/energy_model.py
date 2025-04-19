@@ -1177,7 +1177,6 @@ class Battery(StorageDevice, ElectricDevice):
         nominal_power = choices[choice]['nominal_power']*max(1.0, unit_count*int(parallel))
         depth_of_discharge = choices[choice]['depth_of_discharge']
         efficiency = choices[choice]['efficiency']
-        print("dqwdqwqd", choices)
         loss_coefficient = choices[choice]['loss_coefficient']
         capacity_loss_coefficient = choices[choice]['capacity_loss_coefficient']
         
@@ -1214,13 +1213,13 @@ class WashingMachine(ElectricDevice):
     def __init__(
         self,
         washing_machine_simulation: WashingMachineSimulation = None,
-        washing_machine_name: str = None,
+        name: str = None,
         initiated: bool = False,
         **kwargs
         
     ):  
         self.washing_machine_simulation = washing_machine_simulation
-        self.washing_machine_name = washing_machine_name
+        self.name = name
         self.initiated = initiated
 
         super().__init__(**kwargs)
@@ -1236,14 +1235,14 @@ class WashingMachine(ElectricDevice):
         self.__washing_machine_simulation = washing_machine_simulation    
     
     @property
-    def washing_machine_name(self) -> str:
+    def name(self) -> str:
         """Time series of maximum amount of energy the storage device can store in [kWh]."""
 
-        return self.__washing_machine_name
+        return self.__name
     
-    @washing_machine_name.setter
-    def washing_machine_name(self, washing_machine_name: str):
-        self.__washing_machine_name = washing_machine_name        
+    @name.setter
+    def name(self, name: str):
+        self.__name = name        
 
     @property
     def initiated(self) -> bool:
