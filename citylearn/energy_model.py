@@ -1220,7 +1220,7 @@ class WashingMachine(ElectricDevice):
         self.washing_machine_simulation = washing_machine_simulation
         self.name = name
         self.__initiated = False
-        self.__past_action_values = None
+        
 
         super().__init__(**kwargs)
 
@@ -1253,25 +1253,59 @@ class WashingMachine(ElectricDevice):
         return self.__past_action_values
 
     def next_time_step(self):
-        """Update the washing machine state for the next time step."""
         super().next_time_step()
-        
-        # Initialize past_action_values if not done yet
+
+        # Initialize arrays on first step
         if self.__past_action_values is None:
             self.__past_action_values = np.zeros(
-                self.episode_tracker.episode_time_steps, 
-                dtype='float32'
+                self.episode_tracker.episode_time_steps, dtype='float32'
+            )
+        if self.__electricity_consumption is None:
+            self.__electricity_consumption = np.zeros(
+                self.episode_tracker.episode_time_steps, dtype='float32'
             )
 
+        # Reset initiation flag if washing machine cycle changed
+        if self.time_step > 0:
+            prev_start = self.washing_machine_simulation.wm_start_time_step[self.time_step - 1]
+            curr_start = self.washing_machine_simulation.wm_start_time_step[self.time_step]
+            prev_end = self.washing_machine_simulation.wm_end_time_step[self.time_step - 1]
+            curr_end = self.washing_machine_simulation.wm_end_time_step[self.time_step]
+            if (prev_start != curr_start or prev_end != curr_end) and self.initiated:
+                print("Vou mudar")
+                self.__initiated = False
+                
+
+
     def start_cycle(self, action_value: float):
-        """Start a washing cycle if not already initiated."""
-        print("CHEGUEI AQUI")
-        if not self.initiated and action_value > 0:
+        """Start a washing cycle and populate load profile if allowed."""
+        self.__past_action_values[self.time_step] = action_value
+
+        start_time_step = self.washing_machine_simulation.wm_start_time_step[self.time_step]
+        end__time_step = self.washing_machine_simulation.wm_end_time_step[self.time_step]
+
+        print("self.initiated", self.initiated, action_value, start_time_step, self.time_step, end__time_step)
+        if not self.initiated and action_value > 0 and start_time_step != -1 and end__time_step != -1 and start_time_step <= self.time_step <= end__time_step:
+            load_profile = self.washing_machine_simulation.load_profile[self.time_step]
+            if len(load_profile) == 0:
+                print("No load profile available at this step.")
+                return
+
+            # Set initiated and store the current step
             self.__initiated = True
-            self.__past_action_values[self.time_step] = action_value
-            
-            # TODO: Additional logic for starting the cycle could go here
-            # For example: self.__electricity_consumption[self.time_step] = self.washing_machine_simulation.load_profile[0]
+            self.__cycle_start_step = self.time_step
+
+            # Apply load profile to electricity consumption array
+            for offset, load in enumerate(load_profile):
+                step = self.time_step + offset
+                if step < self.episode_tracker.episode_time_steps:
+                    self.__electricity_consumption[step] = load
+                    total_consumption = np.sum(self.__electricity_consumption)
+                    print("Name:", self.name,"| Step:", step, "| Load:", load, "| Total Consumption:", total_consumption)
+
+
+            print(f"[Cycle started] Step {self.time_step}, Action: {action_value}")
+
         
     def observations(self) -> Mapping[str, float]:
         """Observations at current time step."""
@@ -1293,7 +1327,9 @@ class WashingMachine(ElectricDevice):
         """Reset the Washing Machine to its initial state."""
         super().reset()
         self.__initiated = False
-        self.__past_action_values = None  # Will be initialized in next_time_step
+        self.__past_action_values = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32') 
+        self.__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.__cycle_start_step = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
 
     def __str__(self) -> str:
         """Return a text representation of the current state."""
