@@ -42,11 +42,6 @@ class DataSet:
         return df
 
 
-import sys
-sys.modules['citylearn.data'] = MagicMock()
-sys.modules['citylearn.data.DataSet'] = MagicMock()
-sys.modules['citylearn.data.DataSet'] = DataSet
-
 
 class TestBattery(unittest.TestCase):
     """Unit tests for the Battery class"""
