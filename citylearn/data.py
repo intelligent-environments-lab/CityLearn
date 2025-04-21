@@ -558,25 +558,38 @@ class Weather(TimeSeriesData):
         outdoor_dry_bulb_temperature_predicted_1: Iterable[float], outdoor_dry_bulb_temperature_predicted_2: Iterable[float], outdoor_dry_bulb_temperature_predicted_3: Iterable[float],
         outdoor_relative_humidity_predicted_1: Iterable[float], outdoor_relative_humidity_predicted_2: Iterable[float], outdoor_relative_humidity_predicted_3: Iterable[float],
         diffuse_solar_irradiance_predicted_1: Iterable[float], diffuse_solar_irradiance_predicted_2: Iterable[float], diffuse_solar_irradiance_predicted_3: Iterable[float],
-        direct_solar_irradiance_predicted_1: Iterable[float], direct_solar_irradiance_predicted_2: Iterable[float], direct_solar_irradiance_predicted_3: Iterable[float], start_time_step: int = None, end_time_step: int = None
+        direct_solar_irradiance_predicted_1: Iterable[float], direct_solar_irradiance_predicted_2: Iterable[float], direct_solar_irradiance_predicted_3: Iterable[float], start_time_step: int = None, end_time_step: int = None, noise_std: float = 0.0
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.outdoor_dry_bulb_temperature = np.array(outdoor_dry_bulb_temperature, dtype='float32')
         self.outdoor_relative_humidity = np.array(outdoor_relative_humidity, dtype='float32')
         self.diffuse_solar_irradiance = np.array(diffuse_solar_irradiance, dtype='float32')
         self.direct_solar_irradiance = np.array(direct_solar_irradiance, dtype='float32')
-        self.outdoor_dry_bulb_temperature_predicted_1 = np.array(outdoor_dry_bulb_temperature_predicted_1, dtype='float32')
-        self.outdoor_dry_bulb_temperature_predicted_2 = np.array(outdoor_dry_bulb_temperature_predicted_2, dtype='float32')
-        self.outdoor_dry_bulb_temperature_predicted_3 = np.array(outdoor_dry_bulb_temperature_predicted_3, dtype='float32')
-        self.outdoor_relative_humidity_predicted_1 = np.array(outdoor_relative_humidity_predicted_1, dtype='float32')
-        self.outdoor_relative_humidity_predicted_2 = np.array(outdoor_relative_humidity_predicted_2, dtype='float32')
-        self.outdoor_relative_humidity_predicted_3 = np.array(outdoor_relative_humidity_predicted_3, dtype='float32')
-        self.diffuse_solar_irradiance_predicted_1 = np.array(diffuse_solar_irradiance_predicted_1, dtype='float32')
-        self.diffuse_solar_irradiance_predicted_2 = np.array(diffuse_solar_irradiance_predicted_2, dtype='float32')
-        self.diffuse_solar_irradiance_predicted_3 = np.array(diffuse_solar_irradiance_predicted_3, dtype='float32')
-        self.direct_solar_irradiance_predicted_1 = np.array(direct_solar_irradiance_predicted_1, dtype='float32')
-        self.direct_solar_irradiance_predicted_2 = np.array(direct_solar_irradiance_predicted_2, dtype='float32')
-        self.direct_solar_irradiance_predicted_3 = np.array(direct_solar_irradiance_predicted_3, dtype='float32')
+
+        # Add stochastic behavior by adding Gaussian noise to the data
+        self.outdoor_dry_bulb_temperature += np.random.normal(loc=0, scale=noise_std, size=self.outdoor_dry_bulb_temperature.shape)
+        self.outdoor_relative_humidity += np.random.normal(loc=0, scale=noise_std, size=self.outdoor_relative_humidity.shape)
+        self.diffuse_solar_irradiance += np.random.normal(loc=0, scale=noise_std, size=self.diffuse_solar_irradiance.shape)
+        self.direct_solar_irradiance += np.random.normal(loc=0, scale=noise_std, size=self.direct_solar_irradiance.shape)
+        
+        # Predicted weather values (could also introduce noise here)
+        self.outdoor_dry_bulb_temperature_predicted_1 = np.array(outdoor_dry_bulb_temperature_predicted_1, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(outdoor_dry_bulb_temperature_predicted_1))
+        self.outdoor_dry_bulb_temperature_predicted_2 = np.array(outdoor_dry_bulb_temperature_predicted_2, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(outdoor_dry_bulb_temperature_predicted_2))
+        self.outdoor_dry_bulb_temperature_predicted_3 = np.array(outdoor_dry_bulb_temperature_predicted_3, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(outdoor_dry_bulb_temperature_predicted_3))
+        
+        self.outdoor_relative_humidity_predicted_1 = np.array(outdoor_relative_humidity_predicted_1, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(outdoor_relative_humidity_predicted_1))
+        self.outdoor_relative_humidity_predicted_2 = np.array(outdoor_relative_humidity_predicted_2, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(outdoor_relative_humidity_predicted_2))
+        self.outdoor_relative_humidity_predicted_3 = np.array(outdoor_relative_humidity_predicted_3, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(outdoor_relative_humidity_predicted_3))
+
+        self.diffuse_solar_irradiance_predicted_1 = np.array(diffuse_solar_irradiance_predicted_1, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(diffuse_solar_irradiance_predicted_1))
+        self.diffuse_solar_irradiance_predicted_2 = np.array(diffuse_solar_irradiance_predicted_2, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(diffuse_solar_irradiance_predicted_2))
+        self.diffuse_solar_irradiance_predicted_3 = np.array(diffuse_solar_irradiance_predicted_3, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(diffuse_solar_irradiance_predicted_3))
+
+        self.direct_solar_irradiance_predicted_1 = np.array(direct_solar_irradiance_predicted_1, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(direct_solar_irradiance_predicted_1))
+        self.direct_solar_irradiance_predicted_2 = np.array(direct_solar_irradiance_predicted_2, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(direct_solar_irradiance_predicted_2))
+        self.direct_solar_irradiance_predicted_3 = np.array(direct_solar_irradiance_predicted_3, dtype='float32') + np.random.normal(loc=0, scale=noise_std, size=len(direct_solar_irradiance_predicted_3))
+
+
 
 class Pricing(TimeSeriesData):
     """`Building` `pricing` data class.

@@ -1613,7 +1613,7 @@ class CityLearnEnv(Environment, Env):
         energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'), seconds_per_time_step=seconds_per_time_step)
         building_kwargs['time_step_ratio'] = energy_simulation.time_step_ratios[index]
         weather = pd.read_csv(os.path.join(schema['root_directory'], building_schema['weather']))
-        weather = Weather(**weather.to_dict('list'))
+        weather = Weather(**weather.to_dict('list'), noise_std=0.0)
 
         if building_schema.get('carbon_intensity', None) is not None:
             carbon_intensity = pd.read_csv(os.path.join(schema['root_directory'], building_schema['carbon_intensity']))
