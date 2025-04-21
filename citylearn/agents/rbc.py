@@ -472,15 +472,7 @@ class BasicElectricVehicleRBC_ReferenceController(BasicRBC): #change the name
 
                 elif "washing_machine" in n:
                     for hour in Building.get_periodic_observation_metadata()['hour']:
-                        if hour < 7:
-                            value = 0
-
-                        elif hour < 21:
-                            value = 1
-
-                        else:
-                            value = 0
-                            
+                        value = 1
                         action_map[n][hour] = value        
 
                 else:

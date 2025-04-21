@@ -353,7 +353,6 @@ class Building(Environment):
             self.dhw_storage_electricity_consumption,
             self.electrical_storage_electricity_consumption,
             self.__chargers_electricity_consumption,
-            self.__washing_machines_electricity_consumption
         ], axis=0)
 
     @property

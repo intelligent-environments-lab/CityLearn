@@ -1291,9 +1291,7 @@ class WashingMachine(ElectricDevice):
                 print("No load profile available at this step.")
                 return
 
-            # Set initiated and store the current step
             self.__initiated = True
-            self.__cycle_start_step = self.time_step
 
             # Apply load profile to electricity consumption array
             for offset, load in enumerate(load_profile):
@@ -1329,7 +1327,6 @@ class WashingMachine(ElectricDevice):
         self.__initiated = False
         self.__past_action_values = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32') 
         self.__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
-        self.__cycle_start_step = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
 
     def __str__(self) -> str:
         """Return a text representation of the current state."""

@@ -941,7 +941,7 @@ class CityLearnEnv(Environment, Env):
             building.apply_actions(**building_actions)
 
         self.next_time_step()
-        #todo test the tempratures citylearn learn chalenge 2023 challenge phase 2 (dont want big difference between set points and temp)
+        #TODO: test the temperatures citylearn learn chalenge 2023 challenge phase 2 (dont want big difference between set points and temp)
 
         #Currently at time_step t+1
 
