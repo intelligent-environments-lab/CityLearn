@@ -1266,6 +1266,7 @@ class CityLearnEnv(Environment, Env):
         # Save community data
         self._save_to_csv("exported_data_community.csv", {"Time Step": iso_timestamp, **self.as_dict()})
 
+
         # Save building data
         for idx, building in enumerate(self.buildings):
             self._save_to_csv(f"exported_data_{building.name.lower()}.csv", {"Time Step": iso_timestamp, **building.as_dict()})
@@ -1276,6 +1277,8 @@ class CityLearnEnv(Environment, Env):
             for charger_idx, charger in enumerate(building.electric_vehicle_chargers):
                 self._save_to_csv(f"exported_data_{building.name.lower()}_{charger.charger_id}.csv", {"Time Step": iso_timestamp, **charger.as_dict()})
 
+        self._save_to_csv("exported_data_pricing.csv", {"Time Step": iso_timestamp, **self.buildings[0].pricing.as_dict(self.time_step)})
+        
         # Save EV data
         for idx, ev in enumerate(self.__electric_vehicles):
             #if idx == 0: print(ev.render_simulation_end_data())

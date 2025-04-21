@@ -607,6 +607,22 @@ class Pricing(TimeSeriesData):
         self.electricity_pricing_predicted_2 = np.array(electricity_pricing_predicted_2, dtype='float32')
         self.electricity_pricing_predicted_3 = np.array(electricity_pricing_predicted_3, dtype='float32')
 
+    def as_dict(self, time_step) -> dict:
+        """Return a dictionary representation of the current pricing data.
+        
+        Returns
+        -------
+        dict
+            Dictionary containing current electricity pricing and predictions,
+            with keys matching the class attribute names.
+        """
+        return {
+            'electricity_pricing-$/kWh': self.electricity_pricing[time_step],
+            'electricity_pricing_predicted_1-$/kWh': self.electricity_pricing_predicted_1[time_step],
+            'electricity_pricing_predicted_2-$/kWh': self.electricity_pricing_predicted_2[time_step],
+            'electricity_pricing_predicted_3-$/kWh': self.electricity_pricing_predicted_3[time_step],
+        } 
+
 class CarbonIntensity(TimeSeriesData):
     """`Building` `carbon_intensity` data class.
 
