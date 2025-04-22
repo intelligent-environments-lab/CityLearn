@@ -125,7 +125,7 @@ class CityLearnEnv(Environment, Env):
         random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: Union[RewardFunction, str] = None, reward_function_kwargs: Mapping[str, Any] = None,
         central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None,
         inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None,
-        inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, **kwargs: Any
+        inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, time_step_ratio: int = None, **kwargs: Any
     ):
         self.schema = schema
         self.previous_month = None
@@ -146,6 +146,7 @@ class CityLearnEnv(Environment, Env):
                 rolling_episode_split=rolling_episode_split,
                 random_episode=random_episode_split,
                 seconds_per_time_step=seconds_per_time_step,
+                time_step_ratio=time_step_ratio,
                 reward_function=reward_function,
                 reward_function_kwargs=reward_function_kwargs,
                 central_agent=central_agent,
@@ -161,9 +162,12 @@ class CityLearnEnv(Environment, Env):
         self.root_directory = root_directory
         self.buildings = buildings
         self.electric_vehicles = electric_vehicles
+        self.time_step_ratio = self.buildings[0].time_step_ratio
+
+        print("aaaaaaaaaa", self.time_step_ratio)
 
         # now call super class initialization and set episode tracker now that buildings are set
-        super().__init__(seconds_per_time_step=seconds_per_time_step, random_seed=self.random_seed, episode_tracker=episode_tracker)
+        super().__init__(seconds_per_time_step=seconds_per_time_step, random_seed=self.random_seed, episode_tracker=episode_tracker, time_step_ratio=self.time_step_ratio)
 
         # set other class variables
         self.episode_time_steps = episode_time_steps
@@ -1569,7 +1573,7 @@ class CityLearnEnv(Environment, Env):
 
         for electric_vehicle_name, electric_vehicle_schema in electric_vehicle_schemas.items():
             if electric_vehicle_schema['include']:
-                electric_vehicles.append(self._load_electric_vehicle(electric_vehicle_name,schema,electric_vehicle_schema,episode_tracker))
+                electric_vehicles.append(self._load_electric_vehicle(electric_vehicle_name,schema,electric_vehicle_schema,episode_tracker, buildings[0].time_step_ratio))
 
         # set reward function
         if kwargs.get('reward_function') is not None:
@@ -1711,7 +1715,7 @@ class CityLearnEnv(Environment, Env):
                 charger_class = getattr(importlib.import_module(charger_module), charger_class_name)
                 charger_attributes = charger_config.get('attributes', {})
                 charger_attributes['episode_tracker'] = episode_tracker
-                charger_object = charger_class(charger_id=charger_name, **charger_attributes, seconds_per_time_step=schema['seconds_per_time_step'])
+                charger_object = charger_class(charger_id=charger_name, **charger_attributes, seconds_per_time_step=schema['seconds_per_time_step'], time_step_ratio = building_kwargs['time_step_ratio'])
                 chargers_list.append(charger_object)
 
         washing_machines_list = []
@@ -1965,7 +1969,7 @@ class CityLearnEnv(Environment, Env):
         return observation_metadata, action_metadata
 
 
-    def _load_electric_vehicle(self, electric_vehicle_name: str, schema: dict, electric_vehicle_schema: dict, episode_tracker: EpisodeTracker) -> ElectricVehicle:
+    def _load_electric_vehicle(self, electric_vehicle_name: str, schema: dict, electric_vehicle_schema: dict, episode_tracker: EpisodeTracker, time_step_ratio) -> ElectricVehicle:
         """Initializes and returns an electric vehicle model."""
         # Load energy simulation data for the EV
 
@@ -1986,11 +1990,13 @@ class CityLearnEnv(Environment, Env):
         initial_soc = electric_vehicle_schema["battery"]["attributes"].get("initial_soc", random.uniform(0, 1))
         depth_of_discharge = electric_vehicle_schema["battery"]["attributes"].get("depth_of_discharge", 0.10)
 
+        print("battery citleranr, nominal power", time_step_ratio, nominal_power)
         battery = Battery(
             capacity=capacity,
             nominal_power=nominal_power,
             initial_soc=initial_soc,
             seconds_per_time_step=schema['seconds_per_time_step'],
+            time_step_ratio=time_step_ratio,
             random_seed=schema['random_seed'],
             episode_tracker=episode_tracker,
             depth_of_discharge=depth_of_discharge

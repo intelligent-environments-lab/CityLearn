@@ -154,6 +154,7 @@ class Environment:
     DEFAULT_RANDOM_SEED_RANGE = (0, 100_000_000)
     
     def __init__(self, seconds_per_time_step: float = None, random_seed: int = None, episode_tracker: EpisodeTracker = None, time_step_ratio: int = None):
+        print("bbbbbb", seconds_per_time_step, time_step_ratio)
         self.seconds_per_time_step = seconds_per_time_step
         self.__uid = uuid.uuid4().hex
         self.random_seed = random_seed
@@ -224,6 +225,7 @@ class Environment:
     
     @time_step_ratio.setter
     def time_step_ratio(self, time_step_ratio: int):
+        print("ayo", time_step_ratio)
         self.__time_step_ratio = time_step_ratio
 
     @time_step.setter
@@ -237,7 +239,8 @@ class Environment:
             'uid': self.uid,
             'random_seed': self.random_seed,
             'simulation_time_steps': self.episode_tracker.simulation_time_steps,
-            'seconds_per_time_step': self.seconds_per_time_step
+            'seconds_per_time_step': self.seconds_per_time_step,
+            'time_step_ratio': self.time_step_ratio,
         }
 
     def next_time_step(self):

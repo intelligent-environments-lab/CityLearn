@@ -113,6 +113,8 @@ class ElectricDevice(Device):
     def electricity_consumption(self) -> np.ndarray:
         r"""Electricity consumption time series [kWh]."""
 
+        print("deixa ver", self.nominal_power, self.time_step_ratio) # muitas vezes corre sem nada
+
         return self.__electricity_consumption * self.time_step_ratio
 
     @property
@@ -612,11 +614,12 @@ class StorageDevice(Device):
         Other keyword arguments used to initialize super class.
     """
     
-    def __init__(self, capacity: float = None, efficiency: Union[float, Tuple[float, float]] = None, loss_coefficient: Union[float, Tuple[float, float]] = None, initial_soc: Union[float, Tuple[float, float]] = None, **kwargs: Any):
+    def __init__(self, capacity: float = None, efficiency: Union[float, Tuple[float, float]] = None, loss_coefficient: Union[float, Tuple[float, float]] = None, initial_soc: Union[float, Tuple[float, float]] = None, time_step_ratio:float = None, **kwargs: Any):
         self.random_seed = kwargs.get('random_seed', None)
         self.capacity = capacity
         self.loss_coefficient = loss_coefficient
         self.initial_soc = initial_soc
+        self.time_step_ratio=time_step_ratio
         super().__init__(efficiency = efficiency, **kwargs)
 
     @property
@@ -624,6 +627,12 @@ class StorageDevice(Device):
         r"""Maximum amount of energy the storage device can store in [kWh]."""
 
         return self.__capacity
+    
+    @property
+    def time_step_ratio(self) -> float:
+        r"""Maximum amount of energy the storage device can store in [kWh]."""
+
+        return self.__time_step_ratio
 
     @property
     def loss_coefficient(self) -> float:
@@ -685,6 +694,13 @@ class StorageDevice(Device):
         assert 0.0 <= initial_soc <= 1.0, 'initial_soc must be >= 0.0 and <= 1.0.'
         self.__initial_soc = initial_soc
 
+    @time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: float):
+        time_step_ratio = self._get_property_value(time_step_ratio, 1.0)
+  
+        self.__time_step_ratio = time_step_ratio    
+
+
     def get_metadata(self) -> Mapping[str, Any]:
         return {
             **super().get_metadata(),
@@ -740,6 +756,7 @@ class StorageDevice(Device):
         e.g. maximum power input/output, capacity.
         """
         energy = energy * self.time_step_ratio
+        #print("view here", energy, self.time_step_ratio)
         energy -= energy_init
         energy_balance = energy/self.round_trip_efficiency if energy >= 0 else energy*self.round_trip_efficiency
         return energy_balance
@@ -870,16 +887,17 @@ class Battery(StorageDevice, ElectricDevice):
         Other keyword arguments used to initialize super classes.
     """
     
-    def __init__(self, capacity: float = None, nominal_power: float = None, capacity_loss_coefficient: Union[float, Tuple[float, float]] = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, depth_of_discharge: Union[float, Tuple[float, float]] = None, **kwargs: Any):
+    def __init__(self, capacity: float = None, nominal_power: float = None, capacity_loss_coefficient: Union[float, Tuple[float, float]] = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, depth_of_discharge: Union[float, Tuple[float, float]] = None, time_step_ratio: float = None, **kwargs: Any):
         self._efficiency_history = []
         self._capacity_history = []
         self.random_seed = kwargs.get('random_seed', None)
         self.depth_of_discharge = depth_of_discharge
-        super().__init__(capacity=capacity, nominal_power=nominal_power, **kwargs)
+        super().__init__(capacity=capacity, nominal_power=nominal_power, time_step_ratio = time_step_ratio, **kwargs)
         self._capacity_history = [self.capacity]
         self.capacity_loss_coefficient = capacity_loss_coefficient
         self.power_efficiency_curve = power_efficiency_curve
         self.capacity_power_curve = capacity_power_curve
+        self.time_step_ratio=time_step_ratio
 
     @StorageDevice.efficiency.getter
     def efficiency(self) -> float:
@@ -910,6 +928,12 @@ class Battery(StorageDevice, ElectricDevice):
         """Maximum power of the battery as a function of its current state of charge."""
 
         return self.__capacity_power_curve
+    
+    @property
+    def time_step_ratio(self) -> float:
+        """Maximum power of the battery as a function of its current state of charge."""
+
+        return self.__time_step_ratio
     
     @property
     def depth_of_discharge(self) -> float:
@@ -980,6 +1004,11 @@ class Battery(StorageDevice, ElectricDevice):
     @depth_of_discharge.setter
     def depth_of_discharge(self, depth_of_discharge: float):
         self.__depth_of_discharge = self._get_property_value(depth_of_discharge, 1.0)
+
+    @time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: float):
+        #print("battery time_step_ratio", time_step_ratio)
+        self.__time_step_ratio = self._get_property_value(time_step_ratio, 1.0)     
 
     def get_metadata(self) -> Mapping[str, Any]:
         return {
