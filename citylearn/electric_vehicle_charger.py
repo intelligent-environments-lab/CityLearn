@@ -57,7 +57,7 @@ class Charger(Environment):
         self.time_step_ratio = time_step_ratio
         seconds_per_time_step = kwargs.get('seconds_per_time_step', 3600)
         self.algorithm_action_based_time_step_hours_ratio = seconds_per_time_step / 3600
-        super().__init__(episode_tracker=episode_tracker
+        super().__init__(episode_tracker=episode_tracker,time_step_ratio=time_step_ratio
                         ,**kwargs)
 
     @property
@@ -138,6 +138,12 @@ class Charger(Environment):
         r"""Electricity consumption time series."""
 
         return self.__electricity_consumption
+    
+    @property
+    def time_step_ratio(self) -> float:
+        r"""Electricity consumption time series."""
+
+        return self.__time_step_ratio
 
     @charger_id.setter
     def charger_id(self, charger_id: str):
@@ -192,6 +198,10 @@ class Charger(Environment):
     @incoming_electric_vehicle.setter
     def incoming_electric_vehicle(self, electric_vehicle: ElectricVehicle):
         self.__incoming_ev = electric_vehicle
+
+    @time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: float):
+        self.__time_step_ratio = time_step_ratio    
 
     @efficiency.setter
     def efficiency(self, efficiency: float):

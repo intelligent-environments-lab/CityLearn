@@ -154,7 +154,7 @@ class Environment:
     DEFAULT_RANDOM_SEED_RANGE = (0, 100_000_000)
     
     def __init__(self, seconds_per_time_step: float = None, random_seed: int = None, episode_tracker: EpisodeTracker = None, time_step_ratio: int = None):
-        print("bbbbbb", seconds_per_time_step, time_step_ratio)
+        print("bbbbbb", seconds_per_time_step, random_seed)
         self.seconds_per_time_step = seconds_per_time_step
         self.__uid = uuid.uuid4().hex
         self.random_seed = random_seed

@@ -33,7 +33,7 @@ class Device(Environment):
         self.efficiency = efficiency
         self._autosize_config = None
         self.time_step_ratio = self.time_step_ratio if self.time_step_ratio is not None else 1
-
+       
     @property
     def efficiency(self) -> float:
         """Technical efficiency."""
@@ -112,8 +112,6 @@ class ElectricDevice(Device):
     @property
     def electricity_consumption(self) -> np.ndarray:
         r"""Electricity consumption time series [kWh]."""
-
-        print("deixa ver", self.nominal_power, self.time_step_ratio) # muitas vezes corre sem nada
 
         return self.__electricity_consumption * self.time_step_ratio
 
@@ -1028,7 +1026,9 @@ class Battery(StorageDevice, ElectricDevice):
         energy : float
             Energy to charge if (+) or discharge if (-) in [kWh].
         """
+        print("1", self.time_step_ratio, energy)
         energy = energy * self.time_step_ratio # Normalise energy with the time_step_ratio
+        print("2", self.time_step_ratio, energy)
         action_energy = energy
 
         if energy >= 0:

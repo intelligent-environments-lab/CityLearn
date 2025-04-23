@@ -2205,6 +2205,7 @@ class Building(Environment):
         self.electrical_storage.next_time_step()
         self.pv.next_time_step()
 
+
         if self.electric_vehicle_chargers is not None:
             for c in self.electric_vehicle_chargers:
                 c.next_time_step()

@@ -878,6 +878,13 @@ class CityLearnEnv(Environment, Env):
         for b in self.buildings:
             b.random_seed = self.random_seed
 
+    @Environment.time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: int):
+        Environment.time_step_ratio.fset(self, time_step_ratio)
+
+        for b in self.buildings:
+            b.time_step_ratio = self.time_step_ratio        
+
     def get_metadata(self) -> Mapping[str, Any]:
         return {
             **super().get_metadata(),
