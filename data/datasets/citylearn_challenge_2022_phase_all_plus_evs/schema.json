@@ -195,6 +195,7 @@
     },
     "washing_machine_load_profile": {
       "active": true,
+      "stochaicity:": "0.0",
       "shared_in_central_agent": true
     }
   },
