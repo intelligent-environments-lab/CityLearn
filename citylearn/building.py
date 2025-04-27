@@ -1239,7 +1239,8 @@ class Building(Environment):
         return {
             'hour': range(1, 25),
             'day_type': range(1, 8),
-            'month': range(1, 13)
+            'month': range(1, 13),
+            'minutes': range(1, 61)
         }
 
     def apply_actions(self,
@@ -1630,6 +1631,7 @@ class Building(Environment):
         observation_names = list(self.observation_metadata.keys()) + internal_limit_observations if include_all else self.active_observations
         periodic_normalization = False if periodic_normalization is None else periodic_normalization
         periodic_observations = self.get_periodic_observation_metadata()
+        print("periodic", periodic_observations)
         low_limit, high_limit = {}, {}
         data = self._get_observation_space_limits_data()
 

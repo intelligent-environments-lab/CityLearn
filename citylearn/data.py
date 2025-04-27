@@ -446,11 +446,14 @@ class EnergySimulation(TimeSeriesData):
         print("Time difference between t and t+1 in minutes:", time_delta)
 
         time_step_ratio = (
-            seconds_per_time_step / (max(time_delta, seconds_per_time_step / 60) * 60) # Make sure seconds_per_timestamp isn't more than time_delta e.g. 30 mins time_delta but 60 minutes seconds_per_timestamp
+            # Computes the ratio of the current time step (in seconds) relative to:
+            # - 1 hour (3600s) if time_delta ≤ 1 hour, OR
+            # - time_delta (converted to seconds) if time_delta > 1 hour
+            # Returns None if either time_delta or seconds_per_time_step is missing
+            seconds_per_time_step / max(3600, time_delta * 60)
             if time_delta is not None and seconds_per_time_step
             else None
         )
-
         time_step_ratios.append(time_step_ratio)
         self.time_step_ratios = time_step_ratios # Store the ratio for this building
 

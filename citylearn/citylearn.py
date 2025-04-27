@@ -904,7 +904,7 @@ class CityLearnEnv(Environment, Env):
         """
 
         return [
-            'month', 'day_type', 'hour', 'daylight_savings_status',
+            'month', 'day_type', 'hour', 'minutes', 'daylight_savings_status',
             'outdoor_dry_bulb_temperature', 'outdoor_dry_bulb_temperature_predicted_1',
             'outdoor_dry_bulb_temperature_predicted_2', 'outdoor_dry_bulb_temperature_predicted_3',
             'outdoor_relative_humidity', 'outdoor_relative_humidity_predicted_1',
@@ -1735,7 +1735,7 @@ class CityLearnEnv(Environment, Env):
         for washing_machine_name, washing_machine_schema in washing_machine_schemas.items():
                 washing_machines_list.append(self._load_washing_machine(washing_machine_name,schema,washing_machine_schema,episode_tracker))
 
-        observation_metadata, action_metadata = self.process_metadata(schema, building_schema, chargers_list, washing_machines_list, index, **kwargs)
+        observation_metadata, action_metadata = self.process_metadata(schema, building_schema, chargers_list, washing_machines_list, index, energy_simulation,**kwargs)
 
 
         building: Building = building_constructor(
@@ -1836,9 +1836,14 @@ class CityLearnEnv(Environment, Env):
 
         return building
 
-    def process_metadata(self, schema, building_schema, chargers_list, washing_machines_list, index, **kwargs):
+    def process_metadata(self, schema, building_schema, chargers_list, washing_machines_list, index, energy_simulation: EnergySimulation, **kwargs):
 
         observation_metadata = {k: v['active'] for k, v in schema['observations'].items()}
+        # Since minutes is Optional, in case the schema has minutes as observation metadata and some energy simulation building csv doesn't contain minutes, remove it from observation
+        if 'minutes' in observation_metadata and energy_simulation.minutes is None:
+            observation_metadata.pop('minutes', None)  
+            print("tirei")
+
         chargers_observations_metadata_helper = {k: v['active'] for k, v in schema['chargers_observations_helper'].items()}
         washing_machine_observations_metadata_helper = {k: v['active'] for k, v in schema['washing_machine_observations_helper'].items()}
 

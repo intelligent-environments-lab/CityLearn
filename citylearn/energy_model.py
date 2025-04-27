@@ -1026,9 +1026,9 @@ class Battery(StorageDevice, ElectricDevice):
         energy : float
             Energy to charge if (+) or discharge if (-) in [kWh].
         """
-        print("1", self.time_step_ratio, energy)
+        #print("1", self.time_step_ratio, energy)
         energy = energy * self.time_step_ratio # Normalise energy with the time_step_ratio
-        print("2", self.time_step_ratio, energy)
+        #print("2", self.time_step_ratio, energy)
         action_energy = energy
 
         if energy >= 0:

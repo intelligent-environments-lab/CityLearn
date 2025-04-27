@@ -225,7 +225,6 @@ class Environment:
     
     @time_step_ratio.setter
     def time_step_ratio(self, time_step_ratio: int):
-        print("ayo", time_step_ratio)
         self.__time_step_ratio = time_step_ratio
 
     @time_step.setter
