@@ -92,7 +92,6 @@ class Building(Environment):
         stochastic_power_outage: bool = None, stochastic_power_outage_model: PowerOutage = None,
         electric_vehicle_chargers: List[Charger] = None, time_step_ratio: int = None, washing_machines: List[WashingMachine] = None, **kwargs: Any
     ):
-        print("chegou?", time_step_ratio)
         self.name = name
         self.dhw_storage = dhw_storage
         self.cooling_storage = cooling_storage
@@ -348,13 +347,13 @@ class Building(Environment):
         However, if there are chargers and EVs, they need to charge per usual, so that consumption is added
         This is what allows to check if the control mechanism affects the grid balancing scheme for EVs for example.
         """
-
+        # PROBLEMA AQUI
         return self.net_electricity_consumption - np.sum([
             self.cooling_storage_electricity_consumption,
             self.heating_storage_electricity_consumption,
             self.dhw_storage_electricity_consumption,
             self.electrical_storage_electricity_consumption,
-            self.__chargers_electricity_consumption,
+            self.chargers_electricity_consumption,
         ], axis=0)
 
     @property
@@ -454,6 +453,12 @@ class Building(Environment):
         """Energy supply from grid and/or `PV` to `electrical_storage` time series, in [kWh]."""
 
         return self.electrical_storage.electricity_consumption[:self.time_step + 1]
+    
+    @property
+    def chargers_electricity_consumption(self) -> np.ndarray:
+        """Energy supply from grid and/or `PV` to `electrical_storage` time series, in [kWh]."""
+
+        return self.__chargers_electricity_consumption[:self.time_step + 1]
 
     @property
     def energy_from_cooling_device_to_cooling_storage(self) -> np.ndarray:
@@ -1373,7 +1378,9 @@ class Building(Environment):
 
             except NotImplementedError:
                 pass
-
+        
+        if self.time_step == 0:
+            print("cqweqeqweqew", self.net_electricity_consumption)
         self.update_variables()
 
     def update_cooling_demand(self, action: float):
@@ -1631,7 +1638,6 @@ class Building(Environment):
         observation_names = list(self.observation_metadata.keys()) + internal_limit_observations if include_all else self.active_observations
         periodic_normalization = False if periodic_normalization is None else periodic_normalization
         periodic_observations = self.get_periodic_observation_metadata()
-        print("periodic", periodic_observations)
         low_limit, high_limit = {}, {}
         data = self._get_observation_space_limits_data()
 
@@ -2389,6 +2395,7 @@ class Building(Environment):
         else:
             pass
 
+        print("312312312321", self.time_step, self.carbon_intensity.carbon_intensity[0:self.time_step + 1])    
         self.__net_electricity_consumption[self.time_step] = net_electricity_consumption
 
         # net electriciy consumption cost
