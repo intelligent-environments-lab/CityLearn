@@ -430,20 +430,20 @@ class EnergySimulation(TimeSeriesData):
 
         # Compute time difference if minutes exist
         if self.minutes is not None and len(self.minutes) > 1:
-            print(self.hour, self.minutes)
+            #print(self.hour, self.minutes)
             t0 = self.hour[0] * 60 + self.minutes[0]  # Convert to total minutes
             t1 = self.hour[1] * 60 + self.minutes[1]  # Convert to total minutes
 
             time_delta = t1 - t0
 
-            print("Time difference between t and t+1 in minutes:", time_delta)
+            #print("Time difference between t and t+1 in minutes:", time_delta)
 
         # Fix negative difference if crossing midnight
             # Add a full day in minutes
         if time_delta < 0:
                 time_delta += 1440    
 
-        print("Time difference between t and t+1 in minutes:", time_delta)
+        #print("Time difference between t and t+1 in minutes:", time_delta)
 
         time_step_ratio = (
             # Computes the ratio of the current time step (in seconds) relative to:

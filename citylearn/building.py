@@ -1379,8 +1379,6 @@ class Building(Environment):
             except NotImplementedError:
                 pass
         
-        if self.time_step == 0:
-            print("cqweqeqweqew", self.net_electricity_consumption)
         self.update_variables()
 
     def update_cooling_demand(self, action: float):

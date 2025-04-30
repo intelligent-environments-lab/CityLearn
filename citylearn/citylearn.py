@@ -1266,34 +1266,46 @@ class CityLearnEnv(Environment, Env):
     def render(self):
         """
         Renders the current state of the CityLearn environment, logging data into separate CSV files.
+§        Organizes files by episode number when simulation spans multiple episodes.
         """
-
         iso_timestamp = self._get_iso_timestamp()
         os.makedirs(self.new_folder_path, exist_ok=True)
 
-        # Save community data
-        self._save_to_csv("exported_data_community.csv", {"Time Step": iso_timestamp, **self.as_dict()})
-
+        # Get current episode number (you'll need to track this in your environment)
+        episode_num = self.episode_tracker.episode
+        
+        # Save community data - add episode number to filename
+        self._save_to_csv(f"exported_data_community_ep{episode_num}.csv", 
+                        {"Time Step": iso_timestamp, **self.as_dict()})
 
         # Save building data
         for idx, building in enumerate(self.buildings):
-        
-            building.net_electricity_consumption_cost_without_storage #TODO: TRABALHAR AQUI
-            self._save_to_csv(f"exported_data_{building.name.lower()}.csv", {"Time Step": iso_timestamp, **building.as_dict()})
+            building_filename = f"exported_data_{building.name.lower()}_ep{episode_num}.csv"
+            self._save_to_csv(building_filename, 
+                            {"Time Step": iso_timestamp, **building.as_dict()})
 
+            # Battery data
             battery = building.electrical_storage # save battery to render
-            self._save_to_csv(f"exported_data_{building.name.lower()}_battery.csv", {"Time Step": iso_timestamp, **battery.as_dict()})
+            battery_filename = f"exported_data_{building.name.lower()}_battery_ep{episode_num}.csv"
+            self._save_to_csv(battery_filename, 
+                            {"Time Step": iso_timestamp, **battery.as_dict()})
 
+            # Chargers
             for charger_idx, charger in enumerate(building.electric_vehicle_chargers):
-                self._save_to_csv(f"exported_data_{building.name.lower()}_{charger.charger_id}.csv", {"Time Step": iso_timestamp, **charger.as_dict()})
+                charger_filename = f"exported_data_{building.name.lower()}_{charger.charger_id}_ep{episode_num}.csv"
+                self._save_to_csv(charger_filename, 
+                                {"Time Step": iso_timestamp, **charger.as_dict()})
 
-        self._save_to_csv("exported_data_pricing.csv", {"Time Step": iso_timestamp, **self.buildings[0].pricing.as_dict(self.time_step)})
+        # Pricing data
+        pricing_filename = f"exported_data_pricing_ep{episode_num}.csv"
+        self._save_to_csv(pricing_filename, 
+                        {"Time Step": iso_timestamp, **self.buildings[0].pricing.as_dict(self.time_step)})
         
-        # Save EV data
+        # EV data
         for idx, ev in enumerate(self.__electric_vehicles):
-            #if idx == 0: print(ev.render_simulation_end_data())
-            #if idx == 0: self._save_to_csv(f"test{ev.name}.csv", ev.render_simulation_end_data())
-            self._save_to_csv(f"exported_data_{ev.name.lower()}.csv", {"Time Step": iso_timestamp, **ev.as_dict()})
+            ev_filename = f"exported_data_{ev.name.lower()}_ep{episode_num}.csv"
+            self._save_to_csv(ev_filename, 
+                            {"Time Step": iso_timestamp, **ev.as_dict()})
 
     def _save_to_csv(self, filename, data):
         """
@@ -1311,6 +1323,12 @@ class CityLearnEnv(Environment, Env):
             writer.writerow(data)
 
     def _get_iso_timestamp(self):
+        # Reset time tracking if this is the first step of a new episode
+        if self.time_step == 0:
+            self.year = 2024  # Or your starting year
+            self.current_day = 1
+            self._reset_time_tracking()
+        
         energy_sim = self.buildings[0].energy_simulation
         energy_sim_month = energy_sim.month
         energy_sim_hour = energy_sim.hour
@@ -1335,6 +1353,12 @@ class CityLearnEnv(Environment, Env):
             self.current_day += 1
 
         return f"{self.year:04d}-{month:02d}-{self.current_day:02d}T{hour % 24:02d}:{minutes:02d}:00"
+
+    def _reset_time_tracking(self):
+        """Reset all time tracking variables"""
+        self.year = 2024  # Or your starting year
+        self.current_day = 1
+        # Add any other time-related variables that need resetting
 
 
     def reset(self, seed: int = None, options: Mapping[str, Any] = None) -> Tuple[List[List[float]], dict]:
