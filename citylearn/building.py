@@ -456,7 +456,7 @@ class Building(Environment):
     
     @property
     def chargers_electricity_consumption(self) -> np.ndarray:
-        """Energy supply from grid and/or `PV` to `electrical_storage` time series, in [kWh]."""
+        """Electricity consumption of chargers time series, in [kWh]."""
 
         return self.__chargers_electricity_consumption[:self.time_step + 1]
 
@@ -2395,7 +2395,6 @@ class Building(Environment):
         else:
             pass
 
-        print("312312312321", self.time_step, self.carbon_intensity.carbon_intensity[0:self.time_step + 1])    
         self.__net_electricity_consumption[self.time_step] = net_electricity_consumption
 
         # net electriciy consumption cost

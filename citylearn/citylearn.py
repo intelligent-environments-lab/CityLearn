@@ -164,8 +164,6 @@ class CityLearnEnv(Environment, Env):
         self.electric_vehicles = electric_vehicles
         self.time_step_ratio = self.buildings[0].time_step_ratio
 
-        print("aaaaaaaaaa", self.time_step_ratio)
-
         # now call super class initialization and set episode tracker now that buildings are set
         super().__init__(seconds_per_time_step=seconds_per_time_step, random_seed=self.random_seed, episode_tracker=episode_tracker, time_step_ratio=self.time_step_ratio)
 
@@ -1273,13 +1271,14 @@ class CityLearnEnv(Environment, Env):
         iso_timestamp = self._get_iso_timestamp()
         os.makedirs(self.new_folder_path, exist_ok=True)
 
-
         # Save community data
         self._save_to_csv("exported_data_community.csv", {"Time Step": iso_timestamp, **self.as_dict()})
 
 
         # Save building data
         for idx, building in enumerate(self.buildings):
+        
+            building.net_electricity_consumption_cost_without_storage #TODO: TRABALHAR AQUI
             self._save_to_csv(f"exported_data_{building.name.lower()}.csv", {"Time Step": iso_timestamp, **building.as_dict()})
 
             battery = building.electrical_storage # save battery to render
@@ -2002,7 +2001,6 @@ class CityLearnEnv(Environment, Env):
         initial_soc = electric_vehicle_schema["battery"]["attributes"].get("initial_soc", random.uniform(0, 1))
         depth_of_discharge = electric_vehicle_schema["battery"]["attributes"].get("depth_of_discharge", 0.10)
 
-        print("battery citleranr, nominal power", time_step_ratio, nominal_power)
         battery = Battery(
             capacity=capacity,
             nominal_power=nominal_power,
