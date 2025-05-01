@@ -1276,36 +1276,36 @@ class CityLearnEnv(Environment, Env):
         
         # Save community data - add episode number to filename
         self._save_to_csv(f"exported_data_community_ep{episode_num}.csv", 
-                        {"Time Step": iso_timestamp, **self.as_dict()})
+                        {"timestamp": iso_timestamp, **self.as_dict()})
 
         # Save building data
         for idx, building in enumerate(self.buildings):
             building_filename = f"exported_data_{building.name.lower()}_ep{episode_num}.csv"
             self._save_to_csv(building_filename, 
-                            {"Time Step": iso_timestamp, **building.as_dict()})
+                            {"timestamp": iso_timestamp, **building.as_dict()})
 
             # Battery data
             battery = building.electrical_storage # save battery to render
             battery_filename = f"exported_data_{building.name.lower()}_battery_ep{episode_num}.csv"
             self._save_to_csv(battery_filename, 
-                            {"Time Step": iso_timestamp, **battery.as_dict()})
+                            {"timestamp": iso_timestamp, **battery.as_dict()})
 
             # Chargers
             for charger_idx, charger in enumerate(building.electric_vehicle_chargers):
                 charger_filename = f"exported_data_{building.name.lower()}_{charger.charger_id}_ep{episode_num}.csv"
                 self._save_to_csv(charger_filename, 
-                                {"Time Step": iso_timestamp, **charger.as_dict()})
+                                {"timestamp": iso_timestamp, **charger.as_dict()})
 
         # Pricing data
         pricing_filename = f"exported_data_pricing_ep{episode_num}.csv"
         self._save_to_csv(pricing_filename, 
-                        {"Time Step": iso_timestamp, **self.buildings[0].pricing.as_dict(self.time_step)})
+                        {"timestamp": iso_timestamp, **self.buildings[0].pricing.as_dict(self.time_step)})
         
         # EV data
         for idx, ev in enumerate(self.__electric_vehicles):
             ev_filename = f"exported_data_{ev.name.lower()}_ep{episode_num}.csv"
             self._save_to_csv(ev_filename, 
-                            {"Time Step": iso_timestamp, **ev.as_dict()})
+                            {"timestamp": iso_timestamp, **ev.as_dict()})
 
     def _save_to_csv(self, filename, data):
         """
