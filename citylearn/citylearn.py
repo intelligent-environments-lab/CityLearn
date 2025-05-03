@@ -1644,24 +1644,25 @@ class CityLearnEnv(Environment, Env):
         building_schema = schema['buildings'][building_name]
         building_kwargs = {}
         seconds_per_time_step = schema['seconds_per_time_step']
+        noise_std = building_schema.get('noise_std', 0.0)
 
         # data
         energy_simulation = pd.read_csv(os.path.join(schema['root_directory'], building_schema['energy_simulation']))
-        energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'), seconds_per_time_step=seconds_per_time_step)
+        energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'), seconds_per_time_step=seconds_per_time_step, noise_std=noise_std)
         building_kwargs['time_step_ratio'] = energy_simulation.time_step_ratios[index]
         weather = pd.read_csv(os.path.join(schema['root_directory'], building_schema['weather']))
-        weather = Weather(**weather.to_dict('list'), noise_std=0.0)
+        weather = Weather(**weather.to_dict('list'), noise_std=noise_std)
 
         if building_schema.get('carbon_intensity', None) is not None:
             carbon_intensity = pd.read_csv(os.path.join(schema['root_directory'], building_schema['carbon_intensity']))
-            carbon_intensity = CarbonIntensity(**carbon_intensity.to_dict('list'))
+            carbon_intensity = CarbonIntensity(**carbon_intensity.to_dict('list'), noise_std=noise_std)
 
         else:
-            carbon_intensity = CarbonIntensity(np.zeros(energy_simulation.hour.shape[0], dtype='float32'))
+            carbon_intensity = CarbonIntensity(np.zeros(energy_simulation.hour.shape[0], dtype='float32'), noise_std=noise_std)
 
         if building_schema.get('pricing', None) is not None:
             pricing = pd.read_csv(os.path.join(schema['root_directory'], building_schema['pricing']))
-            pricing = Pricing(**pricing.to_dict('list'))
+            pricing = Pricing(**pricing.to_dict('list'), noise_std=noise_std)
 
         else:
             pricing = Pricing(
@@ -1669,6 +1670,7 @@ class CityLearnEnv(Environment, Env):
                 np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
                 np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
                 np.zeros(energy_simulation.hour.shape[0], dtype='float32'),
+                noise_std=noise_std
             )
 
         # construct building
@@ -2013,11 +2015,14 @@ class CityLearnEnv(Environment, Env):
             os.path.join(schema['root_directory'], electric_vehicle_schema['energy_simulation']), dtype=str
         )
 
+
+        noise_std = electric_vehicle_schema.get('noise_std', 0.0)
+
         electric_vehicle_simulation = pd.read_csv(
             os.path.join(schema['root_directory'], electric_vehicle_schema['energy_simulation'])
         ).iloc[schema['simulation_start_time_step']:schema['simulation_end_time_step'] + 1].copy()
 
-        electric_vehicle_simulation = ElectricVehicleSimulation(*electric_vehicle_simulation.values.T)
+        electric_vehicle_simulation = ElectricVehicleSimulation(*electric_vehicle_simulation.values.T, noise_std=noise_std)
 
         # Construct the battery object
         capacity = electric_vehicle_schema["battery"]["attributes"]["capacity"]
