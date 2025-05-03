@@ -90,7 +90,7 @@ class Building(Environment):
         maximum_temperature_delta: float = None, observation_space_limit_delta: float = None,
         demand_observation_limit_factor: float = None, simulate_power_outage: bool = None,
         stochastic_power_outage: bool = None, stochastic_power_outage_model: PowerOutage = None,
-        electric_vehicle_chargers: List[Charger] = None, washing_machines: List[WashingMachine] = None, **kwargs: Any
+        electric_vehicle_chargers: List[Charger] = None, time_step_ratio: int = None, washing_machines: List[WashingMachine] = None, **kwargs: Any
     ):
         self.name = name
         self.dhw_storage = dhw_storage
@@ -102,11 +102,12 @@ class Building(Environment):
         self.heating_device = heating_device
         self.__non_shiftable_load_device = ElectricDevice(nominal_power=0.0, **kwargs)
         self.pv = pv
+        self.time_step_ratio=time_step_ratio
         super().__init__(
             seconds_per_time_step=kwargs.get('seconds_per_time_step'),
             random_seed=kwargs.get('random_seed'),
             episode_tracker=episode_tracker,
-            time_step_ratio=kwargs.get('time_step_ratio', 1.0)
+            time_step_ratio=self.time_step_ratio,
         )
         self.algorithm_action_based_time_step_hours_ratio = self.seconds_per_time_step / 3600
         self.stochastic_power_outage_model = stochastic_power_outage_model
@@ -346,13 +347,13 @@ class Building(Environment):
         However, if there are chargers and EVs, they need to charge per usual, so that consumption is added
         This is what allows to check if the control mechanism affects the grid balancing scheme for EVs for example.
         """
-
+        # PROBLEMA AQUI
         return self.net_electricity_consumption - np.sum([
             self.cooling_storage_electricity_consumption,
             self.heating_storage_electricity_consumption,
             self.dhw_storage_electricity_consumption,
             self.electrical_storage_electricity_consumption,
-            self.__chargers_electricity_consumption,
+            self.chargers_electricity_consumption,
         ], axis=0)
 
     @property
@@ -452,6 +453,12 @@ class Building(Environment):
         """Energy supply from grid and/or `PV` to `electrical_storage` time series, in [kWh]."""
 
         return self.electrical_storage.electricity_consumption[:self.time_step + 1]
+    
+    @property
+    def chargers_electricity_consumption(self) -> np.ndarray:
+        """Electricity consumption of chargers time series, in [kWh]."""
+
+        return self.__chargers_electricity_consumption[:self.time_step + 1]
 
     @property
     def energy_from_cooling_device_to_cooling_storage(self) -> np.ndarray:
@@ -826,6 +833,19 @@ class Building(Environment):
         self.electrical_storage.episode_tracker = self.episode_tracker
         self.non_shiftable_load_device.episode_tracker = self.episode_tracker
         self.pv.episode_tracker = self.episode_tracker
+
+    @Environment.time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: int):
+        Environment.time_step_ratio.fset(self, time_step_ratio)
+        self.cooling_device.time_step_ratio = self.time_step_ratio
+        self.heating_device.time_step_ratio = self.time_step_ratio
+        self.dhw_device.time_step_ratio = self.time_step_ratio
+        self.cooling_storage.time_step_ratio = self.time_step_ratio
+        self.heating_storage.time_step_ratio = self.time_step_ratio
+        self.dhw_storage.time_step_ratio = self.time_step_ratio
+        self.electrical_storage.time_step_ratio = self.time_step_ratio
+        self.non_shiftable_load_device.time_step_ratio = self.time_step_ratio
+        self.pv.time_step_ratio = self.time_step_ratio    
 
     def get_metadata(self) -> Mapping[str, Any]:
         n_years = max(1, (self.episode_tracker.episode_time_steps * self.seconds_per_time_step) / (8760 * 3600))
@@ -1224,7 +1244,8 @@ class Building(Environment):
         return {
             'hour': range(1, 25),
             'day_type': range(1, 8),
-            'month': range(1, 13)
+            'month': range(1, 13),
+            'minutes': range(1, 61)
         }
 
     def apply_actions(self,
@@ -1357,7 +1378,7 @@ class Building(Environment):
 
             except NotImplementedError:
                 pass
-
+        
         self.update_variables()
 
     def update_cooling_demand(self, action: float):
@@ -2189,6 +2210,7 @@ class Building(Environment):
         self.dhw_storage.next_time_step()
         self.electrical_storage.next_time_step()
         self.pv.next_time_step()
+
 
         if self.electric_vehicle_chargers is not None:
             for c in self.electric_vehicle_chargers:

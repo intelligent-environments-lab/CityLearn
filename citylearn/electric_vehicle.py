@@ -38,7 +38,8 @@ class ElectricVehicle(Environment):
         super().__init__(
             seconds_per_time_step=kwargs.get('seconds_per_time_step'),
             random_seed=kwargs.get('random_seed'),
-            episode_tracker=episode_tracker
+            episode_tracker=episode_tracker,
+            time_step_ratio=battery.time_step_ratio
         )
 
         self.battery = battery

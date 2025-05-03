@@ -10,7 +10,7 @@ class Charger(Environment):
     def __init__(
             self, episode_tracker: EpisodeTracker, charger_id: str = None, efficiency: float = None, max_charging_power: float = None,
             min_charging_power: float = None, max_discharging_power: float = None,  min_discharging_power: float = None, charge_efficiency_curve: Dict[float, float] = None,
-            discharge_efficiency_curve: Dict[float, float] = None, connected_electric_vehicle: ElectricVehicle = None, incoming_electric_vehicle: ElectricVehicle = None,
+            discharge_efficiency_curve: Dict[float, float] = None, connected_electric_vehicle: ElectricVehicle = None, incoming_electric_vehicle: ElectricVehicle = None, time_step_ratio: int = None,
             **kwargs
     ):
         r"""Initializes the `Electric Vehicle Charger` class with the given attributes.
@@ -54,9 +54,10 @@ class Charger(Environment):
             key: value for (key, value) in kwargs.items()
             if (key in arg_spec.args or (arg_spec.varkw is not None))
         }
+        self.time_step_ratio = time_step_ratio
         seconds_per_time_step = kwargs.get('seconds_per_time_step', 3600)
         self.algorithm_action_based_time_step_hours_ratio = seconds_per_time_step / 3600
-        super().__init__(episode_tracker=episode_tracker
+        super().__init__(episode_tracker=episode_tracker,time_step_ratio=time_step_ratio
                         ,**kwargs)
 
     @property
@@ -137,6 +138,12 @@ class Charger(Environment):
         r"""Electricity consumption time series."""
 
         return self.__electricity_consumption
+    
+    @property
+    def time_step_ratio(self) -> float:
+        r"""Electricity consumption time series."""
+
+        return self.__time_step_ratio
 
     @charger_id.setter
     def charger_id(self, charger_id: str):
@@ -191,6 +198,10 @@ class Charger(Environment):
     @incoming_electric_vehicle.setter
     def incoming_electric_vehicle(self, electric_vehicle: ElectricVehicle):
         self.__incoming_ev = electric_vehicle
+
+    @time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: float):
+        self.__time_step_ratio = time_step_ratio    
 
     @efficiency.setter
     def efficiency(self, efficiency: float):
@@ -284,18 +295,15 @@ class Charger(Environment):
             efficiency = self.get_efficiency(abs(action_value), charging)  # Charging if action_value > 0
 
 
-            # Convert power (kW) to energy (kWh) for this time step
-            time_step_hours_ratio = self.seconds_per_time_step / 3600  # Convert seconds to fraction of an hour
-
 
             if charging:
                 power = action_value * self.max_charging_power  # Power in kW
-                energy = power * time_step_hours_ratio  # Convert to energy (kWh)
+                energy = power * self.algorithm_action_based_time_step_hours_ratio  # Convert to energy (kWh)
                 energy = max(min(energy, self.max_charging_power), self.min_charging_power)
                 energy_kwh = energy * efficiency  # For charging
             else:
                 power = action_value * self.max_discharging_power  # Power in kW
-                energy = power * time_step_hours_ratio  # Convert to energy (kWh)
+                energy = power * self.algorithm_action_based_time_step_hours_ratio  # Convert to energy (kWh)
                 energy = max(min(energy, -self.min_discharging_power), -self.max_discharging_power)  # For discharging
                 energy_kwh = energy / efficiency
             self.__past_charging_action_values_kwh[self.time_step] = energy

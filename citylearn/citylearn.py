@@ -125,7 +125,7 @@ class CityLearnEnv(Environment, Env):
         random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: Union[RewardFunction, str] = None, reward_function_kwargs: Mapping[str, Any] = None,
         central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None,
         inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None,
-        inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, **kwargs: Any
+        inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, time_step_ratio: int = None, **kwargs: Any
     ):
         self.schema = schema
         self.previous_month = None
@@ -146,6 +146,7 @@ class CityLearnEnv(Environment, Env):
                 rolling_episode_split=rolling_episode_split,
                 random_episode=random_episode_split,
                 seconds_per_time_step=seconds_per_time_step,
+                time_step_ratio=time_step_ratio,
                 reward_function=reward_function,
                 reward_function_kwargs=reward_function_kwargs,
                 central_agent=central_agent,
@@ -161,9 +162,10 @@ class CityLearnEnv(Environment, Env):
         self.root_directory = root_directory
         self.buildings = buildings
         self.electric_vehicles = electric_vehicles
+        self.time_step_ratio = self.buildings[0].time_step_ratio
 
         # now call super class initialization and set episode tracker now that buildings are set
-        super().__init__(seconds_per_time_step=seconds_per_time_step, random_seed=self.random_seed, episode_tracker=episode_tracker)
+        super().__init__(seconds_per_time_step=seconds_per_time_step, random_seed=self.random_seed, episode_tracker=episode_tracker, time_step_ratio=self.time_step_ratio)
 
         # set other class variables
         self.episode_time_steps = episode_time_steps
@@ -874,6 +876,13 @@ class CityLearnEnv(Environment, Env):
         for b in self.buildings:
             b.random_seed = self.random_seed
 
+    @Environment.time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: int):
+        Environment.time_step_ratio.fset(self, time_step_ratio)
+
+        for b in self.buildings:
+            b.time_step_ratio = self.time_step_ratio        
+
     def get_metadata(self) -> Mapping[str, Any]:
         return {
             **super().get_metadata(),
@@ -893,7 +902,7 @@ class CityLearnEnv(Environment, Env):
         """
 
         return [
-            'month', 'day_type', 'hour', 'daylight_savings_status',
+            'month', 'day_type', 'hour', 'minutes', 'daylight_savings_status',
             'outdoor_dry_bulb_temperature', 'outdoor_dry_bulb_temperature_predicted_1',
             'outdoor_dry_bulb_temperature_predicted_2', 'outdoor_dry_bulb_temperature_predicted_3',
             'outdoor_relative_humidity', 'outdoor_relative_humidity_predicted_1',
@@ -1257,30 +1266,46 @@ class CityLearnEnv(Environment, Env):
     def render(self):
         """
         Renders the current state of the CityLearn environment, logging data into separate CSV files.
+§        Organizes files by episode number when simulation spans multiple episodes.
         """
-
         iso_timestamp = self._get_iso_timestamp()
         os.makedirs(self.new_folder_path, exist_ok=True)
 
-
-        # Save community data
-        self._save_to_csv("exported_data_community.csv", {"Time Step": iso_timestamp, **self.as_dict()})
+        # Get current episode number (you'll need to track this in your environment)
+        episode_num = self.episode_tracker.episode
+        
+        # Save community data - add episode number to filename
+        self._save_to_csv(f"exported_data_community_ep{episode_num}.csv", 
+                        {"timestamp": iso_timestamp, **self.as_dict()})
 
         # Save building data
         for idx, building in enumerate(self.buildings):
-            self._save_to_csv(f"exported_data_{building.name.lower()}.csv", {"Time Step": iso_timestamp, **building.as_dict()})
+            building_filename = f"exported_data_{building.name.lower()}_ep{episode_num}.csv"
+            self._save_to_csv(building_filename, 
+                            {"timestamp": iso_timestamp, **building.as_dict()})
 
+            # Battery data
             battery = building.electrical_storage # save battery to render
-            self._save_to_csv(f"exported_data_{building.name.lower()}_battery.csv", {"Time Step": iso_timestamp, **battery.as_dict()})
+            battery_filename = f"exported_data_{building.name.lower()}_battery_ep{episode_num}.csv"
+            self._save_to_csv(battery_filename, 
+                            {"timestamp": iso_timestamp, **battery.as_dict()})
 
+            # Chargers
             for charger_idx, charger in enumerate(building.electric_vehicle_chargers):
-                self._save_to_csv(f"exported_data_{building.name.lower()}_{charger.charger_id}.csv", {"Time Step": iso_timestamp, **charger.as_dict()})
+                charger_filename = f"exported_data_{building.name.lower()}_{charger.charger_id}_ep{episode_num}.csv"
+                self._save_to_csv(charger_filename, 
+                                {"timestamp": iso_timestamp, **charger.as_dict()})
 
-        # Save EV data
+        # Pricing data
+        pricing_filename = f"exported_data_pricing_ep{episode_num}.csv"
+        self._save_to_csv(pricing_filename, 
+                        {"timestamp": iso_timestamp, **self.buildings[0].pricing.as_dict(self.time_step)})
+        
+        # EV data
         for idx, ev in enumerate(self.__electric_vehicles):
-            #if idx == 0: print(ev.render_simulation_end_data())
-            #if idx == 0: self._save_to_csv(f"test{ev.name}.csv", ev.render_simulation_end_data())
-            self._save_to_csv(f"exported_data_{ev.name.lower()}.csv", {"Time Step": iso_timestamp, **ev.as_dict()})
+            ev_filename = f"exported_data_{ev.name.lower()}_ep{episode_num}.csv"
+            self._save_to_csv(ev_filename, 
+                            {"timestamp": iso_timestamp, **ev.as_dict()})
 
     def _save_to_csv(self, filename, data):
         """
@@ -1298,6 +1323,12 @@ class CityLearnEnv(Environment, Env):
             writer.writerow(data)
 
     def _get_iso_timestamp(self):
+        # Reset time tracking if this is the first step of a new episode
+        if self.time_step == 0:
+            self.year = 2024  # Or your starting year
+            self.current_day = 1
+            self._reset_time_tracking()
+        
         energy_sim = self.buildings[0].energy_simulation
         energy_sim_month = energy_sim.month
         energy_sim_hour = energy_sim.hour
@@ -1322,6 +1353,12 @@ class CityLearnEnv(Environment, Env):
             self.current_day += 1
 
         return f"{self.year:04d}-{month:02d}-{self.current_day:02d}T{hour % 24:02d}:{minutes:02d}:00"
+
+    def _reset_time_tracking(self):
+        """Reset all time tracking variables"""
+        self.year = 2024  # Or your starting year
+        self.current_day = 1
+        # Add any other time-related variables that need resetting
 
 
     def reset(self, seed: int = None, options: Mapping[str, Any] = None) -> Tuple[List[List[float]], dict]:
@@ -1566,7 +1603,7 @@ class CityLearnEnv(Environment, Env):
 
         for electric_vehicle_name, electric_vehicle_schema in electric_vehicle_schemas.items():
             if electric_vehicle_schema['include']:
-                electric_vehicles.append(self._load_electric_vehicle(electric_vehicle_name,schema,electric_vehicle_schema,episode_tracker))
+                electric_vehicles.append(self._load_electric_vehicle(electric_vehicle_name,schema,electric_vehicle_schema,episode_tracker, buildings[0].time_step_ratio))
 
         # set reward function
         if kwargs.get('reward_function') is not None:
@@ -1708,7 +1745,7 @@ class CityLearnEnv(Environment, Env):
                 charger_class = getattr(importlib.import_module(charger_module), charger_class_name)
                 charger_attributes = charger_config.get('attributes', {})
                 charger_attributes['episode_tracker'] = episode_tracker
-                charger_object = charger_class(charger_id=charger_name, **charger_attributes, seconds_per_time_step=schema['seconds_per_time_step'])
+                charger_object = charger_class(charger_id=charger_name, **charger_attributes, seconds_per_time_step=schema['seconds_per_time_step'], time_step_ratio = building_kwargs['time_step_ratio'])
                 chargers_list.append(charger_object)
 
         washing_machines_list = []
@@ -1721,7 +1758,7 @@ class CityLearnEnv(Environment, Env):
         for washing_machine_name, washing_machine_schema in washing_machine_schemas.items():
                 washing_machines_list.append(self._load_washing_machine(washing_machine_name,schema,washing_machine_schema,episode_tracker))
 
-        observation_metadata, action_metadata = self.process_metadata(schema, building_schema, chargers_list, washing_machines_list, index, **kwargs)
+        observation_metadata, action_metadata = self.process_metadata(schema, building_schema, chargers_list, washing_machines_list, index, energy_simulation,**kwargs)
 
 
         building: Building = building_constructor(
@@ -1822,9 +1859,14 @@ class CityLearnEnv(Environment, Env):
 
         return building
 
-    def process_metadata(self, schema, building_schema, chargers_list, washing_machines_list, index, **kwargs):
+    def process_metadata(self, schema, building_schema, chargers_list, washing_machines_list, index, energy_simulation: EnergySimulation, **kwargs):
 
         observation_metadata = {k: v['active'] for k, v in schema['observations'].items()}
+        # Since minutes is Optional, in case the schema has minutes as observation metadata and some energy simulation building csv doesn't contain minutes, remove it from observation
+        if 'minutes' in observation_metadata and energy_simulation.minutes is None:
+            observation_metadata.pop('minutes', None)  
+            print("tirei")
+
         chargers_observations_metadata_helper = {k: v['active'] for k, v in schema['chargers_observations_helper'].items()}
         washing_machine_observations_metadata_helper = {k: v['active'] for k, v in schema['washing_machine_observations_helper'].items()}
 
@@ -1962,7 +2004,7 @@ class CityLearnEnv(Environment, Env):
         return observation_metadata, action_metadata
 
 
-    def _load_electric_vehicle(self, electric_vehicle_name: str, schema: dict, electric_vehicle_schema: dict, episode_tracker: EpisodeTracker) -> ElectricVehicle:
+    def _load_electric_vehicle(self, electric_vehicle_name: str, schema: dict, electric_vehicle_schema: dict, episode_tracker: EpisodeTracker, time_step_ratio) -> ElectricVehicle:
         """Initializes and returns an electric vehicle model."""
         # Load energy simulation data for the EV
 
@@ -1988,6 +2030,7 @@ class CityLearnEnv(Environment, Env):
             nominal_power=nominal_power,
             initial_soc=initial_soc,
             seconds_per_time_step=schema['seconds_per_time_step'],
+            time_step_ratio=time_step_ratio,
             random_seed=schema['random_seed'],
             episode_tracker=episode_tracker,
             depth_of_discharge=depth_of_discharge

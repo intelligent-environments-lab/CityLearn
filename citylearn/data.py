@@ -430,27 +430,30 @@ class EnergySimulation(TimeSeriesData):
 
         # Compute time difference if minutes exist
         if self.minutes is not None and len(self.minutes) > 1:
-            print(self.hour, self.minutes)
+            #print(self.hour, self.minutes)
             t0 = self.hour[0] * 60 + self.minutes[0]  # Convert to total minutes
             t1 = self.hour[1] * 60 + self.minutes[1]  # Convert to total minutes
 
             time_delta = t1 - t0
 
-            print("Time difference between t and t+1 in minutes:", time_delta)
+            #print("Time difference between t and t+1 in minutes:", time_delta)
 
         # Fix negative difference if crossing midnight
             # Add a full day in minutes
         if time_delta < 0:
                 time_delta += 1440    
 
-        print("Time difference between t and t+1 in minutes:", time_delta)
+        #print("Time difference between t and t+1 in minutes:", time_delta)
 
         time_step_ratio = (
-            seconds_per_time_step / (max(time_delta, seconds_per_time_step / 60) * 60) # Make sure seconds_per_timestamp isn't more than time_delta e.g. 30 mins time_delta but 60 minutes seconds_per_timestamp
+            # Computes the ratio of the current time step (in seconds) relative to:
+            # - 1 hour (3600s) if time_delta ≤ 1 hour, OR
+            # - time_delta (converted to seconds) if time_delta > 1 hour
+            # Returns None if either time_delta or seconds_per_time_step is missing
+            seconds_per_time_step / max(3600, time_delta * 60)
             if time_delta is not None and seconds_per_time_step
             else None
         )
-
         time_step_ratios.append(time_step_ratio)
         self.time_step_ratios = time_step_ratios # Store the ratio for this building
 
@@ -619,6 +622,22 @@ class Pricing(TimeSeriesData):
         self.electricity_pricing_predicted_1 = np.array(electricity_pricing_predicted_1, dtype='float32')
         self.electricity_pricing_predicted_2 = np.array(electricity_pricing_predicted_2, dtype='float32')
         self.electricity_pricing_predicted_3 = np.array(electricity_pricing_predicted_3, dtype='float32')
+
+    def as_dict(self, time_step) -> dict:
+        """Return a dictionary representation of the current pricing data.
+        
+        Returns
+        -------
+        dict
+            Dictionary containing current electricity pricing and predictions,
+            with keys matching the class attribute names.
+        """
+        return {
+            'electricity_pricing-$/kWh': self.electricity_pricing[time_step],
+            'electricity_pricing_predicted_1-$/kWh': self.electricity_pricing_predicted_1[time_step],
+            'electricity_pricing_predicted_2-$/kWh': self.electricity_pricing_predicted_2[time_step],
+            'electricity_pricing_predicted_3-$/kWh': self.electricity_pricing_predicted_3[time_step],
+        } 
 
 class CarbonIntensity(TimeSeriesData):
     """`Building` `carbon_intensity` data class.

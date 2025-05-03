@@ -237,7 +237,8 @@ class Environment:
             'uid': self.uid,
             'random_seed': self.random_seed,
             'simulation_time_steps': self.episode_tracker.simulation_time_steps,
-            'seconds_per_time_step': self.seconds_per_time_step
+            'seconds_per_time_step': self.seconds_per_time_step,
+            'time_step_ratio': self.time_step_ratio,
         }
 
     def next_time_step(self):
