@@ -24,9 +24,11 @@ class RewardFunction:
 
     @property
     def env_metadata(self) -> Mapping[str, Any]:
-        """General static information about the environment."""
+        return self._env_metadata
 
-        return self.__env_metadata
+    @env_metadata.setter
+    def env_metadata(self, env_metadata: Mapping[str, Any]):
+        self._env_metadata = env_metadata
     
     @property
     def central_agent(self) -> bool:
@@ -37,10 +39,6 @@ class RewardFunction:
     @property
     def exponent(self) -> float:
         return self.__exponent
-    
-    @env_metadata.setter
-    def env_metadata(self, env_metadata: Mapping[str, Any]):
-        self.__env_metadata = env_metadata
 
     @exponent.setter
     def exponent(self, exponent: float):
@@ -75,6 +73,36 @@ class RewardFunction:
             reward = reward_list
 
         return reward
+    
+class MultiBuildingRewardFunction(RewardFunction):
+    def __init__(self, env, reward_functions: dict[str, RewardFunction]):
+        self.env = env
+        self.reward_functions = reward_functions
+        super().__init__(env)
+
+    def calculate(self, observations: list[dict]) -> list[float]:
+        rewards = []
+        for obs, (building_name, rf) in zip(observations, self.reward_functions.items()):
+            if rf is None:
+                raise ValueError(f"No reward function for building '{building_name}'")
+
+            rewards.append(rf.calculate([obs]))
+        return rewards
+
+    def reset(self):
+        for rf in self.reward_functions.values():
+            rf.reset()
+
+    @property
+    def env_metadata(self):
+        return self._env_metadata
+
+    @env_metadata.setter
+    def env_metadata(self, env_metadata: Mapping[str, Any]):
+        self._env_metadata = env_metadata
+        for rf in self.reward_functions.values():
+            rf.env_metadata = env_metadata
+    
 
 class MARL(RewardFunction):
     """MARL reward function class.
@@ -369,13 +397,16 @@ class Electric_Vehicles_Reward_Function(MARL):
         current_reward = super().calculate(observations)
         reward_list = []
 
+        print("current_reward", current_reward)
+
         for i, o in enumerate(observations):
             ev_info = o.get("electric_vehicles_chargers_dict", {})
             if not ev_info:
                 reward=0
             else:
                 if self.central_agent:
-                    reward = self.calculate_ev_penalty(o, current_reward)
+                    reward_value = current_reward[0] if isinstance(current_reward, list) else current_reward
+                    reward = self.calculate_ev_penalty(o, reward_value)
                 else:
                     reward = self.calculate_ev_penalty(o, current_reward[i])
 
@@ -392,6 +423,7 @@ class Electric_Vehicles_Reward_Function(MARL):
         net_energy_before = o.get("net_electricity_consumption", 0)
 
         # Bounding the multiplier to avoid extreme scaling
+        print("abs(current_reward)", current_reward)
         penalty_multiplier = 1.0 / (1.0 + abs(current_reward))
 
         for charger_id, data in ev_chargers.items():

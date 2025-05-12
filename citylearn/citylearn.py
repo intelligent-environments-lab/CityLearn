@@ -20,7 +20,7 @@ from citylearn.cost_function import CostFunction
 from citylearn.data import CarbonIntensity, DataSet, ElectricVehicleSimulation, EnergySimulation, LogisticRegressionOccupantParameters, Pricing, WashingMachineSimulation, Weather
 from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery, PV, WashingMachine
-from citylearn.reward_function import RewardFunction
+from citylearn.reward_function import MultiBuildingRewardFunction, RewardFunction
 from citylearn.utilities import read_json
 
 LOGGER = logging.getLogger()
@@ -162,7 +162,8 @@ class CityLearnEnv(Environment, Env):
         self.root_directory = root_directory
         self.buildings = buildings
         self.electric_vehicles = electric_vehicles
-        self.time_step_ratio = self.buildings[0].time_step_ratio
+        get_time_step_ratio = buildings[0].time_step_ratio if len(buildings) > 0 else 1.0
+        self.time_step_ratio = get_time_step_ratio
 
         # now call super class initialization and set episode tracker now that buildings are set
         super().__init__(seconds_per_time_step=seconds_per_time_step, random_seed=self.random_seed, episode_tracker=episode_tracker, time_step_ratio=self.time_step_ratio)
@@ -964,6 +965,7 @@ class CityLearnEnv(Environment, Env):
         # to see how it can be optimized.
         reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
         reward = self.reward_function.calculate(observations=reward_observations)
+        print("reward", reward)
         self.__rewards.append(reward)
 
         # store episode reward summary
@@ -1603,33 +1605,74 @@ class CityLearnEnv(Environment, Env):
 
         for electric_vehicle_name, electric_vehicle_schema in electric_vehicle_schemas.items():
             if electric_vehicle_schema['include']:
-                electric_vehicles.append(self._load_electric_vehicle(electric_vehicle_name,schema,electric_vehicle_schema,episode_tracker, buildings[0].time_step_ratio))
+                time_step_ratio = buildings[0].time_step_ratio if len(buildings) > 0 else 1.0
+                electric_vehicles.append(self._load_electric_vehicle(electric_vehicle_name,schema,electric_vehicle_schema,episode_tracker, time_step_ratio))
 
         # set reward function
-        if kwargs.get('reward_function') is not None:
-            reward_function_type = kwargs['reward_function']
 
-            if not isinstance(reward_function_type, str):
-                reward_function_type = [reward_function_type.__module__] + [reward_function_type.__name__]
-                reward_function_type = '.'.join(reward_function_type)
+        # Extract reward configuration from schema
+        reward_schema = schema['reward_function']
+        reward_type = reward_schema['type']
+        reward_attrs = reward_schema.get('attributes', {})
 
+        # Determine if it's a multi-building configuration (i.e., a mapping from building names to reward types)
+        is_multi = isinstance(reward_type, dict)
+
+        if is_multi:
+            # Fallback to 'default' reward type if one isn't specified per building
+            default_type = reward_type.get('default')
+            if default_type is None and reward_type:
+                default_type = next(iter(reward_type.values()))  # Use the first available type if 'default' not set
+
+            # Same fallback logic for attributes
+            default_attrs = reward_attrs.get('default')
+            if default_attrs is None and reward_attrs:
+                default_attrs = next(iter(reward_attrs.values()))
+
+            reward_functions = {}
+            for building in buildings:
+                name = building.name
+                # Use building-specific reward type or fallback to default
+                r_type = reward_type.get(name, default_type)
+                r_attr = reward_attrs.get(name, default_attrs) or {}  # Ensure it's a dict, not None
+
+                if r_type is None:
+                    raise ValueError(f"No reward function defined for building '{name}' and no default provided")
+
+                # Dynamically load class from dotted path string
+                module_name = '.'.join(r_type.split('.')[:-1])
+                class_name = r_type.split('.')[-1]
+                module = importlib.import_module(module_name)
+                constructor = getattr(module, class_name)
+
+                # Instantiate reward function for this building
+                reward_functions[name] = constructor(None, **r_attr)
+                print(f"[Reward Setup] Building: {name}, Type: {r_type}, Attributes: {r_attr}")
+
+            # Combine individual building reward functions into a multi-building one
+            reward_function = MultiBuildingRewardFunction(None, reward_functions)
+
+        else:
+            # Handle the single reward function case
+            if 'reward_function' in kwargs and kwargs['reward_function'] is not None:
+                reward_function_type = kwargs['reward_function']
+                # If a class is passed instead of a string, convert to dotted path
+                if not isinstance(reward_function_type, str):
+                    reward_function_type = f"{reward_function_type.__module__}.{reward_function_type.__name__}"
             else:
-                pass
+                reward_function_type = reward_type  # Use type from schema
 
-        else:
-            reward_function_type = schema['reward_function']['type']
+            # Get attributes from kwargs or schema, default to empty dict
+            reward_function_attributes = kwargs.get('reward_function_kwargs') or reward_attrs or {}
 
-        if kwargs.get('reward_function_kwargs') is not None:
-            reward_function_attributes = kwargs['reward_function_kwargs']
+            # Dynamically load class from dotted path string
+            module_name = '.'.join(reward_function_type.split('.')[:-1])
+            class_name = reward_function_type.split('.')[-1]
+            module = importlib.import_module(module_name)
+            constructor = getattr(module, class_name)
 
-        else:
-            reward_function_attributes = schema['reward_function'].get('attributes', None)
-            reward_function_attributes = {} if reward_function_attributes is None else reward_function_attributes
-
-        reward_function_module = '.'.join(reward_function_type.split('.')[0:-1])
-        reward_function_name = reward_function_type.split('.')[-1]
-        reward_function_constructor = getattr(importlib.import_module(reward_function_module), reward_function_name)
-        reward_function = reward_function_constructor(None, **reward_function_attributes)
+            # Instantiate the single reward function
+            reward_function = constructor(None, **reward_function_attributes)
 
         return (
             schema['root_directory'], buildings, electric_vehicles, schema['episode_time_steps'], schema['rolling_episode_split'],
@@ -1867,7 +1910,6 @@ class CityLearnEnv(Environment, Env):
         # Since minutes is Optional, in case the schema has minutes as observation metadata and some energy simulation building csv doesn't contain minutes, remove it from observation
         if 'minutes' in observation_metadata and energy_simulation.minutes is None:
             observation_metadata.pop('minutes', None)  
-            print("tirei")
 
         chargers_observations_metadata_helper = {k: v['active'] for k, v in schema['chargers_observations_helper'].items()}
         washing_machine_observations_metadata_helper = {k: v['active'] for k, v in schema['washing_machine_observations_helper'].items()}

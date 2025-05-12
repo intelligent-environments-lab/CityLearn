@@ -219,7 +219,7 @@ def test_ev_battery_integration(mock_episode_tracker, mock_ev_simulation):
     
     battery_stub.force_set_soc.assert_called_with(0.3)
 
-def test_next_time_step_with_invalid_arrival_soc(electric_vehicle, mock_battery, mock_ev_simulation):
+def test_next_time_step_with_invalid_arrival_soc(electric_vehicle, mock_ev_simulation):
     """Test behavior with invalid arrival SOC"""
     electric_vehicle.time_step = 0
     
