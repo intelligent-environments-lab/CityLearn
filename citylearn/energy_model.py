@@ -571,7 +571,11 @@ class PV(ElectricDevice):
 
         module_area = self.autosize_config['module_area']
         pv_area = pv_nominal_power*5.263 if module_area is None or math.isnan(module_area) else module_area
-        roof_limit_nominal_power = math.floor(roof_area/pv_area)*pv_nominal_power
+        # Fix bug: roof_area OverflowError: cannot convert float infinity to integer
+        if np.isinf(roof_area):
+            roof_limit_nominal_power = np.inf
+        else:
+            roof_limit_nominal_power = math.floor(roof_area / pv_area) * pv_nominal_power
 
         nominal_power = min(max(target_nominal_power, pv_nominal_power), roof_limit_nominal_power)
         self._autosize_config = {
@@ -1313,7 +1317,6 @@ class WashingMachine(ElectricDevice):
         start_time_step = self.washing_machine_simulation.wm_start_time_step[self.time_step]
         end__time_step = self.washing_machine_simulation.wm_end_time_step[self.time_step]
 
-        print("self.initiated", self.initiated, action_value, start_time_step, self.time_step, end__time_step)
         if not self.initiated and action_value > 0 and start_time_step != -1 and end__time_step != -1 and start_time_step <= self.time_step <= end__time_step:
             load_profile = self.washing_machine_simulation.load_profile[self.time_step]
             if len(load_profile) == 0:
