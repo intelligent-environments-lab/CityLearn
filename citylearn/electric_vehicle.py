@@ -3,7 +3,6 @@ from typing import List, Mapping, Tuple
 from gymnasium import spaces
 import numpy as np
 from citylearn.base import Environment, EpisodeTracker
-from citylearn.data import ElectricVehicleSimulation
 from citylearn.energy_model import Battery
 from citylearn.preprocessing import Normalize, PeriodicNormalization
 
@@ -93,7 +92,7 @@ class ElectricVehicle(Environment):
         observations = {
             **{
                 k.lstrip('_'): v[self.time_step]
-                for k, v in vars(self.electric_vehicle_simulation).items()
+                for k, v in vars(self).items()
                 if isinstance(v, np.ndarray) and k.lstrip('_') not in unwanted_keys
                 # Ensure filtering is done after stripping
             },
@@ -116,7 +115,6 @@ class ElectricVehicle(Environment):
         """
         return {
             'name': self.name,
-            "EV Charger State": self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step],
             'Battery capacity': self.battery.capacity,  
             **self.observations() 
         }

@@ -1288,7 +1288,7 @@ class CityLearnEnv(Environment, Env):
                         found_in_charger = True
                         # Priority 1: current soc_arrival if incoming at t
                         if is_incoming:
-                            soc = sim.electric_vehicle_soc_arrival[t]
+                            soc = sim.electric_vehicle_soc_arrival[t] # TODO: Work from here
                         else:
                             soc = sim.electric_vehicle_soc_arrival[t + 1]
 
@@ -1458,7 +1458,7 @@ class CityLearnEnv(Environment, Env):
         for ev in self.electric_vehicles:
             ev.reset()
 
-        self.associate_electric_vehicles_to_chargers()
+        self.associate_chargers_to_electric_vehicles()
 
         # reset reward function (does nothing by default)
         self.reward_function.reset()

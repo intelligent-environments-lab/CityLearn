@@ -1707,6 +1707,9 @@ class Building(Environment):
                                   'electric_vehicle_soc']):
                             low_limit[key] = -0.1
                             high_limit[key] = 1.0
+                        elif any(value in key for value in [f'connected_electric_vehicle_at_charger_{charger.charger_id}_battery_capacity']):
+                            low_limit[key] = -1
+                            high_limit[key] = 100
 
             elif 'washing_machine' in key:
                 if self.washing_machines is not None:
