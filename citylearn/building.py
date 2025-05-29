@@ -979,93 +979,80 @@ class Building(Environment):
 
     def update_ev_charger_observations(self, observations, valid_observations, ev_chargers):
         """
-        Update the observations for each electric vehicle charger.
+        Update the observations for each electric vehicle charger using charger simulation data.
 
         Parameters:
-            observations (dict): The dictionary to update with observation values.
-            valid_observations (set or list): Collection of valid observation keys.
-            ev_chargers (iterable): List of charger objects. Each charger is expected to have:
-                - charger_id attribute
-                - connected_electric_vehicle attribute (object or None)
-                - incoming_electric_vehicle attribute (object or None)
-                  Both EV objects should implement an observations() method that returns a dictionary.
+            observations (dict): Dictionary to populate with observation values.
+            valid_observations (set or list): Allowed observation keys.
+            ev_chargers (iterable): List of charger objects, each with:
+                - charger_id
+                - charger_simulation (ChargerSchedule)
         """
+        
         for charger in ev_chargers:
             charger_id = charger.charger_id
+            sim = charger.charger_simulation
+            t = self.time_step
 
-            # Keys for charger states
+            # Keys
             connected_state_key = f'electric_vehicle_charger_{charger_id}_connected_state'
             incoming_state_key = f'electric_vehicle_charger_{charger_id}_incoming_state'
+            departure_key = f'connected_electric_vehicle_at_charger_{charger_id}_departure_time'
+            req_soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_required_soc_departure'
+            soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_soc'
+            capacity_key = f'connected_electric_vehicle_at_charger_{charger_id}_battery_capacity'
+            arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_arrival_time'
+            soc_arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_soc_arrival'
+
+            # Get current state
+            state = sim.electric_vehicle_charger_state[t] if t < len(sim.electric_vehicle_charger_state) else np.nan
 
             # ---------------------------
             # Update Connected EV Section
             # ---------------------------
-            if charger.connected_electric_vehicle:
+            if charger.connected_electric_vehicle and state == 1:
                 if connected_state_key in valid_observations:
                     observations[connected_state_key] = 1
-
-                connected_obs = charger.connected_electric_vehicle.observations()
-                # Update departure time if valid
-                departure_key = f'connected_electric_vehicle_at_charger_{charger_id}_departure_time'
                 if departure_key in valid_observations:
-                    observations[departure_key] = next((value for key, value in connected_obs.items() if "_departure_time" in key),-1)
-
-                # Update required SOC at departure if valid
-                req_soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_required_soc_departure'
+                    observations[departure_key] = int(sim.electric_vehicle_departure_time[t])
                 if req_soc_key in valid_observations:
-                    observations[req_soc_key] = next((value for key, value in connected_obs.items() if "_required_soc_departure" in key),-0.1)
-
-                # Update current state of charge (soc) if valid
-                soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_soc'
+                    observations[req_soc_key] = float(sim.electric_vehicle_required_soc_departure[t])
                 if soc_key in valid_observations:
-                    observations[soc_key] = next((value for key, value in connected_obs.items() if key.endswith("soc")), -0.1)
+                    observations[soc_key] = charger.connected_electric_vehicle.battery.soc[t]
+                if capacity_key in valid_observations:
+                    observations[capacity_key] = float(sim.electric_vehicle_battery_capacity_kwh[t])
             else:
                 if connected_state_key in valid_observations:
                     observations[connected_state_key] = 0
-                # Use default values when no connected EV is present
-                departure_key = f'connected_electric_vehicle_at_charger_{charger_id}_departure_time'
                 if departure_key in valid_observations:
                     observations[departure_key] = -1
-
-                req_soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_required_soc_departure'
                 if req_soc_key in valid_observations:
                     observations[req_soc_key] = -0.1
-
-                soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_soc'
                 if soc_key in valid_observations:
                     observations[soc_key] = -0.1
+                if capacity_key in valid_observations:
+                    observations[capacity_key] = -1.0
 
             # ---------------------------
             # Update Incoming EV Section
             # ---------------------------
-            if charger.incoming_electric_vehicle:
+            if charger.incoming_electric_vehicle and state == 2:
                 if incoming_state_key in valid_observations:
                     observations[incoming_state_key] = 1
-
-                incoming_obs = charger.incoming_electric_vehicle.observations()
-                # Update estimated arrival time if valid
-                arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_arrival_time'
                 if arrival_key in valid_observations:
-                    observations[arrival_key] = next((value for key, value in incoming_obs.items() if "_estimated_arrival_time" in key),-1)
-
-
-                # Update estimated SOC at arrival if valid
-                soc_arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_soc_arrival'
+                    observations[arrival_key] = int(sim.electric_vehicle_estimated_arrival_time[t])
                 if soc_arrival_key in valid_observations:
-                    observations[soc_arrival_key] = next((value for key, value in incoming_obs.items() if "_estimated_soc_arrival" in key),-0.1)
+                    observations[soc_arrival_key] = float(sim.electric_vehicle_estimated_soc_arrival[t])
             else:
                 if incoming_state_key in valid_observations:
                     observations[incoming_state_key] = 0
-
-                arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_arrival_time'
                 if arrival_key in valid_observations:
                     observations[arrival_key] = -1
-
-                soc_arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_soc_arrival'
                 if soc_arrival_key in valid_observations:
                     observations[soc_arrival_key] = -0.1
 
         return observations
+                
     
     def update_washing_machine_observations(self, observations, valid_observations, washing_machines):
         """

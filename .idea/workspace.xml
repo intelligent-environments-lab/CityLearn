@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d3c66324-afba-4fce-abd1-896e1804de26" name="Changes" comment="Deleted duplicated dataset" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2mYbkxJZhSE3IuXgWOuc2OIzyYN" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "case__studies__opeva",
+    "last_opened_file_path": "C:/Users/Tiago Fonseca/Documents/GitHub/Algorithms",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Tiago Fonseca\Documents\GitHub\CityLearnEVs\citylearn\data\datasets" />
+      <recent name="C:\Users\Tiago Fonseca\Documents\GitHub\CityLearnEVs\citylearn\data\datasets\citylearn_challenge_2022_phase_all_plus_evs" />
+      <recent name="C:\Users\Tiago Fonseca\Documents\GitHub\CityLearnEVs\citylearn\data" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Tiago Fonseca\Documents\GitHub\CityLearnEVs\citylearn\data\datasets" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="CityLearnEVs" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d3c66324-afba-4fce-abd1-896e1804de26" name="Changes" comment="" />
+      <created>1727256610100</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1727256610100</updated>
+      <workItem from="1727256611531" duration="1077000" />
+      <workItem from="1727352853526" duration="1811000" />
+      <workItem from="1727707373997" duration="2436000" />
+      <workItem from="1727944830885" duration="4063000" />
+      <workItem from="1728133292634" duration="13687000" />
+      <workItem from="1728304195280" duration="125000" />
+      <workItem from="1728336527559" duration="12579000" />
+      <workItem from="1728506785856" duration="1855000" />
+      <workItem from="1728572004520" duration="2495000" />
+      <workItem from="1728596621239" duration="1542000" />
+      <workItem from="1728900195654" duration="666000" />
+      <workItem from="1728989907042" duration="37000" />
+      <workItem from="1728992222949" duration="895000" />
+      <workItem from="1729160531655" duration="37000" />
+      <workItem from="1730160285209" duration="313000" />
+      <workItem from="1730160683053" duration="123000" />
+      <workItem from="1730192940125" duration="2918000" />
+      <workItem from="1730389733525" duration="2370000" />
+      <workItem from="1732549087494" duration="97000" />
+      <workItem from="1732795394188" duration="1326000" />
+      <workItem from="1733416978750" duration="13000" />
+      <workItem from="1733910621633" duration="9000" />
+      <workItem from="1736028870640" duration="1047000" />
+      <workItem from="1736033790679" duration="628000" />
+      <workItem from="1736184588087" duration="19000" />
+      <workItem from="1736978913890" duration="254000" />
+      <workItem from="1736979205157" duration="23000" />
+      <workItem from="1736981866898" duration="16000" />
+    </task>
+    <task id="LOCAL-00001" summary="Deleted duplicated dataset">
+      <created>1727945281591</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1727945281591</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Deleted duplicated dataset" />
+    <option name="LAST_COMMIT_MESSAGE" value="Deleted duplicated dataset" />
+  </component>
+</project>

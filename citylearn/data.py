@@ -669,114 +669,112 @@ class CarbonIntensity(TimeSeriesData):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.carbon_intensity = np.clip(np.array(carbon_intensity, dtype='float32') + NoiseUtils.generate_gaussian_noise(carbon_intensity, self.noise_std),0,1)
 
-class ElectricVehicleSimulation(TimeSeriesData):
-    """Electric Vehicle Simulation data class.
+class ChargerSimulation(TimeSeriesData):
+    """Charger-centric electric vehicle simulation data class.
+
+    This class models the charging schedule of electric vehicles from the perspective
+    of a specific charger, with one entry per timestep indicating the state of a connected or incoming EV.
 
     Attributes
     ----------
     electric_vehicle_charger_state : np.array
-        State of the electric vehicle indicating:
+        State of the electric vehicle:
             1: 'Parked, plugged in, and ready to charge'
             2: 'Incoming to a charger'
-            3: 'Commuting'
-    charger : np.array
-        (Available only for states 1 and 2)
-            - If in 'parked, plugged in, and ready to charge' state (1), this represents the charger where the EV is connected.
-            - If in 'incoming to a charger' state (2), this represents the charger where the EV will plug in next.
-            - It is `-1` if no destination charger is specified or if in 'commuting' state (3).
+            3: 'Commuting (vehicle is away)'
+    electric_vehicle_id : np.array
+        Identifier for the electric vehicle.
+    electric_vehicle_battery_capacity_kwh : np.array
+        Battery capacity of the vehicle (in kilowatt-hours).
+    current_soc : np.array
+        Current state-of-charge of the EV battery at the charger (normalized [0, 1]).
+        This is calculated from the raw kWh value divided by capacity.
     electric_vehicle_departure_time : np.array
-        Number of time steps expected until the vehicle departs (only for state 1).
+        Number of time steps expected until the EV departs from the charger (only for state 1).
         Defaults to -1 when not present.
     electric_vehicle_required_soc_departure : np.array
-        Estimated SOC percentage required for the EV at departure time (only for state 1).
-        Defaults to -1 when not present.
+        Target SOC percentage required for the EV at departure time (only for state 1),
+        normalized to the [0, 1] range and with added Gaussian noise if provided.
+        Defaults to -0.1 when not present.
     electric_vehicle_estimated_arrival_time : np.array
-        Number of time steps expected until the vehicle arrives at the charger (only for state 2).
+        Number of time steps expected until the EV arrives at the charger (only for state 2).
         Defaults to -1 when not present.
     electric_vehicle_estimated_soc_arrival : np.array
-        Estimated SOC percentage for the EV at arrival time (only for state 2).
-        Defaults to -1 when not present.
+        Estimated SOC percentage at the time of arrival to the charger (only for state 2),
+        normalized to the [0, 1] range and with optional Gaussian noise.
+        Defaults to -0.1 when not present.
     """
 
     def __init__(
         self,
-        state: Iterable[int],
-        charger: Iterable[str],
-        estimated_departure_time: Iterable[int],
-        required_soc_departure: Iterable[float],
-        estimated_arrival_time: Iterable[int],
-        estimated_soc_arrival: Iterable[float],
-        electric_vehicle_soc_arrival: Iterable[float],
+        electric_vehicle_charger_state: Iterable[int],
+        electric_vehicle_id: Iterable[str],
+        electric_vehicle_battery_capacity_khw: Iterable[float],
+        current_soc: Iterable[float],
+        electric_vehicle_departure_time: Iterable[float],
+        electric_vehicle_required_soc_departure: Iterable[float],
+        electric_vehicle_estimated_arrival_time: Iterable[float],
+        electric_vehicle_estimated_soc_arrival: Iterable[float],
         start_time_step: int = None,
         end_time_step: int = None,
-        noise_std: float = 1,
+        noise_std: float = 1.0
     ):
-        """Initialize ElectricVehicleSimulation."""
+        """Initialize ChargerSchedule from charger-centric EV CSV input."""
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
 
         self.noise_std = noise_std
 
-        # Convert state to an array of floats.
-        # If a value is not a valid digit, set it to NaN.
-        self.electric_vehicle_charger_state = np.array(
-            [int(str(s)) if str(s).isdigit() else np.nan for s in state],
-            dtype=float
-        )
-
-        # Process charger values:
-        # - If the entry is a string and not "nan" (case-insensitive), keep it.
-        # - Otherwise, replace with np.nan.
-        self.charger = np.array(
-            [c if isinstance(c, str) and c.strip().lower() != "nan" else np.nan for c in charger],
-            dtype=object
-        )
-
-        # For time values, first convert to a float array.
-        # Use a default missing value (here, -1) for times.
         default_time_value = -1
-        departure_time_arr = np.array(estimated_departure_time, dtype=float)
-        arrival_time_arr = np.array(estimated_arrival_time, dtype=float)
+        default_soc_value = -0.1
 
+        self.electric_vehicle_charger_state = np.array([
+            int(str(s)) if str(s).isdigit() else np.nan
+            for s in electric_vehicle_charger_state
+        ], dtype=float)
+
+        self.electric_vehicle_id = np.array(electric_vehicle_id, dtype=object)
+        self.electric_vehicle_battery_capacity_kwh = np.array(
+            electric_vehicle_battery_capacity_khw, dtype=float
+        )
+
+        current_soc_arr = np.array(current_soc, dtype=float)
+        current_soc_arr = np.where(np.isnan(current_soc_arr), default_soc_value, current_soc_arr)
+        self.current_soc = np.clip(
+            current_soc_arr / self.electric_vehicle_battery_capacity_kwh,
+            0, 1
+        )
+
+        departure_time_arr = np.array(electric_vehicle_departure_time, dtype=float)
         self.electric_vehicle_departure_time = np.where(
             np.isnan(departure_time_arr), default_time_value, departure_time_arr
         ).astype(int)
 
+        arrival_time_arr = np.array(electric_vehicle_estimated_arrival_time, dtype=float)
         self.electric_vehicle_estimated_arrival_time = np.where(
             np.isnan(arrival_time_arr), default_time_value, arrival_time_arr
         ).astype(int)
 
-        # Define the default value and input arrays
-        default_soc_value = -0.1
-        soc_departure_arr = np.array(required_soc_departure, dtype=float)
-        est_soc_arrival_arr = np.array(estimated_soc_arrival, dtype=float)
-        soc_arrival_arr = np.array(electric_vehicle_soc_arrival, dtype=float)
-
-        # Replace NaNs with the default value
-        soc_departure_arr = np.where(np.isnan(soc_departure_arr), default_soc_value, soc_departure_arr)
-        est_soc_arrival_arr = np.where(np.isnan(est_soc_arrival_arr), default_soc_value, est_soc_arrival_arr)
-        soc_arrival_arr = np.where(np.isnan(soc_arrival_arr), default_soc_value, soc_arrival_arr)
-
+        required_soc_arr = np.array(electric_vehicle_required_soc_departure, dtype=float)
+        required_soc_arr = np.where(np.isnan(required_soc_arr), default_soc_value, required_soc_arr)
         self.electric_vehicle_required_soc_departure = np.where(
-            soc_departure_arr != default_soc_value, 
-            np.clip(soc_departure_arr / 100 + (NoiseUtils.generate_gaussian_noise(soc_departure_arr, self.noise_std) / 100), 0, 1), 
-            soc_departure_arr
-        )
-        self.electric_vehicle_estimated_soc_arrival = np.where(
-            est_soc_arrival_arr != default_soc_value, 
-            np.clip(est_soc_arrival_arr / 100 + (NoiseUtils.generate_gaussian_noise(est_soc_arrival_arr, self.noise_std) / 100), 0, 1), 
-            est_soc_arrival_arr
-        )
-
-        self.electric_vehicle_soc_arrival = np.where(
-            soc_arrival_arr != default_soc_value, 
+            required_soc_arr != default_soc_value,
             np.clip(
-                soc_arrival_arr / 100 + (NoiseUtils.generate_gaussian_noise(soc_arrival_arr, self.noise_std) / 100),
-                0,  # min clip value
-                1   # max clip value
-            ), 
-            soc_arrival_arr
+                required_soc_arr / 100 + (NoiseUtils.generate_gaussian_noise(required_soc_arr, self.noise_std) / 100),
+                0, 1
+            ),
+            required_soc_arr
         )
 
+        estimated_soc_arrival_arr = np.array(electric_vehicle_estimated_soc_arrival, dtype=float)
+        estimated_soc_arrival_arr = np.where(np.isnan(estimated_soc_arrival_arr), default_soc_value, estimated_soc_arrival_arr)
+        self.electric_vehicle_estimated_soc_arrival = np.where(
+            estimated_soc_arrival_arr != default_soc_value,
+            np.clip(
+                estimated_soc_arrival_arr / 100 + (NoiseUtils.generate_gaussian_noise(estimated_soc_arrival_arr, self.noise_std) / 100),
+                0, 1
+            ),
+            estimated_soc_arrival_arr
+        )
 
 class WashingMachineSimulation(TimeSeriesData):
     """Washing Machine Simulation data class.

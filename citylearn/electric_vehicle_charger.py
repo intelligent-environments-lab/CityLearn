@@ -3,12 +3,13 @@ from typing import List, Dict
 import numpy as np
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.electric_vehicle import ElectricVehicle
+from citylearn.data import ChargerSimulation
 from citylearn.data import ZERO_DIVISION_PLACEHOLDER
 np.seterr(divide='ignore', invalid='ignore')
 
 class Charger(Environment):
     def __init__(
-            self, episode_tracker: EpisodeTracker, charger_id: str = None, efficiency: float = None, max_charging_power: float = None,
+            self, episode_tracker: EpisodeTracker, charger_simulation: ChargerSimulation ,charger_id: str = None, efficiency: float = None, max_charging_power: float = None,
             min_charging_power: float = None, max_discharging_power: float = None,  min_discharging_power: float = None, charge_efficiency_curve: Dict[float, float] = None,
             discharge_efficiency_curve: Dict[float, float] = None, connected_electric_vehicle: ElectricVehicle = None, incoming_electric_vehicle: ElectricVehicle = None, time_step_ratio: int = None,
             **kwargs
@@ -48,6 +49,7 @@ class Charger(Environment):
         self.discharge_efficiency_curve = discharge_efficiency_curve
         self.connected_electric_vehicle = connected_electric_vehicle
         self.incoming_electric_vehicle = incoming_electric_vehicle
+        self.charger_simulation = charger_simulation
 
         arg_spec = inspect.getfullargspec(super().__init__)
         kwargs = {
@@ -60,6 +62,11 @@ class Charger(Environment):
         super().__init__(episode_tracker=episode_tracker,time_step_ratio=time_step_ratio
                         ,**kwargs)
 
+    @property
+    def charger_simulation(self) -> ChargerSimulation:
+
+        return self.__charger_simulation
+    
     @property
     def charger_id(self) -> str:
         """ID of the charger."""
@@ -145,6 +152,10 @@ class Charger(Environment):
 
         return self.__time_step_ratio
 
+    @charger_simulation.setter
+    def charger_simulation(self, charger_simulation: ChargerSimulation):
+        self.__charger_simulation = charger_simulation
+
     @charger_id.setter
     def charger_id(self, charger_id: str):
         self.__charger_id = charger_id
@@ -219,12 +230,8 @@ class Charger(Environment):
         ----------
         electric_vehicle : object
             electric_vehicle instance to be connected to the charger.
-
-        Raises
-        ------
-        ValueError
-            If the charger has reached its maximum connected electric_vehicle' capacity.
         """
+
         if self.connected_electric_vehicle is not None:
             raise ValueError("Charger is already in use.")
         self.connected_electric_vehicle = electric_vehicle
@@ -238,15 +245,9 @@ class Charger(Environment):
         ----------
         electric_vehicle : object
             electric_vehicle instance to be connected to the charger.
-
-        Raises
-        ------
-        ValueError
-            If the charger has reached its maximum associated electric_vehicle' capacity.
         """
-        self.incoming_electric_vehicle = electric_vehicle
 
-    import numpy as np
+        self.incoming_electric_vehicle = electric_vehicle
 
     def get_efficiency(self, power: float, charging: bool) -> float:
         """

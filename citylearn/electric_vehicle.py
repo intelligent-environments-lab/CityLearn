@@ -12,15 +12,13 @@ LOGGER = logging.getLogger()
 
 class ElectricVehicle(Environment):
 
-    def __init__(self, electric_vehicle_simulation: ElectricVehicleSimulation, episode_tracker: EpisodeTracker,
+    def __init__(self, episode_tracker: EpisodeTracker,
                  battery: Battery = None, name: str = None, **kwargs):
         """
         Initialize the EVCar class.
 
         Parameters
         ----------
-        electric_vehicle_simulation : ElectricVehicleSimulation
-            Temporal features, locations, predicted SOCs and more.
         battery : Battery
             An instance of the Battery class.
         name : str, optional
@@ -32,7 +30,6 @@ class ElectricVehicle(Environment):
             Other keyword arguments used to initialize super class.
         """
 
-        self.electric_vehicle_simulation = electric_vehicle_simulation
         self.name = name
 
         super().__init__(
@@ -47,12 +44,6 @@ class ElectricVehicle(Environment):
 
 
     @property
-    def electric_vehicle_simulation(self) -> ElectricVehicleSimulation:
-        """Return the Electric_Vehicle simulation data."""
-
-        return self.__electric_vehicle_simulation
-
-    @property
     def name(self) -> str:
         """Unique building name."""
 
@@ -63,10 +54,6 @@ class ElectricVehicle(Environment):
         """Battery for Electric_Vehicle."""
 
         return self.__battery
-    
-    @electric_vehicle_simulation.setter
-    def electric_vehicle_simulation(self, electric_vehicle_simulation: ElectricVehicleSimulation):
-        self.__electric_vehicle_simulation = electric_vehicle_simulation
 
     @name.setter
     def name(self, name: str):
@@ -82,24 +69,6 @@ class ElectricVehicle(Environment):
     def next_time_step(self) -> Mapping[int, str]:        
         self.battery.next_time_step()
         super().next_time_step()
-
-        # Check if the next time step exists in the charger state array   - 1 ligado 2 arriving 3 commuting
-        if self.time_step + 1 < self.episode_tracker.episode_time_steps:
-            current_charger_state = self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step]
-            next_charger_state = self.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step + 1]
-            if (current_charger_state in [2, 3]) and (next_charger_state == 1):
-                soc_arrival = self.electric_vehicle_simulation.electric_vehicle_soc_arrival[self.time_step]
-                if 0 <= soc_arrival <= 1:
-                    self.battery.force_set_soc(soc_arrival)
-                else:
-                    raise AttributeError(f"electric_vehicle_soc_arrival should be valid {soc_arrival}")
-
-            if current_charger_state in [2, 3] and next_charger_state != 1 and self.time_step > 0:
-                last_soc = self.battery.soc[self.time_step - 1]
-                variability_factor = np.random.normal(loc=1.0, scale=0.2)
-                variability_factor = np.clip(variability_factor, 0.6, 1.4)
-                new_soc = np.clip(last_soc * variability_factor, 0.0, 1.0)
-                self.battery.force_set_soc(new_soc)
 
     def reset(self):
         """

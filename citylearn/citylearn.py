@@ -17,7 +17,7 @@ import random
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
 from citylearn.cost_function import CostFunction
-from citylearn.data import CarbonIntensity, DataSet, ElectricVehicleSimulation, EnergySimulation, LogisticRegressionOccupantParameters, Pricing, WashingMachineSimulation, Weather
+from citylearn.data import CarbonIntensity, DataSet, ChargerSimulation, EnergySimulation, LogisticRegressionOccupantParameters, Pricing, WashingMachineSimulation, Weather
 from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery, PV, WashingMachine
 from citylearn.reward_function import MultiBuildingRewardFunction, RewardFunction
@@ -951,7 +951,6 @@ class CityLearnEnv(Environment, Env):
             building.apply_actions(**building_actions)
 
         self.next_time_step()
-        #TODO: test the temperatures citylearn learn chalenge 2023 challenge phase 2 (dont want big difference between set points and temp)
 
         #Currently at time_step t+1
 
@@ -1227,33 +1226,85 @@ class CityLearnEnv(Environment, Env):
             building.next_time_step()
 
         # Advance electric vehicles to the next time step. This function is used as EVs exist even without being connected to any building (e.g. when they are being used to commute)
-        # As such, this function simulates the EV to the next time step. EVs simulation (connection status) is based on the dataset corresponding to each one
+        # As such, this function simulates the EV to the next time step.
         for electric_vehicle in self.electric_vehicles:
             electric_vehicle.next_time_step()
 
         super().next_time_step()
 
+        # Apply battery SOC simulation for EVs that are NOT connected
+        self.simulate_unconnected_ev_soc()
+
         #This function is here so that, when the new time step is reached, the first thing to do is plug in/out the EVs according to their individual dataset
         #It basicly associates an EV to a Building.Charger
         self.associate_electric_vehicles_to_chargers()
 
-    def associate_electric_vehicles_to_chargers(self):
-        r"""Associate electric_vehicle to its destination charger for observations."""
+    def associate_chargers_to_electric_vehicles(self):
+        r"""Associate charger to its corresponding electric_vehicle based on charger simulation state."""
 
-        for electric_vehicle in self.electric_vehicles:
+        for building in self.buildings:
+            if building.electric_vehicle_chargers is None:
+                continue
 
-            charger = electric_vehicle.electric_vehicle_simulation.charger[self.time_step]
-            state = electric_vehicle.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step]
+            for charger in building.electric_vehicle_chargers:
+                sim = charger.charger_simulation
+                state = sim.electric_vehicle_charger_state[self.time_step]
 
-            if charger != "" and charger != "nan":
-                for b in self.buildings:
-                    if b.electric_vehicle_chargers is not None:
-                        for c in b.electric_vehicle_chargers:
-                            if c.charger_id == charger:
-                                if state == 1:  # ev connected to charger
-                                    c.plug_car(electric_vehicle)
-                                if state == 2: #EVs can also be associated as incoming to a given charger
-                                    c.associate_incoming_car(electric_vehicle)
+                if np.isnan(state) or state not in [1, 2]:
+                    continue  # Skip if no EV is connected or incoming
+
+                ev_id = sim.electric_vehicle_id[self.time_step]
+                if isinstance(ev_id, str) and ev_id.strip() not in ["", "nan"]:
+                    for ev in self.electric_vehicles:
+                        if ev.name == ev_id:
+                            if state == 1:
+                                charger.plug_car(ev)
+                            elif state == 2:
+                                charger.associate_incoming_car(ev)
+
+    def simulate_unconnected_ev_soc(self):
+        """Simulate SOC changes for EVs that are not under charger control at t+1."""
+        t = self.time_step
+        if t + 1 >= self.episode_tracker.episode_time_steps:
+            return
+
+        for ev in self.electric_vehicles:
+            ev_id = ev.name
+            found_in_charger = False
+
+            for building in self.buildings:
+                for charger in building.electric_vehicle_chargers or []:
+                    sim = charger.charger_simulation
+
+                    curr_id = sim.electric_vehicle_id[t] if t < len(sim.electric_vehicle_id) else ""
+                    next_id = sim.electric_vehicle_id[t + 1] if t + 1 < len(sim.electric_vehicle_id) else ""
+                    curr_state = sim.electric_vehicle_charger_state[t] if t < len(sim.electric_vehicle_charger_state) else np.nan
+                    next_state = sim.electric_vehicle_charger_state[t + 1] if t + 1 < len(sim.electric_vehicle_charger_state) else np.nan
+
+                    is_connecting = next_id == ev_id and next_state == 1
+                    is_incoming = curr_id == ev_id and curr_state == 2
+
+                    if is_connecting:
+                        found_in_charger = True
+                        # Priority 1: current soc_arrival if incoming at t
+                        if is_incoming:
+                            soc = sim.electric_vehicle_soc_arrival[t]
+                        else:
+                            soc = sim.electric_vehicle_soc_arrival[t + 1]
+
+                        if 0 <= soc <= 1:
+                            ev.battery.force_set_soc(soc)
+                        else:
+                            raise AttributeError(f"Invalid SOC value for {ev_id} at time {t}: {soc}")
+                        break  # Don't check more chargers once connected
+
+            if not found_in_charger:
+                # Not being connected or incoming in a valid charger — apply SOC drift
+                if t > 0:
+                    last_soc = ev.battery.soc[t - 1]
+                    variability = np.clip(np.random.normal(1.0, 0.2), 0.6, 1.4)
+                    new_soc = np.clip(last_soc * variability, 0.0, 1.0)
+                    ev.battery.force_set_soc(new_soc)
 
     def export_final_kpis(self, model: 'citylearn.agents.base.Agent', filepath="exported_kpis.csv"):
         file_path = os.path.join(self.new_folder_path, filepath)
@@ -1780,17 +1831,31 @@ class CityLearnEnv(Environment, Env):
         else:
             stochastic_power_outage_model = None
 
+
+
+        # ------------------ Chargers ------------------
+
+        # Initialize chargers list
         chargers_list = []
         #Adding chargers to buildings if they exist
         if building_schema.get("chargers", None) is not None:
             for charger_name, charger_config in building_schema["chargers"].items():
+
+                noise_std = charger_config.get('noise_std', 0.0)
+
+                charger_simulation_file = pd.read_csv(
+                    os.path.join(schema['root_directory'], charger_config['charger_simulation'])
+                ).iloc[schema['simulation_start_time_step']:schema['simulation_end_time_step'] + 1].copy()
+
+                charger_simulation = ChargerSimulation(*charger_simulation_file.values.T, noise_std=noise_std)
+
                 charger_type = charger_config['type']
                 charger_module = '.'.join(charger_type.split('.')[0:-1])
                 charger_class_name = charger_type.split('.')[-1]
                 charger_class = getattr(importlib.import_module(charger_module), charger_class_name)
                 charger_attributes = charger_config.get('attributes', {})
                 charger_attributes['episode_tracker'] = episode_tracker
-                charger_object = charger_class(charger_id=charger_name, **charger_attributes, seconds_per_time_step=schema['seconds_per_time_step'], time_step_ratio = building_kwargs['time_step_ratio'])
+                charger_object = charger_class(charger_simulation=charger_simulation, charger_id=charger_name, **charger_attributes, seconds_per_time_step=schema['seconds_per_time_step'], time_step_ratio = building_kwargs['time_step_ratio'])
                 chargers_list.append(charger_object)
 
         washing_machines_list = []
@@ -2015,6 +2080,9 @@ class CityLearnEnv(Environment, Env):
                 if chargers_observations_metadata_helper.get("connected_electric_vehicle_at_charger_soc", False):
                     observation_metadata[f'connected_electric_vehicle_at_charger_{charger_id}_soc'] = True
 
+                if chargers_observations_metadata_helper.get("connected_electric_vehicle_at_charger_battery_capacity", False):
+                    observation_metadata[f'connected_electric_vehicle_at_charger_{charger_id}_battery_capacity'] = True
+
                 #Incoming
                 if chargers_observations_metadata_helper.get("electric_vehicle_charger_incoming_state", False):
                     observation_metadata[
@@ -2050,21 +2118,6 @@ class CityLearnEnv(Environment, Env):
 
     def _load_electric_vehicle(self, electric_vehicle_name: str, schema: dict, electric_vehicle_schema: dict, episode_tracker: EpisodeTracker, time_step_ratio) -> ElectricVehicle:
         """Initializes and returns an electric vehicle model."""
-        # Load energy simulation data for the EV
-
-        file_path = os.path.join(schema['root_directory'], electric_vehicle_schema['energy_simulation'])
-        df = pd.read_csv(
-            os.path.join(schema['root_directory'], electric_vehicle_schema['energy_simulation']), dtype=str
-        )
-
-
-        noise_std = electric_vehicle_schema.get('noise_std', 0.0)
-
-        electric_vehicle_simulation = pd.read_csv(
-            os.path.join(schema['root_directory'], electric_vehicle_schema['energy_simulation'])
-        ).iloc[schema['simulation_start_time_step']:schema['simulation_end_time_step'] + 1].copy()
-
-        electric_vehicle_simulation = ElectricVehicleSimulation(*electric_vehicle_simulation.values.T, noise_std=noise_std)
 
         # Construct the battery object
         capacity = electric_vehicle_schema["battery"]["attributes"]["capacity"]
@@ -2092,7 +2145,6 @@ class CityLearnEnv(Environment, Env):
 
         # Initialize EV
         ev: ElectricVehicle = electric_vehicle_constructor(
-            electric_vehicle_simulation=electric_vehicle_simulation,
             battery=battery,
             name=electric_vehicle_name,
             seconds_per_time_step=schema['seconds_per_time_step'],
