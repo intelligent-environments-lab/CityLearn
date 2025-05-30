@@ -1274,7 +1274,7 @@ class CityLearnEnv(Environment, Env):
 
             for building in self.buildings:
                 for charger in building.electric_vehicle_chargers or []:
-                    sim = charger.charger_simulation
+                    sim : ChargerSimulation = charger.charger_simulation
 
                     curr_id = sim.electric_vehicle_id[t] if t < len(sim.electric_vehicle_id) else ""
                     next_id = sim.electric_vehicle_id[t + 1] if t + 1 < len(sim.electric_vehicle_id) else ""
@@ -1288,9 +1288,9 @@ class CityLearnEnv(Environment, Env):
                         found_in_charger = True
                         # Priority 1: current soc_arrival if incoming at t
                         if is_incoming:
-                            soc = sim.electric_vehicle_soc_arrival[t] # TODO: Work from here
+                            soc = sim.electric_vehicle_estimated_soc_arrival[t] # TODO: Work from here
                         else:
-                            soc = sim.electric_vehicle_soc_arrival[t + 1]
+                            soc = sim.electric_vehicle_estimated_soc_arrival[t + 1]
 
                         if 0 <= soc <= 1:
                             ev.battery.force_set_soc(soc)
