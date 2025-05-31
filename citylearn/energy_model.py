@@ -112,7 +112,6 @@ class ElectricDevice(Device):
     @property
     def electricity_consumption(self) -> np.ndarray:
         r"""Electricity consumption time series [kWh]."""
-
         return self.__electricity_consumption * self.time_step_ratio
 
     @property
@@ -571,7 +570,11 @@ class PV(ElectricDevice):
 
         module_area = self.autosize_config['module_area']
         pv_area = pv_nominal_power*5.263 if module_area is None or math.isnan(module_area) else module_area
-        roof_limit_nominal_power = math.floor(roof_area/pv_area)*pv_nominal_power
+        # Fix bug: roof_area OverflowError: cannot convert float infinity to integer
+        if np.isinf(roof_area):
+            roof_limit_nominal_power = np.inf
+        else:
+            roof_limit_nominal_power = math.floor(roof_area / pv_area) * pv_nominal_power
 
         nominal_power = min(max(target_nominal_power, pv_nominal_power), roof_limit_nominal_power)
         self._autosize_config = {
@@ -1289,8 +1292,8 @@ class WashingMachine(ElectricDevice):
             self.__past_action_values = np.zeros(
                 self.episode_tracker.episode_time_steps, dtype='float32'
             )
-        if self.__electricity_consumption is None:
-            self.__electricity_consumption = np.zeros(
+        if self._ElectricDevice__electricity_consumption is None:
+            self._ElectricDevice__electricity_consumption = np.zeros(
                 self.episode_tracker.episode_time_steps, dtype='float32'
             )
 
@@ -1313,7 +1316,6 @@ class WashingMachine(ElectricDevice):
         start_time_step = self.washing_machine_simulation.wm_start_time_step[self.time_step]
         end__time_step = self.washing_machine_simulation.wm_end_time_step[self.time_step]
 
-        print("self.initiated", self.initiated, action_value, start_time_step, self.time_step, end__time_step)
         if not self.initiated and action_value > 0 and start_time_step != -1 and end__time_step != -1 and start_time_step <= self.time_step <= end__time_step:
             load_profile = self.washing_machine_simulation.load_profile[self.time_step]
             if len(load_profile) == 0:
@@ -1326,8 +1328,8 @@ class WashingMachine(ElectricDevice):
             for offset, load in enumerate(load_profile):
                 step = self.time_step + offset
                 if step < self.episode_tracker.episode_time_steps:
-                    self.__electricity_consumption[step] = load
-                    total_consumption = np.sum(self.__electricity_consumption)
+                    self.update_electricity_consumption(load, enforce_polarity=False)
+                    total_consumption = np.sum(self._ElectricDevice__electricity_consumption)
                     print("Name:", self.name,"| Step:", step, "| Load:", load, "| Total Consumption:", total_consumption)
 
 
@@ -1355,7 +1357,7 @@ class WashingMachine(ElectricDevice):
         super().reset()
         self.__initiated = False
         self.__past_action_values = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32') 
-        self.__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self._ElectricDevice__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
 
     def __str__(self) -> str:
         """Return a text representation of the current state."""

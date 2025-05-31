@@ -279,3 +279,142 @@ def test_charger_battery_integration_with_mocked_efficiency(charger, mock_electr
         assert charger._Charger__electricity_consumption[0] == pytest.approx(mock_battery.energy_balance[0] / mock_battery.efficiency)
     else:
         assert charger._Charger__electricity_consumption[1] == pytest.approx(mock_battery.energy_balance[1] * mock_battery.efficiency)
+
+
+        # --- TESTS FOR UNCOVERED LINES ---
+
+def test_as_dict_with_connected_ev(charger, mock_electric_vehicle):
+    """Test as_dict method with connected EV"""
+    charger.plug_car(mock_electric_vehicle)
+    charger.update_connected_electric_vehicle_soc(0.5)
+    
+    result = charger.as_dict()
+    
+    assert result["Charger Consumption-kWh"] != "-1.00"
+    assert result["Charger Production-kWh"] == "-1.00"
+    assert result["EV SOC-%"] == "0.55"  # Initial SOC from mock
+    assert result["Is EV Connected"] == True
+    assert result["EV Name"] == "TestEV"
+    assert result["Charging Action-kWh"] == "5.0"  # 0.5 * 10kW
+
+def test_as_dict_with_incoming_ev(charger, mock_electric_vehicle):
+    """Test as_dict method with incoming EV"""
+    charger.associate_incoming_car(mock_electric_vehicle)
+    
+    result = charger.as_dict()
+    
+    assert result["Incoming EV Name"] == "TestEV"
+    assert result["Is EV Connected"] == True  # Because we have incoming EV
+    assert result["EV Name"] == "TestEV"
+
+def test_render_simulation_end_data_empty(charger):
+    """Test render_simulation_end_data with no EVs"""
+    result = charger.render_simulation_end_data()
+    
+    assert result['name'] == "TestCharger"
+    assert len(result['charger_data']) == 23  # num_steps is 24-1
+    for data in result['charger_data']:
+        assert data['connected_ev'] is None
+        assert data['incoming_ev'] is None
+        assert data['electricity_consumption'] == 0
+
+def test_render_simulation_end_data_with_ev(charger, mock_electric_vehicle):
+    """Test render_simulation_end_data with connected EV"""
+    charger.plug_car(mock_electric_vehicle)
+    charger.update_connected_electric_vehicle_soc(0.5)
+    
+    result = charger.render_simulation_end_data()
+    
+    assert result['name'] == "TestCharger"
+    assert len(result['charger_data']) == 23
+    # First time step should have EV data
+    assert result['charger_data'][0]['connected_ev'] is not None
+    assert result['charger_data'][0]['connected_ev']['name'] == "TestEV"
+    assert result['charger_data'][0]['electricity_consumption'] != 0
+
+def test_render_simulation_end_data_with_incoming_ev(charger, mock_electric_vehicle):
+    """Test render_simulation_end_data with incoming EV"""
+    charger.associate_incoming_car(mock_electric_vehicle)
+    
+    result = charger.render_simulation_end_data()
+    
+    assert result['name'] == "TestCharger"
+    assert len(result['charger_data']) == 23
+    # Should show incoming EV but no connected EV
+    assert result['charger_data'][0]['connected_ev'] is None
+    assert result['charger_data'][0]['incoming_ev'] is not None
+    assert result['charger_data'][0]['incoming_ev']['name'] == "TestEV"
+
+def test_time_step_ratio_property(charger):
+    """Test time_step_ratio property"""
+    charger.time_step_ratio = 2.0
+    assert charger.time_step_ratio == 2.0
+
+def test_efficiency_setter_valid(charger):
+    """Test efficiency setter with valid values"""
+    charger.efficiency = 0.9
+    assert charger.efficiency == 0.9
+
+def test_efficiency_setter_invalid(charger):
+    """Test efficiency setter with invalid values"""
+    with pytest.raises(AssertionError):
+        charger.efficiency = 0.0  # Must be > 0
+    
+    with pytest.raises(AssertionError):
+        charger.efficiency = 1.1  # Must be <= 1
+
+def test_electricity_consumption_property(charger):
+    """Test electricity_consumption property"""
+    consumption = np.array([1.0, 2.0, 3.0])
+    charger._Charger__electricity_consumption = consumption
+    assert np.array_equal(charger.electricity_consumption, consumption)
+
+def test_past_charging_action_values_kwh_property(charger):
+    """Test past_charging_action_values_kwh property"""
+    actions = np.array([0.5, -0.3, 1.0])
+    charger._Charger__past_charging_action_values_kwh = actions
+    assert np.array_equal(charger.past_charging_action_values_kwh, actions)
+
+def test_past_connected_evs_property(charger, mock_electric_vehicle):
+    """Test past_connected_evs property"""
+    evs = [mock_electric_vehicle, None, mock_electric_vehicle]
+    charger._Charger__past_connected_evs = evs
+    assert charger.past_connected_evs == evs
+
+def test_charge_efficiency_curve_setter(charger):
+    """Test charge_efficiency_curve setter"""
+    curve = [[0, 0.8], [1, 0.9]]
+    charger.charge_efficiency_curve = curve
+    assert charger.charge_efficiency_curve.shape == (2, 2)
+    assert np.array_equal(charger.charge_efficiency_curve[0], np.array([0, 1]))
+    assert np.array_equal(charger.charge_efficiency_curve[1], np.array([0.8, 0.9]))
+
+def test_discharge_efficiency_curve_setter(charger):
+    """Test discharge_efficiency_curve setter"""
+    curve = [[0, 0.7], [1, 0.8]]
+    charger.discharge_efficiency_curve = curve
+    assert charger.discharge_efficiency_curve.shape == (2, 2)
+    assert np.array_equal(charger.discharge_efficiency_curve[0], np.array([0, 1]))
+    assert np.array_equal(charger.discharge_efficiency_curve[1], np.array([0.7, 0.8]))
+
+def test_connected_electric_vehicle_setter(charger, mock_electric_vehicle):
+    """Test connected_electric_vehicle setter"""
+    charger.connected_electric_vehicle = mock_electric_vehicle
+    assert charger.connected_electric_vehicle == mock_electric_vehicle
+
+def test_incoming_electric_vehicle_setter(charger, mock_electric_vehicle):
+    """Test incoming_electric_vehicle setter"""
+    charger.incoming_electric_vehicle = mock_electric_vehicle
+    assert charger.incoming_electric_vehicle == mock_electric_vehicle
+
+def test_algorithm_action_based_time_step_hours_ratio(mock_episode_tracker):
+    """Test algorithm_action_based_time_step_hours_ratio calculation"""
+    # Create a new charger with specific seconds_per_time_step
+    charger = Charger(
+        episode_tracker=mock_episode_tracker,
+        charger_id="TestCharger",
+        seconds_per_time_step=1800  # 30 minutes
+    )
+    
+    # Verify the ratio is calculated correctly (1800 seconds = 0.5 hours)
+    assert charger.algorithm_action_based_time_step_hours_ratio == 0.5

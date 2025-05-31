@@ -964,7 +964,6 @@ class CityLearnEnv(Environment, Env):
         # to see how it can be optimized.
         reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
         reward = self.reward_function.calculate(observations=reward_observations)
-        print("reward", reward)
         self.__rewards.append(reward)
 
         # store episode reward summary
@@ -1316,12 +1315,11 @@ class CityLearnEnv(Environment, Env):
     def render(self):
         """
         Renders the current state of the CityLearn environment, logging data into separate CSV files.
-§        Organizes files by episode number when simulation spans multiple episodes.
+        Organizes files by episode number when simulation spans multiple episodes.
         """
         iso_timestamp = self._get_iso_timestamp()
         os.makedirs(self.new_folder_path, exist_ok=True)
 
-        # Get current episode number (you'll need to track this in your environment)
         episode_num = self.episode_tracker.episode
         
         # Save community data - add episode number to filename

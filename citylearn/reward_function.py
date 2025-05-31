@@ -397,8 +397,6 @@ class Electric_Vehicles_Reward_Function(MARL):
         current_reward = super().calculate(observations)
         reward_list = []
 
-        print("current_reward", current_reward)
-
         for i, o in enumerate(observations):
             ev_info = o.get("electric_vehicles_chargers_dict", {})
             if not ev_info:
@@ -423,7 +421,6 @@ class Electric_Vehicles_Reward_Function(MARL):
         net_energy_before = o.get("net_electricity_consumption", 0)
 
         # Bounding the multiplier to avoid extreme scaling
-        print("abs(current_reward)", current_reward)
         penalty_multiplier = 1.0 / (1.0 + abs(current_reward))
 
         for charger_id, data in ev_chargers.items():
