@@ -112,7 +112,6 @@ class ElectricDevice(Device):
     @property
     def electricity_consumption(self) -> np.ndarray:
         r"""Electricity consumption time series [kWh]."""
-
         return self.__electricity_consumption * self.time_step_ratio
 
     @property
@@ -1293,8 +1292,8 @@ class WashingMachine(ElectricDevice):
             self.__past_action_values = np.zeros(
                 self.episode_tracker.episode_time_steps, dtype='float32'
             )
-        if self.__electricity_consumption is None:
-            self.__electricity_consumption = np.zeros(
+        if self._ElectricDevice__electricity_consumption is None:
+            self._ElectricDevice__electricity_consumption = np.zeros(
                 self.episode_tracker.episode_time_steps, dtype='float32'
             )
 
@@ -1329,8 +1328,8 @@ class WashingMachine(ElectricDevice):
             for offset, load in enumerate(load_profile):
                 step = self.time_step + offset
                 if step < self.episode_tracker.episode_time_steps:
-                    self.__electricity_consumption[step] = load
-                    total_consumption = np.sum(self.__electricity_consumption)
+                    self.update_electricity_consumption(load, enforce_polarity=False)
+                    total_consumption = np.sum(self._ElectricDevice__electricity_consumption)
                     print("Name:", self.name,"| Step:", step, "| Load:", load, "| Total Consumption:", total_consumption)
 
 
@@ -1358,7 +1357,7 @@ class WashingMachine(ElectricDevice):
         super().reset()
         self.__initiated = False
         self.__past_action_values = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32') 
-        self.__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self._ElectricDevice__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
 
     def __str__(self) -> str:
         """Return a text representation of the current state."""

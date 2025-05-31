@@ -459,6 +459,12 @@ class Building(Environment):
         """Electricity consumption of chargers time series, in [kWh]."""
 
         return self.__chargers_electricity_consumption[:self.time_step + 1]
+    
+    @property
+    def washing_machines_electricity_consumption(self) -> np.ndarray:
+        """Electricity consumption of chargers time series, in [kWh]."""
+
+        return self.__washing_machines_electricity_consumption[:self.time_step + 1]
 
     @property
     def energy_from_cooling_device_to_cooling_storage(self) -> np.ndarray:
@@ -1215,6 +1221,7 @@ class Building(Environment):
             'heating_storage_electricity_consumption': self.heating_storage_electricity_consumption[self.time_step],
             'dhw_storage_electricity_consumption': self.dhw_storage_electricity_consumption[self.time_step],
             'electrical_storage_electricity_consumption': self.electrical_storage_electricity_consumption[self.time_step],
+            'washing_machine_electricity_consumption': self.washing_machines_electricity_consumption[self.time_step],
             'cooling_device_efficiency': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
             'heating_device_efficiency': self.heating_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True) \
                 if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
@@ -2372,7 +2379,7 @@ class Building(Environment):
         if self.washing_machines is not None and len(self.washing_machines) != 0:
             for wm in self.washing_machines:
                 building_washing_machines_total_electricity_consumption = \
-                    building_washing_machines_total_electricity_consumption + wm.electricity_consumption[self.time_step - 1]
+                    building_washing_machines_total_electricity_consumption + wm.electricity_consumption[self.time_step]
         else:
             pass
 
