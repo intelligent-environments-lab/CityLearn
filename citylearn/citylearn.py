@@ -1237,7 +1237,7 @@ class CityLearnEnv(Environment, Env):
 
         #This function is here so that, when the new time step is reached, the first thing to do is plug in/out the EVs according to their individual dataset
         #It basicly associates an EV to a Building.Charger
-        self.associate_electric_vehicles_to_chargers()
+        self.associate_chargers_to_electric_vehicles()
 
     def associate_chargers_to_electric_vehicles(self):
         r"""Associate charger to its corresponding electric_vehicle based on charger simulation state."""
@@ -1294,9 +1294,6 @@ class CityLearnEnv(Environment, Env):
 
                         if 0 <= soc <= 1:
                             ev.battery.force_set_soc(soc)
-                        else:
-                            raise AttributeError(f"Invalid SOC value for {ev_id} at time {t}: {soc}")
-                        break  # Don't check more chargers once connected
 
             if not found_in_charger:
                 # Not being connected or incoming in a valid charger — apply SOC drift

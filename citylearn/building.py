@@ -1105,8 +1105,8 @@ class Building(Environment):
                 if self.time_step > 0:
                     last_charged_kwh = charger.past_charging_action_values_kwh[self.time_step - 1]
                     battery_soc = connected_car.battery.soc[self.time_step - 1]
-                    required_soc = connected_car.electric_vehicle_simulation.electric_vehicle_required_soc_departure[self.time_step - 1]
-                    hours_until_departure = connected_car.electric_vehicle_simulation.electric_vehicle_departure_time[
+                    required_soc = charger.charger_simulation.electric_vehicle_required_soc_departure[self.time_step - 1]
+                    hours_until_departure = charger.charger_simulation.electric_vehicle_departure_time[
                         self.time_step - 1]
                 else:
                     last_charged_kwh = None
