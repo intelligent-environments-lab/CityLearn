@@ -1,3 +1,4 @@
+from citylearn.data import ChargerSimulation
 import pytest
 import numpy as np
 from unittest.mock import MagicMock, patch
@@ -13,27 +14,38 @@ def mock_episode_tracker():
     return tracker
 
 @pytest.fixture
+def mock_ev_simulation():
+    simulation = MagicMock(spec=ChargerSimulation)
+    simulation.electric_vehicle_charger_state = np.array([1] * 24)
+    simulation.electric_vehicle_required_soc_departure = np.array([0.8] * 24)
+    simulation.electric_vehicle_estimated_soc_arrival = np.array([0.4] * 24)
+    simulation.electric_vehicle_estimated_arrival_time = np.array([0] * 24)
+    simulation.electric_vehicle_departure_time = np.array([23] * 24)
+    simulation.temperature = np.array([20.0] * 24)
+    simulation.day_type = np.array([1] * 24)
+    return simulation
+
+@pytest.fixture
 def mock_battery():
     battery = MagicMock(spec=Battery)
-    battery.capacity = 100.0  # 100 kWh battery
-    battery.nominal_power = 10.0  # 10 kW nominal power
-    battery.initial_soc = 0.5  # Start at 50% SOC
-    battery.soc = np.array([0.5] * 24)  # SOC time series
-    battery.energy_balance = np.zeros(24)  # Track energy changes
-    battery.efficiency = 0.9  # 90% efficiency
-    battery.round_trip_efficiency = 0.9**0.5  # sqrt(efficiency)
+    battery.capacity = 100.0
+    battery.nominal_power = 10.0
+    battery.initial_soc = 0.5
+    battery.soc = np.array([0.5] * 24)
+    battery.energy_balance = np.zeros(24)
+    battery.efficiency = 0.9
+    battery.round_trip_efficiency = 0.9**0.5
     battery.time_step = 0
     
     def charge_side_effect(energy_kwh):
-        nonlocal battery
         if battery.time_step == 0:
             prev_soc = battery.initial_soc
         else:
             prev_soc = battery.soc[battery.time_step - 1]
         
-        if energy_kwh >= 0:  # Charging
+        if energy_kwh >= 0:
             effective_energy = energy_kwh * battery.round_trip_efficiency
-        else:  # Discharging
+        else:
             effective_energy = energy_kwh / battery.round_trip_efficiency
         
         new_soc = (prev_soc * battery.capacity + effective_energy) / battery.capacity
@@ -46,22 +58,18 @@ def mock_battery():
     return battery
 
 @pytest.fixture
-def mock_electric_vehicle(mock_battery):
+def mock_electric_vehicle(mock_battery, mock_ev_simulation):
     ev = MagicMock(spec=ElectricVehicle)
     ev.battery = mock_battery
     ev.name = "TestEV"
-    ev.electric_vehicle_simulation = MagicMock()
-    ev.electric_vehicle_simulation.electric_vehicle_charger_state = np.array([1] * 24)
-    ev.electric_vehicle_simulation.electric_vehicle_required_soc_departure = np.array([0.8] * 24)
-    ev.electric_vehicle_simulation.electric_vehicle_estimated_soc_arrival = np.array([0.4] * 24)
-    ev.electric_vehicle_simulation.electric_vehicle_estimated_arrival_time = np.array([0] * 24)
-    ev.electric_vehicle_simulation.electric_vehicle_departure_time = np.array([23] * 24)
+    ev.electric_vehicle_simulation = mock_ev_simulation
     return ev
 
 @pytest.fixture
-def charger(mock_episode_tracker):
+def charger(mock_episode_tracker, mock_ev_simulation):
     charger = Charger(
         episode_tracker=mock_episode_tracker,
+        charger_simulation=mock_ev_simulation,
         charger_id="TestCharger",
         max_charging_power=10.0,
         min_charging_power=1.0,
@@ -73,7 +81,7 @@ def charger(mock_episode_tracker):
     charger._Charger__past_charging_action_values_kwh = np.zeros(24)
     charger._Charger__past_connected_evs = [None] * 24
     charger.time_step = 0
-    charger.seconds_per_time_step = 3600  # 1 hour
+    charger.seconds_per_time_step = 3600
     yield charger
     charger.connected_electric_vehicle = None
     charger.incoming_electric_vehicle = None
@@ -169,6 +177,7 @@ def test_efficiency_curve_interpolation():
     
     # Create charger with properly shaped efficiency curves
     charger = Charger(
+        charger_simulation = mock_ev_simulation,
         episode_tracker=episode_tracker,
         charge_efficiency_curve=[[0, 0.83],[0.3, 0.83],[0.7, 0.9],[0.8, 0.9],[1, 0.85]],  # [power_levels], [efficiencies]
         discharge_efficiency_curve=[[0, 0.63],[0.3, 0.23],[0.7, 0.5],[0.8, 0.4],[1, 0.75]]
@@ -411,6 +420,7 @@ def test_algorithm_action_based_time_step_hours_ratio(mock_episode_tracker):
     """Test algorithm_action_based_time_step_hours_ratio calculation"""
     # Create a new charger with specific seconds_per_time_step
     charger = Charger(
+        charger_simulation = mock_ev_simulation,
         episode_tracker=mock_episode_tracker,
         charger_id="TestCharger",
         seconds_per_time_step=1800  # 30 minutes
