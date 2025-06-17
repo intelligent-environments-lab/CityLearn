@@ -134,24 +134,10 @@ class ElectricVehicle(Environment):
         num_steps = self.episode_tracker.episode_time_steps
 
         # Gather simulation attributes (only those that are numpy arrays).
-        simulation_attrs = {
-            key: value
-            for key, value in vars(self.electric_vehicle_simulation).items()
-            if isinstance(value, np.ndarray)
-        }
-
         # Build a list of dictionaries for each time step.
         time_steps = []
         for i in range(num_steps):
-            step_data = {"time_step": i, "simulation": {}, "battery": {}}
-
-            # Add simulation data for this time step.
-            for key, array in simulation_attrs.items():
-                value = array[i]
-                # Convert numpy scalar types to native Python types if needed.
-                if isinstance(value, np.generic):
-                    value = value.item()
-                step_data["simulation"][key] = value
+            step_data = {"time_step": i, "battery": {}}
 
             # Add battery data for this time step.
             soc_value = self.battery.soc[i]
