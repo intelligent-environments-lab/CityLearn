@@ -1693,7 +1693,6 @@ class CityLearnEnv(Environment, Env):
 
                 # Instantiate reward function for this building
                 reward_functions[name] = constructor(None, **r_attr)
-                print(f"[Reward Setup] Building: {name}, Type: {r_type}, Attributes: {r_attr}")
 
             # Combine individual building reward functions into a multi-building one
             reward_function = MultiBuildingRewardFunction(None, reward_functions)
@@ -2166,7 +2165,6 @@ class CityLearnEnv(Environment, Env):
 
         washing_machine_simulation = WashingMachineSimulation(*washing_machine_simulation.values.T)
 
-        print(washing_machine_simulation)
         # Initialize EV
         wm: WashingMachine = WashingMachine(
             washing_machine_simulation=washing_machine_simulation,

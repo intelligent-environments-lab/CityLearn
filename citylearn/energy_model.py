@@ -331,15 +331,15 @@ class HeatPump(ElectricDevice):
         
         safety_factor = self._get_property_value(safety_factor, 1.0)
 
-        cooling_demand = cooling_demand * self.time_step_ratio 
-        heating_demand = heating_demand * self.time_step_ratio 
 
         if cooling_demand is not None:
+            cooling_demand = cooling_demand * self.time_step_ratio 
             cooling_nominal_power = np.array(cooling_demand)/self.get_cop(outdoor_dry_bulb_temperature, False)
         else:
             cooling_nominal_power = 0
         
         if heating_demand is not None:
+            heating_demand = heating_demand * self.time_step_ratio 
             heating_nominal_power = np.array(heating_demand)/self.get_cop(outdoor_dry_bulb_temperature, True)
         else:
             heating_nominal_power = 0
@@ -757,7 +757,6 @@ class StorageDevice(Device):
         e.g. maximum power input/output, capacity.
         """
         energy = energy * self.time_step_ratio
-        #print("view here", energy, self.time_step_ratio)
         energy -= energy_init
         energy_balance = energy/self.round_trip_efficiency if energy >= 0 else energy*self.round_trip_efficiency
         return energy_balance
@@ -1008,7 +1007,6 @@ class Battery(StorageDevice, ElectricDevice):
 
     @time_step_ratio.setter
     def time_step_ratio(self, time_step_ratio: float):
-        #print("battery time_step_ratio", time_step_ratio)
         self.__time_step_ratio = self._get_property_value(time_step_ratio, 1.0)     
 
     def get_metadata(self) -> Mapping[str, Any]:
@@ -1029,9 +1027,7 @@ class Battery(StorageDevice, ElectricDevice):
         energy : float
             Energy to charge if (+) or discharge if (-) in [kWh].
         """
-        #print("1", self.time_step_ratio, energy)
         energy = energy * self.time_step_ratio # Normalise energy with the time_step_ratio
-        #print("2", self.time_step_ratio, energy)
         action_energy = energy
 
         if energy >= 0:
@@ -1304,7 +1300,6 @@ class WashingMachine(ElectricDevice):
             prev_end = self.washing_machine_simulation.wm_end_time_step[self.time_step - 1]
             curr_end = self.washing_machine_simulation.wm_end_time_step[self.time_step]
             if (prev_start != curr_start or prev_end != curr_end) and self.initiated:
-                print("Vou mudar")
                 self.__initiated = False
                 
 
@@ -1329,11 +1324,7 @@ class WashingMachine(ElectricDevice):
                 step = self.time_step + offset
                 if step < self.episode_tracker.episode_time_steps:
                     self.update_electricity_consumption(load, enforce_polarity=False)
-                    total_consumption = np.sum(self._ElectricDevice__electricity_consumption)
-                    print("Name:", self.name,"| Step:", step, "| Load:", load, "| Total Consumption:", total_consumption)
 
-
-            print(f"[Cycle started] Step {self.time_step}, Action: {action_value}")
 
         
     def observations(self) -> Mapping[str, float]:
