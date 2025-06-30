@@ -436,7 +436,6 @@ class EnergySimulation(TimeSeriesData):
 
         # Compute time difference if minutes exist
         if self.minutes is not None and len(self.minutes) > 1:
-            #print(self.hour, self.minutes)
             t0 = self.hour[0] * 60 + self.minutes[0]  # Convert to total minutes
             t1 = self.hour[1] * 60 + self.minutes[1]  # Convert to total minutes
 
