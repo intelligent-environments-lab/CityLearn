@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from PySAM import Pvwattsv8
 from citylearn.base import Environment, EpisodeTracker
-from citylearn.data import DataSet, ZERO_DIVISION_PLACEHOLDER, EnergySimulation
+from citylearn.data import DataSet, ZERO_DIVISION_PLACEHOLDER, EnergySimulation, WashingMachineSimulation
 np.seterr(divide='ignore', invalid='ignore')
 
 LOGGER = logging.getLogger()
@@ -33,7 +33,7 @@ class Device(Environment):
         self.efficiency = efficiency
         self._autosize_config = None
         self.time_step_ratio = self.time_step_ratio if self.time_step_ratio is not None else 1
-
+       
     @property
     def efficiency(self) -> float:
         """Technical efficiency."""
@@ -112,7 +112,6 @@ class ElectricDevice(Device):
     @property
     def electricity_consumption(self) -> np.ndarray:
         r"""Electricity consumption time series [kWh]."""
-
         return self.__electricity_consumption * self.time_step_ratio
 
     @property
@@ -332,15 +331,15 @@ class HeatPump(ElectricDevice):
         
         safety_factor = self._get_property_value(safety_factor, 1.0)
 
-        cooling_demand = cooling_demand * self.time_step_ratio 
-        heating_demand = heating_demand * self.time_step_ratio 
 
         if cooling_demand is not None:
+            cooling_demand = cooling_demand * self.time_step_ratio 
             cooling_nominal_power = np.array(cooling_demand)/self.get_cop(outdoor_dry_bulb_temperature, False)
         else:
             cooling_nominal_power = 0
         
         if heating_demand is not None:
+            heating_demand = heating_demand * self.time_step_ratio 
             heating_nominal_power = np.array(heating_demand)/self.get_cop(outdoor_dry_bulb_temperature, True)
         else:
             heating_nominal_power = 0
@@ -571,7 +570,11 @@ class PV(ElectricDevice):
 
         module_area = self.autosize_config['module_area']
         pv_area = pv_nominal_power*5.263 if module_area is None or math.isnan(module_area) else module_area
-        roof_limit_nominal_power = math.floor(roof_area/pv_area)*pv_nominal_power
+        # Fix bug: roof_area OverflowError: cannot convert float infinity to integer
+        if np.isinf(roof_area):
+            roof_limit_nominal_power = np.inf
+        else:
+            roof_limit_nominal_power = math.floor(roof_area / pv_area) * pv_nominal_power
 
         nominal_power = min(max(target_nominal_power, pv_nominal_power), roof_limit_nominal_power)
         self._autosize_config = {
@@ -612,11 +615,12 @@ class StorageDevice(Device):
         Other keyword arguments used to initialize super class.
     """
     
-    def __init__(self, capacity: float = None, efficiency: Union[float, Tuple[float, float]] = None, loss_coefficient: Union[float, Tuple[float, float]] = None, initial_soc: Union[float, Tuple[float, float]] = None, **kwargs: Any):
+    def __init__(self, capacity: float = None, efficiency: Union[float, Tuple[float, float]] = None, loss_coefficient: Union[float, Tuple[float, float]] = None, initial_soc: Union[float, Tuple[float, float]] = None, time_step_ratio:float = None, **kwargs: Any):
         self.random_seed = kwargs.get('random_seed', None)
         self.capacity = capacity
         self.loss_coefficient = loss_coefficient
         self.initial_soc = initial_soc
+        self.time_step_ratio=time_step_ratio
         super().__init__(efficiency = efficiency, **kwargs)
 
     @property
@@ -624,6 +628,12 @@ class StorageDevice(Device):
         r"""Maximum amount of energy the storage device can store in [kWh]."""
 
         return self.__capacity
+    
+    @property
+    def time_step_ratio(self) -> float:
+        r"""Maximum amount of energy the storage device can store in [kWh]."""
+
+        return self.__time_step_ratio
 
     @property
     def loss_coefficient(self) -> float:
@@ -684,6 +694,13 @@ class StorageDevice(Device):
         initial_soc = self._get_property_value(initial_soc, 0.0)
         assert 0.0 <= initial_soc <= 1.0, 'initial_soc must be >= 0.0 and <= 1.0.'
         self.__initial_soc = initial_soc
+
+    @time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: float):
+        time_step_ratio = self._get_property_value(time_step_ratio, 1.0)
+  
+        self.__time_step_ratio = time_step_ratio    
+
 
     def get_metadata(self) -> Mapping[str, Any]:
         return {
@@ -870,16 +887,17 @@ class Battery(StorageDevice, ElectricDevice):
         Other keyword arguments used to initialize super classes.
     """
     
-    def __init__(self, capacity: float = None, nominal_power: float = None, capacity_loss_coefficient: Union[float, Tuple[float, float]] = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, depth_of_discharge: Union[float, Tuple[float, float]] = None, **kwargs: Any):
+    def __init__(self, capacity: float = None, nominal_power: float = None, capacity_loss_coefficient: Union[float, Tuple[float, float]] = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, depth_of_discharge: Union[float, Tuple[float, float]] = None, time_step_ratio: float = None, **kwargs: Any):
         self._efficiency_history = []
         self._capacity_history = []
         self.random_seed = kwargs.get('random_seed', None)
         self.depth_of_discharge = depth_of_discharge
-        super().__init__(capacity=capacity, nominal_power=nominal_power, **kwargs)
+        super().__init__(capacity=capacity, nominal_power=nominal_power, time_step_ratio = time_step_ratio, **kwargs)
         self._capacity_history = [self.capacity]
         self.capacity_loss_coefficient = capacity_loss_coefficient
         self.power_efficiency_curve = power_efficiency_curve
         self.capacity_power_curve = capacity_power_curve
+        self.time_step_ratio=time_step_ratio
 
     @StorageDevice.efficiency.getter
     def efficiency(self) -> float:
@@ -910,6 +928,12 @@ class Battery(StorageDevice, ElectricDevice):
         """Maximum power of the battery as a function of its current state of charge."""
 
         return self.__capacity_power_curve
+    
+    @property
+    def time_step_ratio(self) -> float:
+        """Maximum power of the battery as a function of its current state of charge."""
+
+        return self.__time_step_ratio
     
     @property
     def depth_of_discharge(self) -> float:
@@ -980,6 +1004,10 @@ class Battery(StorageDevice, ElectricDevice):
     @depth_of_discharge.setter
     def depth_of_discharge(self, depth_of_discharge: float):
         self.__depth_of_discharge = self._get_property_value(depth_of_discharge, 1.0)
+
+    @time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: float):
+        self.__time_step_ratio = self._get_property_value(time_step_ratio, 1.0)     
 
     def get_metadata(self) -> Mapping[str, Any]:
         return {
@@ -1206,3 +1234,159 @@ class Battery(StorageDevice, ElectricDevice):
         super().reset()
         self._efficiency_history = self._efficiency_history[0:1]
         self._capacity_history = self._capacity_history[0:1]
+
+class WashingMachine(ElectricDevice):
+    """Represents a smart washing machine controlled via time-varying load profiles (kWh over time) instead of predefined fixed cycles."""
+
+    def __init__(
+        self,
+        washing_machine_simulation: WashingMachineSimulation = None,
+        name: str = None,
+        **kwargs
+    ):  
+        """Initialize the washing machine with optional simulation data and a unique name."""
+        self.washing_machine_simulation = washing_machine_simulation
+        self.name = name
+        self.__initiated = False
+        super().__init__(**kwargs)
+
+    @property
+    def washing_machine_simulation(self) -> WashingMachineSimulation:
+        """Returns the associated washing machine simulation containing time-based load profiles."""
+        return self.__washing_machine_simulation
+
+    @washing_machine_simulation.setter
+    def washing_machine_simulation(self, washing_machine_simulation: WashingMachineSimulation):
+        """Sets the simulation object for this washing machine."""
+        self.__washing_machine_simulation = washing_machine_simulation    
+
+    @property
+    def name(self) -> str:
+        """Returns the unique identifier or name of the washing machine."""
+        return self.__name
+
+    @name.setter
+    def name(self, name: str):
+        """Sets the unique name of the washing machine."""
+        self.__name = name        
+
+    @property
+    def initiated(self) -> bool:
+        """Indicates whether a washing cycle has been initiated in the current time step."""
+        return self.__initiated
+
+    @property
+    def past_action_values(self) -> np.ndarray:
+        """Returns the history of control actions issued to this washing machine."""
+        return self.__past_action_values
+
+    def next_time_step(self):
+        """Advance the simulation by one time step and update internal state and buffers accordingly."""
+        super().next_time_step()
+
+        if self.__past_action_values is None:
+            self.__past_action_values = np.zeros(
+                self.episode_tracker.episode_time_steps, dtype='float32'
+            )
+        if self._ElectricDevice__electricity_consumption is None:
+            self._ElectricDevice__electricity_consumption = np.zeros(
+                self.episode_tracker.episode_time_steps, dtype='float32'
+            )
+
+        # Reset cycle initiation if the configured cycle boundaries change between steps
+        if self.time_step > 0:
+            prev_start = self.washing_machine_simulation.wm_start_time_step[self.time_step - 1]
+            curr_start = self.washing_machine_simulation.wm_start_time_step[self.time_step]
+            prev_end = self.washing_machine_simulation.wm_end_time_step[self.time_step - 1]
+            curr_end = self.washing_machine_simulation.wm_end_time_step[self.time_step]
+            if (prev_start != curr_start or prev_end != curr_end) and self.initiated:
+                self.__initiated = False
+
+    def start_cycle(self, action_value: float):
+        """Trigger a washing cycle if conditions are met and apply the associated load profile to power consumption."""
+        self.__past_action_values[self.time_step] = action_value
+
+        start_time_step = self.washing_machine_simulation.wm_start_time_step[self.time_step]
+        end__time_step = self.washing_machine_simulation.wm_end_time_step[self.time_step]
+
+        if not self.initiated and action_value > 0 and start_time_step != -1 and end__time_step != -1 and start_time_step <= self.time_step <= end__time_step:
+            load_profile = self.washing_machine_simulation.load_profile[self.time_step]
+            if len(load_profile) == 0:
+                print("No load profile available at this step.")
+                return
+
+            self.__initiated = True
+
+            # Apply load values from the profile to the internal electricity usage
+            for offset, load in enumerate(load_profile):
+                step = self.time_step + offset
+                if step < self.episode_tracker.episode_time_steps:
+                    self.update_electricity_consumption(load, enforce_polarity=False)
+
+    def observations(self) -> Mapping[str, float]:
+        """Return the current observation dictionary including simulation inputs and machine state."""
+        unwanted_keys = []  # Add any keys you want to exclude
+
+        observations = {
+            **{
+                k.lstrip('_'): v[self.time_step]
+                for k, v in vars(self.washing_machine_simulation).items()
+                if isinstance(v, np.ndarray) and k.lstrip('_') not in unwanted_keys
+            },
+            'washing_machine_initiated': float(self.initiated),
+            'washing_machine_action': self.past_action_values[self.time_step] if self.past_action_values is not None else 0.0
+        }
+
+        return observations    
+
+    def reset(self):
+        """Reset the internal state of the washing machine at the beginning of a new episode."""
+        super().reset()
+        self.__initiated = False
+        self.__past_action_values = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32') 
+        self._ElectricDevice__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+
+    def __str__(self) -> str:
+        """Return a human-readable string representation of the washing machine's current state."""
+        return str(self.as_dict())
+
+    def as_dict(self) -> dict:
+        """Return the current state of the washing machine as a dictionary."""
+        return {
+            'name': self.name,
+            'initiated': self.initiated,
+            **self.observations()
+        }
+
+    def render_simulation_end_data(self) -> dict:
+        """Generate structured simulation output data for all time steps."""
+        num_steps = self.episode_tracker.episode_time_steps
+        simulation_attrs = {
+            key: value
+            for key, value in vars(self.washing_machine_simulation).items()
+            if isinstance(value, np.ndarray)
+        }
+
+        time_steps = []
+        for i in range(num_steps):
+            step_data = {
+                "time_step": i,
+                "simulation": {},
+                "status": {
+                    "initiated": self.initiated if i == self.time_step else None,
+                    "action_value": self.past_action_values[i] if self.past_action_values is not None else None
+                }
+            }
+
+            for key, array in simulation_attrs.items():
+                value = array[i]
+                if isinstance(value, np.generic):
+                    value = value.item()
+                step_data["simulation"][key] = value
+
+            time_steps.append(step_data)
+
+        return {
+            "simulation_name": self.name if self.name else "WashingMachineSimulation",
+            "data": time_steps
+        }

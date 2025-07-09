@@ -3,14 +3,15 @@ from typing import List, Dict
 import numpy as np
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.electric_vehicle import ElectricVehicle
+from citylearn.data import ChargerSimulation
 from citylearn.data import ZERO_DIVISION_PLACEHOLDER
 np.seterr(divide='ignore', invalid='ignore')
 
 class Charger(Environment):
     def __init__(
-            self, episode_tracker: EpisodeTracker, charger_id: str = None, efficiency: float = None, max_charging_power: float = None,
+            self, episode_tracker: EpisodeTracker, charger_simulation: ChargerSimulation ,charger_id: str = None, efficiency: float = None, max_charging_power: float = None,
             min_charging_power: float = None, max_discharging_power: float = None,  min_discharging_power: float = None, charge_efficiency_curve: Dict[float, float] = None,
-            discharge_efficiency_curve: Dict[float, float] = None, connected_electric_vehicle: ElectricVehicle = None, incoming_electric_vehicle: ElectricVehicle = None,
+            discharge_efficiency_curve: Dict[float, float] = None, connected_electric_vehicle: ElectricVehicle = None, incoming_electric_vehicle: ElectricVehicle = None, time_step_ratio: int = None,
             **kwargs
     ):
         r"""Initializes the `Electric Vehicle Charger` class with the given attributes.
@@ -48,17 +49,24 @@ class Charger(Environment):
         self.discharge_efficiency_curve = discharge_efficiency_curve
         self.connected_electric_vehicle = connected_electric_vehicle
         self.incoming_electric_vehicle = incoming_electric_vehicle
+        self.charger_simulation = charger_simulation
 
         arg_spec = inspect.getfullargspec(super().__init__)
         kwargs = {
             key: value for (key, value) in kwargs.items()
             if (key in arg_spec.args or (arg_spec.varkw is not None))
         }
+        self.time_step_ratio = time_step_ratio
         seconds_per_time_step = kwargs.get('seconds_per_time_step', 3600)
         self.algorithm_action_based_time_step_hours_ratio = seconds_per_time_step / 3600
-        super().__init__(episode_tracker=episode_tracker
+        super().__init__(episode_tracker=episode_tracker,time_step_ratio=time_step_ratio
                         ,**kwargs)
 
+    @property
+    def charger_simulation(self) -> ChargerSimulation:
+
+        return self.__charger_simulation
+    
     @property
     def charger_id(self) -> str:
         """ID of the charger."""
@@ -137,6 +145,16 @@ class Charger(Environment):
         r"""Electricity consumption time series."""
 
         return self.__electricity_consumption
+    
+    @property
+    def time_step_ratio(self) -> float:
+        r"""Electricity consumption time series."""
+
+        return self.__time_step_ratio
+
+    @charger_simulation.setter
+    def charger_simulation(self, charger_simulation: ChargerSimulation):
+        self.__charger_simulation = charger_simulation
 
     @charger_id.setter
     def charger_id(self, charger_id: str):
@@ -192,6 +210,10 @@ class Charger(Environment):
     def incoming_electric_vehicle(self, electric_vehicle: ElectricVehicle):
         self.__incoming_ev = electric_vehicle
 
+    @time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: float):
+        self.__time_step_ratio = time_step_ratio    
+
     @efficiency.setter
     def efficiency(self, efficiency: float):
         if efficiency is None:
@@ -208,12 +230,8 @@ class Charger(Environment):
         ----------
         electric_vehicle : object
             electric_vehicle instance to be connected to the charger.
-
-        Raises
-        ------
-        ValueError
-            If the charger has reached its maximum connected electric_vehicle' capacity.
         """
+
         if self.connected_electric_vehicle is not None:
             raise ValueError("Charger is already in use.")
         self.connected_electric_vehicle = electric_vehicle
@@ -227,15 +245,9 @@ class Charger(Environment):
         ----------
         electric_vehicle : object
             electric_vehicle instance to be connected to the charger.
-
-        Raises
-        ------
-        ValueError
-            If the charger has reached its maximum associated electric_vehicle' capacity.
         """
-        self.incoming_electric_vehicle = electric_vehicle
 
-    import numpy as np
+        self.incoming_electric_vehicle = electric_vehicle
 
     def get_efficiency(self, power: float, charging: bool) -> float:
         """
@@ -284,18 +296,15 @@ class Charger(Environment):
             efficiency = self.get_efficiency(abs(action_value), charging)  # Charging if action_value > 0
 
 
-            # Convert power (kW) to energy (kWh) for this time step
-            time_step_hours_ratio = self.seconds_per_time_step / 3600  # Convert seconds to fraction of an hour
-
 
             if charging:
                 power = action_value * self.max_charging_power  # Power in kW
-                energy = power * time_step_hours_ratio  # Convert to energy (kWh)
+                energy = power * self.algorithm_action_based_time_step_hours_ratio  # Convert to energy (kWh)
                 energy = max(min(energy, self.max_charging_power), self.min_charging_power)
                 energy_kwh = energy * efficiency  # For charging
             else:
                 power = action_value * self.max_discharging_power  # Power in kW
-                energy = power * time_step_hours_ratio  # Convert to energy (kWh)
+                energy = power * self.algorithm_action_based_time_step_hours_ratio  # Convert to energy (kWh)
                 energy = max(min(energy, -self.min_discharging_power), -self.max_discharging_power)  # For discharging
                 energy_kwh = energy / efficiency
             self.__past_charging_action_values_kwh[self.time_step] = energy
@@ -368,22 +377,22 @@ class Charger(Environment):
         if connected_ev:
             ev_data = {
                 "EV SOC-%": f"{connected_ev.battery.soc[self.time_step]:.2f}",
-                "EV Charger State": connected_ev.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step],
-                "EV Required SOC Departure-%": f"{connected_ev.electric_vehicle_simulation.electric_vehicle_required_soc_departure[self.time_step]}",
-                "EV Estimated SOC Arrival-%": f"{connected_ev.electric_vehicle_simulation.electric_vehicle_estimated_soc_arrival[self.time_step]}",
-                "EV Arrival Time": f"{connected_ev.electric_vehicle_simulation.electric_vehicle_estimated_arrival_time[self.time_step]}",
-                "EV Departure Time": f"{connected_ev.electric_vehicle_simulation.electric_vehicle_departure_time[self.time_step]}",
+                "EV Charger State": self.charger_simulation.electric_vehicle_charger_state[self.time_step],
+                "EV Required SOC Departure-%": f"{self.charger_simulation.electric_vehicle_required_soc_departure[self.time_step]}",
+                "EV Estimated SOC Arrival-%": f"{self.charger_simulation.electric_vehicle_estimated_soc_arrival[self.time_step]}",
+                "EV Arrival Time": f"{self.charger_simulation.electric_vehicle_estimated_arrival_time[self.time_step]}",
+                "EV Departure Time": f"{self.charger_simulation.electric_vehicle_departure_time[self.time_step]}",
                 "Is EV Connected": True,
                 "EV Name": connected_ev.name
             }
         elif incoming_electric_vehicle:
             ev_data = {
                 "EV SOC-%": f"{incoming_electric_vehicle.battery.soc[self.time_step]:.2f}",
-                "EV Charger State": incoming_electric_vehicle.electric_vehicle_simulation.electric_vehicle_charger_state[self.time_step],
-                "EV Required SOC Departure-%": f"{incoming_electric_vehicle.electric_vehicle_simulation.electric_vehicle_required_soc_departure[self.time_step]}",
-                "EV Estimated SOC Arrival-%": f"{incoming_electric_vehicle.electric_vehicle_simulation.electric_vehicle_estimated_soc_arrival[self.time_step]}",
-                "EV Arrival Time": f"{incoming_electric_vehicle.electric_vehicle_simulation.electric_vehicle_estimated_arrival_time[self.time_step]}",
-                "EV Departure Time": f"{incoming_electric_vehicle.electric_vehicle_simulation.electric_vehicle_departure_time[self.time_step]}",
+                "EV Charger State": self.charger_simulation.electric_vehicle_charger_state[self.time_step],
+                "EV Required SOC Departure-%": f"{self.charger_simulation.electric_vehicle_required_soc_departure[self.time_step]}",
+                "EV Estimated SOC Arrival-%": f"{self.charger_simulation.electric_vehicle_estimated_soc_arrival[self.time_step]}",
+                "EV Arrival Time": f"{self.charger_simulation.electric_vehicle_estimated_arrival_time[self.time_step]}",
+                "EV Departure Time": f"{self.charger_simulation.electric_vehicle_departure_time[self.time_step]}",
                 "Is EV Connected": True,
                 "EV Name": incoming_electric_vehicle.name
             }

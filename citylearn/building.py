@@ -8,7 +8,7 @@ from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import CarbonIntensity, EnergySimulation, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
 from citylearn.dynamics import Dynamics, LSTMDynamics
 from citylearn.electric_vehicle_charger import Charger
-from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank
+from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank, WashingMachine
 from citylearn.occupant import LogisticRegressionOccupant, Occupant
 from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
@@ -90,7 +90,7 @@ class Building(Environment):
         maximum_temperature_delta: float = None, observation_space_limit_delta: float = None,
         demand_observation_limit_factor: float = None, simulate_power_outage: bool = None,
         stochastic_power_outage: bool = None, stochastic_power_outage_model: PowerOutage = None,
-        electric_vehicle_chargers: List[Charger] = None, **kwargs: Any
+        electric_vehicle_chargers: List[Charger] = None, time_step_ratio: int = None, washing_machines: List[WashingMachine] = None, **kwargs: Any
     ):
         self.name = name
         self.dhw_storage = dhw_storage
@@ -102,14 +102,16 @@ class Building(Environment):
         self.heating_device = heating_device
         self.__non_shiftable_load_device = ElectricDevice(nominal_power=0.0, **kwargs)
         self.pv = pv
+        self.time_step_ratio=time_step_ratio
         super().__init__(
             seconds_per_time_step=kwargs.get('seconds_per_time_step'),
             random_seed=kwargs.get('random_seed'),
             episode_tracker=episode_tracker,
-            time_step_ratio=kwargs.get('time_step_ratio', 1.0)
+            time_step_ratio=self.time_step_ratio,
         )
         self.algorithm_action_based_time_step_hours_ratio = self.seconds_per_time_step / 3600
         self.stochastic_power_outage_model = stochastic_power_outage_model
+        self.washing_machines = washing_machines
         self.electric_vehicle_chargers = electric_vehicle_chargers
         self.energy_simulation = energy_simulation
         self.weather = weather
@@ -222,6 +224,12 @@ class Building(Environment):
         """Electric Vehicle Chargers associated with the building for charging connected eletric vehicles."""
 
         return self.__electric_vehicle_chargers
+    
+    @property
+    def washing_machines(self) -> List[WashingMachine]:
+        """Electric Vehicle Chargers associated with the building for charging connected eletric vehicles."""
+
+        return self.__washing_machines
 
     @property
     def name(self) -> str:
@@ -339,13 +347,12 @@ class Building(Environment):
         However, if there are chargers and EVs, they need to charge per usual, so that consumption is added
         This is what allows to check if the control mechanism affects the grid balancing scheme for EVs for example.
         """
-
         return self.net_electricity_consumption - np.sum([
             self.cooling_storage_electricity_consumption,
             self.heating_storage_electricity_consumption,
             self.dhw_storage_electricity_consumption,
             self.electrical_storage_electricity_consumption,
-            self.__chargers_electricity_consumption
+            self.chargers_electricity_consumption,
         ], axis=0)
 
     @property
@@ -445,6 +452,18 @@ class Building(Environment):
         """Energy supply from grid and/or `PV` to `electrical_storage` time series, in [kWh]."""
 
         return self.electrical_storage.electricity_consumption[:self.time_step + 1]
+    
+    @property
+    def chargers_electricity_consumption(self) -> np.ndarray:
+        """Electricity consumption of chargers time series, in [kWh]."""
+
+        return self.__chargers_electricity_consumption[:self.time_step + 1]
+    
+    @property
+    def washing_machines_electricity_consumption(self) -> np.ndarray:
+        """Electricity consumption of chargers time series, in [kWh]."""
+
+        return self.__washing_machines_electricity_consumption[:self.time_step + 1]
 
     @property
     def energy_from_cooling_device_to_cooling_storage(self) -> np.ndarray:
@@ -568,21 +587,6 @@ class Building(Environment):
         """Domestic hot water demand to be met by `dhw_device` and/or `dhw_storage` time series, in [kWh]."""
 
         return self.energy_simulation.dhw_demand[0:self.time_step + 1]
-
-    @property
-    def energy_production_from_ev(self) -> np.ndarray:
-        """Summed energy retrieved from EVs for a single building, in [kWh], considering only discharging (negative) values."""
-
-        total_ev_production = np.zeros_like(self.electrical_storage_electricity_consumption)
-
-        for charger in self.electric_vehicle_chargers:
-            # Convert list to NumPy array (ensures compatibility)
-            consumption = np.array(charger.electricity_consumption)
-            # Sum only negative values (discharging), using absolute value
-            discharging = np.where(consumption < 0, np.abs(consumption), 0)
-            total_ev_production += discharging[self.time_step]
-
-        return total_ev_production
 
     @property
     def non_shiftable_load(self) -> np.ndarray:
@@ -736,6 +740,10 @@ class Building(Environment):
     def electric_vehicle_chargers(self, electric_vehicle_chargers: List[Charger]):
         self.__electric_vehicle_chargers = electric_vehicle_chargers
 
+    @washing_machines.setter
+    def washing_machines(self, washing_machines: List[WashingMachine]):
+        self.__washing_machines = washing_machines
+
     @observation_space.setter
     def observation_space(self, observation_space: spaces.Box):
         self.__observation_space = observation_space
@@ -816,6 +824,19 @@ class Building(Environment):
         self.non_shiftable_load_device.episode_tracker = self.episode_tracker
         self.pv.episode_tracker = self.episode_tracker
 
+    @Environment.time_step_ratio.setter
+    def time_step_ratio(self, time_step_ratio: int):
+        Environment.time_step_ratio.fset(self, time_step_ratio)
+        self.cooling_device.time_step_ratio = self.time_step_ratio
+        self.heating_device.time_step_ratio = self.time_step_ratio
+        self.dhw_device.time_step_ratio = self.time_step_ratio
+        self.cooling_storage.time_step_ratio = self.time_step_ratio
+        self.heating_storage.time_step_ratio = self.time_step_ratio
+        self.dhw_storage.time_step_ratio = self.time_step_ratio
+        self.electrical_storage.time_step_ratio = self.time_step_ratio
+        self.non_shiftable_load_device.time_step_ratio = self.time_step_ratio
+        self.pv.time_step_ratio = self.time_step_ratio    
+
     def get_metadata(self) -> Mapping[str, Any]:
         n_years = max(1, (self.episode_tracker.episode_time_steps * self.seconds_per_time_step) / (8760 * 3600))
         return {
@@ -883,6 +904,8 @@ class Building(Environment):
 
         observations = self.update_ev_charger_observations(observations, valid_observations, self.electric_vehicle_chargers)
 
+        observations = self.update_washing_machine_observations(observations, valid_observations, self.washing_machines)
+
         unknown_observations = set(observations.keys()).difference(set(valid_observations))
         assert len(unknown_observations) == 0, f'Unknown observations: {unknown_observations}'
 
@@ -896,7 +919,6 @@ class Building(Environment):
                 value = observations[k]
                 lower = non_periodic_low_limit[k]
                 upper = non_periodic_high_limit[k]
-
                 if not lower <= value <= upper:
                     report = {
                         'Building': self.name,
@@ -947,96 +969,122 @@ class Building(Environment):
 
     def update_ev_charger_observations(self, observations, valid_observations, ev_chargers):
         """
-        Update the observations for each electric vehicle charger.
+        Update the observations for each electric vehicle charger using charger simulation data.
 
         Parameters:
-            observations (dict): The dictionary to update with observation values.
-            valid_observations (set or list): Collection of valid observation keys.
-            ev_chargers (iterable): List of charger objects. Each charger is expected to have:
-                - charger_id attribute
-                - connected_electric_vehicle attribute (object or None)
-                - incoming_electric_vehicle attribute (object or None)
-                  Both EV objects should implement an observations() method that returns a dictionary.
+            observations (dict): Dictionary to populate with observation values.
+            valid_observations (set or list): Allowed observation keys.
+            ev_chargers (iterable): List of charger objects, each with:
+                - charger_id
+                - charger_simulation (ChargerSchedule)
         """
+        
         for charger in ev_chargers:
             charger_id = charger.charger_id
+            sim = charger.charger_simulation
+            t = self.time_step
 
-            # Keys for charger states
+            # Keys
             connected_state_key = f'electric_vehicle_charger_{charger_id}_connected_state'
             incoming_state_key = f'electric_vehicle_charger_{charger_id}_incoming_state'
+            departure_key = f'connected_electric_vehicle_at_charger_{charger_id}_departure_time'
+            req_soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_required_soc_departure'
+            soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_soc'
+            capacity_key = f'connected_electric_vehicle_at_charger_{charger_id}_battery_capacity'
+            arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_arrival_time'
+            soc_arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_soc_arrival'
+
+            # Get current state
+            state = sim.electric_vehicle_charger_state[t] if t < len(sim.electric_vehicle_charger_state) else np.nan
 
             # ---------------------------
             # Update Connected EV Section
             # ---------------------------
-            if charger.connected_electric_vehicle:
+            if charger.connected_electric_vehicle and state == 1:
                 if connected_state_key in valid_observations:
                     observations[connected_state_key] = 1
-
-                connected_obs = charger.connected_electric_vehicle.observations()
-                # Update departure time if valid
-                departure_key = f'connected_electric_vehicle_at_charger_{charger_id}_departure_time'
                 if departure_key in valid_observations:
-                    observations[departure_key] = next((value for key, value in connected_obs.items() if "_departure_time" in key),-1)
-
-                # Update required SOC at departure if valid
-                req_soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_required_soc_departure'
+                    observations[departure_key] = int(sim.electric_vehicle_departure_time[t])
                 if req_soc_key in valid_observations:
-                    observations[req_soc_key] = next((value for key, value in connected_obs.items() if "_required_soc_departure" in key),-0.1)
-
-                # Update current state of charge (soc) if valid
-                soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_soc'
+                    observations[req_soc_key] = float(sim.electric_vehicle_required_soc_departure[t])
                 if soc_key in valid_observations:
-                    observations[soc_key] = next((value for key, value in connected_obs.items() if key.endswith("soc")), -0.1)
+                    observations[soc_key] = charger.connected_electric_vehicle.battery.soc[t]
+                if capacity_key in valid_observations:
+                    observations[capacity_key] = float(sim.electric_vehicle_battery_capacity_kwh[t])
             else:
                 if connected_state_key in valid_observations:
                     observations[connected_state_key] = 0
-                # Use default values when no connected EV is present
-                departure_key = f'connected_electric_vehicle_at_charger_{charger_id}_departure_time'
                 if departure_key in valid_observations:
                     observations[departure_key] = -1
-
-                req_soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_required_soc_departure'
                 if req_soc_key in valid_observations:
                     observations[req_soc_key] = -0.1
-
-                soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_soc'
                 if soc_key in valid_observations:
                     observations[soc_key] = -0.1
+                if capacity_key in valid_observations:
+                    observations[capacity_key] = -1.0
 
             # ---------------------------
             # Update Incoming EV Section
             # ---------------------------
-            if charger.incoming_electric_vehicle:
+            if charger.incoming_electric_vehicle and state == 2:
                 if incoming_state_key in valid_observations:
                     observations[incoming_state_key] = 1
-
-                incoming_obs = charger.incoming_electric_vehicle.observations()
-                # Update estimated arrival time if valid
-                arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_arrival_time'
                 if arrival_key in valid_observations:
-                    observations[arrival_key] = next((value for key, value in incoming_obs.items() if "_estimated_arrival_time" in key),-1)
-
-
-                # Update estimated SOC at arrival if valid
-                soc_arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_soc_arrival'
+                    observations[arrival_key] = int(sim.electric_vehicle_estimated_arrival_time[t])
                 if soc_arrival_key in valid_observations:
-                    observations[soc_arrival_key] = next((value for key, value in incoming_obs.items() if "_estimated_soc_arrival" in key),-0.1)
+                    observations[soc_arrival_key] = float(sim.electric_vehicle_estimated_soc_arrival[t])
             else:
                 if incoming_state_key in valid_observations:
                     observations[incoming_state_key] = 0
-
-                arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_arrival_time'
                 if arrival_key in valid_observations:
                     observations[arrival_key] = -1
-
-                soc_arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_soc_arrival'
                 if soc_arrival_key in valid_observations:
                     observations[soc_arrival_key] = -0.1
 
         return observations
+                
+    
+    def update_washing_machine_observations(self, observations, valid_observations, washing_machines):
+        """
+        Update the observations for each washing machine.
+
+        Parameters:
+            observations (dict): The dictionary to update with observation values.
+            valid_observations (set or list): Collection of valid observation keys.
+            washing_machines (iterable): List of washing machine objects. Each machine is expected to have:
+                - name attribute
+                - washing_machine_simulation attribute with wm_start_time_step and wm_end_time_step arrays
+                - observations() method that returns a dictionary
+        """
+        for wm in washing_machines:
+            wm_name = wm.name
+
+            # Get all observations from the washing machine
+            wm_obs = wm.observations()
+            
+            # Update start time if valid
+            start_key = f'{wm_name}_start_time_step'
+            if start_key in valid_observations:
+                observations[start_key] = next(
+                    (value for key, value in wm_obs.items() if "_start_time_step" in key),
+                    -1  # default value if not found
+                )
+
+            # Update end time if valid
+            end_key = f'{wm_name}_end_time_step'
+            if end_key in valid_observations:
+                observations[end_key] = next(
+                    (value for key, value in wm_obs.items() if "_end_time_step" in key),
+                    -1  # default value if not found
+                )
+        return observations
+
+
+
 
     def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
         electric_vehicle_chargers_dict = {}
+        washing_machines_dict = {}
 
         for charger in self.electric_vehicle_chargers:
             charger_id = charger.charger_id
@@ -1047,8 +1095,8 @@ class Building(Environment):
                 if self.time_step > 0:
                     last_charged_kwh = charger.past_charging_action_values_kwh[self.time_step - 1]
                     battery_soc = connected_car.battery.soc[self.time_step - 1]
-                    required_soc = connected_car.electric_vehicle_simulation.electric_vehicle_required_soc_departure[self.time_step - 1]
-                    hours_until_departure = connected_car.electric_vehicle_simulation.electric_vehicle_departure_time[
+                    required_soc = charger.charger_simulation.electric_vehicle_required_soc_departure[self.time_step - 1]
+                    hours_until_departure = charger.charger_simulation.electric_vehicle_departure_time[
                         self.time_step - 1]
                 else:
                     last_charged_kwh = None
@@ -1091,6 +1139,24 @@ class Building(Environment):
                     "max_discharging_power": charger.max_discharging_power,
                 }
 
+        for wm in self.washing_machines:
+            washing_machine_name = wm.name
+                # Time-safe access for last charging action
+            if self.time_step > 0:
+                    start_time_step = wm.washing_machine_simulation.wm_start_time_step[self.time_step - 1]
+                    end_time_step =  wm.washing_machine_simulation.wm_end_time_step[self.time_step - 1]
+                    load_profile =  wm.washing_machine_simulation.load_profile[self.time_step - 1]
+            else:
+                    start_time_step = wm.washing_machine_simulation.wm_start_time_step[self.time_step]
+                    end_time_step =  wm.washing_machine_simulation.wm_end_time_step[self.time_step]
+                    load_profile =  wm.washing_machine_simulation.load_profile[self.time_step]
+
+            washing_machines_dict[washing_machine_name] = {
+                    "wm_start_time_step": start_time_step,
+                    "wm_end_time_step": end_time_step,
+                    "load_profile": load_profile,
+            }
+
         return {
             **{
                 k.lstrip('_'): self.energy_simulation.__getattr__(k.lstrip('_'))[self.time_step] 
@@ -1126,6 +1192,7 @@ class Building(Environment):
             'heating_storage_electricity_consumption': self.heating_storage_electricity_consumption[self.time_step],
             'dhw_storage_electricity_consumption': self.dhw_storage_electricity_consumption[self.time_step],
             'electrical_storage_electricity_consumption': self.electrical_storage_electricity_consumption[self.time_step],
+            'washing_machine_electricity_consumption': self.washing_machines_electricity_consumption[self.time_step],
             'cooling_device_efficiency': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
             'heating_device_efficiency': self.heating_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True) \
                 if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
@@ -1138,7 +1205,8 @@ class Building(Environment):
             'comfort_band': self.energy_simulation.comfort_band[self.time_step],
             'occupant_count': self.energy_simulation.occupant_count[self.time_step],
             'power_outage': self.__power_outage_signal[self.time_step],
-            'electric_vehicles_chargers_dict': electric_vehicle_chargers_dict
+            'electric_vehicles_chargers_dict': electric_vehicle_chargers_dict,
+            'washing_machines_dict': washing_machines_dict,
         }
     
     @staticmethod
@@ -1154,14 +1222,15 @@ class Building(Environment):
         return {
             'hour': range(1, 25),
             'day_type': range(1, 8),
-            'month': range(1, 13)
+            'month': range(1, 13),
+            'minutes': range(1, 61)
         }
 
     def apply_actions(self,
         cooling_or_heating_device_action: float = None,
         cooling_device_action: float = None, heating_device_action: float = None,
         cooling_storage_action: float = None, heating_storage_action: float = None,
-        dhw_storage_action: float = None, electrical_storage_action: float = None,
+        dhw_storage_action: float = None, electrical_storage_action: float = None, washing_machine_actions: dict = None,
         electric_vehicle_storage_actions: dict = None,
     ):
         r"""Update cooling and heating demand for next timestep and charge/discharge storage devices.
@@ -1246,6 +1315,18 @@ class Building(Environment):
                         electric_vehicle_priority_list.append(action_key)
             priority_list = priority_list + electric_vehicle_priority_list  # the priority lists are merged
 
+        if washing_machine_actions is not None:
+            washing_machine_priority_list = []
+            for washing_machine_name, action in washing_machine_actions.items():
+                action_key = f'{washing_machine_name}'
+                if action_key not in self.active_actions:
+                    raise ValueError("This action should not be applied. Verify")
+                for wm in self.washing_machines:
+                    if wm.name == washing_machine_name:
+                        actions[action_key] = (wm.start_cycle, (action,))
+                        washing_machine_priority_list.append(action_key)
+            priority_list = priority_list + washing_machine_priority_list
+
         if electrical_storage_action < 0.0:
             key = 'electrical_storage'
             priority_list.remove(key)
@@ -1275,7 +1356,7 @@ class Building(Environment):
 
             except NotImplementedError:
                 pass
-
+        
         self.update_variables()
 
     def update_cooling_demand(self, action: float):
@@ -1617,7 +1698,19 @@ class Building(Environment):
                                   'electric_vehicle_soc']):
                             low_limit[key] = -0.1
                             high_limit[key] = 1.0
+                        elif any(value in key for value in [f'connected_electric_vehicle_at_charger_{charger.charger_id}_battery_capacity']):
+                            low_limit[key] = -1
+                            high_limit[key] = 100
 
+            elif 'washing_machine' in key:
+                if self.washing_machines is not None:
+                    for washing_machine in self.washing_machines:
+                        if key == f'{washing_machine.name}_start_time_step':
+                            low_limit[key] = -1
+                            high_limit[key] = 24
+                        elif f'{washing_machine.name}_end_time_step' in key:
+                            low_limit[key] = -1
+                            high_limit[key] = 24
             elif key in ['dhw_device_efficiency']:
                 if isinstance(self.dhw_device, HeatPump):
                     cop = self.dhw_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=True)
@@ -1790,6 +1883,13 @@ class Building(Environment):
                             discharging_limit = 0 if c.max_discharging_power == 0 else -1
                             high_limit.append(1.0)  # For discharging limit
                             low_limit.append(discharging_limit)  # For charging limit
+            
+            elif 'washing_machine' in key:
+                if(self.washing_machines is not None):
+                    for wm in self.washing_machines:
+                        if key == f'{wm.name}':
+                            low_limit.append(0.0)
+                            high_limit.append(1.0)                
 
             elif 'storage' in key:
                 if key == 'electrical_storage':
@@ -2092,9 +2192,14 @@ class Building(Environment):
         self.electrical_storage.next_time_step()
         self.pv.next_time_step()
 
+
         if self.electric_vehicle_chargers is not None:
             for c in self.electric_vehicle_chargers:
                 c.next_time_step()
+
+        if self.washing_machines is not None and len(self.washing_machines) != 0:
+            for wm in self.washing_machines:
+                wm.next_time_step()        
 
         super().next_time_step()
 
@@ -2119,6 +2224,10 @@ class Building(Environment):
         else:
             pass
 
+        if self.washing_machines is not None and len(self.washing_machines) != 0:
+            for wm in self.washing_machines:
+                wm.reset()      
+
         # variable reset
         self.reset_dynamic_variables()
         self.reset_data_sets()
@@ -2132,6 +2241,7 @@ class Building(Environment):
         self.__net_electricity_consumption_cost = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__power_outage_signal = self.reset_power_outage_signal()
         self.__chargers_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.__washing_machines_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
 
         self.update_variables()
 
@@ -2238,6 +2348,17 @@ class Building(Environment):
 
         self.__chargers_electricity_consumption[self.time_step] = building_chargers_total_electricity_consumption
 
+        building_washing_machines_total_electricity_consumption = 0
+
+        if self.washing_machines is not None and len(self.washing_machines) != 0:
+            for wm in self.washing_machines:
+                building_washing_machines_total_electricity_consumption = \
+                    building_washing_machines_total_electricity_consumption + wm.electricity_consumption[self.time_step]
+        else:
+            pass
+
+        self.__washing_machines_electricity_consumption[self.time_step] = building_washing_machines_total_electricity_consumption
+
         # net electricity consumption
         net_electricity_consumption = 0.0
 
@@ -2248,7 +2369,8 @@ class Building(Environment):
                                                 + self.non_shiftable_load_device.electricity_consumption[self.time_step] \
                                                     + self.electrical_storage.electricity_consumption[self.time_step] \
                                                         + self.solar_generation[self.time_step] \
-                                                            + self.__chargers_electricity_consumption[self.time_step]
+                                                            + self.__chargers_electricity_consumption[self.time_step] \
+                                                                + self.__washing_machines_electricity_consumption[self.time_step]
         else:
             pass
 
@@ -2275,7 +2397,6 @@ class Building(Environment):
             "Non-shiftable Load-kWh": f"{self.non_shiftable_load[self.time_step]}",
             "Non-shiftable Load Electricity Consumption-kWh": f"{self.non_shiftable_load_electricity_consumption[self.time_step]}",
             "Energy Production from PV-kWh": f"{self.solar_generation[self.time_step]}",
-            "Energy Production From EV-kWh": f"{self.energy_production_from_ev[self.time_step]}",
         }
 
     def render_simulation_end_data(self) -> dict:

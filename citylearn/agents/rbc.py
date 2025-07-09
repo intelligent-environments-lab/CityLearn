@@ -470,6 +470,16 @@ class BasicElectricVehicleRBC_ReferenceController(BasicRBC): #change the name
                         value = 1
                         action_map[n][hour] = value
 
+                elif "dhw_storage" in n:
+                    for hour in Building.get_periodic_observation_metadata()['hour']:
+                        value = 1
+                        action_map[n][hour] = value
+
+                elif "washing_machine" in n:
+                    for hour in Building.get_periodic_observation_metadata()['hour']:
+                        value = 1
+                        action_map[n][hour] = value        
+
                 else:
                     raise ValueError(f'Unknown action name: {n}')
 
