@@ -347,7 +347,6 @@ class Building(Environment):
         However, if there are chargers and EVs, they need to charge per usual, so that consumption is added
         This is what allows to check if the control mechanism affects the grid balancing scheme for EVs for example.
         """
-        # PROBLEMA AQUI
         return self.net_electricity_consumption - np.sum([
             self.cooling_storage_electricity_consumption,
             self.heating_storage_electricity_consumption,
@@ -588,21 +587,6 @@ class Building(Environment):
         """Domestic hot water demand to be met by `dhw_device` and/or `dhw_storage` time series, in [kWh]."""
 
         return self.energy_simulation.dhw_demand[0:self.time_step + 1]
-
-    @property
-    def energy_production_from_ev(self) -> np.ndarray:
-        """Summed energy retrieved from EVs for a single building, in [kWh], considering only discharging (negative) values."""
-
-        total_ev_production = np.zeros_like(self.electrical_storage_electricity_consumption)
-
-        for charger in self.electric_vehicle_chargers:
-            # Convert list to NumPy array (ensures compatibility)
-            consumption = np.array(charger.electricity_consumption)
-            # Sum only negative values (discharging), using absolute value
-            discharging = np.where(consumption < 0, np.abs(consumption), 0)
-            total_ev_production += discharging[self.time_step]
-
-        return total_ev_production
 
     @property
     def non_shiftable_load(self) -> np.ndarray:
@@ -2413,7 +2397,6 @@ class Building(Environment):
             "Non-shiftable Load-kWh": f"{self.non_shiftable_load[self.time_step]}",
             "Non-shiftable Load Electricity Consumption-kWh": f"{self.non_shiftable_load_electricity_consumption[self.time_step]}",
             "Energy Production from PV-kWh": f"{self.solar_generation[self.time_step]}",
-            "Energy Production From EV-kWh": f"{self.energy_production_from_ev[self.time_step]}",
         }
 
     def render_simulation_end_data(self) -> dict:

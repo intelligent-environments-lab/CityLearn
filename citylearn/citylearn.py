@@ -785,20 +785,6 @@ class CityLearnEnv(Environment, Env):
         return pd.DataFrame([b.solar_generation for b in self.buildings]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def energy_production_from_ev(self) -> np.ndarray:
-        """Summed energy retrieved from all connected EVs across buildings, in [kWh]."""
-
-        total_ev_production = np.zeros_like(self.buildings[0].electrical_storage_electricity_consumption)
-
-        for building in self.buildings:
-            for charger in building.ev_chargers:
-                connected_ev = charger.connected_electric_vehicle
-                if connected_ev:
-                    total_ev_production += building.electrical_storage_electricity_consumption
-
-        return total_ev_production
-
-    @property
     def power_outage(self) -> np.ndarray:
         """Time series of number of buildings experiencing power outage."""
 
@@ -1031,7 +1017,7 @@ class CityLearnEnv(Environment, Env):
                     charger_id = k.replace("electric_vehicle_storage_", "")
                     electric_vehicle_actions[charger_id] = action
                 elif 'washing_machine' in k:
-                    # Collect EV actions separately
+                    # Collect Washing Machine actions separately
                     washing_machine_actions[k] = action
                 else:
                     action_dict[f'{k}_action'] = action
@@ -2148,25 +2134,44 @@ class CityLearnEnv(Environment, Env):
 
         return ev
     
-    def _load_washing_machine(self, washing_machine_name: str, schema: dict, washing_machine_schema: dict, episode_tracker: EpisodeTracker) -> WashingMachine:
-        """Initializes and returns an electric vehicle model."""
-        # Load energy simulation data for the EV
+    def _load_washing_machine(
+        self,
+        washing_machine_name: str,
+        schema: dict,
+        washing_machine_schema: dict,
+        episode_tracker: EpisodeTracker
+    ) -> WashingMachine:
+        """
+        Load simulation data and initialize a WashingMachine instance.
 
+        Parameters
+        ----------
+        washing_machine_name : str
+            Unique identifier for the washing machine.
+        schema : dict
+            Global schema containing configuration for simulation, such as time step size and paths.
+        washing_machine_schema : dict
+            Sub-schema specific to washing machine setup (e.g., file paths for energy profiles).
+        episode_tracker : EpisodeTracker
+            Object that tracks simulation episode and time step data.
+
+        Returns
+        -------
+        WashingMachine
+            An initialized WashingMachine object using the provided simulation data.
+        """
         file_path = os.path.join(schema['root_directory'], washing_machine_schema['washing_machine_energy_simulation'])
-        df = pd.read_csv(
-            os.path.join(schema['root_directory'], washing_machine_schema['washing_machine_energy_simulation']), dtype=str
-        )
 
-        # Load only expected columns
-        washing_machine_simulation = pd.read_csv(
-            os.path.join(schema['root_directory'], washing_machine_schema['washing_machine_energy_simulation'])
-        ).iloc[schema['simulation_start_time_step']:schema['simulation_end_time_step'] + 1].copy()
+        # Load CSV file and slice it to the relevant simulation range
+        washing_machine_simulation = pd.read_csv(file_path).iloc[
+            schema['simulation_start_time_step']:schema['simulation_end_time_step'] + 1
+        ].copy()
 
-
+        # Convert DataFrame into a WashingMachineSimulation object
         washing_machine_simulation = WashingMachineSimulation(*washing_machine_simulation.values.T)
 
-        # Initialize EV
-        wm: WashingMachine = WashingMachine(
+        # Create and return the WashingMachine object
+        wm = WashingMachine(
             washing_machine_simulation=washing_machine_simulation,
             episode_tracker=episode_tracker,
             name=washing_machine_name,
@@ -2175,16 +2180,26 @@ class CityLearnEnv(Environment, Env):
         )
 
         return wm
-    
+        
     def __str__(self) -> str:
         """
-        Return a text representation of the current state.
+        Return a string representation of the current simulation state.
+
+        Useful for logging or quick inspection of internal values.
         """
         return str(self.as_dict())
 
     def as_dict(self) -> dict:
         """
-        Return a dictionary representation of the current state for use in rendering or logging.
+        Convert the current simulation state to a dictionary.
+
+        This includes key performance indicators such as energy usage, emissions, 
+        and electricity pricing at the current time step.
+
+        Returns
+        -------
+        dict
+            Dictionary with energy and environmental metrics for the current step.
         """
         return {
             "Net Electricity Consumption-kWh": self.net_electricity_consumption[self.time_step],
@@ -2194,20 +2209,6 @@ class CityLearnEnv(Environment, Env):
             "CO2-kg_co2": self.net_electricity_consumption_emission[self.time_step],
             "Price-$": self.net_electricity_consumption_cost[self.time_step],
         }
-
-    def render_simulation_end_data(self) -> dict:
-        """
-        Return a dictionary containing all simulation data across all time steps.
-        The returned dictionary is structured with a general simulation name and, for each time step,
-        a dictionary with the simulation data and battery data.
-        Returns
-        -------
-        result : dict
-        A JSON-like dictionary with the simulation name and per-time-step data.
-        """
-        # Determine the number of time steps.
-        num_steps = self.episode_tracker.episode_time_steps
-
 class Error(Exception):
     """Base class for other exceptions."""
 
