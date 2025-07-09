@@ -1236,54 +1236,54 @@ class Battery(StorageDevice, ElectricDevice):
         self._capacity_history = self._capacity_history[0:1]
 
 class WashingMachine(ElectricDevice):
-    """Washing machine class using a load profile (kWh vs. time) instead of fixed cycles."""
+    """Represents a smart washing machine controlled via time-varying load profiles (kWh over time) instead of predefined fixed cycles."""
 
     def __init__(
         self,
         washing_machine_simulation: WashingMachineSimulation = None,
         name: str = None,
         **kwargs
-        
     ):  
+        """Initialize the washing machine with optional simulation data and a unique name."""
         self.washing_machine_simulation = washing_machine_simulation
         self.name = name
         self.__initiated = False
-        
-
         super().__init__(**kwargs)
 
     @property
     def washing_machine_simulation(self) -> WashingMachineSimulation:
-        """The washing machine simulation data."""
+        """Returns the associated washing machine simulation containing time-based load profiles."""
         return self.__washing_machine_simulation
-    
+
     @washing_machine_simulation.setter
     def washing_machine_simulation(self, washing_machine_simulation: WashingMachineSimulation):
+        """Sets the simulation object for this washing machine."""
         self.__washing_machine_simulation = washing_machine_simulation    
-    
+
     @property
     def name(self) -> str:
-        """Unique washing machine name."""
+        """Returns the unique identifier or name of the washing machine."""
         return self.__name
-    
+
     @name.setter
     def name(self, name: str):
+        """Sets the unique name of the washing machine."""
         self.__name = name        
 
     @property
     def initiated(self) -> bool:
-        """Whether the washing machine cycle has been initiated."""
+        """Indicates whether a washing cycle has been initiated in the current time step."""
         return self.__initiated
-    
+
     @property
     def past_action_values(self) -> np.ndarray:
-        """History of actions given to the washing machine."""
+        """Returns the history of control actions issued to this washing machine."""
         return self.__past_action_values
 
     def next_time_step(self):
+        """Advance the simulation by one time step and update internal state and buffers accordingly."""
         super().next_time_step()
 
-        # Initialize arrays on first step
         if self.__past_action_values is None:
             self.__past_action_values = np.zeros(
                 self.episode_tracker.episode_time_steps, dtype='float32'
@@ -1293,7 +1293,7 @@ class WashingMachine(ElectricDevice):
                 self.episode_tracker.episode_time_steps, dtype='float32'
             )
 
-        # Reset initiation flag if washing machine cycle changed
+        # Reset cycle initiation if the configured cycle boundaries change between steps
         if self.time_step > 0:
             prev_start = self.washing_machine_simulation.wm_start_time_step[self.time_step - 1]
             curr_start = self.washing_machine_simulation.wm_start_time_step[self.time_step]
@@ -1301,11 +1301,9 @@ class WashingMachine(ElectricDevice):
             curr_end = self.washing_machine_simulation.wm_end_time_step[self.time_step]
             if (prev_start != curr_start or prev_end != curr_end) and self.initiated:
                 self.__initiated = False
-                
-
 
     def start_cycle(self, action_value: float):
-        """Start a washing cycle and populate load profile if allowed."""
+        """Trigger a washing cycle if conditions are met and apply the associated load profile to power consumption."""
         self.__past_action_values[self.time_step] = action_value
 
         start_time_step = self.washing_machine_simulation.wm_start_time_step[self.time_step]
@@ -1319,18 +1317,16 @@ class WashingMachine(ElectricDevice):
 
             self.__initiated = True
 
-            # Apply load profile to electricity consumption array
+            # Apply load values from the profile to the internal electricity usage
             for offset, load in enumerate(load_profile):
                 step = self.time_step + offset
                 if step < self.episode_tracker.episode_time_steps:
                     self.update_electricity_consumption(load, enforce_polarity=False)
 
-
-        
     def observations(self) -> Mapping[str, float]:
-        """Observations at current time step."""
+        """Return the current observation dictionary including simulation inputs and machine state."""
         unwanted_keys = []  # Add any keys you want to exclude
-        
+
         observations = {
             **{
                 k.lstrip('_'): v[self.time_step]
@@ -1342,20 +1338,20 @@ class WashingMachine(ElectricDevice):
         }
 
         return observations    
-        
+
     def reset(self):
-        """Reset the Washing Machine to its initial state."""
+        """Reset the internal state of the washing machine at the beginning of a new episode."""
         super().reset()
         self.__initiated = False
         self.__past_action_values = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32') 
         self._ElectricDevice__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
 
     def __str__(self) -> str:
-        """Return a text representation of the current state."""
+        """Return a human-readable string representation of the washing machine's current state."""
         return str(self.as_dict())
 
     def as_dict(self) -> dict:
-        """Return a dictionary representation of the current state."""
+        """Return the current state of the washing machine as a dictionary."""
         return {
             'name': self.name,
             'initiated': self.initiated,
@@ -1363,7 +1359,7 @@ class WashingMachine(ElectricDevice):
         }
 
     def render_simulation_end_data(self) -> dict:
-        """Return all simulation data across all time steps."""
+        """Generate structured simulation output data for all time steps."""
         num_steps = self.episode_tracker.episode_time_steps
         simulation_attrs = {
             key: value

@@ -154,7 +154,6 @@ class Agent(Environment):
 
             while not terminated:
                 actions = self.predict(observations, deterministic=deterministic)
-                #print(f"Time Step: {time_step}, Observations: {observations}, Actions: {actions}")
 
                 # apply actions to citylearn_env
                 next_observations, rewards, terminated, truncated, _ = self.env.step(actions)
