@@ -1,1 +1,0 @@
-C:\\Users\\steam\\Desktop\\Bolsa\\Opeva\\ev_id_8.csv
