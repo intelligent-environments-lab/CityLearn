@@ -131,7 +131,6 @@ def write_pickle(filepath: str, data: Any, **kwargs):
     with open(filepath, 'wb') as f:
         pickle.dump(data, f, **kwargs)
 
-@staticmethod
 def join_url(*args: str) -> str:
     url = '/'.join([a.strip('/') for a in args])
 

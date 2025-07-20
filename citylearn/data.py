@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from platformdirs import user_cache_dir
 import shutil
-from typing import Any, Iterable, Mapping, List, Optional, Union
+from typing import Any, Iterable, Mapping, List, Union
 import numpy as np
 import pandas as pd
 import requests
@@ -13,11 +13,6 @@ from citylearn.__init__ import __version__
 from citylearn.utilities import join_url, read_json, read_yaml, write_json
 from citylearn.utilities import read_json, read_yaml, write_json
 from citylearn.utils.noise import NoiseUtils
-
-def join_url(*args: str) -> str:
-    url = '/'.join([a.strip('/') for a in args])
-
-    return url
 
 LOGGER = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
