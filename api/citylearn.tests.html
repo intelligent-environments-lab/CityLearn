@@ -1,0 +1,203 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citylearn.tests package &mdash; CityLearn 2.3.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=c3c8ae58"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="citylearn.tests.test_battery module" href="citylearn.tests.test_battery.html" />
+    <link rel="prev" title="citylearn.end_use_load_profiles.simulate module" href="citylearn.end_use_load_profiles.simulate.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">citylearn</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="citylearn.html">citylearn package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="citylearn.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.html">citylearn.agents package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.end_use_load_profiles.html">citylearn.end_use_load_profiles package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.tests package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.html#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">citylearn</a></li>
+          <li class="breadcrumb-item"><a href="citylearn.html">citylearn package</a></li>
+      <li class="breadcrumb-item active">citylearn.tests package</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/intelligent-environments-lab/CityLearn/blob/master/docs/source/api/citylearn.tests.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-citylearn.tests">
+<span id="citylearn-tests-package"></span><h1>citylearn.tests package<a class="headerlink" href="#module-citylearn.tests" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citylearn.tests.test_battery.html">citylearn.tests.test_battery module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.DataSet"><code class="docutils literal notranslate"><span class="pre">DataSet</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.DataSet.get_battery_sizing_data"><code class="docutils literal notranslate"><span class="pre">DataSet.get_battery_sizing_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.Environment"><code class="docutils literal notranslate"><span class="pre">Environment</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.Environment.get_metadata"><code class="docutils literal notranslate"><span class="pre">Environment.get_metadata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.Environment.reset"><code class="docutils literal notranslate"><span class="pre">Environment.reset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery"><code class="docutils literal notranslate"><span class="pre">TestBattery</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.setUp"><code class="docutils literal notranslate"><span class="pre">TestBattery.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.tearDown"><code class="docutils literal notranslate"><span class="pre">TestBattery.tearDown()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_as_dict"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_autosize"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_autosize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_capacity_limit"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_capacity_limit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_charge_negative_energy"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_charge_negative_energy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_charge_positive_energy"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_charge_positive_energy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_degrade"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_degrade()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_depth_of_discharge_limit"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_depth_of_discharge_limit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_force_set_soc"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_force_set_soc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_get_current_efficiency"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_get_current_efficiency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_get_max_input_power"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_get_max_input_power()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_get_metadata"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_get_metadata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_initialization"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_initialization()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_property_getters"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_property_getters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_property_setters"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_property_setters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_battery.html#citylearn.tests.test_battery.TestBattery.test_reset"><code class="docutils literal notranslate"><span class="pre">TestBattery.test_reset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citylearn.tests.test_electric_vehicle.html">citylearn.tests.test_electric_vehicle module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citylearn.tests.test_electric_vehicle_charger.html">citylearn.tests.test_electric_vehicle_charger module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citylearn.tests.test_pv.html">citylearn.tests.test_pv module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citylearn.tests.test_washing_machine.html">citylearn.tests.test_washing_machine module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="citylearn.tests.test_washing_machine.html#citylearn.tests.test_washing_machine.TestWashingMachine"><code class="docutils literal notranslate"><span class="pre">TestWashingMachine</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_washing_machine.html#citylearn.tests.test_washing_machine.TestWashingMachine.setUp"><code class="docutils literal notranslate"><span class="pre">TestWashingMachine.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_washing_machine.html#citylearn.tests.test_washing_machine.TestWashingMachine.test_invalid_time_step"><code class="docutils literal notranslate"><span class="pre">TestWashingMachine.test_invalid_time_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_washing_machine.html#citylearn.tests.test_washing_machine.TestWashingMachine.test_memory_allocation_failure"><code class="docutils literal notranslate"><span class="pre">TestWashingMachine.test_memory_allocation_failure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_washing_machine.html#citylearn.tests.test_washing_machine.TestWashingMachine.test_negative_action_value"><code class="docutils literal notranslate"><span class="pre">TestWashingMachine.test_negative_action_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_washing_machine.html#citylearn.tests.test_washing_machine.TestWashingMachine.test_no_cycle_time_step"><code class="docutils literal notranslate"><span class="pre">TestWashingMachine.test_no_cycle_time_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_washing_machine.html#citylearn.tests.test_washing_machine.TestWashingMachine.test_observation_structure"><code class="docutils literal notranslate"><span class="pre">TestWashingMachine.test_observation_structure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_washing_machine.html#citylearn.tests.test_washing_machine.TestWashingMachine.test_reset_functionality"><code class="docutils literal notranslate"><span class="pre">TestWashingMachine.test_reset_functionality()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_washing_machine.html#citylearn.tests.test_washing_machine.TestWashingMachine.test_zero_action_value"><code class="docutils literal notranslate"><span class="pre">TestWashingMachine.test_zero_action_value()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citylearn.tests.test_weather.html">citylearn.tests.test_weather module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="citylearn.tests.test_weather.html#citylearn.tests.test_weather.TestWeatherStochasticity"><code class="docutils literal notranslate"><span class="pre">TestWeatherStochasticity</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_weather.html#citylearn.tests.test_weather.TestWeatherStochasticity.setUp"><code class="docutils literal notranslate"><span class="pre">TestWeatherStochasticity.setUp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_weather.html#citylearn.tests.test_weather.TestWeatherStochasticity.test_no_noise_returns_identical_values"><code class="docutils literal notranslate"><span class="pre">TestWeatherStochasticity.test_no_noise_returns_identical_values()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_weather.html#citylearn.tests.test_weather.TestWeatherStochasticity.test_noise_introduces_variation"><code class="docutils literal notranslate"><span class="pre">TestWeatherStochasticity.test_noise_introduces_variation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.tests.test_weather.html#citylearn.tests.test_weather.TestWeatherStochasticity.test_shapes_remain_consistent"><code class="docutils literal notranslate"><span class="pre">TestWeatherStochasticity.test_shapes_remain_consistent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="citylearn.end_use_load_profiles.simulate.html" class="btn btn-neutral float-left" title="citylearn.end_use_load_profiles.simulate module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="citylearn.tests.test_battery.html" class="btn btn-neutral float-right" title="citylearn.tests.test_battery module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+citylearn.tests.test\_electric\_vehicle module
+==============================================
+
+.. automodule:: citylearn.tests.test_electric_vehicle
+   :members:
+   :undoc-members:
+   :show-inheritance:

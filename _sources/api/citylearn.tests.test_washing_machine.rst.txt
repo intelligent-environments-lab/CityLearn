@@ -1,0 +1,7 @@
+citylearn.tests.test\_washing\_machine module
+=============================================
+
+.. automodule:: citylearn.tests.test_washing_machine
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
       <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
 
@@ -116,155 +116,18 @@
 <span id="citylearn-electric-vehicle-module"></span><h1>citylearn.electric_vehicle module<a class="headerlink" href="#module-citylearn.electric_vehicle" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.electric_vehicle.</span></span><span class="sig-name descname"><span class="pre">ElectricVehicle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electric_vehicle_simulation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.data.html#citylearn.data.ElectricVehicleSimulation" title="citylearn.data.ElectricVehicleSimulation"><span class="pre">ElectricVehicleSimulation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">episode_tracker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.base.html#citylearn.base.EpisodeTracker" title="citylearn.base.EpisodeTracker"><span class="pre">EpisodeTracker</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">observation_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">battery</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Battery" title="citylearn.energy_model.Battery"><span class="pre">Battery</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_battery_soc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.electric_vehicle.</span></span><span class="sig-name descname"><span class="pre">ElectricVehicle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">episode_tracker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.base.html#citylearn.base.EpisodeTracker" title="citylearn.base.EpisodeTracker"><span class="pre">EpisodeTracker</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">battery</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Battery" title="citylearn.energy_model.Battery"><span class="pre">Battery</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="citylearn.base.html#citylearn.base.Environment" title="citylearn.base.Environment"><code class="xref py py-class docutils literal notranslate"><span class="pre">Environment</span></code></a></p>
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.action_metadata">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.action_metadata" title="Link to this definition"></a></dt>
-<dd><p>Mapping od active and inactive actions.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.action_space">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_space</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Box</span></em><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.action_space" title="Link to this definition"></a></dt>
-<dd><p>Agent action spaces.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.active_actions">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">active_actions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.active_actions" title="Link to this definition"></a></dt>
-<dd><p>Actions in <cite>action_metadata</cite> with True value i.e.
-indicates which storage systems are to be controlled during simulation.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.active_observations">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">active_observations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.active_observations" title="Link to this definition"></a></dt>
-<dd><p>Observations in <cite>observation_metadata</cite> with True value i.e. obeservable.</p>
-</dd></dl>
-
 <dl class="py method">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.adjust_electric_vehicle_soc_on_system_connection">
-<span class="sig-name descname"><span class="pre">adjust_electric_vehicle_soc_on_system_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soc_system_connection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.adjust_electric_vehicle_soc_on_system_connection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.adjust_electric_vehicle_soc_on_system_connection" title="Link to this definition"></a></dt>
-<dd><p>Adjusts the state of charge (SoC) of an electric vehicle’s (Electric_Vehicle’s) battery upon connection to the system.</p>
-<p>When an Electric_Vehicle is in transit, the system “loses” the connection and does not know how much battery
-has been used during travel. As such, when an Electric_Vehicle enters an incoming or connected state, its battery
-SoC is updated to be close to the predicted SoC at arrival present in the Electric_Vehicle dataset.</p>
-<p>However, predictions sometimes fail, so this method introduces variability for the simulation by
-randomly creating a discrepancy between the predicted value and a “real-world inspired” value. This discrepancy
-is generated using a normal (Gaussian) distribution, which is more likely to produce values near 0 and less
-likely to produce extreme values.</p>
-<p>The range of potential variation is between -30% to +30% of the predicted SoC, with most of the values
-being close to 0 (i.e., the prediction). The exact amount of variation is calculated by taking a random
-value from the normal distribution and scaling it by the predicted SoC. This value is then added to the
-predicted SoC to get the actual SoC, which can be higher or lower than the prediction.</p>
-<p>The difference between the actual SoC and the initial SoC (before the adjustment) is passed to the
-battery’s charge method. If the difference is positive, the battery is charged; if the difference is negative,
-the battery is discharged.</p>
-<p>For example, if the Electric_Vehicle dataset has a predicted SoC at arrival of 20% (of the battery’s total capacity),
-this method can randomly adjust the Electric_Vehicle’s battery to 22% or 19%, or even by a larger margin such as 40%.</p>
-<p>Args:
-soc_system_connection (float): The predicted SoC at system connection, expressed as a percentage of the
-battery’s total capacity.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.autosize_battery">
-<span class="sig-name descname"><span class="pre">autosize_battery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.autosize_battery"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.autosize_battery" title="Link to this definition"></a></dt>
-<dd><p>Autosize <cite>Battery</cite> for a typical Electric_Vehicle.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>**kwargs</strong> (<em>dict</em>) – Other keyword arguments parsed to <cite>electrical_storage</cite> <cite>autosize</cite> function.</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.as_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.as_dict" title="Link to this definition"></a></dt>
+<dd><p>Return a dictionary representation of the current state for use in rendering or logging.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.battery">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">battery</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Battery" title="citylearn.energy_model.Battery"><span class="pre">Battery</span></a></em><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.battery" title="Link to this definition"></a></dt>
 <dd><p>Battery for Electric_Vehicle.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.electric_vehicle_simulation">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">electric_vehicle_simulation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.data.html#citylearn.data.ElectricVehicleSimulation" title="citylearn.data.ElectricVehicleSimulation"><span class="pre">ElectricVehicleSimulation</span></a></em><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.electric_vehicle_simulation" title="Link to this definition"></a></dt>
-<dd><p>Return the Electric_Vehicle simulation data.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.estimate_action_space">
-<span class="sig-name descname"><span class="pre">estimate_action_space</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Box</span></span></span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.estimate_action_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.estimate_action_space" title="Link to this definition"></a></dt>
-<dd><p>Get estimate of action spaces.
-Find minimum and maximum possible values of all the actions, which can then be used by the RL agent to scale the selected actions.
-:returns: <strong>action_space</strong> – Action low and high limits.
-:rtype: spaces.Box</p>
-<p class="rubric">Notes</p>
-<p>The lower and upper bounds for the <cite>cooling_storage</cite>, <cite>heating_storage</cite> and <cite>dhw_storage</cite> actions are set to (+/-) 1/maximum_demand for each respective end use,
-as the energy storage device can’t provide the building with more energy than it will ever need for a given time step. .
-For example, if <cite>cooling_storage</cite> capacity is 20 kWh and the maximum <cite>cooling_demand</cite> is 5 kWh, its actions will be bounded between -5/20 and 5/20.
-These boundaries should speed up the learning process of the agents and make them more stable compared to setting them to -1 and 1.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.estimate_observation_space">
-<span class="sig-name descname"><span class="pre">estimate_observation_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic_normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Box</span></span></span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.estimate_observation_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.estimate_observation_space" title="Link to this definition"></a></dt>
-<dd><p>Get estimate of observation spaces.
-:param include_all: Whether to estimate for all observations as listed in <cite>observation_metadata</cite> or only those that are active.
-:type include_all: bool, default: False,
-:param normalize: Whether to apply min-max normalization bounded between [0, 1].
-:type normalize: bool, default: False
-:param periodic_normalization: Whether to apply sine-cosine normalization to cyclic observations including hour, day_type and month.
-:type periodic_normalization: bool, default: False</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>observation_space</strong> – Observation low and high limits.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>spaces.Box</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.estimate_observation_space_limits">
-<span class="sig-name descname"><span class="pre">estimate_observation_space_limits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic_normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.estimate_observation_space_limits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.estimate_observation_space_limits" title="Link to this definition"></a></dt>
-<dd><p>Get estimate of observation space limits.
-Find minimum and maximum possible values of all the observations, which can then be used by the RL agent to scale the observations and train any function approximators more effectively.
-:param include_all: Whether to estimate for all observations as listed in <cite>observation_metadata</cite> or only those that are active.
-:type include_all: bool, default: False,
-:param periodic_normalization: Whether to apply sine-cosine normalization to cyclic observations including hour, day_type and month.
-:type periodic_normalization: bool, default: False</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>observation_space_limits</strong> – Observation low and high limits.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple[Mapping[str, float], Mapping[str, float]]</p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>Lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate hence,
-scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.get_periodic_observation_metadata">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_periodic_observation_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">range</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.get_periodic_observation_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.get_periodic_observation_metadata" title="Link to this definition"></a></dt>
-<dd><p>Get periodic observation names and their minimum and maximum values for periodic/cyclic normalization.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>periodic_observation_metadata</strong> – Observation low and high limits.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Mapping[str, int]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.min_battery_soc">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_battery_soc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.min_battery_soc" title="Link to this definition"></a></dt>
-<dd><p>Min battery soc percentage.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -276,52 +139,34 @@ scaling this observation-variable using these bounds may result in normalized va
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.next_time_step">
 <span class="sig-name descname"><span class="pre">next_time_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.next_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.next_time_step" title="Link to this definition"></a></dt>
-<dd><p>Advance Electric_Vehicle to the next <a href="#id1"><span class="problematic" id="id2">`</span></a>time_step`s</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.observation_metadata">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observation_metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.observation_metadata" title="Link to this definition"></a></dt>
-<dd><p>Mapping of active and inactive observations.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.observation_space">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observation_space</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Box</span></em><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.observation_space" title="Link to this definition"></a></dt>
-<dd><p>Agent observation space.</p>
+<dd><p>Advance to next <cite>time_step</cite> value.</p>
+<p class="rubric">Notes</p>
+<p>Override in subclass for custom implementation when advancing to next <cite>time_step</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.observations">
-<span class="sig-name descname"><span class="pre">observations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">include_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic_normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.observations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.observations" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">observations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.observations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.observations" title="Link to this definition"></a></dt>
 <dd><p>Observations at current time step.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>include_all</strong> (<em>bool</em><em>, </em><em>default: False</em><em>,</em>) – Whether to estimate for all observations as listed in <cite>observation_metadata</cite> or only those that are active.</p></li>
-<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Whether to apply min-max normalization bounded between [0, 1].</p></li>
-<li><p><strong>periodic_normalization</strong> (<em>bool</em><em>, </em><em>default: False</em>) – Whether to apply sine-cosine normalization to cyclic observations.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>observation_space</strong> – Observation low and high limits.</p>
-</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>spaces.Box</p>
+<dd class="field-odd"><p>observations</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.observations_length">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">observations_length</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.observations_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.observations_length" title="Link to this definition"></a></dt>
-<dd><p>Get periodic observation names and their minimum and maximum values for periodic/cyclic normalization.</p>
+<dt class="sig sig-object py" id="citylearn.electric_vehicle.ElectricVehicle.render_simulation_end_data">
+<span class="sig-name descname"><span class="pre">render_simulation_end_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/citylearn/electric_vehicle.html#ElectricVehicle.render_simulation_end_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.electric_vehicle.ElectricVehicle.render_simulation_end_data" title="Link to this definition"></a></dt>
+<dd><p>Return a dictionary containing all simulation data across all time steps.
+The returned dictionary is structured with a general simulation name and, for each time step,
+a dictionary with the simulation data and battery data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>periodic_observation_metadata</strong> – Observation low and high limits.</p>
+<dd class="field-odd"><p><strong>result</strong> – A JSON-like dictionary with the simulation name and per-time-step data.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Mapping[str, int]</p>
+<dd class="field-even"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
