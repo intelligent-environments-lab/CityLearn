@@ -1,2 +1,3 @@
 include citylearn/assets/*
 recursive-include citylearn/misc *
+recursive-include citylearn/utils *
