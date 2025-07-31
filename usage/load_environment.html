@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>How to Load an Environment &mdash; CityLearn 2.4.0 documentation</title>
+  <title>How to Load an Environment &mdash; CityLearn 2.4.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -18,7 +18,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=4d935f96"></script>
+      <script src="../_static/documentation_options.js?v=e9ebdb8f"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -212,14 +212,14 @@ Schema filepath: citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schem
 <h2>Load an Environment Using Schema Dictionary Object<a class="headerlink" href="#Load-an-Environment-Using-Schema-Dictionary-Object" title="Link to this heading"></a></h2>
 <p>Alternatively, the schema can be supplied as a <code class="docutils literal notranslate"><span class="pre">dict</span></code> object. This approach can be used to edit the schema parameter values before constructing the environment. With this approach, the <code class="docutils literal notranslate"><span class="pre">root_directory</span></code> key-value must be explicitly set: See example below:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileHandler</span>
 
 <span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
 <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1&#39;</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
 </pre></div>
@@ -227,14 +227,14 @@ Schema filepath: citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schem
 </div>
 <p>Some schema parameters can also be overriden by parsing them directly to the <code class="docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code> constructor:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileHandler</span>
 
 <span class="n">schema_filepath</span> <span class="o">=</span> <span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1/schema.json&#39;</span>
-<span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span>
     <span class="n">schema</span><span class="p">,</span>
     <span class="n">root_directory</span><span class="o">=</span><span class="s1">&#39;citylearn_dataset/citylearn_challenge_2020_climate_zone_1&#39;</span><span class="p">,</span>

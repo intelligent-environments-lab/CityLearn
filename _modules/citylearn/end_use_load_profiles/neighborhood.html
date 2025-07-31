@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.end_use_load_profiles.neighborhood &mdash; CityLearn 2.4.0 documentation</title>
+  <title>citylearn.end_use_load_profiles.neighborhood &mdash; CityLearn 2.4.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4d935f96"></script>
+      <script src="../../../_static/documentation_options.js?v=e9ebdb8f"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -108,7 +108,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.end_use_load_profiles.lstm_model.model_generation_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_one_model</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.end_use_load_profiles.simulate</span><span class="w"> </span><span class="kn">import</span> <span class="n">EndUseLoadProfilesEnergyPlusPartialLoadSimulator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeriodicNormalization</span><span class="p">,</span> <span class="n">Normalize</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_json</span><span class="p">,</span> <span class="n">write_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileHandler</span>
 
 <span class="n">BuildingSimulators</span> <span class="o">=</span> <span class="n">Mapping</span><span class="p">[</span>
     <span class="nb">str</span><span class="p">,</span> 
@@ -359,7 +359,7 @@
 <a class="viewcode-back" href="../../../api/citylearn.end_use_load_profiles.neighborhood.html#citylearn.end_use_load_profiles.neighborhood.Neighborhood.test_lstm">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">test_lstm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bldg_ix</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">training_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">schema_filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
         <span class="c1"># set data</span>
-        <span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
         <span class="n">schema_directory</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">bldg_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="n">bldg_ix</span><span class="p">]</span>
         <span class="n">dynamics_model</span> <span class="o">=</span> <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;buildings&#39;</span><span class="p">][</span><span class="n">bldg_key</span><span class="p">][</span><span class="s1">&#39;dynamics&#39;</span><span class="p">]</span>
@@ -621,7 +621,7 @@
 
         <span class="n">schema_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schema_directory</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;schema.json&#39;</span><span class="p">)</span>
         <span class="n">template</span> <span class="o">=</span> <span class="n">user_customization_function</span><span class="p">(</span><span class="n">template</span><span class="p">)</span> <span class="k">if</span> <span class="n">user_customization_function</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">template</span>
-        <span class="n">write_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+        <span class="n">FileHandler</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
         
         <span class="k">return</span> <span class="n">schema_filepath</span></div>
 

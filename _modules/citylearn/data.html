@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.data &mdash; CityLearn 2.4.0 documentation</title>
+  <title>citylearn.data &mdash; CityLearn 2.4.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=4d935f96"></script>
+      <script src="../../_static/documentation_options.js?v=e9ebdb8f"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -95,9 +95,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">requests.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPAdapter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">urllib3.util.retry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Retry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.__init__</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">join_url</span><span class="p">,</span> <span class="n">read_json</span><span class="p">,</span> <span class="n">read_yaml</span><span class="p">,</span> <span class="n">write_json</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_json</span><span class="p">,</span> <span class="n">read_yaml</span><span class="p">,</span> <span class="n">write_json</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utils.noise</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoiseUtils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileHandler</span><span class="p">,</span> <span class="n">NoiseUtils</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
@@ -113,7 +111,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_settings</span><span class="p">():</span>
     <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;misc&#39;</span><span class="p">))</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;settings.yaml&#39;</span><span class="p">)</span>
-    <span class="n">settings</span> <span class="o">=</span> <span class="n">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">settings</span></div>
 
@@ -126,10 +124,10 @@
     <span class="n">GITHUB_ACCOUNT</span> <span class="o">=</span> <span class="s1">&#39;intelligent-environments-lab&#39;</span>
     <span class="n">REPOSITORY_NAME</span> <span class="o">=</span> <span class="s1">&#39;CityLearn&#39;</span>
     <span class="n">REPOSITORY_TAG</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;v</span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="n">REPOSITORY_DATA_PATH</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
-    <span class="n">REPOSITORY_DATA_DATASETS_PATH</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="n">REPOSITORY_DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">)</span>
-    <span class="n">REPOSITORY_DATA_MISC_PATH</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="n">REPOSITORY_DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
-    <span class="n">GITHUB_API_CONTENT_URL</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="s1">&#39;https://api.github.com/repos/&#39;</span><span class="p">,</span> <span class="n">GITHUB_ACCOUNT</span><span class="p">,</span> <span class="n">REPOSITORY_NAME</span><span class="p">,</span> <span class="s1">&#39;contents&#39;</span><span class="p">)</span>
+    <span class="n">REPOSITORY_DATA_PATH</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">join_url</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+    <span class="n">REPOSITORY_DATA_DATASETS_PATH</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">join_url</span><span class="p">(</span><span class="n">REPOSITORY_DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">)</span>
+    <span class="n">REPOSITORY_DATA_MISC_PATH</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">join_url</span><span class="p">(</span><span class="n">REPOSITORY_DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
+    <span class="n">GITHUB_API_CONTENT_URL</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">join_url</span><span class="p">(</span><span class="s1">&#39;https://api.github.com/repos/&#39;</span><span class="p">,</span> <span class="n">GITHUB_ACCOUNT</span><span class="p">,</span> <span class="n">REPOSITORY_NAME</span><span class="p">,</span> <span class="s1">&#39;contents&#39;</span><span class="p">)</span>
     <span class="n">DEFAULT_CACHE_DIRECTORY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">user_cache_dir</span><span class="p">(</span><span class="s1">&#39;citylearn&#39;</span><span class="p">),</span> <span class="n">REPOSITORY_TAG</span><span class="p">)</span>
     <span class="n">BATTERY_CHOICES_FILENAME</span> <span class="o">=</span> <span class="s1">&#39;battery_choices.yaml&#39;</span>
     <span class="n">PV_CHOICES_FILENAME</span> <span class="o">=</span> <span class="s1">&#39;lbl-tracking_the_sun-res-pv.csv&#39;</span>
@@ -206,7 +204,7 @@
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_schema">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">schema_filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">schema</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span>
         <span class="n">schema</span><span class="p">[</span><span class="s1">&#39;root_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">schema_filepath</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">schema</span></div>
@@ -218,7 +216,7 @@
         <span class="n">datasets_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">,</span> <span class="s1">&#39;datasets&#39;</span><span class="p">)</span>
         <span class="n">root_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">datasets_directory</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="n">schema_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_directory</span><span class="p">,</span> <span class="s1">&#39;schema.json&#39;</span><span class="p">)</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets_path</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datasets_path</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
         <span class="c1"># check that dataset does not already exist using the schema as a proxy</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Go here </span><span class="si">{</span><span class="n">schema_filepath</span><span class="si">}</span><span class="s1"> &#39;</span><span class="p">)</span>
@@ -270,7 +268,7 @@
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">,</span> <span class="s1">&#39;dataset_names.json&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
-            <span class="n">contents</span> <span class="o">=</span> <span class="n">read_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         
         <span class="k">else</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The dataset names DNE in cache. Will download from &#39;</span>
@@ -282,7 +280,7 @@
                     <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;dir&#39;</span> 
                         <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">datasets_path</span>
             <span class="p">]</span>
-            <span class="n">write_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span>
+            <span class="n">FileHandler</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span>
             
         <span class="n">contents</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
 
@@ -302,7 +300,7 @@
         <span class="n">misc_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">misc_directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">misc_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PV_CHOICES_FILENAME</span><span class="p">)</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">misc_path</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">misc_path</span><span class="p">)</span>
 
         <span class="c1"># check that file DNE</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
@@ -338,7 +336,7 @@
         <span class="n">misc_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_directory</span><span class="p">,</span> <span class="s1">&#39;misc&#39;</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">misc_directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">misc_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BATTERY_CHOICES_FILENAME</span><span class="p">)</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">misc_path</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">misc_path</span><span class="p">)</span>
 
         <span class="c1"># check that file DNE</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
@@ -356,7 +354,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="n">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">read_yaml</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([{</span><span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="o">**</span><span class="n">v</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]}</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
 
@@ -376,7 +374,7 @@
 <div class="viewcode-block" id="DataSet.get_github_contents">
 <a class="viewcode-back" href="../../api/citylearn.data.html#citylearn.data.DataSet.get_github_contents">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_github_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GITHUB_API_CONTENT_URL</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GITHUB_API_CONTENT_URL</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> 
+        <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GITHUB_API_CONTENT_URL</span> <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">join_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GITHUB_API_CONTENT_URL</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> 
         <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
         <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_requests_session</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 
