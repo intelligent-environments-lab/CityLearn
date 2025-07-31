@@ -10,8 +10,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from citylearn.__init__ import __version__
-from citylearn.utilities import FileHandler
-from citylearn.utils.noise import NoiseUtils
+from citylearn.utilities import FileHandler, NoiseUtils
 
 LOGGER = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
