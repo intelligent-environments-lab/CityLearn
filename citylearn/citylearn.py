@@ -21,7 +21,7 @@ from citylearn.data import CarbonIntensity, DataSet, ChargerSimulation, EnergySi
 from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery, PV, WashingMachine
 from citylearn.reward_function import MultiBuildingRewardFunction, RewardFunction
-from citylearn.utilities import read_json
+from citylearn.utilities import FileHandler
 
 LOGGER = logging.getLogger()
 logging.getLogger('matplotlib.font_manager').disabled = True
@@ -796,7 +796,7 @@ class CityLearnEnv(Environment, Env):
 
         if isinstance(schema, (str, Path)) and os.path.isfile(schema):
             schema_filepath = Path(schema) if isinstance(schema, str) else schema
-            schema = read_json(schema)
+            schema = FileHandler.read_json(schema)
             schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if schema['root_directory'] is None \
                 else schema['root_directory']
         

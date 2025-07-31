@@ -23,7 +23,7 @@ from citylearn.end_use_load_profiles.clustering import MetadataClustering
 from citylearn.end_use_load_profiles.lstm_model.model_generation_wrapper import run_one_model
 from citylearn.end_use_load_profiles.simulate import EndUseLoadProfilesEnergyPlusPartialLoadSimulator
 from citylearn.preprocessing import PeriodicNormalization, Normalize
-from citylearn.utilities import read_json, write_json
+from citylearn.utilities import FileHandler
 
 BuildingSimulators = Mapping[
     str, 
@@ -255,7 +255,7 @@ class Neighborhood:
     
     def test_lstm(self, bldg_ix: int, training_data: pd.DataFrame, schema_filepath: Path) -> Tuple[int, pd.DataFrame]:
         # set data
-        schema = read_json(schema_filepath)
+        schema = FileHandler.read_json(schema_filepath)
         schema_directory = Path(schema_filepath).parents[0]
         bldg_key = list(schema['buildings'].keys())[bldg_ix]
         dynamics_model = schema['buildings'][bldg_key]['dynamics']
@@ -511,7 +511,7 @@ class Neighborhood:
 
         schema_filepath = os.path.join(schema_directory, f'schema.json')
         template = user_customization_function(template) if user_customization_function is not None else template
-        write_json(schema_filepath, template)
+        FileHandler.write_json(schema_filepath, template)
         
         return schema_filepath
     
