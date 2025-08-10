@@ -1356,8 +1356,6 @@ class Building(Environment):
 
             except NotImplementedError:
                 pass
-        
-        self.update_variables()
 
     def update_cooling_demand(self, action: float):
         """Update space cooling demand for current time step."""
@@ -2242,8 +2240,6 @@ class Building(Environment):
         self.__power_outage_signal = self.reset_power_outage_signal()
         self.__chargers_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__washing_machines_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
-
-        self.update_variables()
 
     def reset_power_outage_signal(self) -> np.ndarray:
         """Resets power outage signal time series.

@@ -10,7 +10,6 @@ from gymnasium import Env, spaces
 import csv
 import shutil
 import datetime
-from itertools import zip_longest
 import numpy as np
 import pandas as pd
 import random
@@ -1454,6 +1453,9 @@ class CityLearnEnv(Environment, Env):
         return self.observations, self.get_info()
 
     def update_variables(self):
+        for b in self.buildings:
+            b.update_variables()
+
         # net electricity consumption
         self.__net_electricity_consumption.append(sum([b.net_electricity_consumption[self.time_step] for b in self.buildings]))
 
