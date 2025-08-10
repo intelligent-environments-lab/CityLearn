@@ -1,7 +1,0 @@
-citylearn.tests.test\_battery module
-====================================
-
-.. automodule:: citylearn.tests.test_battery
-   :members:
-   :undoc-members:
-   :show-inheritance:

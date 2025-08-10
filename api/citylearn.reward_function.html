@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.reward_function module &mdash; CityLearn 2.4.2 documentation</title>
+  <title>citylearn.reward_function module &mdash; CityLearn 2.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -17,7 +17,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=de1351e5"></script>
+      <script src="../_static/documentation_options.js?v=67b02a41"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -172,37 +172,6 @@ boundary or heating mode but temperature is above setpoint upper boundary.</p></
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="citylearn.reward_function.Electric_Vehicles_Reward_Function">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">Electric_Vehicles_Reward_Function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#Electric_Vehicles_Reward_Function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.Electric_Vehicles_Reward_Function" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.MARL" title="citylearn.reward_function.MARL"><code class="xref py py-class docutils literal notranslate"><span class="pre">MARL</span></code></a></p>
-<p>Reward function for electric vehicle charging behavior in V2G settings.
-Only affects EV-related behavior; other building logic comes from the superclass.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.reward_function.Electric_Vehicles_Reward_Function.calculate">
-<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#Electric_Vehicles_Reward_Function.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.Electric_Vehicles_Reward_Function.calculate" title="Link to this definition"></a></dt>
-<dd><p>Calculates reward.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>observations</strong> (<em>List</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em><em>]</em>) – List of all building observations at current <code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.</span>
-<span class="pre">time_step</span></code> that are got from calling <a class="reference internal" href="citylearn.building.html#citylearn.building.Building.observations" title="citylearn.building.Building.observations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.Building.observations()</span></code></a>.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[float]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.reward_function.Electric_Vehicles_Reward_Function.calculate_ev_penalty">
-<span class="sig-name descname"><span class="pre">calculate_ev_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#Electric_Vehicles_Reward_Function.calculate_ev_penalty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.Electric_Vehicles_Reward_Function.calculate_ev_penalty" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="citylearn.reward_function.IndependentSACReward">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">IndependentSACReward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#IndependentSACReward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.IndependentSACReward" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">RewardFunction</span></code></a></p>
@@ -264,41 +233,6 @@ Only affects EV-related behavior; other building logic comes from the superclass
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="citylearn.reward_function.MultiBuildingRewardFunction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">MultiBuildingRewardFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward_functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><span class="pre">RewardFunction</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#MultiBuildingRewardFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.MultiBuildingRewardFunction" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">RewardFunction</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.reward_function.MultiBuildingRewardFunction.calculate">
-<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#MultiBuildingRewardFunction.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.MultiBuildingRewardFunction.calculate" title="Link to this definition"></a></dt>
-<dd><p>Calculates reward.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>observations</strong> (<em>List</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em><em>]</em>) – List of all building observations at current <code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.</span>
-<span class="pre">time_step</span></code> that are got from calling <a class="reference internal" href="citylearn.building.html#citylearn.building.Building.observations" title="citylearn.building.Building.observations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.Building.observations()</span></code></a>.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[float]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="citylearn.reward_function.MultiBuildingRewardFunction.env_metadata">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">env_metadata</span></span><a class="headerlink" href="#citylearn.reward_function.MultiBuildingRewardFunction.env_metadata" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="citylearn.reward_function.MultiBuildingRewardFunction.reset">
-<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#MultiBuildingRewardFunction.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.MultiBuildingRewardFunction.reset" title="Link to this definition"></a></dt>
-<dd><p>Use to reset variables at the start of an episode.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">RewardFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exponent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#RewardFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.RewardFunction" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -339,7 +273,8 @@ Only affects EV-related behavior; other building logic comes from the superclass
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction.env_metadata">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">env_metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.reward_function.RewardFunction.env_metadata" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>General static information about the environment.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.reward_function.RewardFunction.exponent">
@@ -399,7 +334,8 @@ boundary or heating mode but temperature is above setpoint upper boundary.</p></
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.reward_function.SolarPenaltyAndComfortReward.env_metadata">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">env_metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.reward_function.SolarPenaltyAndComfortReward.env_metadata" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>General static information about the environment.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -435,6 +371,122 @@ grid the penalty is maximized.</p>
 <dd class="field-odd"><p>List[float]</p>
 </dd>
 </dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.reward_function.</span></span><span class="sig-name descname"><span class="pre">V2GPenaltyReward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_percentage_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ramping_percentage_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_penalty_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ramping_penalty_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_transfer_bonus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty_no_car_charging</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty_battery_limits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">penalty_soc_under_5_10</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward_close_soc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward_self_ev_consumption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">community_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward_extra_self_production</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/reward_function.html#V2GPenaltyReward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.reward_function.MARL" title="citylearn.reward_function.MARL"><code class="xref py py-class docutils literal notranslate"><span class="pre">MARL</span></code></a></p>
+<p>Rewards with considerations for electric vehicle charging behaviours in a V2G setting.
+Note that this function rewards/penalizes only the electric vehicle part. For a comprehensive reward strategy
+please use one of the super classes or rewrite your own</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env_metadata</strong> (<em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>:</em>) – General static information about the environment.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#V2GPenaltyReward.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.calculate" title="Link to this definition"></a></dt>
+<dd><p>Calculates reward.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>observations</strong> (<em>List</em><em>[</em><em>Mapping</em><em>[</em><em>str</em><em>, </em><em>Union</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em><em>]</em><em>]</em>) – List of all building observations at current <code class="xref py py-attr docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.</span>
+<span class="pre">time_step</span></code> that are got from calling <a class="reference internal" href="citylearn.building.html#citylearn.building.Building.observations" title="citylearn.building.Building.observations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.building.Building.observations()</span></code></a>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>reward</strong> – Reward for transition to current timestep.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.calculate_ev_penalty">
+<span class="sig-name descname"><span class="pre">calculate_ev_penalty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building" title="citylearn.building.Building"><span class="pre">Building</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#citylearn.reward_function.RewardFunction" title="citylearn.reward_function.RewardFunction"><span class="pre">RewardFunction</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/reward_function.html#V2GPenaltyReward.calculate_ev_penalty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.calculate_ev_penalty" title="Link to this definition"></a></dt>
+<dd><p>Calculate penalties based on EV specific logic.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.community_weight">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">community_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.community_weight" title="Link to this definition"></a></dt>
+<dd><p>Return the community_weight</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.energy_transfer_bonus">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_transfer_bonus</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.energy_transfer_bonus" title="Link to this definition"></a></dt>
+<dd><p>Return the energy_transfer_bonus</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.peak_penalty_weight">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak_penalty_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.peak_penalty_weight" title="Link to this definition"></a></dt>
+<dd><p>Return the peak_penalty_weight</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.peak_percentage_threshold">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak_percentage_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.peak_percentage_threshold" title="Link to this definition"></a></dt>
+<dd><p>Return the peak_percentage_threshold</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.penalty_battery_limits">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">penalty_battery_limits</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.penalty_battery_limits" title="Link to this definition"></a></dt>
+<dd><p>Return the penalty_battery_limits</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.penalty_no_car_charging">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">penalty_no_car_charging</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.penalty_no_car_charging" title="Link to this definition"></a></dt>
+<dd><p>Return the penalty_no_car_charging</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.penalty_soc_under_5_10">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">penalty_soc_under_5_10</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.penalty_soc_under_5_10" title="Link to this definition"></a></dt>
+<dd><p>Return the penalty_soc_under_5_10</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.ramping_penalty_weight">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ramping_penalty_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.ramping_penalty_weight" title="Link to this definition"></a></dt>
+<dd><p>Return the ramping_penalty_weight</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.ramping_percentage_threshold">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ramping_percentage_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.ramping_percentage_threshold" title="Link to this definition"></a></dt>
+<dd><p>Return the ramping_percentage_threshold</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.reward_close_soc">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reward_close_soc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.reward_close_soc" title="Link to this definition"></a></dt>
+<dd><p>Return the reward_close_soc</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.reward_extra_self_production">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reward_extra_self_production</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.reward_extra_self_production" title="Link to this definition"></a></dt>
+<dd><p>Return the reward_extra_self_production</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.reward_self_ev_consumption">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reward_self_ev_consumption</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.reward_self_ev_consumption" title="Link to this definition"></a></dt>
+<dd><p>Return the reward_self_ev_consumption</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.reward_function.V2GPenaltyReward.window_size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">window_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.reward_function.V2GPenaltyReward.window_size" title="Link to this definition"></a></dt>
+<dd><p>Return the window_size</p>
 </dd></dl>
 
 </dd></dl>

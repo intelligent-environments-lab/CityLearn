@@ -1,7 +1,0 @@
-citylearn.tests.test\_weather module
-====================================
-
-.. automodule:: citylearn.tests.test_weather
-   :members:
-   :undoc-members:
-   :show-inheritance:
