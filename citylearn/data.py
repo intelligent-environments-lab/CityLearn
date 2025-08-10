@@ -10,7 +10,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from citylearn.__init__ import __version__
-from citylearn.utilities import FileHandler, NoiseUtils
+from citylearn.utilities import join_url, read_json, read_yaml, write_json
 
 LOGGER = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
@@ -24,7 +24,7 @@ SETTINGS_FILEPATH = os.path.join(MISC_DIRECTORY, 'settings.yaml')
 def get_settings():
     directory = os.path.join(os.path.join(os.path.dirname(__file__), 'misc'))
     filepath = os.path.join(directory, 'settings.yaml')
-    settings = FileHandler.read_yaml(filepath)
+    settings = read_yaml(filepath)
 
     return settings
 
@@ -34,10 +34,10 @@ class DataSet:
     GITHUB_ACCOUNT = 'intelligent-environments-lab'
     REPOSITORY_NAME = 'CityLearn'
     REPOSITORY_TAG = f'v{__version__}'
-    REPOSITORY_DATA_PATH = FileHandler.join_url('data')
-    REPOSITORY_DATA_DATASETS_PATH = FileHandler.join_url(REPOSITORY_DATA_PATH, 'datasets')
-    REPOSITORY_DATA_MISC_PATH = FileHandler.join_url(REPOSITORY_DATA_PATH, 'misc')
-    GITHUB_API_CONTENT_URL = FileHandler.join_url('https://api.github.com/repos/', GITHUB_ACCOUNT, REPOSITORY_NAME, 'contents')
+    REPOSITORY_DATA_PATH = join_url('data')
+    REPOSITORY_DATA_DATASETS_PATH = join_url(REPOSITORY_DATA_PATH, 'datasets')
+    REPOSITORY_DATA_MISC_PATH = join_url(REPOSITORY_DATA_PATH, 'misc')
+    GITHUB_API_CONTENT_URL = join_url('https://api.github.com/repos/', GITHUB_ACCOUNT, REPOSITORY_NAME, 'contents')
     DEFAULT_CACHE_DIRECTORY = os.path.join(user_cache_dir('citylearn'), REPOSITORY_TAG)
     BATTERY_CHOICES_FILENAME = 'battery_choices.yaml'
     PV_CHOICES_FILENAME = 'lbl-tracking_the_sun-res-pv.csv'
@@ -112,7 +112,7 @@ class DataSet:
 
     def get_schema(self, name: str) -> dict:
         schema_filepath = self.get_dataset(name)
-        schema = FileHandler.read_json(schema_filepath)
+        schema = read_json(schema_filepath)
         schema['root_directory'] = os.path.split(Path(schema_filepath).absolute())[0]
 
         return schema
@@ -121,10 +121,9 @@ class DataSet:
         datasets_directory = os.path.join(self.cache_directory, 'datasets')
         root_directory = os.path.join(datasets_directory, name)
         schema_filepath = os.path.join(root_directory, 'schema.json')
-        path = FileHandler.join_url(self.datasets_path, name)
+        path = join_url(self.datasets_path, name)
 
         # check that dataset does not already exist using the schema as a proxy
-        LOGGER.info(f'Go here {schema_filepath} ')
         if not os.path.isfile(schema_filepath):
             LOGGER.info(f'The {name} dataset DNE in cache. Will download from '
                 f'{self.github_account}/{self.repository}/tree/{self.tag} GitHub repository and write to {datasets_directory}. '
@@ -170,7 +169,7 @@ class DataSet:
         filepath = os.path.join(self.cache_directory, 'dataset_names.json')
 
         if os.path.isfile(filepath):
-            contents = FileHandler.read_json(filepath)
+            contents = read_json(filepath)
         
         else:
             LOGGER.info(f'The dataset names DNE in cache. Will download from '
@@ -182,7 +181,7 @@ class DataSet:
                     if r.get('type') == 'dir' 
                         and r.get('path').replace(r['name'], '').strip('/') == self.datasets_path
             ]
-            FileHandler.write_json(filepath, contents)
+            write_json(filepath, contents)
             
         contents = sorted(contents)
 
@@ -199,7 +198,7 @@ class DataSet:
         misc_directory = os.path.join(self.cache_directory, 'misc')
         os.makedirs(misc_directory, exist_ok=True)
         filepath = os.path.join(misc_directory, self.PV_CHOICES_FILENAME)
-        path = FileHandler.join_url(self.misc_path)
+        path = join_url(self.misc_path)
 
         # check that file DNE
         if not os.path.isfile(filepath):
@@ -232,7 +231,7 @@ class DataSet:
         misc_directory = os.path.join(self.cache_directory, 'misc')
         os.makedirs(misc_directory, exist_ok=True)
         filepath = os.path.join(misc_directory, self.BATTERY_CHOICES_FILENAME)
-        path = FileHandler.join_url(self.misc_path)
+        path = join_url(self.misc_path)
 
         # check that file DNE
         if not os.path.isfile(filepath):
@@ -250,7 +249,7 @@ class DataSet:
         else:
             pass
 
-        data = FileHandler.read_yaml(filepath)
+        data = read_yaml(filepath)
         data = pd.DataFrame([{'model': k, **v['attributes']} for k, v in data.items()])
         data = data.set_index('model')
 
@@ -264,7 +263,7 @@ class DataSet:
             pass
 
     def get_github_contents(self, path: str = None) -> List[Mapping[str, Any]]:
-        url = self.GITHUB_API_CONTENT_URL if path is None else FileHandler.join_url(self.GITHUB_API_CONTENT_URL, path) 
+        url = self.GITHUB_API_CONTENT_URL if path is None else join_url(self.GITHUB_API_CONTENT_URL, path) 
         params = dict(ref=self.tag)
         contents = self.get_requests_session().get(url, params=params)
 
@@ -347,8 +346,6 @@ class EnergySimulation(TimeSeriesData):
         Month time series value ranging from 1 - 12.
     hour : np.array
         Hour time series value ranging from 1 - 24.
-    minutes : np.array
-        Minutes time series value ranging from 0 - 60.
     day_type : np.array
         Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.
     indoor_dry_bulb_temperature : np.array
@@ -400,18 +397,13 @@ class EnergySimulation(TimeSeriesData):
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
          indoor_dry_bulb_temperature: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float], solar_generation: Iterable[float], 
-        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None,  seconds_per_time_step: int = None, minutes: Iterable[int] = None, time_step_ratios: list[int]= [], noise_std = 0.0
+        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.noise_std = noise_std
         self.month = np.array(month, dtype='int32')
         self.hour = np.array(hour, dtype='int32')
         self.day_type = np.array(day_type, dtype='int32')
-        self.indoor_dry_bulb_temperature = np.clip(
-            np.array(indoor_dry_bulb_temperature, dtype='float32') + 
-            NoiseUtils.generate_gaussian_noise(indoor_dry_bulb_temperature, self.noise_std),
-            -90, 57
-        )
+        self.indoor_dry_bulb_temperature = np.array(indoor_dry_bulb_temperature, dtype='float32')
         self.non_shiftable_load = np.array(non_shiftable_load, dtype = 'float32')
         self.dhw_demand = np.array(dhw_demand, dtype = 'float32')
         
@@ -420,42 +412,12 @@ class EnergySimulation(TimeSeriesData):
         self.heating_demand = np.array(heating_demand, dtype = 'float32')
         assert (self.cooling_demand*self.heating_demand).sum() == 0, 'Cooling and heating in the same time step is not allowed.'
 
-        self.solar_generation = np.array(solar_generation, dtype = 'float32') + NoiseUtils.generate_gaussian_noise(indoor_dry_bulb_temperature, self.noise_std)
+        self.solar_generation = np.array(solar_generation, dtype = 'float32')
 
         # optional
-        self.minutes = np.array(minutes, dtype='int32') if minutes is not None else None
-        # delta between t1 and t2
-        time_delta = self.hour[1] * 60 - self.hour[0] * 60  
-
-        # Compute time difference if minutes exist
-        if self.minutes is not None and len(self.minutes) > 1:
-            t0 = self.hour[0] * 60 + self.minutes[0]  # Convert to total minutes
-            t1 = self.hour[1] * 60 + self.minutes[1]  # Convert to total minutes
-
-            time_delta = t1 - t0
-
-        # Fix negative difference if crossing midnight
-            # Add a full day in minutes
-        if time_delta < 0:
-                time_delta += 1440    
-
-        time_step_ratio = (
-            # Computes the ratio of the current time step (in seconds) relative to:
-            # - 1 hour (3600s) if time_delta ≤ 1 hour, OR
-            # - time_delta (converted to seconds) if time_delta > 1 hour
-            # Returns None if either time_delta or seconds_per_time_step is missing
-            seconds_per_time_step / max(3600, time_delta * 60)
-            if time_delta is not None and seconds_per_time_step
-            else None
-        )
-        time_step_ratios.append(time_step_ratio)
-        self.time_step_ratios = time_step_ratios # Store the ratio for this building
-
-        self.noise_std = noise_std
-
         self.daylight_savings_status = np.zeros(len(solar_generation), dtype='int32') if daylight_savings_status is None else np.array(daylight_savings_status, dtype='int32')
         self.average_unmet_cooling_setpoint_difference = np.zeros(len(solar_generation), dtype='float32') if average_unmet_cooling_setpoint_difference is None else np.array(average_unmet_cooling_setpoint_difference, dtype='float32')
-        self.indoor_relative_humidity = np.zeros(len(solar_generation), dtype='float32') if indoor_relative_humidity is None else np.clip(np.array(indoor_relative_humidity, dtype = 'float32') + NoiseUtils.generate_gaussian_noise(indoor_relative_humidity, self.noise_std),0,100)
+        self.indoor_relative_humidity = np.zeros(len(solar_generation), dtype='float32') if indoor_relative_humidity is None else np.array(indoor_relative_humidity, dtype = 'float32')
         self.occupant_count = np.zeros(len(solar_generation), dtype='float32') if occupant_count is None else np.array(occupant_count, dtype='float32')
         self.indoor_dry_bulb_temperature_cooling_set_point = np.zeros(len(solar_generation), dtype='float32') if indoor_dry_bulb_temperature_cooling_set_point is None else np.array(indoor_dry_bulb_temperature_cooling_set_point, dtype='float32')
         self.indoor_dry_bulb_temperature_heating_set_point = np.zeros(len(solar_generation), dtype='float32') if indoor_dry_bulb_temperature_heating_set_point is None else np.array(indoor_dry_bulb_temperature_heating_set_point, dtype='float32')
@@ -463,7 +425,7 @@ class EnergySimulation(TimeSeriesData):
         self.comfort_band = np.zeros(len(solar_generation), dtype='float32') + self.DEFUALT_COMFORT_BAND if comfort_band is None else np.array(comfort_band, dtype='float32')
 
         # set controlled variable defaults
-        self.indoor_dry_bulb_temperature_without_control = self.indoor_dry_bulb_temperature.copy() 
+        self.indoor_dry_bulb_temperature_without_control = self.indoor_dry_bulb_temperature.copy()
         self.cooling_demand_without_control = self.cooling_demand.copy()
         self.heating_demand_without_control = self.heating_demand.copy()
         self.dhw_demand_without_control = self.dhw_demand.copy()
@@ -488,16 +450,6 @@ class EnergySimulation(TimeSeriesData):
                 'Valid values are 0, 1, 2, 3 to indicate off, cooling mode, heating mode, and automatic mode.'
             
         self.hvac_mode = np.array(hvac_mode, dtype='int32')
-
-    @property
-    def time_step_ratios(self):
-        """Getter for the time_step_ratio variable."""
-        return self.__time_step_ratios
-
-    @time_step_ratios.setter
-    def time_step_ratios(self, value):
-        """Setter for the time_step_ratio variable."""
-        self.__time_step_ratios = value    
     
 class LogisticRegressionOccupantParameters(TimeSeriesData):
     def __init__(self, a_increase: Iterable[float], b_increase: Iterable[float], a_decrease: Iterable[float], b_decrease: Iterable[float], start_time_step: int = None, end_time_step: int = None):
@@ -557,41 +509,25 @@ class Weather(TimeSeriesData):
         outdoor_dry_bulb_temperature_predicted_1: Iterable[float], outdoor_dry_bulb_temperature_predicted_2: Iterable[float], outdoor_dry_bulb_temperature_predicted_3: Iterable[float],
         outdoor_relative_humidity_predicted_1: Iterable[float], outdoor_relative_humidity_predicted_2: Iterable[float], outdoor_relative_humidity_predicted_3: Iterable[float],
         diffuse_solar_irradiance_predicted_1: Iterable[float], diffuse_solar_irradiance_predicted_2: Iterable[float], diffuse_solar_irradiance_predicted_3: Iterable[float],
-        direct_solar_irradiance_predicted_1: Iterable[float], direct_solar_irradiance_predicted_2: Iterable[float], direct_solar_irradiance_predicted_3: Iterable[float], start_time_step: int = None, end_time_step: int = None, noise_std: float = 0.0
+        direct_solar_irradiance_predicted_1: Iterable[float], direct_solar_irradiance_predicted_2: Iterable[float], direct_solar_irradiance_predicted_3: Iterable[float], start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.noise_std = noise_std
         self.outdoor_dry_bulb_temperature = np.array(outdoor_dry_bulb_temperature, dtype='float32')
         self.outdoor_relative_humidity = np.array(outdoor_relative_humidity, dtype='float32')
         self.diffuse_solar_irradiance = np.array(diffuse_solar_irradiance, dtype='float32')
         self.direct_solar_irradiance = np.array(direct_solar_irradiance, dtype='float32')
-
-        # Add stochastic behavior by adding Gaussian noise to the data
-        self.outdoor_dry_bulb_temperature += NoiseUtils.generate_gaussian_noise(self.outdoor_dry_bulb_temperature, self.noise_std)
-        self.outdoor_relative_humidity += NoiseUtils.generate_gaussian_noise(self.outdoor_relative_humidity, self.noise_std)
-        self.diffuse_solar_irradiance += NoiseUtils.generate_gaussian_noise(self.diffuse_solar_irradiance, self.noise_std)
-        self.direct_solar_irradiance += NoiseUtils.generate_gaussian_noise(self.direct_solar_irradiance, self.noise_std)
-        
-        # Predicted weather values (could also introduce noise here)
-        self.outdoor_dry_bulb_temperature_predicted_1 = np.array(outdoor_dry_bulb_temperature_predicted_1, dtype='float32') + NoiseUtils.generate_gaussian_noise(outdoor_dry_bulb_temperature_predicted_1, self.noise_std)
-        self.outdoor_dry_bulb_temperature_predicted_2 = np.array(outdoor_dry_bulb_temperature_predicted_2, dtype='float32') + NoiseUtils.generate_gaussian_noise(outdoor_dry_bulb_temperature_predicted_2, self.noise_std)
-        self.outdoor_dry_bulb_temperature_predicted_3 = np.array(outdoor_dry_bulb_temperature_predicted_3, dtype='float32') + NoiseUtils.generate_gaussian_noise(outdoor_dry_bulb_temperature_predicted_3, self.noise_std)
-        
-       
-
-        self.outdoor_relative_humidity_predicted_1 = np.array(outdoor_relative_humidity_predicted_1, dtype='float32') + NoiseUtils.generate_gaussian_noise(outdoor_relative_humidity_predicted_1, self.noise_std)
-        self.outdoor_relative_humidity_predicted_2 = np.array(outdoor_relative_humidity_predicted_2, dtype='float32') + NoiseUtils.generate_gaussian_noise(outdoor_relative_humidity_predicted_2, self.noise_std)
-        self.outdoor_relative_humidity_predicted_3 = np.array(outdoor_relative_humidity_predicted_3, dtype='float32') + NoiseUtils.generate_gaussian_noise(outdoor_relative_humidity_predicted_3, self.noise_std)
-
-        self.diffuse_solar_irradiance_predicted_1 = np.array(diffuse_solar_irradiance_predicted_1, dtype='float32') + NoiseUtils.generate_gaussian_noise(diffuse_solar_irradiance_predicted_1, self.noise_std)
-        self.diffuse_solar_irradiance_predicted_2 = np.array(diffuse_solar_irradiance_predicted_2, dtype='float32') + NoiseUtils.generate_gaussian_noise(diffuse_solar_irradiance_predicted_2, self.noise_std)
-        self.diffuse_solar_irradiance_predicted_3 = np.array(diffuse_solar_irradiance_predicted_3, dtype='float32') + NoiseUtils.generate_gaussian_noise(diffuse_solar_irradiance_predicted_3, self.noise_std)
-
-        self.direct_solar_irradiance_predicted_1 = np.array(direct_solar_irradiance_predicted_1, dtype='float32') + NoiseUtils.generate_gaussian_noise(direct_solar_irradiance_predicted_1, self.noise_std)
-        self.direct_solar_irradiance_predicted_2 = np.array(direct_solar_irradiance_predicted_2, dtype='float32') + NoiseUtils.generate_gaussian_noise(direct_solar_irradiance_predicted_2, self.noise_std)
-        self.direct_solar_irradiance_predicted_3 = np.array(direct_solar_irradiance_predicted_3, dtype='float32') + NoiseUtils.generate_gaussian_noise(direct_solar_irradiance_predicted_3, self.noise_std)
-
-
+        self.outdoor_dry_bulb_temperature_predicted_1 = np.array(outdoor_dry_bulb_temperature_predicted_1, dtype='float32')
+        self.outdoor_dry_bulb_temperature_predicted_2 = np.array(outdoor_dry_bulb_temperature_predicted_2, dtype='float32')
+        self.outdoor_dry_bulb_temperature_predicted_3 = np.array(outdoor_dry_bulb_temperature_predicted_3, dtype='float32')
+        self.outdoor_relative_humidity_predicted_1 = np.array(outdoor_relative_humidity_predicted_1, dtype='float32')
+        self.outdoor_relative_humidity_predicted_2 = np.array(outdoor_relative_humidity_predicted_2, dtype='float32')
+        self.outdoor_relative_humidity_predicted_3 = np.array(outdoor_relative_humidity_predicted_3, dtype='float32')
+        self.diffuse_solar_irradiance_predicted_1 = np.array(diffuse_solar_irradiance_predicted_1, dtype='float32')
+        self.diffuse_solar_irradiance_predicted_2 = np.array(diffuse_solar_irradiance_predicted_2, dtype='float32')
+        self.diffuse_solar_irradiance_predicted_3 = np.array(diffuse_solar_irradiance_predicted_3, dtype='float32')
+        self.direct_solar_irradiance_predicted_1 = np.array(direct_solar_irradiance_predicted_1, dtype='float32')
+        self.direct_solar_irradiance_predicted_2 = np.array(direct_solar_irradiance_predicted_2, dtype='float32')
+        self.direct_solar_irradiance_predicted_3 = np.array(direct_solar_irradiance_predicted_3, dtype='float32')
 
 class Pricing(TimeSeriesData):
     """`Building` `pricing` data class.
@@ -614,30 +550,13 @@ class Pricing(TimeSeriesData):
 
     def __init__(
         self, electricity_pricing: Iterable[float], electricity_pricing_predicted_1: Iterable[float], electricity_pricing_predicted_2: Iterable[float], 
-        electricity_pricing_predicted_3: Iterable[float], start_time_step: int = None, end_time_step: int = None, noise_std: float = 0.0
+        electricity_pricing_predicted_3: Iterable[float], start_time_step: int = None, end_time_step: int = None
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.noise_std = noise_std
-        self.electricity_pricing = np.clip(np.array(electricity_pricing, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing, self.noise_std), 0, 1)
-        self.electricity_pricing_predicted_1 = np.clip(np.array(electricity_pricing_predicted_1, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing_predicted_1, self.noise_std), 0, 1)
-        self.electricity_pricing_predicted_2 = np.clip(np.array(electricity_pricing_predicted_2, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing_predicted_2, self.noise_std), 0, 1)
-        self.electricity_pricing_predicted_3 = np.clip(np.array(electricity_pricing_predicted_3, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing_predicted_3, self.noise_std), 0, 1)
-
-    def as_dict(self, time_step) -> dict:
-        """Return a dictionary representation of the current pricing data.
-        
-        Returns
-        -------
-        dict
-            Dictionary containing current electricity pricing and predictions,
-            with keys matching the class attribute names.
-        """
-        return {
-            'electricity_pricing-$/kWh': self.electricity_pricing[time_step],
-            'electricity_pricing_predicted_1-$/kWh': self.electricity_pricing_predicted_1[time_step],
-            'electricity_pricing_predicted_2-$/kWh': self.electricity_pricing_predicted_2[time_step],
-            'electricity_pricing_predicted_3-$/kWh': self.electricity_pricing_predicted_3[time_step],
-        } 
+        self.electricity_pricing = np.array(electricity_pricing, dtype='float32')
+        self.electricity_pricing_predicted_1 = np.array(electricity_pricing_predicted_1, dtype='float32')
+        self.electricity_pricing_predicted_2 = np.array(electricity_pricing_predicted_2, dtype='float32')
+        self.electricity_pricing_predicted_3 = np.array(electricity_pricing_predicted_3, dtype='float32')
 
 class CarbonIntensity(TimeSeriesData):
     """`Building` `carbon_intensity` data class.
@@ -652,166 +571,50 @@ class CarbonIntensity(TimeSeriesData):
          Time step to end reading variables.
     """
 
-    def __init__(self, carbon_intensity: Iterable[float], start_time_step: int = None, end_time_step: int = None, noise_std: float = 0.0):
-        self.noise_std = noise_std
+    def __init__(self, carbon_intensity: Iterable[float], start_time_step: int = None, end_time_step: int = None):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.carbon_intensity = np.clip(np.array(carbon_intensity, dtype='float32') + NoiseUtils.generate_gaussian_noise(carbon_intensity, self.noise_std),0,1)
+        self.carbon_intensity = np.array(carbon_intensity, dtype='float32')
 
-class ChargerSimulation(TimeSeriesData):
-    """Charger-centric electric vehicle simulation data class.
 
-    This class models the charging schedule of electric vehicles from the perspective
-    of a specific charger, with one entry per timestep indicating the state of a connected or incoming EV.
+class ElectricVehicleSimulation(TimeSeriesData):
+    """`Electric_Vehicle` `electric_vehicle_simulation` data class.
+
+    Month,Hour,Day Type,Location,Estimated Departure Time,Required Soc At Departure
 
     Attributes
     ----------
     electric_vehicle_charger_state : np.array
-        State of the electric vehicle:
-            1: 'Parked, plugged in, and ready to charge'
-            2: 'Incoming to a charger'
-            3: 'Commuting (vehicle is away)'
-    electric_vehicle_id : np.array
-        Identifier for the electric vehicle.
-    electric_vehicle_battery_capacity_kwh : np.array
-        Battery capacity of the vehicle (in kilowatt-hours).
-    current_soc : np.array
-        Current state-of-charge of the EV battery at the charger (normalized [0, 1]).
-        This is calculated from the raw kWh value divided by capacity.
+        State of the electric_vehicle indicating whether it is 'parked ready to charge' represented as 0, 'in transit', represented as 1.
+    charger : np.array
+        (available only for 'in transit' state) Charger where the electric_vehicle will plug in the next "parked ready to charge" state.
+        It can be nan if no destination charger is specified or the charger id in the format "Charger_X_Y", where X is
+        the number of the building and Y the number of the charger within that building.
     electric_vehicle_departure_time : np.array
-        Number of time steps expected until the EV departs from the charger (only for state 1).
-        Defaults to -1 when not present.
+        Number of time steps  expected until the vehicle departs (available only for 'parked ready to charge' state)
     electric_vehicle_required_soc_departure : np.array
-        Target SOC percentage required for the EV at departure time (only for state 1),
-        normalized to the [0, 1] range and with added Gaussian noise if provided.
-        Defaults to -0.1 when not present.
+        Estimated SOC percentage required for the electric_vehicle at departure time. (available only for 'parked ready to charge' state)
     electric_vehicle_estimated_arrival_time : np.array
-        Number of time steps expected until the EV arrives at the charger (only for state 2).
-        Defaults to -1 when not present.
+        Number of time steps  expected until the vehicle arrives at the charger (available only for 'in transit' state)
     electric_vehicle_estimated_soc_arrival : np.array
-        Estimated SOC percentage at the time of arrival to the charger (only for state 2),
-        normalized to the [0, 1] range and with optional Gaussian noise.
-        Defaults to -0.1 when not present.
+        Estimated SOC percentage for the electric_vehicle at arrival time. (available only for 'in transit' state)
+
     """
 
     def __init__(
-        self,
-        electric_vehicle_charger_state: Iterable[int],
-        electric_vehicle_id: Iterable[str],
-        electric_vehicle_battery_capacity_khw: Iterable[float],
-        current_soc: Iterable[float],
-        electric_vehicle_departure_time: Iterable[float],
-        electric_vehicle_required_soc_departure: Iterable[float],
-        electric_vehicle_estimated_arrival_time: Iterable[float],
-        electric_vehicle_estimated_soc_arrival: Iterable[float],
-        start_time_step: int = None,
-        end_time_step: int = None,
-        noise_std: float = 1.0
+            self, state: Iterable[str],
+            charger: Iterable[str], estimated_departure_time: Iterable[int], required_soc_departure: Iterable[float],
+            estimated_arrival_time: Iterable[int], estimated_soc_arrival: Iterable[float], start_time_step: int = None, end_time_step: int = None
     ):
-        """Initialize ChargerSchedule from charger-centric EV CSV input."""
+        r"""Initialize `ElectricVehicleSimulation`."""
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
+        self.electric_vehicle_charger_state = np.array(state, dtype=int)
+        self.charger = np.array(charger, dtype=str)
+        # NaNs are considered and filled as -1, i.e., when they serve no value or no data is recorded from them
+        default_value = -1
+        self.electric_vehicle_departure_time = np.nan_to_num(np.array(estimated_departure_time, dtype=float),
+                                                         nan=default_value).astype(int)
+        self.electric_vehicle_required_soc_departure = np.nan_to_num(np.array(required_soc_departure, dtype=float), nan=default_value)
+        self.electric_vehicle_estimated_arrival_time = np.nan_to_num(np.array(estimated_arrival_time, dtype=float),
+                                                       nan=default_value).astype(int)
+        self.electric_vehicle_estimated_soc_arrival = np.nan_to_num(np.array(estimated_soc_arrival, dtype=float), nan=default_value)
 
-        self.noise_std = noise_std
-
-        default_time_value = -1
-        default_soc_value = -0.1
-
-        self.electric_vehicle_charger_state = np.array([
-            int(str(s)) if str(s).isdigit() else np.nan
-            for s in electric_vehicle_charger_state
-        ], dtype=float)
-
-        self.electric_vehicle_id = np.array(electric_vehicle_id, dtype=object)
-        self.electric_vehicle_battery_capacity_kwh = np.array(
-            electric_vehicle_battery_capacity_khw, dtype=float
-        )
-
-        current_soc_arr = np.array(current_soc, dtype=float)
-        current_soc_arr = np.where(np.isnan(current_soc_arr), default_soc_value, current_soc_arr)
-        self.current_soc = np.clip(
-            current_soc_arr / self.electric_vehicle_battery_capacity_kwh,
-            0, 1
-        )
-
-        departure_time_arr = np.array(electric_vehicle_departure_time, dtype=float)
-        self.electric_vehicle_departure_time = np.where(
-            np.isnan(departure_time_arr), default_time_value, departure_time_arr
-        ).astype(int)
-
-        arrival_time_arr = np.array(electric_vehicle_estimated_arrival_time, dtype=float)
-        self.electric_vehicle_estimated_arrival_time = np.where(
-            np.isnan(arrival_time_arr), default_time_value, arrival_time_arr
-        ).astype(int)
-
-        required_soc_arr = np.array(electric_vehicle_required_soc_departure, dtype=float)
-        required_soc_arr = np.where(np.isnan(required_soc_arr), default_soc_value, required_soc_arr)
-        self.electric_vehicle_required_soc_departure = np.where(
-            required_soc_arr != default_soc_value,
-            np.clip(
-                required_soc_arr / 100 + (NoiseUtils.generate_gaussian_noise(required_soc_arr, self.noise_std) / 100),
-                0, 1
-            ),
-            required_soc_arr
-        )
-
-        estimated_soc_arrival_arr = np.array(electric_vehicle_estimated_soc_arrival, dtype=float)
-        estimated_soc_arrival_arr = np.where(np.isnan(estimated_soc_arrival_arr), default_soc_value, estimated_soc_arrival_arr)
-        self.electric_vehicle_estimated_soc_arrival = np.where(
-            estimated_soc_arrival_arr != default_soc_value,
-            np.clip(
-                estimated_soc_arrival_arr / 100 + (NoiseUtils.generate_gaussian_noise(estimated_soc_arrival_arr, self.noise_std) / 100),
-                0, 1
-            ),
-            estimated_soc_arrival_arr
-        )
-
-class WashingMachineSimulation(TimeSeriesData):
-    """Washing Machine Simulation data class.
-
-    Attributes
-    ----------
-    day_type : np.array
-        Type of the day (e.g., weekday/weekend).
-    hour : np.array
-        Hour of the day when the washing machine is scheduled.
-    start_time_step : np.array
-        Start time step of the washing machine usage.
-    end_time_step : np.array
-        End time step of the washing machine usage.
-    load_profile : np.array
-        List of power consumption values during the washing machine's cycle.
-    """
-
-    def __init__(
-            self,
-            day_type: Iterable[int],
-            hour: Iterable[int],
-            wm_start_time_step: Iterable[int],
-            wm_end_time_step: Iterable[int],
-            load_profile: Iterable[str],
-            start: int = None,
-            end: int = None
-    ):
-        """Initialize WashingMachineSimulation."""
-        super().__init__(start_time_step=start, end_time_step=end)
-
-        default_time_value = -1
-
-        self.day_type = np.array(day_type, dtype=int)
-        self.hour = np.array(hour, dtype=int)
-
-        start_time_step_arr = np.array(wm_start_time_step, dtype=float)
-        end_time_step_arr = np.array(wm_end_time_step, dtype=float)
-        
-
-        self.wm_start_time_step = np.where(np.isnan(start_time_step_arr), default_time_value, start_time_step_arr).astype(int)
-        self.wm_end_time_step = np.where(np.isnan(end_time_step_arr), default_time_value, end_time_step_arr).astype(int)
-
-        # Parse load_profile strings like '[10,20,30]' into lists of floats
-        def parse_profile(profile_str):
-            try:
-                return np.array(eval(profile_str), dtype=float)
-            except:
-                return np.array([], dtype=float)
-            
-
-        self.load_profile = np.array([parse_profile(lp) for lp in load_profile], dtype=object)

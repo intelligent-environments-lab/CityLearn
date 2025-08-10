@@ -26,7 +26,6 @@ Please provide detailed steps to reproduce the issue.
 ## Environment
 
 - CityLearn version:
-- Dataset name/link:
 - Operating System:
 - Python version:
 

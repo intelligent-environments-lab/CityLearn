@@ -1,13 +1,14 @@
-# Run using python test_evs.py
+# Run using python test_file.py
 
 import sys
 sys.path.insert(0, "..")
 import citylearn
-from citylearn.agents.rbc import BasicElectricVehicleRBC_ReferenceController as Agent
+from citylearn.agents.rbc import BasicRBC as Agent
 # RandomAgent, RLAgent
 from citylearn.citylearn import CityLearnEnv
+from citylearn.electric_vehicle import ElectricVehicle
 
-dataset_name = '/mnt/c/Users/Tiago Fonseca/Documents/GitHub/CityLearn/data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json'
+dataset_name = 'citylearn_challenge_2022_phase_all_plus_evs'
 
 # dataset_name = 'citylearn_challenge_2023_phase_2_local_evaluation'
 env = CityLearnEnv(dataset_name, central_agent=True)
@@ -19,3 +20,5 @@ kpis = model.env.evaluate()
 kpis = kpis.pivot(index='cost_function', columns='name', values='value').round(3)
 kpis = kpis.dropna(how='all')
 print(kpis)
+
+print(citylearn.data.DataSet.get_names())

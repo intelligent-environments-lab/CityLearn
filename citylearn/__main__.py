@@ -18,7 +18,7 @@ from citylearn.agents.base import Agent as CityLearnAgent
 from citylearn.citylearn import CityLearnEnv
 from citylearn.data import DataSet, get_settings
 from citylearn.__init__ import __version__
-from citylearn.utilities import FileHandler
+from citylearn.utilities import read_pickle, write_json, write_pickle
 import pandas as pd
 import simplejson as json
 
@@ -291,7 +291,7 @@ class Simulator:
     def __save_agent(self):
         if isinstance(self.agent, CityLearnAgent):
             filepath = os.path.join(self.output_directory, f'{self.simulation_id}-agent.pkl')
-            FileHandler.write_pickle(filepath, self.agent)
+            write_pickle(filepath, self.agent)
         
         else:
             filepath = os.path.join(self.output_directory, f'{self.simulation_id}-agent')
@@ -307,7 +307,7 @@ class Simulator:
 
         else:
             if str(self.agent_filepath).endswith('.pkl'):
-                agent = FileHandler.read_pickle(self.agent_filepath)
+                agent = read_pickle(self.agent_filepath)
                 agent.env = self.env
 
             else:
@@ -349,7 +349,7 @@ class Simulator:
         simulator = cls(**kwargs)
         simulator.__evaluate()
         filepath = os.path.join(simulator.output_directory, f'{simulator.simulation_id}-evaluation.json')
-        FileHandler.write_json(filepath, simulator.__get_evaluation_summary())
+        write_json(filepath, simulator.__get_evaluation_summary())
 
     @classmethod
     def train(cls, episodes: int = None, evaluate: bool = None, evaluation_episode_time_steps: Tuple[int, int] = None, save_agent: bool = None, **kwargs):
@@ -357,7 +357,7 @@ class Simulator:
         episodes = 1 if episodes is None else episodes
         simulator.__train(episodes)
         filepath = os.path.join(simulator.output_directory, f'{simulator.simulation_id}-train.json')
-        FileHandler.write_json(filepath, simulator.__get_training_summary())
+        write_json(filepath, simulator.__get_training_summary())
 
         if save_agent:
             simulator.__save_agent()
