@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from citylearn.base import Environment
 from citylearn.data import LogisticRegressionOccupantParameters
-from citylearn.utilities import read_pickle
+from citylearn.utilities import FileHandler
 
 class Occupant(Environment):
     def __init__(self, **kwargs) -> None:
@@ -48,12 +48,12 @@ class LogisticRegressionOccupant(Occupant):
     @setpoint_increase_model_filepath.setter
     def setpoint_increase_model_filepath(self, value: Union[Path, str]):
         self.__setpoint_increase_model_filepath = value
-        self.__setpoint_increase_model = read_pickle(self.setpoint_increase_model_filepath)
+        self.__setpoint_increase_model = FileHandler.read_pickle(self.setpoint_increase_model_filepath)
 
     @setpoint_decrease_model_filepath.setter
     def setpoint_decrease_model_filepath(self, value: Union[Path, str]):
         self.__setpoint_decrease_model_filepath = value
-        self.__setpoint_decrease_model = read_pickle(self.setpoint_decrease_model_filepath)
+        self.__setpoint_decrease_model = FileHandler.read_pickle(self.setpoint_decrease_model_filepath)
 
     @delta_output_map.setter
     def delta_output_map(self, value: Mapping[Union[str, int], float]):

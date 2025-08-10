@@ -10,7 +10,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from citylearn.__init__ import __version__
-from citylearn.utilities import join_url, read_json, read_yaml, write_json
+from citylearn.utilities import FileHandler
 
 LOGGER = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
@@ -24,7 +24,7 @@ SETTINGS_FILEPATH = os.path.join(MISC_DIRECTORY, 'settings.yaml')
 def get_settings():
     directory = os.path.join(os.path.join(os.path.dirname(__file__), 'misc'))
     filepath = os.path.join(directory, 'settings.yaml')
-    settings = read_yaml(filepath)
+    settings = FileHandler.read_yaml(filepath)
 
     return settings
 
@@ -34,10 +34,10 @@ class DataSet:
     GITHUB_ACCOUNT = 'intelligent-environments-lab'
     REPOSITORY_NAME = 'CityLearn'
     REPOSITORY_TAG = f'v{__version__}'
-    REPOSITORY_DATA_PATH = join_url('data')
-    REPOSITORY_DATA_DATASETS_PATH = join_url(REPOSITORY_DATA_PATH, 'datasets')
-    REPOSITORY_DATA_MISC_PATH = join_url(REPOSITORY_DATA_PATH, 'misc')
-    GITHUB_API_CONTENT_URL = join_url('https://api.github.com/repos/', GITHUB_ACCOUNT, REPOSITORY_NAME, 'contents')
+    REPOSITORY_DATA_PATH = FileHandler.join_url('data')
+    REPOSITORY_DATA_DATASETS_PATH = FileHandler.join_url(REPOSITORY_DATA_PATH, 'datasets')
+    REPOSITORY_DATA_MISC_PATH = FileHandler.join_url(REPOSITORY_DATA_PATH, 'misc')
+    GITHUB_API_CONTENT_URL = FileHandler.join_url('https://api.github.com/repos/', GITHUB_ACCOUNT, REPOSITORY_NAME, 'contents')
     DEFAULT_CACHE_DIRECTORY = os.path.join(user_cache_dir('citylearn'), REPOSITORY_TAG)
     BATTERY_CHOICES_FILENAME = 'battery_choices.yaml'
     PV_CHOICES_FILENAME = 'lbl-tracking_the_sun-res-pv.csv'
@@ -112,7 +112,7 @@ class DataSet:
 
     def get_schema(self, name: str) -> dict:
         schema_filepath = self.get_dataset(name)
-        schema = read_json(schema_filepath)
+        schema = FileHandler.read_json(schema_filepath)
         schema['root_directory'] = os.path.split(Path(schema_filepath).absolute())[0]
 
         return schema
@@ -121,7 +121,7 @@ class DataSet:
         datasets_directory = os.path.join(self.cache_directory, 'datasets')
         root_directory = os.path.join(datasets_directory, name)
         schema_filepath = os.path.join(root_directory, 'schema.json')
-        path = join_url(self.datasets_path, name)
+        path = FileHandler.join_url(self.datasets_path, name)
 
         # check that dataset does not already exist using the schema as a proxy
         if not os.path.isfile(schema_filepath):
@@ -169,7 +169,7 @@ class DataSet:
         filepath = os.path.join(self.cache_directory, 'dataset_names.json')
 
         if os.path.isfile(filepath):
-            contents = read_json(filepath)
+            contents = FileHandler.read_json(filepath)
         
         else:
             LOGGER.info(f'The dataset names DNE in cache. Will download from '
@@ -181,7 +181,7 @@ class DataSet:
                     if r.get('type') == 'dir' 
                         and r.get('path').replace(r['name'], '').strip('/') == self.datasets_path
             ]
-            write_json(filepath, contents)
+            FileHandler.write_json(filepath, contents)
             
         contents = sorted(contents)
 
@@ -198,7 +198,7 @@ class DataSet:
         misc_directory = os.path.join(self.cache_directory, 'misc')
         os.makedirs(misc_directory, exist_ok=True)
         filepath = os.path.join(misc_directory, self.PV_CHOICES_FILENAME)
-        path = join_url(self.misc_path)
+        path = FileHandler.join_url(self.misc_path)
 
         # check that file DNE
         if not os.path.isfile(filepath):
@@ -231,7 +231,7 @@ class DataSet:
         misc_directory = os.path.join(self.cache_directory, 'misc')
         os.makedirs(misc_directory, exist_ok=True)
         filepath = os.path.join(misc_directory, self.BATTERY_CHOICES_FILENAME)
-        path = join_url(self.misc_path)
+        path = FileHandler.join_url(self.misc_path)
 
         # check that file DNE
         if not os.path.isfile(filepath):
@@ -249,7 +249,7 @@ class DataSet:
         else:
             pass
 
-        data = read_yaml(filepath)
+        data = FileHandler.read_yaml(filepath)
         data = pd.DataFrame([{'model': k, **v['attributes']} for k, v in data.items()])
         data = data.set_index('model')
 
@@ -263,7 +263,7 @@ class DataSet:
             pass
 
     def get_github_contents(self, path: str = None) -> List[Mapping[str, Any]]:
-        url = self.GITHUB_API_CONTENT_URL if path is None else join_url(self.GITHUB_API_CONTENT_URL, path) 
+        url = self.GITHUB_API_CONTENT_URL if path is None else FileHandler.join_url(self.GITHUB_API_CONTENT_URL, path) 
         params = dict(ref=self.tag)
         contents = self.get_requests_session().get(url, params=params)
 

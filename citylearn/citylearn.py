@@ -12,11 +12,11 @@ import pandas as pd
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.building import Building, DynamicsBuilding
 from citylearn.cost_function import CostFunction
-from citylearn.data import CarbonIntensity, DataSet, ElectricVehicleSimulation, EnergySimulation, LogisticRegressionOccupantParameters, Pricing, TOLERANCE, Weather
+from citylearn.data import CarbonIntensity, DataSet, ElectricVehicleSimulation, EnergySimulation, LogisticRegressionOccupantParameters, Pricing, Weather
 from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery, PV
 from citylearn.reward_function import RewardFunction
-from citylearn.utilities import read_json
+from citylearn.utilities import FileHandler
 
 LOGGER = logging.getLogger()
 logging.getLogger('matplotlib.font_manager').disabled = True
@@ -751,7 +751,7 @@ class CityLearnEnv(Environment, Env):
 
         if isinstance(schema, (str, Path)) and os.path.isfile(schema):
             schema_filepath = Path(schema) if isinstance(schema, str) else schema
-            schema = read_json(schema)
+            schema = FileHandler.read_json(schema)
             schema['root_directory'] = os.path.split(schema_filepath.absolute())[0] if schema['root_directory'] is None \
                 else schema['root_directory']
         
