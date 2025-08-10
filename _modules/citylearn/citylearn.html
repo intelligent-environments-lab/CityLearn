@@ -95,7 +95,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">zip_longest</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
@@ -1579,6 +1578,9 @@
 <div class="viewcode-block" id="CityLearnEnv.update_variables">
 <a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.update_variables">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">update_variables</span><span class="p">()</span>
+
         <span class="c1"># net electricity consumption</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__net_electricity_consumption</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]))</span>
 
