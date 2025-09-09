@@ -123,6 +123,12 @@ ENV/
 env.bak/
 venv.bak/
 *env/
+# Virtual envs (stray names with tilde)
+venv~/
+**/venv~/
+
+# Editor backup files (just in case)
+*~
 
 # Spyder project settings
 .spyderproject
