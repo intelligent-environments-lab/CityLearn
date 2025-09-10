@@ -2337,8 +2337,10 @@ class Building(Environment):
         if self.electric_vehicle_chargers is not None:
 
             for c in self.electric_vehicle_chargers:
-                building_chargers_total_electricity_consumption = \
-                    building_chargers_total_electricity_consumption + c.electricity_consumption[self.time_step - 1]
+                # include charger electricity consumption for current timestep
+                building_chargers_total_electricity_consumption = (
+                    building_chargers_total_electricity_consumption + c.electricity_consumption[self.time_step]
+                )
         else:
             pass
 

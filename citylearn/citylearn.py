@@ -177,6 +177,10 @@ class CityLearnEnv(Environment, Env):
         # set reward function
         self.reward_function = reward_function
 
+        # rendering switch: precedence schema['render'] > init kwarg 'render' > False
+        schema_render = self.schema.get('render', None) if isinstance(self.schema, dict) else None
+        self.render_enabled = schema_render if schema_render is not None else bool(kwargs.get('render', False))
+
         # reset environment and initializes episode time steps
         self.reset()
 
@@ -197,7 +201,7 @@ class CityLearnEnv(Environment, Env):
         print(root_directory)
         self.root_directory = root_directory
 
-        if schema:  # Check if schema is provided
+        if self.render_enabled and schema:  # Prepare rendering output dir if enabled
             # Construct the dataset path using the schema
             dataset_path = root_directory
 
@@ -207,8 +211,7 @@ class CityLearnEnv(Environment, Env):
 
             # Check if the dataset path exists and copy it to the new folder
             if os.path.exists(dataset_path):
-                shutil.copytree(dataset_path, self.new_folder_path)  # Copy the dataset to the new folder
-                print(f"Dataset '{dataset_path}' copied to '{self.new_folder_path}'")
+                shutil.copytree(dataset_path, self.new_folder_path)
             else:
                 raise FileNotFoundError(f"Error: The dataset '{dataset_path}' does not exist.")
 
@@ -217,6 +220,12 @@ class CityLearnEnv(Environment, Env):
         """`dict` object of CityLearn schema."""
 
         return self.__schema
+
+    @property
+    def render_enabled(self) -> bool:
+        """Whether environment rendering/logging is enabled."""
+
+        return getattr(self, '_CityLearnEnv__render_enabled', False)
 
     @property
     def root_directory(self) -> Union[str, Path]:
@@ -812,6 +821,10 @@ class CityLearnEnv(Environment, Env):
         
         self.__schema = schema
 
+    @render_enabled.setter
+    def render_enabled(self, enabled: bool):
+        self.__render_enabled = bool(enabled)
+
     @root_directory.setter
     def root_directory(self, root_directory: Union[str, Path]):
         self.__root_directory = root_directory
@@ -902,7 +915,7 @@ class CityLearnEnv(Environment, Env):
         ]
 
     def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, bool, dict]:
-        """Advance to next time step then apply actions to `buildings` and update variables.
+        """Apply actions at current timestep, update variables/reward, then advance time.
         
         Parameters
         ----------
@@ -932,13 +945,11 @@ class CityLearnEnv(Environment, Env):
         """
         actions = self._parse_actions(actions)
 
+        # Apply actions at current timestep t
         for building, building_actions in zip(self.buildings, actions):
             building.apply_actions(**building_actions)
 
-        self.next_time_step()
-
-        #Currently at time_step t+1
-
+        # Update environment/building variables for timestep t (reflect effects of actions)
         self.update_variables()
 
         # NOTE:
@@ -951,7 +962,10 @@ class CityLearnEnv(Environment, Env):
         reward = self.reward_function.calculate(observations=reward_observations)
         self.__rewards.append(reward)
 
-        # store episode reward summary
+        # Advance to next timestep t+1
+        self.next_time_step()
+
+        # store episode reward summary at the end of episode (upon reaching final timestep)
         if self.terminated:
             rewards = np.array(self.__rewards[1:], dtype='float32')
             self.__episode_rewards.append({
@@ -960,9 +974,6 @@ class CityLearnEnv(Environment, Env):
                 'sum': rewards.sum(axis=0).tolist(),
                 'mean': rewards.mean(axis=0).tolist()
             })
-
-        else:
-            pass
 
         return self.observations, reward, self.terminated, self.truncated, self.get_info()
 
@@ -1205,7 +1216,8 @@ class CityLearnEnv(Environment, Env):
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
-        self.render()
+        if getattr(self, 'render_enabled', False):
+            self.render()
         for building in self.buildings:
             building.next_time_step()
 
@@ -1288,6 +1300,8 @@ class CityLearnEnv(Environment, Env):
                     ev.battery.force_set_soc(new_soc)
 
     def export_final_kpis(self, model: 'citylearn.agents.base.Agent', filepath="exported_kpis.csv"):
+        # Ensure output directory exists even if rendering was disabled
+        self._ensure_render_output_dir()
         file_path = os.path.join(self.new_folder_path, filepath)
         kpis = model.env.evaluate()
         kpis = kpis.pivot(index='cost_function', columns='name', values='value').round(3)
@@ -1302,6 +1316,10 @@ class CityLearnEnv(Environment, Env):
         Renders the current state of the CityLearn environment, logging data into separate CSV files.
         Organizes files by episode number when simulation spans multiple episodes.
         """
+        if not getattr(self, 'render_enabled', False):
+            return
+        # Ensure the output directory is prepared
+        self._ensure_render_output_dir()
         iso_timestamp = self._get_iso_timestamp()
         os.makedirs(self.new_folder_path, exist_ok=True)
 
@@ -1354,6 +1372,22 @@ class CityLearnEnv(Environment, Env):
             if not file_exists:
                 writer.writeheader()
             writer.writerow(data)
+
+    def _ensure_render_output_dir(self):
+        """Ensure `new_folder_path` exists and dataset is copied once for logging/export.
+
+        Safe to call multiple times; creates path lazily if missing.
+        """
+        if not hasattr(self, 'new_folder_path') or not os.path.isdir(getattr(self, 'new_folder_path', '')):
+            dataset_path = self.root_directory
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            self.new_folder_path = os.path.join(self.root_directory, "..", "..", "..", "..", "results", timestamp)
+            if os.path.exists(dataset_path):
+                # Copy only if destination does not exist
+                if not os.path.exists(self.new_folder_path):
+                    shutil.copytree(dataset_path, self.new_folder_path)
+            else:
+                raise FileNotFoundError(f"Error: The dataset '{dataset_path}' does not exist.")
 
     def _get_iso_timestamp(self):
         # Reset time tracking if this is the first step of a new episode
