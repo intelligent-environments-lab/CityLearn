@@ -1090,6 +1090,26 @@ class CityLearnEnv(Environment, Env):
         get_net_electricity_consumption_cost = lambda x, c: getattr(x, f'net_electricity_consumption_cost{c.value}')
         get_net_electricity_consumption_emission = lambda x, c: getattr(x, f'net_electricity_consumption_emission{c.value}')
 
+        # Safe division helper for KPI ratios
+        def _safe_div(control_value: float, baseline_value: float):
+            try:
+                c = control_value
+                b = baseline_value
+                # Treat None/NaN/inf as 0.0 for robust normalization on short horizons
+                def _coerce(x):
+                    try:
+                        v = float(x)
+                        return v if np.isfinite(v) else 0.0
+                    except Exception:
+                        return 0.0
+                c = _coerce(c)
+                b = _coerce(b)
+                if b == 0.0:
+                    return 1.0 if c == 0.0 else None
+                return c / b
+            except Exception:
+                return None
+
         comfort_band = EnergySimulation.DEFUALT_COMFORT_BAND if comfort_band is None else comfort_band
         building_level = []
 
@@ -1118,24 +1138,27 @@ class CityLearnEnv(Environment, Env):
                 + b.energy_from_heating_device + b.energy_from_heating_storage\
                     + b.energy_from_dhw_device + b.energy_from_dhw_storage\
                         + b.energy_to_non_shiftable_load
+            ec_c = CostFunction.electricity_consumption(get_net_electricity_consumption(b, control_condition))[-1]
+            ec_b = CostFunction.electricity_consumption(get_net_electricity_consumption(b, baseline_condition))[-1]
+            zne_c = CostFunction.zero_net_energy(get_net_electricity_consumption(b, control_condition))[-1]
+            zne_b = CostFunction.zero_net_energy(get_net_electricity_consumption(b, baseline_condition))[-1]
+            ce_c = CostFunction.carbon_emissions(get_net_electricity_consumption_emission(b, control_condition))[-1]
+            ce_b = CostFunction.carbon_emissions(get_net_electricity_consumption_emission(b, baseline_condition))[-1] if sum(b.carbon_intensity.carbon_intensity) != 0 else 0
+            cost_c = CostFunction.cost(get_net_electricity_consumption_cost(b, control_condition))[-1]
+            cost_b = CostFunction.cost(get_net_electricity_consumption_cost(b, baseline_condition))[-1] if sum(b.pricing.electricity_pricing) != 0 else 0
+
             building_level_ = pd.DataFrame([{
                 'cost_function': 'electricity_consumption_total',
-                'value': CostFunction.electricity_consumption(get_net_electricity_consumption(b, control_condition))[-1]/\
-                    CostFunction.electricity_consumption(get_net_electricity_consumption(b, baseline_condition))[-1],
+                'value': _safe_div(ec_c, ec_b),
             }, {
                 'cost_function': 'zero_net_energy',
-                'value': CostFunction.zero_net_energy(get_net_electricity_consumption(b, control_condition))[-1]/\
-                    CostFunction.zero_net_energy(get_net_electricity_consumption(b, baseline_condition))[-1],
+                'value': _safe_div(zne_c, zne_b),
             }, {
                 'cost_function': 'carbon_emissions_total',
-                'value': CostFunction.carbon_emissions(get_net_electricity_consumption_emission(b, control_condition))[-1]/\
-                    CostFunction.carbon_emissions(get_net_electricity_consumption_emission(b, baseline_condition))[-1]\
-                        if sum(b.carbon_intensity.carbon_intensity) != 0 else None,
+                'value': _safe_div(ce_c, ce_b),
             }, {
                 'cost_function': 'cost_total',
-                'value': CostFunction.cost(get_net_electricity_consumption_cost(b, control_condition))[-1]/\
-                    CostFunction.cost(get_net_electricity_consumption_cost(b, baseline_condition))[-1]\
-                        if sum(b.pricing.electricity_pricing) != 0 else None,
+                'value': _safe_div(cost_c, cost_b),
             }, {
                 'cost_function': 'discomfort_proportion',
                 'value': unmet[-1],
@@ -1184,26 +1207,33 @@ class CityLearnEnv(Environment, Env):
         control_condition = EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV if control_condition is None else control_condition
         baseline_condition = EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV if baseline_condition is None else baseline_condition
 
+        # District-level normalized KPIs with safe division to avoid 0/0 or div-by-zero
+        ramp_c = CostFunction.ramping(get_net_electricity_consumption(self, control_condition))[-1]
+        ramp_b = CostFunction.ramping(get_net_electricity_consumption(self, baseline_condition))[-1]
+        dlf24_c = CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, control_condition), window=24)[-1]
+        dlf24_b = CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, baseline_condition), window=24)[-1]
+        dlf730_c = CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, control_condition), window=730)[-1]
+        dlf730_b = CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, baseline_condition), window=730)[-1]
+        peak24_c = CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=24)[-1]
+        peak24_b = CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=24)[-1]
+        peak_all_c = CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=self.time_steps)[-1]
+        peak_all_b = CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=self.time_steps)[-1]
+
         district_level = pd.DataFrame([{
             'cost_function': 'ramping_average',
-            'value': CostFunction.ramping(get_net_electricity_consumption(self, control_condition))[-1]/\
-                CostFunction.ramping(get_net_electricity_consumption(self, baseline_condition))[-1],
+            'value': _safe_div(ramp_c, ramp_b),
         }, {
             'cost_function': 'daily_one_minus_load_factor_average',
-            'value': CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, control_condition), window=24)[-1]/\
-                CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, baseline_condition), window=24)[-1],
+            'value': _safe_div(dlf24_c, dlf24_b),
         },{
             'cost_function': 'monthly_one_minus_load_factor_average',
-            'value': CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, control_condition), window=730)[-1]/\
-                CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, baseline_condition), window=730)[-1],
+            'value': _safe_div(dlf730_c, dlf730_b),
         }, {
             'cost_function': 'daily_peak_average',
-            'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=24)[-1]/\
-                CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=24)[-1],
+            'value': _safe_div(peak24_c, peak24_b),
         }, {
             'cost_function': 'all_time_peak_average',
-            'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=self.time_steps)[-1]/\
-                CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=self.time_steps)[-1],
+            'value': _safe_div(peak_all_c, peak_all_b),
         }])
 
         district_level = pd.concat([district_level, building_level], ignore_index=True, sort=False)
@@ -1490,14 +1520,33 @@ class CityLearnEnv(Environment, Env):
         for b in self.buildings:
             b.update_variables()
 
+        # Helper to set or append district-level aggregates for current timestep
+        def _set_or_append(lst, value):
+            # If list length matches current index => append
+            if len(lst) == self.time_step:
+                lst.append(value)
+            # If already has an entry for current timestep => overwrite
+            elif len(lst) == self.time_step + 1:
+                lst[self.time_step] = value
+            else:
+                # Out-of-sync: resize to current index and append
+                del lst[self.time_step + 1:]
+                if len(lst) < self.time_step:
+                    # pad if needed
+                    lst.extend([0.0] * (self.time_step - len(lst)))
+                lst.append(value)
+
         # net electricity consumption
-        self.__net_electricity_consumption.append(sum([b.net_electricity_consumption[self.time_step] for b in self.buildings]))
+        total = sum(b.net_electricity_consumption[self.time_step] for b in self.buildings)
+        _set_or_append(self.__net_electricity_consumption, total)
 
-        # net electriciy consumption cost
-        self.__net_electricity_consumption_cost.append(sum([b.net_electricity_consumption_cost[self.time_step] for b in self.buildings]))
+        # net electricity consumption cost
+        total_cost = sum(b.net_electricity_consumption_cost[self.time_step] for b in self.buildings)
+        _set_or_append(self.__net_electricity_consumption_cost, total_cost)
 
-        # net electriciy consumption emission
-        self.__net_electricity_consumption_emission.append(sum([b.net_electricity_consumption_emission[self.time_step] for b in self.buildings]))
+        # net electricity consumption emission
+        total_emission = sum(b.net_electricity_consumption_emission[self.time_step] for b in self.buildings)
+        _set_or_append(self.__net_electricity_consumption_emission, total_emission)
 
     def load_agent(self, agent: Union[str, 'citylearn.agents.base.Agent'] = None, **kwargs) -> Union[Any, 'citylearn.agents.base.Agent']:
         """Return :class:`Agent` or sub class object as defined by the `schema`.

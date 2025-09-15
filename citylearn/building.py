@@ -1091,23 +1091,21 @@ class Building(Environment):
             connected_car = charger.connected_electric_vehicle
 
             if connected_car is not None:
-                # Time-safe access for last charging action
-                if self.time_step > 0:
-                    last_charged_kwh = charger.past_charging_action_values_kwh[self.time_step - 1]
-                    battery_soc = connected_car.battery.soc[self.time_step - 1]
-                    required_soc = charger.charger_simulation.electric_vehicle_required_soc_departure[self.time_step - 1]
-                    hours_until_departure = charger.charger_simulation.electric_vehicle_departure_time[
-                        self.time_step - 1]
-                else:
-                    last_charged_kwh = None
-                    required_soc = None
-                    hours_until_departure = None
-                    battery_soc = connected_car.battery.initial_soc  # assume at t=0 it's still the initial
+                # Use current timestep values to align rewards/observations with actions at t
+                # Last charged energy for current timestep (0.0 if not set)
+                last_charged_kwh = 0.0
+                if 0 <= self.time_step < len(charger.past_charging_action_values_kwh):
+                    last_charged_kwh = float(charger.past_charging_action_values_kwh[self.time_step])
 
-                if self.time_step > 1:
-                    previous_battery_soc = connected_car.battery.soc[self.time_step - 2]
-                else:
-                    previous_battery_soc = connected_car.battery.initial_soc
+                # Current battery SOC after applying action at t
+                battery_soc = connected_car.battery.soc[self.time_step]
+
+                # Previous SOC (t-1) or initial at t=0
+                previous_battery_soc = connected_car.battery.initial_soc if self.time_step == 0 else connected_car.battery.soc[self.time_step - 1]
+
+                # Schedule values at current timestep
+                required_soc = charger.charger_simulation.electric_vehicle_required_soc_departure[self.time_step]
+                hours_until_departure = charger.charger_simulation.electric_vehicle_departure_time[self.time_step]
 
                 battery_capacity = connected_car.battery.capacity
                 min_capacity = (1 - connected_car.battery.depth_of_discharge) * battery_capacity
@@ -1128,7 +1126,7 @@ class Building(Environment):
             else:
                 electric_vehicle_chargers_dict[charger_id] = {
                     "connected": False,
-                    "last_charged_kwh": None,
+                    "last_charged_kwh": 0.0,
                     "previous_battery_soc": None,
                     "battery_soc": None,
                     "battery_capacity": None,
@@ -1141,20 +1139,22 @@ class Building(Environment):
 
         for wm in self.washing_machines:
             washing_machine_name = wm.name
-                # Time-safe access for last charging action
-            if self.time_step > 0:
-                    start_time_step = wm.washing_machine_simulation.wm_start_time_step[self.time_step - 1]
-                    end_time_step =  wm.washing_machine_simulation.wm_end_time_step[self.time_step - 1]
-                    load_profile =  wm.washing_machine_simulation.load_profile[self.time_step - 1]
-            else:
-                    start_time_step = wm.washing_machine_simulation.wm_start_time_step[self.time_step]
-                    end_time_step =  wm.washing_machine_simulation.wm_end_time_step[self.time_step]
-                    load_profile =  wm.washing_machine_simulation.load_profile[self.time_step]
+            t = self.time_step
+            # Use current timestep values; default to sentinel values if out of bounds
+            def _safe(arr, idx, default):
+                try:
+                    return arr[idx]
+                except Exception:
+                    return default
+
+            start_time_step = _safe(wm.washing_machine_simulation.wm_start_time_step, t, -1)
+            end_time_step = _safe(wm.washing_machine_simulation.wm_end_time_step, t, -1)
+            load_profile = _safe(wm.washing_machine_simulation.load_profile, t, 0.0)
 
             washing_machines_dict[washing_machine_name] = {
-                    "wm_start_time_step": start_time_step,
-                    "wm_end_time_step": end_time_step,
-                    "load_profile": load_profile,
+                "wm_start_time_step": start_time_step,
+                "wm_end_time_step": end_time_step,
+                "load_profile": load_profile,
             }
 
         return {

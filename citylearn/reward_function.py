@@ -438,6 +438,8 @@ class Electric_Vehicles_Reward_Function(MARL):
             capacity = data.get("battery_capacity")
             min_capacity = data.get("min_capacity")
             last_charged_kwh = data.get("last_charged_kwh", 0)
+            if last_charged_kwh is None:
+                last_charged_kwh = 0.0
             required_soc = data.get("required_soc")
             hours_until_departure = data.get("hours_until_departure", 0)
             max_charging_power = data.get("max_charging_power", 0)
