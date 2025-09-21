@@ -188,7 +188,7 @@ class DataSet:
         return contents
     
     def get_pv_sizing_data(self) -> pd.DataFrame:
-        """Reads and returns NREL's Tracking The Sun dataset that has been prefilered for completeness.
+        """Reads and returns LBNL's Tracking The Sun dataset that has been prefilered for completeness.
         
         Returns
         -------
