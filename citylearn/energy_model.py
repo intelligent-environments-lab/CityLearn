@@ -669,7 +669,7 @@ class StorageDevice(Device):
     def energy_balance(self) -> np.ndarray:
         r"""Charged/discharged energy time series in [kWh]."""
 
-        return self.__energy_balance * self.time_step_ratio
+        return self.__energy_balance
         
     @property
     def round_trip_efficiency(self) -> float:
@@ -761,10 +761,11 @@ class StorageDevice(Device):
         actual energy charged/discharged irrespective of what is determined in the step function after taking into account storage design limits 
         e.g. maximum power input/output, capacity.
         """
-        energy = energy * self.time_step_ratio
-        energy -= energy_init
-        energy_balance = energy/self.round_trip_efficiency if energy >= 0 else energy*self.round_trip_efficiency
-        return energy_balance
+        delta_energy = energy - energy_init
+        if delta_energy >= 0:
+            return delta_energy / self.round_trip_efficiency
+
+        return delta_energy * self.round_trip_efficiency
 
     def autosize(self, demand: Iterable[float], safety_factor: Union[float, Tuple[float, float]] = None) -> float:
         r"""Autosize `capacity`.

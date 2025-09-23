@@ -439,13 +439,16 @@ class EnergySimulation(TimeSeriesData):
         if time_delta < 0:
                 time_delta += 1440    
 
+        base_step_seconds = None
+
+        if time_delta is not None:
+            # Convert dataset spacing to seconds (guard against zero/negative values)
+            candidate = max(1, time_delta * 60)
+            base_step_seconds = candidate
+
         time_step_ratio = (
-            # Computes the ratio of the current time step (in seconds) relative to:
-            # - 1 hour (3600s) if time_delta ≤ 1 hour, OR
-            # - time_delta (converted to seconds) if time_delta > 1 hour
-            # Returns None if either time_delta or seconds_per_time_step is missing
-            seconds_per_time_step / max(3600, time_delta * 60)
-            if time_delta is not None and seconds_per_time_step
+            seconds_per_time_step / base_step_seconds
+            if seconds_per_time_step and base_step_seconds
             else None
         )
         time_step_ratios.append(time_step_ratio)
