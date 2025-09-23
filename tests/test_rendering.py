@@ -1,67 +1,113 @@
 """
-Run from tests folder: python3 test_rendering.py
+Run from repo root: `python tests/test_rendering.py`
 
-Ensures parent repo root is on sys.path so local 'citylearn' package is importable
-without installing. Alternative: run from repo root using `python -m tests.test_rendering`.
-
-Validates rendering switch and export behavior:
-- Rendering disabled: no output folder created during steps.
-- Rendering enabled: output folder created.
-- export_final_kpis writes file even if rendering disabled.
-
-Set CLEAN_RESULTS=1 env var to remove created result folders at end.
+Validates rendering/export behaviour without relying on pytest so it matches the
+rest of the scripts in this folder.
 """
+
 import os
-import sys
-PARENT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if PARENT not in sys.path:
-    sys.path.insert(0, PARENT)
 import shutil
+import sys
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
 import numpy as np
+
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from citylearn.citylearn import CityLearnEnv
 
+SCHEMA = ROOT / 'data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json'
 
-def maybe_cleanup(path: str):
-    if path and os.environ.get('CLEAN_RESULTS', '0') == '1':
+
+def _cleanup_env(env: CityLearnEnv):
+    path = getattr(env, 'new_folder_path', None)
+    if path:
+        shutil.rmtree(path, ignore_errors=True)
+
+
+def _step_once(env: CityLearnEnv):
+    obs, _ = env.reset()
+    zeros = [np.zeros(env.action_space[0].shape[0], dtype='float32')]
+    env.step(zeros)
+
+
+def test_render_disabled():
+    env = CityLearnEnv(str(SCHEMA), central_agent=True, episode_time_steps=2)
+    try:
+        _step_once(env)
+        assert getattr(env, 'new_folder_path', None) is None, 'Results folder present while rendering disabled.'
+    finally:
+        _cleanup_env(env)
+
+
+def test_render_enabled_default_directory():
+    env = CityLearnEnv(str(SCHEMA), central_agent=True, episode_time_steps=2, render=True)
+    try:
+        _step_once(env)
+        new_folder = getattr(env, 'new_folder_path', None)
+        assert new_folder, 'new_folder_path missing with rendering enabled.'
+        new_folder_path = Path(new_folder)
+        assert new_folder_path.is_dir(), f'Results folder not created: {new_folder_path}'
+        assert env.render_output_root.resolve() in new_folder_path.resolve().parents, 'Render output not stored under render_output_root.'
+    finally:
+        _cleanup_env(env)
+
+
+def test_export_final_kpis_when_render_off():
+    env = CityLearnEnv(str(SCHEMA), central_agent=True, episode_time_steps=2)
+
+    class _Model:
+        pass
+
+    model = _Model()
+    model.env = env
+
+    try:
+        env.export_final_kpis(model, filepath='exported_kpis_test.csv')
+        new_folder = getattr(env, 'new_folder_path', None)
+        assert new_folder, 'export_final_kpis did not create an output directory.'
+        export_path = Path(new_folder) / 'exported_kpis_test.csv'
+        assert export_path.is_file(), f'exported KPIs missing: {export_path}'
+    finally:
+        _cleanup_env(env)
+
+
+def test_render_directory_override():
+    with TemporaryDirectory() as tmpdir:
+        custom_root = Path(tmpdir) / 'custom_results'
+        env = CityLearnEnv(
+            str(SCHEMA),
+            central_agent=True,
+            episode_time_steps=2,
+            render=True,
+            render_directory=custom_root,
+        )
         try:
-            shutil.rmtree(path)
-            print(f'Removed {path}')
-        except Exception as e:
-            print(f'Cleanup failed for {path}: {e}')
+            _step_once(env)
+            new_folder = Path(env.new_folder_path)
+            assert env.render_output_root == custom_root.resolve(), 'render_directory override not respected.'
+            assert new_folder.is_dir(), 'Custom render output directory missing.'
+            assert env.render_output_root in new_folder.parents, 'Custom results stored outside provided directory.'
+        finally:
+            _cleanup_env(env)
 
 
 def main():
-    schema = '../data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json'
+    tests = [
+        ('render disabled leaves no directory', test_render_disabled),
+        ('render enabled creates timestamp directory', test_render_enabled_default_directory),
+        ('export_final_kpis creates output when render off', test_export_final_kpis_when_render_off),
+        ('render_directory override respected', test_render_directory_override),
+    ]
 
-    # 1) Rendering disabled (default)
-    env = CityLearnEnv(schema, central_agent=True, episode_time_steps=2)
-    obs, _ = env.reset()
-    zeros = [np.zeros(env.action_space[0].shape[0], dtype='float32')]
-    obs, r, term, trunc, _ = env.step(zeros)
-    has_folder = hasattr(env, 'new_folder_path') and os.path.isdir(getattr(env, 'new_folder_path', ''))
-    assert not has_folder, 'Results folder present while rendering disabled.'
+    for description, func in tests:
+        func()
+        print(f'OK - {description}.')
 
-    # 2) Rendering enabled via param
-    env2 = CityLearnEnv(schema, central_agent=True, episode_time_steps=2, render=True)
-    obs, _ = env2.reset()
-    obs, r, term, trunc, _ = env2.step(zeros)
-    assert hasattr(env2, 'new_folder_path'), 'new_folder_path missing with rendering enabled.'
-    assert os.path.isdir(env2.new_folder_path), f'Results folder not created: {env2.new_folder_path}'
-
-    # 3) export_final_kpis works even when rendering disabled (Option B)
-    class _Model: pass
-    m = _Model(); m.env = env
-    export_name = 'exported_kpis_test.csv'
-    env.export_final_kpis(m, filepath=export_name)
-    assert hasattr(env, 'new_folder_path'), 'export did not set new_folder_path.'
-    export_path = os.path.join(env.new_folder_path, export_name)
-    assert os.path.isfile(export_path), f'export file missing: {export_path}'
-
-    print('OK - rendering off/on and export checks passed.')
-
-    maybe_cleanup(getattr(env2, 'new_folder_path', None))
-    maybe_cleanup(getattr(env, 'new_folder_path', None))
+    print('All rendering checks passed.')
 
 
 if __name__ == '__main__':

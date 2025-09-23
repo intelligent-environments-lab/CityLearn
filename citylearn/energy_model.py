@@ -5,7 +5,10 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Tuple, Union
 import numpy as np
 import pandas as pd
-from PySAM import Pvwattsv8
+try:
+    from PySAM import Pvwattsv8
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    Pvwattsv8 = None
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import DataSet, ZERO_DIVISION_PLACEHOLDER, EnergySimulation, WashingMachineSimulation
 np.seterr(divide='ignore', invalid='ignore')
@@ -536,6 +539,8 @@ class PV(ElectricDevice):
 
         for i in range(tries):
             self._autosize_config = sizing_data.sample(1, random_state=random_seed + i).iloc[0].to_dict()
+            if Pvwattsv8 is None:
+                raise ModuleNotFoundError('PySAM is required for PV sizing but is not installed.')
             model = Pvwattsv8.default('PVWattsNone')
             pv_nominal_power = self.autosize_config['nameplate_capacity_module_1']/1000.0
             model.SystemDesign.system_capacity = pv_nominal_power

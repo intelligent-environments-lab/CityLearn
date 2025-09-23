@@ -109,6 +109,11 @@ class CityLearnEnv(Environment, Env):
 
     Other Parameters
     ----------------
+    render_directory: Union[str, Path], optional
+        Base directory where rendering and export artifacts are stored. Relative paths are resolved from the project root.
+    render_directory_name: str, optional
+        Folder name created inside the project root for rendering and export artifacts when ``render_directory`` is not provided.
+        Defaults to ``render_logs``.
     **kwargs : dict
         Other keyword arguments used to initialize super classes.
 
@@ -126,6 +131,8 @@ class CityLearnEnv(Environment, Env):
         inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None,
         inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, time_step_ratio: int = None, **kwargs: Any
     ):
+        render_directory = kwargs.pop('render_directory', None)
+        render_directory_name = kwargs.pop('render_directory_name', 'render_logs')
         self.schema = schema
         self.previous_month = None
         self.current_day = 1  # Start from day 1
@@ -195,25 +202,25 @@ class CityLearnEnv(Environment, Env):
 
         # reward history tracker
 
-        if root_directory is None:
-            root_directory = os.path.dirname(os.path.abspath(__file__))  # Get the current file's directory
+        if self.root_directory is None:
+            self.root_directory = os.path.dirname(os.path.abspath(__file__))
 
-        print(root_directory)
-        self.root_directory = root_directory
+        project_root = Path(__file__).resolve().parents[1]
+        render_directory_name = render_directory_name or 'render_logs'
 
-        if self.render_enabled and schema:  # Prepare rendering output dir if enabled
-            # Construct the dataset path using the schema
-            dataset_path = root_directory
+        if render_directory is not None:
+            render_root = Path(render_directory).expanduser()
+            if not render_root.is_absolute():
+                render_root = project_root / render_root
+        else:
+            render_root = project_root / render_directory_name
 
-            # Generate a timestamp for the new folder name
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            self.new_folder_path = os.path.join(self.root_directory, "..", "..", "..", "..", "results", timestamp)
+        self.render_output_root = render_root.expanduser().resolve()
+        self._render_timestamp = None
+        self.new_folder_path = None
 
-            # Check if the dataset path exists and copy it to the new folder
-            if os.path.exists(dataset_path):
-                shutil.copytree(dataset_path, self.new_folder_path)
-            else:
-                raise FileNotFoundError(f"Error: The dataset '{dataset_path}' does not exist.")
+        if self.render_enabled:
+            self._ensure_render_output_dir()
 
     @property
     def schema(self) -> Mapping[str, Any]:
@@ -1408,16 +1415,28 @@ class CityLearnEnv(Environment, Env):
 
         Safe to call multiple times; creates path lazily if missing.
         """
-        if not hasattr(self, 'new_folder_path') or not os.path.isdir(getattr(self, 'new_folder_path', '')):
-            dataset_path = self.root_directory
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            self.new_folder_path = os.path.join(self.root_directory, "..", "..", "..", "..", "results", timestamp)
-            if os.path.exists(dataset_path):
-                # Copy only if destination does not exist
-                if not os.path.exists(self.new_folder_path):
-                    shutil.copytree(dataset_path, self.new_folder_path)
-            else:
-                raise FileNotFoundError(f"Error: The dataset '{dataset_path}' does not exist.")
+        base_render_path = Path(getattr(self, 'render_output_root', Path(__file__).resolve().parents[1] / 'render_logs')).expanduser()
+        try:
+            base_render_path.mkdir(parents=True, exist_ok=True)
+        except PermissionError:
+            fallback = (Path.cwd() / 'render_logs').resolve()
+            fallback.mkdir(parents=True, exist_ok=True)
+            self.render_output_root = fallback
+            base_render_path = fallback
+
+        if getattr(self, '_render_timestamp', None) is None:
+            self._render_timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+        target_path = base_render_path / self._render_timestamp
+        dataset_path = Path(self.root_directory) if self.root_directory is not None else None
+
+        if dataset_path is None or not dataset_path.exists():
+            raise FileNotFoundError(f"Error: The dataset '{dataset_path}' does not exist.")
+
+        if not target_path.exists():
+            shutil.copytree(dataset_path, target_path)
+
+        self.new_folder_path = str(target_path)
 
     def _get_iso_timestamp(self):
         # Reset time tracking if this is the first step of a new episode

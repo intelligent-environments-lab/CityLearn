@@ -6,6 +6,7 @@ without installing. Alternative: run from repo root using `python -m tests.test_
 """
 import os
 import sys
+from pathlib import Path
 PARENT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if PARENT not in sys.path:
     sys.path.insert(0, PARENT)
@@ -17,7 +18,13 @@ from citylearn.citylearn import CityLearnEnv
 dataset_name = '../data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json'
 
 # dataset_name = 'citylearn_challenge_2023_phase_2_local_evaluation'
-env = CityLearnEnv(dataset_name, central_agent=True, render=True)
+custom_render_dir = Path('tests/tmp/render_evs')
+env = CityLearnEnv(
+    dataset_name,
+    central_agent=True,
+    render=True,
+    render_directory=custom_render_dir,
+)
 model = Agent(env)
 model.learn(episodes=1, logging_level=1)
 
@@ -30,3 +37,4 @@ print(kpis)
 # Print where results were saved when rendering is enabled
 if hasattr(env, 'new_folder_path'):
     print(f"Results folder: {env.new_folder_path}")
+print(f"Base render directory: {custom_render_dir.resolve()}")

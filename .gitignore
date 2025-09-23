@@ -180,3 +180,7 @@ examples/*
 
 # ignore folder
 .ignore
+
+# Simulation outputs
+render_logs/
+results/
