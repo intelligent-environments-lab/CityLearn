@@ -4,6 +4,8 @@ import json
 import shutil
 from pathlib import Path
 
+from typing import Optional
+
 import numpy as np
 import pytest
 
@@ -17,7 +19,7 @@ def _clone_dataset(
     tmp_path,
     *,
     with_constraints: bool,
-    observation_settings: dict | None = None,
+    observation_settings: Optional[dict] = None,
     include_phases: bool = True,
 ) -> Path:
     target_dir = tmp_path / ('with_constraints' if with_constraints else 'baseline')

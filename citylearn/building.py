@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List, Mapping, Tuple, Union
+from typing import Any, List, Mapping, Optional, Tuple, Union
 from gymnasium import spaces
 import numpy as np
 import pandas as pd
@@ -898,7 +898,7 @@ class Building(Environment):
             'phase_headroom_kw': phase_headroom,
         }
 
-    def _apply_charging_constraints_to_actions(self, actions: Mapping[str, float] | None) -> Mapping[str, float] | None:
+    def _apply_charging_constraints_to_actions(self, actions: Optional[Mapping[str, float]]) -> Optional[Mapping[str, float]]:
         self._charging_constraint_penalty_kwh = 0.0
         self._charging_constraint_last_penalty_kwh = 0.0
 
