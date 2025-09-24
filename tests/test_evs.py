@@ -24,6 +24,7 @@ env = CityLearnEnv(
     central_agent=True,
     render=True,
     render_directory=custom_render_dir,
+    episode_time_steps=96
 )
 model = Agent(env)
 model.learn(episodes=1, logging_level=1)
