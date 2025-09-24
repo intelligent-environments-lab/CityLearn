@@ -1,13 +1,25 @@
-"""Integration test for the charging constraints demo dataset."""
+"""Integration test for the charging constraints demo dataset.
 
+Run directly from the repository root with ``python tests/test_charging_constraints_dataset.py``
+or via pytest. When executed from inside ``tests/`` the parent directory is added to
+``sys.path`` so the local ``citylearn`` package is importable without installation.
+"""
+
+import os
+import sys
 from pathlib import Path
 
 import numpy as np
 
+ROOT_DIR = Path(__file__).resolve().parents[1]
+PARENT = ROOT_DIR.as_posix()
+if PARENT not in sys.path:
+    sys.path.insert(0, PARENT)
+
 from citylearn.citylearn import CityLearnEnv
 
 
-DATASET_PATH = Path('data/datasets/citylearn_charging_constraints_demo/schema.json').resolve()
+DATASET_PATH = ROOT_DIR / 'data/datasets/citylearn_charging_constraints_demo/schema.json'
 
 
 def _find_action_index(env, charger_id: str) -> int:
@@ -39,3 +51,8 @@ def test_charging_constraints_demo_dataset_runs():
 
     finally:
         env.close()
+
+
+if __name__ == '__main__':
+    test_charging_constraints_demo_dataset_runs()
+    print('Charging constraints demo dataset test completed successfully.')

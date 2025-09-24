@@ -21,6 +21,7 @@ def _clone_dataset(
     with_constraints: bool,
     observation_settings: Optional[dict] = None,
     include_phases: bool = True,
+    phases: Optional[list] = None,
 ) -> Path:
     target_dir = tmp_path / ('with_constraints' if with_constraints else 'baseline')
     shutil.copytree(DATASET_DIR, target_dir)
@@ -37,7 +38,7 @@ def _clone_dataset(
         }
 
         if include_phases:
-            constraints["phases"] = [
+            constraints["phases"] = phases if phases is not None else [
                 {"name": "phase_a", "limit_kw": 7.0, "chargers": ["charger_15_1"]},
                 {"name": "phase_b", "limit_kw": 5.0, "chargers": ["charger_15_2"]},
             ]
@@ -202,6 +203,71 @@ def test_charging_constraints_building_only(tmp_path):
 
         one_hot_keys = [k for k in obs if k.startswith('charging_phase_one_hot_')]
         assert not one_hot_keys
+
+    finally:
+        env.close()
+
+
+def test_charging_constraints_no_violation(tmp_path):
+    schema_path = _clone_dataset(tmp_path / 'no_violation', with_constraints=True)
+
+    env = CityLearnEnv(str(schema_path), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        charger_ids = ["charger_15_1", "charger_15_2"]
+        indices = _get_action_indices(env, charger_ids)
+        actions = np.zeros(len(env.action_names[0]), dtype='float32')
+        for idx in indices:
+            actions[idx] = 0.25  # well below limits
+
+        reward = env.step([actions.copy()])[1]
+        assert reward is not None
+
+        building = _get_building(env, 'Building_15')
+        assert building._charging_constraint_last_penalty_kwh == pytest.approx(0.0, abs=1e-6)
+        obs = building.observations(include_all=True, normalize=False, periodic_normalization=False)
+        assert obs.get('charging_constraint_violation_kwh', 0.0) == pytest.approx(0.0, abs=1e-6)
+
+    finally:
+        env.close()
+
+
+def test_charging_constraints_single_phase_assignment(tmp_path):
+    custom_phases = [
+        {"name": "phase_a", "limit_kw": 7.0, "chargers": ["charger_15_1"]},
+    ]
+    schema_path = _clone_dataset(
+        tmp_path / 'single_phase',
+        with_constraints=True,
+        observation_settings={
+            "headroom": True,
+            "violation": True,
+            "phase_encoding": True,
+        },
+        phases=custom_phases,
+    )
+
+    env = CityLearnEnv(str(schema_path), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        charger_ids = ["charger_15_1", "charger_15_2"]
+        indices = _get_action_indices(env, charger_ids)
+        actions = np.zeros(len(env.action_names[0]), dtype='float32')
+        for idx in indices:
+            actions[idx] = 1.0
+
+        env.step([actions.copy()])
+
+        building = _get_building(env, 'Building_15')
+        obs = building.observations(include_all=True, normalize=False, periodic_normalization=False)
+
+        # Charger 15_1 should belong to phase_a, charger 15_2 should map to "unassigned".
+        phase_a_key = 'charging_phase_one_hot_charger_15_1_phase_a'
+        assert obs.get(phase_a_key) == pytest.approx(1.0, abs=1e-6)
+        unassigned_key = 'charging_phase_one_hot_charger_15_2_unassigned'
+        assert obs.get(unassigned_key) == pytest.approx(1.0, abs=1e-6)
 
     finally:
         env.close()
