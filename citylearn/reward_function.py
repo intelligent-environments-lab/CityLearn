@@ -19,8 +19,10 @@ class RewardFunction:
     """
     
     def __init__(self, env_metadata: Mapping[str, Any], exponent: float = None, **kwargs):
+        penalty_coefficient = kwargs.pop('charging_constraint_penalty_coefficient', None)
         self.env_metadata = env_metadata
         self.exponent = exponent
+        self.charging_constraint_penalty_coefficient = penalty_coefficient
 
     @property
     def env_metadata(self) -> Mapping[str, Any]:
@@ -43,6 +45,17 @@ class RewardFunction:
     @exponent.setter
     def exponent(self, exponent: float):
         self.__exponent = 1.0 if exponent is None else exponent
+
+    @property
+    def charging_constraint_penalty_coefficient(self) -> float:
+        return getattr(self, '_charging_constraint_penalty_coefficient', 1.0)
+
+    @charging_constraint_penalty_coefficient.setter
+    def charging_constraint_penalty_coefficient(self, coefficient: float):
+        if coefficient is None:
+            self._charging_constraint_penalty_coefficient = 1.0
+        else:
+            self._charging_constraint_penalty_coefficient = float(coefficient)
 
     def reset(self):
         """Use to reset variables at the start of an episode."""
@@ -392,15 +405,21 @@ class Electric_Vehicles_Reward_Function(MARL):
             "self_ev_consumption": 5.0,
             "extra_self_production": 5.0,
         }
+        self._last_base_reward_total = 0.0
+        self._last_penalty_total = 0.0
+        self._last_base_rewards_per_building: List[float] = []
+        self._last_penalties_per_building: List[float] = []
 
     def calculate(self, observations: List[Mapping[str, Union[int, float, dict]]]) -> List[float]:
         current_reward = super().calculate(observations)
         reward_list = []
+        base_rewards = []
+        penalty_values = []
 
         for i, o in enumerate(observations):
             ev_info = o.get("electric_vehicles_chargers_dict", {})
             if not ev_info:
-                reward=0
+                reward = 0
             else:
                 if self.central_agent:
                     reward_value = current_reward[0] if isinstance(current_reward, list) else current_reward
@@ -408,9 +427,19 @@ class Electric_Vehicles_Reward_Function(MARL):
                 else:
                     reward = self.calculate_ev_penalty(o, current_reward[i])
 
+            base_rewards.append(reward)
+            violation = float(o.get("charging_constraint_violation_kwh", 0.0) or 0.0)
+            penalty = violation * self.charging_constraint_penalty_coefficient if violation > 0.0 else 0.0
+            penalty_values.append(penalty)
+            reward -= penalty
+
             reward_list.append(reward)
 
+        self._last_base_rewards_per_building = base_rewards
+        self._last_penalties_per_building = penalty_values
         total_reward = [sum(reward_list)] if self.central_agent else reward_list
+        self._last_base_reward_total = sum(base_rewards) if self.central_agent else base_rewards
+        self._last_penalty_total = sum(penalty_values) if self.central_agent else penalty_values
         LOGGER.info(f"Calculated EV reward: {total_reward}")
         return total_reward
 

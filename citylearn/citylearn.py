@@ -1821,6 +1821,8 @@ class CityLearnEnv(Environment, Env):
 
         building_schema = schema['buildings'][building_name]
         building_kwargs = {}
+        if building_schema.get('charging_constraints') is not None:
+            building_kwargs['charging_constraints'] = building_schema['charging_constraints']
         seconds_per_time_step = schema['seconds_per_time_step']
         noise_std = building_schema.get('noise_std', 0.0)
 
@@ -1855,7 +1857,7 @@ class CityLearnEnv(Environment, Env):
         building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
         building_type_module = '.'.join(building_type.split('.')[0:-1])
         building_type_name = building_type.split('.')[-1]
-        building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
+        building_constructor = getattr(importlib.import_module(building_type_module), building_type_name)
         
         # set dynamics
         if building_schema.get('dynamics', None) is not None:
