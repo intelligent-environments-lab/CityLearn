@@ -122,6 +122,8 @@ class CityLearnEnv(Environment, Env):
     Parameters passed to `citylearn.citylearn.CityLearnEnv.__init__` that are also defined in `schema` will override their `schema` definition.
     """
 
+    DEFAULT_RENDER_START_DATE = datetime.date(2024, 1, 1)
+
     def __init__(self,
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None,
         electric_vehicles: Union[List[ElectricVehicle], List[str], List[int]] = None,
@@ -129,14 +131,17 @@ class CityLearnEnv(Environment, Env):
         random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: Union[RewardFunction, str] = None, reward_function_kwargs: Mapping[str, Any] = None,
         central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None,
         inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None,
-        inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, time_step_ratio: int = None, **kwargs: Any
+        inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, time_step_ratio: int = None,
+        start_date: Union[str, datetime.date] = None, **kwargs: Any
     ):
         render_directory = kwargs.pop('render_directory', None)
         render_directory_name = kwargs.pop('render_directory_name', 'render_logs')
         self.schema = schema
+        schema_start_date = self.schema.get('start_date') if isinstance(self.schema, dict) else None
+        self._render_start_date = self._parse_render_start_date(start_date if start_date is not None else schema_start_date)
         self.previous_month = None
-        self.current_day = 1  # Start from day 1
-        self.year = 2024
+        self.current_day = self._render_start_date.day
+        self.year = self._render_start_date.year
         self.__rewards = None
         self.buildings = []
         self.random_seed = self.schema.get('random_seed', None) if random_seed is None else random_seed
@@ -221,6 +226,12 @@ class CityLearnEnv(Environment, Env):
 
         if self.render_enabled:
             self._ensure_render_output_dir()
+
+    @property
+    def render_start_date(self) -> datetime.date:
+        """Date used as the origin for rendered timestamps."""
+
+        return self._render_start_date
 
     @property
     def schema(self) -> Mapping[str, Any]:
@@ -1410,6 +1421,30 @@ class CityLearnEnv(Environment, Env):
                 writer.writeheader()
             writer.writerow(data)
 
+    def _parse_render_start_date(self, start_date: Union[str, datetime.date]) -> datetime.date:
+        """Return a valid start date for rendering timestamps."""
+
+        if start_date is None:
+            return self.DEFAULT_RENDER_START_DATE
+
+        if isinstance(start_date, datetime.datetime):
+            return start_date.date()
+
+        if isinstance(start_date, datetime.date):
+            return start_date
+
+        if isinstance(start_date, str):
+            try:
+                return datetime.date.fromisoformat(start_date)
+            except ValueError as exc:
+                raise ValueError(
+                    "CityLearnEnv start_date must be in ISO format 'YYYY-MM-DD'."
+                ) from exc
+
+        raise TypeError(
+            "CityLearnEnv start_date must be a date, datetime, or ISO format string."
+        )
+
     def _ensure_render_output_dir(self):
         """Ensure `new_folder_path` exists and dataset is copied once for logging/export.
 
@@ -1441,8 +1476,6 @@ class CityLearnEnv(Environment, Env):
     def _get_iso_timestamp(self):
         # Reset time tracking if this is the first step of a new episode
         if self.time_step == 0:
-            self.year = 2024  # Or your starting year
-            self.current_day = 1
             self._reset_time_tracking()
         
         energy_sim = self.buildings[0].energy_simulation
@@ -1450,9 +1483,13 @@ class CityLearnEnv(Environment, Env):
         energy_sim_hour = energy_sim.hour
         energy_sim_minutes = getattr(energy_sim, "minutes", None)
 
-        month = energy_sim_month[self.time_step]
-        hour = energy_sim_hour[self.time_step]
-        minutes = energy_sim_minutes[self.time_step] if energy_sim_minutes is not None and len(energy_sim_minutes) > 0 else 0
+        month = int(energy_sim_month[self.time_step])
+        hour = int(energy_sim_hour[self.time_step])
+        minutes = (
+            int(energy_sim_minutes[self.time_step])
+            if energy_sim_minutes is not None and len(energy_sim_minutes) > 0
+            else 0
+        )
 
         next_time_step = self.time_step + 1
         next_month = energy_sim_month[next_time_step] if next_time_step < len(energy_sim_month) else month
@@ -1461,19 +1498,22 @@ class CityLearnEnv(Environment, Env):
             energy_sim_minutes[next_time_step] if energy_sim_minutes is not None and next_time_step < len(energy_sim_minutes) else minutes
         )
 
+        timestamp = f"{self.year:04d}-{month:02d}-{self.current_day:02d}T{hour % 24:02d}:{minutes:02d}:00"
+
         if next_month != month:
+            if int(month) == 12 and int(next_month) == 1:
+                self.year += 1
+
             self.current_day = 1
-            self.year += (month == 12 and next_month == 1)  # If current month is 12 and next month is 1, increment year
-            month = next_month
-        elif next_hour == 1 and (next_minutes == 0 if energy_sim_minutes is not None else True):  # Roll over to a new day
+        elif next_hour == 1 and (next_minutes == 0 if energy_sim_minutes is not None else True):
             self.current_day += 1
 
-        return f"{self.year:04d}-{month:02d}-{self.current_day:02d}T{hour % 24:02d}:{minutes:02d}:00"
+        return timestamp
 
     def _reset_time_tracking(self):
         """Reset all time tracking variables"""
-        self.year = 2024  # Or your starting year
-        self.current_day = 1
+        self.year = self.render_start_date.year
+        self.current_day = self.render_start_date.day
         # Add any other time-related variables that need resetting
 
 
