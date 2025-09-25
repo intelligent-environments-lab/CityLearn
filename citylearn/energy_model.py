@@ -1,8 +1,7 @@
-import ast
 import logging
 import math
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Tuple, Union
+from typing import Any, Iterable, List, Mapping, Tuple, Union
 import numpy as np
 import pandas as pd
 try:
@@ -11,6 +10,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency
     Pvwattsv8 = None
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import DataSet, ZERO_DIVISION_PLACEHOLDER, EnergySimulation, WashingMachineSimulation
+
 np.seterr(divide='ignore', invalid='ignore')
 
 LOGGER = logging.getLogger()
@@ -30,13 +30,10 @@ class Device(Environment):
     """
     
     def __init__(self, efficiency: Union[float, Tuple[float, float]] = None, **kwargs):
-        kwargs.pop("dynamics",None)
-        kwargs.pop("occupant",None)
         super().__init__(**kwargs)
         self.efficiency = efficiency
         self._autosize_config = None
-        self.time_step_ratio = self.time_step_ratio if self.time_step_ratio is not None else 1
-       
+
     @property
     def efficiency(self) -> float:
         """Technical efficiency."""
@@ -115,7 +112,8 @@ class ElectricDevice(Device):
     @property
     def electricity_consumption(self) -> np.ndarray:
         r"""Electricity consumption time series [kWh]."""
-        return self.__electricity_consumption * self.time_step_ratio
+
+        return self.__electricity_consumption
 
     @property
     def available_nominal_power(self) -> float:
@@ -334,15 +332,12 @@ class HeatPump(ElectricDevice):
         
         safety_factor = self._get_property_value(safety_factor, 1.0)
 
-
         if cooling_demand is not None:
-            cooling_demand = cooling_demand * self.time_step_ratio 
             cooling_nominal_power = np.array(cooling_demand)/self.get_cop(outdoor_dry_bulb_temperature, False)
         else:
             cooling_nominal_power = 0
         
         if heating_demand is not None:
-            heating_demand = heating_demand * self.time_step_ratio 
             heating_nominal_power = np.array(heating_demand)/self.get_cop(outdoor_dry_bulb_temperature, True)
         else:
             heating_nominal_power = 0
@@ -430,7 +425,7 @@ class ElectricHeater(ElectricDevice):
         Parameters
         ----------
         demand : Union[float, Iterable[float]], optional
-            Heating demand in [kWh].
+            Heating emand in [kWh].
         safety_factor : Union[float, Tuple[float, float]], default: 1.0
             `nominal_power` is oversized by factor of `safety_factor`.
 
@@ -443,7 +438,7 @@ class ElectricHeater(ElectricDevice):
         -----
         `nominal_power` = max(demand/`efficiency`)*safety_factor
         """
-        demand = demand * self.time_step_ratio
+
         safety_factor = safety_factor = self._get_property_value(safety_factor, 1.0)
         nominal_power = np.nanmax(np.array(demand)/self.efficiency)*safety_factor
 
@@ -575,11 +570,7 @@ class PV(ElectricDevice):
 
         module_area = self.autosize_config['module_area']
         pv_area = pv_nominal_power*5.263 if module_area is None or math.isnan(module_area) else module_area
-        # Fix bug: roof_area OverflowError: cannot convert float infinity to integer
-        if np.isinf(roof_area):
-            roof_limit_nominal_power = np.inf
-        else:
-            roof_limit_nominal_power = math.floor(roof_area / pv_area) * pv_nominal_power
+        roof_limit_nominal_power = math.floor(roof_area/pv_area)*pv_nominal_power
 
         nominal_power = min(max(target_nominal_power, pv_nominal_power), roof_limit_nominal_power)
         self._autosize_config = {
@@ -620,12 +611,11 @@ class StorageDevice(Device):
         Other keyword arguments used to initialize super class.
     """
     
-    def __init__(self, capacity: float = None, efficiency: Union[float, Tuple[float, float]] = None, loss_coefficient: Union[float, Tuple[float, float]] = None, initial_soc: Union[float, Tuple[float, float]] = None, time_step_ratio:float = None, **kwargs: Any):
+    def __init__(self, capacity: float = None, efficiency: Union[float, Tuple[float, float]] = None, loss_coefficient: Union[float, Tuple[float, float]] = None, initial_soc: Union[float, Tuple[float, float]] = None, **kwargs: Any):
         self.random_seed = kwargs.get('random_seed', None)
         self.capacity = capacity
         self.loss_coefficient = loss_coefficient
         self.initial_soc = initial_soc
-        self.time_step_ratio=time_step_ratio
         super().__init__(efficiency = efficiency, **kwargs)
 
     @property
@@ -633,19 +623,13 @@ class StorageDevice(Device):
         r"""Maximum amount of energy the storage device can store in [kWh]."""
 
         return self.__capacity
-    
-    @property
-    def time_step_ratio(self) -> float:
-        r"""Maximum amount of energy the storage device can store in [kWh]."""
-
-        return self.__time_step_ratio
 
     @property
     def loss_coefficient(self) -> float:
         r"""Standby hourly losses."""
 
-        return self.__loss_coefficient * self.time_step_ratio
-    
+        return self.__loss_coefficient
+
     @property
     def initial_soc(self) -> float:
         r"""State of charge when `time_step` = 0 in [kWh]."""
@@ -661,8 +645,7 @@ class StorageDevice(Device):
     @property
     def energy_init(self) -> float:
         r"""Latest energy level after accounting for standby hourly lossses in [kWh]."""
-        if self.time_step == 0:
-            return max(0.0, self.__soc[self.time_step]*self.capacity*(1 - self.loss_coefficient))
+
         return max(0.0, self.__soc[self.time_step - 1]*self.capacity*(1 - self.loss_coefficient))
 
     @property
@@ -700,13 +683,6 @@ class StorageDevice(Device):
         assert 0.0 <= initial_soc <= 1.0, 'initial_soc must be >= 0.0 and <= 1.0.'
         self.__initial_soc = initial_soc
 
-    @time_step_ratio.setter
-    def time_step_ratio(self, time_step_ratio: float):
-        time_step_ratio = self._get_property_value(time_step_ratio, 1.0)
-  
-        self.__time_step_ratio = time_step_ratio    
-
-
     def get_metadata(self) -> Mapping[str, Any]:
         return {
             **super().get_metadata(),
@@ -729,27 +705,20 @@ class StorageDevice(Device):
         If charging, soc = min(`soc_init` + energy*`round_trip_efficiency`, `capacity`)
         If discharging, soc = max(0, `soc_init` + energy/`round_trip_efficiency`)
         """
-        energy = energy * self.time_step_ratio
-        energy_init = self.energy_init
+        
         # The initial State Of Charge (SOC) is the previous SOC minus the energy losses
-        energy_final = min(energy_init + energy*self.round_trip_efficiency, self.capacity) if energy >= 0\
-            else max(0.0, energy_init + energy/self.round_trip_efficiency)
-
+        energy_final = min(self.energy_init + energy*self.round_trip_efficiency, self.capacity) if energy >= 0\
+            else max(0.0, self.energy_init + energy/self.round_trip_efficiency)
         self.__soc[self.time_step] = energy_final/max(self.capacity, ZERO_DIVISION_PLACEHOLDER)
-        self.__energy_balance[self.time_step] = self.set_energy_balance(energy_final, energy_init)
+        self.__energy_balance[self.time_step] = self.set_energy_balance(energy_final)
 
-    def force_set_soc(self, soc: float):
-        self.__soc[self.time_step] = soc
-
-    def set_energy_balance(self, energy: float, energy_init:float) -> float:
+    def set_energy_balance(self, energy: float) -> float:
         r"""Calculate energy balance.
 
         Parameters
         ----------
         energy: float
             Energy equivalent of state-of-charge in [kWh].
-        energy_init: float
-            Latest energy level after accounting for standby hourly lossses in [kWh]
 
         Returns
         -------
@@ -761,11 +730,13 @@ class StorageDevice(Device):
         actual energy charged/discharged irrespective of what is determined in the step function after taking into account storage design limits 
         e.g. maximum power input/output, capacity.
         """
+
         delta_energy = energy - energy_init
         if delta_energy >= 0:
             return delta_energy / self.round_trip_efficiency
 
         return delta_energy * self.round_trip_efficiency
+
 
     def autosize(self, demand: Iterable[float], safety_factor: Union[float, Tuple[float, float]] = None) -> float:
         r"""Autosize `capacity`.
@@ -775,7 +746,7 @@ class StorageDevice(Device):
         Parameters
         ----------
         demand : Union[float, Iterable[float]], optional
-            Heating demand in [kWh].
+            Heating emand in [kWh].
         safety_factor : Union[float, Tuple[float, float]], default: (1.0, 2.0)
             The `capacity` is oversized by factor of `safety_factor`.
 
@@ -788,7 +759,7 @@ class StorageDevice(Device):
         -----
         `capacity` = max(demand/`efficiency`)*safety_factor
         """
-        demand = demand * self.time_step_ratio
+
         safety_factor = self._get_property_value(safety_factor, (1.0, 2.0))
         capacity = np.nanmax(demand)*safety_factor
 
@@ -860,7 +831,6 @@ class StorageTank(StorageDevice):
         If charging, soc = min(`soc_init` + energy*`efficiency`, `max_input_power`, `capacity`)
         If discharging, soc = max(0, `soc_init` + energy/`efficiency`, `max_output_power`)
         """
-        energy = energy * self.time_step_ratio
 
         if energy >= 0:    
             energy = energy if self.max_input_power is None else np.nanmin([energy, self.max_input_power])
@@ -893,17 +863,16 @@ class Battery(StorageDevice, ElectricDevice):
         Other keyword arguments used to initialize super classes.
     """
     
-    def __init__(self, capacity: float = None, nominal_power: float = None, capacity_loss_coefficient: Union[float, Tuple[float, float]] = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, depth_of_discharge: Union[float, Tuple[float, float]] = None, time_step_ratio: float = None, **kwargs: Any):
+    def __init__(self, capacity: float = None, nominal_power: float = None, capacity_loss_coefficient: Union[float, Tuple[float, float]] = None, power_efficiency_curve: List[List[float]] = None, capacity_power_curve: List[List[float]] = None, depth_of_discharge: Union[float, Tuple[float, float]] = None, **kwargs: Any):
         self._efficiency_history = []
         self._capacity_history = []
         self.random_seed = kwargs.get('random_seed', None)
         self.depth_of_discharge = depth_of_discharge
-        super().__init__(capacity=capacity, nominal_power=nominal_power, time_step_ratio = time_step_ratio, **kwargs)
+        super().__init__(capacity=capacity, nominal_power=nominal_power, **kwargs)
         self._capacity_history = [self.capacity]
         self.capacity_loss_coefficient = capacity_loss_coefficient
         self.power_efficiency_curve = power_efficiency_curve
         self.capacity_power_curve = capacity_power_curve
-        self.time_step_ratio=time_step_ratio
 
     @StorageDevice.efficiency.getter
     def efficiency(self) -> float:
@@ -934,12 +903,6 @@ class Battery(StorageDevice, ElectricDevice):
         """Maximum power of the battery as a function of its current state of charge."""
 
         return self.__capacity_power_curve
-    
-    @property
-    def time_step_ratio(self) -> float:
-        """Maximum power of the battery as a function of its current state of charge."""
-
-        return self.__time_step_ratio
     
     @property
     def depth_of_discharge(self) -> float:
@@ -1011,10 +974,6 @@ class Battery(StorageDevice, ElectricDevice):
     def depth_of_discharge(self, depth_of_discharge: float):
         self.__depth_of_discharge = self._get_property_value(depth_of_discharge, 1.0)
 
-    @time_step_ratio.setter
-    def time_step_ratio(self, time_step_ratio: float):
-        self.__time_step_ratio = self._get_property_value(time_step_ratio, 1.0)     
-
     def get_metadata(self) -> Mapping[str, Any]:
         return {
             **super().get_metadata(),
@@ -1033,7 +992,7 @@ class Battery(StorageDevice, ElectricDevice):
         energy : float
             Energy to charge if (+) or discharge if (-) in [kWh].
         """
-        energy = energy * self.time_step_ratio # Normalise energy with the time_step_ratio
+
         action_energy = energy
 
         if energy >= 0:
@@ -1044,9 +1003,9 @@ class Battery(StorageDevice, ElectricDevice):
 
         else:
             soc_limit_wrt_dod = 1.0 - self.depth_of_discharge
-            soc_init = self.soc[self.time_step - 1] if self.time_step > 0 else self.soc[self.time_step]
+            soc_init = self.soc[self.time_step - 1]
             soc_difference = soc_init - soc_limit_wrt_dod
-            energy_limit_wrt_dod = max(soc_difference * self.capacity * self.round_trip_efficiency, 0.0) * -1
+            energy_limit_wrt_dod = max(soc_difference*self.capacity*self.round_trip_efficiency, 0.0)*-1
             max_output_power = self.get_max_output_power()
             energy = max(-max_output_power, energy_limit_wrt_dod, energy)
             self.efficiency = self.get_current_efficiency(min(abs(action_energy), max_output_power))
@@ -1108,24 +1067,18 @@ class Battery(StorageDevice, ElectricDevice):
 
         return efficiency
 
-    def force_set_soc(self, soc: float):
-        """
-        Forcefully set the battery's state-of-charge (SOC) for the current time step,
-        bypassing restrictions such as efficiency losses, power limits, and degradation.
-
-        This is used for reconnections of the EV to the platform.
+    def set_ad_hoc_charge(self, energy: float):
+        """Charges or discharges storage with disregard to capacity` degradation, losses to the environment quantified by `efficiency`, `power_efficiency_curve` and `capacity_power_curve`.
+        Considers only `soc_init` limitations and maximum capacity limitations
+        Used for setting EVs Soc after coming from a transit state
 
         Parameters
         ----------
-        soc : float
-            Desired state-of-charge as a fraction (between 0 and 1). Values outside this range are not accepted.
+        energy : float
+            Energy to charge if (+) or discharge if (-) in [kWh].
+
         """
-        # Ensure soc is between 0 and 1
-        if soc < 0 or soc > 1:
-            raise AttributeError("Soc must be between 0 and 1. Check your dataset")
-        # Directly update the internal SOC array.
-        # Note: __soc is defined in the StorageDevice class, so we access it via name mangling.
-        super().force_set_soc(soc)
+        super().charge(energy)
 
     def degrade(self) -> float:
         r"""Get amount of capacity degradation.
@@ -1138,7 +1091,7 @@ class Battery(StorageDevice, ElectricDevice):
 
         # Calculating the degradation of the battery: new max. capacity of the battery after charge/discharge
         capacity_degrade = self.capacity_loss_coefficient*self.capacity*np.abs(self.energy_balance[self.time_step])/(2*max(self.degraded_capacity, ZERO_DIVISION_PLACEHOLDER))
-        return capacity_degrade * self.time_step_ratio # Normalize with time_step_ratio (seconds_per_timestep/schema_time_delta)    
+        return capacity_degrade
     
     def autosize(
         self, demand: float, duration: Union[float, Tuple[float, float]] = None, parallel: bool = None, safety_factor: Union[float, Tuple[float, float]] = None,
@@ -1188,7 +1141,6 @@ class Battery(StorageDevice, ElectricDevice):
         Data source: https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/battery_choices.yaml.
         """
 
-        demand = demand * self.time_step_ratio
         duration = self._get_property_value(duration, (1.5, 3.5))
         safety_factor = self._get_property_value(safety_factor, 1.0)
         parallel = False if parallel is None else parallel
@@ -1224,15 +1176,6 @@ class Battery(StorageDevice, ElectricDevice):
         }
 
         return capacity, nominal_power, depth_of_discharge, efficiency, loss_coefficient, capacity_loss_coefficient
-
-    def as_dict(self) -> dict:
-        """
-        Return a dictionary representation of the current state for use in rendering or logging.
-        """
-        return {
-            'Battery Soc-%': self.soc[self.time_step],
-            'Battery (Dis)Charge-kWh': self.energy_balance[self.time_step]
-        }
 
     def reset(self):
         r"""Reset `Battery` to initial state."""

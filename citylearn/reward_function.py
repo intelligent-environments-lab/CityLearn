@@ -2,9 +2,7 @@ from typing import Any, List, Mapping, Tuple, Union
 import numpy as np
 from citylearn.building import Building
 from citylearn.data import ZERO_DIVISION_PLACEHOLDER
-import logging
 
-LOGGER = logging.getLogger()
 class RewardFunction:
     r"""Base and default reward function class.
 
@@ -26,11 +24,9 @@ class RewardFunction:
 
     @property
     def env_metadata(self) -> Mapping[str, Any]:
-        return self._env_metadata
+        """General static information about the environment."""
 
-    @env_metadata.setter
-    def env_metadata(self, env_metadata: Mapping[str, Any]):
-        self._env_metadata = env_metadata
+        return self.__env_metadata
     
     @property
     def central_agent(self) -> bool:
@@ -41,6 +37,10 @@ class RewardFunction:
     @property
     def exponent(self) -> float:
         return self.__exponent
+    
+    @env_metadata.setter
+    def env_metadata(self, env_metadata: Mapping[str, Any]):
+        self.__env_metadata = env_metadata
 
     @exponent.setter
     def exponent(self, exponent: float):
@@ -86,36 +86,6 @@ class RewardFunction:
             reward = reward_list
 
         return reward
-    
-class MultiBuildingRewardFunction(RewardFunction):
-    def __init__(self, env, reward_functions: dict[str, RewardFunction]):
-        self.env = env
-        self.reward_functions = reward_functions
-        super().__init__(env)
-
-    def calculate(self, observations: list[dict]) -> list[float]:
-        rewards = []
-        for obs, (building_name, rf) in zip(observations, self.reward_functions.items()):
-            if rf is None:
-                raise ValueError(f"No reward function for building '{building_name}'")
-
-            rewards.append(rf.calculate([obs]))
-        return rewards
-
-    def reset(self):
-        for rf in self.reward_functions.values():
-            rf.reset()
-
-    @property
-    def env_metadata(self):
-        return self._env_metadata
-
-    @env_metadata.setter
-    def env_metadata(self, env_metadata: Mapping[str, Any]):
-        self._env_metadata = env_metadata
-        for rf in self.reward_functions.values():
-            rf.env_metadata = env_metadata
-    
 
 class MARL(RewardFunction):
     """MARL reward function class.
@@ -386,10 +356,15 @@ class SolarPenaltyAndComfortReward(RewardFunction):
         return reward
 
 
-class Electric_Vehicles_Reward_Function(MARL):
-    """
-    Reward function for electric vehicle charging behavior in V2G settings.
-    Only affects EV-related behavior; other building logic comes from the superclass.
+class V2GPenaltyReward(MARL):
+    """Rewards with considerations for electric vehicle charging behaviours in a V2G setting.
+    Note that this function rewards/penalizes only the electric vehicle part. For a comprehensive reward strategy
+    please use one of the super classes or rewrite your own
+
+    Parameters
+    ----------
+    env_metadata: Mapping[str, Any]:
+        General static information about the environment.
     """
 
     def __init__(self, env_metadata: Mapping[str, Any], weights: Mapping[str, float] = None):

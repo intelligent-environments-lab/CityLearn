@@ -161,46 +161,29 @@
       "active": false,
       "shared_in_central_agent": false
     },
-    "electric_vehicle_charger_connected_state": {
+    "electric_vehicle_charger_state": {
       "active": true,
-      "shared_in_central_agent": true
+      "shared_in_central_agent": false
     },
-    "connected_electric_vehicle_at_charger_battery_capacity": {
+    "electric_vehicle_departure_time": {
       "active": true,
-      "shared_in_central_agent": true
+      "shared_in_central_agent": false
     },
-    "connected_electric_vehicle_at_charger_departure_time": {
+    "electric_vehicle_required_soc_departure": {
       "active": true,
-      "shared_in_central_agent": true
+      "shared_in_central_agent": false
     },
-    "connected_electric_vehicle_at_charger_required_soc_departure": {
+    "electric_vehicle_estimated_arrival_time": {
       "active": true,
-      "shared_in_central_agent": true
+      "shared_in_central_agent": false
     },
-    "connected_electric_vehicle_at_charger_soc": {
+    "electric_vehicle_estimated_soc_arrival": {
       "active": true,
-      "shared_in_central_agent": true
+      "shared_in_central_agent": false
     },
-    "electric_vehicle_charger_incoming_state": {
+    "electric_vehicle_soc": {
       "active": true,
-      "shared_in_central_agent": true
-    },
-    "incoming_electric_vehicle_at_charger_estimated_arrival_time": {
-      "active": true,
-      "shared_in_central_agent": true
-    },
-    "washing_machine_start_time_step": {
-      "active": true,
-      "shared_in_central_agent": true
-    },
-    "washing_machine_end_time_step": {
-      "active": true,
-      "shared_in_central_agent": true
-    },
-    "washing_machine_load_profile": {
-      "active": true,
-      "stochaicity:": "0.0",
-      "shared_in_central_agent": true
+      "shared_in_central_agent": false
     }
   },
   "actions": {
@@ -218,24 +201,37 @@
     },
     "electric_vehicle_storage": {
       "active": true
-    },
-    "washing_machine": {
-      "active": true
     }
   },
   "agent": {
-    "type": "citylearn.agents.rbc.BasicElectricVehicleRBC_ReferenceController",
+    "type": "citylearn.agents.rbc.BasicRBC",
     "attributes": {
+      "hidden_dimension": [
+        256,
+        256
+      ],
+      "discount": 0.99,
+      "tau": 0.005,
+      "lr": 0.003,
+      "batch_size": 256,
+      "replay_buffer_capacity": 100000.0,
+      "standardize_start_time_step": 6000,
+      "end_exploration_time_step": 7000,
+      "action_scaling_coef": 0.5,
+      "reward_scaling": 5.0,
+      "update_per_time_step": 2
     }
   },
   "reward_function": {
-    "type": "citylearn.reward_function.Electric_Vehicles_Reward_Function",
-    "attributes": {
-    }  
+    "type": "citylearn.reward_function.RewardFunction",
+    "attributes": null
   },
   "electric_vehicles_def": {
     "Electric_Vehicle_1": {
       "include": true,
+      "energy_simulation": "Electric_Vehicle_1.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
@@ -243,93 +239,112 @@
           "capacity": 40,
           "nominal_power": 50,
           "initial_soc": 0.25,
-          "depth_of_discharge": 0.85
+          "min_battery_soc": 0.10
         }
       }
     },
     "Electric_Vehicle_2": {
       "include": true,
+      "energy_simulation": "Electric_Vehicle_2.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 50,
           "nominal_power": 50,
-          "depth_of_discharge": 0.90
+          "initial_soc": 0.35
         }
       }
     },
     "Electric_Vehicle_3": {
       "include": true,
+      "energy_simulation": "Electric_Vehicle_3.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 75,
           "nominal_power": 50,
-          "depth_of_discharge": 0.80
+          "initial_soc": 0.5
         }
       }
     },
     "Electric_Vehicle_4": {
       "include": true,
+      "energy_simulation": "Electric_Vehicle_4.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 45,
           "nominal_power": 50,
-          "depth_of_discharge": 0.90
+          "initial_soc": 0.2
         }
       }
     },
     "Electric_Vehicle_5": {
       "include": true,
+      "energy_simulation": "Electric_Vehicle_5.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 90,
           "nominal_power": 50,
-          "depth_of_discharge": 0.85
+          "initial_soc": 0.8
         }
       }
     },
     "Electric_Vehicle_6": {
       "include": true,
+      "energy_simulation": "Electric_Vehicle_6.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 100,
           "nominal_power": 50,
-          "depth_of_discharge": 0.90
+          "initial_soc": 0.8
         }
       }
     },
     "Electric_Vehicle_7": {
       "include": true,
+      "energy_simulation": "Electric_Vehicle_7.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 60,
           "nominal_power": 50,
-          "initial_soc": 0.25,
-          "depth_of_discharge": 0.8
+          "initial_soc": 0.1
         }
       }
     },
     "Electric_Vehicle_8": {
       "include": true,
+      "energy_simulation": "Electric_Vehicle_8.csv",
+      "inactive_observations": [],
+      "inactive_actions": [],
       "battery": {
         "type": "citylearn.energy_model.Battery",
         "autosize": false,
         "attributes": {
           "capacity": 80,
           "nominal_power": 50,
-          "initial_soc": 0.2,
-          "depth_of_discharge": 0.85
+          "initial_soc": 0.2
         }
       }
     }
@@ -354,13 +369,6 @@
           "nominal_power": 5.0
         }
       },
-      "washing_machines": {
-        "washing_machine_1": {
-          "type": "citylearn.energy_model.WashingMachine",
-          "autosize": false,
-          "washing_machine_energy_simulation": "Washing_Machine_1.csv"
-        }
-      },
       "pv": {
         "type": "citylearn.energy_model.PV",
         "autosize": false,
@@ -371,7 +379,6 @@
       "chargers": {
         "charger_1_1": {
           "type": "citylearn.electric_vehicle_charger.Charger",
-          "charger_simulation": "charger_1_1.csv",
           "autosize": false,
           "attributes": {
             "nominal_power": 11,
@@ -468,7 +475,6 @@
       "chargers": {
         "charger_4_1": {
           "type": "citylearn.electric_vehicle_charger.Charger",
-          "charger_simulation": "charger_4_1.csv",
           "autosize": false,
           "attributes": {
             "nominal_power": 22,
@@ -511,7 +517,6 @@
       "chargers": {
         "charger_5_1": {
           "type": "citylearn.electric_vehicle_charger.Charger",
-          "charger_simulation": "charger_5_1.csv",
           "autosize": false,
           "attributes": {
             "nominal_power": 7.4,
@@ -581,7 +586,6 @@
       "chargers": {
         "charger_7_1": {
           "type": "citylearn.electric_vehicle_charger.Charger",
-          "charger_simulation": "charger_7_1.csv",
           "autosize": false,
           "attributes": {
             "nominal_power": 11,
@@ -678,7 +682,6 @@
       "chargers": {
         "charger_10_1": {
           "type": "citylearn.electric_vehicle_charger.Charger",
-          "charger_simulation": "charger_10_1.csv",
           "autosize": false,
           "attributes": {
             "nominal_power": 7.4,
@@ -748,7 +751,6 @@
       "chargers": {
         "charger_12_1": {
           "type": "citylearn.electric_vehicle_charger.Charger",
-          "charger_simulation": "charger_12_1.csv",
           "autosize": false,
           "attributes": {
             "nominal_power": 7.4,
@@ -845,7 +847,6 @@
       "chargers": {
         "charger_15_1": {
           "type": "citylearn.electric_vehicle_charger.Charger",
-          "charger_simulation": "charger_15_1.csv",
           "autosize": false,
           "attributes": {
             "nominal_power": 7.4,
@@ -859,7 +860,6 @@
         },
         "charger_15_2": {
           "type": "citylearn.electric_vehicle_charger.Charger",
-          "charger_simulation": "charger_15_2.csv",
           "autosize": false,
           "attributes": {
             "nominal_power": 11,

@@ -33,7 +33,6 @@ class Agent(Environment):
             seconds_per_time_step=self.env.unwrapped.seconds_per_time_step,
             random_seed=self.env.unwrapped.random_seed,
             episode_tracker=self.env.unwrapped.episode_tracker,
-            time_step_ratio=self.env.unwrapped.time_step_ratio
         )
         self.reset()
 
