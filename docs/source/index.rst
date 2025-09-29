@@ -48,6 +48,7 @@ CityLearn has been utilized in the following projects and publications:
    overview/index
    usage/index
    cli
+   ui
    api/modules
    citylearn_challenge/index
    contributing

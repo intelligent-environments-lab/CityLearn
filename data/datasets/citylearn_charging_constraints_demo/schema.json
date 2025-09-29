@@ -8,7 +8,6 @@
   "rolling_episode_split": false,
   "random_episode_split": false,
   "seconds_per_time_step": 3600,
-  "start_date": "2024-07-31",
   "observations": {
     "month": {
       "active": true,
@@ -205,7 +204,7 @@
     }
   },
   "actions": {
-      "cooling_storage": {
+    "cooling_storage": {
       "active": false
     },
     "heating_storage": {
@@ -226,13 +225,11 @@
   },
   "agent": {
     "type": "citylearn.agents.rbc.BasicElectricVehicleRBC_ReferenceController",
-    "attributes": {
-    }
+    "attributes": {}
   },
   "reward_function": {
     "type": "citylearn.reward_function.Electric_Vehicles_Reward_Function",
-    "attributes": {
-    }  
+    "attributes": {}
   },
   "electric_vehicles_def": {
     "Electric_Vehicle_1": {
@@ -256,7 +253,7 @@
         "attributes": {
           "capacity": 50,
           "nominal_power": 50,
-          "depth_of_discharge": 0.90
+          "depth_of_discharge": 0.9
         }
       }
     },
@@ -268,7 +265,7 @@
         "attributes": {
           "capacity": 75,
           "nominal_power": 50,
-          "depth_of_discharge": 0.80
+          "depth_of_discharge": 0.8
         }
       }
     },
@@ -280,7 +277,7 @@
         "attributes": {
           "capacity": 45,
           "nominal_power": 50,
-          "depth_of_discharge": 0.90
+          "depth_of_discharge": 0.9
         }
       }
     },
@@ -304,7 +301,7 @@
         "attributes": {
           "capacity": 100,
           "nominal_power": 50,
-          "depth_of_discharge": 0.90
+          "depth_of_discharge": 0.9
         }
       }
     },
@@ -586,7 +583,7 @@
           "autosize": false,
           "attributes": {
             "nominal_power": 11,
-            "efficiency": 0.90,
+            "efficiency": 0.9,
             "charger_type": 1,
             "max_charging_power": 11,
             "min_charging_power": 0,
@@ -872,6 +869,34 @@
             "min_discharging_power": 0
           }
         }
+      },
+      "charging_constraints": {
+        "building_limit_kw": 12.0,
+        "observations": {
+          "headroom": true,
+          "violation": true,
+          "phase_encoding": true
+        },
+        "phases": [
+          {
+            "name": "phase_a",
+            "limit_kw": 7.0,
+            "chargers": [
+              "charger_15_1"
+            ]
+          },
+          {
+            "name": "phase_b",
+            "limit_kw": 5.0,
+            "chargers": [
+              "charger_15_2"
+            ]
+          },
+          {
+            "name": "phase_c",
+            "chargers": []
+          }
+        ]
       }
     },
     "Building_16": {

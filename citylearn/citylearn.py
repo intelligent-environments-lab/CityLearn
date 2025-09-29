@@ -109,6 +109,11 @@ class CityLearnEnv(Environment, Env):
 
     Other Parameters
     ----------------
+    render_directory: Union[str, Path], optional
+        Base directory where rendering and export artifacts are stored. Relative paths are resolved from the project root.
+    render_directory_name: str, optional
+        Folder name created inside the project root for rendering and export artifacts when ``render_directory`` is not provided.
+        Defaults to ``render_logs``.
     **kwargs : dict
         Other keyword arguments used to initialize super classes.
 
@@ -117,6 +122,8 @@ class CityLearnEnv(Environment, Env):
     Parameters passed to `citylearn.citylearn.CityLearnEnv.__init__` that are also defined in `schema` will override their `schema` definition.
     """
 
+    DEFAULT_RENDER_START_DATE = datetime.date(2024, 1, 1)
+
     def __init__(self,
         schema: Union[str, Path, Mapping[str, Any]], root_directory: Union[str, Path] = None, buildings: Union[List[Building], List[str], List[int]] = None,
         electric_vehicles: Union[List[ElectricVehicle], List[str], List[int]] = None,
@@ -124,12 +131,17 @@ class CityLearnEnv(Environment, Env):
         random_episode_split: bool = None, seconds_per_time_step: float = None, reward_function: Union[RewardFunction, str] = None, reward_function_kwargs: Mapping[str, Any] = None,
         central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None,
         inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None,
-        inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, time_step_ratio: int = None, **kwargs: Any
+        inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, time_step_ratio: int = None,
+        start_date: Union[str, datetime.date] = None, **kwargs: Any
     ):
+        render_directory = kwargs.pop('render_directory', None)
+        render_directory_name = kwargs.pop('render_directory_name', 'render_logs')
         self.schema = schema
+        schema_start_date = self.schema.get('start_date') if isinstance(self.schema, dict) else None
+        self._render_start_date = self._parse_render_start_date(start_date if start_date is not None else schema_start_date)
         self.previous_month = None
-        self.current_day = 1  # Start from day 1
-        self.year = 2024
+        self.current_day = self._render_start_date.day
+        self.year = self._render_start_date.year
         self.__rewards = None
         self.buildings = []
         self.random_seed = self.schema.get('random_seed', None) if random_seed is None else random_seed
@@ -177,6 +189,10 @@ class CityLearnEnv(Environment, Env):
         # set reward function
         self.reward_function = reward_function
 
+        # rendering switch: precedence schema['render'] > init kwarg 'render' > False
+        schema_render = self.schema.get('render', None) if isinstance(self.schema, dict) else None
+        self.render_enabled = schema_render if schema_render is not None else bool(kwargs.get('render', False))
+
         # reset environment and initializes episode time steps
         self.reset()
 
@@ -191,32 +207,43 @@ class CityLearnEnv(Environment, Env):
 
         # reward history tracker
 
-        if root_directory is None:
-            root_directory = os.path.dirname(os.path.abspath(__file__))  # Get the current file's directory
+        if self.root_directory is None:
+            self.root_directory = os.path.dirname(os.path.abspath(__file__))
 
-        print(root_directory)
-        self.root_directory = root_directory
+        project_root = Path(__file__).resolve().parents[1]
+        render_directory_name = render_directory_name or 'render_logs'
 
-        if schema:  # Check if schema is provided
-            # Construct the dataset path using the schema
-            dataset_path = root_directory
+        if render_directory is not None:
+            render_root = Path(render_directory).expanduser()
+            if not render_root.is_absolute():
+                render_root = project_root / render_root
+        else:
+            render_root = project_root / render_directory_name
 
-            # Generate a timestamp for the new folder name
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            self.new_folder_path = os.path.join(self.root_directory, "..", "..", "..", "..", "results", timestamp)
+        self.render_output_root = render_root.expanduser().resolve()
+        self._render_timestamp = None
+        self.new_folder_path = None
 
-            # Check if the dataset path exists and copy it to the new folder
-            if os.path.exists(dataset_path):
-                shutil.copytree(dataset_path, self.new_folder_path)  # Copy the dataset to the new folder
-                print(f"Dataset '{dataset_path}' copied to '{self.new_folder_path}'")
-            else:
-                raise FileNotFoundError(f"Error: The dataset '{dataset_path}' does not exist.")
+        if self.render_enabled:
+            self._ensure_render_output_dir()
+
+    @property
+    def render_start_date(self) -> datetime.date:
+        """Date used as the origin for rendered timestamps."""
+
+        return self._render_start_date
 
     @property
     def schema(self) -> Mapping[str, Any]:
         """`dict` object of CityLearn schema."""
 
         return self.__schema
+
+    @property
+    def render_enabled(self) -> bool:
+        """Whether environment rendering/logging is enabled."""
+
+        return getattr(self, '_CityLearnEnv__render_enabled', False)
 
     @property
     def root_directory(self) -> Union[str, Path]:
@@ -812,6 +839,10 @@ class CityLearnEnv(Environment, Env):
         
         self.__schema = schema
 
+    @render_enabled.setter
+    def render_enabled(self, enabled: bool):
+        self.__render_enabled = bool(enabled)
+
     @root_directory.setter
     def root_directory(self, root_directory: Union[str, Path]):
         self.__root_directory = root_directory
@@ -902,7 +933,7 @@ class CityLearnEnv(Environment, Env):
         ]
 
     def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, bool, dict]:
-        """Advance to next time step then apply actions to `buildings` and update variables.
+        """Apply actions at current timestep, update variables/reward, then advance time.
         
         Parameters
         ----------
@@ -932,13 +963,11 @@ class CityLearnEnv(Environment, Env):
         """
         actions = self._parse_actions(actions)
 
+        # Apply actions at current timestep t
         for building, building_actions in zip(self.buildings, actions):
             building.apply_actions(**building_actions)
 
-        self.next_time_step()
-
-        #Currently at time_step t+1
-
+        # Update environment/building variables for timestep t (reflect effects of actions)
         self.update_variables()
 
         # NOTE:
@@ -951,7 +980,10 @@ class CityLearnEnv(Environment, Env):
         reward = self.reward_function.calculate(observations=reward_observations)
         self.__rewards.append(reward)
 
-        # store episode reward summary
+        # Advance to next timestep t+1
+        self.next_time_step()
+
+        # store episode reward summary at the end of episode (upon reaching final timestep)
         if self.terminated:
             rewards = np.array(self.__rewards[1:], dtype='float32')
             self.__episode_rewards.append({
@@ -960,9 +992,6 @@ class CityLearnEnv(Environment, Env):
                 'sum': rewards.sum(axis=0).tolist(),
                 'mean': rewards.mean(axis=0).tolist()
             })
-
-        else:
-            pass
 
         return self.observations, reward, self.terminated, self.truncated, self.get_info()
 
@@ -1079,6 +1108,26 @@ class CityLearnEnv(Environment, Env):
         get_net_electricity_consumption_cost = lambda x, c: getattr(x, f'net_electricity_consumption_cost{c.value}')
         get_net_electricity_consumption_emission = lambda x, c: getattr(x, f'net_electricity_consumption_emission{c.value}')
 
+        # Safe division helper for KPI ratios
+        def _safe_div(control_value: float, baseline_value: float):
+            try:
+                c = control_value
+                b = baseline_value
+                # Treat None/NaN/inf as 0.0 for robust normalization on short horizons
+                def _coerce(x):
+                    try:
+                        v = float(x)
+                        return v if np.isfinite(v) else 0.0
+                    except Exception:
+                        return 0.0
+                c = _coerce(c)
+                b = _coerce(b)
+                if b == 0.0:
+                    return 1.0 if c == 0.0 else None
+                return c / b
+            except Exception:
+                return None
+
         comfort_band = EnergySimulation.DEFUALT_COMFORT_BAND if comfort_band is None else comfort_band
         building_level = []
 
@@ -1107,24 +1156,27 @@ class CityLearnEnv(Environment, Env):
                 + b.energy_from_heating_device + b.energy_from_heating_storage\
                     + b.energy_from_dhw_device + b.energy_from_dhw_storage\
                         + b.energy_to_non_shiftable_load
+            ec_c = CostFunction.electricity_consumption(get_net_electricity_consumption(b, control_condition))[-1]
+            ec_b = CostFunction.electricity_consumption(get_net_electricity_consumption(b, baseline_condition))[-1]
+            zne_c = CostFunction.zero_net_energy(get_net_electricity_consumption(b, control_condition))[-1]
+            zne_b = CostFunction.zero_net_energy(get_net_electricity_consumption(b, baseline_condition))[-1]
+            ce_c = CostFunction.carbon_emissions(get_net_electricity_consumption_emission(b, control_condition))[-1]
+            ce_b = CostFunction.carbon_emissions(get_net_electricity_consumption_emission(b, baseline_condition))[-1] if sum(b.carbon_intensity.carbon_intensity) != 0 else 0
+            cost_c = CostFunction.cost(get_net_electricity_consumption_cost(b, control_condition))[-1]
+            cost_b = CostFunction.cost(get_net_electricity_consumption_cost(b, baseline_condition))[-1] if sum(b.pricing.electricity_pricing) != 0 else 0
+
             building_level_ = pd.DataFrame([{
                 'cost_function': 'electricity_consumption_total',
-                'value': CostFunction.electricity_consumption(get_net_electricity_consumption(b, control_condition))[-1]/\
-                    CostFunction.electricity_consumption(get_net_electricity_consumption(b, baseline_condition))[-1],
+                'value': _safe_div(ec_c, ec_b),
             }, {
                 'cost_function': 'zero_net_energy',
-                'value': CostFunction.zero_net_energy(get_net_electricity_consumption(b, control_condition))[-1]/\
-                    CostFunction.zero_net_energy(get_net_electricity_consumption(b, baseline_condition))[-1],
+                'value': _safe_div(zne_c, zne_b),
             }, {
                 'cost_function': 'carbon_emissions_total',
-                'value': CostFunction.carbon_emissions(get_net_electricity_consumption_emission(b, control_condition))[-1]/\
-                    CostFunction.carbon_emissions(get_net_electricity_consumption_emission(b, baseline_condition))[-1]\
-                        if sum(b.carbon_intensity.carbon_intensity) != 0 else None,
+                'value': _safe_div(ce_c, ce_b),
             }, {
                 'cost_function': 'cost_total',
-                'value': CostFunction.cost(get_net_electricity_consumption_cost(b, control_condition))[-1]/\
-                    CostFunction.cost(get_net_electricity_consumption_cost(b, baseline_condition))[-1]\
-                        if sum(b.pricing.electricity_pricing) != 0 else None,
+                'value': _safe_div(cost_c, cost_b),
             }, {
                 'cost_function': 'discomfort_proportion',
                 'value': unmet[-1],
@@ -1173,26 +1225,33 @@ class CityLearnEnv(Environment, Env):
         control_condition = EvaluationCondition.WITH_STORAGE_AND_PARTIAL_LOAD_AND_PV if control_condition is None else control_condition
         baseline_condition = EvaluationCondition.WITHOUT_STORAGE_AND_PARTIAL_LOAD_BUT_WITH_PV if baseline_condition is None else baseline_condition
 
+        # District-level normalized KPIs with safe division to avoid 0/0 or div-by-zero
+        ramp_c = CostFunction.ramping(get_net_electricity_consumption(self, control_condition))[-1]
+        ramp_b = CostFunction.ramping(get_net_electricity_consumption(self, baseline_condition))[-1]
+        dlf24_c = CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, control_condition), window=24)[-1]
+        dlf24_b = CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, baseline_condition), window=24)[-1]
+        dlf730_c = CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, control_condition), window=730)[-1]
+        dlf730_b = CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, baseline_condition), window=730)[-1]
+        peak24_c = CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=24)[-1]
+        peak24_b = CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=24)[-1]
+        peak_all_c = CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=self.time_steps)[-1]
+        peak_all_b = CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=self.time_steps)[-1]
+
         district_level = pd.DataFrame([{
             'cost_function': 'ramping_average',
-            'value': CostFunction.ramping(get_net_electricity_consumption(self, control_condition))[-1]/\
-                CostFunction.ramping(get_net_electricity_consumption(self, baseline_condition))[-1],
+            'value': _safe_div(ramp_c, ramp_b),
         }, {
             'cost_function': 'daily_one_minus_load_factor_average',
-            'value': CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, control_condition), window=24)[-1]/\
-                CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, baseline_condition), window=24)[-1],
+            'value': _safe_div(dlf24_c, dlf24_b),
         },{
             'cost_function': 'monthly_one_minus_load_factor_average',
-            'value': CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, control_condition), window=730)[-1]/\
-                CostFunction.one_minus_load_factor(get_net_electricity_consumption(self, baseline_condition), window=730)[-1],
+            'value': _safe_div(dlf730_c, dlf730_b),
         }, {
             'cost_function': 'daily_peak_average',
-            'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=24)[-1]/\
-                CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=24)[-1],
+            'value': _safe_div(peak24_c, peak24_b),
         }, {
             'cost_function': 'all_time_peak_average',
-            'value': CostFunction.peak(get_net_electricity_consumption(self, control_condition), window=self.time_steps)[-1]/\
-                CostFunction.peak(get_net_electricity_consumption(self, baseline_condition), window=self.time_steps)[-1],
+            'value': _safe_div(peak_all_c, peak_all_b),
         }])
 
         district_level = pd.concat([district_level, building_level], ignore_index=True, sort=False)
@@ -1205,7 +1264,8 @@ class CityLearnEnv(Environment, Env):
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
-        self.render()
+        if getattr(self, 'render_enabled', False):
+            self.render()
         for building in self.buildings:
             building.next_time_step()
 
@@ -1288,6 +1348,8 @@ class CityLearnEnv(Environment, Env):
                     ev.battery.force_set_soc(new_soc)
 
     def export_final_kpis(self, model: 'citylearn.agents.base.Agent', filepath="exported_kpis.csv"):
+        # Ensure output directory exists even if rendering was disabled
+        self._ensure_render_output_dir()
         file_path = os.path.join(self.new_folder_path, filepath)
         kpis = model.env.evaluate()
         kpis = kpis.pivot(index='cost_function', columns='name', values='value').round(3)
@@ -1302,6 +1364,10 @@ class CityLearnEnv(Environment, Env):
         Renders the current state of the CityLearn environment, logging data into separate CSV files.
         Organizes files by episode number when simulation spans multiple episodes.
         """
+        if not getattr(self, 'render_enabled', False):
+            return
+        # Ensure the output directory is prepared
+        self._ensure_render_output_dir()
         iso_timestamp = self._get_iso_timestamp()
         os.makedirs(self.new_folder_path, exist_ok=True)
 
@@ -1355,11 +1421,61 @@ class CityLearnEnv(Environment, Env):
                 writer.writeheader()
             writer.writerow(data)
 
+    def _parse_render_start_date(self, start_date: Union[str, datetime.date]) -> datetime.date:
+        """Return a valid start date for rendering timestamps."""
+
+        if start_date is None:
+            return self.DEFAULT_RENDER_START_DATE
+
+        if isinstance(start_date, datetime.datetime):
+            return start_date.date()
+
+        if isinstance(start_date, datetime.date):
+            return start_date
+
+        if isinstance(start_date, str):
+            try:
+                return datetime.date.fromisoformat(start_date)
+            except ValueError as exc:
+                raise ValueError(
+                    "CityLearnEnv start_date must be in ISO format 'YYYY-MM-DD'."
+                ) from exc
+
+        raise TypeError(
+            "CityLearnEnv start_date must be a date, datetime, or ISO format string."
+        )
+
+    def _ensure_render_output_dir(self):
+        """Ensure `new_folder_path` exists and dataset is copied once for logging/export.
+
+        Safe to call multiple times; creates path lazily if missing.
+        """
+        base_render_path = Path(getattr(self, 'render_output_root', Path(__file__).resolve().parents[1] / 'render_logs')).expanduser()
+        try:
+            base_render_path.mkdir(parents=True, exist_ok=True)
+        except PermissionError:
+            fallback = (Path.cwd() / 'render_logs').resolve()
+            fallback.mkdir(parents=True, exist_ok=True)
+            self.render_output_root = fallback
+            base_render_path = fallback
+
+        if getattr(self, '_render_timestamp', None) is None:
+            self._render_timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+        target_path = base_render_path / self._render_timestamp
+        dataset_path = Path(self.root_directory) if self.root_directory is not None else None
+
+        if dataset_path is None or not dataset_path.exists():
+            raise FileNotFoundError(f"Error: The dataset '{dataset_path}' does not exist.")
+
+        if not target_path.exists():
+            shutil.copytree(dataset_path, target_path)
+
+        self.new_folder_path = str(target_path)
+
     def _get_iso_timestamp(self):
         # Reset time tracking if this is the first step of a new episode
         if self.time_step == 0:
-            self.year = 2024  # Or your starting year
-            self.current_day = 1
             self._reset_time_tracking()
         
         energy_sim = self.buildings[0].energy_simulation
@@ -1367,9 +1483,13 @@ class CityLearnEnv(Environment, Env):
         energy_sim_hour = energy_sim.hour
         energy_sim_minutes = getattr(energy_sim, "minutes", None)
 
-        month = energy_sim_month[self.time_step]
-        hour = energy_sim_hour[self.time_step]
-        minutes = energy_sim_minutes[self.time_step] if energy_sim_minutes is not None and len(energy_sim_minutes) > 0 else 0
+        month = int(energy_sim_month[self.time_step])
+        hour = int(energy_sim_hour[self.time_step])
+        minutes = (
+            int(energy_sim_minutes[self.time_step])
+            if energy_sim_minutes is not None and len(energy_sim_minutes) > 0
+            else 0
+        )
 
         next_time_step = self.time_step + 1
         next_month = energy_sim_month[next_time_step] if next_time_step < len(energy_sim_month) else month
@@ -1378,19 +1498,22 @@ class CityLearnEnv(Environment, Env):
             energy_sim_minutes[next_time_step] if energy_sim_minutes is not None and next_time_step < len(energy_sim_minutes) else minutes
         )
 
+        timestamp = f"{self.year:04d}-{month:02d}-{self.current_day:02d}T{hour % 24:02d}:{minutes:02d}:00"
+
         if next_month != month:
+            if int(month) == 12 and int(next_month) == 1:
+                self.year += 1
+
             self.current_day = 1
-            self.year += (month == 12 and next_month == 1)  # If current month is 12 and next month is 1, increment year
-            month = next_month
-        elif next_hour == 1 and (next_minutes == 0 if energy_sim_minutes is not None else True):  # Roll over to a new day
+        elif next_hour == 1 and (next_minutes == 0 if energy_sim_minutes is not None else True):
             self.current_day += 1
 
-        return f"{self.year:04d}-{month:02d}-{self.current_day:02d}T{hour % 24:02d}:{minutes:02d}:00"
+        return timestamp
 
     def _reset_time_tracking(self):
         """Reset all time tracking variables"""
-        self.year = 2024  # Or your starting year
-        self.current_day = 1
+        self.year = self.render_start_date.year
+        self.current_day = self.render_start_date.day
         # Add any other time-related variables that need resetting
 
 
@@ -1456,14 +1579,33 @@ class CityLearnEnv(Environment, Env):
         for b in self.buildings:
             b.update_variables()
 
+        # Helper to set or append district-level aggregates for current timestep
+        def _set_or_append(lst, value):
+            # If list length matches current index => append
+            if len(lst) == self.time_step:
+                lst.append(value)
+            # If already has an entry for current timestep => overwrite
+            elif len(lst) == self.time_step + 1:
+                lst[self.time_step] = value
+            else:
+                # Out-of-sync: resize to current index and append
+                del lst[self.time_step + 1:]
+                if len(lst) < self.time_step:
+                    # pad if needed
+                    lst.extend([0.0] * (self.time_step - len(lst)))
+                lst.append(value)
+
         # net electricity consumption
-        self.__net_electricity_consumption.append(sum([b.net_electricity_consumption[self.time_step] for b in self.buildings]))
+        total = sum(b.net_electricity_consumption[self.time_step] for b in self.buildings)
+        _set_or_append(self.__net_electricity_consumption, total)
 
-        # net electriciy consumption cost
-        self.__net_electricity_consumption_cost.append(sum([b.net_electricity_consumption_cost[self.time_step] for b in self.buildings]))
+        # net electricity consumption cost
+        total_cost = sum(b.net_electricity_consumption_cost[self.time_step] for b in self.buildings)
+        _set_or_append(self.__net_electricity_consumption_cost, total_cost)
 
-        # net electriciy consumption emission
-        self.__net_electricity_consumption_emission.append(sum([b.net_electricity_consumption_emission[self.time_step] for b in self.buildings]))
+        # net electricity consumption emission
+        total_emission = sum(b.net_electricity_consumption_emission[self.time_step] for b in self.buildings)
+        _set_or_append(self.__net_electricity_consumption_emission, total_emission)
 
     def load_agent(self, agent: Union[str, 'citylearn.agents.base.Agent'] = None, **kwargs) -> Union[Any, 'citylearn.agents.base.Agent']:
         """Return :class:`Agent` or sub class object as defined by the `schema`.
@@ -1719,6 +1861,8 @@ class CityLearnEnv(Environment, Env):
 
         building_schema = schema['buildings'][building_name]
         building_kwargs = {}
+        if building_schema.get('charging_constraints') is not None:
+            building_kwargs['charging_constraints'] = building_schema['charging_constraints']
         seconds_per_time_step = schema['seconds_per_time_step']
         noise_std = building_schema.get('noise_std', 0.0)
 
@@ -1753,7 +1897,7 @@ class CityLearnEnv(Environment, Env):
         building_type = 'citylearn.citylearn.Building' if building_schema.get('type', None) is None else building_schema['type']
         building_type_module = '.'.join(building_type.split('.')[0:-1])
         building_type_name = building_type.split('.')[-1]
-        building_constructor = getattr(importlib.import_module(building_type_module),building_type_name)
+        building_constructor = getattr(importlib.import_module(building_type_module), building_type_name)
         
         # set dynamics
         if building_schema.get('dynamics', None) is not None:

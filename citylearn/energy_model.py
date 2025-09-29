@@ -5,7 +5,10 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Tuple, Union
 import numpy as np
 import pandas as pd
-from PySAM import Pvwattsv8
+try:
+    from PySAM import Pvwattsv8
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    Pvwattsv8 = None
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import DataSet, ZERO_DIVISION_PLACEHOLDER, EnergySimulation, WashingMachineSimulation
 np.seterr(divide='ignore', invalid='ignore')
@@ -536,6 +539,8 @@ class PV(ElectricDevice):
 
         for i in range(tries):
             self._autosize_config = sizing_data.sample(1, random_state=random_seed + i).iloc[0].to_dict()
+            if Pvwattsv8 is None:
+                raise ModuleNotFoundError('PySAM is required for PV sizing but is not installed.')
             model = Pvwattsv8.default('PVWattsNone')
             pv_nominal_power = self.autosize_config['nameplate_capacity_module_1']/1000.0
             model.SystemDesign.system_capacity = pv_nominal_power
@@ -664,7 +669,7 @@ class StorageDevice(Device):
     def energy_balance(self) -> np.ndarray:
         r"""Charged/discharged energy time series in [kWh]."""
 
-        return self.__energy_balance * self.time_step_ratio
+        return self.__energy_balance
         
     @property
     def round_trip_efficiency(self) -> float:
@@ -756,10 +761,11 @@ class StorageDevice(Device):
         actual energy charged/discharged irrespective of what is determined in the step function after taking into account storage design limits 
         e.g. maximum power input/output, capacity.
         """
-        energy = energy * self.time_step_ratio
-        energy -= energy_init
-        energy_balance = energy/self.round_trip_efficiency if energy >= 0 else energy*self.round_trip_efficiency
-        return energy_balance
+        delta_energy = energy - energy_init
+        if delta_energy >= 0:
+            return delta_energy / self.round_trip_efficiency
+
+        return delta_energy * self.round_trip_efficiency
 
     def autosize(self, demand: Iterable[float], safety_factor: Union[float, Tuple[float, float]] = None) -> float:
         r"""Autosize `capacity`.
