@@ -62,9 +62,23 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pages-within-citylearn-ui">Pages within CityLearn UI</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#dashboard-overview">Dashboard Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#kpis-page-overview">KPIs Page Overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#create-schema-overview">Create Schema Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dashboard-overview">Dashboard Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#uploading-simulations">Uploading Simulations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#selecting-simulations">Selecting Simulations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#viewing-simulation-data">Viewing Simulation Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#graphs-and-filters">Graphs and Filters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kpis-page-overview">KPIs Page Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#comparing-simulations">Comparing Simulations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#create-schema-overview">Create Schema Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#step-1-dataset-information">Step 1: Dataset Information</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-2-agent-reward-configuration">Step 2: Agent &amp; Reward Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-3-schema-structure-canvas">Step 3: Schema Structure (Canvas)</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -107,9 +121,9 @@
 <li><p>Web app: <a class="reference external" href="https://citylearnui.netlify.app/">https://citylearnui.netlify.app/</a> (free hosted version — not recommended for sensitive/personal data)</p></li>
 <li><p>Open-source code: <a class="reference external" href="https://github.com/Soft-CPS-Research-Group/citylearn-ui">https://github.com/Soft-CPS-Research-Group/citylearn-ui</a></p></li>
 </ul>
-<p>You can check a tutorial at the official CityLearn [website](<a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/ui.html">https://intelligent-environments-lab.github.io/CityLearn/ui.html</a>), in the CityLearn UI repository [README](<a class="reference external" href="https://github.com/Soft-CPS-Research-Group/citylearn-ui">https://github.com/Soft-CPS-Research-Group/citylearn-ui</a>), or at the help [tooltip of the oficial webapp](<a class="reference external" href="https://citylearn-ui.netlify.app/admin/help">https://citylearn-ui.netlify.app/admin/help</a>).</p>
+<p>You can check a tutorial at the official CityLearn <a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/ui.html">website</a>, in the CityLearn UI repository <a class="reference external" href="https://github.com/Soft-CPS-Research-Group/citylearn-ui">README</a>, or at the help <a class="reference external" href="https://citylearnui.netlify.app/admin/help">tooltip of the official webapp</a>.</p>
 <p><strong>Compatibility:</strong> This version of the UI currently supports CityLearn v2.4.3 simulation data.</p>
-<p><strong>Developed by:</strong> José, a member of the [SoftCPS](<a class="reference external" href="https://www2.isep.ipp.pt/softcps/">https://www2.isep.ipp.pt/softcps/</a>), Software for Cyber-Physical Systems research group (ISEP, Portugal) in collaboration with the Intelligent Environments Lab, University of Texas at Austin.</p>
+<p><strong>Developed by:</strong> José, a member of the <a class="reference external" href="https://www2.isep.ipp.pt/softcps/">SoftCPS</a>, Software for Cyber-Physical Systems research group (ISEP, Portugal) in collaboration with the Intelligent Environments Lab, University of Texas at Austin.</p>
 <section id="exporting-data-from-citylearn-into-citylearn-ui">
 <h2>Exporting Data From CityLearn into CityLearn UI<a class="headerlink" href="#exporting-data-from-citylearn-into-citylearn-ui" title="Link to this heading"></a></h2>
 <p>CityLearn automatically exports the folder structure expected by the UI. There are three workflows to consider:</p>
@@ -171,7 +185,8 @@
 <section id="dashboard-overview">
 <h3>Dashboard Overview<a class="headerlink" href="#dashboard-overview" title="Link to this heading"></a></h3>
 <p>This landing page lets you upload and explore simulations.</p>
-<p>### Uploading Simulations</p>
+<section id="uploading-simulations">
+<h4>Uploading Simulations<a class="headerlink" href="#uploading-simulations" title="Link to this heading"></a></h4>
 <ul class="simple">
 <li><p>Prepare a folder named <code class="docutils literal notranslate"><span class="pre">SimulationData</span></code>.</p></li>
 <li><p>Inside, add subfolders per simulation.</p></li>
@@ -181,10 +196,14 @@
 * <strong>Episodes:</strong> end filenames with <code class="docutils literal notranslate"><span class="pre">_epZ</span></code> (episode number <code class="docutils literal notranslate"><span class="pre">Z</span></code>)</p></li>
 </ul>
 <p>Structure example: <code class="docutils literal notranslate"><span class="pre">SimulationData/MySim/exported_data_building_1_battery_ep3.csv</span></code>.</p>
-<p>### Selecting Simulations</p>
+</section>
+<section id="selecting-simulations">
+<h4>Selecting Simulations<a class="headerlink" href="#selecting-simulations" title="Link to this heading"></a></h4>
 <p>After uploading a valid folder, click <strong>Select Simulations</strong> to choose which runs to visualize. At least one simulation must be selected before confirming.</p>
 <img alt="Selecting simulations" class="align-center" src="_images/selecting-simulations.png" />
-<p>### Viewing Simulation Data</p>
+</section>
+<section id="viewing-simulation-data">
+<h4>Viewing Simulation Data<a class="headerlink" href="#viewing-simulation-data" title="Link to this heading"></a></h4>
 <p>Each chosen simulation appears as a tab. Within a tab:</p>
 <ul class="simple">
 <li><p>The left sidebar lists buildings and their grouped components (Consumption, Production, Other Equipment).</p></li>
@@ -192,7 +211,9 @@
 </ul>
 <p>This layout enables quick navigation across building-level data.</p>
 <img alt="Simulation data view" class="align-center" src="_images/simulation-data.png" />
-<p>### Graphs and Filters</p>
+</section>
+<section id="graphs-and-filters">
+<h4>Graphs and Filters<a class="headerlink" href="#graphs-and-filters" title="Link to this heading"></a></h4>
 <p>Graphs support multiple filtering controls:</p>
 <ul class="simple">
 <li><p>Adjust time-step intervals (highlighted in red),</p></li>
@@ -200,11 +221,13 @@
 <li><p>Restrict start/end dates using the slider (blue).</p></li>
 </ul>
 </section>
+</section>
 <section id="kpis-page-overview">
 <h3>KPIs Page Overview<a class="headerlink" href="#kpis-page-overview" title="Link to this heading"></a></h3>
 <p>The KPIs page allows uploading folders and selecting simulations for KPI analysis. Once a simulation is active, its KPIs appear in a table (rows = KPIs, columns = buildings).</p>
 <img alt="KPI table view" class="align-center" src="_images/kpis-data.png" />
-<p>### Comparing Simulations</p>
+<section id="comparing-simulations">
+<h4>Comparing Simulations<a class="headerlink" href="#comparing-simulations" title="Link to this heading"></a></h4>
 <p>When multiple simulations are loaded, a <strong>Compare</strong> button lets you choose a reference run. The comparison tab shows <code class="docutils literal notranslate"><span class="pre">Simulation</span> <span class="pre">Y</span> <span class="pre">–</span> <span class="pre">Simulation</span> <span class="pre">X</span></code> deltas.</p>
 <ul class="simple">
 <li><p>Positive values (improvements) appear in <strong>bold green</strong>.</p></li>
@@ -213,16 +236,22 @@
 </ul>
 <img alt="KPI comparison view" class="align-center" src="_images/kpis-comparison.png" />
 </section>
+</section>
 <section id="create-schema-overview">
 <h3>Create Schema Overview<a class="headerlink" href="#create-schema-overview" title="Link to this heading"></a></h3>
 <p>The Create Schema page guides dataset assembly via three sections.</p>
-<p>### 1. Dataset Information</p>
+<section id="step-1-dataset-information">
+<h4>Step 1: Dataset Information<a class="headerlink" href="#step-1-dataset-information" title="Link to this heading"></a></h4>
 <p>Displays dataset metadata, period settings, selected observations, and actions.</p>
 <img alt="Dataset information" class="align-center" src="_images/dataset-info.png" />
-<p>### 2. Agent &amp; Reward Configuration</p>
+</section>
+<section id="step-2-agent-reward-configuration">
+<h4>Step 2: Agent &amp; Reward Configuration<a class="headerlink" href="#step-2-agent-reward-configuration" title="Link to this heading"></a></h4>
 <p>Define agent details, reward functions, and upload JSON configuration files. Uploaded files can be previewed and edited inline.</p>
 <img alt="Agent and reward configuration" class="align-center" src="_images/agent-reward-config.png" />
-<p>### 3. Schema Structure (Canvas)</p>
+</section>
+<section id="step-3-schema-structure-canvas">
+<h4>Step 3: Schema Structure (Canvas)<a class="headerlink" href="#step-3-schema-structure-canvas" title="Link to this heading"></a></h4>
 <p>Provides a drag-and-drop canvas for constructing schemas:</p>
 <ul class="simple">
 <li><p>The left panel lists components to add (buildings, equipment, etc.).</p></li>
@@ -231,6 +260,9 @@
 </ul>
 <img alt="Schema canvas" class="align-center" src="_images/schema-structure.png" />
 <p>This interface streamlines the creation and management of complex simulation schemas.</p>
+<p>UI updates and improvements are ongoing. Feedback and contributions are welcome via the <a class="reference external" href="https://github.com/Soft-CPS-Research-Group/citylearn-ui">CityLearn UI repo</a></p>
+<p>Contributors: José Oliveira and Tiago Fonseca (<a class="reference external" href="mailto:calof&#37;&#52;&#48;isep&#46;ipp&#46;pt">calof<span>&#64;</span>isep<span>&#46;</span>ipp<span>&#46;</span>pt</a>)</p>
+</section>
 </section>
 </section>
 </section>
