@@ -1,0 +1,7 @@
+citylearn.tests.test\_rendering\_behaviour module
+=================================================
+
+.. automodule:: citylearn.tests.test_rendering_behaviour
+   :members:
+   :undoc-members:
+   :show-inheritance:

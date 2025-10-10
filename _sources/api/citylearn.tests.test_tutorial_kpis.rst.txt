@@ -1,0 +1,7 @@
+citylearn.tests.test\_tutorial\_kpis module
+===========================================
+
+.. automodule:: citylearn.tests.test_tutorial_kpis
+   :members:
+   :undoc-members:
+   :show-inheritance:

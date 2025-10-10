@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QuickStart &mdash; CityLearn 2.3.1 documentation</title>
+  <title>QuickStart &mdash; CityLearn 2.4.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -18,7 +18,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=67b02a41"></script>
+      <script src="_static/documentation_options.js?v=7a6bd5fc"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -77,6 +77,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage/index.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ui.html">CityLearn UI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">citylearn</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/index.html">The CityLearn Challenge</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
@@ -125,7 +126,7 @@
 <h3>No Control (Baseline)<a class="headerlink" href="#No-Control-(Baseline)" title="Link to this heading"></a></h3>
 <p>Run the following to simulate an environment where the storage systems and heat pumps are not controlled (baseline). The storage actions prescribed will be 0.0 and the heat pump will have no action, i.e. <code class="docutils literal notranslate"><span class="pre">None</span></code>, causing it to deliver the ideal load in the building time series files:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.agents.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaselineAgent</span> <span class="k">as</span> <span class="n">Agent</span>
@@ -149,6 +150,14 @@
 <span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Couldn&#39;t import dot_parser, loading of dot files will not be possible.
+</pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -351,7 +360,7 @@
 <h3>Centralized RBC<a class="headerlink" href="#Centralized-RBC" title="Link to this heading"></a></h3>
 <p>Run the following to simulate an environment controlled by centralized RBC agent for a single episode:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.agents.rbc</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasicRBC</span> <span class="k">as</span> <span class="n">Agent</span>
@@ -568,7 +577,7 @@
 <h3>Decentralized-Independent SAC<a class="headerlink" href="#Decentralized-Independent-SAC" title="Link to this heading"></a></h3>
 <p>Run the following to simulate an environment controlled by decentralized-independent SAC agents for 1 training episode:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.agents.sac</span><span class="w"> </span><span class="kn">import</span> <span class="n">SAC</span> <span class="k">as</span> <span class="n">Agent</span>
@@ -641,14 +650,14 @@
     </tr>
     <tr>
       <th>carbon_emissions_total</th>
-      <td>0.942</td>
-      <td>0.974</td>
+      <td>0.943</td>
+      <td>0.973</td>
       <td>0.952</td>
       <td>0.956</td>
     </tr>
     <tr>
       <th>cost_total</th>
-      <td>0.904</td>
+      <td>0.906</td>
       <td>0.935</td>
       <td>0.920</td>
       <td>0.920</td>
@@ -665,21 +674,21 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.930</td>
+      <td>0.931</td>
     </tr>
     <tr>
       <th>discomfort_cold_delta_average</th>
-      <td>1.944</td>
-      <td>0.922</td>
-      <td>0.919</td>
-      <td>1.262</td>
+      <td>1.932</td>
+      <td>0.915</td>
+      <td>0.913</td>
+      <td>1.253</td>
     </tr>
     <tr>
       <th>discomfort_cold_delta_maximum</th>
-      <td>6.454</td>
-      <td>4.517</td>
-      <td>3.080</td>
-      <td>4.684</td>
+      <td>6.430</td>
+      <td>4.516</td>
+      <td>3.078</td>
+      <td>4.675</td>
     </tr>
     <tr>
       <th>discomfort_cold_delta_minimum</th>
@@ -690,24 +699,24 @@
     </tr>
     <tr>
       <th>discomfort_cold_proportion</th>
-      <td>0.459</td>
-      <td>0.319</td>
-      <td>0.268</td>
-      <td>0.349</td>
+      <td>0.452</td>
+      <td>0.317</td>
+      <td>0.263</td>
+      <td>0.344</td>
     </tr>
     <tr>
       <th>discomfort_hot_delta_average</th>
-      <td>0.235</td>
-      <td>0.537</td>
-      <td>0.278</td>
-      <td>0.350</td>
+      <td>0.237</td>
+      <td>0.543</td>
+      <td>0.283</td>
+      <td>0.354</td>
     </tr>
     <tr>
       <th>discomfort_hot_delta_maximum</th>
-      <td>4.578</td>
-      <td>6.119</td>
-      <td>3.914</td>
-      <td>4.871</td>
+      <td>4.588</td>
+      <td>6.153</td>
+      <td>3.922</td>
+      <td>4.888</td>
     </tr>
     <tr>
       <th>discomfort_hot_delta_minimum</th>
@@ -718,22 +727,22 @@
     </tr>
     <tr>
       <th>discomfort_hot_proportion</th>
-      <td>0.039</td>
-      <td>0.149</td>
+      <td>0.042</td>
+      <td>0.151</td>
       <td>0.028</td>
-      <td>0.072</td>
+      <td>0.074</td>
     </tr>
     <tr>
       <th>discomfort_proportion</th>
-      <td>0.498</td>
+      <td>0.494</td>
       <td>0.468</td>
-      <td>0.296</td>
-      <td>0.421</td>
+      <td>0.291</td>
+      <td>0.418</td>
     </tr>
     <tr>
       <th>electricity_consumption_total</th>
-      <td>0.952</td>
-      <td>0.992</td>
+      <td>0.953</td>
+      <td>0.991</td>
       <td>0.966</td>
       <td>0.970</td>
     </tr>
@@ -753,10 +762,10 @@
     </tr>
     <tr>
       <th>power_outage_normalized_unserved_energy_total</th>
-      <td>0.625</td>
+      <td>0.628</td>
       <td>0.648</td>
       <td>0.596</td>
-      <td>0.623</td>
+      <td>0.624</td>
     </tr>
     <tr>
       <th>ramping_average</th>
@@ -767,8 +776,8 @@
     </tr>
     <tr>
       <th>zero_net_energy</th>
-      <td>0.967</td>
-      <td>0.994</td>
+      <td>0.969</td>
+      <td>0.993</td>
       <td>0.967</td>
       <td>0.976</td>
     </tr>
@@ -781,7 +790,7 @@
 <h3>Decentralized-Cooperative MARLISA<a class="headerlink" href="#Decentralized-Cooperative-MARLISA" title="Link to this heading"></a></h3>
 <p>Run the following to simulate an environment controlled by decentralized-cooperative MARLISA agents for 1 training episodes:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.agents.marlisa</span><span class="w"> </span><span class="kn">import</span> <span class="n">MARLISA</span> <span class="k">as</span> <span class="n">Agent</span>
@@ -849,20 +858,20 @@
       <th>annual_normalized_unserved_energy_total</th>
       <td>0.013</td>
       <td>0.013</td>
-      <td>0.012</td>
+      <td>0.013</td>
       <td>0.013</td>
     </tr>
     <tr>
       <th>carbon_emissions_total</th>
       <td>0.954</td>
-      <td>0.975</td>
+      <td>0.976</td>
       <td>0.961</td>
-      <td>0.963</td>
+      <td>0.964</td>
     </tr>
     <tr>
       <th>cost_total</th>
       <td>0.916</td>
-      <td>0.936</td>
+      <td>0.937</td>
       <td>0.929</td>
       <td>0.927</td>
     </tr>
@@ -882,17 +891,17 @@
     </tr>
     <tr>
       <th>discomfort_cold_delta_average</th>
-      <td>1.961</td>
-      <td>0.917</td>
-      <td>0.892</td>
-      <td>1.256</td>
+      <td>1.954</td>
+      <td>0.914</td>
+      <td>0.890</td>
+      <td>1.252</td>
     </tr>
     <tr>
       <th>discomfort_cold_delta_maximum</th>
-      <td>6.487</td>
-      <td>4.553</td>
-      <td>3.040</td>
-      <td>4.693</td>
+      <td>6.447</td>
+      <td>4.527</td>
+      <td>3.032</td>
+      <td>4.668</td>
     </tr>
     <tr>
       <th>discomfort_cold_delta_minimum</th>
@@ -904,23 +913,23 @@
     <tr>
       <th>discomfort_cold_proportion</th>
       <td>0.459</td>
-      <td>0.317</td>
+      <td>0.315</td>
       <td>0.250</td>
-      <td>0.342</td>
+      <td>0.341</td>
     </tr>
     <tr>
       <th>discomfort_hot_delta_average</th>
-      <td>0.235</td>
-      <td>0.550</td>
-      <td>0.295</td>
-      <td>0.360</td>
+      <td>0.232</td>
+      <td>0.546</td>
+      <td>0.291</td>
+      <td>0.356</td>
     </tr>
     <tr>
       <th>discomfort_hot_delta_maximum</th>
-      <td>4.590</td>
-      <td>6.210</td>
-      <td>3.938</td>
-      <td>4.913</td>
+      <td>4.582</td>
+      <td>6.163</td>
+      <td>3.928</td>
+      <td>4.891</td>
     </tr>
     <tr>
       <th>discomfort_hot_delta_minimum</th>
@@ -931,24 +940,24 @@
     </tr>
     <tr>
       <th>discomfort_hot_proportion</th>
-      <td>0.041</td>
-      <td>0.153</td>
-      <td>0.030</td>
-      <td>0.075</td>
+      <td>0.039</td>
+      <td>0.151</td>
+      <td>0.028</td>
+      <td>0.073</td>
     </tr>
     <tr>
       <th>discomfort_proportion</th>
-      <td>0.499</td>
-      <td>0.470</td>
-      <td>0.280</td>
-      <td>0.416</td>
+      <td>0.498</td>
+      <td>0.466</td>
+      <td>0.278</td>
+      <td>0.414</td>
     </tr>
     <tr>
       <th>electricity_consumption_total</th>
-      <td>0.964</td>
-      <td>0.993</td>
-      <td>0.975</td>
-      <td>0.977</td>
+      <td>0.963</td>
+      <td>0.994</td>
+      <td>0.976</td>
+      <td>0.978</td>
     </tr>
     <tr>
       <th>monthly_one_minus_load_factor_average</th>
@@ -966,10 +975,10 @@
     </tr>
     <tr>
       <th>power_outage_normalized_unserved_energy_total</th>
-      <td>0.631</td>
-      <td>0.647</td>
+      <td>0.632</td>
+      <td>0.649</td>
       <td>0.597</td>
-      <td>0.625</td>
+      <td>0.626</td>
     </tr>
     <tr>
       <th>ramping_average</th>
@@ -980,9 +989,9 @@
     </tr>
     <tr>
       <th>zero_net_energy</th>
-      <td>0.980</td>
-      <td>0.996</td>
-      <td>0.976</td>
+      <td>0.979</td>
+      <td>0.997</td>
+      <td>0.977</td>
       <td>0.984</td>
     </tr>
   </tbody>
@@ -1010,7 +1019,7 @@
 <div><p>⚠️ <strong>NOTE</strong>: <code class="docutils literal notranslate"><span class="pre">central_agent</span></code> in the <code class="docutils literal notranslate"><span class="pre">env</span></code> must be <code class="docutils literal notranslate"><span class="pre">True</span></code> when using Stable Baselines3 as it does not support multi-agents.</p>
 </div></blockquote>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">stable_baselines3.sac</span><span class="w"> </span><span class="kn">import</span> <span class="n">SAC</span> <span class="k">as</span> <span class="n">Agent</span>
@@ -1082,7 +1091,7 @@
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.850</td>
+      <td>0.834</td>
     </tr>
     <tr>
       <th>annual_normalized_unserved_energy_total</th>
@@ -1093,45 +1102,45 @@
     </tr>
     <tr>
       <th>carbon_emissions_total</th>
-      <td>0.380</td>
-      <td>0.584</td>
-      <td>0.504</td>
-      <td>0.489</td>
+      <td>0.389</td>
+      <td>0.359</td>
+      <td>0.499</td>
+      <td>0.416</td>
     </tr>
     <tr>
       <th>cost_total</th>
-      <td>0.360</td>
-      <td>0.557</td>
-      <td>0.472</td>
-      <td>0.463</td>
+      <td>0.368</td>
+      <td>0.335</td>
+      <td>0.469</td>
+      <td>0.391</td>
     </tr>
     <tr>
       <th>daily_one_minus_load_factor_average</th>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>1.257</td>
+      <td>1.301</td>
     </tr>
     <tr>
       <th>daily_peak_average</th>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.710</td>
+      <td>0.686</td>
     </tr>
     <tr>
       <th>discomfort_cold_delta_average</th>
       <td>0.000</td>
-      <td>0.019</td>
+      <td>0.004</td>
       <td>0.001</td>
-      <td>0.007</td>
+      <td>0.002</td>
     </tr>
     <tr>
       <th>discomfort_cold_delta_maximum</th>
       <td>0.124</td>
-      <td>1.107</td>
+      <td>0.581</td>
       <td>0.394</td>
-      <td>0.542</td>
+      <td>0.366</td>
     </tr>
     <tr>
       <th>discomfort_cold_delta_minimum</th>
@@ -1149,17 +1158,17 @@
     </tr>
     <tr>
       <th>discomfort_hot_delta_average</th>
-      <td>9.430</td>
-      <td>2.862</td>
-      <td>8.032</td>
-      <td>6.774</td>
+      <td>9.432</td>
+      <td>7.095</td>
+      <td>8.040</td>
+      <td>8.189</td>
     </tr>
     <tr>
       <th>discomfort_hot_delta_maximum</th>
-      <td>16.678</td>
-      <td>10.866</td>
-      <td>13.410</td>
-      <td>13.651</td>
+      <td>16.671</td>
+      <td>14.709</td>
+      <td>13.401</td>
+      <td>14.927</td>
     </tr>
     <tr>
       <th>discomfort_hot_delta_minimum</th>
@@ -1171,30 +1180,30 @@
     <tr>
       <th>discomfort_hot_proportion</th>
       <td>0.982</td>
-      <td>0.722</td>
       <td>0.978</td>
-      <td>0.894</td>
+      <td>0.978</td>
+      <td>0.979</td>
     </tr>
     <tr>
       <th>discomfort_proportion</th>
       <td>0.982</td>
-      <td>0.722</td>
       <td>0.978</td>
-      <td>0.894</td>
+      <td>0.978</td>
+      <td>0.979</td>
     </tr>
     <tr>
       <th>electricity_consumption_total</th>
-      <td>0.384</td>
-      <td>0.593</td>
-      <td>0.509</td>
-      <td>0.495</td>
+      <td>0.393</td>
+      <td>0.367</td>
+      <td>0.506</td>
+      <td>0.422</td>
     </tr>
     <tr>
       <th>monthly_one_minus_load_factor_average</th>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>1.114</td>
+      <td>1.127</td>
     </tr>
     <tr>
       <th>one_minus_thermal_resilience_proportion</th>
@@ -1205,24 +1214,24 @@
     </tr>
     <tr>
       <th>power_outage_normalized_unserved_energy_total</th>
-      <td>0.566</td>
-      <td>0.518</td>
-      <td>0.556</td>
-      <td>0.547</td>
+      <td>0.570</td>
+      <td>0.498</td>
+      <td>0.557</td>
+      <td>0.542</td>
     </tr>
     <tr>
       <th>ramping_average</th>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.896</td>
+      <td>0.898</td>
     </tr>
     <tr>
       <th>zero_net_energy</th>
-      <td>0.265</td>
-      <td>0.594</td>
-      <td>0.454</td>
-      <td>0.437</td>
+      <td>0.276</td>
+      <td>0.342</td>
+      <td>0.451</td>
+      <td>0.356</td>
     </tr>
   </tbody>
 </table>
@@ -1247,7 +1256,7 @@
 <h4>Single Agent<a class="headerlink" href="#Single-Agent" title="Link to this heading"></a></h4>
 <p>The single-agent interface for RLlib is the <code class="docutils literal notranslate"><span class="pre">RLlibSingleAgentWrapper</span></code> wrapper.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -1296,9 +1305,9 @@
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-2025-08-10 07:41:31,195 WARNING deprecation.py:50 -- DeprecationWarning: `rllib/algorithms/simple_q/` has been deprecated. Use `rllib_contrib/simple_q/` instead. This will raise an error in the future!
-2025-08-10 07:41:33,448 WARNING env.py:162 -- Your env doesn&#39;t have a .spec.max_episode_steps attribute. Your horizon will default to infinity, and your environment will not be reset.
-2025-08-10 07:41:33,807 WARNING util.py:62 -- Install gputil for GPU system monitoring.
+2024-11-06 19:20:41,805 WARNING deprecation.py:50 -- DeprecationWarning: `rllib/algorithms/simple_q/` has been deprecated. Use `rllib_contrib/simple_q/` instead. This will raise an error in the future!
+2024-11-06 19:20:43,974 WARNING env.py:162 -- Your env doesn&#39;t have a .spec.max_episode_steps attribute. Your horizon will default to infinity, and your environment will not be reset.
+2024-11-06 19:20:44,294 WARNING util.py:62 -- Install gputil for GPU system monitoring.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1493,7 +1502,7 @@
 <h4>Multi-agent<a class="headerlink" href="#Multi-agent" title="Link to this heading"></a></h4>
 <p>The multi-agent interface for RLlib is the <code class="docutils literal notranslate"><span class="pre">RLlibMultiAgentEnv</span></code> wrapper.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -1547,7 +1556,7 @@
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-2025-08-10 07:42:20,581 WARNING util.py:62 -- Install gputil for GPU system monitoring.
+2024-11-06 19:21:19,796 WARNING util.py:62 -- Install gputil for GPU system monitoring.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1747,8 +1756,8 @@ class makes this possible.</p>
 <p>To learn more about the methodology used in this feature, refer to the <a class="reference external" href="https://doi.org/10.1080/19401493.2024.2418813">CityLearn v2 paper</a>.</p>
 <p>Note that to make use of this feature, <a class="reference external" href="https://github.com/NREL/EnergyPlus/releases/tag/v9.6.0">EnergyPlus 9.6.0</a> must be installed. Other EnergyPlus versions are not yet supported.</p>
 <p>An example of a generating a dataset and using it in simulation is:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.agents.rbc</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasicRBC</span> <span class="k">as</span> <span class="n">Agent</span>
@@ -1791,6 +1800,477 @@ class makes this possible.</p>
 <span class="n">display</span><span class="p">(</span><span class="n">kpis</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+EnergyPlus Completed Successfully.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+EnergyPlus Completed Successfully.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+EnergyPlus Completed Successfully.
+EnergyPlus Completed Successfully.
+EnergyPlus Completed Successfully.
+EnergyPlus Completed Successfully.
+EnergyPlus Completed Successfully.
+EnergyPlus Completed Successfully.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+EnergyPlus Completed Successfully.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+[openstudio.energyplus.ForwardTranslator] &lt;0&gt; Cannot find file &#34;&#34;
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Program terminated: EnergyPlus Terminated--Error(s) Detected.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+EnergyPlus Completed Successfully.
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+Could not find platform independent libraries &lt;prefix&gt;
+Could not find platform dependent libraries &lt;exec_prefix&gt;
+Consider setting $PYTHONHOME to &lt;prefix&gt;[:&lt;exec_prefix&gt;]
+EnergyPlus Completed Successfully.
+EnergyPlus Completed Successfully.
+EnergyPlus Completed Successfully.
+EnergyPlus Completed Successfully.
+EnergyPlus Completed Successfully.
+EnergyPlus Completed Successfully.
+/Users/kingsleyenweye/Desktop/INTELLIGENT_ENVIRONMENT_LAB/citylearn/CityLearn/test-py311-env/lib/python3.11/site-packages/gymnasium/spaces/box.py:130: UserWarning: <span class="ansi-yellow-fg">WARN: Box bound precision lowered by casting to float32</span>
+  gym.logger.warn(f&#34;Box bound precision lowered by casting to {self.dtype}&#34;)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Couldn&#39;t import dot_parser, loading of dot files will not be possible.
+Couldn&#39;t import dot_parser, loading of dot files will not be possible.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>name</th>
+      <th>District</th>
+      <th>resstock_2021_tmy3_release_1-164467-0</th>
+      <th>resstock_2021_tmy3_release_1-526919-0</th>
+    </tr>
+    <tr>
+      <th>cost_function</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>all_time_peak_average</th>
+      <td>1.405</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>annual_normalized_unserved_energy_total</th>
+      <td>-0.000</td>
+      <td>-0.000</td>
+      <td>-0.000</td>
+    </tr>
+    <tr>
+      <th>daily_one_minus_load_factor_average</th>
+      <td>0.501</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>daily_peak_average</th>
+      <td>3.260</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>discomfort_cold_delta_average</th>
+      <td>0.174</td>
+      <td>0.002</td>
+      <td>0.346</td>
+    </tr>
+    <tr>
+      <th>discomfort_cold_delta_maximum</th>
+      <td>3.665</td>
+      <td>1.084</td>
+      <td>6.246</td>
+    </tr>
+    <tr>
+      <th>discomfort_cold_delta_minimum</th>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>discomfort_cold_proportion</th>
+      <td>0.047</td>
+      <td>0.000</td>
+      <td>0.095</td>
+    </tr>
+    <tr>
+      <th>discomfort_hot_delta_average</th>
+      <td>2.225</td>
+      <td>0.496</td>
+      <td>3.955</td>
+    </tr>
+    <tr>
+      <th>discomfort_hot_delta_maximum</th>
+      <td>6.444</td>
+      <td>4.320</td>
+      <td>8.568</td>
+    </tr>
+    <tr>
+      <th>discomfort_hot_delta_minimum</th>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>discomfort_hot_proportion</th>
+      <td>0.376</td>
+      <td>0.078</td>
+      <td>0.674</td>
+    </tr>
+    <tr>
+      <th>discomfort_proportion</th>
+      <td>0.423</td>
+      <td>0.078</td>
+      <td>0.769</td>
+    </tr>
+    <tr>
+      <th>electricity_consumption_total</th>
+      <td>5.221</td>
+      <td>4.082</td>
+      <td>6.360</td>
+    </tr>
+    <tr>
+      <th>monthly_one_minus_load_factor_average</th>
+      <td>0.678</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>ramping_average</th>
+      <td>1.137</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>zero_net_energy</th>
+      <td>-3.855</td>
+      <td>-5.923</td>
+      <td>-1.787</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
 </div>
 </section>
 </section>

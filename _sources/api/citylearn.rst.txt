@@ -14,6 +14,7 @@ Subpackages
 
    citylearn.agents
    citylearn.end_use_load_profiles
+   citylearn.tests
 
 Submodules
 ----------

@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CityLearn UI &mdash; CityLearn 2.4.3 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx-dropdown.css?v=995e94df" />
+      <link rel="stylesheet" type="text/css" href="_static/panels-bootstrap.min.css?v=21c0b90a" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=7a6bd5fc"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="citylearn" href="api/modules.html" />
+    <link rel="prev" title="Command Line Interface" href="cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CityLearn
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">QuickStart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview/index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage/index.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CityLearn UI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#exporting-data-from-citylearn-into-citylearn-ui">Exporting Data From CityLearn into CityLearn UI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#render-on-example">Render-on Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#export-at-the-end-example">Export-at-the-End Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pages-within-citylearn-ui">Pages within CityLearn UI</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dashboard-overview">Dashboard Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kpis-page-overview">KPIs Page Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-schema-overview">Create Schema Overview</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">citylearn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citylearn_challenge/index.html">The CityLearn Challenge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CityLearn</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">CityLearn UI</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/intelligent-environments-lab/CityLearn/blob/master/docs/source/ui.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="citylearn-ui">
+<h1>CityLearn UI<a class="headerlink" href="#citylearn-ui" title="Link to this heading"></a></h1>
+<p>CityLearn UI is a visual dashboard for exploring simulation data generated by the CityLearn framework. It was developed to simplify the analysis of results from smart energy communities, district energy coordination, demand response (among other applications), allowing users to visually inspect building-level components, compare simulation KPIs, and create simulation schemas with ease.</p>
+<p>The interface is available in two options:</p>
+<ul class="simple">
+<li><p>Web app: <a class="reference external" href="https://citylearnui.netlify.app/">https://citylearnui.netlify.app/</a> (free hosted version — not recommended for sensitive/personal data)</p></li>
+<li><p>Open-source code: <a class="reference external" href="https://github.com/Soft-CPS-Research-Group/citylearn-ui">https://github.com/Soft-CPS-Research-Group/citylearn-ui</a></p></li>
+</ul>
+<p>You can check a tutorial at the official CityLearn [website](<a class="reference external" href="https://intelligent-environments-lab.github.io/CityLearn/ui.html">https://intelligent-environments-lab.github.io/CityLearn/ui.html</a>), in the CityLearn UI repository [README](<a class="reference external" href="https://github.com/Soft-CPS-Research-Group/citylearn-ui">https://github.com/Soft-CPS-Research-Group/citylearn-ui</a>), or at the help [tooltip of the oficial webapp](<a class="reference external" href="https://citylearn-ui.netlify.app/admin/help">https://citylearn-ui.netlify.app/admin/help</a>).</p>
+<p><strong>Compatibility:</strong> This version of the UI currently supports CityLearn v2.4.3 simulation data.</p>
+<p><strong>Developed by:</strong> José, a member of the [SoftCPS](<a class="reference external" href="https://www2.isep.ipp.pt/softcps/">https://www2.isep.ipp.pt/softcps/</a>), Software for Cyber-Physical Systems research group (ISEP, Portugal) in collaboration with the Intelligent Environments Lab, University of Texas at Austin.</p>
+<section id="exporting-data-from-citylearn-into-citylearn-ui">
+<h2>Exporting Data From CityLearn into CityLearn UI<a class="headerlink" href="#exporting-data-from-citylearn-into-citylearn-ui" title="Link to this heading"></a></h2>
+<p>CityLearn automatically exports the folder structure expected by the UI. There are three workflows to consider:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">render=False</span></code> (default): no CSVs are produced, so the UI cannot ingest data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">render=True</span></code>: data is exported every simulation step into timestamped folders. You may keep the default location (<code class="docutils literal notranslate"><span class="pre">&lt;project&gt;/render_logs/&lt;timestamp&gt;</span></code>) or set <code class="docutils literal notranslate"><span class="pre">render_directory</span></code>/<code class="docutils literal notranslate"><span class="pre">render_directory_name</span></code> on <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> to choose the destination.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">render=False</span></code> with explicit export: keep rendering off for faster runs and call <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.export_final_kpis" title="citylearn.citylearn.CityLearnEnv.export_final_kpis"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.export_final_kpis()</span></code></a> (or a custom exporter) at the end. This lazily creates the render folder and writes the same CSV layout required by the UI.</p></li>
+</ul>
+<section id="render-on-example">
+<h3>Render-on Example<a class="headerlink" href="#render-on-example" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
+
+<span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json&#39;</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span>
+    <span class="n">schema</span><span class="p">,</span>
+    <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">episode_time_steps</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+    <span class="n">render</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">render_directory</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;outputs/ui_exports&#39;</span><span class="p">),</span>  <span class="c1"># optional custom base folder</span>
+<span class="p">)</span>
+
+<span class="n">observations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">()]</span>
+    <span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The code above writes per-step CSV files into <code class="docutils literal notranslate"><span class="pre">outputs/ui_exports/&lt;timestamp&gt;/</span></code>. Omitting <code class="docutils literal notranslate"><span class="pre">render_directory</span></code> stores the results in <code class="docutils literal notranslate"><span class="pre">render_logs/&lt;timestamp&gt;/</span></code> by default.</p>
+</section>
+<section id="export-at-the-end-example">
+<h3>Export-at-the-End Example<a class="headerlink" href="#export-at-the-end-example" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">render</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">observations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">()]</span>
+    <span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_Model</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">_Model</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">export_final_kpis</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="s1">&#39;exported_kpis.csv&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Render folder:&#39;</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">new_folder_path</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This pattern keeps rendering off (fastest) and emits the UI-compatible folder once the run completes. The helper reuses the same rules for <code class="docutils literal notranslate"><span class="pre">render_directory</span></code>/<code class="docutils literal notranslate"><span class="pre">render_directory_name</span></code> if they were provided during construction.</p>
+<p>The UI consumes the directory produced by either of the latter two approaches. The system uses the <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.render" title="citylearn.citylearn.CityLearnEnv.render"><code class="xref py py-meth docutils literal notranslate"><span class="pre">render()</span></code></a> method to iterate over buildings, electric vehicles, batteries, chargers, pricing, etc., using their <code class="docutils literal notranslate"><span class="pre">as_dict</span></code> outputs to build CSV histories where each row corresponds to a time instant and columns include units. Timestamps are converted to calendar dates for display. You can disable step-wise exporting by keeping <code class="docutils literal notranslate"><span class="pre">render=False</span></code> and relying on the end-of-run exporter.</p>
+</section>
+</section>
+<section id="pages-within-citylearn-ui">
+<h2>Pages within CityLearn UI<a class="headerlink" href="#pages-within-citylearn-ui" title="Link to this heading"></a></h2>
+<p>CityLearn UI has three main pages, described below. All referenced images should be placed under <code class="docutils literal notranslate"><span class="pre">docs/source/_static/ui/</span></code> with the indicated filenames.</p>
+<section id="dashboard-overview">
+<h3>Dashboard Overview<a class="headerlink" href="#dashboard-overview" title="Link to this heading"></a></h3>
+<p>This landing page lets you upload and explore simulations.</p>
+<p>### Uploading Simulations</p>
+<ul class="simple">
+<li><p>Prepare a folder named <code class="docutils literal notranslate"><span class="pre">SimulationData</span></code>.</p></li>
+<li><p>Inside, add subfolders per simulation.</p></li>
+<li><p>Each simulation folder must contain CSVs named as follows:
+* <strong>Buildings:</strong> <code class="docutils literal notranslate"><span class="pre">exported_data_building_X</span></code> (where <code class="docutils literal notranslate"><span class="pre">X</span></code> is the building number)
+* <strong>Components:</strong> append suffixes such as <code class="docutils literal notranslate"><span class="pre">_battery</span></code> or <code class="docutils literal notranslate"><span class="pre">_charger_X_Y</span></code>
+* <strong>Episodes:</strong> end filenames with <code class="docutils literal notranslate"><span class="pre">_epZ</span></code> (episode number <code class="docutils literal notranslate"><span class="pre">Z</span></code>)</p></li>
+</ul>
+<p>Structure example: <code class="docutils literal notranslate"><span class="pre">SimulationData/MySim/exported_data_building_1_battery_ep3.csv</span></code>.</p>
+<p>### Selecting Simulations</p>
+<p>After uploading a valid folder, click <strong>Select Simulations</strong> to choose which runs to visualize. At least one simulation must be selected before confirming.</p>
+<img alt="Selecting simulations" class="align-center" src="_images/selecting-simulations.png" />
+<p>### Viewing Simulation Data</p>
+<p>Each chosen simulation appears as a tab. Within a tab:</p>
+<ul class="simple">
+<li><p>The left sidebar lists buildings and their grouped components (Consumption, Production, Other Equipment).</p></li>
+<li><p>Selecting a component displays its chart on the right.</p></li>
+</ul>
+<p>This layout enables quick navigation across building-level data.</p>
+<img alt="Simulation data view" class="align-center" src="_images/simulation-data.png" />
+<p>### Graphs and Filters</p>
+<p>Graphs support multiple filtering controls:</p>
+<ul class="simple">
+<li><p>Adjust time-step intervals (highlighted in red),</p></li>
+<li><p>Toggle data series via checkboxes (green),</p></li>
+<li><p>Restrict start/end dates using the slider (blue).</p></li>
+</ul>
+</section>
+<section id="kpis-page-overview">
+<h3>KPIs Page Overview<a class="headerlink" href="#kpis-page-overview" title="Link to this heading"></a></h3>
+<p>The KPIs page allows uploading folders and selecting simulations for KPI analysis. Once a simulation is active, its KPIs appear in a table (rows = KPIs, columns = buildings).</p>
+<img alt="KPI table view" class="align-center" src="_images/kpis-data.png" />
+<p>### Comparing Simulations</p>
+<p>When multiple simulations are loaded, a <strong>Compare</strong> button lets you choose a reference run. The comparison tab shows <code class="docutils literal notranslate"><span class="pre">Simulation</span> <span class="pre">Y</span> <span class="pre">–</span> <span class="pre">Simulation</span> <span class="pre">X</span></code> deltas.</p>
+<ul class="simple">
+<li><p>Positive values (improvements) appear in <strong>bold green</strong>.</p></li>
+<li><p>Negative values (declines) appear in <strong>bold red</strong>.</p></li>
+<li><p>Zero differences remain black.</p></li>
+</ul>
+<img alt="KPI comparison view" class="align-center" src="_images/kpis-comparison.png" />
+</section>
+<section id="create-schema-overview">
+<h3>Create Schema Overview<a class="headerlink" href="#create-schema-overview" title="Link to this heading"></a></h3>
+<p>The Create Schema page guides dataset assembly via three sections.</p>
+<p>### 1. Dataset Information</p>
+<p>Displays dataset metadata, period settings, selected observations, and actions.</p>
+<img alt="Dataset information" class="align-center" src="_images/dataset-info.png" />
+<p>### 2. Agent &amp; Reward Configuration</p>
+<p>Define agent details, reward functions, and upload JSON configuration files. Uploaded files can be previewed and edited inline.</p>
+<img alt="Agent and reward configuration" class="align-center" src="_images/agent-reward-config.png" />
+<p>### 3. Schema Structure (Canvas)</p>
+<p>Provides a drag-and-drop canvas for constructing schemas:</p>
+<ul class="simple">
+<li><p>The left panel lists components to add (buildings, equipment, etc.).</p></li>
+<li><p>Drag components onto the canvas and fill in required fields.</p></li>
+<li><p>Link equipment to buildings, rename items, and copy/paste repeating elements.</p></li>
+</ul>
+<img alt="Schema canvas" class="align-center" src="_images/schema-structure.png" />
+<p>This interface streamlines the creation and management of complex simulation schemas.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cli.html" class="btn btn-neutral float-left" title="Command Line Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api/modules.html" class="btn btn-neutral float-right" title="citylearn" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
