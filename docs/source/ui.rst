@@ -9,11 +9,11 @@ The interface is available in two options:
 * Web app: https://citylearnui.netlify.app/ (free hosted version — not recommended for sensitive/personal data)
 * Open-source code: https://github.com/Soft-CPS-Research-Group/citylearn-ui
 
-You can check a tutorial at the official CityLearn [website](https://intelligent-environments-lab.github.io/CityLearn/ui.html), in the CityLearn UI repository [README](https://github.com/Soft-CPS-Research-Group/citylearn-ui), or at the help [tooltip of the oficial webapp](https://citylearn-ui.netlify.app/admin/help).
+You can check a tutorial at the official CityLearn `website <https://intelligent-environments-lab.github.io/CityLearn/ui.html>`_, in the CityLearn UI repository `README <https://github.com/Soft-CPS-Research-Group/citylearn-ui>`_, or at the help `tooltip of the official webapp <https://citylearnui.netlify.app/admin/help>`_.
 
 **Compatibility:** This version of the UI currently supports CityLearn v2.4.3 simulation data.
 
-**Developed by:** José, a member of the [SoftCPS](https://www2.isep.ipp.pt/softcps/), Software for Cyber-Physical Systems research group (ISEP, Portugal) in collaboration with the Intelligent Environments Lab, University of Texas at Austin.
+**Developed by:** José, a member of the `SoftCPS <https://www2.isep.ipp.pt/softcps/>`_, Software for Cyber-Physical Systems research group (ISEP, Portugal) in collaboration with the Intelligent Environments Lab, University of Texas at Austin.
 
 Exporting Data From CityLearn into CityLearn UI
 ===============================================
@@ -85,7 +85,8 @@ Dashboard Overview
 
 This landing page lets you upload and explore simulations.
 
-### Uploading Simulations
+Uploading Simulations
+^^^^^^^^^^^^^^^^^^^^^
 
 * Prepare a folder named ``SimulationData``.
 * Inside, add subfolders per simulation.
@@ -96,7 +97,8 @@ This landing page lets you upload and explore simulations.
 
 Structure example: ``SimulationData/MySim/exported_data_building_1_battery_ep3.csv``.
 
-### Selecting Simulations
+Selecting Simulations
+^^^^^^^^^^^^^^^^^^^^^
 
 After uploading a valid folder, click **Select Simulations** to choose which runs to visualize. At least one simulation must be selected before confirming.
 
@@ -104,7 +106,8 @@ After uploading a valid folder, click **Select Simulations** to choose which run
    :align: center
    :alt: Selecting simulations
 
-### Viewing Simulation Data
+Viewing Simulation Data
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Each chosen simulation appears as a tab. Within a tab:
 
@@ -117,7 +120,8 @@ This layout enables quick navigation across building-level data.
    :align: center
    :alt: Simulation data view
 
-### Graphs and Filters
+Graphs and Filters
+^^^^^^^^^^^^^^^^^^
 
 Graphs support multiple filtering controls:
 
@@ -134,7 +138,8 @@ The KPIs page allows uploading folders and selecting simulations for KPI analysi
    :align: center
    :alt: KPI table view
 
-### Comparing Simulations
+Comparing Simulations
+^^^^^^^^^^^^^^^^^^^^^
 
 When multiple simulations are loaded, a **Compare** button lets you choose a reference run. The comparison tab shows ``Simulation Y – Simulation X`` deltas.
 
@@ -151,7 +156,8 @@ Create Schema Overview
 
 The Create Schema page guides dataset assembly via three sections.
 
-### 1. Dataset Information
+Step 1: Dataset Information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Displays dataset metadata, period settings, selected observations, and actions.
 
@@ -159,7 +165,8 @@ Displays dataset metadata, period settings, selected observations, and actions.
    :align: center
    :alt: Dataset information
 
-### 2. Agent & Reward Configuration
+Step 2: Agent & Reward Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Define agent details, reward functions, and upload JSON configuration files. Uploaded files can be previewed and edited inline.
 
@@ -167,7 +174,8 @@ Define agent details, reward functions, and upload JSON configuration files. Upl
    :align: center
    :alt: Agent and reward configuration
 
-### 3. Schema Structure (Canvas)
+Step 3: Schema Structure (Canvas)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Provides a drag-and-drop canvas for constructing schemas:
 
@@ -180,3 +188,7 @@ Provides a drag-and-drop canvas for constructing schemas:
    :alt: Schema canvas
 
 This interface streamlines the creation and management of complex simulation schemas.
+
+UI updates and improvements are ongoing. Feedback and contributions are welcome via the `CityLearn UI repo <https://github.com/Soft-CPS-Research-Group/citylearn-ui>`_
+
+Contributors: José Oliveira and Tiago Fonseca (calof@isep.ipp.pt)
