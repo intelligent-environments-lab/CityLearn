@@ -1325,19 +1325,39 @@ class CityLearnEnv(Environment, Env):
                     curr_state = sim.electric_vehicle_charger_state[t] if t < len(sim.electric_vehicle_charger_state) else np.nan
                     next_state = sim.electric_vehicle_charger_state[t + 1] if t + 1 < len(sim.electric_vehicle_charger_state) else np.nan
 
-                    is_connecting = next_id == ev_id and next_state == 1
-                    is_incoming = curr_id == ev_id and curr_state == 2
+                    currently_connected = isinstance(curr_id, str) and curr_id == ev_id and curr_state == 1
+                    if currently_connected:
+                        found_in_charger = True
+                        break
+
+                    is_connecting = (
+                        isinstance(next_id, str)
+                        and next_id == ev_id
+                        and next_state == 1
+                        and curr_state != 1
+                    )
+                    is_incoming = isinstance(curr_id, str) and curr_id == ev_id and curr_state == 2
 
                     if is_connecting:
                         found_in_charger = True
                         # Priority 1: current soc_arrival if incoming at t
                         if is_incoming:
-                            soc = sim.electric_vehicle_estimated_soc_arrival[t] # TODO: Work from here
+                            if t < len(sim.electric_vehicle_estimated_soc_arrival):
+                                soc = sim.electric_vehicle_estimated_soc_arrival[t]
+                            else:
+                                soc = np.nan
                         else:
-                            soc = sim.electric_vehicle_estimated_soc_arrival[t + 1]
+                            if t + 1 < len(sim.electric_vehicle_estimated_soc_arrival):
+                                soc = sim.electric_vehicle_estimated_soc_arrival[t + 1]
+                            else:
+                                soc = np.nan
 
                         if 0 <= soc <= 1:
                             ev.battery.force_set_soc(soc)
+                        break
+
+                if found_in_charger:
+                    break
 
             if not found_in_charger:
                 # Not being connected or incoming in a valid charger — apply SOC drift
