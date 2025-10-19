@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.citylearn &mdash; CityLearn 2.4.3 documentation</title>
+  <title>citylearn.citylearn &mdash; CityLearn 2.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=7a6bd5fc"></script>
+      <script src="../../_static/documentation_options.js?v=de1351e5"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -1439,19 +1439,39 @@
                     <span class="n">curr_state</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">electric_vehicle_charger_state</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">electric_vehicle_charger_state</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
                     <span class="n">next_state</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">electric_vehicle_charger_state</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">electric_vehicle_charger_state</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
-                    <span class="n">is_connecting</span> <span class="o">=</span> <span class="n">next_id</span> <span class="o">==</span> <span class="n">ev_id</span> <span class="ow">and</span> <span class="n">next_state</span> <span class="o">==</span> <span class="mi">1</span>
-                    <span class="n">is_incoming</span> <span class="o">=</span> <span class="n">curr_id</span> <span class="o">==</span> <span class="n">ev_id</span> <span class="ow">and</span> <span class="n">curr_state</span> <span class="o">==</span> <span class="mi">2</span>
+                    <span class="n">currently_connected</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">curr_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">curr_id</span> <span class="o">==</span> <span class="n">ev_id</span> <span class="ow">and</span> <span class="n">curr_state</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">currently_connected</span><span class="p">:</span>
+                        <span class="n">found_in_charger</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+
+                    <span class="n">is_connecting</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="nb">isinstance</span><span class="p">(</span><span class="n">next_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="n">next_id</span> <span class="o">==</span> <span class="n">ev_id</span>
+                        <span class="ow">and</span> <span class="n">next_state</span> <span class="o">==</span> <span class="mi">1</span>
+                        <span class="ow">and</span> <span class="n">curr_state</span> <span class="o">!=</span> <span class="mi">1</span>
+                    <span class="p">)</span>
+                    <span class="n">is_incoming</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">curr_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">curr_id</span> <span class="o">==</span> <span class="n">ev_id</span> <span class="ow">and</span> <span class="n">curr_state</span> <span class="o">==</span> <span class="mi">2</span>
 
                     <span class="k">if</span> <span class="n">is_connecting</span><span class="p">:</span>
                         <span class="n">found_in_charger</span> <span class="o">=</span> <span class="kc">True</span>
                         <span class="c1"># Priority 1: current soc_arrival if incoming at t</span>
                         <span class="k">if</span> <span class="n">is_incoming</span><span class="p">:</span>
-                            <span class="n">soc</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">electric_vehicle_estimated_soc_arrival</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="c1"># TODO: Work from here</span>
+                            <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">electric_vehicle_estimated_soc_arrival</span><span class="p">):</span>
+                                <span class="n">soc</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">electric_vehicle_estimated_soc_arrival</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">soc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="n">soc</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">electric_vehicle_estimated_soc_arrival</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">electric_vehicle_estimated_soc_arrival</span><span class="p">):</span>
+                                <span class="n">soc</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">electric_vehicle_estimated_soc_arrival</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">soc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
                         <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">soc</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
                             <span class="n">ev</span><span class="o">.</span><span class="n">battery</span><span class="o">.</span><span class="n">force_set_soc</span><span class="p">(</span><span class="n">soc</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+                <span class="k">if</span> <span class="n">found_in_charger</span><span class="p">:</span>
+                    <span class="k">break</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">found_in_charger</span><span class="p">:</span>
                 <span class="c1"># Not being connected or incoming in a valid charger — apply SOC drift</span>
