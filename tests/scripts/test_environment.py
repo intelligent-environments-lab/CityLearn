@@ -1,11 +1,17 @@
 import pickle
 import time
 import sys
-sys.path.insert(0, '..')
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from citylearn.citylearn import CityLearnEnv
 
 RESULT_FILEPATH = 'test_environment.pkl'
 schema = 'baeda_3dem'
+
 
 def main():
     # simulation
@@ -19,8 +25,9 @@ def main():
     # with open(RESULT_FILEPATH, 'wb') as f:
     #     pickle.dump(model, f)
 
+
 if __name__ == '__main__':
     start_time = time.time()
     main()
     runtime = time.time() - start_time
-    print('runtime:',runtime)
+    print('runtime:', runtime)

@@ -1,41 +1,87 @@
-"""
-Run from tests folder: python3 test_evs.py
-
-Ensures parent repo root is on sys.path so local 'citylearn' package is importable
-without installing. Alternative: run from repo root using `python -m tests.test_evs`.
-"""
-import os
-import sys
 from pathlib import Path
-PARENT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if PARENT not in sys.path:
-    sys.path.insert(0, PARENT)
-import citylearn
+
+import numpy as np
+import pytest
+
+pytest.importorskip("gymnasium")
+
 from citylearn.agents.rbc import BasicElectricVehicleRBC_ReferenceController as Agent
-# RandomAgent, RLAgent
 from citylearn.citylearn import CityLearnEnv
 
-dataset_name = '../data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json'
 
-# dataset_name = 'citylearn_challenge_2023_phase_2_local_evaluation'
-custom_render_dir = Path('tests/tmp/render_evs')
-env = CityLearnEnv(
-    dataset_name,
-    central_agent=True,
-    render=True,
-    render_directory=custom_render_dir,
-    episode_time_steps=96
-)
-model = Agent(env)
-model.learn(episodes=1, logging_level=1)
+SCHEMA = Path(__file__).resolve().parents[1] / "data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json"
 
-# print cost functions at the end of episode
-kpis = model.env.evaluate()
-kpis = kpis.pivot(index='cost_function', columns='name', values='value').round(3)
-kpis = kpis.dropna(how='all')
-print(kpis)
 
-# Print where results were saved when rendering is enabled
-if hasattr(env, 'new_folder_path'):
-    print(f"Results folder: {env.new_folder_path}")
-print(f"Base render directory: {custom_render_dir.resolve()}")
+def _make_zero_actions(env: CityLearnEnv):
+    return [np.zeros(space.shape, dtype="float32") for space in env.action_space]
+
+
+def test_basic_ev_rbc_completes_episode(tmp_path):
+    render_dir = tmp_path / "render_evs"
+    env = CityLearnEnv(
+        str(SCHEMA),
+        central_agent=True,
+        render_mode="during",
+        render_directory=render_dir,
+        episode_time_steps=24,
+        random_seed=0,
+    )
+
+    try:
+        controller = Agent(env)
+        controller.learn(episodes=1, logging_level=1)
+
+        kpis = controller.env.evaluate()
+        assert not kpis.empty
+
+        # Ensure rendering pipeline produced output when enabled.
+        assert render_dir.exists()
+    finally:
+        env.close()
+
+
+def test_zero_action_rollout_keeps_kpis_finite():
+    env = CityLearnEnv(
+        str(SCHEMA),
+        central_agent=True,
+        episode_time_steps=12,
+        random_seed=0,
+    )
+
+    try:
+        env.reset()
+        while not env.terminated:
+            env.step(_make_zero_actions(env))
+
+        kpis = env.evaluate()
+        finite = kpis["value"].dropna()
+        assert not finite.empty
+        assert np.isfinite(finite).all()
+    finally:
+        env.close()
+
+
+def test_rbc_sets_ev_actions_positive():
+    env = CityLearnEnv(
+        str(SCHEMA),
+        central_agent=True,
+        episode_time_steps=4,
+        random_seed=0,
+    )
+
+    try:
+        controller = Agent(env)
+        observations, _ = env.reset()
+        actions = controller.predict(observations, deterministic=True)
+
+        ev_indices = [
+            idx
+            for idx, name in enumerate(env.action_names[0])
+            if name.startswith("electric_vehicle_storage_")
+        ]
+        assert ev_indices, "Expected EV storage actions in action space."
+
+        for idx in ev_indices:
+            assert actions[0][idx] > 0.0
+    finally:
+        env.close()

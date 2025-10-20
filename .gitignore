@@ -183,4 +183,5 @@ examples/*
 
 # Simulation outputs
 render_logs/
+SimulationData/
 results/

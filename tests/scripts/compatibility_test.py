@@ -1,7 +1,12 @@
 import pickle
 import time
 import sys
-sys.path.insert(0, '..')
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from citylearn.agents.base import Agent
 from citylearn.agents.marlisa import MARLISA, MARLISARBC
 from citylearn.agents.rbc import RBC, HourRBC, BasicRBC, OptimizedRBC, BasicBatteryRBC
@@ -10,11 +15,11 @@ from citylearn.citylearn import CityLearnEnv
 from citylearn.data import DataSet
 
 agents = [
-    Agent, 
-    RBC, 
-    HourRBC, 
-    BasicRBC, 
-    OptimizedRBC, 
+    Agent,
+    RBC,
+    HourRBC,
+    BasicRBC,
+    OptimizedRBC,
     BasicBatteryRBC,
     SAC,
     SACRBC,
@@ -24,7 +29,7 @@ agents = [
 schemas = [
     'baeda_3dem',
     'citylearn_challenge_2020_climate_zone_1',
-    'citylearn_challenge_2021', 
+    'citylearn_challenge_2021',
     'citylearn_challenge_2022_phase_all'
 ]
 central_agent_setting = [
@@ -39,8 +44,8 @@ for schema in DataSet().get_dataset_names():
         print(f'Successfully loaded schema: "{schema}"')
     except Exception as e:
         print(f'Unsuccessfully loaded schema: "{schema}"')
-        raise(e)
-    
+        raise e
+
 # load all internally defined agents
 for schema in schemas:
     for agent in agents:
@@ -51,8 +56,8 @@ for schema in schemas:
             print(f'Successfully loaded agent: "{model.__class__.__name__}" with schema: "{schema}"')
         except Exception as e:
             print(f'Unccessfully loaded agent: "{model.__class__.__name__}" with schema: "{schema}"')
-            raise(e)
-        
+            raise e
+
 # # train all internally defined agents with central and non-central agent
 # for schema in schemas:
 #     for agent in agents:
@@ -61,12 +66,12 @@ for schema in schemas:
 #                 continue
 #             else:
 #                 pass
-
+#
 #             env = CityLearnEnv(schema, central_agent=central_agent, simulation_start_time_step=0, simulation_end_time_step=1000)
-
+#
 #             try:
 #                 model: Agent = agent(
-#                     env, 
+#                     env,
 #                     standardize_start_time_step=env.time_steps - 1,
 #                     end_exploration_time_step=env.time_steps
 #                 )
@@ -74,8 +79,8 @@ for schema in schemas:
 #                 print(f'Successfully trained agent: "{model.__class__.__name__}" with schema: "{schema}" and central_agent: "{central_agent}"')
 #             except Exception as e:
 #                 print(f'Unccessfully trained agent: "{model.__class__.__name__}" with schema: "{schema}" and central_agent: "{central_agent}"')
-#                 raise(e)
-            
+#                 raise e
+#
 # stable-baselines
 
 

@@ -2,6 +2,9 @@
 
 from pathlib import Path
 import numpy as np
+import pytest
+
+pytest.importorskip("gymnasium")
 
 from citylearn.citylearn import CityLearnEnv, EvaluationCondition
 from citylearn.agents.base import Agent as RandomAgent

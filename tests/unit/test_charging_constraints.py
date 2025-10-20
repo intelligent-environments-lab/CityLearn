@@ -9,6 +9,8 @@ from typing import Optional
 import numpy as np
 import pytest
 
+pytest.importorskip("gymnasium")
+
 from citylearn.citylearn import CityLearnEnv
 
 

@@ -3,6 +3,8 @@
 import numpy as np
 import pytest
 
+pytest.importorskip("gymnasium")
+
 from citylearn.base import EpisodeTracker
 from citylearn.citylearn import CityLearnEnv
 from citylearn.data import EnergySimulation

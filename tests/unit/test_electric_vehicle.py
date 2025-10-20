@@ -1,6 +1,9 @@
 import pytest
 import numpy as np
 from unittest.mock import MagicMock
+
+pytest.importorskip("gymnasium")
+
 from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery
 from citylearn.base import EpisodeTracker
@@ -102,3 +105,43 @@ def test_render_simulation_end_data(electric_vehicle, mock_battery, mock_episode
     assert result['data'][0]['battery']['soc'] == 0.5
     assert result['data'][0]['battery']['capacity'] == 80.0
     assert result['data'][1]['battery']['soc'] == 0.6
+
+
+def _make_real_tracker(length: int = 4) -> EpisodeTracker:
+    tracker = EpisodeTracker(0, length - 1)
+    tracker.next_episode(length, False, False, 0)
+    return tracker
+
+
+def _make_real_ev(initial_soc: float = 0.4) -> ElectricVehicle:
+    tracker = _make_real_tracker()
+    battery = Battery(
+        capacity=40.0,
+        nominal_power=20.0,
+        initial_soc=initial_soc,
+        efficiency=0.96,
+        loss_coefficient=0.0,
+        capacity_loss_coefficient=0.0,
+        power_efficiency_curve=[[0.0, 1.0], [1.0, 1.0]],
+        capacity_power_curve=[[0.0, 1.0], [1.0, 1.0]],
+        seconds_per_time_step=3600,
+        episode_tracker=tracker,
+    )
+    battery.reset()
+    ev = ElectricVehicle(
+        episode_tracker=tracker,
+        battery=battery,
+        name="RealEV",
+        seconds_per_time_step=3600,
+    )
+    ev.reset()
+    return ev
+
+
+def test_observations_track_real_battery_state():
+    ev = _make_real_ev(initial_soc=0.4)
+    initial_soc = float(ev.battery.soc[ev.time_step])
+    ev.battery.charge(5.0)
+    new_soc = float(ev.battery.soc[ev.time_step])
+    assert new_soc > initial_soc
+    assert ev.observations()["electric_vehicle_soc"] == pytest.approx(new_soc)
