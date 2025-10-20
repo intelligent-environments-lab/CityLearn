@@ -1,7 +1,0 @@
-citylearn.tests.test\_alignment module
-======================================
-
-.. automodule:: citylearn.tests.test_alignment
-   :members:
-   :undoc-members:
-   :show-inheritance:

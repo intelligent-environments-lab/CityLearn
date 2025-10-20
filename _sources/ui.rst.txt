@@ -18,14 +18,15 @@ You can check a tutorial at the official CityLearn `website <https://intelligent
 Exporting Data From CityLearn into CityLearn UI
 ===============================================
 
-CityLearn automatically exports the folder structure expected by the UI. There are three workflows to consider:
+CityLearn automatically exports the folder structure expected by the UI. There are a few workflows to consider:
 
-* ``render=False`` (default): no CSVs are produced, so the UI cannot ingest data.
-* ``render=True``: data is exported every simulation step into timestamped folders. You may keep the default location (``<project>/render_logs/<timestamp>``) or set ``render_directory``/``render_directory_name`` on :class:`citylearn.citylearn.CityLearnEnv` to choose the destination.
-* ``render=False`` with explicit export: keep rendering off for faster runs and call :meth:`citylearn.citylearn.CityLearnEnv.export_final_kpis` (or a custom exporter) at the end. This lazily creates the render folder and writes the same CSV layout required by the UI.
+* ``render_mode='none'`` (default): no CSVs are produced, so the UI cannot ingest data.
+* ``render_mode='during'``: data is exported every simulation step into timestamped folders. You may keep the default location (``<project>/SimulationData/<timestamp>``) or set ``render_directory``/``render_directory_name``/:code:`render_session_name` on :class:`citylearn.citylearn.CityLearnEnv` to choose the destination and a custom subfolder.
+* ``render_mode='end'`` (buffered): the environment records each step in memory and automatically flushes the complete episode to disk when the episode finishes (or when you call :meth:`citylearn.citylearn.CityLearnEnv.render`). This produces the same per-timestep CSVs as the ``'during'`` mode but defers file I/O until the end.
+* ``render_mode='none'`` with explicit export: keep rendering off for faster runs and call :meth:`citylearn.citylearn.CityLearnEnv.export_final_kpis` (or a custom exporter) at the end. This lazily creates the render folder and only writes KPI summaries—suitable for the UI **KPIs page** but not for the time-series dashboards.
 
-Render-on Example
------------------
+Per-Step Export Example
+-----------------------
 
 .. code-block:: python
 
@@ -38,16 +39,18 @@ Render-on Example
         schema,
         central_agent=True,
         episode_time_steps=48,
-        render=True,
+        render_mode='during',
         render_directory=Path('outputs/ui_exports'),  # optional custom base folder
+        render_session_name='my_first_run',  # optional custom subfolder
     )
 
     observations, _ = env.reset()
     while not env.terminated:
         actions = [env.action_space[0].sample()]
         observations, reward, terminated, truncated, info = env.step(actions)
+        # CSV rows are appended at each step when render_mode='during'.
 
-The code above writes per-step CSV files into ``outputs/ui_exports/<timestamp>/``. Omitting ``render_directory`` stores the results in ``render_logs/<timestamp>/`` by default.
+The code above writes per-step CSV files into ``outputs/ui_exports/<timestamp>/``. Omitting ``render_directory`` stores the results in ``SimulationData/<timestamp>/`` by default.
 
 Export-at-the-End Example
 -------------------------
@@ -56,7 +59,7 @@ Export-at-the-End Example
 
     from citylearn.citylearn import CityLearnEnv
 
-    env = CityLearnEnv(schema, central_agent=True, episode_time_steps=48, render=False)
+    env = CityLearnEnv(schema, central_agent=True, episode_time_steps=48, render_mode='none')
     observations, _ = env.reset()
     while not env.terminated:
         actions = [env.action_space[0].sample()]
@@ -71,9 +74,44 @@ Export-at-the-End Example
     env.export_final_kpis(model, filepath='exported_kpis.csv')
     print('Render folder:', env.new_folder_path)
 
-This pattern keeps rendering off (fastest) and emits the UI-compatible folder once the run completes. The helper reuses the same rules for ``render_directory``/``render_directory_name`` if they were provided during construction.
+This pattern keeps rendering off (fastest) and emits only the KPI CSV once the run completes. Because timestep histories are not written, the resulting folder can be used with the **KPIs** page of the UI but not with the full time-series explorer.
 
-The UI consumes the directory produced by either of the latter two approaches. The system uses the :meth:`~citylearn.citylearn.CityLearnEnv.render` method to iterate over buildings, electric vehicles, batteries, chargers, pricing, etc., using their ``as_dict`` outputs to build CSV histories where each row corresponds to a time instant and columns include units. Timestamps are converted to calendar dates for display. You can disable step-wise exporting by keeping ``render=False`` and relying on the end-of-run exporter.
+Buffered End-of-Run Export Example
+----------------------------------
+
+.. code-block:: python
+
+    from pathlib import Path
+    from citylearn.citylearn import CityLearnEnv
+
+    schema = 'data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json'
+
+    env = CityLearnEnv(
+        schema,
+        central_agent=True,
+        episode_time_steps=48,
+        render_mode='end',
+        render_directory=Path('outputs/ui_exports'),
+        render_session_name='buffered_run',
+    )
+
+    observations, _ = env.reset()
+    while not env.terminated:
+        actions = [env.action_space[0].sample()]
+        observations, reward, terminated, truncated, info = env.step(actions)
+
+    # Episode completion automatically flushes the buffered CSVs.
+    # Call env.render() mid-run if you need an interim snapshot.
+    class _Model:
+        pass
+
+    model = _Model()
+    model.env = env
+    env.export_final_kpis(model)
+
+With ``render_mode='end'`` the per-step histories accumulate in memory while the episode runs. At episode completion the environment writes the full SimulationData folder (all timesteps plus components); you may still call :meth:`~citylearn.citylearn.CityLearnEnv.render` manually if you want to force a flush earlier than that.
+
+The UI consumes the directory produced by the ``'during'`` and ``'end'`` approaches. The system uses the :meth:`~citylearn.citylearn.CityLearnEnv.render` method to iterate over buildings, electric vehicles, batteries, chargers, pricing, etc., using their ``as_dict`` outputs to build CSV histories where each row corresponds to a time instant and columns include units. Timestamps are converted to calendar dates for display. You can disable step-wise exporting by keeping ``render_mode='none'`` and relying on the end-of-run exporter, but the resulting folder will only serve the KPI comparison page.
 
 Pages within CityLearn UI
 =========================

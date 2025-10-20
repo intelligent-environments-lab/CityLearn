@@ -1,7 +1,0 @@
-citylearn.tests.test\_pv module
-===============================
-
-.. automodule:: citylearn.tests.test_pv
-   :members:
-   :undoc-members:
-   :show-inheritance:

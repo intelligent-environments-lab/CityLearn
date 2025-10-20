@@ -1,7 +1,0 @@
-citylearn.tests.test\_electric\_vehicle\_charger module
-=======================================================
-
-.. automodule:: citylearn.tests.test_electric_vehicle_charger
-   :members:
-   :undoc-members:
-   :show-inheritance:

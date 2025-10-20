@@ -84,7 +84,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for citylearn.citylearn</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
@@ -94,7 +95,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">gymnasium</span><span class="w"> </span><span class="kn">import</span> <span class="n">Env</span><span class="p">,</span> <span class="n">spaces</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -205,6 +205,12 @@
 <span class="sd">    render_directory_name: str, optional</span>
 <span class="sd">        Folder name created inside the project root for rendering and export artifacts when ``render_directory`` is not provided.</span>
 <span class="sd">        Defaults to ``render_logs``.</span>
+<span class="sd">    render_session_name: str, optional</span>
+<span class="sd">        Name of the subfolder created under ``render_directory``/``render_directory_name`` for export artifacts. When omitted,</span>
+<span class="sd">        a timestamp is used.</span>
+<span class="sd">    render_mode: str, optional</span>
+<span class="sd">        Rendering strategy. Accepted values are ``&#39;none&#39;`` (default), ``&#39;during&#39;`` for streaming exports each step, and</span>
+<span class="sd">        ``&#39;end&#39;`` for exports performed at episode completion while still allowing manual snapshots via :meth:`render`.</span>
 <span class="sd">    **kwargs : dict</span>
 <span class="sd">        Other keyword arguments used to initialize super classes.</span>
 
@@ -223,12 +229,28 @@
         <span class="n">central_agent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">active_observations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">inactive_observations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">active_actions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">inactive_actions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">simulate_power_outage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">solar_generation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">time_step_ratio</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">start_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">render_session_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">render_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">):</span>
         <span class="n">render_directory</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;render_directory&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">render_directory_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;render_directory_name&#39;</span><span class="p">,</span> <span class="s1">&#39;render_logs&#39;</span><span class="p">)</span>
+        <span class="n">render_flag</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;render&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">kw_render_mode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;render_mode&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">requested_render_mode</span> <span class="o">=</span> <span class="n">render_mode</span> <span class="k">if</span> <span class="n">kw_render_mode</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">kw_render_mode</span>
+        <span class="n">requested_render_mode</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span> <span class="k">if</span> <span class="n">requested_render_mode</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">requested_render_mode</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">kw_render_session_name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;render_session_name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kw_render_session_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">render_session_name</span> <span class="o">=</span> <span class="n">kw_render_session_name</span> <span class="k">if</span> <span class="n">render_session_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">render_session_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="n">schema</span>
         <span class="n">schema_start_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">schema_render_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;render_mode&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">schema_render_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">requested_render_mode</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">schema_render_mode</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">requested_render_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="s1">&#39;during&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">}:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;render_mode must be one of {&#39;none&#39;, &#39;during&#39;, &#39;end&#39;}.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">=</span> <span class="n">requested_render_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer_render</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s1">&#39;end&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defer_render_flush</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_buffer</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_render_start_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_render_start_date</span><span class="p">(</span><span class="n">start_date</span> <span class="k">if</span> <span class="n">start_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema_start_date</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">previous_month</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_start_date</span><span class="o">.</span><span class="n">day</span>
@@ -236,6 +258,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">random_seed</span>
+        <span class="n">schema_render_session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;render_session_name&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span> <span class="o">=</span> <span class="n">render_session_name</span> <span class="k">if</span> <span class="n">render_session_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schema_render_session</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span><span class="p">)</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;render_session_name must be a relative path. Use render_directory to choose an absolute location.&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s1">&#39;..&#39;</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span><span class="p">)</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;render_session_name cannot contain parent directory references (“..”).&#39;</span><span class="p">)</span>
         <span class="n">root_directory</span><span class="p">,</span> <span class="n">buildings</span><span class="p">,</span> <span class="n">electric_vehicles</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="p">,</span> <span class="n">rolling_episode_split</span><span class="p">,</span> <span class="n">random_episode_split</span><span class="p">,</span> \
             <span class="n">seconds_per_time_step</span><span class="p">,</span> <span class="n">reward_function</span><span class="p">,</span> <span class="n">central_agent</span><span class="p">,</span> <span class="n">shared_observations</span><span class="p">,</span> <span class="n">episode_tracker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span>
                 <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">),</span>
@@ -280,9 +312,16 @@
         <span class="c1"># set reward function</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reward_function</span> <span class="o">=</span> <span class="n">reward_function</span>
 
-        <span class="c1"># rendering switch: precedence schema[&#39;render&#39;] &gt; init kwarg &#39;render&#39; &gt; False</span>
+        <span class="c1"># rendering switch: schema[&#39;render&#39;] overrides explicit flag, otherwise rely on render_mode defaults</span>
         <span class="n">schema_render</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;render&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">render_enabled</span> <span class="o">=</span> <span class="n">schema_render</span> <span class="k">if</span> <span class="n">schema_render</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;render&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">schema_render</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">render_enabled_flag</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">schema_render</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">render_flag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">render_enabled_flag</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">render_flag</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">render_enabled_flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;during&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">render_enabled</span> <span class="o">=</span> <span class="n">render_enabled_flag</span>
 
         <span class="c1"># reset environment and initializes episode time steps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
@@ -313,7 +352,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">render_output_root</span> <span class="o">=</span> <span class="n">render_root</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_render_timestamp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_directory_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_dir_initialized</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">new_folder_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_start_datetime</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_enabled</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_render_output_dir</span><span class="p">()</span>
@@ -1091,6 +1133,17 @@
                 <span class="s1">&#39;sum&#39;</span><span class="p">:</span> <span class="n">rewards</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
                 <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">rewards</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
             <span class="p">})</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s1">&#39;end&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_enabled</span><span class="p">:</span>
+                <span class="n">final_index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">state_snapshot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_override_render_time_step</span><span class="p">(</span><span class="n">final_index</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defer_render_flush</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_restore_render_time_step</span><span class="p">(</span><span class="n">state_snapshot</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_defer_render_flush</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_flush_render_buffer</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">truncated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span></div>
 
@@ -1373,7 +1426,14 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Advance all buildings to next `time_step`.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;render_enabled&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s1">&#39;during&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defer_render_flush</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_defer_render_flush</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
             <span class="n">building</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
 
@@ -1506,6 +1566,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;render_enabled&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s1">&#39;end&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_defer_render_flush&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flush_render_buffer</span><span class="p">()</span>
+            <span class="k">return</span>
         <span class="c1"># Ensure the output directory is prepared</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_render_output_dir</span><span class="p">()</span>
         <span class="n">iso_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_iso_timestamp</span><span class="p">()</span>
@@ -1549,18 +1612,74 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Saves data to a CSV file, appending it if the file exists.</span>
+<span class="sd">        Saves data to a CSV file, appending it if the file exists. When `render_mode=&#39;end&#39;`,</span>
+<span class="sd">        rows may be buffered in memory until a flush is requested.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">new_folder_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-        <span class="n">file_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">new_folder_path</span><span class="p">)</span> <span class="o">/</span> <span class="n">filename</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
-            <span class="n">fieldnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-            <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fieldnames</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer_render</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_defer_render_flush&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render_buffer</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+            <span class="k">return</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">file_exists</span><span class="p">:</span>
+        <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">row_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">with</span> <span class="n">file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">existing</span><span class="p">:</span>
+                <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span>
+                <span class="n">existing_rows</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+                <span class="n">existing_fieldnames</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">fieldnames</span> <span class="ow">or</span> <span class="p">[]</span>
+
+            <span class="n">missing_fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">row_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">f</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_fieldnames</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">missing_fields</span><span class="p">:</span>
+                <span class="n">updated_fieldnames</span> <span class="o">=</span> <span class="n">existing_fieldnames</span> <span class="o">+</span> <span class="n">missing_fields</span>
+
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">existing_rows</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">missing_fields</span><span class="p">:</span>
+                        <span class="n">row</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+                <span class="n">existing_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">field</span><span class="p">:</span> <span class="n">row_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">updated_fieldnames</span><span class="p">})</span>
+
+                <span class="k">with</span> <span class="n">file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+                    <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">updated_fieldnames</span><span class="p">)</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">existing_rows</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+                    <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">existing_fieldnames</span><span class="p">)</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">({</span><span class="n">field</span><span class="p">:</span> <span class="n">row_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">existing_fieldnames</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fieldnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">row_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+            <span class="k">with</span> <span class="n">file_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+                <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fieldnames</span><span class="p">)</span>
                 <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">({</span><span class="n">field</span><span class="p">:</span> <span class="n">row_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fieldnames</span><span class="p">})</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_flush_render_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write any buffered render rows to disk.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_render_buffer&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="n">has_pending_rows</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_render_buffer</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_pending_rows</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">original_defer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defer_render_flush</span>
+        <span class="n">original_buffer_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buffer_render</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defer_render_flush</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer_render</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_render_buffer</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_save_to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_buffer_render</span> <span class="o">=</span> <span class="n">original_buffer_state</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defer_render_flush</span> <span class="o">=</span> <span class="n">original_defer</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_parse_render_start_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a valid start date for rendering timestamps.&quot;&quot;&quot;</span>
@@ -1600,17 +1719,25 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">render_output_root</span> <span class="o">=</span> <span class="n">fallback</span>
             <span class="n">base_render_path</span> <span class="o">=</span> <span class="n">fallback</span>
 
-        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_render_timestamp&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_render_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">_%H-%M-%S&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_render_directory_path&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_render_directory_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">base_render_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span><span class="p">))</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_render_timestamp&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_render_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">_%H-%M-%S&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_render_directory_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">base_render_path</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_timestamp</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
-        <span class="n">target_path</span> <span class="o">=</span> <span class="n">base_render_path</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_timestamp</span>
-        <span class="n">dataset_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_directory</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">target_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_directory_path</span>
+        <span class="n">target_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">dataset_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">dataset_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: The dataset &#39;</span><span class="si">{</span><span class="n">dataset_path</span><span class="si">}</span><span class="s2">&#39; does not exist.&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">target_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">target_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_dir_initialized</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_session_name</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">csv_file</span> <span class="ow">in</span> <span class="n">target_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;exported_*.csv&#39;</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">csv_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+                    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render_dir_initialized</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">new_folder_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">target_path</span><span class="p">)</span>
 
@@ -1618,43 +1745,113 @@
         <span class="c1"># Reset time tracking if this is the first step of a new episode</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_reset_time_tracking</span><span class="p">()</span>
-        
         <span class="n">energy_sim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy_simulation</span>
-        <span class="n">energy_sim_month</span> <span class="o">=</span> <span class="n">energy_sim</span><span class="o">.</span><span class="n">month</span>
-        <span class="n">energy_sim_hour</span> <span class="o">=</span> <span class="n">energy_sim</span><span class="o">.</span><span class="n">hour</span>
-        <span class="n">energy_sim_minutes</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">energy_sim</span><span class="p">,</span> <span class="s2">&quot;minutes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">month_series</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">energy_sim</span><span class="p">,</span> <span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">hour_series</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">energy_sim</span><span class="p">,</span> <span class="s1">&#39;hour&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">minutes_series</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">energy_sim</span><span class="p">,</span> <span class="s1">&#39;minutes&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="n">month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">energy_sim_month</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">])</span>
-        <span class="n">hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">energy_sim_hour</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">])</span>
-        <span class="n">minutes</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">energy_sim_minutes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">energy_sim_minutes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">energy_sim_minutes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-            <span class="k">else</span> <span class="mi">0</span>
-        <span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_get_series_value</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">series</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">default</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">series</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">default</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">series</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">default</span>
 
-        <span class="n">next_time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">next_month</span> <span class="o">=</span> <span class="n">energy_sim_month</span><span class="p">[</span><span class="n">next_time_step</span><span class="p">]</span> <span class="k">if</span> <span class="n">next_time_step</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">energy_sim_month</span><span class="p">)</span> <span class="k">else</span> <span class="n">month</span>
-        <span class="n">next_hour</span> <span class="o">=</span> <span class="n">energy_sim_hour</span><span class="p">[</span><span class="n">next_time_step</span><span class="p">]</span> <span class="k">if</span> <span class="n">next_time_step</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">energy_sim_hour</span><span class="p">)</span> <span class="k">else</span> <span class="n">hour</span>
-        <span class="n">next_minutes</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">energy_sim_minutes</span><span class="p">[</span><span class="n">next_time_step</span><span class="p">]</span> <span class="k">if</span> <span class="n">energy_sim_minutes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">next_time_step</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">energy_sim_minutes</span><span class="p">)</span> <span class="k">else</span> <span class="n">minutes</span>
-        <span class="p">)</span>
+        <span class="n">month</span> <span class="o">=</span> <span class="n">_get_series_value</span><span class="p">(</span><span class="n">month_series</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_start_date</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+        <span class="n">hour</span> <span class="o">=</span> <span class="n">_get_series_value</span><span class="p">(</span><span class="n">hour_series</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">minutes</span> <span class="o">=</span> <span class="n">_get_series_value</span><span class="p">(</span><span class="n">minutes_series</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">timestamp</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">month</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_day</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">T</span><span class="si">{</span><span class="n">hour</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">24</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:00&quot;</span>
+        <span class="n">next_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">next_month</span> <span class="o">=</span> <span class="n">_get_series_value</span><span class="p">(</span><span class="n">month_series</span><span class="p">,</span> <span class="n">next_index</span><span class="p">,</span> <span class="n">month</span><span class="p">)</span>
+        <span class="n">next_hour</span> <span class="o">=</span> <span class="n">_get_series_value</span><span class="p">(</span><span class="n">hour_series</span><span class="p">,</span> <span class="n">next_index</span><span class="p">,</span> <span class="n">hour</span><span class="p">)</span>
+        <span class="n">next_minutes</span> <span class="o">=</span> <span class="n">_get_series_value</span><span class="p">(</span><span class="n">minutes_series</span><span class="p">,</span> <span class="n">next_index</span><span class="p">,</span> <span class="n">minutes</span><span class="p">)</span>
+
+        <span class="n">timestamp_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span>
+        <span class="n">timestamp_month</span> <span class="o">=</span> <span class="n">month</span>
+        <span class="n">timestamp_day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span>
+        <span class="n">hour_for_timestamp</span> <span class="o">=</span> <span class="n">hour</span> <span class="o">%</span> <span class="mi">24</span>
+        <span class="n">minute_for_timestamp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span> <span class="n">minutes</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">24</span><span class="p">:</span>
+            <span class="n">hour_for_timestamp</span> <span class="o">=</span> <span class="n">hour</span> <span class="o">%</span> <span class="mi">24</span>
+
+            <span class="k">if</span> <span class="n">next_month</span> <span class="o">!=</span> <span class="n">month</span><span class="p">:</span>
+                <span class="n">timestamp_month</span> <span class="o">=</span> <span class="n">next_month</span>
+                
+                <span class="k">if</span> <span class="n">next_month</span> <span class="o">&lt;</span> <span class="n">month</span><span class="p">:</span>
+                    <span class="n">timestamp_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">timestamp_day</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">timestamp_day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span> <span class="o">+</span> <span class="p">(</span><span class="n">hour</span> <span class="o">//</span> <span class="mi">24</span><span class="p">)</span>
+
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">timestamp_year</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">timestamp_month</span><span class="p">)</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">timestamp_day</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">T</span><span class="si">{</span><span class="n">hour_for_timestamp</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minute_for_timestamp</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:00&quot;</span>
+
+        <span class="n">next_year</span> <span class="o">=</span> <span class="n">timestamp_year</span>
+        <span class="n">next_day</span> <span class="o">=</span> <span class="n">timestamp_day</span>
 
         <span class="k">if</span> <span class="n">next_month</span> <span class="o">!=</span> <span class="n">month</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">month</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">next_month</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">next_month</span> <span class="o">&lt;</span> <span class="n">month</span><span class="p">:</span>
+                <span class="n">next_year</span> <span class="o">=</span> <span class="n">timestamp_year</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">next_day</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">next_hour</span> <span class="o">&lt;=</span> <span class="n">hour</span><span class="p">:</span>
+            <span class="n">next_day</span> <span class="o">=</span> <span class="n">timestamp_day</span> <span class="o">+</span> <span class="mi">1</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">next_hour</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="p">(</span><span class="n">next_minutes</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">energy_sim_minutes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">next_year</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span> <span class="o">=</span> <span class="n">next_day</span>
 
         <span class="k">return</span> <span class="n">timestamp</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_override_render_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Temporarily set time_step to `index` for the environment and descendants.&quot;&quot;&quot;</span>
+
+        <span class="n">snapshot</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;time_step&#39;</span><span class="p">):</span>
+                <span class="n">snapshot</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">obj</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">time_step</span><span class="p">))</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">index</span>
+
+        <span class="n">_record</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;buildings&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">_record</span><span class="p">(</span><span class="n">building</span><span class="p">)</span>
+            <span class="n">electrical_storage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">building</span><span class="p">,</span> <span class="s1">&#39;electrical_storage&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">electrical_storage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_record</span><span class="p">(</span><span class="n">electrical_storage</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">charger</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">building</span><span class="p">,</span> <span class="s1">&#39;electric_vehicle_chargers&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[]:</span>
+                <span class="n">_record</span><span class="p">(</span><span class="n">charger</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">washing_machine</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">building</span><span class="p">,</span> <span class="s1">&#39;washing_machines&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[]:</span>
+                <span class="n">_record</span><span class="p">(</span><span class="n">washing_machine</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;electric_vehicles&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">_record</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
+            <span class="n">battery</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="s1">&#39;battery&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">battery</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_record</span><span class="p">(</span><span class="n">battery</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">snapshot</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_restore_render_time_step</span><span class="p">(</span><span class="n">snapshot</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">obj</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">snapshot</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_reset_time_tracking</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset all time tracking variables&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_start_date</span><span class="o">.</span><span class="n">year</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_start_date</span><span class="o">.</span><span class="n">day</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset all time tracking variables.&quot;&quot;&quot;</span>
+        <span class="n">start_offset</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="p">,</span> <span class="s1">&#39;episode_start_time_step&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">base_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">render_start_date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="n">base_datetime</span> <span class="o">+=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">start_offset</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">seconds_per_time_step</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_start_datetime</span> <span class="o">=</span> <span class="n">base_datetime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">base_datetime</span><span class="o">.</span><span class="n">year</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span> <span class="o">=</span> <span class="n">base_datetime</span><span class="o">.</span><span class="n">day</span>
         <span class="c1"># Add any other time-related variables that need resetting</span>
 
 
@@ -2502,13 +2699,18 @@
 <span class="sd">        dict</span>
 <span class="sd">            Dictionary with energy and environmental metrics for the current step.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;Net Electricity Consumption-kWh&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s2">&quot;Self Consumption-kWh&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_self_consumption</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s2">&quot;Stored energy by community- kWh&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_to_electrical_storage</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s2">&quot;Total Solar Generation-kWh&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">solar_generation</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s2">&quot;CO2-kg_co2&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
-            <span class="s2">&quot;Price-$&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_cost</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">],</span>
+            <span class="s2">&quot;Net Electricity Consumption-kWh&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+            <span class="s2">&quot;Self Consumption-kWh&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_self_consumption</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+            <span class="s2">&quot;Stored energy by community- kWh&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_to_electrical_storage</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+            <span class="s2">&quot;Total Solar Generation-kWh&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">solar_generation</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+            <span class="s2">&quot;CO2-kg_co2&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_emission</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
+            <span class="s2">&quot;Price-$&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_electricity_consumption_cost</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span>
         <span class="p">}</span></div>
 </div>
 

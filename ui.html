@@ -57,8 +57,9 @@
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CityLearn UI</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#exporting-data-from-citylearn-into-citylearn-ui">Exporting Data From CityLearn into CityLearn UI</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#render-on-example">Render-on Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#per-step-export-example">Per-Step Export Example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#export-at-the-end-example">Export-at-the-End Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#buffered-end-of-run-export-example">Buffered End-of-Run Export Example</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pages-within-citylearn-ui">Pages within CityLearn UI</a><ul>
@@ -126,14 +127,15 @@
 <p><strong>Developed by:</strong> José, a member of the <a class="reference external" href="https://www2.isep.ipp.pt/softcps/">SoftCPS</a>, Software for Cyber-Physical Systems research group (ISEP, Portugal) in collaboration with the Intelligent Environments Lab, University of Texas at Austin.</p>
 <section id="exporting-data-from-citylearn-into-citylearn-ui">
 <h2>Exporting Data From CityLearn into CityLearn UI<a class="headerlink" href="#exporting-data-from-citylearn-into-citylearn-ui" title="Link to this heading"></a></h2>
-<p>CityLearn automatically exports the folder structure expected by the UI. There are three workflows to consider:</p>
+<p>CityLearn automatically exports the folder structure expected by the UI. There are a few workflows to consider:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">render=False</span></code> (default): no CSVs are produced, so the UI cannot ingest data.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">render=True</span></code>: data is exported every simulation step into timestamped folders. You may keep the default location (<code class="docutils literal notranslate"><span class="pre">&lt;project&gt;/render_logs/&lt;timestamp&gt;</span></code>) or set <code class="docutils literal notranslate"><span class="pre">render_directory</span></code>/<code class="docutils literal notranslate"><span class="pre">render_directory_name</span></code> on <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> to choose the destination.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">render=False</span></code> with explicit export: keep rendering off for faster runs and call <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.export_final_kpis" title="citylearn.citylearn.CityLearnEnv.export_final_kpis"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.export_final_kpis()</span></code></a> (or a custom exporter) at the end. This lazily creates the render folder and writes the same CSV layout required by the UI.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">render_mode='none'</span></code> (default): no CSVs are produced, so the UI cannot ingest data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">render_mode='during'</span></code>: data is exported every simulation step into timestamped folders. You may keep the default location (<code class="docutils literal notranslate"><span class="pre">&lt;project&gt;/SimulationData/&lt;timestamp&gt;</span></code>) or set <code class="docutils literal notranslate"><span class="pre">render_directory</span></code>/<code class="docutils literal notranslate"><span class="pre">render_directory_name</span></code>/<code class="code docutils literal notranslate"><span class="pre">render_session_name</span></code> on <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv</span></code></a> to choose the destination and a custom subfolder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">render_mode='end'</span></code> (buffered): the environment records each step in memory and automatically flushes the complete episode to disk when the episode finishes (or when you call <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.render" title="citylearn.citylearn.CityLearnEnv.render"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.render()</span></code></a>). This produces the same per-timestep CSVs as the <code class="docutils literal notranslate"><span class="pre">'during'</span></code> mode but defers file I/O until the end.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">render_mode='none'</span></code> with explicit export: keep rendering off for faster runs and call <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.export_final_kpis" title="citylearn.citylearn.CityLearnEnv.export_final_kpis"><code class="xref py py-meth docutils literal notranslate"><span class="pre">citylearn.citylearn.CityLearnEnv.export_final_kpis()</span></code></a> (or a custom exporter) at the end. This lazily creates the render folder and only writes KPI summaries—suitable for the UI <strong>KPIs page</strong> but not for the time-series dashboards.</p></li>
 </ul>
-<section id="render-on-example">
-<h3>Render-on Example<a class="headerlink" href="#render-on-example" title="Link to this heading"></a></h3>
+<section id="per-step-export-example">
+<h3>Per-Step Export Example<a class="headerlink" href="#per-step-export-example" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
@@ -143,23 +145,25 @@
     <span class="n">schema</span><span class="p">,</span>
     <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">episode_time_steps</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
-    <span class="n">render</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">render_mode</span><span class="o">=</span><span class="s1">&#39;during&#39;</span><span class="p">,</span>
     <span class="n">render_directory</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;outputs/ui_exports&#39;</span><span class="p">),</span>  <span class="c1"># optional custom base folder</span>
+    <span class="n">render_session_name</span><span class="o">=</span><span class="s1">&#39;my_first_run&#39;</span><span class="p">,</span>  <span class="c1"># optional custom subfolder</span>
 <span class="p">)</span>
 
 <span class="n">observations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 <span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
     <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">()]</span>
     <span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+    <span class="c1"># CSV rows are appended at each step when render_mode=&#39;during&#39;.</span>
 </pre></div>
 </div>
-<p>The code above writes per-step CSV files into <code class="docutils literal notranslate"><span class="pre">outputs/ui_exports/&lt;timestamp&gt;/</span></code>. Omitting <code class="docutils literal notranslate"><span class="pre">render_directory</span></code> stores the results in <code class="docutils literal notranslate"><span class="pre">render_logs/&lt;timestamp&gt;/</span></code> by default.</p>
+<p>The code above writes per-step CSV files into <code class="docutils literal notranslate"><span class="pre">outputs/ui_exports/&lt;timestamp&gt;/</span></code>. Omitting <code class="docutils literal notranslate"><span class="pre">render_directory</span></code> stores the results in <code class="docutils literal notranslate"><span class="pre">SimulationData/&lt;timestamp&gt;/</span></code> by default.</p>
 </section>
 <section id="export-at-the-end-example">
 <h3>Export-at-the-End Example<a class="headerlink" href="#export-at-the-end-example" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">render</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
 <span class="n">observations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 <span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
     <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">()]</span>
@@ -175,8 +179,41 @@
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Render folder:&#39;</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">new_folder_path</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This pattern keeps rendering off (fastest) and emits the UI-compatible folder once the run completes. The helper reuses the same rules for <code class="docutils literal notranslate"><span class="pre">render_directory</span></code>/<code class="docutils literal notranslate"><span class="pre">render_directory_name</span></code> if they were provided during construction.</p>
-<p>The UI consumes the directory produced by either of the latter two approaches. The system uses the <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.render" title="citylearn.citylearn.CityLearnEnv.render"><code class="xref py py-meth docutils literal notranslate"><span class="pre">render()</span></code></a> method to iterate over buildings, electric vehicles, batteries, chargers, pricing, etc., using their <code class="docutils literal notranslate"><span class="pre">as_dict</span></code> outputs to build CSV histories where each row corresponds to a time instant and columns include units. Timestamps are converted to calendar dates for display. You can disable step-wise exporting by keeping <code class="docutils literal notranslate"><span class="pre">render=False</span></code> and relying on the end-of-run exporter.</p>
+<p>This pattern keeps rendering off (fastest) and emits only the KPI CSV once the run completes. Because timestep histories are not written, the resulting folder can be used with the <strong>KPIs</strong> page of the UI but not with the full time-series explorer.</p>
+</section>
+<section id="buffered-end-of-run-export-example">
+<h3>Buffered End-of-Run Export Example<a class="headerlink" href="#buffered-end-of-run-export-example" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
+
+<span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json&#39;</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span>
+    <span class="n">schema</span><span class="p">,</span>
+    <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">episode_time_steps</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+    <span class="n">render_mode</span><span class="o">=</span><span class="s1">&#39;end&#39;</span><span class="p">,</span>
+    <span class="n">render_directory</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;outputs/ui_exports&#39;</span><span class="p">),</span>
+    <span class="n">render_session_name</span><span class="o">=</span><span class="s1">&#39;buffered_run&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">observations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">()]</span>
+    <span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+
+<span class="c1"># Episode completion automatically flushes the buffered CSVs.</span>
+<span class="c1"># Call env.render() mid-run if you need an interim snapshot.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Model</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">_Model</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span>
+<span class="n">env</span><span class="o">.</span><span class="n">export_final_kpis</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">render_mode='end'</span></code> the per-step histories accumulate in memory while the episode runs. At episode completion the environment writes the full SimulationData folder (all timesteps plus components); you may still call <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.render" title="citylearn.citylearn.CityLearnEnv.render"><code class="xref py py-meth docutils literal notranslate"><span class="pre">render()</span></code></a> manually if you want to force a flush earlier than that.</p>
+<p>The UI consumes the directory produced by the <code class="docutils literal notranslate"><span class="pre">'during'</span></code> and <code class="docutils literal notranslate"><span class="pre">'end'</span></code> approaches. The system uses the <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.render" title="citylearn.citylearn.CityLearnEnv.render"><code class="xref py py-meth docutils literal notranslate"><span class="pre">render()</span></code></a> method to iterate over buildings, electric vehicles, batteries, chargers, pricing, etc., using their <code class="docutils literal notranslate"><span class="pre">as_dict</span></code> outputs to build CSV histories where each row corresponds to a time instant and columns include units. Timestamps are converted to calendar dates for display. You can disable step-wise exporting by keeping <code class="docutils literal notranslate"><span class="pre">render_mode='none'</span></code> and relying on the end-of-run exporter, but the resulting folder will only serve the KPI comparison page.</p>
 </section>
 </section>
 <section id="pages-within-citylearn-ui">

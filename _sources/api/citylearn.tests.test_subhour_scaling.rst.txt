@@ -1,7 +1,0 @@
-citylearn.tests.test\_subhour\_scaling module
-=============================================
-
-.. automodule:: citylearn.tests.test_subhour_scaling
-   :members:
-   :undoc-members:
-   :show-inheritance:
