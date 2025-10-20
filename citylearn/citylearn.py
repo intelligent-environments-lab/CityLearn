@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from enum import Enum
 import hashlib
@@ -8,7 +9,6 @@ from pathlib import Path
 from typing import Any, List, Mapping, Tuple, Union
 from gymnasium import Env, spaces
 import csv
-import shutil
 import datetime
 import numpy as np
 import pandas as pd
@@ -114,6 +114,12 @@ class CityLearnEnv(Environment, Env):
     render_directory_name: str, optional
         Folder name created inside the project root for rendering and export artifacts when ``render_directory`` is not provided.
         Defaults to ``render_logs``.
+    render_session_name: str, optional
+        Name of the subfolder created under ``render_directory``/``render_directory_name`` for export artifacts. When omitted,
+        a timestamp is used.
+    render_mode: str, optional
+        Rendering strategy. Accepted values are ``'none'`` (default), ``'during'`` for streaming exports each step, and
+        ``'end'`` for exports performed at episode completion while still allowing manual snapshots via :meth:`render`.
     **kwargs : dict
         Other keyword arguments used to initialize super classes.
 
@@ -132,12 +138,28 @@ class CityLearnEnv(Environment, Env):
         central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None,
         inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None,
         inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, time_step_ratio: int = None,
-        start_date: Union[str, datetime.date] = None, **kwargs: Any
+        start_date: Union[str, datetime.date] = None, render_session_name: str = None, render_mode: str = 'none', **kwargs: Any
     ):
         render_directory = kwargs.pop('render_directory', None)
         render_directory_name = kwargs.pop('render_directory_name', 'render_logs')
+        render_flag = kwargs.pop('render', None)
+        kw_render_mode = kwargs.pop('render_mode', None)
+        requested_render_mode = render_mode if kw_render_mode is None else kw_render_mode
+        requested_render_mode = 'none' if requested_render_mode is None else str(requested_render_mode).lower()
+        kw_render_session_name = kwargs.pop('render_session_name', None)
+        if kw_render_session_name is not None:
+            render_session_name = kw_render_session_name if render_session_name is None else render_session_name
         self.schema = schema
         schema_start_date = self.schema.get('start_date') if isinstance(self.schema, dict) else None
+        schema_render_mode = self.schema.get('render_mode') if isinstance(self.schema, dict) else None
+        if schema_render_mode is not None:
+            requested_render_mode = str(schema_render_mode).lower()
+        if requested_render_mode not in {'none', 'during', 'end'}:
+            raise ValueError("render_mode must be one of {'none', 'during', 'end'}.")
+        self.render_mode = requested_render_mode
+        self._buffer_render = self.render_mode == 'end'
+        self._defer_render_flush = False
+        self._render_buffer = defaultdict(list)
         self._render_start_date = self._parse_render_start_date(start_date if start_date is not None else schema_start_date)
         self.previous_month = None
         self.current_day = self._render_start_date.day
@@ -145,6 +167,16 @@ class CityLearnEnv(Environment, Env):
         self.__rewards = None
         self.buildings = []
         self.random_seed = self.schema.get('random_seed', None) if random_seed is None else random_seed
+        schema_render_session = self.schema.get('render_session_name') if isinstance(self.schema, dict) else None
+        self.render_session_name = render_session_name if render_session_name is not None else schema_render_session
+        if self.render_session_name is not None:
+            self.render_session_name = str(self.render_session_name).strip()
+            if self.render_session_name == '':
+                self.render_session_name = None
+            elif Path(self.render_session_name).is_absolute():
+                raise ValueError('render_session_name must be a relative path. Use render_directory to choose an absolute location.')
+            elif '..' in Path(self.render_session_name).parts:
+                raise ValueError('render_session_name cannot contain parent directory references (“..”).')
         root_directory, buildings, electric_vehicles, episode_time_steps, rolling_episode_split, random_episode_split, \
             seconds_per_time_step, reward_function, central_agent, shared_observations, episode_tracker = self._load(
                 deepcopy(self.schema),
@@ -189,9 +221,16 @@ class CityLearnEnv(Environment, Env):
         # set reward function
         self.reward_function = reward_function
 
-        # rendering switch: precedence schema['render'] > init kwarg 'render' > False
+        # rendering switch: schema['render'] overrides explicit flag, otherwise rely on render_mode defaults
         schema_render = self.schema.get('render', None) if isinstance(self.schema, dict) else None
-        self.render_enabled = schema_render if schema_render is not None else bool(kwargs.get('render', False))
+        if schema_render is not None:
+            render_enabled_flag = bool(schema_render)
+        elif render_flag is not None:
+            render_enabled_flag = bool(render_flag)
+        else:
+            render_enabled_flag = self.render_mode in {'during', 'end'}
+
+        self.render_enabled = render_enabled_flag
 
         # reset environment and initializes episode time steps
         self.reset()
@@ -222,7 +261,10 @@ class CityLearnEnv(Environment, Env):
 
         self.render_output_root = render_root.expanduser().resolve()
         self._render_timestamp = None
+        self._render_directory_path = None
+        self._render_dir_initialized = False
         self.new_folder_path = None
+        self._render_start_datetime = None
 
         if self.render_enabled:
             self._ensure_render_output_dir()
@@ -992,6 +1034,17 @@ class CityLearnEnv(Environment, Env):
                 'sum': rewards.sum(axis=0).tolist(),
                 'mean': rewards.mean(axis=0).tolist()
             })
+            if self.render_mode == 'end' and self.render_enabled:
+                final_index = max(min(self.time_steps - 1, self.time_step), 0)
+                state_snapshot = self._override_render_time_step(final_index)
+                self._defer_render_flush = True
+                try:
+                    self.render()
+                finally:
+                    self._restore_render_time_step(state_snapshot)
+                    self._defer_render_flush = False
+
+                self._flush_render_buffer()
 
         return self.observations, reward, self.terminated, self.truncated, self.get_info()
 
@@ -1265,7 +1318,14 @@ class CityLearnEnv(Environment, Env):
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
         if getattr(self, 'render_enabled', False):
-            self.render()
+            if self.render_mode == 'during':
+                self.render()
+            elif self.render_mode == 'end':
+                self._defer_render_flush = True
+                try:
+                    self.render()
+                finally:
+                    self._defer_render_flush = False
         for building in self.buildings:
             building.next_time_step()
 
@@ -1386,6 +1446,9 @@ class CityLearnEnv(Environment, Env):
         """
         if not getattr(self, 'render_enabled', False):
             return
+        if self.render_mode == 'end' and not getattr(self, '_defer_render_flush', False):
+            self._flush_render_buffer()
+            return
         # Ensure the output directory is prepared
         self._ensure_render_output_dir()
         iso_timestamp = self._get_iso_timestamp()
@@ -1428,18 +1491,74 @@ class CityLearnEnv(Environment, Env):
 
     def _save_to_csv(self, filename, data):
         """
-        Saves data to a CSV file, appending it if the file exists.
+        Saves data to a CSV file, appending it if the file exists. When `render_mode='end'`,
+        rows may be buffered in memory until a flush is requested.
         """
-        file_path = os.path.join(self.new_folder_path, filename)
-        file_exists = os.path.isfile(file_path)
+        file_path = Path(self.new_folder_path) / filename
 
-        with open(file_path, 'a', newline='') as csvfile:
-            fieldnames = list(data.keys())
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        if self._buffer_render and getattr(self, '_defer_render_flush', False):
+            self._render_buffer[filename].append(dict(data))
+            return
 
-            if not file_exists:
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        row_data = dict(data)
+
+        if file_path.exists():
+            with file_path.open('r', newline='') as existing:
+                reader = csv.DictReader(existing)
+                existing_rows = list(reader)
+                existing_fieldnames = reader.fieldnames or []
+
+            missing_fields = [f for f in row_data.keys() if f not in existing_fieldnames]
+
+            if missing_fields:
+                updated_fieldnames = existing_fieldnames + missing_fields
+
+                for row in existing_rows:
+                    for field in missing_fields:
+                        row.setdefault(field, '')
+
+                existing_rows.append({field: row_data.get(field, '') for field in updated_fieldnames})
+
+                with file_path.open('w', newline='') as csvfile:
+                    writer = csv.DictWriter(csvfile, fieldnames=updated_fieldnames)
+                    writer.writeheader()
+                    writer.writerows(existing_rows)
+            else:
+                with file_path.open('a', newline='') as csvfile:
+                    writer = csv.DictWriter(csvfile, fieldnames=existing_fieldnames)
+                    writer.writerow({field: row_data.get(field, '') for field in existing_fieldnames})
+        else:
+            fieldnames = list(row_data.keys())
+
+            with file_path.open('w', newline='') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
-            writer.writerow(data)
+                writer.writerow({field: row_data.get(field, '') for field in fieldnames})
+
+    def _flush_render_buffer(self):
+        """Write any buffered render rows to disk."""
+        if not getattr(self, '_render_buffer', None):
+            return
+
+        has_pending_rows = any(self._render_buffer.values())
+        if not has_pending_rows:
+            self._render_buffer.clear()
+            return
+
+        original_defer = self._defer_render_flush
+        original_buffer_state = self._buffer_render
+        self._defer_render_flush = False
+        self._buffer_render = False
+
+        try:
+            for filename, rows in list(self._render_buffer.items()):
+                for row in rows:
+                    self._save_to_csv(filename, row)
+        finally:
+            self._render_buffer.clear()
+            self._buffer_render = original_buffer_state
+            self._defer_render_flush = original_defer
 
     def _parse_render_start_date(self, start_date: Union[str, datetime.date]) -> datetime.date:
         """Return a valid start date for rendering timestamps."""
@@ -1479,17 +1598,25 @@ class CityLearnEnv(Environment, Env):
             self.render_output_root = fallback
             base_render_path = fallback
 
-        if getattr(self, '_render_timestamp', None) is None:
-            self._render_timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        if getattr(self, '_render_directory_path', None) is None:
+            if self.render_session_name:
+                self._render_directory_path = (base_render_path / Path(self.render_session_name)).expanduser().resolve()
+            else:
+                if getattr(self, '_render_timestamp', None) is None:
+                    self._render_timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                self._render_directory_path = (base_render_path / self._render_timestamp).resolve()
 
-        target_path = base_render_path / self._render_timestamp
-        dataset_path = Path(self.root_directory) if self.root_directory is not None else None
+        target_path = self._render_directory_path
+        target_path.mkdir(parents=True, exist_ok=True)
 
-        if dataset_path is None or not dataset_path.exists():
-            raise FileNotFoundError(f"Error: The dataset '{dataset_path}' does not exist.")
-
-        if not target_path.exists():
-            shutil.copytree(dataset_path, target_path)
+        if not self._render_dir_initialized:
+            if self.render_session_name:
+                for csv_file in target_path.glob('exported_*.csv'):
+                    try:
+                        csv_file.unlink()
+                    except OSError:
+                        pass
+            self._render_dir_initialized = True
 
         self.new_folder_path = str(target_path)
 
@@ -1497,43 +1624,113 @@ class CityLearnEnv(Environment, Env):
         # Reset time tracking if this is the first step of a new episode
         if self.time_step == 0:
             self._reset_time_tracking()
-        
         energy_sim = self.buildings[0].energy_simulation
-        energy_sim_month = energy_sim.month
-        energy_sim_hour = energy_sim.hour
-        energy_sim_minutes = getattr(energy_sim, "minutes", None)
+        month_series = getattr(energy_sim, 'month', None)
+        hour_series = getattr(energy_sim, 'hour', None)
+        minutes_series = getattr(energy_sim, 'minutes', None)
 
-        month = int(energy_sim_month[self.time_step])
-        hour = int(energy_sim_hour[self.time_step])
-        minutes = (
-            int(energy_sim_minutes[self.time_step])
-            if energy_sim_minutes is not None and len(energy_sim_minutes) > 0
-            else 0
-        )
+        def _get_series_value(series, index, default):
+            if series is None:
+                return default
+            if index >= len(series):
+                return default
+            try:
+                return int(series[index])
+            except (TypeError, ValueError):
+                return default
 
-        next_time_step = self.time_step + 1
-        next_month = energy_sim_month[next_time_step] if next_time_step < len(energy_sim_month) else month
-        next_hour = energy_sim_hour[next_time_step] if next_time_step < len(energy_sim_hour) else hour
-        next_minutes = (
-            energy_sim_minutes[next_time_step] if energy_sim_minutes is not None and next_time_step < len(energy_sim_minutes) else minutes
-        )
+        month = _get_series_value(month_series, self.time_step, self.render_start_date.month)
+        hour = _get_series_value(hour_series, self.time_step, 1)
+        minutes = _get_series_value(minutes_series, self.time_step, 0)
 
-        timestamp = f"{self.year:04d}-{month:02d}-{self.current_day:02d}T{hour % 24:02d}:{minutes:02d}:00"
+        next_index = self.time_step + 1
+        next_month = _get_series_value(month_series, next_index, month)
+        next_hour = _get_series_value(hour_series, next_index, hour)
+        next_minutes = _get_series_value(minutes_series, next_index, minutes)
+
+        timestamp_year = self.year
+        timestamp_month = month
+        timestamp_day = self.current_day
+        hour_for_timestamp = hour % 24
+        minute_for_timestamp = max(0, min(59, minutes))
+
+        if hour >= 24:
+            hour_for_timestamp = hour % 24
+
+            if next_month != month:
+                timestamp_month = next_month
+                
+                if next_month < month:
+                    timestamp_year = self.year + 1
+                timestamp_day = 1
+
+            else:
+                timestamp_day = self.current_day + (hour // 24)
+
+        timestamp = f"{timestamp_year:04d}-{int(timestamp_month):02d}-{timestamp_day:02d}T{hour_for_timestamp:02d}:{minute_for_timestamp:02d}:00"
+
+        next_year = timestamp_year
+        next_day = timestamp_day
 
         if next_month != month:
-            if int(month) == 12 and int(next_month) == 1:
-                self.year += 1
+            if next_month < month:
+                next_year = timestamp_year + 1
+            next_day = 1
+        elif next_hour <= hour:
+            next_day = timestamp_day + 1
 
-            self.current_day = 1
-        elif next_hour == 1 and (next_minutes == 0 if energy_sim_minutes is not None else True):
-            self.current_day += 1
+        self.year = next_year
+        self.current_day = next_day
 
         return timestamp
 
+    def _override_render_time_step(self, index: int):
+        """Temporarily set time_step to `index` for the environment and descendants."""
+
+        snapshot = []
+
+        def _record(obj):
+            if hasattr(obj, 'time_step'):
+                snapshot.append((obj, obj.time_step))
+                obj.time_step = index
+
+        _record(self)
+        for building in getattr(self, 'buildings', []):
+            _record(building)
+            electrical_storage = getattr(building, 'electrical_storage', None)
+            if electrical_storage is not None:
+                _record(electrical_storage)
+
+            for charger in getattr(building, 'electric_vehicle_chargers', []) or []:
+                _record(charger)
+
+            for washing_machine in getattr(building, 'washing_machines', []) or []:
+                _record(washing_machine)
+
+        for ev in getattr(self, 'electric_vehicles', []):
+            _record(ev)
+            battery = getattr(ev, 'battery', None)
+            if battery is not None:
+                _record(battery)
+
+        return snapshot
+
+    @staticmethod
+    def _restore_render_time_step(snapshot):
+        for obj, value in snapshot:
+            try:
+                obj.time_step = value
+            except AttributeError:
+                pass
+
     def _reset_time_tracking(self):
-        """Reset all time tracking variables"""
-        self.year = self.render_start_date.year
-        self.current_day = self.render_start_date.day
+        """Reset all time tracking variables."""
+        start_offset = getattr(self.episode_tracker, 'episode_start_time_step', 0)
+        base_datetime = datetime.datetime.combine(self.render_start_date, datetime.time())
+        base_datetime += datetime.timedelta(seconds=start_offset * self.seconds_per_time_step)
+        self._render_start_datetime = base_datetime
+        self.year = base_datetime.year
+        self.current_day = base_datetime.day
         # Add any other time-related variables that need resetting
 
 
@@ -2367,13 +2564,18 @@ class CityLearnEnv(Environment, Env):
         dict
             Dictionary with energy and environmental metrics for the current step.
         """
+        if len(self.net_electricity_consumption) == 0:
+            idx = 0
+        else:
+            idx = max(0, min(self.time_step, len(self.net_electricity_consumption) - 1))
+
         return {
-            "Net Electricity Consumption-kWh": self.net_electricity_consumption[self.time_step],
-            "Self Consumption-kWh": self.total_self_consumption[self.time_step],
-            "Stored energy by community- kWh": self.energy_to_electrical_storage[self.time_step],
-            "Total Solar Generation-kWh": self.solar_generation[self.time_step],
-            "CO2-kg_co2": self.net_electricity_consumption_emission[self.time_step],
-            "Price-$": self.net_electricity_consumption_cost[self.time_step],
+            "Net Electricity Consumption-kWh": self.net_electricity_consumption[idx],
+            "Self Consumption-kWh": self.total_self_consumption[idx],
+            "Stored energy by community- kWh": self.energy_to_electrical_storage[idx],
+            "Total Solar Generation-kWh": self.solar_generation[idx],
+            "CO2-kg_co2": self.net_electricity_consumption_emission[idx],
+            "Price-$": self.net_electricity_consumption_cost[idx],
         }
 class Error(Exception):
     """Base class for other exceptions."""
