@@ -34,4 +34,4 @@ jobs:
 
 
       - name: Run tests
-        run: pytest --ignore=tests/scripts
+        run: python -m pytest --ignore=tests/scripts
