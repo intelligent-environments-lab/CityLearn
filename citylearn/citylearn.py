@@ -1534,47 +1534,11 @@ class CityLearnEnv(Environment, Env):
         Saves data to a CSV file, appending it if the file exists. When `render_mode='end'`,
         rows may be buffered in memory until a flush is requested.
         """
-        file_path = Path(self.new_folder_path) / filename
-
         if self._buffer_render and getattr(self, '_defer_render_flush', False):
             self._render_buffer[filename].append(dict(data))
             return
 
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        row_data = dict(data)
-
-        if file_path.exists():
-            with file_path.open('r', newline='') as existing:
-                reader = csv.DictReader(existing)
-                existing_rows = list(reader)
-                existing_fieldnames = reader.fieldnames or []
-
-            missing_fields = [f for f in row_data.keys() if f not in existing_fieldnames]
-
-            if missing_fields:
-                updated_fieldnames = existing_fieldnames + missing_fields
-
-                for row in existing_rows:
-                    for field in missing_fields:
-                        row.setdefault(field, '')
-
-                existing_rows.append({field: row_data.get(field, '') for field in updated_fieldnames})
-
-                with file_path.open('w', newline='') as csvfile:
-                    writer = csv.DictWriter(csvfile, fieldnames=updated_fieldnames)
-                    writer.writeheader()
-                    writer.writerows(existing_rows)
-            else:
-                with file_path.open('a', newline='') as csvfile:
-                    writer = csv.DictWriter(csvfile, fieldnames=existing_fieldnames)
-                    writer.writerow({field: row_data.get(field, '') for field in existing_fieldnames})
-        else:
-            fieldnames = list(row_data.keys())
-
-            with file_path.open('w', newline='') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerow({field: row_data.get(field, '') for field in fieldnames})
+        self._write_render_rows(filename, [dict(data)])
 
     def _flush_render_buffer(self):
         """Write any buffered render rows to disk."""
@@ -1601,12 +1565,71 @@ class CityLearnEnv(Environment, Env):
 
         try:
             for filename, rows in list(self._render_buffer.items()):
-                for row in rows:
-                    self._save_to_csv(filename, row)
+                if rows:
+                    self._write_render_rows(filename, rows)
         finally:
             self._render_buffer.clear()
             self._buffer_render = original_buffer_state
             self._defer_render_flush = original_defer
+
+    def _write_render_rows(self, filename: str, rows: List[Mapping[str, Any]]):
+        """Write one or more render rows to disk with minimal rewrites."""
+
+        file_path = Path(self.new_folder_path) / filename
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        if not rows:
+            return
+
+        buffered_fieldnames = list(
+            dict.fromkeys(field for row in rows for field in row.keys())
+        )
+
+        if not file_path.exists():
+            fieldnames = buffered_fieldnames
+            with file_path.open('w', newline='') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                for row in rows:
+                    writer.writerow({field: row.get(field, '') for field in fieldnames})
+            return
+
+        # File exists – inspect current header.
+        needs_header_extension = False
+        with file_path.open('r', newline='') as existing:
+            reader = csv.DictReader(existing)
+            existing_fieldnames = reader.fieldnames or []
+            for field in buffered_fieldnames:
+                if field not in existing_fieldnames:
+                    needs_header_extension = True
+                    break
+            if needs_header_extension:
+                existing_rows = list(reader)
+            else:
+                existing_rows = None
+
+        if not needs_header_extension:
+            with file_path.open('a', newline='') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=existing_fieldnames)
+                for row in rows:
+                    writer.writerow({field: row.get(field, '') for field in existing_fieldnames})
+            return
+
+        # Need to rewrite with the expanded header.
+        extended_fieldnames = list(
+            dict.fromkeys(existing_fieldnames + [f for f in buffered_fieldnames if f not in existing_fieldnames])
+        )
+
+        existing_rows = existing_rows or []
+        for row in existing_rows:
+            for field in extended_fieldnames:
+                row.setdefault(field, '')
+
+        with file_path.open('w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=extended_fieldnames)
+            writer.writeheader()
+            writer.writerows(existing_rows)
+            for row in rows:
+                writer.writerow({field: row.get(field, '') for field in extended_fieldnames})
 
     def _parse_render_start_date(self, start_date: Union[str, datetime.date]) -> datetime.date:
         """Return a valid start date for rendering timestamps."""

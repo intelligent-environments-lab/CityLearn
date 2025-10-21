@@ -29,7 +29,7 @@ def main() -> None:
         episode_time_steps=96,
         render_mode="end",
         render_directory=render_root,
-        render_session_name="rbc_export_end_example2",
+        render_session_name="rbc_export_end_example5",
         random_seed=0,
     )
 
