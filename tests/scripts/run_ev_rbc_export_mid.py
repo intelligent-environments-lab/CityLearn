@@ -24,7 +24,7 @@ def main() -> None:
         str(SCHEMA),
         central_agent=True,
         episode_time_steps=96,
-        render_mode="end",
+        render_mode="during",
         render_directory=render_root,
         random_seed=0,
     )
