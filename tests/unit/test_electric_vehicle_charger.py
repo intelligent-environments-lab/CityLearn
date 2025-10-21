@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import pytest
 
@@ -61,7 +63,7 @@ def _make_ev(tracker: EpisodeTracker, initial_soc: float = 0.5) -> ElectricVehic
 def _make_charger(
     tracker: EpisodeTracker,
     sim: ChargerSimulation,
-    ev: ElectricVehicle | None,
+    ev: Optional[ElectricVehicle],
     **kwargs,
 ) -> Charger:
     charger = Charger(

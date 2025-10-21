@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import sys
+import logging
 from pathlib import Path
 
 import numpy as np
@@ -19,6 +20,8 @@ SCHEMA = ROOT / "data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schem
 
 
 def main() -> None:
+    logging.getLogger().setLevel(logging.WARNING)
+
     render_root = ROOT / "SimulationData"
     env = CityLearnEnv(
         str(SCHEMA),
@@ -40,6 +43,7 @@ def main() -> None:
             if terminated or truncated:
                 break
 
+        print("Exporting simulation data. This may take a moment...")
         env.export_final_kpis(controller)
 
         outputs_path = Path(env.new_folder_path)

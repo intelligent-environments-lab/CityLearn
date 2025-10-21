@@ -440,7 +440,7 @@ class Electric_Vehicles_Reward_Function(MARL):
         total_reward = [sum(reward_list)] if self.central_agent else reward_list
         self._last_base_reward_total = sum(base_rewards) if self.central_agent else base_rewards
         self._last_penalty_total = sum(penalty_values) if self.central_agent else penalty_values
-        LOGGER.info(f"Calculated EV reward: {total_reward}")
+        LOGGER.debug(f"Calculated EV reward: {total_reward}")
         return total_reward
 
     def calculate_ev_penalty(self, o: Mapping[str, Union[int, float, dict]], current_reward: float) -> float:
@@ -458,7 +458,7 @@ class Electric_Vehicles_Reward_Function(MARL):
             if not data["connected"]:
                 if data["last_charged_kwh"] and abs(data["last_charged_kwh"]) > 0.1:
                     contributions["no_car_charging"] += self.weights["no_car_charging"] * penalty_multiplier
-                LOGGER.info(f"Charger {charger_id} | EV not connected | Contributions: {contributions}")
+                LOGGER.debug(f"Charger {charger_id} | EV not connected | Contributions: {contributions}")
                 continue
 
             # Extract values
@@ -517,7 +517,7 @@ class Electric_Vehicles_Reward_Function(MARL):
             elif last_charged_kwh > 0 and net_energy_before > 0:
                 contributions["self_ev_consumption"] += -0.5 * self.weights["self_ev_consumption"] * penalty_multiplier
 
-            LOGGER.info(f"Charger {charger_id} | Contributions: {contributions}")
+            LOGGER.debug(f"Charger {charger_id} | Contributions: {contributions}")
             penalty_total += sum(contributions.values())
 
         return penalty_total

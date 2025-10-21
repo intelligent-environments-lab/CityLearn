@@ -1346,6 +1346,28 @@ class CityLearnEnv(Environment, Env):
     def associate_chargers_to_electric_vehicles(self):
         r"""Associate charger to its corresponding electric_vehicle based on charger simulation state."""
 
+        def _resolve_arrival_soc(simulation: ChargerSimulation, step: int, prev_state: float, prev_id: Union[str, None], ev_identifier: str) -> Union[float, None]:
+            """Return expected SOC for an EV connecting at `step` or None when unavailable."""
+
+            candidate_index = step
+            if prev_state == 2 and step > 0 and isinstance(prev_id, str) and prev_id == ev_identifier:
+                candidate_index = step - 1
+
+            soc_value = np.nan
+            if 0 <= candidate_index < len(simulation.electric_vehicle_estimated_soc_arrival):
+                soc_value = simulation.electric_vehicle_estimated_soc_arrival[candidate_index]
+
+            if isinstance(soc_value, (float, np.floating)) and not np.isnan(soc_value) and 0.0 <= soc_value <= 1.0:
+                return float(soc_value)
+
+            fallback_index = min(step, len(simulation.current_soc) - 1)
+            if fallback_index >= 0:
+                fallback_soc = simulation.current_soc[fallback_index]
+                if isinstance(fallback_soc, (float, np.floating)) and not np.isnan(fallback_soc) and 0.0 <= fallback_soc <= 1.0:
+                    return float(fallback_soc)
+
+            return None
+
         for building in self.buildings:
             if building.electric_vehicle_chargers is None:
                 continue
@@ -1358,11 +1380,29 @@ class CityLearnEnv(Environment, Env):
                     continue  # Skip if no EV is connected or incoming
 
                 ev_id = sim.electric_vehicle_id[self.time_step]
+                prev_state = np.nan
+                prev_ev_id = None
+                if self.time_step > 0:
+                    idx = self.time_step - 1
+                    if idx < len(sim.electric_vehicle_charger_state):
+                        prev_state = sim.electric_vehicle_charger_state[idx]
+                    if idx < len(sim.electric_vehicle_id):
+                        prev_ev_id = sim.electric_vehicle_id[idx]
+
                 if isinstance(ev_id, str) and ev_id.strip() not in ["", "nan"]:
                     for ev in self.electric_vehicles:
                         if ev.name == ev_id:
                             if state == 1:
                                 charger.plug_car(ev)
+                                is_new_connection = (
+                                    prev_state != 1
+                                    or not isinstance(prev_ev_id, str)
+                                    or prev_ev_id != ev_id
+                                )
+                                if is_new_connection:
+                                    soc_value = _resolve_arrival_soc(sim, self.time_step, prev_state, prev_ev_id, ev_id)
+                                    if soc_value is not None:
+                                        ev.battery.force_set_soc(soc_value)
                             elif state == 2:
                                 charger.associate_incoming_car(ev)
 
@@ -1545,6 +1585,14 @@ class CityLearnEnv(Environment, Env):
         if not has_pending_rows:
             self._render_buffer.clear()
             return
+
+        try:
+            target_dir = Path(self.new_folder_path)
+        except Exception:
+            target_dir = None
+
+        if target_dir is not None:
+            print(f"Writing buffered render exports to {target_dir} ...")
 
         original_defer = self._defer_render_flush
         original_buffer_state = self._buffer_render
