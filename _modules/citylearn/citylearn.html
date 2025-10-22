@@ -255,6 +255,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">previous_month</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_start_date</span><span class="o">.</span><span class="n">day</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_start_date</span><span class="o">.</span><span class="n">year</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_final_kpis_exported</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">random_seed</span>
@@ -1126,6 +1127,9 @@
 
         <span class="c1"># store episode reward summary at the end of episode (upon reaching final timestep)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_mode</span> <span class="o">==</span> <span class="s1">&#39;during&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_enabled</span><span class="p">:</span>
+                <span class="c1"># Capture the terminal timestep snapshot that occurs after the final transition.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
             <span class="n">rewards</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__rewards</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__episode_rewards</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
                 <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">rewards</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
@@ -1144,6 +1148,9 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_defer_render_flush</span> <span class="o">=</span> <span class="kc">False</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_flush_render_buffer</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_enabled</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_final_kpis_exported</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">export_final_kpis</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">truncated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span></div>
 
@@ -1584,17 +1591,30 @@
 
 <div class="viewcode-block" id="CityLearnEnv.export_final_kpis">
 <a class="viewcode-back" href="../../api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.export_final_kpis">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">export_final_kpis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="s1">&#39;citylearn.agents.base.Agent&#39;</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;exported_kpis.csv&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export_final_kpis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="s1">&#39;citylearn.agents.base.Agent&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;exported_kpis.csv&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Export episode KPIs to csv.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model: citylearn.agents.base.Agent, optional</span>
+<span class="sd">            Agent whose environment should be evaluated. Defaults to the current environment.</span>
+<span class="sd">        filepath: str, default: ``&quot;exported_kpis.csv&quot;``</span>
+<span class="sd">            Output filename placed inside :pyattr:`new_folder_path`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Ensure output directory exists even if rendering was disabled</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_render_output_dir</span><span class="p">()</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">new_folder_path</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
-        <span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;env&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kpis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kpis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
         <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s1">&#39;cost_function&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
         <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="n">kpis</span> <span class="o">=</span> <span class="n">kpis</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;cost_function&#39;</span><span class="p">:</span> <span class="s1">&#39;KPI&#39;</span><span class="p">})</span>
-        <span class="n">kpis</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+        <span class="n">kpis</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_final_kpis_exported</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
 <div class="viewcode-block" id="CityLearnEnv.render">
@@ -1840,24 +1860,25 @@
         <span class="n">next_hour</span> <span class="o">=</span> <span class="n">_get_series_value</span><span class="p">(</span><span class="n">hour_series</span><span class="p">,</span> <span class="n">next_index</span><span class="p">,</span> <span class="n">hour</span><span class="p">)</span>
         <span class="n">next_minutes</span> <span class="o">=</span> <span class="n">_get_series_value</span><span class="p">(</span><span class="n">minutes_series</span><span class="p">,</span> <span class="n">next_index</span><span class="p">,</span> <span class="n">minutes</span><span class="p">)</span>
 
+        <span class="n">raw_hour</span> <span class="o">=</span> <span class="n">hour</span>
         <span class="n">timestamp_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span>
         <span class="n">timestamp_month</span> <span class="o">=</span> <span class="n">month</span>
         <span class="n">timestamp_day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span>
-        <span class="n">hour_for_timestamp</span> <span class="o">=</span> <span class="n">hour</span> <span class="o">%</span> <span class="mi">24</span>
+        <span class="n">hour_for_timestamp</span> <span class="o">=</span> <span class="n">raw_hour</span> <span class="o">%</span> <span class="mi">24</span>
+        <span class="n">next_hour_mod</span> <span class="o">=</span> <span class="n">next_hour</span> <span class="o">%</span> <span class="mi">24</span>
+        <span class="n">next_minutes_clamped</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span> <span class="n">next_minutes</span><span class="p">))</span>
         <span class="n">minute_for_timestamp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span> <span class="n">minutes</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">hour</span> <span class="o">&gt;=</span> <span class="mi">24</span><span class="p">:</span>
-            <span class="n">hour_for_timestamp</span> <span class="o">=</span> <span class="n">hour</span> <span class="o">%</span> <span class="mi">24</span>
-
+        <span class="k">if</span> <span class="n">raw_hour</span> <span class="o">&gt;=</span> <span class="mi">24</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">next_month</span> <span class="o">!=</span> <span class="n">month</span><span class="p">:</span>
                 <span class="n">timestamp_month</span> <span class="o">=</span> <span class="n">next_month</span>
-                
+
                 <span class="k">if</span> <span class="n">next_month</span> <span class="o">&lt;</span> <span class="n">month</span><span class="p">:</span>
                     <span class="n">timestamp_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="mi">1</span>
                 <span class="n">timestamp_day</span> <span class="o">=</span> <span class="mi">1</span>
-
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">timestamp_day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span> <span class="o">+</span> <span class="p">(</span><span class="n">hour</span> <span class="o">//</span> <span class="mi">24</span><span class="p">)</span>
+                <span class="c1"># Keep the current day; the day roll-over is handled via next_day logic.</span>
+                <span class="n">timestamp_day</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_day</span>
 
         <span class="n">timestamp</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">timestamp_year</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">timestamp_month</span><span class="p">)</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">timestamp_day</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">T</span><span class="si">{</span><span class="n">hour_for_timestamp</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minute_for_timestamp</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:00&quot;</span>
 
@@ -1868,7 +1889,7 @@
             <span class="k">if</span> <span class="n">next_month</span> <span class="o">&lt;</span> <span class="n">month</span><span class="p">:</span>
                 <span class="n">next_year</span> <span class="o">=</span> <span class="n">timestamp_year</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">next_day</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">next_hour</span> <span class="o">&lt;=</span> <span class="n">hour</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">next_hour_mod</span> <span class="o">&lt;=</span> <span class="n">hour_for_timestamp</span> <span class="ow">and</span> <span class="n">next_minutes_clamped</span> <span class="o">&lt;=</span> <span class="n">minute_for_timestamp</span><span class="p">:</span>
             <span class="n">next_day</span> <span class="o">=</span> <span class="n">timestamp_day</span> <span class="o">+</span> <span class="mi">1</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">next_year</span>
@@ -1951,6 +1972,7 @@
 
         <span class="c1"># object reset</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_final_kpis_exported</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># update seed</span>
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2059,18 +2081,21 @@
             <span class="n">agent_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">agent_attributes</span> <span class="o">=</span> <span class="n">kwargs</span>
+            <span class="n">agent_attributes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">agent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">agent_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">agent_attributes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{}))</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">agent_attributes</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">agent_attributes</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="s1">&#39;env&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agent_attributes</span><span class="p">:</span>
+            <span class="n">agent_attributes</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
 
         <span class="n">agent_module</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">agent_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">agent_name</span> <span class="o">=</span> <span class="n">agent_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">agent_constructor</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">agent_module</span><span class="p">),</span> <span class="n">agent_name</span><span class="p">)</span>
-        <span class="n">agent</span> <span class="o">=</span> <span class="n">agent_constructor</span><span class="p">()</span> <span class="k">if</span> <span class="n">agent_attributes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">agent_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">agent_attributes</span><span class="p">)</span>
+        <span class="n">agent</span> <span class="o">=</span> <span class="n">agent_constructor</span><span class="p">(</span><span class="o">**</span><span class="n">agent_attributes</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">agent</span></div>
 
