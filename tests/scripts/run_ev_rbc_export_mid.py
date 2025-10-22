@@ -32,19 +32,13 @@ def main() -> None:
     try:
         controller = Agent(env)
         observations, _ = env.reset()
-        mid_step = env.episode_tracker.episode_time_steps // 2
 
-        for step in range(env.episode_tracker.episode_time_steps):
+        for _ in range(env.episode_tracker.episode_time_steps):
             actions = controller.predict(observations, deterministic=True)
             observations, _, terminated, truncated, _ = env.step(actions)
 
-            if step == mid_step:
-                env.render()
-
             if terminated or truncated:
                 break
-
-        env.export_final_kpis(controller)
 
         outputs_path = Path(env.new_folder_path)
         print(f"Exports written to: {outputs_path}")

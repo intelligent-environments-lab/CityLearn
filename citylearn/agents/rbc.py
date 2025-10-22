@@ -100,11 +100,26 @@ class HourRBC(RBC):
         
         else:
             for m, a, n, o in zip(self.action_map, self.action_names, self.observation_names, observations):
-                hour = o[n.index('hour')]
+                hour_observation = o[n.index('hour')]
+                hour = int(round(hour_observation))
+                # Support both 0-23 and 1-24 hour encodings.
+                hour_candidates = []
+
+                for candidate in (hour, hour % 24, ((hour - 1) % 24) + 1):
+                    if candidate not in hour_candidates:
+                        hour_candidates.append(candidate)
+
                 actions_ = []
 
                 for a_ in a:
-                    actions_.append(m[a_][hour]) 
+                    for candidate in hour_candidates:
+                        hour_map = m[a_]
+
+                        if candidate in hour_map:
+                            actions_.append(hour_map[candidate])
+                            break
+                    else:
+                        raise KeyError(f'Hour {hour_observation} not defined in action map for action {a_}.')
                 
                 actions.append(actions_)
 

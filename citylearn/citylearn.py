@@ -164,6 +164,7 @@ class CityLearnEnv(Environment, Env):
         self.previous_month = None
         self.current_day = self._render_start_date.day
         self.year = self._render_start_date.year
+        self._final_kpis_exported = False
         self.__rewards = None
         self.buildings = []
         self.random_seed = self.schema.get('random_seed', None) if random_seed is None else random_seed
@@ -1027,6 +1028,9 @@ class CityLearnEnv(Environment, Env):
 
         # store episode reward summary at the end of episode (upon reaching final timestep)
         if self.terminated:
+            if self.render_mode == 'during' and self.render_enabled:
+                # Capture the terminal timestep snapshot that occurs after the final transition.
+                self.render()
             rewards = np.array(self.__rewards[1:], dtype='float32')
             self.__episode_rewards.append({
                 'min': rewards.min(axis=0).tolist(),
@@ -1045,6 +1049,9 @@ class CityLearnEnv(Environment, Env):
                     self._defer_render_flush = False
 
                 self._flush_render_buffer()
+
+            if self.render_enabled and not self._final_kpis_exported:
+                self.export_final_kpis()
 
         return self.observations, reward, self.terminated, self.truncated, self.get_info()
 
@@ -1467,17 +1474,30 @@ class CityLearnEnv(Environment, Env):
                     new_soc = np.clip(last_soc * variability, 0.0, 1.0)
                     ev.battery.force_set_soc(new_soc)
 
-    def export_final_kpis(self, model: 'citylearn.agents.base.Agent', filepath="exported_kpis.csv"):
+    def export_final_kpis(self, model: 'citylearn.agents.base.Agent' = None, filepath: str = "exported_kpis.csv"):
+        """Export episode KPIs to csv.
+
+        Parameters
+        ----------
+        model: citylearn.agents.base.Agent, optional
+            Agent whose environment should be evaluated. Defaults to the current environment.
+        filepath: str, default: ``"exported_kpis.csv"``
+            Output filename placed inside :pyattr:`new_folder_path`.
+        """
         # Ensure output directory exists even if rendering was disabled
         self._ensure_render_output_dir()
         file_path = os.path.join(self.new_folder_path, filepath)
-        kpis = model.env.evaluate()
+        if model is not None and getattr(model, 'env', None) is not None:
+            kpis = model.env.evaluate()
+        else:
+            kpis = self.evaluate()
         kpis = kpis.pivot(index='cost_function', columns='name', values='value').round(3)
         kpis = kpis.dropna(how='all')
         kpis = kpis.fillna('')
         kpis = kpis.reset_index()
         kpis = kpis.rename(columns={'cost_function': 'KPI'})
         kpis.to_csv(file_path, index=False, encoding='utf-8')
+        self._final_kpis_exported = True
 
     def render(self):
         """
@@ -1719,24 +1739,25 @@ class CityLearnEnv(Environment, Env):
         next_hour = _get_series_value(hour_series, next_index, hour)
         next_minutes = _get_series_value(minutes_series, next_index, minutes)
 
+        raw_hour = hour
         timestamp_year = self.year
         timestamp_month = month
         timestamp_day = self.current_day
-        hour_for_timestamp = hour % 24
+        hour_for_timestamp = raw_hour % 24
+        next_hour_mod = next_hour % 24
+        next_minutes_clamped = max(0, min(59, next_minutes))
         minute_for_timestamp = max(0, min(59, minutes))
 
-        if hour >= 24:
-            hour_for_timestamp = hour % 24
-
+        if raw_hour >= 24:
             if next_month != month:
                 timestamp_month = next_month
-                
+
                 if next_month < month:
                     timestamp_year = self.year + 1
                 timestamp_day = 1
-
             else:
-                timestamp_day = self.current_day + (hour // 24)
+                # Keep the current day; the day roll-over is handled via next_day logic.
+                timestamp_day = self.current_day
 
         timestamp = f"{timestamp_year:04d}-{int(timestamp_month):02d}-{timestamp_day:02d}T{hour_for_timestamp:02d}:{minute_for_timestamp:02d}:00"
 
@@ -1747,7 +1768,7 @@ class CityLearnEnv(Environment, Env):
             if next_month < month:
                 next_year = timestamp_year + 1
             next_day = 1
-        elif next_hour <= hour:
+        elif next_hour_mod <= hour_for_timestamp and next_minutes_clamped <= minute_for_timestamp:
             next_day = timestamp_day + 1
 
         self.year = next_year
@@ -1828,6 +1849,7 @@ class CityLearnEnv(Environment, Env):
 
         # object reset
         super().reset()
+        self._final_kpis_exported = False
 
         # update seed
         if seed is not None:
@@ -1930,18 +1952,21 @@ class CityLearnEnv(Environment, Env):
             agent_type = self.schema['agent']['type']
 
         if kwargs is not None and len(kwargs) > 0:
-            agent_attributes = kwargs
+            agent_attributes = dict(kwargs)
 
         elif agent is None:
-            agent_attributes = self.schema['agent'].get('attributes', {})
+            agent_attributes = dict(self.schema['agent'].get('attributes', {}))
 
         else:
-            agent_attributes = None
+            agent_attributes = {}
+
+        if 'env' not in agent_attributes:
+            agent_attributes['env'] = self
 
         agent_module = '.'.join(agent_type.split('.')[0:-1])
         agent_name = agent_type.split('.')[-1]
         agent_constructor = getattr(importlib.import_module(agent_module), agent_name)
-        agent = agent_constructor() if agent_attributes is None else agent_constructor(**agent_attributes)
+        agent = agent_constructor(**agent_attributes)
 
         return agent
 
