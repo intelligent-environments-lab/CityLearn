@@ -43,7 +43,7 @@ The carbon intensity file is a :code:`.csv` file that contains CO:sub:`2` emissi
 Pricing Data File
 =================
 
-The carbon intensity file is a :code:`.csv` file that contains current time-step and forecasted electricity price time series. It is used as the source for :py:attr:`citylearn.building.Building.pricing`, which is the source for pricing related observations. The data can be sourced from specific utility providers for a desired location e.g. `Edison <https://www.sce.com/residential/rates/Time-Of-Use-Residential-Rate-Plans>`_. The file structure is shown in the snippet below:
+The pricing file is a :code:`.csv` file that contains current time-step and forecasted electricity price time series. It is used as the source for :py:attr:`citylearn.building.Building.pricing`, which is the source for pricing related observations. The data can be sourced from specific utility providers for a desired location e.g. `Edison <https://www.sce.com/residential/rates/Time-Of-Use-Residential-Rate-Plans>`_. The file structure is shown in the snippet below:
 
 .. include:: ../../../citylearn/data/citylearn_challenge_2022_phase_1/pricing.csv
     :code: text
