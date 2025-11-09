@@ -654,33 +654,6 @@ class CityLearnEnv(Environment, Env):
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_emission_without_storage(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_emission_without_storage` time series, in [kg_co2]."""
-
-        return pd.DataFrame([
-            b.net_electricity_consumption_emission_without_storage
-                for b in self.buildings
-        ]).sum(axis = 0, min_count = 1).tolist()
-
-    @property
-    def net_electricity_consumption_cost_without_storage(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_cost_without_storage` time series, in [$]."""
-
-        return pd.DataFrame([
-            b.net_electricity_consumption_cost_without_storage
-                for b in self.buildings
-        ]).sum(axis = 0, min_count = 1).to_numpy()
-
-    @property
-    def net_electricity_consumption_without_storage(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_without_storage` time series, in [kWh]."""
-
-        return pd.DataFrame([
-            b.net_electricity_consumption_without_storage
-                for b in self.buildings
-        ]).sum(axis = 0, min_count = 1).to_numpy()
-
-    @property
     def net_electricity_consumption_emission(self) -> List[float]:
         """Summed `Building.net_electricity_consumption_emission` time series, in [kg_co2]."""
 
@@ -941,7 +914,7 @@ class CityLearnEnv(Environment, Env):
         Environment.time_step_ratio.fset(self, time_step_ratio)
 
         for b in self.buildings:
-            b.time_step_ratio = self.time_step_ratio        
+            b.time_step_ratio = self.time_step_ratio
 
     def get_metadata(self) -> Mapping[str, Any]:
         return {
@@ -1122,7 +1095,7 @@ class CityLearnEnv(Environment, Env):
                 action_dict['electric_vehicle_storage_actions'] = electric_vehicle_actions # aqui podes criar dicionario
 
             if washing_machine_actions:
-                action_dict['washing_machine_actions'] = washing_machine_actions    
+                action_dict['washing_machine_actions'] = washing_machine_actions
 
             # Fill missing actions with default NaN
             for k in building.action_metadata:
@@ -2056,7 +2029,7 @@ class CityLearnEnv(Environment, Env):
             key: value
             for key, value in schema["observations"].items()
             if key not in set(schema['chargers_observations_helper']) | set(schema['washing_machine_observations_helper'])
-        }        
+        }
         schema['actions'] = {
             key: value
             for key, value in schema['actions'].items()
@@ -2447,7 +2420,7 @@ class CityLearnEnv(Environment, Env):
         observation_metadata = {k: v['active'] for k, v in schema['observations'].items()}
         # Since minutes is Optional, in case the schema has minutes as observation metadata and some energy simulation building csv doesn't contain minutes, remove it from observation
         if 'minutes' in observation_metadata and energy_simulation.minutes is None:
-            observation_metadata.pop('minutes', None)  
+            observation_metadata.pop('minutes', None)
 
         chargers_observations_metadata_helper = {k: v['active'] for k, v in schema['chargers_observations_helper'].items()}
         washing_machine_observations_metadata_helper = {k: v['active'] for k, v in schema['washing_machine_observations_helper'].items()}
@@ -2584,7 +2557,7 @@ class CityLearnEnv(Environment, Env):
 
 
                 if washing_machine_actions_metadata_helper.get("washing_machine", False):
-                    action_metadata[f'{washing_machine_name}'] = True   
+                    action_metadata[f'{washing_machine_name}'] = True
 
         return observation_metadata, action_metadata
 
@@ -2626,7 +2599,7 @@ class CityLearnEnv(Environment, Env):
         )
 
         return ev
-    
+
     def _load_washing_machine(
         self,
         washing_machine_name: str,
@@ -2673,7 +2646,7 @@ class CityLearnEnv(Environment, Env):
         )
 
         return wm
-        
+
     def __str__(self) -> str:
         """
         Return a string representation of the current simulation state.
