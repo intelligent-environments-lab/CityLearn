@@ -1013,24 +1013,30 @@ class CityLearnEnv(Environment, Env):
         # Update environment/building variables for timestep t (reflect effects of actions)
         self.update_variables()
 
+        import time
         # NOTE:
         # This call to retrieve each building's observation dictionary is an expensive call especially since the observations 
         # are retrieved again to send to agent but the observations in dict form is needed for the reward function to easily
         # extract building-level values. Can't think of a better way to handle this without giving the reward direct access to
         # env, which is not the best design for competition integrity sake. Will revisit the building.observations() function
         # to see how it can be optimized.
+    
+        building_observations_retrieval_start = time.time();    
         reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
+        building_observations_retrieval_end = time.time();
+        
         reward = self.reward_function.calculate(observations=reward_observations)
         self.__rewards.append(reward)
 
         # Advance to next timestep t+1
-        self.next_time_step()
+        partial_render_time = self.next_time_step()
 
         # store episode reward summary at the end of episode (upon reaching final timestep)
         if self.terminated:
+
             if self.render_mode == 'during' and self.render_enabled:
-                # Final step was already streamed during the most recent `next_time_step` call.
-                pass
+                # Capture the terminal timestep snapshot that occurs after the final transition.
+                self.render()
             rewards = np.array(self.__rewards[1:], dtype='float32')
             self.__episode_rewards.append({
                 'min': rewards.min(axis=0).tolist(),
@@ -1039,28 +1045,21 @@ class CityLearnEnv(Environment, Env):
                 'mean': rewards.mean(axis=0).tolist()
             })
             if self.render_mode == 'end' and self.render_enabled:
-                if self.time_step > 0:
-                    final_index = min(self.time_steps - 1, self.time_step - 1)
-                else:
-                    final_index = 0
-
-                has_buffered_rows = any(self._render_buffer.values())
-
-                if not has_buffered_rows:
-                    state_snapshot = self._override_render_time_step(final_index)
-                    self._defer_render_flush = True
-                    try:
-                        self.render()
-                    finally:
-                        self._restore_render_time_step(state_snapshot)
-                        self._defer_render_flush = False
+                final_index = max(min(self.time_steps - 1, self.time_step), 0)
+                state_snapshot = self._override_render_time_step(final_index)
+                self._defer_render_flush = True
+                try:
+                    self.render()
+                finally:
+                    self._restore_render_time_step(state_snapshot)
+                    self._defer_render_flush = False
 
                 self._flush_render_buffer()
 
             if self.render_enabled and not self._final_kpis_exported:
                 self.export_final_kpis()
-
-        return self.observations, reward, self.terminated, self.truncated, self.get_info()
+        
+        return self.observations, reward, self.terminated, self.truncated, self.get_info(), building_observations_retrieval_end - building_observations_retrieval_start, partial_render_time
 
     def get_info(self) -> Mapping[Any, Any]:
         """Other information to return from the `citylearn.CityLearnEnv.step` function."""
@@ -1139,6 +1138,7 @@ class CityLearnEnv(Environment, Env):
 
 
         return parsed_actions
+
 
     def evaluate(self, control_condition: EvaluationCondition = None, baseline_condition: EvaluationCondition = None, comfort_band: float = None) -> pd.DataFrame:
         r"""Evaluate cost functions at current time step.
@@ -1331,6 +1331,8 @@ class CityLearnEnv(Environment, Env):
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
+        import time
+        render_start = time.time();
         if getattr(self, 'render_enabled', False):
             if self.render_mode == 'during':
                 self.render()
@@ -1340,6 +1342,7 @@ class CityLearnEnv(Environment, Env):
                     self.render()
                 finally:
                     self._defer_render_flush = False
+        render_end = time.time();
         for building in self.buildings:
             building.next_time_step()
 
@@ -1357,37 +1360,32 @@ class CityLearnEnv(Environment, Env):
         #It basicly associates an EV to a Building.Charger
         self.associate_chargers_to_electric_vehicles()
 
+        return render_end - render_start
+
     def associate_chargers_to_electric_vehicles(self):
         r"""Associate charger to its corresponding electric_vehicle based on charger simulation state."""
 
         def _resolve_arrival_soc(simulation: ChargerSimulation, step: int, prev_state: float, prev_id: Union[str, None], ev_identifier: str) -> Union[float, None]:
-            """Return expected SOC (as fraction) for an EV connecting at `step`, or ``None`` when unavailable."""
+            """Return expected SOC for an EV connecting at `step` or None when unavailable."""
 
-            candidate_index = None
-
-            if prev_state in (2, 3) and step > 0:
-                if isinstance(prev_id, str) and prev_id.strip() not in {"", "nan"} and prev_id != ev_identifier:
-                    raise ValueError(
-                        f"Charger dataset EV mismatch: expected '{ev_identifier}' but found '{prev_id}' at time step {step - 1}."
-                    )
+            candidate_index = step
+            if prev_state == 2 and step > 0 and isinstance(prev_id, str) and prev_id == ev_identifier:
                 candidate_index = step - 1
 
-            elif 0 <= step < len(simulation.electric_vehicle_estimated_soc_arrival):
-                candidate_index = step
+            soc_value = np.nan
+            if 0 <= candidate_index < len(simulation.electric_vehicle_estimated_soc_arrival):
+                soc_value = simulation.electric_vehicle_estimated_soc_arrival[candidate_index]
 
-            soc_value = None
+            if isinstance(soc_value, (float, np.floating)) and not np.isnan(soc_value) and 0.0 <= soc_value <= 1.0:
+                return float(soc_value)
 
-            if candidate_index is not None and 0 <= candidate_index < len(simulation.electric_vehicle_estimated_soc_arrival):
-                candidate = simulation.electric_vehicle_estimated_soc_arrival[candidate_index]
-                if isinstance(candidate, (float, np.floating)) and not np.isnan(candidate) and candidate >= 0:
-                    soc_value = float(candidate)
+            fallback_index = min(step, len(simulation.current_soc) - 1)
+            if fallback_index >= 0:
+                fallback_soc = simulation.current_soc[fallback_index]
+                if isinstance(fallback_soc, (float, np.floating)) and not np.isnan(fallback_soc) and 0.0 <= fallback_soc <= 1.0:
+                    return float(fallback_soc)
 
-            if soc_value is None and 0 <= step < len(simulation.electric_vehicle_required_soc_departure):
-                fallback = simulation.electric_vehicle_required_soc_departure[step]
-                if isinstance(fallback, (float, np.floating)) and not np.isnan(fallback) and fallback >= 0:
-                    soc_value = float(fallback)
-
-            return soc_value
+            return None
 
         for building in self.buildings:
             if building.electric_vehicle_chargers is None:
