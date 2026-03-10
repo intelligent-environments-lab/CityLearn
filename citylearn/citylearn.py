@@ -373,7 +373,7 @@ class CityLearnEnv(Environment, Env):
     def terminated(self) -> bool:
         """Check if simulation has reached completion."""
 
-        return self.time_step == self.time_steps - 1
+        return self.time_step >= self.time_steps - 1
 
     @property
     def truncated(self) -> bool:
@@ -1003,7 +1003,15 @@ class CityLearnEnv(Environment, Env):
             A dictionary that may contain additional information regarding the reason for a `terminated` signal.
             `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
             Override :meth"`get_info` to get custom key-value pairs in `info`.
+
+        Notes
+        -----
+        Reward is calculated from the current transition at timestep `t` after applying actions.
+        Returned observations correspond to the next decision point and expose lagged endogenous quantities.
         """
+        if self.terminated or self.truncated:
+            raise RuntimeError('Episode has already terminated/truncated. Call reset() before calling step() again.')
+
         actions = self._parse_actions(actions)
 
         # Apply actions at current timestep t
@@ -1035,8 +1043,8 @@ class CityLearnEnv(Environment, Env):
         if self.terminated:
 
             if self.render_mode == 'during' and self.render_enabled:
-                # Capture the terminal timestep snapshot that occurs after the final transition.
-                self.render()
+                # Final step was already streamed during the most recent `next_time_step` call.
+                pass
             rewards = np.array(self.__rewards[1:], dtype='float32')
             self.__episode_rewards.append({
                 'min': rewards.min(axis=0).tolist(),
@@ -1045,21 +1053,32 @@ class CityLearnEnv(Environment, Env):
                 'mean': rewards.mean(axis=0).tolist()
             })
             if self.render_mode == 'end' and self.render_enabled:
-                final_index = max(min(self.time_steps - 1, self.time_step), 0)
-                state_snapshot = self._override_render_time_step(final_index)
-                self._defer_render_flush = True
-                try:
-                    self.render()
-                finally:
-                    self._restore_render_time_step(state_snapshot)
-                    self._defer_render_flush = False
+                if self.time_step > 0:
+                    final_index = min(self.time_steps - 1, self.time_step - 1)
+                else:
+                    final_index = 0
+
+                has_buffered_rows = any(self._render_buffer.values())
+
+                if not has_buffered_rows:
+                    state_snapshot = self._override_render_time_step(final_index)
+                    self._defer_render_flush = True
+                    try:
+                        self.render()
+                    finally:
+                        self._restore_render_time_step(state_snapshot)
+                        self._defer_render_flush = False
 
                 self._flush_render_buffer()
 
             if self.render_enabled and not self._final_kpis_exported:
                 self.export_final_kpis()
         
-        return self.observations, reward, self.terminated, self.truncated, self.get_info(), building_observations_retrieval_end - building_observations_retrieval_start, partial_render_time
+        info = dict(self.get_info())
+        info['building_observations_retrieval_time'] = building_observations_retrieval_end - building_observations_retrieval_start
+        info['partial_render_time'] = partial_render_time
+
+        return self.observations, reward, self.terminated, self.truncated, info
 
     def get_info(self) -> Mapping[Any, Any]:
         """Other information to return from the `citylearn.CityLearnEnv.step` function."""
@@ -1366,26 +1385,40 @@ class CityLearnEnv(Environment, Env):
         r"""Associate charger to its corresponding electric_vehicle based on charger simulation state."""
 
         def _resolve_arrival_soc(simulation: ChargerSimulation, step: int, prev_state: float, prev_id: Union[str, None], ev_identifier: str) -> Union[float, None]:
-            """Return expected SOC for an EV connecting at `step` or None when unavailable."""
+            """Return expected SOC (as fraction) for an EV connecting at `step`, or ``None`` when unavailable."""
 
-            candidate_index = step
-            if prev_state == 2 and step > 0 and isinstance(prev_id, str) and prev_id == ev_identifier:
+            # Optional dataset column: use only at the exact connection timestep when present.
+            current_soc = getattr(simulation, 'electric_vehicle_current_soc', None)
+            if current_soc is not None and 0 <= step < len(current_soc):
+                current_value = current_soc[step]
+                if isinstance(current_value, (float, np.floating)) and not np.isnan(current_value) and 0.0 <= current_value <= 1.0:
+                    return float(current_value)
+
+            candidate_index = None
+
+            if prev_state in (2, 3) and step > 0:
+                if isinstance(prev_id, str) and prev_id.strip() not in {"", "nan"} and prev_id != ev_identifier:
+                    raise ValueError(
+                        f"Charger dataset EV mismatch: expected '{ev_identifier}' but found '{prev_id}' at time step {step - 1}."
+                    )
                 candidate_index = step - 1
 
-            soc_value = np.nan
-            if 0 <= candidate_index < len(simulation.electric_vehicle_estimated_soc_arrival):
-                soc_value = simulation.electric_vehicle_estimated_soc_arrival[candidate_index]
+            elif 0 <= step < len(simulation.electric_vehicle_estimated_soc_arrival):
+                candidate_index = step
 
-            if isinstance(soc_value, (float, np.floating)) and not np.isnan(soc_value) and 0.0 <= soc_value <= 1.0:
-                return float(soc_value)
+            soc_value = None
 
-            fallback_index = min(step, len(simulation.current_soc) - 1)
-            if fallback_index >= 0:
-                fallback_soc = simulation.current_soc[fallback_index]
-                if isinstance(fallback_soc, (float, np.floating)) and not np.isnan(fallback_soc) and 0.0 <= fallback_soc <= 1.0:
-                    return float(fallback_soc)
+            if candidate_index is not None and 0 <= candidate_index < len(simulation.electric_vehicle_estimated_soc_arrival):
+                candidate = simulation.electric_vehicle_estimated_soc_arrival[candidate_index]
+                if isinstance(candidate, (float, np.floating)) and not np.isnan(candidate) and 0.0 <= candidate <= 1.0:
+                    soc_value = float(candidate)
 
-            return None
+            if soc_value is None and 0 <= step < len(simulation.electric_vehicle_required_soc_departure):
+                fallback = simulation.electric_vehicle_required_soc_departure[step]
+                if isinstance(fallback, (float, np.floating)) and not np.isnan(fallback) and 0.0 <= fallback <= 1.0:
+                    soc_value = float(fallback)
+
+            return soc_value
 
         for building in self.buildings:
             if building.electric_vehicle_chargers is None:
@@ -1922,6 +1955,8 @@ class CityLearnEnv(Environment, Env):
             b.update_variables()
 
         # Helper to set or append district-level aggregates for current timestep
+        # District-level series track realized values and may temporarily lag `time_step` by one
+        # right after stepping because `time_step` is advanced after this update call.
         def _set_or_append(lst, value):
             # If list length matches current index => append
             if len(lst) == self.time_step:
@@ -2214,7 +2249,8 @@ class CityLearnEnv(Environment, Env):
         # data
         energy_simulation = pd.read_csv(os.path.join(schema['root_directory'], building_schema['energy_simulation']))
         energy_simulation = EnergySimulation(**energy_simulation.to_dict('list'), seconds_per_time_step=seconds_per_time_step, noise_std=noise_std)
-        building_kwargs['time_step_ratio'] = energy_simulation.time_step_ratios[index]
+        ratios = getattr(energy_simulation, 'time_step_ratios', None) or []
+        building_kwargs['time_step_ratio'] = ratios[-1] if len(ratios) > 0 else 1.0
         weather = pd.read_csv(os.path.join(schema['root_directory'], building_schema['weather']))
         weather = Weather(**weather.to_dict('list'), noise_std=noise_std)
 
@@ -2319,6 +2355,21 @@ class CityLearnEnv(Environment, Env):
                 ).iloc[schema['simulation_start_time_step']:schema['simulation_end_time_step'] + 1].copy()
 
                 charger_simulation = ChargerSimulation(*charger_simulation_file.values.T, noise_std=noise_std)
+                if 'electric_vehicle_current_soc' in charger_simulation_file.columns:
+                    current_soc_raw = pd.to_numeric(
+                        charger_simulation_file['electric_vehicle_current_soc'],
+                        errors='coerce'
+                    ).to_numpy(dtype='float32')
+                    current_soc = np.full(current_soc_raw.shape[0], -0.1, dtype='float32')
+                    valid = ~np.isnan(current_soc_raw)
+
+                    if np.any(valid):
+                        normalized = current_soc_raw[valid]
+                        normalized = np.where(normalized > 1.0, normalized / 100.0, normalized)
+                        normalized = np.clip(normalized, 0.0, 1.0)
+                        current_soc[valid] = normalized.astype('float32')
+
+                    charger_simulation.electric_vehicle_current_soc = current_soc
 
                 charger_type = charger_config['type']
                 charger_module = '.'.join(charger_type.split('.')[0:-1])
