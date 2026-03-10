@@ -289,43 +289,53 @@ class Charger(Environment):
         action_value : float
             The normalized charging or discharging action (range [-1, 1]).
         """
-        if action_value != 0:
+        action_value = float(np.clip(action_value, -1.0, 1.0))
 
-
-            charging = action_value > 0
-            efficiency = self.get_efficiency(abs(action_value), charging)  # Charging if action_value > 0
-
-
-
-            if charging:
-                power = action_value * self.max_charging_power  # Power in kW
-                energy = power * self.algorithm_action_based_time_step_hours_ratio  # Convert to energy (kWh)
-                energy = max(min(energy, self.max_charging_power), self.min_charging_power)
-                energy_kwh = energy * efficiency  # For charging
-            else:
-                power = action_value * self.max_discharging_power  # Power in kW
-                energy = power * self.algorithm_action_based_time_step_hours_ratio  # Convert to energy (kWh)
-                energy = max(min(energy, -self.min_discharging_power), -self.max_discharging_power)  # For discharging
-                energy_kwh = energy / efficiency
-            self.__past_charging_action_values_kwh[self.time_step] = energy
-
-            if self.connected_electric_vehicle:
-                electric_vehicle = self.connected_electric_vehicle
-
-                # Charge or discharge the battery
-                electric_vehicle.battery.charge(energy_kwh)
-
-                battery_energy_balance = electric_vehicle.battery.energy_balance[self.time_step]
-                # Store electricity consumption
-
-                self.__electricity_consumption[self.time_step] = battery_energy_balance/efficiency if battery_energy_balance >= 0 else battery_energy_balance*efficiency
-            else:
-                self.__electricity_consumption[self.time_step] = 0
-
-
-        else:
+        if action_value == 0.0:
             self.__electricity_consumption[self.time_step] = 0
             self.__past_charging_action_values_kwh[self.time_step] = 0
+            return
+
+        time_step_hours = self.algorithm_action_based_time_step_hours_ratio
+        charging = action_value > 0
+        efficiency = self.get_efficiency(abs(action_value), charging)
+
+        if charging:
+            requested_power_kw = action_value * self.max_charging_power
+            if self.max_charging_power <= 0.0:
+                applied_power_kw = 0.0
+            else:
+                lower_bound_kw = min(self.min_charging_power, self.max_charging_power)
+                applied_power_kw = max(min(requested_power_kw, self.max_charging_power), lower_bound_kw)
+            commanded_energy_kwh = applied_power_kw * time_step_hours
+            battery_energy_kwh = commanded_energy_kwh * efficiency
+        else:
+            requested_power_kw = abs(action_value) * self.max_discharging_power
+            if self.max_discharging_power <= 0.0:
+                applied_power_kw = 0.0
+            else:
+                lower_bound_kw = min(self.min_discharging_power, self.max_discharging_power)
+                applied_power_kw = max(min(requested_power_kw, self.max_discharging_power), lower_bound_kw)
+            commanded_energy_kwh = -applied_power_kw * time_step_hours
+            battery_energy_kwh = commanded_energy_kwh / max(efficiency, ZERO_DIVISION_PLACEHOLDER)
+
+        self.__past_charging_action_values_kwh[self.time_step] = commanded_energy_kwh
+
+        if self.connected_electric_vehicle:
+            electric_vehicle = self.connected_electric_vehicle
+
+            # Battery model expects dataset-resolution energy. Convert from control-step kWh when needed.
+            ratio = getattr(electric_vehicle.battery, 'time_step_ratio', None)
+            battery_command = battery_energy_kwh if ratio in (None, 0) else battery_energy_kwh / ratio
+            electric_vehicle.battery.charge(battery_command)
+
+            battery_energy_balance = electric_vehicle.battery.energy_balance[self.time_step]
+            self.__electricity_consumption[self.time_step] = (
+                battery_energy_balance / max(efficiency, ZERO_DIVISION_PLACEHOLDER)
+                if battery_energy_balance >= 0 else battery_energy_balance * efficiency
+            )
+        else:
+            self.__electricity_consumption[self.time_step] = 0
 
 
     def next_time_step(self):
@@ -343,7 +353,6 @@ class Charger(Environment):
         self.connected_electric_vehicle = None
         self.incoming_electric_vehicle = None
         self.__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
-        self.__ = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__past_charging_action_values_kwh = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__past_connected_evs = [None] * self.episode_tracker.episode_time_steps
 

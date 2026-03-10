@@ -1033,7 +1033,6 @@ class Battery(StorageDevice, ElectricDevice):
         energy : float
             Energy to charge if (+) or discharge if (-) in [kWh].
         """
-        energy = energy * self.time_step_ratio # Normalise energy with the time_step_ratio
         action_energy = energy
 
         if energy >= 0:
@@ -1054,7 +1053,9 @@ class Battery(StorageDevice, ElectricDevice):
         super().charge(energy)
         degraded_capacity = max(self.degraded_capacity - self.degrade(), 0.0)
         self._capacity_history.append(degraded_capacity)
-        self.update_electricity_consumption(self.energy_balance[self.time_step], enforce_polarity=False)
+        ratio = self.time_step_ratio if self.time_step_ratio not in (None, 0) else 1.0
+        dataset_resolution_balance = self.energy_balance[self.time_step]/ratio
+        self.update_electricity_consumption(dataset_resolution_balance, enforce_polarity=False)
 
     def get_max_output_power(self) -> float:
         r"""Get maximum output power while considering `capacity_power_curve` limitations if defined otherwise, returns `nominal_power`.

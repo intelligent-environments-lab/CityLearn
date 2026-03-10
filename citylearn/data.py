@@ -400,7 +400,7 @@ class EnergySimulation(TimeSeriesData):
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
          indoor_dry_bulb_temperature: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float], solar_generation: Iterable[float], 
-        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None,  seconds_per_time_step: int = None, minutes: Iterable[int] = None, time_step_ratios: list[int]= [], noise_std = 0.0
+        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None,  seconds_per_time_step: int = None, minutes: Iterable[int] = None, time_step_ratios: List[float] = None, noise_std = 0.0
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.noise_std = noise_std
@@ -451,8 +451,9 @@ class EnergySimulation(TimeSeriesData):
             if seconds_per_time_step and base_step_seconds
             else None
         )
-        time_step_ratios.append(time_step_ratio)
-        self.time_step_ratios = time_step_ratios # Store the ratio for this building
+        ratios = [] if time_step_ratios is None else list(time_step_ratios)
+        ratios.append(time_step_ratio)
+        self.time_step_ratios = ratios
 
         self.noise_std = noise_std
 
