@@ -99,3 +99,34 @@ def test_ev_kpi_evaluation_with_evs_and_chargers():
 
     district_values = df[df["level"] == "district"]["value"]
     assert district_values.notna().any(), "District-level KPI values should contain finite entries when EVs are present."
+
+
+def test_ev_current_soc_overrides_arrival_estimate_when_present():
+    csv_path, transition_index = _find_transition(2)
+    charger_id = csv_path.split("/")[-1].replace(".csv", "")
+
+    env = CityLearnEnv(SCHEMA_PATH, central_agent=True, random_seed=0)
+    env.reset()
+
+    target_charger = None
+    for building in env.buildings:
+        for charger in building.electric_vehicle_chargers or []:
+            if charger.charger_id == charger_id:
+                target_charger = charger
+                break
+        if target_charger is not None:
+            break
+
+    assert target_charger is not None, "Expected charger for transition was not found."
+    sim = target_charger.charger_simulation
+    forced_soc = 0.42
+    current_soc = np.full(len(sim.electric_vehicle_charger_state), -0.1, dtype="float32")
+    current_soc[transition_index + 1] = forced_soc
+    sim.electric_vehicle_current_soc = current_soc
+
+    for _ in range(transition_index + 1):
+        env.step(_zero_actions(env))
+
+    connected_ev = target_charger.connected_electric_vehicle
+    assert connected_ev is not None, "Expected EV to be connected at the transition step."
+    assert float(connected_ev.battery.soc[env.time_step]) == pytest.approx(forced_soc, abs=1e-6)

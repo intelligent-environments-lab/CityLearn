@@ -29,7 +29,12 @@ def _make_simulation(length: int, ev_id: str) -> ChargerSimulation:
     )
 
 
-def _make_battery(tracker: EpisodeTracker, initial_soc: float = 0.5) -> Battery:
+def _make_battery(
+    tracker: EpisodeTracker,
+    initial_soc: float = 0.5,
+    seconds_per_time_step: int = 3600,
+    time_step_ratio: float = 1.0,
+) -> Battery:
     battery = Battery(
         capacity=100.0,
         nominal_power=50.0,
@@ -39,20 +44,31 @@ def _make_battery(tracker: EpisodeTracker, initial_soc: float = 0.5) -> Battery:
         capacity_loss_coefficient=0.0,
         power_efficiency_curve=[[0.0, 1.0], [1.0, 1.0]],
         capacity_power_curve=[[0.0, 1.0], [1.0, 1.0]],
-        seconds_per_time_step=3600,
+        seconds_per_time_step=seconds_per_time_step,
+        time_step_ratio=time_step_ratio,
         episode_tracker=tracker,
     )
     battery.reset()
     return battery
 
 
-def _make_ev(tracker: EpisodeTracker, initial_soc: float = 0.5) -> ElectricVehicle:
-    battery = _make_battery(tracker, initial_soc=initial_soc)
+def _make_ev(
+    tracker: EpisodeTracker,
+    initial_soc: float = 0.5,
+    seconds_per_time_step: int = 3600,
+    time_step_ratio: float = 1.0,
+) -> ElectricVehicle:
+    battery = _make_battery(
+        tracker,
+        initial_soc=initial_soc,
+        seconds_per_time_step=seconds_per_time_step,
+        time_step_ratio=time_step_ratio,
+    )
     ev = ElectricVehicle(
         episode_tracker=tracker,
         battery=battery,
         name="EV-1",
-        seconds_per_time_step=3600,
+        seconds_per_time_step=seconds_per_time_step,
     )
     ev.reset()
     return ev
@@ -215,3 +231,84 @@ def test_render_simulation_end_data_includes_consumption(charger: Charger, elect
     assert summary["name"] == "charger-1"
     assert summary["charger_data"][0]["electricity_consumption"] != 0
     assert summary["charger_data"][0]["time_step"] == 0
+
+
+@pytest.mark.parametrize("seconds_per_time_step", [5, 10, 60, 300, 900])
+def test_subhour_energy_exchange_matches_power_times_delta_t(
+    tracker: EpisodeTracker,
+    charger_simulation: ChargerSimulation,
+    seconds_per_time_step: int,
+):
+    ratio = seconds_per_time_step / 3600.0
+    ev = _make_ev(
+        tracker,
+        initial_soc=0.5,
+        seconds_per_time_step=seconds_per_time_step,
+        time_step_ratio=ratio,
+    )
+    charger = _make_charger(
+        tracker,
+        charger_simulation,
+        ev,
+        max_charging_power=10.0,
+        efficiency=1.0,
+        seconds_per_time_step=seconds_per_time_step,
+    )
+
+    charger.update_connected_electric_vehicle_soc(1.0)
+    expected_energy = 10.0 * (seconds_per_time_step / 3600.0)
+
+    assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(expected_energy)
+    assert charger.electricity_consumption[charger.time_step] == pytest.approx(expected_energy)
+    assert ev.battery.energy_balance[ev.time_step] == pytest.approx(expected_energy)
+
+
+def test_subhour_minimum_power_limit_is_scaled_by_timestep(
+    tracker: EpisodeTracker,
+    charger_simulation: ChargerSimulation,
+):
+    seconds_per_time_step = 5
+    ratio = seconds_per_time_step / 3600.0
+    ev = _make_ev(
+        tracker,
+        initial_soc=0.5,
+        seconds_per_time_step=seconds_per_time_step,
+        time_step_ratio=ratio,
+    )
+    charger = _make_charger(
+        tracker,
+        charger_simulation,
+        ev,
+        max_charging_power=10.0,
+        min_charging_power=2.0,
+        efficiency=1.0,
+        seconds_per_time_step=seconds_per_time_step,
+    )
+
+    charger.update_connected_electric_vehicle_soc(0.01)
+    expected_energy = 2.0 * (seconds_per_time_step / 3600.0)
+
+    assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(expected_energy)
+    assert charger.electricity_consumption[charger.time_step] == pytest.approx(expected_energy)
+
+
+def test_v2g_disabled_when_max_discharging_power_is_zero(
+    tracker: EpisodeTracker,
+    charger_simulation: ChargerSimulation,
+):
+    ev = _make_ev(tracker, initial_soc=0.8)
+    charger = _make_charger(
+        tracker,
+        charger_simulation,
+        ev,
+        max_discharging_power=0.0,
+        min_discharging_power=0.0,
+        efficiency=1.0,
+    )
+
+    initial_soc = float(ev.battery.soc[ev.time_step])
+    charger.update_connected_electric_vehicle_soc(-1.0)
+
+    assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(0.0)
+    assert charger.electricity_consumption[charger.time_step] == pytest.approx(0.0)
+    assert float(ev.battery.soc[ev.time_step]) == pytest.approx(initial_soc)

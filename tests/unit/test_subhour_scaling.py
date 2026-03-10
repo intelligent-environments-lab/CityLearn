@@ -8,7 +8,7 @@ pytest.importorskip("gymnasium")
 from citylearn.base import EpisodeTracker
 from citylearn.citylearn import CityLearnEnv
 from citylearn.data import EnergySimulation
-from citylearn.energy_model import StorageDevice
+from citylearn.energy_model import Battery, StorageDevice
 
 
 def _make_tracker(length: int) -> EpisodeTracker:
@@ -62,6 +62,40 @@ def test_energy_simulation_ratio_subhour_control_from_hourly_dataset():
     assert sim.time_step_ratios[0] == pytest.approx(0.25)
 
 
+def test_energy_simulation_time_step_ratio_default_not_shared_across_instances():
+    num_steps = 4
+
+    sim_hourly = EnergySimulation(
+        month=[1] * num_steps,
+        hour=[0, 1, 2, 3],
+        day_type=[1] * num_steps,
+        indoor_dry_bulb_temperature=[20.0] * num_steps,
+        non_shiftable_load=[1.0] * num_steps,
+        dhw_demand=[0.0] * num_steps,
+        cooling_demand=[0.0] * num_steps,
+        heating_demand=[0.0] * num_steps,
+        solar_generation=[0.0] * num_steps,
+        seconds_per_time_step=3600,
+    )
+    sim_subhour = EnergySimulation(
+        month=[1] * num_steps,
+        hour=[0, 1, 2, 3],
+        day_type=[1] * num_steps,
+        indoor_dry_bulb_temperature=[20.0] * num_steps,
+        non_shiftable_load=[1.0] * num_steps,
+        dhw_demand=[0.0] * num_steps,
+        cooling_demand=[0.0] * num_steps,
+        heating_demand=[0.0] * num_steps,
+        solar_generation=[0.0] * num_steps,
+        seconds_per_time_step=900,
+    )
+
+    assert len(sim_hourly.time_step_ratios) == 1
+    assert len(sim_subhour.time_step_ratios) == 1
+    assert sim_hourly.time_step_ratios[0] == pytest.approx(1.0)
+    assert sim_subhour.time_step_ratios[0] == pytest.approx(0.25)
+
+
 def test_storage_charge_scaling_respects_time_ratio():
     tracker = _make_tracker(4)
     storage = StorageDevice(
@@ -80,6 +114,30 @@ def test_storage_charge_scaling_respects_time_ratio():
     storage.charge(dataset_energy)
 
     assert storage.energy_balance[0] == pytest.approx(energy_actual)
+
+
+def test_battery_electricity_consumption_tracks_energy_balance_in_subhour():
+    tracker = _make_tracker(4)
+    battery = Battery(
+        capacity=100.0,
+        nominal_power=50.0,
+        initial_soc=0.5,
+        efficiency=1.0,
+        loss_coefficient=0.0,
+        capacity_loss_coefficient=0.0,
+        power_efficiency_curve=[[0.0, 1.0], [1.0, 1.0]],
+        capacity_power_curve=[[0.0, 1.0], [1.0, 1.0]],
+        time_step_ratio=0.25,
+        seconds_per_time_step=900,
+        episode_tracker=tracker,
+    )
+    battery.reset()
+
+    # Dataset-resolution command corresponding to 2.5 kWh over a 15-minute step.
+    battery.charge(10.0)
+
+    assert battery.energy_balance[0] == pytest.approx(2.5)
+    assert battery.electricity_consumption[0] == pytest.approx(2.5)
 
 
 def test_env_supports_subhour_seconds_per_time_step():

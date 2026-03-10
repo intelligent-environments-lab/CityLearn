@@ -6,6 +6,7 @@ import pytest
 pytest.importorskip("gymnasium")
 
 from citylearn.citylearn import CityLearnEnv, EvaluationCondition
+from citylearn.cost_function import CostFunction
 
 
 SCHEMA = Path(__file__).resolve().parents[1] / "data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json"
@@ -95,3 +96,99 @@ def test_ev_charging_load_impacts_building_kpis():
     assert charged_charger_consumption > base_charger_consumption, \
         "EV load should increase charger electricity consumption."
     assert np.isfinite(charged_values.dropna()).all()
+
+
+@pytest.mark.parametrize("seconds_per_time_step", [5, 10, 60, 300, 900])
+def test_histories_and_kpi_consistency_with_subhour_steps(seconds_per_time_step: int):
+    env = CityLearnEnv(
+        str(SCHEMA),
+        central_agent=True,
+        episode_time_steps=6,
+        seconds_per_time_step=seconds_per_time_step,
+        random_seed=0,
+    )
+
+    try:
+        env.reset()
+        names = env.action_names[0]
+        base_action = np.zeros(env.action_space[0].shape[0], dtype="float32")
+
+        ev_indices = [idx for idx, name in enumerate(names) if name.startswith("electric_vehicle_storage_")]
+        battery_indices = [idx for idx, name in enumerate(names) if "electrical_storage" in name]
+
+        while not env.terminated:
+            action = base_action.copy()
+            if ev_indices:
+                action[ev_indices] = 0.8
+            if battery_indices:
+                action[battery_indices] = 0.5
+
+            env.step([action])
+            t = env.time_step - 1
+
+            assert 1 <= len(env.net_electricity_consumption) <= env.time_step + 1
+            assert 1 <= len(env.net_electricity_consumption_cost) <= env.time_step + 1
+            assert 1 <= len(env.net_electricity_consumption_emission) <= env.time_step + 1
+
+            for building in env.buildings:
+                lhs = building.net_electricity_consumption[t]
+                rhs = (
+                    building.cooling_electricity_consumption[t]
+                    + building.heating_electricity_consumption[t]
+                    + building.dhw_electricity_consumption[t]
+                    + building.non_shiftable_load_electricity_consumption[t]
+                    + building.electrical_storage_electricity_consumption[t]
+                    + building.solar_generation[t]
+                    + building.chargers_electricity_consumption[t]
+                    + building.washing_machines_electricity_consumption[t]
+                )
+                assert abs(lhs - rhs) < 1e-4
+
+        final_t = env.time_step
+        for building in env.buildings:
+            if building.electric_vehicle_chargers:
+                charger_total = float(np.sum(building.chargers_electricity_consumption))
+                charger_components = float(
+                    sum(np.sum(c.electricity_consumption[: final_t + 1]) for c in building.electric_vehicle_chargers)
+                )
+                assert charger_total == pytest.approx(charger_components)
+
+            assert len(building.solar_generation) == final_t + 1
+            assert np.all(np.isfinite(building.solar_generation))
+
+        for ev in env.electric_vehicles:
+            soc = ev.battery.soc[: final_t + 1]
+            assert np.all(np.isfinite(soc))
+            assert np.all((soc >= 0.0) & (soc <= 1.0))
+
+        control = EvaluationCondition.WITH_STORAGE_AND_PV
+        baseline = EvaluationCondition.WITHOUT_STORAGE_BUT_WITH_PV
+
+        def _safe_div(control_value: float, baseline_value: float):
+            if baseline_value == 0.0:
+                return 1.0 if control_value == 0.0 else np.nan
+            return control_value / baseline_value
+
+        building_ratios = []
+        for building in env.buildings:
+            ec_c = CostFunction.electricity_consumption(
+                np.array(getattr(building, f"net_electricity_consumption{control.value}"), dtype=float).tolist()
+            )[-1]
+            ec_b = CostFunction.electricity_consumption(
+                np.array(getattr(building, f"net_electricity_consumption{baseline.value}"), dtype=float).tolist()
+            )[-1]
+            building_ratios.append(_safe_div(float(ec_c), float(ec_b)))
+
+        expected_ratio = float(np.nanmean(np.array(building_ratios, dtype=float)))
+
+        df = env.evaluate(control_condition=control, baseline_condition=baseline)
+        district_value = float(
+            df[
+                (df["level"] == "district")
+                & (df["cost_function"] == "electricity_consumption_total")
+            ]["value"].iloc[0]
+        )
+
+        assert district_value == pytest.approx(expected_ratio)
+    finally:
+        env.close()
