@@ -53,7 +53,7 @@ def _get_charger(building, charger_id: str):
 
 
 def test_soc_increases_when_connected_ev_is_charged(env: CityLearnEnv):
-    for _ in range(env.episode_time_steps - 2):
+    while env.time_step < env.episode_time_steps - 1:
         t = env.time_step
 
         for building in env.buildings:
@@ -91,13 +91,15 @@ def test_soc_increases_when_connected_ev_is_charged(env: CityLearnEnv):
                     assert new_soc > initial_soc + 1e-3
                     return
 
+        if env.time_step >= env.episode_time_steps - 1:
+            break
         env.step(_zero_actions(env))
 
     pytest.fail("No EV remained connected long enough for SOC charging test.")
 
 
 def test_soc_matches_dataset_on_arrival(env: CityLearnEnv):
-    for _ in range(env.episode_time_steps - 2):
+    while env.time_step < env.episode_time_steps - 1:
         t = env.time_step
 
         for building in env.buildings:
@@ -142,6 +144,8 @@ def test_soc_matches_dataset_on_arrival(env: CityLearnEnv):
                 assert pytest.approx(expected_soc, rel=0, abs=1e-5) == new_soc
                 return
 
+        if env.time_step >= env.episode_time_steps - 1:
+            break
         env.step(_zero_actions(env))
 
     pytest.fail("No EV arrival transition observed during simulation.")
