@@ -1144,7 +1144,7 @@ class Building(Environment):
         check_limits = False if check_limits is None else check_limits
 
         observations = {}
-        data = self._get_observations_data()
+        data = self._get_observations_data(include_all=include_all)
 
         if include_all:
             valid_observations = list(set(data.keys()) | set(self.active_observations))
@@ -1153,7 +1153,12 @@ class Building(Environment):
 
         observations = {k: data[k] for k in valid_observations if k in data.keys()}
 
-        observations = self.update_ev_charger_observations(observations, valid_observations, self.electric_vehicle_chargers)
+        observations = self.update_ev_charger_observations(
+            observations,
+            valid_observations,
+            self.electric_vehicle_chargers,
+            include_all=include_all,
+        )
 
         observations = self.update_washing_machine_observations(observations, valid_observations, self.washing_machines)
 
@@ -1218,7 +1223,7 @@ class Building(Environment):
 
         return observations
 
-    def update_ev_charger_observations(self, observations, valid_observations, ev_chargers):
+    def update_ev_charger_observations(self, observations, valid_observations, ev_chargers, include_all: bool = False):
         """
         Update the observations for each electric vehicle charger using charger simulation data.
 
@@ -1234,6 +1239,8 @@ class Building(Environment):
             charger_id = charger.charger_id
             sim = charger.charger_simulation
             t = self.time_step
+            # For agent-facing observations, expose the latest realized endogenous state.
+            endogenous_t = t if include_all else max(t - 1, 0)
 
             # Keys
             connected_state_key = f'electric_vehicle_charger_{charger_id}_connected_state'
@@ -1259,7 +1266,7 @@ class Building(Environment):
                 if req_soc_key in valid_observations:
                     observations[req_soc_key] = float(sim.electric_vehicle_required_soc_departure[t])
                 if soc_key in valid_observations:
-                    observations[soc_key] = charger.connected_electric_vehicle.battery.soc[t]
+                    observations[soc_key] = charger.connected_electric_vehicle.battery.soc[endogenous_t]
                 if capacity_key in valid_observations:
                     observations[capacity_key] = float(charger.connected_electric_vehicle.battery.capacity)
             else:
@@ -1333,30 +1340,30 @@ class Building(Environment):
 
 
 
-    def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
+    def _get_observations_data(self, include_all: bool = False) -> Mapping[str, Union[float, int]]:
         electric_vehicle_chargers_dict = {}
         washing_machines_dict = {}
+        t = self.time_step
+        # include_all=True is used by reward calculation and must stay on transition time t.
+        endogenous_t = t if include_all else max(t - 1, 0)
 
         for charger in self.electric_vehicle_chargers:
             charger_id = charger.charger_id
             connected_car = charger.connected_electric_vehicle
 
             if connected_car is not None:
-                # Use current timestep values to align rewards/observations with actions at t
-                # Last charged energy for current timestep (0.0 if not set)
+                # For control observations, expose the latest realized EV action/SOC.
                 last_charged_kwh = 0.0
-                if 0 <= self.time_step < len(charger.past_charging_action_values_kwh):
-                    last_charged_kwh = float(charger.past_charging_action_values_kwh[self.time_step])
+                if 0 <= endogenous_t < len(charger.past_charging_action_values_kwh):
+                    last_charged_kwh = float(charger.past_charging_action_values_kwh[endogenous_t])
 
-                # Current battery SOC after applying action at t
-                battery_soc = connected_car.battery.soc[self.time_step]
+                battery_soc = connected_car.battery.soc[endogenous_t]
 
-                # Previous SOC (t-1) or initial at t=0
-                previous_battery_soc = connected_car.battery.initial_soc if self.time_step == 0 else connected_car.battery.soc[self.time_step - 1]
+                previous_battery_soc = connected_car.battery.initial_soc if endogenous_t == 0 else connected_car.battery.soc[endogenous_t - 1]
 
                 # Schedule values at current timestep
-                required_soc = charger.charger_simulation.electric_vehicle_required_soc_departure[self.time_step]
-                hours_until_departure = charger.charger_simulation.electric_vehicle_departure_time[self.time_step]
+                required_soc = charger.charger_simulation.electric_vehicle_required_soc_departure[t]
+                hours_until_departure = charger.charger_simulation.electric_vehicle_departure_time[t]
 
                 battery_capacity = connected_car.battery.capacity
                 min_capacity = (1 - connected_car.battery.depth_of_discharge) * battery_capacity
@@ -1390,7 +1397,6 @@ class Building(Environment):
 
         for wm in self.washing_machines:
             washing_machine_name = wm.name
-            t = self.time_step
             # Use current timestep values; default to sentinel values if out of bounds
             def _safe(arr, idx, default):
                 try:
@@ -1410,52 +1416,52 @@ class Building(Environment):
 
         observations = {
             **{
-                k.lstrip('_'): self.energy_simulation.__getattr__(k.lstrip('_'))[self.time_step] 
+                k.lstrip('_'): self.energy_simulation.__getattr__(k.lstrip('_'))[t] 
                 for k, v in vars(self.energy_simulation).items() if isinstance(v, np.ndarray)
             },
             **{
-                k.lstrip('_'): self.weather.__getattr__(k.lstrip('_'))[self.time_step] 
+                k.lstrip('_'): self.weather.__getattr__(k.lstrip('_'))[t] 
                 for k, v in vars(self.weather).items() if isinstance(v, np.ndarray)
             },
             **{
-                k.lstrip('_'): self.pricing.__getattr__(k.lstrip('_'))[self.time_step] 
+                k.lstrip('_'): self.pricing.__getattr__(k.lstrip('_'))[t] 
                 for k, v in vars(self.pricing).items() if isinstance(v, np.ndarray)
             },
             **{
-                k.lstrip('_'): self.carbon_intensity.__getattr__(k.lstrip('_'))[self.time_step] 
+                k.lstrip('_'): self.carbon_intensity.__getattr__(k.lstrip('_'))[t] 
                 for k, v in vars(self.carbon_intensity).items() if isinstance(v, np.ndarray)
             },
-            'solar_generation':abs(self.solar_generation[self.time_step]),
+            'solar_generation':abs(self.solar_generation[t]),
             **{
-                'cooling_storage_soc':self.cooling_storage.soc[self.time_step],
-                'heating_storage_soc':self.heating_storage.soc[self.time_step],
-                'dhw_storage_soc':self.dhw_storage.soc[self.time_step],
-                'electrical_storage_soc':self.electrical_storage.soc[self.time_step],
+                'cooling_storage_soc':self.cooling_storage.soc[endogenous_t],
+                'heating_storage_soc':self.heating_storage.soc[endogenous_t],
+                'dhw_storage_soc':self.dhw_storage.soc[endogenous_t],
+                'electrical_storage_soc':self.electrical_storage.soc[endogenous_t],
             },
-            'cooling_demand': self.__energy_from_cooling_device[self.time_step] + abs(min(self.cooling_storage.energy_balance[self.time_step], 0.0)),
-            'heating_demand': self.__energy_from_heating_device[self.time_step] + abs(min(self.heating_storage.energy_balance[self.time_step], 0.0)),
-            'dhw_demand': self.__energy_from_dhw_device[self.time_step] + abs(min(self.dhw_storage.energy_balance[self.time_step], 0.0)),
-            'net_electricity_consumption': self.net_electricity_consumption[self.time_step],
-            'cooling_electricity_consumption': self.cooling_electricity_consumption[self.time_step],
-            'heating_electricity_consumption': self.heating_electricity_consumption[self.time_step],
-            'dhw_electricity_consumption': self.dhw_electricity_consumption[self.time_step],
-            'cooling_storage_electricity_consumption': self.cooling_storage_electricity_consumption[self.time_step],
-            'heating_storage_electricity_consumption': self.heating_storage_electricity_consumption[self.time_step],
-            'dhw_storage_electricity_consumption': self.dhw_storage_electricity_consumption[self.time_step],
-            'electrical_storage_electricity_consumption': self.electrical_storage_electricity_consumption[self.time_step],
-            'washing_machine_electricity_consumption': self.washing_machines_electricity_consumption[self.time_step],
-            'cooling_device_efficiency': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=False),
-            'heating_device_efficiency': self.heating_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True) \
+            'cooling_demand': self.__energy_from_cooling_device[endogenous_t] + abs(min(self.cooling_storage.energy_balance[endogenous_t], 0.0)),
+            'heating_demand': self.__energy_from_heating_device[endogenous_t] + abs(min(self.heating_storage.energy_balance[endogenous_t], 0.0)),
+            'dhw_demand': self.__energy_from_dhw_device[endogenous_t] + abs(min(self.dhw_storage.energy_balance[endogenous_t], 0.0)),
+            'net_electricity_consumption': self.net_electricity_consumption[endogenous_t],
+            'cooling_electricity_consumption': self.cooling_electricity_consumption[endogenous_t],
+            'heating_electricity_consumption': self.heating_electricity_consumption[endogenous_t],
+            'dhw_electricity_consumption': self.dhw_electricity_consumption[endogenous_t],
+            'cooling_storage_electricity_consumption': self.cooling_storage_electricity_consumption[endogenous_t],
+            'heating_storage_electricity_consumption': self.heating_storage_electricity_consumption[endogenous_t],
+            'dhw_storage_electricity_consumption': self.dhw_storage_electricity_consumption[endogenous_t],
+            'electrical_storage_electricity_consumption': self.electrical_storage_electricity_consumption[endogenous_t],
+            'washing_machine_electricity_consumption': self.washing_machines_electricity_consumption[endogenous_t],
+            'cooling_device_efficiency': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[t], heating=False),
+            'heating_device_efficiency': self.heating_device.get_cop(self.weather.outdoor_dry_bulb_temperature[t], heating=True) \
                 if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
-            'dhw_device_efficiency': self.dhw_device.get_cop(self.weather.outdoor_dry_bulb_temperature[self.time_step], heating=True) \
+            'dhw_device_efficiency': self.dhw_device.get_cop(self.weather.outdoor_dry_bulb_temperature[t], heating=True) \
                 if isinstance(self.dhw_device, HeatPump) else self.dhw_device.efficiency,
-            'indoor_dry_bulb_temperature_cooling_set_point': self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step],
-            'indoor_dry_bulb_temperature_heating_set_point': self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step],
-            'indoor_dry_bulb_temperature_cooling_delta': self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[self.time_step],
-            'indoor_dry_bulb_temperature_heating_delta': self.energy_simulation.indoor_dry_bulb_temperature[self.time_step] - self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[self.time_step],
-            'comfort_band': self.energy_simulation.comfort_band[self.time_step],
-            'occupant_count': self.energy_simulation.occupant_count[self.time_step],
-            'power_outage': self.__power_outage_signal[self.time_step],
+            'indoor_dry_bulb_temperature_cooling_set_point': self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[t],
+            'indoor_dry_bulb_temperature_heating_set_point': self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[t],
+            'indoor_dry_bulb_temperature_cooling_delta': self.energy_simulation.indoor_dry_bulb_temperature[t] - self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[t],
+            'indoor_dry_bulb_temperature_heating_delta': self.energy_simulation.indoor_dry_bulb_temperature[t] - self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[t],
+            'comfort_band': self.energy_simulation.comfort_band[t],
+            'occupant_count': self.energy_simulation.occupant_count[t],
+            'power_outage': self.__power_outage_signal[t],
             'electric_vehicles_chargers_dict': electric_vehicle_chargers_dict,
             'washing_machines_dict': washing_machines_dict,
         }
@@ -3306,9 +3312,9 @@ class LogisticRegressionOccupantInteractionBuilding(OccupantInteractionBuilding,
         else:
             pass
 
-    def _get_observations_data(self) -> Mapping[str, Union[float, int]]:
+    def _get_observations_data(self, include_all: bool = False) -> Mapping[str, Union[float, int]]:
         return {
-            **super()._get_observations_data(),
+            **super()._get_observations_data(include_all=include_all),
             **{
                 k.lstrip('_'): self.occupant.parameters.__getattr__(k.lstrip('_'))[self.time_step] 
                 for k, v in vars(self.occupant.parameters).items() if isinstance(v, np.ndarray)
