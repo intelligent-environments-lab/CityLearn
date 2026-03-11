@@ -8,7 +8,6 @@ import os
 from pathlib import Path
 from typing import Any, List, Mapping, Tuple, Union
 from gymnasium import Env, spaces
-import csv
 import datetime
 import numpy as np
 import pandas as pd
@@ -19,6 +18,7 @@ from citylearn.cost_function import CostFunction
 from citylearn.data import CarbonIntensity, DataSet, ChargerSimulation, EnergySimulation, LogisticRegressionOccupantParameters, Pricing, WashingMachineSimulation, Weather
 from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery, PV, WashingMachine
+from citylearn.exporter import EpisodeExporter
 from citylearn.reward_function import (
     MultiBuildingRewardFunction,
     RewardFunction,
@@ -280,6 +280,7 @@ class CityLearnEnv(Environment, Env):
         self._render_dir_initialized = False
         self.new_folder_path = None
         self._render_start_datetime = None
+        self._episode_exporter = EpisodeExporter(self)
 
         if self.render_enabled:
             self._ensure_render_output_dir(ensure_exists=False)
@@ -1554,466 +1555,57 @@ class CityLearnEnv(Environment, Env):
                     ev.battery.force_set_soc(new_soc)
 
     def export_final_kpis(self, model: 'citylearn.agents.base.Agent' = None, filepath: str = "exported_kpis.csv"):
-        """Export episode KPIs to csv.
+        """Export episode KPIs to csv."""
 
-        Parameters
-        ----------
-        model: citylearn.agents.base.Agent, optional
-            Agent whose environment should be evaluated. Defaults to the current environment.
-        filepath: str, default: ``"exported_kpis.csv"``
-            Output filename placed inside :pyattr:`new_folder_path`.
-        """
-        # Ensure output directory exists even if rendering was disabled
-        self._ensure_render_output_dir()
-        file_path = os.path.join(self.new_folder_path, filepath)
-        if model is not None and getattr(model, 'env', None) is not None:
-            kpis = model.env.evaluate()
-        else:
-            kpis = self.evaluate()
-        kpis = kpis.pivot(index='cost_function', columns='name', values='value').round(3)
-        kpis = kpis.dropna(how='all')
-        kpis = kpis.fillna('')
-        kpis = kpis.reset_index()
-        kpis = kpis.rename(columns={'cost_function': 'KPI'})
-        kpis.to_csv(file_path, index=False, encoding='utf-8')
-        self._final_kpis_exported = True
+        return self._episode_exporter.export_final_kpis(model=model, filepath=filepath)
 
     def render(self):
-        """
-        Renders the current state of the CityLearn environment, logging data into separate CSV files.
-        Organizes files by episode number when simulation spans multiple episodes.
-        """
-        if not getattr(self, 'render_enabled', False):
-            return
-        if self.render_mode == 'end' and getattr(self, '_defer_render_flush', False):
-            return
-        if self.render_mode == 'end' and (self.terminated or self.truncated):
-            return
-        # Ensure the output directory is prepared
-        self._ensure_render_output_dir()
-        iso_timestamp = self._get_iso_timestamp()
-        os.makedirs(self.new_folder_path, exist_ok=True)
+        """Render current state of the environment to CSV outputs."""
 
-        episode_num = self.episode_tracker.episode
-        
-        # Save community data - add episode number to filename
-        self._save_to_csv(f"exported_data_community_ep{episode_num}.csv", 
-                        {"timestamp": iso_timestamp, **self.as_dict()})
-
-        # Save building data
-        for idx, building in enumerate(self.buildings):
-            building_filename = f"exported_data_{building.name.lower()}_ep{episode_num}.csv"
-            self._save_to_csv(building_filename, 
-                            {"timestamp": iso_timestamp, **building.as_dict()})
-
-            # Battery data
-            battery = building.electrical_storage # save battery to render
-            battery_filename = f"exported_data_{building.name.lower()}_battery_ep{episode_num}.csv"
-            self._save_to_csv(battery_filename, 
-                            {"timestamp": iso_timestamp, **battery.as_dict()})
-
-            # Chargers
-            for charger_idx, charger in enumerate(building.electric_vehicle_chargers):
-                charger_filename = f"exported_data_{building.name.lower()}_{charger.charger_id}_ep{episode_num}.csv"
-                self._save_to_csv(charger_filename, 
-                                {"timestamp": iso_timestamp, **charger.as_dict()})
-
-        # Pricing data
-        pricing_filename = f"exported_data_pricing_ep{episode_num}.csv"
-        self._save_to_csv(pricing_filename, 
-                        {"timestamp": iso_timestamp, **self.buildings[0].pricing.as_dict(self.time_step)})
-        
-        # EV data
-        for idx, ev in enumerate(self.__electric_vehicles):
-            ev_filename = f"exported_data_{ev.name.lower()}_ep{episode_num}.csv"
-            self._save_to_csv(ev_filename, 
-                            {"timestamp": iso_timestamp, **ev.as_dict()})
-
-    def _set_charger_render_state(self, charger, time_step: int, ev_lookup: Mapping[str, ElectricVehicle]):
-        """Set charger connected/incoming EV pointers to match schedule at a given time step."""
-        sim = charger.charger_simulation
-
-        state = sim.electric_vehicle_charger_state[time_step] if time_step < len(sim.electric_vehicle_charger_state) else np.nan
-        ev_id = sim.electric_vehicle_id[time_step] if time_step < len(sim.electric_vehicle_id) else None
-        valid_ev_id = isinstance(ev_id, str) and ev_id.strip() not in {"", "nan"}
-
-        connected_ev = ev_lookup.get(ev_id) if valid_ev_id and state == 1 else None
-        incoming_ev = ev_lookup.get(ev_id) if valid_ev_id and state == 2 else None
-
-        charger.connected_electric_vehicle = connected_ev
-        charger.incoming_electric_vehicle = incoming_ev
+        return self._episode_exporter.render()
 
     def _export_episode_render_data(self, final_index: int):
         """Export full episode render rows in one pass for `render_mode='end'`."""
 
-        if final_index < 0:
-            return
-
-        self._ensure_render_output_dir()
-        episode_num = self.episode_tracker.episode
-        rows_by_filename: Mapping[str, List[Mapping[str, Any]]] = defaultdict(list)
-        ev_lookup = {ev.name: ev for ev in self.electric_vehicles}
-        original_charger_state = {}
-        time_step_snapshot = self._override_render_time_step(0)
-        original_year = self.year
-        original_day = self.current_day
-        original_start_datetime = getattr(self, '_render_start_datetime', None)
-
-        try:
-            self._reset_time_tracking()
-
-            for t in range(final_index + 1):
-                for obj, _ in time_step_snapshot:
-                    try:
-                        obj.time_step = t
-                    except AttributeError:
-                        pass
-
-                timestamp = self._get_iso_timestamp()
-                rows_by_filename[f"exported_data_community_ep{episode_num}.csv"].append(
-                    {"timestamp": timestamp, **self.as_dict()}
-                )
-
-                for building in self.buildings:
-                    rows_by_filename[f"exported_data_{building.name.lower()}_ep{episode_num}.csv"].append(
-                        {"timestamp": timestamp, **building.as_dict()}
-                    )
-                    battery = building.electrical_storage
-                    rows_by_filename[f"exported_data_{building.name.lower()}_battery_ep{episode_num}.csv"].append(
-                        {"timestamp": timestamp, **battery.as_dict()}
-                    )
-
-                    for charger in building.electric_vehicle_chargers or []:
-                        if charger not in original_charger_state:
-                            original_charger_state[charger] = (
-                                charger.connected_electric_vehicle,
-                                charger.incoming_electric_vehicle,
-                            )
-                        self._set_charger_render_state(charger, t, ev_lookup)
-                        rows_by_filename[f"exported_data_{building.name.lower()}_{charger.charger_id}_ep{episode_num}.csv"].append(
-                            {"timestamp": timestamp, **charger.as_dict()}
-                        )
-
-                rows_by_filename[f"exported_data_pricing_ep{episode_num}.csv"].append(
-                    {"timestamp": timestamp, **self.buildings[0].pricing.as_dict(t)}
-                )
-
-                for ev in self.__electric_vehicles:
-                    rows_by_filename[f"exported_data_{ev.name.lower()}_ep{episode_num}.csv"].append(
-                        {"timestamp": timestamp, **ev.as_dict()}
-                    )
-
-        finally:
-            for charger, state in original_charger_state.items():
-                charger.connected_electric_vehicle, charger.incoming_electric_vehicle = state
-
-            self._restore_render_time_step(time_step_snapshot)
-            self.year = original_year
-            self.current_day = original_day
-            self._render_start_datetime = original_start_datetime
-
-        for filename, rows in rows_by_filename.items():
-            file_path = Path(self.new_folder_path) / filename
-            if file_path.exists():
-                file_path.unlink()
-            self._write_render_rows(filename, rows)
+        return self._episode_exporter.export_episode_render_data(final_index)
 
     def _save_to_csv(self, filename, data):
-        """
-        Saves data to a CSV file, appending it if the file exists. When `render_mode='end'`,
-        rows may be buffered in memory until a flush is requested.
-        """
-        if self._buffer_render and getattr(self, '_defer_render_flush', False):
-            self._render_buffer[filename].append(dict(data))
-            return
+        """Compatibility wrapper for tests and internal legacy calls."""
 
-        self._write_render_rows(filename, [dict(data)])
+        return self._episode_exporter.save_to_csv(filename, data)
 
     def _flush_render_buffer(self):
         """Write any buffered render rows to disk."""
-        if not getattr(self, '_render_buffer', None):
-            return
 
-        has_pending_rows = any(self._render_buffer.values())
-        if not has_pending_rows:
-            self._render_buffer.clear()
-            return
-
-        try:
-            target_dir = Path(self.new_folder_path)
-        except Exception:
-            target_dir = None
-
-        if target_dir is not None:
-            print(f"Writing buffered render exports to {target_dir} ...")
-
-        original_defer = self._defer_render_flush
-        original_buffer_state = self._buffer_render
-        self._defer_render_flush = False
-        self._buffer_render = False
-
-        try:
-            for filename, rows in list(self._render_buffer.items()):
-                if rows:
-                    self._write_render_rows(filename, rows)
-        finally:
-            self._render_buffer.clear()
-            self._buffer_render = original_buffer_state
-            self._defer_render_flush = original_defer
+        return self._episode_exporter.flush_render_buffer()
 
     def _write_render_rows(self, filename: str, rows: List[Mapping[str, Any]]):
-        """Write one or more render rows to disk with minimal rewrites."""
+        """Compatibility wrapper for tests and internal legacy calls."""
 
-        file_path = Path(self.new_folder_path) / filename
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        if not rows:
-            return
-
-        buffered_fieldnames = list(
-            dict.fromkeys(field for row in rows for field in row.keys())
-        )
-
-        if not file_path.exists():
-            fieldnames = buffered_fieldnames
-            with file_path.open('w', newline='') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-                for row in rows:
-                    writer.writerow({field: row.get(field, '') for field in fieldnames})
-            return
-
-        # File exists – inspect current header.
-        needs_header_extension = False
-        with file_path.open('r', newline='') as existing:
-            reader = csv.DictReader(existing)
-            existing_fieldnames = reader.fieldnames or []
-            for field in buffered_fieldnames:
-                if field not in existing_fieldnames:
-                    needs_header_extension = True
-                    break
-            if needs_header_extension:
-                existing_rows = list(reader)
-            else:
-                existing_rows = None
-
-        if not needs_header_extension:
-            with file_path.open('a', newline='') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=existing_fieldnames)
-                for row in rows:
-                    writer.writerow({field: row.get(field, '') for field in existing_fieldnames})
-            return
-
-        # Need to rewrite with the expanded header.
-        extended_fieldnames = list(
-            dict.fromkeys(existing_fieldnames + [f for f in buffered_fieldnames if f not in existing_fieldnames])
-        )
-
-        existing_rows = existing_rows or []
-        for row in existing_rows:
-            for field in extended_fieldnames:
-                row.setdefault(field, '')
-
-        with file_path.open('w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=extended_fieldnames)
-            writer.writeheader()
-            writer.writerows(existing_rows)
-            for row in rows:
-                writer.writerow({field: row.get(field, '') for field in extended_fieldnames})
+        return self._episode_exporter.write_render_rows(filename, rows)
 
     def _parse_render_start_date(self, start_date: Union[str, datetime.date]) -> datetime.date:
         """Return a valid start date for rendering timestamps."""
 
-        if start_date is None:
-            return self.DEFAULT_RENDER_START_DATE
-
-        if isinstance(start_date, datetime.datetime):
-            return start_date.date()
-
-        if isinstance(start_date, datetime.date):
-            return start_date
-
-        if isinstance(start_date, str):
-            try:
-                return datetime.date.fromisoformat(start_date)
-            except ValueError as exc:
-                raise ValueError(
-                    "CityLearnEnv start_date must be in ISO format 'YYYY-MM-DD'."
-                ) from exc
-
-        raise TypeError(
-            "CityLearnEnv start_date must be a date, datetime, or ISO format string."
-        )
+        return EpisodeExporter.parse_render_start_date(start_date)
 
     def _ensure_render_output_dir(self, *, ensure_exists: bool = True):
-        """Prepare the render output directory and optionally create it on disk.
+        """Prepare the render output directory and optionally create it on disk."""
 
-        Parameters
-        ----------
-        ensure_exists: bool, default: True
-            When ``True`` the directory tree is created (and legacy exports removed when
-            reusing :pyattr:`render_session_name`). When ``False`` only internal state is
-            updated so that paths can be materialized later on demand.
-        """
-        base_render_path = Path(getattr(self, 'render_output_root', Path(__file__).resolve().parents[1] / 'render_logs')).expanduser()
-
-        if ensure_exists:
-            try:
-                base_render_path.mkdir(parents=True, exist_ok=True)
-            except PermissionError:
-                fallback = (Path.cwd() / 'render_logs').resolve()
-                fallback.mkdir(parents=True, exist_ok=True)
-                self.render_output_root = fallback
-                base_render_path = fallback
-
-        render_dir = getattr(self, '_render_directory_path', None)
-        needs_new_dir = render_dir is None
-
-        if not needs_new_dir and ensure_exists:
-            render_dir = Path(render_dir)
-            try:
-                needs_new_dir = not render_dir.is_relative_to(base_render_path)
-            except AttributeError:
-                needs_new_dir = base_render_path not in render_dir.parents and render_dir != base_render_path
-
-        if needs_new_dir:
-            if self.render_session_name:
-                render_dir = (base_render_path / Path(self.render_session_name)).expanduser().resolve()
-            else:
-                if getattr(self, '_render_timestamp', None) is None:
-                    self._render_timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                render_dir = (base_render_path / self._render_timestamp).resolve()
-
-            self._render_directory_path = render_dir
-        else:
-            render_dir = Path(self._render_directory_path)
-
-        if ensure_exists:
-            render_dir.mkdir(parents=True, exist_ok=True)
-            if not self._render_dir_initialized:
-                if self.render_session_name:
-                    for csv_file in render_dir.glob('exported_*.csv'):
-                        try:
-                            csv_file.unlink()
-                        except OSError:
-                            pass
-                self._render_dir_initialized = True
-
-        self.new_folder_path = str(render_dir)
+        return self._episode_exporter.ensure_output_dir(ensure_exists=ensure_exists)
 
     def _get_iso_timestamp(self):
-        # Reset time tracking if this is the first step of a new episode
-        if self.time_step == 0:
-            self._reset_time_tracking()
-        energy_sim = self.buildings[0].energy_simulation
-        month_series = getattr(energy_sim, 'month', None)
-        hour_series = getattr(energy_sim, 'hour', None)
-        minutes_series = getattr(energy_sim, 'minutes', None)
-
-        def _get_series_value(series, index, default):
-            if series is None:
-                return default
-            if index >= len(series):
-                return default
-            try:
-                return int(series[index])
-            except (TypeError, ValueError):
-                return default
-
-        month = _get_series_value(month_series, self.time_step, self.render_start_date.month)
-        hour = _get_series_value(hour_series, self.time_step, 1)
-        minutes = _get_series_value(minutes_series, self.time_step, 0)
-
-        next_index = self.time_step + 1
-        next_month = _get_series_value(month_series, next_index, month)
-        next_hour = _get_series_value(hour_series, next_index, hour)
-        next_minutes = _get_series_value(minutes_series, next_index, minutes)
-
-        raw_hour = hour
-        timestamp_year = self.year
-        timestamp_month = month
-        timestamp_day = self.current_day
-        hour_for_timestamp = raw_hour % 24
-        next_hour_mod = next_hour % 24
-        next_minutes_clamped = max(0, min(59, next_minutes))
-        minute_for_timestamp = max(0, min(59, minutes))
-
-        if raw_hour >= 24:
-            if next_month != month:
-                timestamp_month = next_month
-
-                if next_month < month:
-                    timestamp_year = self.year + 1
-                timestamp_day = 1
-            else:
-                # Keep the current day; the day roll-over is handled via next_day logic.
-                timestamp_day = self.current_day
-
-        timestamp = f"{timestamp_year:04d}-{int(timestamp_month):02d}-{timestamp_day:02d}T{hour_for_timestamp:02d}:{minute_for_timestamp:02d}:00"
-
-        next_year = timestamp_year
-        next_day = timestamp_day
-
-        if next_month != month:
-            if next_month < month:
-                next_year = timestamp_year + 1
-            next_day = 1
-        elif next_hour_mod <= hour_for_timestamp and next_minutes_clamped <= minute_for_timestamp:
-            next_day = timestamp_day + 1
-
-        self.year = next_year
-        self.current_day = next_day
-
-        return timestamp
+        return self._episode_exporter.get_iso_timestamp()
 
     def _override_render_time_step(self, index: int):
-        """Temporarily set time_step to `index` for the environment and descendants."""
-
-        snapshot = []
-
-        def _record(obj):
-            if hasattr(obj, 'time_step'):
-                snapshot.append((obj, obj.time_step))
-                obj.time_step = index
-
-        _record(self)
-        for building in getattr(self, 'buildings', []):
-            _record(building)
-            electrical_storage = getattr(building, 'electrical_storage', None)
-            if electrical_storage is not None:
-                _record(electrical_storage)
-
-            for charger in getattr(building, 'electric_vehicle_chargers', []) or []:
-                _record(charger)
-
-            for washing_machine in getattr(building, 'washing_machines', []) or []:
-                _record(washing_machine)
-
-        for ev in getattr(self, 'electric_vehicles', []):
-            _record(ev)
-            battery = getattr(ev, 'battery', None)
-            if battery is not None:
-                _record(battery)
-
-        return snapshot
+        return self._episode_exporter.override_render_time_step(index)
 
     @staticmethod
     def _restore_render_time_step(snapshot):
-        for obj, value in snapshot:
-            try:
-                obj.time_step = value
-            except AttributeError:
-                pass
+        return EpisodeExporter.restore_render_time_step(snapshot)
 
     def _reset_time_tracking(self):
-        """Reset all time tracking variables."""
-        start_offset = getattr(self.episode_tracker, 'episode_start_time_step', 0)
-        base_datetime = datetime.datetime.combine(self.render_start_date, datetime.time())
-        base_datetime += datetime.timedelta(seconds=start_offset * self.seconds_per_time_step)
-        self._render_start_datetime = base_datetime
-        self.year = base_datetime.year
-        self.current_day = base_datetime.day
-        # Add any other time-related variables that need resetting
-
+        return self._episode_exporter.reset_time_tracking()
 
     def reset(self, seed: int = None, options: Mapping[str, Any] = None) -> Tuple[List[List[float]], dict]:
         r"""Reset `CityLearnEnv` to initial state.
