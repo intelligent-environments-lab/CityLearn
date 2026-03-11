@@ -9,6 +9,7 @@ from citylearn.data import CarbonIntensity, EnergySimulation, Pricing, TOLERANCE
 from citylearn.dynamics import Dynamics, LSTMDynamics
 from citylearn.electric_vehicle_charger import Charger
 from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageDevice, StorageTank, WashingMachine
+from citylearn.internal.building_ops import BuildingOpsService
 from citylearn.occupant import LogisticRegressionOccupant, Occupant
 from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
@@ -131,6 +132,7 @@ class Building(Environment):
         self._weather_observation_sources: List[Tuple[str, np.ndarray]] = []
         self._pricing_observation_sources: List[Tuple[str, np.ndarray]] = []
         self._carbon_observation_sources: List[Tuple[str, np.ndarray]] = []
+        self._ops_service = BuildingOpsService(self)
         self.observation_space = self.estimate_observation_space(include_all=False, normalize=False)
         self.action_space = self.estimate_action_space()
         self._initialize_charging_constraints(charging_constraints)
@@ -903,94 +905,9 @@ class Building(Environment):
         }
 
     def _apply_charging_constraints_to_actions(self, actions: Optional[Mapping[str, float]]) -> Optional[Mapping[str, float]]:
-        self._charging_constraint_penalty_kwh = 0.0
-        self._charging_constraint_last_penalty_kwh = 0.0
+        """Compatibility wrapper for charging-constraints action limiter service."""
 
-        if not self._charging_constraints_enabled:
-            return actions
-
-        if not actions:
-            self._set_default_charging_headroom()
-            return actions
-
-        positive_requests = {}
-        scales = {}
-        for charger_id, action in actions.items():
-            if action is None or action <= 0.0:
-                continue
-            charger = self._charger_lookup.get(charger_id)
-            if charger is None:
-                continue
-            max_power = getattr(charger, 'max_charging_power', 0.0) or 0.0
-            if max_power <= 0.0:
-                continue
-            positive_requests[charger_id] = action * max_power
-            scales[charger_id] = 1.0
-
-        violation_kw = 0.0
-
-        if positive_requests:
-            total_kw = sum(positive_requests.values())
-            building_limit = self._building_charger_limit_kw
-            if building_limit is not None and building_limit >= 0.0 and total_kw > building_limit:
-                scale = 0.0 if building_limit == 0 else building_limit / total_kw
-                for cid in scales:
-                    scales[cid] *= scale
-                violation_kw += total_kw - building_limit
-
-            for phase in self._phase_limits:
-                limit = phase.get('limit_kw')
-                if limit is None or limit < 0.0:
-                    continue
-                chargers = phase.get('chargers', []) or []
-                phase_sum = sum(positive_requests.get(cid, 0.0) * scales.get(cid, 1.0) for cid in chargers if cid in positive_requests)
-                if phase_sum > limit:
-                    phase_scale = 0.0 if limit == 0 else limit / phase_sum
-                    for cid in chargers:
-                        if cid in scales:
-                            scales[cid] *= phase_scale
-                    violation_kw += phase_sum - limit
-
-            scaled_positive_kw = {cid: positive_requests[cid] * scales.get(cid, 1.0) for cid in positive_requests}
-
-            for charger_id, action in list(actions.items()):
-                if action is None or action <= 0.0:
-                    continue
-                charger = self._charger_lookup.get(charger_id)
-                if charger is None:
-                    continue
-                max_power = getattr(charger, 'max_charging_power', 0.0) or 0.0
-                if max_power <= 0.0:
-                    actions[charger_id] = 0.0
-                    continue
-                target_kw = scaled_positive_kw.get(charger_id, 0.0)
-                actions[charger_id] = max(0.0, min(action, target_kw / max_power))
-
-            if getattr(self, '_expose_charging_constraints', False):
-                used_kw = sum(scaled_positive_kw.values())
-                building_headroom = None if self._building_charger_limit_kw is None else self._building_charger_limit_kw - used_kw
-                phase_headroom = {}
-                for phase in self._phase_limits:
-                    limit = phase.get('limit_kw')
-                    if limit is None:
-                        phase_headroom[phase['name']] = None
-                    else:
-                        used = sum(scaled_positive_kw.get(cid, 0.0) for cid in phase.get('chargers', []))
-                        phase_headroom[phase['name']] = limit - used
-
-                self._charging_constraints_state = {
-                    'building_headroom_kw': building_headroom,
-                    'phase_headroom_kw': phase_headroom,
-                }
-
-            penalty_kwh = violation_kw * (self.seconds_per_time_step / 3600)
-            self._charging_constraint_penalty_kwh = penalty_kwh
-            self._charging_constraint_last_penalty_kwh = penalty_kwh
-
-        else:
-            self._set_default_charging_headroom()
-
-        return actions
+        return self._ops_service.apply_charging_constraints_to_actions(actions)
 
     def consume_charging_constraint_penalty(self) -> float:
         penalty = self._charging_constraint_penalty_kwh
@@ -1117,379 +1034,38 @@ class Building(Environment):
         }
 
     def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None, check_limits: bool = None) -> Mapping[str, float]:
-        r"""Observations at current time step.
+        r"""Observations at current time step."""
 
-        Parameters
-        ----------
-        include_all: bool, default: False,
-            Whether to estimate for all observations as listed in `observation_metadata` or only those that are active.
-        normalize : bool, default: False
-            Whether to apply min-max normalization bounded between [0, 1].
-        periodic_normalization: bool, default: False
-            Whether to apply sine-cosine normalization to cyclic observations including hour, day_type and month.
-        check_limits: bool, default: False
-            Whether to check if observations are within observation space and if not, will send output to log describing 
-            out of bounds observations. Useful for agents that will fail if observations fall outside space e.g. RLlib agents.
+        return self._ops_service.observations(
+            include_all=include_all,
+            normalize=normalize,
+            periodic_normalization=periodic_normalization,
+            check_limits=check_limits,
+        )
 
-        Returns
-        -------
-        observation_space : spaces.Box
-            Observation low and high limits.
+    def update_ev_charger_observations(self, observations, valid_observations, ev_chargers, include_all: bool = False):
+        """Compatibility wrapper for EV charger observation service."""
 
-        Notes
-        -----
-        Lower and upper bounds of net electricity consumption are rough estimates and may not be completely accurate hence,
-        scaling this observation-variable using these bounds may result in normalized values above 1 or below 0.
-        """
-
-        normalize = False if normalize is None else normalize
-        periodic_normalization = False if periodic_normalization is None else periodic_normalization
-        include_all = False if include_all is None else include_all
-        check_limits = False if check_limits is None else check_limits
-
-        observations = {}
-        data = self._get_observations_data(include_all=include_all)
-
-        if include_all:
-            valid_observations = list(set(data.keys()) | set(self.active_observations))
-        else:
-            valid_observations = self.active_observations
-
-        observations = {k: data[k] for k in valid_observations if k in data.keys()}
-
-        observations = self.update_ev_charger_observations(
+        return self._ops_service.update_ev_charger_observations(
             observations,
             valid_observations,
-            self.electric_vehicle_chargers,
+            ev_chargers,
             include_all=include_all,
         )
 
-        observations = self.update_washing_machine_observations(observations, valid_observations, self.washing_machines)
-
-        unknown_observations = set(observations.keys()).difference(set(valid_observations))
-        assert len(unknown_observations) == 0, f'Unknown observations: {unknown_observations}'
-
-        non_periodic_low_limit, non_periodic_high_limit = self.non_periodic_normalized_observation_space_limits
-        periodic_low_limit, periodic_high_limit = self.periodic_normalized_observation_space_limits
-        periodic_observations = self.get_periodic_observation_metadata()
-
-
-        if check_limits:
-            for k in self.active_observations:
-                value = observations[k]
-                lower = non_periodic_low_limit[k]
-                upper = non_periodic_high_limit[k]
-                if not lower <= value <= upper:
-                    report = {
-                        'Building': self.name,
-                        'episode': self.episode_tracker.episode,
-                        'time_step': f'{self.time_step + 1}/{self.episode_tracker.episode_time_steps}',
-                        'observation': k,
-                        'value': value,
-                        'lower': lower,
-                        'upper': upper
-                    }
-                    LOGGER.debug(f'Observation outside space limit: {report}')
-
-                else:
-                    pass
-
-            else:
-                pass
-
-        if periodic_normalization:
-            observations_copy = {k: v for k, v in observations.items()}
-            observations = {}
-            pn = PeriodicNormalization(x_max=0)
-
-            for k, v in observations_copy.items():
-                if k in periodic_observations:
-                    pn.x_max = max(periodic_observations[k])
-                    sin_x, cos_x = v * pn
-                    observations[f'{k}_cos'] = cos_x
-                    observations[f'{k}_sin'] = sin_x
-
-                else:
-                    observations[k] = v
-        else:
-            pass
-
-        if normalize:
-            nm = Normalize(0.0, 1.0)
-
-            for k, v in observations.items():
-                nm.x_min = periodic_low_limit[k]
-                nm.x_max = periodic_high_limit[k]
-                observations[k] = v * nm
-
-        else:
-            pass
-
-        return observations
-
-    def update_ev_charger_observations(self, observations, valid_observations, ev_chargers, include_all: bool = False):
-        """
-        Update the observations for each electric vehicle charger using charger simulation data.
-
-        Parameters:
-            observations (dict): Dictionary to populate with observation values.
-            valid_observations (set or list): Allowed observation keys.
-            ev_chargers (iterable): List of charger objects, each with:
-                - charger_id
-                - charger_simulation (ChargerSchedule)
-        """
-        
-        for charger in ev_chargers:
-            charger_id = charger.charger_id
-            sim = charger.charger_simulation
-            t = self.time_step
-            # For agent-facing observations, expose the latest realized endogenous state.
-            endogenous_t = t if include_all else max(t - 1, 0)
-
-            # Keys
-            connected_state_key = f'electric_vehicle_charger_{charger_id}_connected_state'
-            incoming_state_key = f'electric_vehicle_charger_{charger_id}_incoming_state'
-            departure_key = f'connected_electric_vehicle_at_charger_{charger_id}_departure_time'
-            req_soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_required_soc_departure'
-            soc_key = f'connected_electric_vehicle_at_charger_{charger_id}_soc'
-            capacity_key = f'connected_electric_vehicle_at_charger_{charger_id}_battery_capacity'
-            arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_arrival_time'
-            soc_arrival_key = f'incoming_electric_vehicle_at_charger_{charger_id}_estimated_soc_arrival'
-
-            # Get current state
-            state = sim.electric_vehicle_charger_state[t] if t < len(sim.electric_vehicle_charger_state) else np.nan
-
-            # ---------------------------
-            # Update Connected EV Section
-            # ---------------------------
-            if charger.connected_electric_vehicle and state == 1:
-                if connected_state_key in valid_observations:
-                    observations[connected_state_key] = 1
-                if departure_key in valid_observations:
-                    observations[departure_key] = int(sim.electric_vehicle_departure_time[t])
-                if req_soc_key in valid_observations:
-                    observations[req_soc_key] = float(sim.electric_vehicle_required_soc_departure[t])
-                if soc_key in valid_observations:
-                    observations[soc_key] = charger.connected_electric_vehicle.battery.soc[endogenous_t]
-                if capacity_key in valid_observations:
-                    observations[capacity_key] = float(charger.connected_electric_vehicle.battery.capacity)
-            else:
-                if connected_state_key in valid_observations:
-                    observations[connected_state_key] = 0
-                if departure_key in valid_observations:
-                    observations[departure_key] = -1
-                if req_soc_key in valid_observations:
-                    observations[req_soc_key] = -0.1
-                if soc_key in valid_observations:
-                    observations[soc_key] = -0.1
-                if capacity_key in valid_observations:
-                    observations[capacity_key] = -1.0
-
-            # ---------------------------
-            # Update Incoming EV Section
-            # ---------------------------
-            if charger.incoming_electric_vehicle and state == 2:
-                if incoming_state_key in valid_observations:
-                    observations[incoming_state_key] = 1
-                if arrival_key in valid_observations:
-                    observations[arrival_key] = int(sim.electric_vehicle_estimated_arrival_time[t])
-                if soc_arrival_key in valid_observations:
-                    observations[soc_arrival_key] = float(sim.electric_vehicle_estimated_soc_arrival[t])
-            else:
-                if incoming_state_key in valid_observations:
-                    observations[incoming_state_key] = 0
-                if arrival_key in valid_observations:
-                    observations[arrival_key] = -1
-                if soc_arrival_key in valid_observations:
-                    observations[soc_arrival_key] = -0.1
-
-        return observations
-                
-    
     def update_washing_machine_observations(self, observations, valid_observations, washing_machines):
-        """
-        Update the observations for each washing machine.
+        """Compatibility wrapper for washing-machine observation service."""
 
-        Parameters:
-            observations (dict): The dictionary to update with observation values.
-            valid_observations (set or list): Collection of valid observation keys.
-            washing_machines (iterable): List of washing machine objects. Each machine is expected to have:
-                - name attribute
-                - washing_machine_simulation attribute with wm_start_time_step and wm_end_time_step arrays
-                - observations() method that returns a dictionary
-        """
-        for wm in washing_machines:
-            wm_name = wm.name
-
-            # Get all observations from the washing machine
-            wm_obs = wm.observations()
-            
-            # Update start time if valid
-            start_key = f'{wm_name}_start_time_step'
-            if start_key in valid_observations:
-                observations[start_key] = next(
-                    (value for key, value in wm_obs.items() if "_start_time_step" in key),
-                    -1  # default value if not found
-                )
-
-            # Update end time if valid
-            end_key = f'{wm_name}_end_time_step'
-            if end_key in valid_observations:
-                observations[end_key] = next(
-                    (value for key, value in wm_obs.items() if "_end_time_step" in key),
-                    -1  # default value if not found
-                )
-        return observations
-
-
-
+        return self._ops_service.update_washing_machine_observations(
+            observations,
+            valid_observations,
+            washing_machines,
+        )
 
     def _get_observations_data(self, include_all: bool = False) -> Mapping[str, Union[float, int]]:
-        electric_vehicle_chargers_dict = {}
-        washing_machines_dict = {}
-        t = self.time_step
-        # include_all=True is used by reward calculation and must stay on transition time t.
-        endogenous_t = t if include_all else max(t - 1, 0)
+        """Compatibility wrapper for base observation data service."""
 
-        for charger in self.electric_vehicle_chargers or []:
-            charger_id = charger.charger_id
-            connected_car = charger.connected_electric_vehicle
-
-            if connected_car is not None:
-                # For control observations, expose the latest realized EV action/SOC.
-                last_charged_kwh = 0.0
-                if 0 <= endogenous_t < len(charger.past_charging_action_values_kwh):
-                    last_charged_kwh = float(charger.past_charging_action_values_kwh[endogenous_t])
-
-                battery_soc = connected_car.battery.soc[endogenous_t]
-
-                previous_battery_soc = connected_car.battery.initial_soc if endogenous_t == 0 else connected_car.battery.soc[endogenous_t - 1]
-
-                # Schedule values at current timestep
-                required_soc = charger.charger_simulation.electric_vehicle_required_soc_departure[t]
-                hours_until_departure = charger.charger_simulation.electric_vehicle_departure_time[t]
-
-                battery_capacity = connected_car.battery.capacity
-                min_capacity = (1 - connected_car.battery.depth_of_discharge) * battery_capacity
-
-                electric_vehicle_chargers_dict[charger_id] = {
-                    "connected": True,
-                    "last_charged_kwh": last_charged_kwh,
-                    "previous_battery_soc": previous_battery_soc,
-                    "battery_soc": battery_soc,
-                    "battery_capacity": battery_capacity,
-                    "min_capacity": min_capacity,
-                    "required_soc": required_soc,
-                    "hours_until_departure": hours_until_departure,
-                    "max_charging_power": charger.max_charging_power,
-                    "max_discharging_power": charger.max_discharging_power,
-                }
-
-            else:
-                electric_vehicle_chargers_dict[charger_id] = {
-                    "connected": False,
-                    "last_charged_kwh": 0.0,
-                    "previous_battery_soc": None,
-                    "battery_soc": None,
-                    "battery_capacity": None,
-                    "min_capacity": None,
-                    "required_soc": None,
-                    "hours_until_departure": None,
-                    "max_charging_power": charger.max_charging_power,
-                    "max_discharging_power": charger.max_discharging_power,
-                }
-
-        for wm in self.washing_machines or []:
-            washing_machine_name = wm.name
-            # Use current timestep values; default to sentinel values if out of bounds
-            def _safe(arr, idx, default):
-                try:
-                    return arr[idx]
-                except Exception:
-                    return default
-
-            start_time_step = _safe(wm.washing_machine_simulation.wm_start_time_step, t, -1)
-            end_time_step = _safe(wm.washing_machine_simulation.wm_end_time_step, t, -1)
-            load_profile = _safe(wm.washing_machine_simulation.load_profile, t, 0.0)
-
-            washing_machines_dict[washing_machine_name] = {
-                "wm_start_time_step": start_time_step,
-                "wm_end_time_step": end_time_step,
-                "load_profile": load_profile,
-            }
-
-        observations = {}
-        for key, series in self._energy_simulation_observation_sources:
-            if t < len(series):
-                observations[key] = series[t]
-
-        for key, series in self._weather_observation_sources:
-            if t < len(series):
-                observations[key] = series[t]
-
-        for key, series in self._pricing_observation_sources:
-            if t < len(series):
-                observations[key] = series[t]
-
-        for key, series in self._carbon_observation_sources:
-            if t < len(series):
-                observations[key] = series[t]
-
-        observations.update({
-            'solar_generation':abs(self.solar_generation[t]),
-            **{
-                'cooling_storage_soc':self.cooling_storage.soc[endogenous_t],
-                'heating_storage_soc':self.heating_storage.soc[endogenous_t],
-                'dhw_storage_soc':self.dhw_storage.soc[endogenous_t],
-                'electrical_storage_soc':self.electrical_storage.soc[endogenous_t],
-            },
-            'cooling_demand': self.__energy_from_cooling_device[endogenous_t] + abs(min(self.cooling_storage.energy_balance[endogenous_t], 0.0)),
-            'heating_demand': self.__energy_from_heating_device[endogenous_t] + abs(min(self.heating_storage.energy_balance[endogenous_t], 0.0)),
-            'dhw_demand': self.__energy_from_dhw_device[endogenous_t] + abs(min(self.dhw_storage.energy_balance[endogenous_t], 0.0)),
-            'net_electricity_consumption': self.net_electricity_consumption[endogenous_t],
-            'cooling_electricity_consumption': self.cooling_electricity_consumption[endogenous_t],
-            'heating_electricity_consumption': self.heating_electricity_consumption[endogenous_t],
-            'dhw_electricity_consumption': self.dhw_electricity_consumption[endogenous_t],
-            'cooling_storage_electricity_consumption': self.cooling_storage_electricity_consumption[endogenous_t],
-            'heating_storage_electricity_consumption': self.heating_storage_electricity_consumption[endogenous_t],
-            'dhw_storage_electricity_consumption': self.dhw_storage_electricity_consumption[endogenous_t],
-            'electrical_storage_electricity_consumption': self.electrical_storage_electricity_consumption[endogenous_t],
-            'washing_machine_electricity_consumption': self.washing_machines_electricity_consumption[endogenous_t],
-            'cooling_device_efficiency': self.cooling_device.get_cop(self.weather.outdoor_dry_bulb_temperature[t], heating=False),
-            'heating_device_efficiency': self.heating_device.get_cop(self.weather.outdoor_dry_bulb_temperature[t], heating=True) \
-                if isinstance(self.heating_device, HeatPump) else self.heating_device.efficiency,
-            'dhw_device_efficiency': self.dhw_device.get_cop(self.weather.outdoor_dry_bulb_temperature[t], heating=True) \
-                if isinstance(self.dhw_device, HeatPump) else self.dhw_device.efficiency,
-            'indoor_dry_bulb_temperature_cooling_set_point': self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[t],
-            'indoor_dry_bulb_temperature_heating_set_point': self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[t],
-            'indoor_dry_bulb_temperature_cooling_delta': self.energy_simulation.indoor_dry_bulb_temperature[t] - self.energy_simulation.indoor_dry_bulb_temperature_cooling_set_point[t],
-            'indoor_dry_bulb_temperature_heating_delta': self.energy_simulation.indoor_dry_bulb_temperature[t] - self.energy_simulation.indoor_dry_bulb_temperature_heating_set_point[t],
-            'comfort_band': self.energy_simulation.comfort_band[t],
-            'occupant_count': self.energy_simulation.occupant_count[t],
-            'power_outage': self.__power_outage_signal[t],
-            'electric_vehicles_chargers_dict': electric_vehicle_chargers_dict,
-            'washing_machines_dict': washing_machines_dict,
-        })
-        if (
-            getattr(self, '_charging_constraints_enabled', False)
-            and getattr(self, '_expose_charging_constraints', False)
-            and isinstance(self._charging_constraints_state, dict)
-        ):
-            state = self._charging_constraints_state
-            headroom = state.get('building_headroom_kw')
-            if headroom is not None:
-                observations['charging_building_headroom_kw'] = headroom
-            for phase_name, value in (state.get('phase_headroom_kw') or {}).items():
-                if value is not None:
-                    observations[f'charging_phase_{phase_name}_headroom_kw'] = value
-
-        if getattr(self, '_charging_constraints_enabled', False):
-            if getattr(self, '_expose_charging_violation', False):
-                observations['charging_constraint_violation_kwh'] = self._charging_constraint_last_penalty_kwh
-            if getattr(self, '_phase_encoding_observations', None):
-                observations.update(self._phase_encoding_observations)
-
-        return observations
+        return self._ops_service.get_observations_data(include_all=include_all)
 
     def _refresh_observation_source_cache(self):
         """Cache episode-sliced observation sources to avoid per-step dynamic lookups."""
@@ -1537,134 +1113,19 @@ class Building(Environment):
         dhw_storage_action: float = None, electrical_storage_action: float = None, washing_machine_actions: dict = None,
         electric_vehicle_storage_actions: dict = None,
     ):
-        r"""Update cooling and heating demand for next timestep and charge/discharge storage devices.
+        r"""Update cooling and heating demand for next timestep and charge/discharge storage devices."""
 
-        The order of action execution is dependent on polarity of the storage actions. If the electrical 
-        storage is to be discharged, its action is executed first before all other actions. Likewise, if 
-        the storage for an end-use is to be discharged, the storage action is executed before the control 
-        action for the end-use electric device. Discharging the storage devices before fulfilling thermal 
-        and non-shiftable loads ensures that the discharged energy is considered when allocating electricity 
-        consumption to meet building loads. Likewise, meeting building loads before charging storage devices 
-        ensures that comfort is met before attempting to shift loads.
-
-        Parameters
-        ----------
-        cooling_or_heating_device_action : float, default: np.nan
-            Fraction of `cooling_device` or `heating_device` `nominal_power` to make available. An action 
-            < 0.0 is for the `cooling_device`, while an action > 0.0 is for the `heating_device`.
-        cooling_device_action : float, default: np.nan
-            Fraction of `cooling_device` `nominal_power` to make available for space cooling.
-        heating_device_action : float, default: np.nan
-            Fraction of `heating_device` `nominal_power` to make available for space heating.
-        cooling_storage_action : float, default: 0.0
-            Fraction of `cooling_storage` `capacity` to charge/discharge by.
-        heating_storage_action : float, default: 0.0
-            Fraction of `heating_storage` `capacity` to charge/discharge by.
-        dhw_storage_action : float, default: 0.0
-            Fraction of `dhw_storage` `capacity` to charge/discharge by.
-        electrical_storage_action : float, default: 0.0
-            Fraction of `electrical_storage` `nominal power` to charge/discharge by.
-        electric_vehicle_storage_actions : dict, default: None
-            A dictionary where keys are charger IDs and values are the fraction of connected EV battery `capacity`
-        **kwargs
-        """
-
-        if electric_vehicle_storage_actions is not None:
-            electric_vehicle_storage_actions = self._apply_charging_constraints_to_actions(dict(electric_vehicle_storage_actions))
-        else:
-            self._apply_charging_constraints_to_actions(None)
-
-        # hvac devices
-        if 'cooling_or_heating_device' in self.active_actions:
-            assert 'cooling_device' not in self.active_actions and 'heating_device' not in self.active_actions, \
-                'cooling_device and heating_device actions must be set to False when cooling_or_heating_device is True.' \
-                    ' They will be implicitly set based on the polarity of cooling_or_heating_device.'
-            cooling_device_action = abs(min(cooling_or_heating_device_action, 0.0))
-            heating_device_action = abs(max(cooling_or_heating_device_action, 0.0))
-
-        else:
-            assert not ('cooling_device' in self.active_actions and 'heating_device' in self.active_actions), \
-                'cooling_device and heating_device actions cannot both be set to True to avoid both actions having' \
-                    ' values > 0.0 in the same time step. Use cooling_or_heating_device action instead to control' \
-                        ' both cooling_device and heating_device in a building.'
-            cooling_device_action = np.nan if 'cooling_device' not in self.active_actions else cooling_device_action
-            heating_device_action = np.nan if 'heating_device' not in self.active_actions else heating_device_action
-
-        # energy storage devices
-        cooling_storage_action = 0.0 if 'cooling_storage' not in self.active_actions else cooling_storage_action
-        heating_storage_action = 0.0 if 'heating_storage' not in self.active_actions else heating_storage_action
-        dhw_storage_action = 0.0 if 'dhw_storage' not in self.active_actions else dhw_storage_action
-        electrical_storage_action = 0.0 if 'electrical_storage' not in self.active_actions else electrical_storage_action
-
-        # set action priority
-        actions = {
-            'cooling_demand': (self.update_cooling_demand, (cooling_device_action,)),
-            'heating_demand': (self.update_heating_demand, (heating_device_action,)),
-            'cooling_device': (self.update_energy_from_cooling_device, ()),
-            'cooling_storage': (self.update_cooling_storage, (cooling_storage_action,)),
-            'heating_device': (self.update_energy_from_heating_device, ()),
-            'heating_storage': (self.update_heating_storage, (heating_storage_action,)),
-            'dhw_device': (self.update_energy_from_dhw_device, ()),
-            'dhw_storage': (self.update_dhw_storage, (dhw_storage_action,)),
-            'non_shiftable_load': (self.update_non_shiftable_load, ()),
-            'electrical_storage': (self.update_electrical_storage, (electrical_storage_action,)),
-        }
-
-        priority_list = list(actions.keys())
-
-        if electric_vehicle_storage_actions is not None:
-            electric_vehicle_priority_list = []
-            for charger_id, action in electric_vehicle_storage_actions.items():
-                action_key = f'electric_vehicle_storage_{charger_id}'
-                if action_key not in self.active_actions:
-                    raise ValueError("This action should not be applied. Verify")
-                for charger in self.electric_vehicle_chargers:
-                    if charger.charger_id == charger_id:
-                        actions[action_key] = (charger.update_connected_electric_vehicle_soc, (action,))
-                        electric_vehicle_priority_list.append(action_key)
-            priority_list = priority_list + electric_vehicle_priority_list  # the priority lists are merged
-
-        if washing_machine_actions is not None:
-            washing_machine_priority_list = []
-            for washing_machine_name, action in washing_machine_actions.items():
-                action_key = f'{washing_machine_name}'
-                if action_key not in self.active_actions:
-                    raise ValueError("This action should not be applied. Verify")
-                for wm in self.washing_machines:
-                    if wm.name == washing_machine_name:
-                        actions[action_key] = (wm.start_cycle, (action,))
-                        washing_machine_priority_list.append(action_key)
-            priority_list = priority_list + washing_machine_priority_list
-
-        if electrical_storage_action < 0.0:
-            key = 'electrical_storage'
-            priority_list.remove(key)
-            priority_list = [key] + priority_list
-
-        else:
-            pass
-
-        for key in ['cooling', 'heating', 'dhw']:
-            storage = f'{key}_storage'
-            device = f'{key}_device'
-
-            if actions[storage][1][0] < 0.0:
-                storage_ix = priority_list.index(storage)
-                device_ix = priority_list.index(device)
-                priority_list[storage_ix] = device
-                priority_list[device_ix] = storage
-
-            else:
-                pass
-
-        for k in priority_list:
-            func, args = actions[k]
-
-            try:
-                func(*args)
-
-            except NotImplementedError:
-                pass
+        return self._ops_service.apply_actions(
+            cooling_or_heating_device_action=cooling_or_heating_device_action,
+            cooling_device_action=cooling_device_action,
+            heating_device_action=heating_device_action,
+            cooling_storage_action=cooling_storage_action,
+            heating_storage_action=heating_storage_action,
+            dhw_storage_action=dhw_storage_action,
+            electrical_storage_action=electrical_storage_action,
+            washing_machine_actions=washing_machine_actions,
+            electric_vehicle_storage_actions=electric_vehicle_storage_actions,
+        )
 
     def update_cooling_demand(self, action: float):
         """Update space cooling demand for current time step."""
