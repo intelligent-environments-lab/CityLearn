@@ -19,7 +19,10 @@ from citylearn.cost_function import CostFunction
 from citylearn.data import CarbonIntensity, DataSet, ChargerSimulation, EnergySimulation, LogisticRegressionOccupantParameters, Pricing, WashingMachineSimulation, Weather
 from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery, PV, WashingMachine
-from citylearn.reward_function import MultiBuildingRewardFunction, RewardFunction
+from citylearn.reward_function import (
+    MultiBuildingRewardFunction,
+    RewardFunction,
+)
 from citylearn.utilities import FileHandler
 
 LOGGER = logging.getLogger()
@@ -143,6 +146,9 @@ class CityLearnEnv(Environment, Env):
         render_directory = kwargs.pop('render_directory', None)
         render_directory_name = kwargs.pop('render_directory_name', 'render_logs')
         render_flag = kwargs.pop('render', None)
+        debug_timing = kwargs.pop('debug_timing', None)
+        check_observation_limits = kwargs.pop('check_observation_limits', None)
+        metrics_log_interval = kwargs.pop('metrics_log_interval', None)
         kw_render_mode = kwargs.pop('render_mode', None)
         requested_render_mode = render_mode if kw_render_mode is None else kw_render_mode
         requested_render_mode = 'none' if requested_render_mode is None else str(requested_render_mode).lower()
@@ -157,9 +163,16 @@ class CityLearnEnv(Environment, Env):
         if requested_render_mode not in {'none', 'during', 'end'}:
             raise ValueError("render_mode must be one of {'none', 'during', 'end'}.")
         self.render_mode = requested_render_mode
-        self._buffer_render = self.render_mode == 'end'
+        self._buffer_render = False
         self._defer_render_flush = False
         self._render_buffer = defaultdict(list)
+        self.debug_timing = bool(self.schema.get('debug_timing', False) if debug_timing is None else debug_timing)
+        self.check_observation_limits = bool(
+            self.schema.get('check_observation_limits', False) if check_observation_limits is None else check_observation_limits
+        )
+        self.metrics_log_interval = int(self.schema.get('metrics_log_interval', 0) if metrics_log_interval is None else metrics_log_interval)
+        self._observations_cache: List[List[float]] = None
+        self._observations_cache_time_step: int = -1
         self._render_start_date = self._parse_render_start_date(start_date if start_date is not None else schema_start_date)
         self.previous_month = None
         self.current_day = self._render_start_date.day
@@ -221,6 +234,7 @@ class CityLearnEnv(Environment, Env):
 
         # set reward function
         self.reward_function = reward_function
+        self._refresh_action_cache()
 
         # rendering switch: schema['render'] overrides explicit flag, otherwise rely on render_mode defaults
         schema_render = self.schema.get('render', None) if isinstance(self.schema, dict) else None
@@ -458,29 +472,37 @@ class CityLearnEnv(Environment, Env):
         The `shared_observations` values are only included in the first building's observation values. If `central_agent` is False, a list of sublists 
         is returned where each sublist is a list of 1 building's observation values and the sublist in the same order as `buildings`.
         """
+        if self._observations_cache is not None and self._observations_cache_time_step == self.time_step:
+            return self._observations_cache
+
+        building_observations = [
+            b.observations(
+                normalize=False,
+                periodic_normalization=False,
+                check_limits=self.check_observation_limits,
+            ) for b in self.buildings
+        ]
 
         if self.central_agent:
             observations = []
-            shared_observations = []
+            shared_observations = set()
+            shared_observation_names = self._shared_observations_set
 
-            for i, b in enumerate(self.buildings):
-                for k, v in b.observations(normalize=False, periodic_normalization=False, check_limits=True).items():
-                    if i == 0 or k not in self.shared_observations or k not in shared_observations:
+            for i, b_observations in enumerate(building_observations):
+                for k, v in b_observations.items():
+                    if i == 0 or k not in shared_observation_names or k not in shared_observations:
                         observations.append(v)
 
-                    else:
-                        pass
-
-                    if k in self.shared_observations and k not in shared_observations:
-                        shared_observations.append(k)
-
-                    else:
-                        pass
+                    if k in shared_observation_names:
+                        shared_observations.add(k)
 
             observations = [observations]
 
         else:
-            observations = [list(b.observations(normalize=False, periodic_normalization=False, check_limits=True).values()) for b in self.buildings]
+            observations = [list(o.values()) for o in building_observations]
+
+        self._observations_cache = observations
+        self._observations_cache_time_step = self.time_step
 
         return observations
 
@@ -536,6 +558,10 @@ class CityLearnEnv(Environment, Env):
             action_names = [b.active_actions for b in self.buildings]
 
         return action_names
+
+    def _refresh_action_cache(self):
+        self._active_actions_cache = [list(b.active_actions) for b in self.buildings]
+        self._expected_central_action_count = sum(len(actions) for actions in self._active_actions_cache)
 
     @property
     def net_electricity_consumption_emission_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
@@ -928,6 +954,7 @@ class CityLearnEnv(Environment, Env):
     @shared_observations.setter
     def shared_observations(self, shared_observations: List[str]):
         self.__shared_observations = self.get_default_shared_observations() if shared_observations is None else shared_observations
+        self._shared_observations_set = set(self.__shared_observations)
 
     @Environment.random_seed.setter
     def random_seed(self, seed: int):
@@ -1012,6 +1039,8 @@ class CityLearnEnv(Environment, Env):
         if self.terminated or self.truncated:
             raise RuntimeError('Episode has already terminated/truncated. Call reset() before calling step() again.')
 
+        self._observations_cache = None
+        self._observations_cache_time_step = -1
         actions = self._parse_actions(actions)
 
         # Apply actions at current timestep t
@@ -1021,30 +1050,26 @@ class CityLearnEnv(Environment, Env):
         # Update environment/building variables for timestep t (reflect effects of actions)
         self.update_variables()
 
-        import time
-        # NOTE:
-        # This call to retrieve each building's observation dictionary is an expensive call especially since the observations 
-        # are retrieved again to send to agent but the observations in dict form is needed for the reward function to easily
-        # extract building-level values. Can't think of a better way to handle this without giving the reward direct access to
-        # env, which is not the best design for competition integrity sake. Will revisit the building.observations() function
-        # to see how it can be optimized.
-    
-        building_observations_retrieval_start = time.time();    
-        reward_observations = [b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings]
-        building_observations_retrieval_end = time.time();
+        if self.debug_timing:
+            import time
+            building_observations_retrieval_start = time.perf_counter()
+
+        reward_observations = [
+            b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings
+        ]
+        if self.debug_timing:
+            building_observations_retrieval_end = time.perf_counter()
         
         reward = self.reward_function.calculate(observations=reward_observations)
         self.__rewards.append(reward)
 
         # Advance to next timestep t+1
         partial_render_time = self.next_time_step()
+        end_export_time = 0.0
+        self._maybe_log_periodic_metrics()
 
         # store episode reward summary at the end of episode (upon reaching final timestep)
         if self.terminated:
-
-            if self.render_mode == 'during' and self.render_enabled:
-                # Final step was already streamed during the most recent `next_time_step` call.
-                pass
             rewards = np.array(self.__rewards[1:], dtype='float32')
             self.__episode_rewards.append({
                 'min': rewards.min(axis=0).tolist(),
@@ -1053,37 +1078,59 @@ class CityLearnEnv(Environment, Env):
                 'mean': rewards.mean(axis=0).tolist()
             })
             if self.render_mode == 'end' and self.render_enabled:
-                if self.time_step > 0:
-                    final_index = min(self.time_steps - 1, self.time_step - 1)
-                else:
-                    final_index = 0
-
-                has_buffered_rows = any(self._render_buffer.values())
-
-                if not has_buffered_rows:
-                    state_snapshot = self._override_render_time_step(final_index)
-                    self._defer_render_flush = True
-                    try:
-                        self.render()
-                    finally:
-                        self._restore_render_time_step(state_snapshot)
-                        self._defer_render_flush = False
-
-                self._flush_render_buffer()
+                final_index = min(self.time_steps - 1, self.time_step - 1) if self.time_step > 0 else 0
+                if self.debug_timing:
+                    import time
+                    export_start = time.perf_counter()
+                self._export_episode_render_data(final_index)
+                if self.debug_timing:
+                    end_export_time = time.perf_counter() - export_start
 
             if self.render_enabled and not self._final_kpis_exported:
                 self.export_final_kpis()
         
+        next_observations = self.observations
         info = dict(self.get_info())
-        info['building_observations_retrieval_time'] = building_observations_retrieval_end - building_observations_retrieval_start
-        info['partial_render_time'] = partial_render_time
+        if self.debug_timing:
+            info['building_observations_retrieval_time'] = building_observations_retrieval_end - building_observations_retrieval_start
+            info['partial_render_time'] = partial_render_time
+            info['end_export_time'] = end_export_time
 
-        return self.observations, reward, self.terminated, self.truncated, info
+        return next_observations, reward, self.terminated, self.truncated, info
 
     def get_info(self) -> Mapping[Any, Any]:
         """Other information to return from the `citylearn.CityLearnEnv.step` function."""
 
         return {}
+
+    def _maybe_log_periodic_metrics(self):
+        """Lightweight periodic metrics logging for long training runs."""
+
+        interval = max(0, int(self.metrics_log_interval))
+
+        if interval == 0:
+            return
+
+        if self.time_step <= 0:
+            return
+
+        if self.time_step % interval != 0 and not self.terminated:
+            return
+
+        idx = min(self.time_step - 1, len(self.__net_electricity_consumption) - 1)
+
+        if idx < 0:
+            return
+
+        LOGGER.info(
+            "Episode %s Step %s/%s | net_kwh=%.5f cost=%.5f co2=%.5f",
+            self.episode_tracker.episode,
+            self.time_step,
+            self.time_steps - 1,
+            float(self.__net_electricity_consumption[idx]),
+            float(self.__net_electricity_consumption_cost[idx]),
+            float(self.__net_electricity_consumption_emission[idx]),
+        )
 
     def _parse_actions(self, actions: List[List[float]]) -> List[Mapping[str, float]]:
         """Return mapping of action name to action value for each building."""
@@ -1094,7 +1141,7 @@ class CityLearnEnv(Environment, Env):
         if self.central_agent:
             actions = actions[0]
             number_of_actions = len(actions)
-            expected_number_of_actions = self.action_space[0].shape[0]
+            expected_number_of_actions = self._expected_central_action_count
             assert number_of_actions == expected_number_of_actions, \
                 f'Expected {expected_number_of_actions} actions but {number_of_actions} were parsed to env.step.'
 
@@ -1113,7 +1160,7 @@ class CityLearnEnv(Environment, Env):
             assert number_of_actions == expected_number_of_actions,\
                 f'Expected {expected_number_of_actions} for {b.name} but {number_of_actions} actions were provided.'
 
-        active_actions = [[k for k, v in b.action_metadata.items() if v] for b in self.buildings]
+        active_actions = self._active_actions_cache
 
         # Create a list of dictionaries for actions including EV-specific actions
         parsed_actions = []
@@ -1141,17 +1188,6 @@ class CityLearnEnv(Environment, Env):
 
             if washing_machine_actions:
                 action_dict['washing_machine_actions'] = washing_machine_actions    
-
-            # Fill missing actions with default NaN
-            for k in building.action_metadata:
-                if (
-                    f'{k}_action' not in action_dict and
-                    'electric_vehicle_storage' not in k and
-                    'washing_machine' not in k
-                ):
-                    action_dict[f'{k}_action'] = np.nan
-
-   
 
             parsed_actions.append(action_dict)
 
@@ -1350,18 +1386,16 @@ class CityLearnEnv(Environment, Env):
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
-        import time
-        render_start = time.time();
+        partial_render_time = 0.0
         if getattr(self, 'render_enabled', False):
             if self.render_mode == 'during':
-                self.render()
-            elif self.render_mode == 'end':
-                self._defer_render_flush = True
-                try:
+                if self.debug_timing:
+                    import time
+                    render_start = time.perf_counter()
                     self.render()
-                finally:
-                    self._defer_render_flush = False
-        render_end = time.time();
+                    partial_render_time = time.perf_counter() - render_start
+                else:
+                    self.render()
         for building in self.buildings:
             building.next_time_step()
 
@@ -1379,7 +1413,7 @@ class CityLearnEnv(Environment, Env):
         #It basicly associates an EV to a Building.Charger
         self.associate_chargers_to_electric_vehicles()
 
-        return render_end - render_start
+        return partial_render_time
 
     def associate_chargers_to_electric_vehicles(self):
         r"""Associate charger to its corresponding electric_vehicle based on charger simulation state."""
@@ -1551,8 +1585,9 @@ class CityLearnEnv(Environment, Env):
         """
         if not getattr(self, 'render_enabled', False):
             return
-        if self.render_mode == 'end' and not getattr(self, '_defer_render_flush', False):
-            self._flush_render_buffer()
+        if self.render_mode == 'end' and getattr(self, '_defer_render_flush', False):
+            return
+        if self.render_mode == 'end' and (self.terminated or self.truncated):
             return
         # Ensure the output directory is prepared
         self._ensure_render_output_dir()
@@ -1593,6 +1628,95 @@ class CityLearnEnv(Environment, Env):
             ev_filename = f"exported_data_{ev.name.lower()}_ep{episode_num}.csv"
             self._save_to_csv(ev_filename, 
                             {"timestamp": iso_timestamp, **ev.as_dict()})
+
+    def _set_charger_render_state(self, charger, time_step: int, ev_lookup: Mapping[str, ElectricVehicle]):
+        """Set charger connected/incoming EV pointers to match schedule at a given time step."""
+        sim = charger.charger_simulation
+
+        state = sim.electric_vehicle_charger_state[time_step] if time_step < len(sim.electric_vehicle_charger_state) else np.nan
+        ev_id = sim.electric_vehicle_id[time_step] if time_step < len(sim.electric_vehicle_id) else None
+        valid_ev_id = isinstance(ev_id, str) and ev_id.strip() not in {"", "nan"}
+
+        connected_ev = ev_lookup.get(ev_id) if valid_ev_id and state == 1 else None
+        incoming_ev = ev_lookup.get(ev_id) if valid_ev_id and state == 2 else None
+
+        charger.connected_electric_vehicle = connected_ev
+        charger.incoming_electric_vehicle = incoming_ev
+
+    def _export_episode_render_data(self, final_index: int):
+        """Export full episode render rows in one pass for `render_mode='end'`."""
+
+        if final_index < 0:
+            return
+
+        self._ensure_render_output_dir()
+        episode_num = self.episode_tracker.episode
+        rows_by_filename: Mapping[str, List[Mapping[str, Any]]] = defaultdict(list)
+        ev_lookup = {ev.name: ev for ev in self.electric_vehicles}
+        original_charger_state = {}
+        time_step_snapshot = self._override_render_time_step(0)
+        original_year = self.year
+        original_day = self.current_day
+        original_start_datetime = getattr(self, '_render_start_datetime', None)
+
+        try:
+            self._reset_time_tracking()
+
+            for t in range(final_index + 1):
+                for obj, _ in time_step_snapshot:
+                    try:
+                        obj.time_step = t
+                    except AttributeError:
+                        pass
+
+                timestamp = self._get_iso_timestamp()
+                rows_by_filename[f"exported_data_community_ep{episode_num}.csv"].append(
+                    {"timestamp": timestamp, **self.as_dict()}
+                )
+
+                for building in self.buildings:
+                    rows_by_filename[f"exported_data_{building.name.lower()}_ep{episode_num}.csv"].append(
+                        {"timestamp": timestamp, **building.as_dict()}
+                    )
+                    battery = building.electrical_storage
+                    rows_by_filename[f"exported_data_{building.name.lower()}_battery_ep{episode_num}.csv"].append(
+                        {"timestamp": timestamp, **battery.as_dict()}
+                    )
+
+                    for charger in building.electric_vehicle_chargers or []:
+                        if charger not in original_charger_state:
+                            original_charger_state[charger] = (
+                                charger.connected_electric_vehicle,
+                                charger.incoming_electric_vehicle,
+                            )
+                        self._set_charger_render_state(charger, t, ev_lookup)
+                        rows_by_filename[f"exported_data_{building.name.lower()}_{charger.charger_id}_ep{episode_num}.csv"].append(
+                            {"timestamp": timestamp, **charger.as_dict()}
+                        )
+
+                rows_by_filename[f"exported_data_pricing_ep{episode_num}.csv"].append(
+                    {"timestamp": timestamp, **self.buildings[0].pricing.as_dict(t)}
+                )
+
+                for ev in self.__electric_vehicles:
+                    rows_by_filename[f"exported_data_{ev.name.lower()}_ep{episode_num}.csv"].append(
+                        {"timestamp": timestamp, **ev.as_dict()}
+                    )
+
+        finally:
+            for charger, state in original_charger_state.items():
+                charger.connected_electric_vehicle, charger.incoming_electric_vehicle = state
+
+            self._restore_render_time_step(time_step_snapshot)
+            self.year = original_year
+            self.current_day = original_day
+            self._render_start_datetime = original_start_datetime
+
+        for filename, rows in rows_by_filename.items():
+            file_path = Path(self.new_folder_path) / filename
+            if file_path.exists():
+                file_path.unlink()
+            self._write_render_rows(filename, rows)
 
     def _save_to_csv(self, filename, data):
         """
@@ -1946,6 +2070,9 @@ class CityLearnEnv(Environment, Env):
         self.__net_electricity_consumption = []
         self.__net_electricity_consumption_cost = []
         self.__net_electricity_consumption_emission = []
+        self._observations_cache = None
+        self._observations_cache_time_step = -1
+        self._render_buffer.clear()
         self.update_variables()
 
         return self.observations, self.get_info()
@@ -2748,13 +2875,30 @@ class CityLearnEnv(Environment, Env):
         else:
             idx = max(0, min(self.time_step, len(self.net_electricity_consumption) - 1))
 
+        def _safe_value(series, index: int) -> float:
+            return float(series[index]) if 0 <= index < len(series) else 0.0
+
+        self_consumption = 0.0
+        stored_energy = 0.0
+        total_solar_generation = 0.0
+
+        for building in self.buildings:
+            self_consumption += (
+                _safe_value(building.energy_from_electrical_storage, idx)
+                + _safe_value(building.energy_from_cooling_storage, idx)
+                + _safe_value(building.energy_from_heating_storage, idx)
+                + _safe_value(building.energy_from_dhw_storage, idx)
+            )
+            stored_energy += _safe_value(building.energy_to_electrical_storage, idx)
+            total_solar_generation += _safe_value(building.solar_generation, idx)
+
         return {
-            "Net Electricity Consumption-kWh": self.net_electricity_consumption[idx],
-            "Self Consumption-kWh": self.total_self_consumption[idx],
-            "Stored energy by community- kWh": self.energy_to_electrical_storage[idx],
-            "Total Solar Generation-kWh": self.solar_generation[idx],
-            "CO2-kg_co2": self.net_electricity_consumption_emission[idx],
-            "Price-$": self.net_electricity_consumption_cost[idx],
+            "Net Electricity Consumption-kWh": _safe_value(self.net_electricity_consumption, idx),
+            "Self Consumption-kWh": self_consumption,
+            "Stored energy by community- kWh": stored_energy,
+            "Total Solar Generation-kWh": total_solar_generation,
+            "CO2-kg_co2": _safe_value(self.net_electricity_consumption_emission, idx),
+            "Price-$": _safe_value(self.net_electricity_consumption_cost, idx),
         }
 class Error(Exception):
     """Base class for other exceptions."""

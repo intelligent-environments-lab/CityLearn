@@ -127,6 +127,10 @@ class Building(Environment):
         self.stochastic_power_outage = stochastic_power_outage
         self.non_periodic_normalized_observation_space_limits = None
         self.periodic_normalized_observation_space_limits = None
+        self._energy_simulation_observation_sources: List[Tuple[str, np.ndarray]] = []
+        self._weather_observation_sources: List[Tuple[str, np.ndarray]] = []
+        self._pricing_observation_sources: List[Tuple[str, np.ndarray]] = []
+        self._carbon_observation_sources: List[Tuple[str, np.ndarray]] = []
         self.observation_space = self.estimate_observation_space(include_all=False, normalize=False)
         self.action_space = self.estimate_action_space()
         self._initialize_charging_constraints(charging_constraints)
@@ -1347,7 +1351,7 @@ class Building(Environment):
         # include_all=True is used by reward calculation and must stay on transition time t.
         endogenous_t = t if include_all else max(t - 1, 0)
 
-        for charger in self.electric_vehicle_chargers:
+        for charger in self.electric_vehicle_chargers or []:
             charger_id = charger.charger_id
             connected_car = charger.connected_electric_vehicle
 
@@ -1395,7 +1399,7 @@ class Building(Environment):
                     "max_discharging_power": charger.max_discharging_power,
                 }
 
-        for wm in self.washing_machines:
+        for wm in self.washing_machines or []:
             washing_machine_name = wm.name
             # Use current timestep values; default to sentinel values if out of bounds
             def _safe(arr, idx, default):
@@ -1414,23 +1418,24 @@ class Building(Environment):
                 "load_profile": load_profile,
             }
 
-        observations = {
-            **{
-                k.lstrip('_'): self.energy_simulation.__getattr__(k.lstrip('_'))[t] 
-                for k, v in vars(self.energy_simulation).items() if isinstance(v, np.ndarray)
-            },
-            **{
-                k.lstrip('_'): self.weather.__getattr__(k.lstrip('_'))[t] 
-                for k, v in vars(self.weather).items() if isinstance(v, np.ndarray)
-            },
-            **{
-                k.lstrip('_'): self.pricing.__getattr__(k.lstrip('_'))[t] 
-                for k, v in vars(self.pricing).items() if isinstance(v, np.ndarray)
-            },
-            **{
-                k.lstrip('_'): self.carbon_intensity.__getattr__(k.lstrip('_'))[t] 
-                for k, v in vars(self.carbon_intensity).items() if isinstance(v, np.ndarray)
-            },
+        observations = {}
+        for key, series in self._energy_simulation_observation_sources:
+            if t < len(series):
+                observations[key] = series[t]
+
+        for key, series in self._weather_observation_sources:
+            if t < len(series):
+                observations[key] = series[t]
+
+        for key, series in self._pricing_observation_sources:
+            if t < len(series):
+                observations[key] = series[t]
+
+        for key, series in self._carbon_observation_sources:
+            if t < len(series):
+                observations[key] = series[t]
+
+        observations.update({
             'solar_generation':abs(self.solar_generation[t]),
             **{
                 'cooling_storage_soc':self.cooling_storage.soc[endogenous_t],
@@ -1464,7 +1469,7 @@ class Building(Environment):
             'power_outage': self.__power_outage_signal[t],
             'electric_vehicles_chargers_dict': electric_vehicle_chargers_dict,
             'washing_machines_dict': washing_machines_dict,
-        }
+        })
         if (
             getattr(self, '_charging_constraints_enabled', False)
             and getattr(self, '_expose_charging_constraints', False)
@@ -1485,6 +1490,28 @@ class Building(Environment):
                 observations.update(self._phase_encoding_observations)
 
         return observations
+
+    def _refresh_observation_source_cache(self):
+        """Cache episode-sliced observation sources to avoid per-step dynamic lookups."""
+
+        def _collect(source) -> List[Tuple[str, np.ndarray]]:
+            collected: List[Tuple[str, np.ndarray]] = []
+            for key, value in vars(source).items():
+                if not isinstance(value, np.ndarray):
+                    continue
+                observation_name = key.lstrip('_')
+                try:
+                    series = source.__getattr__(observation_name)
+                except AttributeError:
+                    continue
+                collected.append((observation_name, series))
+
+            return collected
+
+        self._energy_simulation_observation_sources = _collect(self.energy_simulation)
+        self._weather_observation_sources = _collect(self.weather)
+        self._pricing_observation_sources = _collect(self.pricing)
+        self._carbon_observation_sources = _collect(self.carbon_intensity)
     
     @staticmethod
     def get_periodic_observation_metadata() -> Mapping[str, int]:
@@ -2557,6 +2584,7 @@ class Building(Environment):
         # variable reset
         self.reset_dynamic_variables()
         self.reset_data_sets()
+        self._refresh_observation_source_cache()
         self.__solar_generation = self.pv.get_generation(self.energy_simulation.solar_generation) * -1
         self.__energy_from_cooling_device = self.energy_simulation.cooling_demand.copy()
         self.__energy_from_heating_device = self.energy_simulation.heating_demand.copy()

@@ -280,3 +280,73 @@ def test_export_final_kpis_flushes_end_mode(tmp_path):
     finally:
         _cleanup_env(env)
         env.close()
+
+
+def test_end_mode_exports_without_per_step_buffer_growth(tmp_path):
+    env = CityLearnEnv(
+        str(DATASET),
+        central_agent=True,
+        episode_time_steps=5,
+        render_mode="end",
+        render_directory=tmp_path,
+        random_seed=0,
+    )
+
+    try:
+        env.reset()
+        zeros = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+
+        while not env.terminated:
+            _, _, terminated, truncated, _ = env.step(zeros)
+            assert not any(env._render_buffer.values())
+            if terminated or truncated:
+                break
+
+        outputs_path = Path(env.new_folder_path)
+        community_file = outputs_path / "exported_data_community_ep0.csv"
+        assert community_file.is_file()
+
+        with community_file.open(newline="") as handle:
+            rows = list(csv.reader(handle))
+
+        # Header + one row per realized transition.
+        assert len(rows) == env.time_step + 1
+    finally:
+        _cleanup_env(env)
+        env.close()
+
+
+def test_end_mode_export_file_contract_matches_during_mode(tmp_path):
+    def _run(render_mode: str):
+        env = CityLearnEnv(
+            str(DATASET),
+            central_agent=True,
+            episode_time_steps=4,
+            render_mode=render_mode,
+            render_directory=tmp_path / render_mode,
+            random_seed=0,
+        )
+        try:
+            env.reset()
+            zeros = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+            while not env.terminated:
+                _, _, terminated, truncated, _ = env.step(zeros)
+                if terminated or truncated:
+                    break
+
+            outputs_path = Path(env.new_folder_path)
+            export_files = sorted(p.name for p in outputs_path.glob("exported_data_*_ep0.csv"))
+            community_file = outputs_path / "exported_data_community_ep0.csv"
+            with community_file.open(newline="") as handle:
+                header = next(csv.reader(handle))
+
+            return export_files, header
+        finally:
+            _cleanup_env(env)
+            env.close()
+
+    during_files, during_header = _run("during")
+    end_files, end_header = _run("end")
+
+    assert end_files == during_files
+    assert end_header == during_header

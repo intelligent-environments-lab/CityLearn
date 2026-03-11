@@ -6,6 +6,12 @@ from pathlib import Path
 from typing import Union
 
 from citylearn.energy_model import PV
+import citylearn.energy_model as energy_model
+
+pytestmark = pytest.mark.skipif(
+    getattr(energy_model, "Pvwattsv8", None) is None,
+    reason="PySAM/Pvwattsv8 is not installed in this environment.",
+)
 
 
 class DummyElectricDevice:
@@ -132,5 +138,4 @@ def test_autosize_use_sample_target(mock_pvwatts, mock_sizing_data):
     )
 
     assert np.isclose(nominal_power, 8000)
-
 

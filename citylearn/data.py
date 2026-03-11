@@ -310,6 +310,35 @@ class TimeSeriesData:
         self.start_time_step = start_time_step
         self.end_time_step = end_time_step
 
+    @staticmethod
+    def _slice_variable(variable: Any, start_time_step: int, end_time_step: int):
+        if isinstance(variable, np.ndarray):
+            start_index = 0 if start_time_step is None else start_time_step
+            end_index = variable.shape[0] if end_time_step is None else end_time_step + 1
+            return variable[start_index:end_index]
+
+        if isinstance(variable, (list, tuple)):
+            start_index = 0 if start_time_step is None else start_time_step
+            end_index = len(variable) if end_time_step is None else end_time_step + 1
+            return variable[start_index:end_index]
+
+        return variable
+
+    def __getattribute__(self, name: str):
+        if name.startswith('__'):
+            return object.__getattribute__(self, name)
+
+        data = object.__getattribute__(self, '__dict__')
+        variable_name = f'_{name}'
+
+        if variable_name in data:
+            start_time_step = data.get('_start_time_step')
+            end_time_step = data.get('_end_time_step')
+            variable = data[variable_name]
+            return self._slice_variable(variable, start_time_step, end_time_step)
+
+        return object.__getattribute__(self, name)
+
     def __getattr__(self, name: str, start_time_step: int = None, end_time_step: int = None):
         """Returns values of the named variable within the specified time steps and
         is useful for selecting episode-specific observation."""
@@ -319,16 +348,9 @@ class TimeSeriesData:
             variable = self.__dict__[f'_{name}']
         except KeyError:
             raise AttributeError(f'_{name}')
-        
-        if isinstance(variable, Iterable):
-            start_time_step = self.start_time_step if start_time_step is None else start_time_step
-            start_index = 0 if start_time_step is None else start_time_step
-            end_time_step = self.end_time_step if end_time_step is None else end_time_step
-            end_index = len(variable) if end_time_step is None else end_time_step + 1
-            return variable[start_index:end_index]
-        
-        else:
-            return variable
+        start_time_step = self.start_time_step if start_time_step is None else start_time_step
+        end_time_step = self.end_time_step if end_time_step is None else end_time_step
+        return self._slice_variable(variable, start_time_step, end_time_step)
         
     def __setattr__(self, name: str, value: Any):
         """Sets named variable.
