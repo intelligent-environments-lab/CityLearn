@@ -22,17 +22,17 @@ Use the repository virtual environment when available:
 .venv/bin/pytest -q
 ```
 
-Manual utility scripts live in `tests/scripts` and are excluded from default pytest collection:
+Manual utility scripts live in `scripts/manual` and are excluded from default pytest collection:
 
 ```console
-python tests/scripts/run_ev_rbc.py
-python tests/scripts/run_ev_rbc_export_end.py
+python scripts/manual/demo_ev_rbc.py
+python scripts/manual/demo_ev_rbc_export_end.py
 ```
 
 Runtime benchmark (main training resolutions 5s/60s):
 
 ```console
-python tests/scripts/benchmark_runtime.py --seconds 5 60 --render-modes none end --episode-steps 1200
+python scripts/manual/bench_runtime.py --seconds 5 60 --render-modes none end --episode-steps 1200
 ```
 
 ## Documentation

@@ -1,5 +1,9 @@
 import sys
-sys.path.insert(0, '..')
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 from stable_baselines3 import SAC
 from stable_baselines3.common.env_checker import check_env
 from citylearn.citylearn import CityLearnEnv

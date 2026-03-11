@@ -3,7 +3,7 @@
 
 Run from the repository root:
 
-    python tests/scripts/run_ev_rbc.py
+    python scripts/manual/demo_ev_rbc.py
 """
 
 from __future__ import annotations
