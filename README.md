@@ -47,6 +47,14 @@ CI performance smoke check command:
 python scripts/ci/perf_smoke.py --episode-steps 600 --seconds 60 --baseline-file scripts/ci/perf_baseline.json
 ```
 
+## Internal Architecture
+Public APIs remain in `CityLearnEnv` and `Building`, while internal orchestration is split into service modules under `citylearn/internal`:
+
+- `loading.py`: schema-driven loading/build assembly (`_load*`, metadata processing).
+- `runtime.py`: episode runtime orchestration (`step`, action parsing, time progression, EV/charger association).
+- `building_ops.py`: building observation/action orchestration.
+- `kpi.py`: KPI/evaluation pipeline.
+
 ## Export and Render Modes
 `CityLearnEnv` keeps export off by default:
 
