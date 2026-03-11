@@ -6,7 +6,7 @@ import importlib
 import logging
 import os
 from pathlib import Path
-from typing import Any, List, Mapping, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Mapping, Tuple, Union
 from gymnasium import Env, spaces
 import datetime
 import numpy as np
@@ -24,6 +24,9 @@ from citylearn.reward_function import (
     RewardFunction,
 )
 from citylearn.utilities import FileHandler
+
+if TYPE_CHECKING:
+    from citylearn.agents.base import Agent
 
 LOGGER = logging.getLogger()
 logging.getLogger('matplotlib.font_manager').disabled = True
@@ -1554,7 +1557,7 @@ class CityLearnEnv(Environment, Env):
                     new_soc = np.clip(last_soc * variability, 0.0, 1.0)
                     ev.battery.force_set_soc(new_soc)
 
-    def export_final_kpis(self, model: 'citylearn.agents.base.Agent' = None, filepath: str = "exported_kpis.csv"):
+    def export_final_kpis(self, model: 'Agent' = None, filepath: str = "exported_kpis.csv"):
         """Export episode KPIs to csv."""
 
         return self._episode_exporter.export_final_kpis(model=model, filepath=filepath)
@@ -1703,7 +1706,7 @@ class CityLearnEnv(Environment, Env):
         total_emission = sum(b.net_electricity_consumption_emission[self.time_step] for b in self.buildings)
         _set_or_append(self.__net_electricity_consumption_emission, total_emission)
 
-    def load_agent(self, agent: Union[str, 'citylearn.agents.base.Agent'] = None, **kwargs) -> Union[Any, 'citylearn.agents.base.Agent']:
+    def load_agent(self, agent: Union[str, 'Agent'] = None, **kwargs) -> Union[Any, 'Agent']:
         """Return :class:`Agent` or sub class object as defined by the `schema`.
 
         Parameters

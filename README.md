@@ -22,6 +22,12 @@ Use the repository virtual environment when available:
 .venv/bin/pytest -q
 ```
 
+Critical lint checks used in CI:
+
+```console
+.venv/bin/python -m ruff check citylearn tests scripts/manual --select E9,F821
+```
+
 Manual utility scripts live in `scripts/manual` and are excluded from default pytest collection:
 
 ```console
@@ -33,6 +39,12 @@ Runtime benchmark (main training resolutions 5s/60s):
 
 ```console
 python scripts/manual/bench_runtime.py --seconds 5 60 --render-modes none end --episode-steps 1200
+```
+
+CI performance smoke check command:
+
+```console
+python scripts/ci/perf_smoke.py --episode-steps 600 --seconds 60
 ```
 
 ## Documentation

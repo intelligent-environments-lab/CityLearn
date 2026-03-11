@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Mapping, TYPE_CHECKING, Union
 import numpy as np
 
 if TYPE_CHECKING:
+    from citylearn.agents.base import Agent
     from citylearn.citylearn import CityLearnEnv
     from citylearn.electric_vehicle import ElectricVehicle
 
@@ -47,7 +48,7 @@ class EpisodeExporter:
             "CityLearnEnv start_date must be a date, datetime, or ISO format string."
         )
 
-    def export_final_kpis(self, model: "citylearn.agents.base.Agent" = None, filepath: str = "exported_kpis.csv"):
+    def export_final_kpis(self, model: "Agent" = None, filepath: str = "exported_kpis.csv"):
         """Export episode KPIs to csv."""
 
         env = self.env
