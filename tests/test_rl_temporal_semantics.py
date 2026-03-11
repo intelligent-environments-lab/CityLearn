@@ -69,3 +69,33 @@ def test_step_after_terminal_raises_runtime_error():
             env.step(_zero_actions(env))
     finally:
         env.close()
+
+
+def test_step_raises_for_invalid_central_action_count():
+    env = CityLearnEnv(str(SCHEMA), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        expected = env.action_space[0].shape[0]
+        invalid = np.zeros(expected + 1, dtype="float32")
+
+        with pytest.raises(AssertionError, match="Expected"):
+            env.step([invalid])
+    finally:
+        env.close()
+
+
+def test_step_raises_for_missing_decentralized_action_vector():
+    env = CityLearnEnv(str(SCHEMA), central_agent=False, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        actions = _zero_actions(env)
+
+        if len(actions) < 2:
+            pytest.skip("Dataset does not expose multiple buildings for decentralized action validation.")
+
+        with pytest.raises(AssertionError, match="building action vectors"):
+            env.step(actions[:-1])
+    finally:
+        env.close()

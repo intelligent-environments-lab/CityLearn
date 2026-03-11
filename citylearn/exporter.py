@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 import csv
 import datetime
+import logging
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, TYPE_CHECKING, Union
@@ -13,6 +14,8 @@ if TYPE_CHECKING:
     from citylearn.agents.base import Agent
     from citylearn.citylearn import CityLearnEnv
     from citylearn.electric_vehicle import ElectricVehicle
+
+LOGGER = logging.getLogger(__name__)
 
 
 class EpisodeExporter:
@@ -243,7 +246,7 @@ class EpisodeExporter:
             target_dir = None
 
         if target_dir is not None:
-            print(f"Writing buffered render exports to {target_dir} ...")
+            LOGGER.info("Writing buffered render exports to %s ...", target_dir)
 
         original_defer = env._defer_render_flush
         original_buffer_state = env._buffer_render

@@ -1156,6 +1156,10 @@ class CityLearnEnv(Environment, Env):
 
         else:
             building_actions = [list(a) for a in actions]
+            number_of_building_actions = len(building_actions)
+            expected_building_actions = len(self.buildings)
+            assert number_of_building_actions == expected_building_actions, \
+                f'Expected {expected_building_actions} building action vectors but {number_of_building_actions} were provided.'
 
         # check that appropriate number of building actions have been provided
         for b, a in zip(self.buildings, building_actions):
@@ -1188,7 +1192,7 @@ class CityLearnEnv(Environment, Env):
 
             # Add EV actions to the action_dict if they exist
             if electric_vehicle_actions:
-                action_dict['electric_vehicle_storage_actions'] = electric_vehicle_actions # aqui podes criar dicionario
+                action_dict['electric_vehicle_storage_actions'] = electric_vehicle_actions
 
             if washing_machine_actions:
                 action_dict['washing_machine_actions'] = washing_machine_actions    
@@ -1403,18 +1407,17 @@ class CityLearnEnv(Environment, Env):
         for building in self.buildings:
             building.next_time_step()
 
-        # Advance electric vehicles to the next time step. This function is used as EVs exist even without being connected to any building (e.g. when they are being used to commute)
-        # As such, this function simulates the EV to the next time step.
+        # EVs can exist without being connected to a building charger at every step
+        # (e.g., commuting windows), so they must always advance their internal state.
         for electric_vehicle in self.electric_vehicles:
             electric_vehicle.next_time_step()
 
         super().next_time_step()
 
-        # Apply battery SOC simulation for EVs that are NOT connected
+        # Update SOC drift for EVs that are currently not connected.
         self.simulate_unconnected_ev_soc()
 
-        #This function is here so that, when the new time step is reached, the first thing to do is plug in/out the EVs according to their individual dataset
-        #It basicly associates an EV to a Building.Charger
+        # Reconcile charger connections for the new time step from dataset states.
         self.associate_chargers_to_electric_vehicles()
 
         return partial_render_time
