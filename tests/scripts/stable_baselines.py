@@ -31,6 +31,6 @@ observations = env.reset()
 
 while not env.done:
     actions, _ = model.predict(observations, deterministic=True)
-    observations, reward, _, _ = env.step(actions)
+    observations, reward, _, _, _ = env.step(actions)
 
 print(env.evaluate_citylearn_challenge())

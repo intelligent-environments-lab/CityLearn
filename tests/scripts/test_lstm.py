@@ -20,7 +20,7 @@ observations, _ = env.reset()
 
 while not env.terminated:
     actions = model.predict(observations)
-    observations, reward, info, terminated, truncated = env.step(actions)
+    observations, reward, terminated, truncated, info = env.step(actions)
 
 # test
 kpis = model.env.evaluate()

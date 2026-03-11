@@ -34,6 +34,7 @@ def main(step=96):
         render_directory=render_root,
         render_session_name="rbc_export_end_example5",
         random_seed=0,
+        debug_timing=True,
     )
     env_creation_end = time.time();
     try:
@@ -52,9 +53,9 @@ def main(step=96):
 
         while not env.terminated:
             actions = controller.predict(observations, deterministic=True)
-            observations, _, terminated, truncated, _, partial_retrieval_time, partial_render_time = env.step(actions)
-            total_retrieval_time += partial_retrieval_time;
-            total_render_time += partial_render_time;
+            observations, _, terminated, truncated, info = env.step(actions)
+            total_retrieval_time += float(info.get('building_observations_retrieval_time', 0.0))
+            total_render_time += float(info.get('partial_render_time', 0.0))
             total_retrievals += 1;
             if terminated or truncated:
                 break
@@ -68,7 +69,7 @@ def main(step=96):
 
     env_creation = env_creation_end - env_creation_start
     agent_creation = agent_creation_end - agent_creation_start
-    env_reset = env_reset_end - env_creation_start
+    env_reset = env_reset_end - env_reset_start
     total_time = end - start
     
     return env_creation, agent_creation, env_reset, total_render_time, total_retrieval_time, total_time

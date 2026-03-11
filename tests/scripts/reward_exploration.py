@@ -104,7 +104,7 @@ def simulate(simulation_id, schema, solar_penalty_coefficient, comfort_coefficie
 
     while not env.done:
         actions, _ = model.predict(observations, deterministic=True)
-        observations, _, _, _ = env.step(actions)
+        observations, _, _, _, _ = env.step(actions)
 
     save_data(env, simulation_id, simulation_output_path, start_timestamp, episodes, 'test')
 

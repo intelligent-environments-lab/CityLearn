@@ -15,6 +15,26 @@ Install latest release in PyPi with `pip`:
 pip install CityLearn
 ```
 
+## Developer Commands
+Use the repository virtual environment when available:
+
+```console
+.venv/bin/pytest -q
+```
+
+Manual utility scripts live in `tests/scripts` and are excluded from default pytest collection:
+
+```console
+python tests/scripts/run_ev_rbc.py
+python tests/scripts/run_ev_rbc_export_end.py
+```
+
+Runtime benchmark (main training resolutions 5s/60s):
+
+```console
+python tests/scripts/benchmark_runtime.py --seconds 5 60 --render-modes none end --episode-steps 1200
+```
+
 ## Documentation
 Refer to the [docs](https://intelligent-environments-lab.github.io/CityLearn/).
 
