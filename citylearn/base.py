@@ -102,12 +102,22 @@ class EpisodeTracker:
 
         splits = None
 
-        if isinstance(episode_time_steps, List):
+        if isinstance(episode_time_steps, list):
             splits = episode_time_steps
 
         else:
+            if episode_time_steps <= 0:
+                raise ValueError(f'episode_time_steps must be >= 1, got {episode_time_steps}.')
+
             earliest_start_time_step = self.__simulation_start_time_step 
             latest_start_time_step = (self.__simulation_end_time_step + 1) - episode_time_steps
+
+            if latest_start_time_step < earliest_start_time_step:
+                raise ValueError(
+                    f'episode_time_steps ({episode_time_steps}) exceeds available simulation window '
+                    f'({self.simulation_time_steps}). Reduce episode_time_steps or adjust '
+                    'simulation_start_time_step/simulation_end_time_step.'
+                )
             
             if rolling_episode_split:
                 start_time_steps = range(earliest_start_time_step, latest_start_time_step + 1)
@@ -118,10 +128,13 @@ class EpisodeTracker:
             splits = np.array([start_time_steps, end_time_steps], dtype=int).T
             splits = splits.tolist()
 
+        if len(splits) == 0:
+            raise ValueError('No valid episode splits could be created from the provided episode_time_steps.')
+
         if random_episode_split:
             seed = int(random_seed*(self.episode + 1))
             nprs = np.random.RandomState(seed)
-            ix = nprs.choice(len(splits) - 1)
+            ix = 0 if len(splits) == 1 else int(nprs.choice(len(splits)))
 
         else:
             ix = self.episode%len(splits)
