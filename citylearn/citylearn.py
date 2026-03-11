@@ -1013,100 +1013,9 @@ class CityLearnEnv(Environment, Env):
         ]
 
     def step(self, actions: List[List[float]]) -> Tuple[List[List[float]], List[float], bool, bool, dict]:
-        """Apply actions at current timestep, update variables/reward, then advance time.
-        
-        Parameters
-        ----------
-        actions: List[List[float]]
-            Fractions of `buildings` storage devices' capacities to charge/discharge by. 
-            If `central_agent` is True, `actions` parameter should be a list of 1 list containing all buildings' actions and follows
-            the ordering of buildings in `buildings`. If `central_agent` is False, `actions` parameter should be a list of sublists
-            where each sublists contains the actions for each building in `buildings`  and follows the ordering of buildings in `buildings`.
+        """Apply actions and advance the environment by one transition."""
 
-        Returns
-        -------
-        observations: List[List[float]]
-            :attr:`observations` current value.
-        reward: List[float] 
-            :meth:`get_reward` current value.
-        terminated: bool 
-            A boolean value for if the episode has ended, in which case further :meth:`step` calls will return undefined results.
-            A done signal may be emitted for different reasons: Maybe the task underlying the environment was solved successfully,
-            a certain timelimit was exceeded, or the physics simulation has entered an invalid observation.
-        truncated: bool
-            A boolean value for if episode truncates due to a time limit or a reason that is not defined as part of the task MDP.
-            Will always return False in this base class.
-        info: dict
-            A dictionary that may contain additional information regarding the reason for a `terminated` signal.
-            `info` contains auxiliary diagnostic information (helpful for debugging, learning, and logging).
-            Override :meth"`get_info` to get custom key-value pairs in `info`.
-
-        Notes
-        -----
-        Reward is calculated from the current transition at timestep `t` after applying actions.
-        Returned observations correspond to the next decision point and expose lagged endogenous quantities.
-        """
-        if self.terminated or self.truncated:
-            raise RuntimeError('Episode has already terminated/truncated. Call reset() before calling step() again.')
-
-        self._observations_cache = None
-        self._observations_cache_time_step = -1
-        actions = self._parse_actions(actions)
-
-        # Apply actions at current timestep t
-        for building, building_actions in zip(self.buildings, actions):
-            building.apply_actions(**building_actions)
-
-        # Update environment/building variables for timestep t (reflect effects of actions)
-        self.update_variables()
-
-        if self.debug_timing:
-            import time
-            building_observations_retrieval_start = time.perf_counter()
-
-        reward_observations = [
-            b.observations(include_all=True, normalize=False, periodic_normalization=False) for b in self.buildings
-        ]
-        if self.debug_timing:
-            building_observations_retrieval_end = time.perf_counter()
-        
-        reward = self.reward_function.calculate(observations=reward_observations)
-        self.__rewards.append(reward)
-
-        # Advance to next timestep t+1
-        partial_render_time = self.next_time_step()
-        end_export_time = 0.0
-        self._maybe_log_periodic_metrics()
-
-        # store episode reward summary at the end of episode (upon reaching final timestep)
-        if self.terminated:
-            rewards = np.array(self.__rewards[1:], dtype='float32')
-            self.__episode_rewards.append({
-                'min': rewards.min(axis=0).tolist(),
-                'max': rewards.max(axis=0).tolist(),
-                'sum': rewards.sum(axis=0).tolist(),
-                'mean': rewards.mean(axis=0).tolist()
-            })
-            if self.render_mode == 'end' and self.render_enabled:
-                final_index = min(self.time_steps - 1, self.time_step - 1) if self.time_step > 0 else 0
-                if self.debug_timing:
-                    import time
-                    export_start = time.perf_counter()
-                self._export_episode_render_data(final_index)
-                if self.debug_timing:
-                    end_export_time = time.perf_counter() - export_start
-
-            if self.render_enabled and not self._final_kpis_exported:
-                self.export_final_kpis()
-        
-        next_observations = self.observations
-        info = dict(self.get_info())
-        if self.debug_timing:
-            info['building_observations_retrieval_time'] = building_observations_retrieval_end - building_observations_retrieval_start
-            info['partial_render_time'] = partial_render_time
-            info['end_export_time'] = end_export_time
-
-        return next_observations, reward, self.terminated, self.truncated, info
+        return self._runtime_service.step(actions)
 
     def get_info(self) -> Mapping[Any, Any]:
         """Other information to return from the `citylearn.CityLearnEnv.step` function."""
@@ -1143,71 +1052,9 @@ class CityLearnEnv(Environment, Env):
         )
 
     def _parse_actions(self, actions: List[List[float]]) -> List[Mapping[str, float]]:
-        """Return mapping of action name to action value for each building."""
+        """Compatibility wrapper for runtime action parsing service."""
 
-        actions = list(actions)
-        building_actions = []
-
-        if self.central_agent:
-            actions = actions[0]
-            number_of_actions = len(actions)
-            expected_number_of_actions = self._expected_central_action_count
-            assert number_of_actions == expected_number_of_actions, \
-                f'Expected {expected_number_of_actions} actions but {number_of_actions} were parsed to env.step.'
-
-            for building in self.buildings:
-                size = building.action_space.shape[0]
-                building_actions.append(actions[0:size])
-                actions = actions[size:]
-
-        else:
-            building_actions = [list(a) for a in actions]
-            number_of_building_actions = len(building_actions)
-            expected_building_actions = len(self.buildings)
-            assert number_of_building_actions == expected_building_actions, \
-                f'Expected {expected_building_actions} building action vectors but {number_of_building_actions} were provided.'
-
-        # check that appropriate number of building actions have been provided
-        for b, a in zip(self.buildings, building_actions):
-            number_of_actions = len(a)
-            expected_number_of_actions = b.action_space.shape[0]
-            assert number_of_actions == expected_number_of_actions,\
-                f'Expected {expected_number_of_actions} for {b.name} but {number_of_actions} actions were provided.'
-
-        active_actions = self._active_actions_cache
-
-        # Create a list of dictionaries for actions including EV-specific actions
-        parsed_actions = []
-        
-        for i, building in enumerate(self.buildings):
-            action_dict = {}
-            electric_vehicle_actions = {}
-            washing_machine_actions = {}
-
-            # Populate the action_dict with regular actions
-            for k, action in zip(active_actions[i], building_actions[i]):
-                if 'electric_vehicle_storage' in k:
-                    # Collect EV actions separately
-                    charger_id = k.replace("electric_vehicle_storage_", "")
-                    electric_vehicle_actions[charger_id] = action
-                elif 'washing_machine' in k:
-                    # Collect Washing Machine actions separately
-                    washing_machine_actions[k] = action
-                else:
-                    action_dict[f'{k}_action'] = action
-
-            # Add EV actions to the action_dict if they exist
-            if electric_vehicle_actions:
-                action_dict['electric_vehicle_storage_actions'] = electric_vehicle_actions
-
-            if washing_machine_actions:
-                action_dict['washing_machine_actions'] = washing_machine_actions    
-
-            parsed_actions.append(action_dict)
-
-
-        return parsed_actions
-
+        return self._runtime_service.parse_actions(actions)
 
     def evaluate(self, control_condition: EvaluationCondition = None, baseline_condition: EvaluationCondition = None, comfort_band: float = None) -> pd.DataFrame:
         r"""Evaluate cost functions at current time step.
@@ -1400,171 +1247,18 @@ class CityLearnEnv(Environment, Env):
 
     def next_time_step(self):
         r"""Advance all buildings to next `time_step`."""
-        partial_render_time = 0.0
-        if getattr(self, 'render_enabled', False):
-            if self.render_mode == 'during':
-                if self.debug_timing:
-                    import time
-                    render_start = time.perf_counter()
-                    self.render()
-                    partial_render_time = time.perf_counter() - render_start
-                else:
-                    self.render()
-        for building in self.buildings:
-            building.next_time_step()
 
-        # EVs can exist without being connected to a building charger at every step
-        # (e.g., commuting windows), so they must always advance their internal state.
-        for electric_vehicle in self.electric_vehicles:
-            electric_vehicle.next_time_step()
-
-        super().next_time_step()
-
-        # Update SOC drift for EVs that are currently not connected.
-        self.simulate_unconnected_ev_soc()
-
-        # Reconcile charger connections for the new time step from dataset states.
-        self.associate_chargers_to_electric_vehicles()
-
-        return partial_render_time
+        return self._runtime_service.next_time_step()
 
     def associate_chargers_to_electric_vehicles(self):
         r"""Associate charger to its corresponding electric_vehicle based on charger simulation state."""
 
-        def _resolve_arrival_soc(simulation: ChargerSimulation, step: int, prev_state: float, prev_id: Union[str, None], ev_identifier: str) -> Union[float, None]:
-            """Return expected SOC (as fraction) for an EV connecting at `step`, or ``None`` when unavailable."""
-
-            # Optional dataset column: use only at the exact connection timestep when present.
-            current_soc = getattr(simulation, 'electric_vehicle_current_soc', None)
-            if current_soc is not None and 0 <= step < len(current_soc):
-                current_value = current_soc[step]
-                if isinstance(current_value, (float, np.floating)) and not np.isnan(current_value) and 0.0 <= current_value <= 1.0:
-                    return float(current_value)
-
-            candidate_index = None
-
-            if prev_state in (2, 3) and step > 0:
-                if isinstance(prev_id, str) and prev_id.strip() not in {"", "nan"} and prev_id != ev_identifier:
-                    raise ValueError(
-                        f"Charger dataset EV mismatch: expected '{ev_identifier}' but found '{prev_id}' at time step {step - 1}."
-                    )
-                candidate_index = step - 1
-
-            elif 0 <= step < len(simulation.electric_vehicle_estimated_soc_arrival):
-                candidate_index = step
-
-            soc_value = None
-
-            if candidate_index is not None and 0 <= candidate_index < len(simulation.electric_vehicle_estimated_soc_arrival):
-                candidate = simulation.electric_vehicle_estimated_soc_arrival[candidate_index]
-                if isinstance(candidate, (float, np.floating)) and not np.isnan(candidate) and 0.0 <= candidate <= 1.0:
-                    soc_value = float(candidate)
-
-            if soc_value is None and 0 <= step < len(simulation.electric_vehicle_required_soc_departure):
-                fallback = simulation.electric_vehicle_required_soc_departure[step]
-                if isinstance(fallback, (float, np.floating)) and not np.isnan(fallback) and 0.0 <= fallback <= 1.0:
-                    soc_value = float(fallback)
-
-            return soc_value
-
-        for building in self.buildings:
-            if building.electric_vehicle_chargers is None:
-                continue
-
-            for charger in building.electric_vehicle_chargers:
-                sim = charger.charger_simulation
-                state = sim.electric_vehicle_charger_state[self.time_step]
-
-                if np.isnan(state) or state not in [1, 2]:
-                    continue  # Skip if no EV is connected or incoming
-
-                ev_id = sim.electric_vehicle_id[self.time_step]
-                prev_state = np.nan
-                prev_ev_id = None
-                if self.time_step > 0:
-                    idx = self.time_step - 1
-                    if idx < len(sim.electric_vehicle_charger_state):
-                        prev_state = sim.electric_vehicle_charger_state[idx]
-                    if idx < len(sim.electric_vehicle_id):
-                        prev_ev_id = sim.electric_vehicle_id[idx]
-
-                if isinstance(ev_id, str) and ev_id.strip() not in ["", "nan"]:
-                    for ev in self.electric_vehicles:
-                        if ev.name == ev_id:
-                            if state == 1:
-                                charger.plug_car(ev)
-                                is_new_connection = (
-                                    prev_state != 1
-                                    or not isinstance(prev_ev_id, str)
-                                    or prev_ev_id != ev_id
-                                )
-                                if is_new_connection:
-                                    soc_value = _resolve_arrival_soc(sim, self.time_step, prev_state, prev_ev_id, ev_id)
-                                    if soc_value is not None:
-                                        ev.battery.force_set_soc(soc_value)
-                            elif state == 2:
-                                charger.associate_incoming_car(ev)
+        return self._runtime_service.associate_chargers_to_electric_vehicles()
 
     def simulate_unconnected_ev_soc(self):
         """Simulate SOC changes for EVs that are not under charger control at t+1."""
-        t = self.time_step
-        if t + 1 >= self.episode_tracker.episode_time_steps:
-            return
 
-        for ev in self.electric_vehicles:
-            ev_id = ev.name
-            found_in_charger = False
-
-            for building in self.buildings:
-                for charger in building.electric_vehicle_chargers or []:
-                    sim : ChargerSimulation = charger.charger_simulation
-
-                    curr_id = sim.electric_vehicle_id[t] if t < len(sim.electric_vehicle_id) else ""
-                    next_id = sim.electric_vehicle_id[t + 1] if t + 1 < len(sim.electric_vehicle_id) else ""
-                    curr_state = sim.electric_vehicle_charger_state[t] if t < len(sim.electric_vehicle_charger_state) else np.nan
-                    next_state = sim.electric_vehicle_charger_state[t + 1] if t + 1 < len(sim.electric_vehicle_charger_state) else np.nan
-
-                    currently_connected = isinstance(curr_id, str) and curr_id == ev_id and curr_state == 1
-                    if currently_connected:
-                        found_in_charger = True
-                        break
-
-                    is_connecting = (
-                        isinstance(next_id, str)
-                        and next_id == ev_id
-                        and next_state == 1
-                        and curr_state != 1
-                    )
-                    is_incoming = isinstance(curr_id, str) and curr_id == ev_id and curr_state == 2
-
-                    if is_connecting:
-                        found_in_charger = True
-                        # Priority 1: current soc_arrival if incoming at t
-                        if is_incoming:
-                            if t < len(sim.electric_vehicle_estimated_soc_arrival):
-                                soc = sim.electric_vehicle_estimated_soc_arrival[t]
-                            else:
-                                soc = np.nan
-                        else:
-                            if t + 1 < len(sim.electric_vehicle_estimated_soc_arrival):
-                                soc = sim.electric_vehicle_estimated_soc_arrival[t + 1]
-                            else:
-                                soc = np.nan
-
-                        if 0 <= soc <= 1:
-                            ev.battery.force_set_soc(soc)
-                        break
-
-                if found_in_charger:
-                    break
-
-            if not found_in_charger:
-                # Not being connected or incoming in a valid charger — apply SOC drift
-                if t > 0:
-                    last_soc = ev.battery.soc[t - 1]
-                    variability = np.clip(np.random.normal(1.0, 0.2), 0.6, 1.4)
-                    new_soc = np.clip(last_soc * variability, 0.0, 1.0)
-                    ev.battery.force_set_soc(new_soc)
+        return self._runtime_service.simulate_unconnected_ev_soc()
 
     def export_final_kpis(self, model: 'Agent' = None, filepath: str = "exported_kpis.csv"):
         """Export episode KPIs to csv."""
@@ -1682,38 +1376,9 @@ class CityLearnEnv(Environment, Env):
         return self.observations, self.get_info()
 
     def update_variables(self):
-        for b in self.buildings:
-            b.update_variables()
+        """Update district-level aggregate variables."""
 
-        # Helper to set or append district-level aggregates for current timestep
-        # District-level series track realized values and may temporarily lag `time_step` by one
-        # right after stepping because `time_step` is advanced after this update call.
-        def _set_or_append(lst, value):
-            # If list length matches current index => append
-            if len(lst) == self.time_step:
-                lst.append(value)
-            # If already has an entry for current timestep => overwrite
-            elif len(lst) == self.time_step + 1:
-                lst[self.time_step] = value
-            else:
-                # Out-of-sync: resize to current index and append
-                del lst[self.time_step + 1:]
-                if len(lst) < self.time_step:
-                    # pad if needed
-                    lst.extend([0.0] * (self.time_step - len(lst)))
-                lst.append(value)
-
-        # net electricity consumption
-        total = sum(b.net_electricity_consumption[self.time_step] for b in self.buildings)
-        _set_or_append(self.__net_electricity_consumption, total)
-
-        # net electricity consumption cost
-        total_cost = sum(b.net_electricity_consumption_cost[self.time_step] for b in self.buildings)
-        _set_or_append(self.__net_electricity_consumption_cost, total_cost)
-
-        # net electricity consumption emission
-        total_emission = sum(b.net_electricity_consumption_emission[self.time_step] for b in self.buildings)
-        _set_or_append(self.__net_electricity_consumption_emission, total_emission)
+        return self._runtime_service.update_variables()
 
     def load_agent(self, agent: Union[str, 'Agent'] = None, **kwargs) -> Union[Any, 'Agent']:
         """Return :class:`Agent` or sub class object as defined by the `schema`.
