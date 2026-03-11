@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """Lightweight performance smoke test for CI.
 
-This is meant to catch major performance regressions in the rollout loop.
+This catches major rollout-loop regressions and optionally compares against a
+versioned baseline checked into the repository.
 """
 
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import sys
 import tempfile
 import time
 from pathlib import Path
+from typing import Any, Dict
 
 import numpy as np
 
@@ -22,9 +25,10 @@ if str(ROOT) not in sys.path:
 from citylearn.citylearn import CityLearnEnv  # noqa: E402
 
 SCHEMA = ROOT / "data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json"
+DEFAULT_BASELINE_FILE = ROOT / "scripts/ci/perf_baseline.json"
 
 
-def run_case(render_mode: str, episode_steps: int, seconds_per_time_step: int, seed: int) -> dict:
+def run_case(render_mode: str, episode_steps: int, seconds_per_time_step: int, seed: int) -> Dict[str, Any]:
     render_dir = Path(tempfile.mkdtemp(prefix=f"citylearn_perf_{render_mode}_"))
 
     kwargs = {
@@ -90,11 +94,137 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--episode-steps", type=int, default=600)
     parser.add_argument("--seconds", type=int, default=60)
     parser.add_argument("--seed", type=int, default=0)
+
     parser.add_argument("--none-max-ms", type=float, default=30.0)
     parser.add_argument("--end-max-ms", type=float, default=45.0)
     parser.add_argument("--ratio-max", type=float, default=2.0)
 
+    parser.add_argument(
+        "--baseline-file",
+        type=Path,
+        default=DEFAULT_BASELINE_FILE,
+        help="Path to versioned baseline JSON.",
+    )
+    parser.add_argument(
+        "--baseline-regression-ratio",
+        type=float,
+        default=2.5,
+        help="Allowed multiplier over baseline metrics before failing.",
+    )
+    parser.add_argument(
+        "--baseline-slack-ms",
+        type=float,
+        default=5.0,
+        help="Absolute millisecond slack added on top of baseline*ratio.",
+    )
+    parser.add_argument(
+        "--write-baseline",
+        action="store_true",
+        help="Write a new baseline file with current measurements and exit successfully.",
+    )
+    parser.add_argument(
+        "--metrics-output",
+        type=Path,
+        default=None,
+        help="Optional output path for JSON report artifact.",
+    )
+
     return parser.parse_args()
+
+
+def _build_report(args: argparse.Namespace, none_case: Dict[str, Any], end_case: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        schema_path = str(SCHEMA.relative_to(ROOT))
+    except ValueError:
+        schema_path = str(SCHEMA)
+
+    return {
+        "metadata": {
+            "generated_utc": dt.datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+            "schema": schema_path,
+            "episode_steps": args.episode_steps,
+            "seconds_per_time_step": args.seconds,
+            "seed": args.seed,
+        },
+        "cases": {
+            "none": none_case,
+            "end": end_case,
+        },
+        "thresholds": {
+            "none_max_ms": args.none_max_ms,
+            "end_max_ms": args.end_max_ms,
+            "ratio_max": args.ratio_max,
+            "baseline_regression_ratio": args.baseline_regression_ratio,
+            "baseline_slack_ms": args.baseline_slack_ms,
+        },
+    }
+
+
+def _compare_to_baseline(report: Dict[str, Any], baseline: Dict[str, Any], regression_ratio: float, slack_ms: float) -> list[str]:
+    errors: list[str] = []
+    baseline_cases = baseline.get("cases", {})
+    current_cases = report.get("cases", {})
+
+    for case_name in ("none", "end"):
+        if case_name not in baseline_cases or case_name not in current_cases:
+            continue
+
+        base = baseline_cases[case_name]
+        cur = current_cases[case_name]
+
+        for metric in ("avg_step_ms", "p95_step_ms"):
+            base_value = float(base.get(metric, 0.0))
+            cur_value = float(cur.get(metric, 0.0))
+            allowed = (base_value * regression_ratio) + slack_ms
+
+            if cur_value > allowed:
+                errors.append(
+                    f"{case_name} {metric} regression: {cur_value:.4f} > {allowed:.4f} "
+                    f"(baseline={base_value:.4f}, ratio={regression_ratio}, slack_ms={slack_ms})"
+                )
+
+        if case_name == "end":
+            base_export = float(base.get("end_export_s", 0.0))
+            cur_export = float(cur.get("end_export_s", 0.0))
+            allowed_export = (base_export * regression_ratio) + max(0.5, slack_ms / 10.0)
+            if cur_export > allowed_export:
+                errors.append(
+                    f"end end_export_s regression: {cur_export:.4f} > {allowed_export:.4f} "
+                    f"(baseline={base_export:.4f})"
+                )
+
+    return errors
+
+
+def _validate_absolute_thresholds(report: Dict[str, Any], none_max_ms: float, end_max_ms: float, ratio_max: float) -> list[str]:
+    errors: list[str] = []
+    none_case = report["cases"]["none"]
+    end_case = report["cases"]["end"]
+
+    if none_case["executed_steps"] <= 0 or end_case["executed_steps"] <= 0:
+        errors.append("No steps executed in one or more perf-smoke runs.")
+
+    if none_case["avg_step_ms"] > none_max_ms:
+        errors.append(
+            f"none avg_step_ms too high: {none_case['avg_step_ms']} > {none_max_ms}"
+        )
+
+    if end_case["avg_step_ms"] > end_max_ms:
+        errors.append(
+            f"end avg_step_ms too high: {end_case['avg_step_ms']} > {end_max_ms}"
+        )
+
+    if none_case["avg_step_ms"] > 0:
+        ratio = end_case["avg_step_ms"] / none_case["avg_step_ms"]
+        if ratio > ratio_max:
+            errors.append(f"end/none ratio too high: {ratio:.3f} > {ratio_max}")
+
+    return errors
+
+
+def _write_json(path: Path, data: Dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
 
 def main() -> int:
@@ -102,37 +232,44 @@ def main() -> int:
 
     none_case = run_case("none", args.episode_steps, args.seconds, args.seed)
     end_case = run_case("end", args.episode_steps, args.seconds, args.seed)
+    report = _build_report(args, none_case, end_case)
 
-    report = {
-        "none": none_case,
-        "end": end_case,
-        "thresholds": {
-            "none_max_ms": args.none_max_ms,
-            "end_max_ms": args.end_max_ms,
-            "ratio_max": args.ratio_max,
-        },
+    if args.write_baseline:
+        _write_json(args.baseline_file, report)
+        print(f"Wrote baseline to {args.baseline_file}")
+        if args.metrics_output is not None:
+            _write_json(args.metrics_output, report)
+        return 0
+
+    errors = _validate_absolute_thresholds(
+        report,
+        none_max_ms=args.none_max_ms,
+        end_max_ms=args.end_max_ms,
+        ratio_max=args.ratio_max,
+    )
+
+    baseline_loaded = False
+    if args.baseline_file.is_file():
+        baseline_loaded = True
+        baseline_data = json.loads(args.baseline_file.read_text(encoding="utf-8"))
+        errors.extend(
+            _compare_to_baseline(
+                report,
+                baseline_data,
+                regression_ratio=args.baseline_regression_ratio,
+                slack_ms=args.baseline_slack_ms,
+            )
+        )
+
+    report["baseline"] = {
+        "path": str(args.baseline_file),
+        "loaded": baseline_loaded,
     }
+
     print(json.dumps(report, indent=2))
 
-    errors = []
-
-    if none_case["executed_steps"] <= 0 or end_case["executed_steps"] <= 0:
-        errors.append("No steps executed in one or more perf-smoke runs.")
-
-    if none_case["avg_step_ms"] > args.none_max_ms:
-        errors.append(
-            f"none avg_step_ms too high: {none_case['avg_step_ms']} > {args.none_max_ms}"
-        )
-
-    if end_case["avg_step_ms"] > args.end_max_ms:
-        errors.append(
-            f"end avg_step_ms too high: {end_case['avg_step_ms']} > {args.end_max_ms}"
-        )
-
-    if none_case["avg_step_ms"] > 0:
-        ratio = end_case["avg_step_ms"] / none_case["avg_step_ms"]
-        if ratio > args.ratio_max:
-            errors.append(f"end/none ratio too high: {ratio:.3f} > {args.ratio_max}")
+    if args.metrics_output is not None:
+        _write_json(args.metrics_output, report)
 
     if errors:
         for error in errors:

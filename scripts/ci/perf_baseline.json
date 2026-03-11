@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "generated_utc": "2026-03-11T21:05:17Z",
+    "schema": "data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json",
+    "episode_steps": 600,
+    "seconds_per_time_step": 60,
+    "seed": 0
+  },
+  "cases": {
+    "none": {
+      "render_mode": "none",
+      "configured_steps": 600,
+      "executed_steps": 599,
+      "seconds_per_time_step": 60,
+      "init_s": 3.5692,
+      "reset_s": 0.0051,
+      "rollout_s": 4.0878,
+      "avg_step_ms": 6.8224,
+      "p95_step_ms": 8.6171,
+      "end_export_s": 0.0
+    },
+    "end": {
+      "render_mode": "end",
+      "configured_steps": 600,
+      "executed_steps": 599,
+      "seconds_per_time_step": 60,
+      "init_s": 3.3978,
+      "reset_s": 0.0049,
+      "rollout_s": 4.5983,
+      "avg_step_ms": 7.6747,
+      "p95_step_ms": 7.7274,
+      "end_export_s": 0.3084
+    }
+  },
+  "thresholds": {
+    "none_max_ms": 30.0,
+    "end_max_ms": 45.0,
+    "ratio_max": 2.0,
+    "baseline_regression_ratio": 3.0,
+    "baseline_slack_ms": 10.0
+  }
+}

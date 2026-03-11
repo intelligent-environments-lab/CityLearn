@@ -25,7 +25,7 @@ Use the repository virtual environment when available:
 Critical lint checks used in CI:
 
 ```console
-.venv/bin/python -m ruff check citylearn tests scripts/manual --select E9,F821
+.venv/bin/python -m ruff check citylearn tests scripts/manual scripts/ci --select E9,F821
 ```
 
 Manual utility scripts live in `scripts/manual` and are excluded from default pytest collection:
@@ -44,7 +44,46 @@ python scripts/manual/bench_runtime.py --seconds 5 60 --render-modes none end --
 CI performance smoke check command:
 
 ```console
-python scripts/ci/perf_smoke.py --episode-steps 600 --seconds 60
+python scripts/ci/perf_smoke.py --episode-steps 600 --seconds 60 --baseline-file scripts/ci/perf_baseline.json
+```
+
+## Export and Render Modes
+`CityLearnEnv` keeps export off by default:
+
+- `render_mode='none'`: no CSV export and minimal runtime overhead.
+- `render_mode='during'`: writes CSV rows at each environment step.
+- `render_mode='end'`: keeps the rollout fast and writes full episode CSVs when the episode ends.
+
+Optional location controls:
+
+- `render_directory`: base folder for exports.
+- `render_session_name`: session subfolder name under `render_directory` (or `render_directory_name`).
+- `render_directory_name`: legacy fallback folder under project root when `render_directory` is not set.
+- `render`: legacy boolean flag; still supported for compatibility.
+
+Examples:
+
+```python
+from citylearn.citylearn import CityLearnEnv
+
+# Fast training/no export
+env = CityLearnEnv(schema, render_mode='none')
+
+# Stream CSVs every step
+env = CityLearnEnv(
+    schema,
+    render_mode='during',
+    render_directory='outputs',
+    render_session_name='run_during'
+)
+
+# Export once at episode end
+env = CityLearnEnv(
+    schema,
+    render_mode='end',
+    render_directory='outputs',
+    render_session_name='run_end'
+)
 ```
 
 ## Documentation

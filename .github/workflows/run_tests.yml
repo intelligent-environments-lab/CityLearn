@@ -29,7 +29,7 @@ jobs:
 
       - name: Lint (critical rules)
         run: |
-          python -m ruff check citylearn tests scripts/manual --select E9,F821
+          python -m ruff check citylearn tests scripts/manual scripts/ci --select E9,F821
 
   test:
     needs: lint
@@ -69,4 +69,22 @@ jobs:
       - name: Performance smoke check
         if: matrix.python-version == '3.10'
         run: |
-          python scripts/ci/perf_smoke.py --episode-steps 600 --seconds 60 --none-max-ms 30 --end-max-ms 45 --ratio-max 2.0
+          mkdir -p ${{ runner.temp }}/perf
+          python scripts/ci/perf_smoke.py \
+            --episode-steps 600 \
+            --seconds 60 \
+            --none-max-ms 30 \
+            --end-max-ms 45 \
+            --ratio-max 2.0 \
+            --baseline-file scripts/ci/perf_baseline.json \
+            --baseline-regression-ratio 3.0 \
+            --baseline-slack-ms 10.0 \
+            --metrics-output ${{ runner.temp }}/perf/perf_smoke_report.json
+
+      - name: Upload performance smoke report
+        if: always() && matrix.python-version == '3.10'
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-smoke-report
+          path: ${{ runner.temp }}/perf/perf_smoke_report.json
+          if-no-files-found: ignore
