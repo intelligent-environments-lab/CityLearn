@@ -85,6 +85,87 @@ def test_export_final_kpis_when_render_off(tmp_path):
         env.close()
 
 
+def test_none_mode_does_not_auto_export_kpis_by_default(tmp_path):
+    env = CityLearnEnv(
+        str(DATASET),
+        central_agent=True,
+        episode_time_steps=4,
+        render_mode="none",
+        render_directory=tmp_path,
+        random_seed=0,
+    )
+
+    try:
+        env.reset()
+        zeros = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+        while not env.terminated:
+            _, _, terminated, truncated, _ = env.step(zeros)
+            if terminated or truncated:
+                break
+
+        assert env.new_folder_path is None
+        assert not env._final_kpis_exported
+    finally:
+        _cleanup_env(env)
+        env.close()
+
+
+def test_none_mode_can_auto_export_kpis_when_enabled(tmp_path):
+    env = CityLearnEnv(
+        str(DATASET),
+        central_agent=True,
+        episode_time_steps=4,
+        render_mode="none",
+        render_directory=tmp_path,
+        export_kpis_on_episode_end=True,
+        random_seed=0,
+    )
+
+    try:
+        env.reset()
+        zeros = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+        while not env.terminated:
+            _, _, terminated, truncated, _ = env.step(zeros)
+            if terminated or truncated:
+                break
+
+        outputs_path = Path(env.new_folder_path)
+        assert outputs_path.is_dir()
+        assert (outputs_path / "exported_kpis.csv").is_file()
+        assert env._final_kpis_exported
+    finally:
+        _cleanup_env(env)
+        env.close()
+
+
+def test_during_mode_can_disable_auto_kpi_export(tmp_path):
+    env = CityLearnEnv(
+        str(DATASET),
+        central_agent=True,
+        episode_time_steps=4,
+        render_mode="during",
+        render_directory=tmp_path,
+        export_kpis_on_episode_end=False,
+        random_seed=0,
+    )
+
+    try:
+        env.reset()
+        zeros = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+        while not env.terminated:
+            _, _, terminated, truncated, _ = env.step(zeros)
+            if terminated or truncated:
+                break
+
+        outputs_path = Path(env.new_folder_path)
+        assert (outputs_path / "exported_data_community_ep0.csv").is_file()
+        assert not (outputs_path / "exported_kpis.csv").exists()
+        assert not env._final_kpis_exported
+    finally:
+        _cleanup_env(env)
+        env.close()
+
+
 def test_render_directory_override(tmp_path):
     custom_root = tmp_path / 'custom_results'
 
@@ -119,26 +200,10 @@ def test_default_start_date_used_for_render_timestamp():
         date_part, time_part = timestamp.split('T')
         year_str, month_str, day_str = date_part.split('-')
 
-        energy_sim = env.buildings[0].energy_simulation
-        first_hour = int(energy_sim.hour[0])
-        month_series = energy_sim.month
-
-        if first_hour >= 24:
-            expected_month = int(month_series[1]) if len(month_series) > 1 else ((int(month_series[0]) % 12) + 1)
-            expected_day = 1
-        else:
-            expected_month = int(month_series[0])
-            expected_day = env.render_start_date.day
-
         assert int(year_str) == env.render_start_date.year == 2024
-        assert int(day_str) == expected_day
-        assert int(month_str) == expected_month
-
-        expected_hour = first_hour % 24
-        minutes_data = getattr(energy_sim, 'minutes', None)
-        expected_minutes = int(minutes_data[0]) if minutes_data is not None and len(minutes_data) > 0 else 0
-
-        assert time_part == f"{expected_hour:02d}:{expected_minutes:02d}:00"
+        assert int(day_str) == env.render_start_date.day
+        assert int(month_str) == env.render_start_date.month
+        assert time_part == "00:00:00"
     finally:
         env.close()
 
@@ -155,19 +220,29 @@ def test_schema_start_date_overrides_default_timestamp_start():
         date_part, _ = timestamp.split('T')
         year_str, month_str, day_str = date_part.split('-')
 
-        energy_sim = env.buildings[0].energy_simulation
-        first_hour = int(energy_sim.hour[0])
-        month_series = energy_sim.month
+        assert (int(year_str), int(month_str), int(day_str)) == (2026, 5, 15)
+    finally:
+        env.close()
 
-        if first_hour >= 24:
-            expected_month = int(month_series[1]) if len(month_series) > 1 else ((int(month_series[0]) % 12) + 1)
-            expected_day = 1
-        else:
-            expected_month = int(month_series[0])
-            expected_day = 15
 
-        assert (int(year_str), int(day_str)) == (2026, expected_day)
-        assert int(month_str) == expected_month
+def test_render_timestamp_advances_with_seconds_per_time_step():
+    schema = _load_schema_dict()
+    schema.pop('start_date', None)
+
+    env = CityLearnEnv(
+        schema,
+        central_agent=True,
+        episode_time_steps=4,
+        seconds_per_time_step=60,
+    )
+
+    try:
+        env.reset()
+        t0 = env._get_iso_timestamp()
+        env.step([np.zeros(env.action_space[0].shape[0], dtype="float32")])
+        t1 = env._get_iso_timestamp()
+        assert t0.endswith("00:00:00")
+        assert t1.endswith("00:01:00")
     finally:
         env.close()
 

@@ -362,68 +362,15 @@ class EpisodeExporter:
 
         env = self.env
 
-        if env.time_step == 0:
+        if env.time_step == 0 or getattr(env, '_render_start_datetime', None) is None:
             self.reset_time_tracking()
 
-        energy_sim = env.buildings[0].energy_simulation
-        month_series = getattr(energy_sim, 'month', None)
-        hour_series = getattr(energy_sim, 'hour', None)
-        minutes_series = getattr(energy_sim, 'minutes', None)
+        start_datetime = env._render_start_datetime
+        timestamp_dt = start_datetime + datetime.timedelta(seconds=env.time_step * env.seconds_per_time_step)
+        env.year = timestamp_dt.year
+        env.current_day = timestamp_dt.day
 
-        def _get_series_value(series, index, default):
-            if series is None:
-                return default
-            if index >= len(series):
-                return default
-            try:
-                return int(series[index])
-            except (TypeError, ValueError):
-                return default
-
-        month = _get_series_value(month_series, env.time_step, env.render_start_date.month)
-        hour = _get_series_value(hour_series, env.time_step, 1)
-        minutes = _get_series_value(minutes_series, env.time_step, 0)
-
-        next_index = env.time_step + 1
-        next_month = _get_series_value(month_series, next_index, month)
-        next_hour = _get_series_value(hour_series, next_index, hour)
-        next_minutes = _get_series_value(minutes_series, next_index, minutes)
-
-        raw_hour = hour
-        timestamp_year = env.year
-        timestamp_month = month
-        timestamp_day = env.current_day
-        hour_for_timestamp = raw_hour % 24
-        next_hour_mod = next_hour % 24
-        next_minutes_clamped = max(0, min(59, next_minutes))
-        minute_for_timestamp = max(0, min(59, minutes))
-
-        if raw_hour >= 24:
-            if next_month != month:
-                timestamp_month = next_month
-
-                if next_month < month:
-                    timestamp_year = env.year + 1
-                timestamp_day = 1
-            else:
-                timestamp_day = env.current_day
-
-        timestamp = f"{timestamp_year:04d}-{int(timestamp_month):02d}-{timestamp_day:02d}T{hour_for_timestamp:02d}:{minute_for_timestamp:02d}:00"
-
-        next_year = timestamp_year
-        next_day = timestamp_day
-
-        if next_month != month:
-            if next_month < month:
-                next_year = timestamp_year + 1
-            next_day = 1
-        elif next_hour_mod <= hour_for_timestamp and next_minutes_clamped <= minute_for_timestamp:
-            next_day = timestamp_day + 1
-
-        env.year = next_year
-        env.current_day = next_day
-
-        return timestamp
+        return timestamp_dt.strftime("%Y-%m-%dT%H:%M:%S")
 
     def override_render_time_step(self, index: int):
         """Temporarily set time_step to `index` for the environment and descendants."""

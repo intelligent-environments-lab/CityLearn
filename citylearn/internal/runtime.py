@@ -68,7 +68,7 @@ class CityLearnRuntimeService:
                 if env.debug_timing:
                     end_export_time = time.perf_counter() - export_start
 
-            if env.render_enabled and not env._final_kpis_exported:
+            if env.export_kpis_on_episode_end and not env._final_kpis_exported:
                 env.export_final_kpis()
 
         next_observations = env.observations
@@ -321,6 +321,9 @@ class CityLearnRuntimeService:
         for building in env.buildings:
             building.update_variables()
 
+        if getattr(env, 'community_market_enabled', False):
+            self._apply_community_market_settlement()
+
         def _set_or_append(lst, value):
             if len(lst) == env.time_step:
                 lst.append(value)
@@ -340,3 +343,132 @@ class CityLearnRuntimeService:
 
         total_emission = sum(building.net_electricity_consumption_emission[env.time_step] for building in env.buildings)
         _set_or_append(env.net_electricity_consumption_emission, total_emission)
+
+    @staticmethod
+    def _to_scalar(value, default: float = 0.0) -> float:
+        try:
+            scalar = float(value)
+        except (TypeError, ValueError):
+            return float(default)
+
+        if np.isnan(scalar):
+            return float(default)
+
+        return scalar
+
+    def _resolve_step_value(self, value, time_step: int, default: float = 0.0) -> float:
+        if isinstance(value, (list, tuple, np.ndarray)):
+            if len(value) == 0:
+                return float(default)
+            index = min(max(time_step, 0), len(value) - 1)
+            return self._to_scalar(value[index], default)
+
+        return self._to_scalar(value, default)
+
+    @staticmethod
+    def _allocate_equal_share_import(imports: np.ndarray, traded_kwh: float) -> np.ndarray:
+        """Allocate local traded energy equally among importers with demand caps."""
+
+        allocations = np.zeros_like(imports, dtype='float64')
+        remaining = max(float(traded_kwh), 0.0)
+        eps = 1e-9
+
+        while remaining > eps:
+            needs = imports - allocations
+            active = needs > eps
+            active_count = int(np.count_nonzero(active))
+
+            if active_count == 0:
+                break
+
+            share = remaining / active_count
+            granted = np.minimum(share, needs[active])
+            granted_total = float(granted.sum())
+
+            if granted_total <= eps:
+                break
+
+            allocations[active] += granted
+            remaining -= granted_total
+
+        return allocations
+
+    def _apply_community_market_settlement(self):
+        """Apply optional intracommunity settlement and override building costs for current step."""
+
+        env = self.env
+        t = env.time_step
+        if len(env.buildings) == 0:
+            return
+
+        ratio = self._to_scalar(getattr(env, 'community_market_sell_ratio', 0.8), 0.8)
+        ratio = min(max(ratio, 0.0), 1.0)
+
+        net_values = np.array([self._to_scalar(building.net_electricity_consumption[t], 0.0) for building in env.buildings], dtype='float64')
+        imports = np.clip(net_values, 0.0, None)
+        exports = np.clip(-net_values, 0.0, None)
+
+        total_import = float(imports.sum())
+        total_export = float(exports.sum())
+        traded_kwh = min(total_import, total_export)
+
+        if total_import > 0.0 and traded_kwh > 0.0:
+            local_import = self._allocate_equal_share_import(imports, traded_kwh)
+        else:
+            local_import = np.zeros_like(imports, dtype='float64')
+
+        if total_export > 0.0:
+            local_export = exports * (traded_kwh / total_export)
+        else:
+            local_export = np.zeros_like(exports, dtype='float64')
+
+        grid_export_price_cfg = getattr(env, 'community_market_grid_export_price', 0.0)
+        market_settlement = []
+
+        for idx, building in enumerate(env.buildings):
+            grid_import_price = self._to_scalar(building.pricing.electricity_pricing[t], 0.0)
+            local_price = ratio * grid_import_price
+            grid_export_price = self._resolve_step_value(grid_export_price_cfg, t, 0.0)
+            counterfactual_legacy_cost = self._to_scalar(building.net_electricity_consumption_cost[t], 0.0)
+
+            grid_import_remaining = max(imports[idx] - local_import[idx], 0.0)
+            grid_export_remaining = max(exports[idx] - local_export[idx], 0.0)
+
+            cost = (
+                grid_import_remaining * grid_import_price
+                + local_import[idx] * local_price
+                - local_export[idx] * local_price
+                - grid_export_remaining * grid_export_price
+            )
+            savings = counterfactual_legacy_cost - cost
+
+            building.set_net_electricity_consumption_cost(cost, time_step=t)
+            market_settlement.append(
+                {
+                    'building': building.name,
+                    'local_import_kwh': float(local_import[idx]),
+                    'local_export_kwh': float(local_export[idx]),
+                    'grid_import_kwh': float(grid_import_remaining),
+                    'grid_export_kwh': float(grid_export_remaining),
+                    'local_price': float(local_price),
+                    'grid_import_price': float(grid_import_price),
+                    'grid_export_price': float(grid_export_price),
+                    'counterfactual_cost_eur': float(counterfactual_legacy_cost),
+                    'settled_cost_eur': float(cost),
+                    'market_savings_eur': float(savings),
+                }
+            )
+
+        env._last_community_market_settlement = market_settlement
+
+        history = getattr(env, '_community_market_settlement_history', None)
+        if history is not None:
+            if len(history) == t:
+                history.append(market_settlement)
+            elif len(history) == t + 1:
+                history[t] = market_settlement
+            else:
+                del history[t + 1:]
+                if len(history) < t:
+                    history.extend([[] for _ in range(t - len(history))])
+                history.append(market_settlement)

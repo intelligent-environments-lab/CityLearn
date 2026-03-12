@@ -1,9 +1,12 @@
 import logging
-from typing import Any, List, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 from gymnasium import spaces
 import numpy as np
 import pandas as pd
-import torch
+try:
+    import torch
+except ImportError:  # pragma: no cover - optional dependency for LSTM dynamics only
+    torch = None
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import CarbonIntensity, EnergySimulation, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
 from citylearn.dynamics import Dynamics, LSTMDynamics
@@ -94,6 +97,9 @@ class Building(Environment):
         electric_vehicle_chargers: List[Charger] = None, time_step_ratio: int = None, washing_machines: List[WashingMachine] = None, **kwargs: Any
     ):
         charging_constraints = kwargs.pop('charging_constraints', None)
+        electrical_service = kwargs.pop('electrical_service', None)
+        electrical_storage_phase_connection = kwargs.pop('electrical_storage_phase_connection', None)
+        self.equity_group = kwargs.pop('equity_group', None)
         self.name = name
         self.dhw_storage = dhw_storage
         self.cooling_storage = cooling_storage
@@ -135,7 +141,11 @@ class Building(Environment):
         self._ops_service = BuildingOpsService(self)
         self.observation_space = self.estimate_observation_space(include_all=False, normalize=False)
         self.action_space = self.estimate_action_space()
-        self._initialize_charging_constraints(charging_constraints)
+        self._initialize_charging_constraints(
+            charging_constraints,
+            electrical_service=electrical_service,
+            electrical_storage_phase_connection=electrical_storage_phase_connection,
+        )
 
     @property
     def energy_simulation(self) -> EnergySimulation:
@@ -240,6 +250,18 @@ class Building(Environment):
     @property
     def charging_building_limit_kw(self) -> float:
         return getattr(self, '_building_charger_limit_kw', None)
+
+    @property
+    def electrical_service_enabled(self) -> bool:
+        return bool(getattr(self, '_electrical_service_enabled', False))
+
+    @property
+    def electrical_service_mode(self) -> str:
+        return getattr(self, '_electrical_service_mode', 'single_phase')
+
+    @property
+    def electrical_storage_phase_connection(self) -> str:
+        return getattr(self, '_electrical_storage_phase_connection', 'L1')
     
     @property
     def washing_machines(self) -> List[WashingMachine]:
@@ -767,12 +789,92 @@ class Building(Environment):
         if hasattr(self, '_include_phase_encoding'):
             self._update_phase_encoding_observations()
 
-    def _initialize_charging_constraints(self, config: Mapping[str, Any]):
-        self._charging_constraints_config = config or {}
-        self._charging_constraints_enabled = bool(self._charging_constraints_config)
-        observations_config = self._charging_constraints_config.get('observations', {}) or {}
+    @staticmethod
+    def _parse_non_negative_limit(value: Any, path: str) -> Optional[float]:
+        if value is None:
+            return None
 
-        expose_flag = self._charging_constraints_config.get('expose_observations')
+        try:
+            parsed = float(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f'{path} must be a non-negative number or null.') from exc
+
+        if parsed < 0.0:
+            raise ValueError(f'{path} must be >= 0.0 when provided.')
+
+        return parsed
+
+    @staticmethod
+    def _normalize_phase_label(value: Any) -> Optional[str]:
+        if value is None:
+            return None
+
+        text = str(value).strip()
+        if text == '':
+            return None
+
+        lowered = text.lower()
+        mapping = {
+            'l1': 'L1',
+            'l2': 'L2',
+            'l3': 'L3',
+            'phase_1': 'L1',
+            'phase_2': 'L2',
+            'phase_3': 'L3',
+            'all_phases': 'all_phases',
+            'all-phases': 'all_phases',
+            'three_phase': 'all_phases',
+            'three-phase': 'all_phases',
+        }
+
+        return mapping.get(lowered, text)
+
+    def _resolve_phase_connection(self, phase_connection: Any, owner: str) -> str:
+        mode = getattr(self, '_electrical_service_mode', 'single_phase')
+        normalized = self._normalize_phase_label(phase_connection)
+
+        if normalized is None:
+            return 'L1' if mode == 'single_phase' else 'all_phases'
+
+        if mode == 'single_phase':
+            if normalized != 'L1':
+                raise ValueError(f'{owner} phase_connection={normalized} is invalid for single_phase service. Use L1.')
+            return normalized
+
+        if normalized not in {'L1', 'L2', 'L3', 'all_phases'}:
+            raise ValueError(f'{owner} phase_connection={normalized} is invalid. Use one of L1/L2/L3/all_phases.')
+
+        return normalized
+
+    def _initialize_charging_constraints(
+        self,
+        config: Mapping[str, Any],
+        electrical_service: Mapping[str, Any] = None,
+        electrical_storage_phase_connection: str = None,
+    ):
+        self._charging_constraints_config = config or {}
+        self._electrical_service_config = electrical_service or {}
+        self._electrical_service_enabled = bool(self._electrical_service_config)
+        self._electrical_service_mode = 'single_phase'
+        self._electrical_service_default_split = 'balanced'
+        self._electrical_service_limits = {
+            'total': {'import_kw': None, 'export_kw': None},
+            'per_phase': {},
+        }
+        self._electrical_storage_phase_connection = 'L1'
+
+        observations_config = {}
+        expose_flag = None
+
+        if self._electrical_service_enabled:
+            observations_config = self._electrical_service_config.get('observations', {}) or {}
+            expose_flag = self._electrical_service_config.get('expose_observations')
+        else:
+            observations_config = self._charging_constraints_config.get('observations', {}) or {}
+            expose_flag = self._charging_constraints_config.get('expose_observations')
+
+        self._charging_constraints_enabled = bool(self._charging_constraints_config) or self._electrical_service_enabled
+
         if 'headroom' in observations_config:
             self._expose_charging_constraints = bool(observations_config.get('headroom', False))
         elif expose_flag is not None:
@@ -780,6 +882,7 @@ class Building(Environment):
         else:
             self._expose_charging_constraints = True
 
+        self._expose_charging_export_headroom = bool(observations_config.get('headroom_export', self._electrical_service_enabled))
         self._expose_charging_violation = bool(observations_config.get('violation', True))
         self._include_phase_encoding = bool(observations_config.get('phase_encoding', False))
         self._building_charger_limit_kw = None
@@ -788,6 +891,9 @@ class Building(Environment):
         self._charging_constraints_state = None
         self._charging_constraint_penalty_kwh = 0.0
         self._charging_constraint_last_penalty_kwh = 0.0
+        self._charging_constraint_violation_history = np.zeros(1, dtype='float32')
+        self._charging_total_power_history_kw = np.zeros(1, dtype='float32')
+        self._charging_phase_power_history_kw: Mapping[str, np.ndarray] = {}
         self._phase_encoding_observations: Mapping[str, float] = {}
         self._phase_encoding_phase_names: List[str] = []
 
@@ -795,18 +901,97 @@ class Building(Environment):
             self._charging_constraints_state = None
             return
 
-        self._building_charger_limit_kw = self._charging_constraints_config.get('building_limit_kw')
-        phases = self._charging_constraints_config.get('phases', []) or []
+        if self._electrical_service_enabled:
+            mode = str(self._electrical_service_config.get('mode', 'single_phase')).strip().lower()
+            if mode not in {'single_phase', 'three_phase'}:
+                raise ValueError("electrical_service.mode must be one of {'single_phase', 'three_phase'}.")
+            self._electrical_service_mode = mode
 
-        for phase in phases:
-            name = phase.get('name')
-            if not name:
-                name = f"phase_{len(self._phase_limits) + 1}"
-            limit = phase.get('limit_kw')
-            chargers = phase.get('chargers', []) or []
-            self._phase_limits.append({'name': name, 'limit_kw': limit, 'chargers': chargers})
-            for charger_id in chargers:
-                self._charger_phase_map[charger_id] = name
+            split = str(self._electrical_service_config.get('default_split', 'balanced')).strip().lower()
+            if split not in {'balanced', 'l1', 'l2', 'l3'}:
+                raise ValueError("electrical_service.default_split must be one of {'balanced', 'L1', 'L2', 'L3'}.")
+            if mode == 'single_phase' and split not in {'balanced', 'l1'}:
+                raise ValueError("single_phase electrical service only accepts default_split as 'balanced' or 'L1'.")
+            self._electrical_service_default_split = split
+
+            limits = self._electrical_service_config.get('limits', {}) or {}
+            total_limits = limits.get('total', {}) or {}
+            self._electrical_service_limits['total']['import_kw'] = self._parse_non_negative_limit(
+                total_limits.get('import_kw'), 'electrical_service.limits.total.import_kw'
+            )
+            self._electrical_service_limits['total']['export_kw'] = self._parse_non_negative_limit(
+                total_limits.get('export_kw'), 'electrical_service.limits.total.export_kw'
+            )
+
+            per_phase_limits = limits.get('per_phase', {}) or {}
+            phase_names = ['L1'] if mode == 'single_phase' else ['L1', 'L2', 'L3']
+
+            normalized_phase_limits: Dict[str, Mapping[str, Any]] = {}
+            for phase_name, values in per_phase_limits.items():
+                normalized_name = self._normalize_phase_label(phase_name)
+                normalized_phase_limits[normalized_name] = values
+
+            if mode == 'single_phase':
+                invalid = [name for name in normalized_phase_limits if name not in {None, 'L1'}]
+                if invalid:
+                    raise ValueError(f'single_phase electrical service cannot define per_phase limits for: {invalid}.')
+
+            for phase_name in phase_names:
+                phase_limit_config = normalized_phase_limits.get(phase_name, {}) or {}
+                import_limit = self._parse_non_negative_limit(
+                    phase_limit_config.get('import_kw'),
+                    f'electrical_service.limits.per_phase.{phase_name}.import_kw',
+                )
+                export_limit = self._parse_non_negative_limit(
+                    phase_limit_config.get('export_kw'),
+                    f'electrical_service.limits.per_phase.{phase_name}.export_kw',
+                )
+                self._electrical_service_limits['per_phase'][phase_name] = {
+                    'import_kw': import_limit,
+                    'export_kw': export_limit,
+                }
+                self._phase_limits.append(
+                    {
+                        'name': phase_name,
+                        'limit_kw': import_limit,
+                        'import_kw': import_limit,
+                        'export_kw': export_limit,
+                        'chargers': [],
+                    }
+                )
+
+            self._building_charger_limit_kw = self._electrical_service_limits['total']['import_kw']
+
+            for charger in self.electric_vehicle_chargers or []:
+                charger_connection = self._resolve_phase_connection(
+                    getattr(charger, 'phase_connection', None),
+                    f'charger:{charger.charger_id}',
+                )
+                self._charger_phase_map[charger.charger_id] = charger_connection
+                if charger_connection in {'L1', 'L2', 'L3'}:
+                    for phase in self._phase_limits:
+                        if phase['name'] == charger_connection:
+                            phase['chargers'].append(charger.charger_id)
+                            break
+
+            self._electrical_storage_phase_connection = self._resolve_phase_connection(
+                electrical_storage_phase_connection,
+                'electrical_storage',
+            )
+
+        else:
+            self._building_charger_limit_kw = self._charging_constraints_config.get('building_limit_kw')
+            phases = self._charging_constraints_config.get('phases', []) or []
+
+            for phase in phases:
+                name = phase.get('name')
+                if not name:
+                    name = f"phase_{len(self._phase_limits) + 1}"
+                limit = phase.get('limit_kw')
+                chargers = phase.get('chargers', []) or []
+                self._phase_limits.append({'name': name, 'limit_kw': limit, 'import_kw': limit, 'export_kw': None, 'chargers': chargers})
+                for charger_id in chargers:
+                    self._charger_phase_map[charger_id] = name
 
         if self._include_phase_encoding and not self._phase_limits:
             self._include_phase_encoding = False
@@ -818,13 +1003,20 @@ class Building(Environment):
             if self._building_charger_limit_kw is not None:
                 observation_keys.append('charging_building_headroom_kw')
             for phase in self._phase_limits:
-                if phase.get('limit_kw') is not None:
+                if phase.get('import_kw') is not None:
                     observation_keys.append(f"charging_phase_{phase['name']}_headroom_kw")
+
+            if self._electrical_service_enabled and self._expose_charging_export_headroom:
+                if self._electrical_service_limits['total'].get('export_kw') is not None:
+                    observation_keys.append('charging_building_export_headroom_kw')
+                for phase in self._phase_limits:
+                    if phase.get('export_kw') is not None:
+                        observation_keys.append(f"charging_phase_{phase['name']}_export_headroom_kw")
+
             for key in observation_keys:
                 if key not in self.observation_metadata:
                     self.observation_metadata[key] = True
 
-            # Recompute observation space to include new limits
             self.observation_space = self.estimate_observation_space(include_all=False, normalize=False)
 
         violation_key = 'charging_constraint_violation_kwh'
@@ -837,9 +1029,53 @@ class Building(Environment):
                     self.observation_metadata[key] = True
 
         self._set_default_charging_headroom()
+        self._reset_charging_constraint_histories()
 
         if hasattr(self, 'observation_metadata'):
             self.observation_space = self.estimate_observation_space(include_all=False, normalize=False)
+
+    def _reset_charging_constraint_histories(self):
+        steps = 1
+
+        if getattr(self, 'episode_tracker', None) is not None:
+            try:
+                steps = int(self.episode_tracker.episode_time_steps)
+            except Exception:
+                steps = 1
+
+        if steps <= 0:
+            try:
+                steps = int(len(self.energy_simulation.month))
+            except Exception:
+                steps = 1
+
+        self._charging_constraint_violation_history = np.zeros(steps, dtype='float32')
+        self._charging_total_power_history_kw = np.zeros(steps, dtype='float32')
+        self._charging_phase_power_history_kw = {
+            phase.get('name'): np.zeros(steps, dtype='float32')
+            for phase in self._phase_limits
+            if phase.get('name') is not None
+        }
+
+    def _record_charging_constraint_state(
+        self,
+        violation_kwh: float,
+        total_power_kw: float,
+        phase_power_kw: Optional[Mapping[str, float]] = None,
+    ):
+        t = int(self.time_step)
+        if t < 0:
+            return
+
+        if t >= len(self._charging_constraint_violation_history):
+            return
+
+        self._charging_constraint_violation_history[t] = float(violation_kwh)
+        self._charging_total_power_history_kw[t] = float(total_power_kw)
+        phase_power_kw = phase_power_kw or {}
+
+        for phase_name, history in self._charging_phase_power_history_kw.items():
+            history[t] = float(phase_power_kw.get(phase_name, 0.0))
 
     def _update_phase_encoding_observations(self):
         previous_keys = list(getattr(self, '_phase_encoding_observation_keys', []))
@@ -866,7 +1102,18 @@ class Building(Environment):
             self._phase_encoding_observations = {}
             return
 
-        phase_names = sorted({phase.get('name') for phase in self._phase_limits if phase.get('name')})
+        phase_names = sorted(
+            {
+                phase.get('name')
+                for phase in self._phase_limits
+                if phase.get('name')
+            }
+            | {
+                value
+                for value in self._charger_phase_map.values()
+                if value is not None
+            }
+        )
         has_unassigned = any(charger_id not in self._charger_phase_map for charger_id in chargers)
         if has_unassigned:
             phase_names = phase_names + ['unassigned']
@@ -895,19 +1142,36 @@ class Building(Environment):
             return
 
         building_headroom = None if self._building_charger_limit_kw is None else float(self._building_charger_limit_kw)
+        building_export_headroom = None
+        if getattr(self, '_electrical_service_enabled', False):
+            export_limit = self._electrical_service_limits.get('total', {}).get('export_kw')
+            building_export_headroom = None if export_limit is None else float(export_limit)
+
         phase_headroom = {
-            phase['name']: None if phase.get('limit_kw') is None else float(phase.get('limit_kw'))
+            phase['name']: None if phase.get('import_kw') is None else float(phase.get('import_kw'))
+            for phase in self._phase_limits
+        }
+        phase_export_headroom = {
+            phase['name']: None if phase.get('export_kw') is None else float(phase.get('export_kw'))
             for phase in self._phase_limits
         }
         self._charging_constraints_state = {
             'building_headroom_kw': building_headroom,
+            'building_export_headroom_kw': building_export_headroom,
             'phase_headroom_kw': phase_headroom,
+            'phase_export_headroom_kw': phase_export_headroom,
+            'total_power_kw': 0.0,
+            'phase_power_kw': {phase['name']: 0.0 for phase in self._phase_limits},
         }
 
-    def _apply_charging_constraints_to_actions(self, actions: Optional[Mapping[str, float]]) -> Optional[Mapping[str, float]]:
+    def _apply_charging_constraints_to_actions(
+        self,
+        actions: Optional[Mapping[str, float]],
+        electrical_storage_action: Optional[float] = None,
+    ) -> Tuple[Optional[Mapping[str, float]], Optional[float]]:
         """Compatibility wrapper for charging-constraints action limiter service."""
 
-        return self._ops_service.apply_charging_constraints_to_actions(actions)
+        return self._ops_service.apply_charging_constraints_to_actions(actions, electrical_storage_action)
 
     def consume_charging_constraint_penalty(self) -> float:
         penalty = self._charging_constraint_penalty_kwh
@@ -1030,6 +1294,8 @@ class Building(Environment):
             'annual_non_shiftable_load_estimate': self.energy_simulation.non_shiftable_load.sum() / n_years,
             'annual_solar_generation_estimate': self.pv.get_generation(self.energy_simulation.solar_generation).sum() / n_years,
             'charging_constraints': self._charging_constraints_config,
+            'electrical_service': self._electrical_service_config,
+            'electrical_storage_phase_connection': self._electrical_storage_phase_connection,
             'charger_phase_map': self._charger_phase_map,
         }
 
@@ -1395,8 +1661,11 @@ class Building(Environment):
         periodic_observations = self.get_periodic_observation_metadata()
         low_limit, high_limit = {}, {}
         data = self._get_observation_space_limits_data()
-        total_charger_power_kw = sum(getattr(charger, 'max_charging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
-        max_violation_energy = total_charger_power_kw * (self.seconds_per_time_step / 3600)
+        total_charger_power_kw = 0.0
+        total_charger_power_kw += sum(getattr(charger, 'max_charging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
+        total_charger_power_kw += sum(getattr(charger, 'max_discharging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
+        total_storage_power_kw = float(getattr(self.electrical_storage, 'nominal_power', 0.0) or 0.0)
+        max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * (self.seconds_per_time_step / 3600)
 
         for key in observation_names:
             if key.startswith('charging_phase_one_hot_'):
@@ -1634,15 +1903,26 @@ class Building(Environment):
             if getattr(self, '_expose_charging_constraints', False):
                 if self._building_charger_limit_kw is not None:
                     data['charging_building_headroom_kw'] = np.full(timesteps, float(self._building_charger_limit_kw), dtype='float32')
+                if getattr(self, '_electrical_service_enabled', False):
+                    export_limit = self._electrical_service_limits.get('total', {}).get('export_kw')
+                    if export_limit is not None:
+                        data['charging_building_export_headroom_kw'] = np.full(timesteps, float(export_limit), dtype='float32')
                 for phase in self._phase_limits:
-                    limit = phase.get('limit_kw')
-                    if limit is None:
-                        continue
-                    key = f"charging_phase_{phase['name']}_headroom_kw"
-                    data[key] = np.full(timesteps, float(limit), dtype='float32')
+                    import_limit = phase.get('import_kw')
+                    if import_limit is not None:
+                        key = f"charging_phase_{phase['name']}_headroom_kw"
+                        data[key] = np.full(timesteps, float(import_limit), dtype='float32')
+                    if getattr(self, '_electrical_service_enabled', False):
+                        export_limit = phase.get('export_kw')
+                        if export_limit is not None:
+                            key = f"charging_phase_{phase['name']}_export_headroom_kw"
+                            data[key] = np.full(timesteps, float(export_limit), dtype='float32')
 
-            total_charger_power_kw = sum(getattr(charger, 'max_charging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
-            max_violation_energy = total_charger_power_kw * (self.seconds_per_time_step / 3600)
+            total_charger_power_kw = 0.0
+            total_charger_power_kw += sum(getattr(charger, 'max_charging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
+            total_charger_power_kw += sum(getattr(charger, 'max_discharging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
+            total_storage_power_kw = float(getattr(self.electrical_storage, 'nominal_power', 0.0) or 0.0)
+            max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * (self.seconds_per_time_step / 3600)
             data['charging_constraint_violation_kwh'] = np.array([0.0, max_violation_energy], dtype='float32')
 
             phase_one_hot_keys = getattr(self, '_phase_encoding_observation_keys', []) or []
@@ -2057,6 +2337,8 @@ class Building(Environment):
         self.__power_outage_signal = self.reset_power_outage_signal()
         self.__chargers_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__washing_machines_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self._set_default_charging_headroom()
+        self._reset_charging_constraint_histories()
 
     def reset_power_outage_signal(self) -> np.ndarray:
         """Resets power outage signal time series.
@@ -2196,6 +2478,12 @@ class Building(Environment):
 
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission[self.time_step] = max(0.0, net_electricity_consumption*self.carbon_intensity.carbon_intensity[self.time_step])
+
+    def set_net_electricity_consumption_cost(self, value: float, time_step: int = None):
+        """Override net electricity consumption cost at a given time step."""
+
+        idx = self.time_step if time_step is None else int(time_step)
+        self.__net_electricity_consumption_cost[idx] = float(value)
 
     def __str__(self) -> str:
         """
@@ -2511,6 +2799,9 @@ class LSTMDynamicsBuilding(DynamicsBuilding):
         Use :py:attr:`citylearn.building.Building.energy_simulation.hvac_mode` to specify whether to consider cooling 
         or heating demand at each `time_step`.
         """
+
+        if torch is None:
+            raise ImportError('torch is required to use LSTMDynamicsBuilding.')
 
         # predict
         model_input_tensor = torch.tensor(self.get_dynamics_input().T)

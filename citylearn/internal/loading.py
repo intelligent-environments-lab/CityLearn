@@ -231,6 +231,13 @@ class CityLearnLoadingService:
         building_kwargs = {}
         if building_schema.get('charging_constraints') is not None:
             building_kwargs['charging_constraints'] = building_schema['charging_constraints']
+        if building_schema.get('electrical_service') is not None:
+            building_kwargs['electrical_service'] = building_schema['electrical_service']
+        if building_schema.get('equity_group') is not None:
+            building_kwargs['equity_group'] = building_schema.get('equity_group')
+        electrical_storage_attributes = (building_schema.get('electrical_storage') or {}).get('attributes', {}) or {}
+        if electrical_storage_attributes.get('phase_connection') is not None:
+            building_kwargs['electrical_storage_phase_connection'] = electrical_storage_attributes.get('phase_connection')
         seconds_per_time_step = schema['seconds_per_time_step']
         noise_std = building_schema.get('noise_std', 0.0)
 
@@ -343,7 +350,7 @@ class CityLearnLoadingService:
                 charger_module = '.'.join(charger_type.split('.')[0:-1])
                 charger_class_name = charger_type.split('.')[-1]
                 charger_class = getattr(importlib.import_module(charger_module), charger_class_name)
-                charger_attributes = charger_config.get('attributes', {})
+                charger_attributes = dict(charger_config.get('attributes', {}) or {})
                 charger_attributes['episode_tracker'] = episode_tracker
                 charger_object = charger_class(
                     charger_simulation=charger_simulation,
@@ -419,7 +426,9 @@ class CityLearnLoadingService:
                 device_module = '.'.join(device_type.split('.')[0:-1])
                 device_type_name = device_type.split('.')[-1]
                 constructor = getattr(importlib.import_module(device_module), device_type_name)
-                attributes = building_schema[device_name].get('attributes', {})
+                attributes = dict(building_schema[device_name].get('attributes', {}) or {})
+                if device_name == 'electrical_storage':
+                    attributes.pop('phase_connection', None)
                 attributes['seconds_per_time_step'] = schema['seconds_per_time_step']
 
                 md5 = hashlib.md5()

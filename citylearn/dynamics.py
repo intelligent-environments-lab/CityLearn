@@ -1,7 +1,17 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import List, Union
-import torch
-import torch.nn
+try:
+    import torch
+    import torch.nn
+except ImportError:  # pragma: no cover - optional dependency for LSTM dynamics only
+    torch = None
+
+
+class _TorchNNPlaceholder:
+    class Module:
+        pass
 
 class Dynamics:
     """Base building dynamics model."""
@@ -12,7 +22,7 @@ class Dynamics:
     def reset(self):
         pass
 
-class LSTMDynamics(Dynamics, torch.nn.Module):
+class LSTMDynamics(Dynamics, (torch.nn if torch is not None else _TorchNNPlaceholder).Module):
     """LSTM building dynamics model that predicts indoor temperature based on partial cooling/heating load and other weather variables.
     
     Parameters
@@ -47,6 +57,9 @@ class LSTMDynamics(Dynamics, torch.nn.Module):
             input_normalization_maximum: List[float], hidden_size: int, num_layers: int, lookback: int, input_size: int = None,
             dropout: float = None
     ):
+        if torch is None:
+            raise ImportError('torch is required to use LSTMDynamics.')
+
         Dynamics.__init__(self)
         torch.nn.Module.__init__(self)
         assert len(input_observation_names) == len(input_normalization_minimum) == len(input_normalization_maximum),\

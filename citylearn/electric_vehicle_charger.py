@@ -11,7 +11,8 @@ class Charger(Environment):
     def __init__(
             self, episode_tracker: EpisodeTracker, charger_simulation: ChargerSimulation ,charger_id: str = None, efficiency: float = None, max_charging_power: float = None,
             min_charging_power: float = None, max_discharging_power: float = None,  min_discharging_power: float = None, charge_efficiency_curve: Dict[float, float] = None,
-            discharge_efficiency_curve: Dict[float, float] = None, connected_electric_vehicle: ElectricVehicle = None, incoming_electric_vehicle: ElectricVehicle = None, time_step_ratio: int = None,
+            discharge_efficiency_curve: Dict[float, float] = None, connected_electric_vehicle: ElectricVehicle = None, incoming_electric_vehicle: ElectricVehicle = None,
+            phase_connection: str = None, time_step_ratio: int = None,
             **kwargs
     ):
         r"""Initializes the `Electric Vehicle Charger` class with the given attributes.
@@ -49,6 +50,7 @@ class Charger(Environment):
         self.discharge_efficiency_curve = discharge_efficiency_curve
         self.connected_electric_vehicle = connected_electric_vehicle
         self.incoming_electric_vehicle = incoming_electric_vehicle
+        self.phase_connection = phase_connection
         self.charger_simulation = charger_simulation
 
         arg_spec = inspect.getfullargspec(super().__init__)
@@ -126,6 +128,12 @@ class Charger(Environment):
         """Technical efficiency."""
 
         return self.__efficiency
+
+    @property
+    def phase_connection(self) -> str:
+        """Electrical phase connection assignment."""
+
+        return self.__phase_connection
 
 
     @property
@@ -209,6 +217,10 @@ class Charger(Environment):
     @incoming_electric_vehicle.setter
     def incoming_electric_vehicle(self, electric_vehicle: ElectricVehicle):
         self.__incoming_ev = electric_vehicle
+
+    @phase_connection.setter
+    def phase_connection(self, phase_connection: str):
+        self.__phase_connection = None if phase_connection is None else str(phase_connection)
 
     @time_step_ratio.setter
     def time_step_ratio(self, time_step_ratio: float):

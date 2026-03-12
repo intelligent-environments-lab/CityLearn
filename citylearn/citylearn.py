@@ -129,6 +129,9 @@ class CityLearnEnv(Environment, Env):
     render_mode: str, optional
         Rendering strategy. Accepted values are ``'none'`` (default), ``'during'`` for streaming exports each step, and
         ``'end'`` for exports performed at episode completion while still allowing manual snapshots via :meth:`render`.
+    export_kpis_on_episode_end: bool, optional
+        Whether to automatically export ``exported_kpis.csv`` when an episode terminates.
+        If not provided, defaults to the effective rendering setting (enabled when rendering is enabled).
     **kwargs : dict
         Other keyword arguments used to initialize super classes.
 
@@ -147,11 +150,15 @@ class CityLearnEnv(Environment, Env):
         central_agent: bool = None, shared_observations: List[str] = None, active_observations: Union[List[str], List[List[str]]] = None,
         inactive_observations: Union[List[str], List[List[str]]] = None, active_actions: Union[List[str], List[List[str]]] = None,
         inactive_actions: Union[List[str], List[List[str]]] = None, simulate_power_outage: bool = None, solar_generation: bool = None, random_seed: int = None, time_step_ratio: int = None,
-        start_date: Union[str, datetime.date] = None, render_session_name: str = None, render_mode: str = 'none', **kwargs: Any
+        start_date: Union[str, datetime.date] = None, render_session_name: str = None, render_mode: str = 'none',
+        export_kpis_on_episode_end: bool = None, **kwargs: Any
     ):
         render_directory = kwargs.pop('render_directory', None)
         render_directory_name = kwargs.pop('render_directory_name', 'render_logs')
         render_flag = kwargs.pop('render', None)
+        kw_export_kpis_on_episode_end = kwargs.pop('export_kpis_on_episode_end', None)
+        if kw_export_kpis_on_episode_end is not None and export_kpis_on_episode_end is None:
+            export_kpis_on_episode_end = kw_export_kpis_on_episode_end
         debug_timing = kwargs.pop('debug_timing', None)
         check_observation_limits = kwargs.pop('check_observation_limits', None)
         metrics_log_interval = kwargs.pop('metrics_log_interval', None)
@@ -162,8 +169,17 @@ class CityLearnEnv(Environment, Env):
         if kw_render_session_name is not None:
             render_session_name = kw_render_session_name if render_session_name is None else render_session_name
         self.schema = schema
+        self.community_market_enabled = False
+        self.community_market_sell_ratio = 0.8
+        self.community_market_grid_export_price = 0.0
+        self._last_community_market_settlement = []
+        self._community_market_settlement_history = []
+        self._configure_community_market()
         schema_start_date = self.schema.get('start_date') if isinstance(self.schema, dict) else None
         schema_render_mode = self.schema.get('render_mode') if isinstance(self.schema, dict) else None
+        schema_export_kpis = self.schema.get('export_kpis_on_episode_end') if isinstance(self.schema, dict) else None
+        if schema_export_kpis is not None and export_kpis_on_episode_end is None:
+            export_kpis_on_episode_end = bool(schema_export_kpis)
         if schema_render_mode is not None:
             requested_render_mode = str(schema_render_mode).lower()
         if requested_render_mode not in {'none', 'during', 'end'}:
@@ -255,6 +271,9 @@ class CityLearnEnv(Environment, Env):
             render_enabled_flag = self.render_mode in {'during', 'end'}
 
         self.render_enabled = render_enabled_flag
+        if export_kpis_on_episode_end is None:
+            export_kpis_on_episode_end = self.render_enabled
+        self.export_kpis_on_episode_end = export_kpis_on_episode_end
 
         # reset environment and initializes episode time steps
         self.reset()
@@ -311,6 +330,12 @@ class CityLearnEnv(Environment, Env):
         """Whether environment rendering/logging is enabled."""
 
         return getattr(self, '_CityLearnEnv__render_enabled', False)
+
+    @property
+    def export_kpis_on_episode_end(self) -> bool:
+        """Whether KPIs are exported automatically when an episode terminates."""
+
+        return getattr(self, '_CityLearnEnv__export_kpis_on_episode_end', False)
 
     @property
     def root_directory(self) -> Union[str, Path]:
@@ -922,6 +947,10 @@ class CityLearnEnv(Environment, Env):
     def render_enabled(self, enabled: bool):
         self.__render_enabled = bool(enabled)
 
+    @export_kpis_on_episode_end.setter
+    def export_kpis_on_episode_end(self, enabled: bool):
+        self.__export_kpis_on_episode_end = bool(enabled)
+
     @root_directory.setter
     def root_directory(self, root_directory: Union[str, Path]):
         self.__root_directory = root_directory
@@ -986,6 +1015,12 @@ class CityLearnEnv(Environment, Env):
             'reward_function': self.reward_function.__class__.__name__,
             'central_agent': self.central_agent,
             'shared_observations': self.shared_observations,
+            'community_market': {
+                'enabled': self.community_market_enabled,
+                'intra_community_sell_ratio': self.community_market_sell_ratio,
+                'grid_export_price': self.community_market_grid_export_price,
+                'matching_granularity': 'aggregate_building',
+            },
             'buildings': [b.get_metadata() for b in self.buildings],
         }
 
@@ -1190,12 +1225,30 @@ class CityLearnEnv(Environment, Env):
         self.__net_electricity_consumption = []
         self.__net_electricity_consumption_cost = []
         self.__net_electricity_consumption_emission = []
+        self._last_community_market_settlement = []
+        self._community_market_settlement_history = []
         self._observations_cache = None
         self._observations_cache_time_step = -1
         self._render_buffer.clear()
         self.update_variables()
 
         return self.observations, self.get_info()
+
+    def _configure_community_market(self):
+        config = {}
+        if isinstance(self.schema, dict):
+            config = self.schema.get('community_market', {}) or {}
+
+        self.community_market_enabled = bool(config.get('enabled', False))
+        ratio = config.get('intra_community_sell_ratio', 0.8)
+
+        try:
+            ratio = float(ratio)
+        except (TypeError, ValueError):
+            ratio = 0.8
+
+        self.community_market_sell_ratio = min(max(ratio, 0.0), 1.0)
+        self.community_market_grid_export_price = config.get('grid_export_price', 0.0)
 
     def update_variables(self):
         """Update district-level aggregate variables."""

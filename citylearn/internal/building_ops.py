@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Dict, Mapping, Optional, Tuple, Union
 
 import numpy as np
 
@@ -326,9 +326,15 @@ class BuildingOpsService:
             headroom = state.get('building_headroom_kw')
             if headroom is not None:
                 observations['charging_building_headroom_kw'] = headroom
+            export_headroom = state.get('building_export_headroom_kw')
+            if export_headroom is not None:
+                observations['charging_building_export_headroom_kw'] = export_headroom
             for phase_name, value in (state.get('phase_headroom_kw') or {}).items():
                 if value is not None:
                     observations[f'charging_phase_{phase_name}_headroom_kw'] = value
+            for phase_name, value in (state.get('phase_export_headroom_kw') or {}).items():
+                if value is not None:
+                    observations[f'charging_phase_{phase_name}_export_headroom_kw'] = value
 
         if getattr(building, '_charging_constraints_enabled', False):
             if getattr(building, '_expose_charging_violation', False):
@@ -355,9 +361,7 @@ class BuildingOpsService:
         building = self.building
 
         if electric_vehicle_storage_actions is not None:
-            electric_vehicle_storage_actions = self.apply_charging_constraints_to_actions(dict(electric_vehicle_storage_actions))
-        else:
-            self.apply_charging_constraints_to_actions(None)
+            electric_vehicle_storage_actions = dict(electric_vehicle_storage_actions)
 
         if 'cooling_or_heating_device' in building.active_actions:
             assert 'cooling_device' not in building.active_actions and 'heating_device' not in building.active_actions, \
@@ -378,6 +382,11 @@ class BuildingOpsService:
         heating_storage_action = 0.0 if 'heating_storage' not in building.active_actions else heating_storage_action
         dhw_storage_action = 0.0 if 'dhw_storage' not in building.active_actions else dhw_storage_action
         electrical_storage_action = 0.0 if 'electrical_storage' not in building.active_actions else electrical_storage_action
+
+        electric_vehicle_storage_actions, electrical_storage_action = self.apply_charging_constraints_to_actions(
+            electric_vehicle_storage_actions,
+            electrical_storage_action,
+        )
 
         actions = {
             'cooling_demand': (building.update_cooling_demand, (cooling_device_action,)),
@@ -441,16 +450,224 @@ class BuildingOpsService:
             except NotImplementedError:
                 pass
 
-    def apply_charging_constraints_to_actions(self, actions: Optional[Mapping[str, float]]) -> Optional[Mapping[str, float]]:
-        """Apply configured charger constraints and return adjusted actions."""
+    def _safe_scalar(self, value, default: float = 0.0) -> float:
+        try:
+            scalar = float(value)
+        except (TypeError, ValueError):
+            return float(default)
 
+        if np.isnan(scalar):
+            return float(default)
+
+        return scalar
+
+    def _safe_index(self, values, idx: int, default: float = 0.0) -> float:
+        try:
+            return self._safe_scalar(values[idx], default)
+        except Exception:
+            return float(default)
+
+    def _current_phase_names(self):
         building = self.building
+        if getattr(building, '_electrical_service_mode', 'single_phase') == 'three_phase':
+            return ['L1', 'L2', 'L3']
+        return ['L1']
 
-        building._charging_constraint_penalty_kwh = 0.0
-        building._charging_constraint_last_penalty_kwh = 0.0
+    def _split_unassigned_power(self, power_kw: float) -> Dict[str, float]:
+        building = self.building
+        phase_names = self._current_phase_names()
 
-        if not building._charging_constraints_enabled:
-            return actions
+        if len(phase_names) == 1:
+            return {'L1': float(power_kw)}
+
+        split_mode = str(getattr(building, '_electrical_service_default_split', 'balanced')).strip().lower()
+        if split_mode in {'l1', 'l2', 'l3'}:
+            return {phase: float(power_kw if phase.lower() == split_mode else 0.0) for phase in phase_names}
+
+        share = float(power_kw) / len(phase_names)
+        return {phase: share for phase in phase_names}
+
+    def _split_power_by_connection(self, power_kw: float, phase_connection: Optional[str]) -> Dict[str, float]:
+        phase_names = self._current_phase_names()
+
+        if len(phase_names) == 1:
+            return {'L1': float(power_kw)}
+
+        if phase_connection in {'L1', 'L2', 'L3'}:
+            return {phase: float(power_kw if phase == phase_connection else 0.0) for phase in phase_names}
+
+        if phase_connection == 'all_phases':
+            share = float(power_kw) / len(phase_names)
+            return {phase: share for phase in phase_names}
+
+        return self._split_unassigned_power(power_kw)
+
+    def _estimate_non_controllable_base_power(self) -> Tuple[float, Dict[str, float]]:
+        building = self.building
+        t = building.time_step
+        phase_names = self._current_phase_names()
+
+        if building.power_outage:
+            return 0.0, {phase: 0.0 for phase in phase_names}
+
+        temperature = self._safe_index(building.weather.outdoor_dry_bulb_temperature, t, 0.0)
+
+        cooling_demand = self._safe_index(building.energy_from_cooling_device, t, 0.0) + self._safe_index(
+            building.cooling_storage.energy_balance, t, 0.0
+        )
+        cooling_kw = self._safe_scalar(building.cooling_device.get_input_power(cooling_demand, temperature, heating=False), 0.0)
+
+        heating_demand = self._safe_index(building.energy_from_heating_device, t, 0.0) + self._safe_index(
+            building.heating_storage.energy_balance, t, 0.0
+        )
+        if isinstance(building.heating_device, HeatPump):
+            heating_kw = self._safe_scalar(building.heating_device.get_input_power(heating_demand, temperature, heating=True), 0.0)
+        else:
+            heating_kw = self._safe_scalar(building.dhw_device.get_input_power(heating_demand), 0.0)
+
+        dhw_demand = self._safe_index(building.energy_from_dhw_device, t, 0.0) + self._safe_index(
+            building.dhw_storage.energy_balance, t, 0.0
+        )
+        if isinstance(building.dhw_device, HeatPump):
+            dhw_kw = self._safe_scalar(building.dhw_device.get_input_power(dhw_demand, temperature, heating=True), 0.0)
+        else:
+            dhw_kw = self._safe_scalar(building.dhw_device.get_input_power(dhw_demand), 0.0)
+
+        non_shiftable_kw = self._safe_index(building.energy_to_non_shiftable_load, t, 0.0)
+        solar_kw = self._safe_index(building.solar_generation, t, 0.0)
+        washing_kw = sum(self._safe_index(wm.electricity_consumption, t, 0.0) for wm in building.washing_machines or [])
+
+        base_total_kw = cooling_kw + heating_kw + dhw_kw + non_shiftable_kw + solar_kw + washing_kw
+        base_phase_kw = self._split_unassigned_power(base_total_kw)
+
+        return float(base_total_kw), base_phase_kw
+
+    def _charger_requested_power_kw(self, charger, action: float) -> float:
+        if action is None:
+            return 0.0
+
+        action = float(np.clip(action, -1.0, 1.0))
+        if action > 0.0:
+            max_power = self._safe_scalar(getattr(charger, 'max_charging_power', 0.0), 0.0)
+            return action * max_power if max_power > 0.0 else 0.0
+        if action < 0.0:
+            max_power = self._safe_scalar(getattr(charger, 'max_discharging_power', 0.0), 0.0)
+            return -abs(action) * max_power if max_power > 0.0 else 0.0
+        return 0.0
+
+    def _charger_action_from_power_kw(self, charger, target_power_kw: float) -> float:
+        target_power_kw = self._safe_scalar(target_power_kw, 0.0)
+
+        if target_power_kw > 0.0:
+            max_power = self._safe_scalar(getattr(charger, 'max_charging_power', 0.0), 0.0)
+            min_power = self._safe_scalar(getattr(charger, 'min_charging_power', 0.0), 0.0)
+            if max_power <= 0.0:
+                return 0.0
+            if min_power > 0.0 and target_power_kw < min_power:
+                return 0.0
+            return float(np.clip(target_power_kw / max_power, 0.0, 1.0))
+
+        if target_power_kw < 0.0:
+            max_power = self._safe_scalar(getattr(charger, 'max_discharging_power', 0.0), 0.0)
+            min_power = self._safe_scalar(getattr(charger, 'min_discharging_power', 0.0), 0.0)
+            requested = abs(target_power_kw)
+            if max_power <= 0.0:
+                return 0.0
+            if min_power > 0.0 and requested < min_power:
+                return 0.0
+            return float(-np.clip(requested / max_power, 0.0, 1.0))
+
+        return 0.0
+
+    def _storage_requested_power_kw(self, action: Optional[float]) -> float:
+        building = self.building
+        if action is None:
+            return 0.0
+        action = float(np.clip(action, -1.0, 1.0))
+        nominal_power = self._safe_scalar(getattr(building.electrical_storage, 'nominal_power', 0.0), 0.0)
+        return action * nominal_power if nominal_power > 0.0 else 0.0
+
+    def _storage_action_from_power_kw(self, target_power_kw: float) -> float:
+        building = self.building
+        nominal_power = self._safe_scalar(getattr(building.electrical_storage, 'nominal_power', 0.0), 0.0)
+        if nominal_power <= 0.0:
+            return 0.0
+        return float(np.clip(target_power_kw / nominal_power, -1.0, 1.0))
+
+    def _compute_totals(self, base_total_kw: float, base_phase_kw: Mapping[str, float], controls, scales):
+        total_kw = float(base_total_kw)
+        phase_kw = {phase: float(value) for phase, value in base_phase_kw.items()}
+
+        for control_id, control in controls.items():
+            scale = self._safe_scalar(scales.get(control_id, 1.0), 1.0)
+            total_kw += control['request_total_kw'] * scale
+            for phase_name, value in control['request_phase_kw'].items():
+                phase_kw[phase_name] = phase_kw.get(phase_name, 0.0) + (value * scale)
+
+        return total_kw, phase_kw
+
+    def _scale_for_import_scope(self, current_value_kw, limit_kw, controls, scales, component_getter) -> bool:
+        if limit_kw is None or current_value_kw <= limit_kw + 1e-9:
+            return False
+
+        relevant = []
+        for control_id, control in controls.items():
+            component_kw = component_getter(control)
+            if component_kw > 0.0 and self._safe_scalar(scales.get(control_id, 0.0), 0.0) > 0.0:
+                relevant.append((control_id, component_kw))
+
+        if not relevant:
+            return False
+
+        current_relevant_kw = sum(scales[control_id] * component_kw for control_id, component_kw in relevant)
+        if current_relevant_kw <= 1e-9:
+            return False
+
+        fixed_kw = current_value_kw - current_relevant_kw
+        allowed_kw = limit_kw - fixed_kw
+        factor = 0.0 if allowed_kw <= 0.0 else min(1.0, allowed_kw / current_relevant_kw)
+        if factor >= 1.0 - 1e-9:
+            return False
+
+        for control_id, _ in relevant:
+            scales[control_id] *= factor
+
+        return True
+
+    def _scale_for_export_scope(self, current_value_kw, limit_kw, controls, scales, component_getter) -> bool:
+        if limit_kw is None:
+            return False
+
+        current_export_kw = max(-current_value_kw, 0.0)
+        if current_export_kw <= limit_kw + 1e-9:
+            return False
+
+        relevant = []
+        for control_id, control in controls.items():
+            component_kw = component_getter(control)
+            if component_kw < 0.0 and self._safe_scalar(scales.get(control_id, 0.0), 0.0) > 0.0:
+                relevant.append((control_id, component_kw))
+
+        if not relevant:
+            return False
+
+        current_relevant_export_kw = sum(scales[control_id] * abs(component_kw) for control_id, component_kw in relevant)
+        if current_relevant_export_kw <= 1e-9:
+            return False
+
+        fixed_kw = current_value_kw + current_relevant_export_kw
+        allowed_export_kw = limit_kw + fixed_kw
+        factor = 0.0 if allowed_export_kw <= 0.0 else min(1.0, allowed_export_kw / current_relevant_export_kw)
+        if factor >= 1.0 - 1e-9:
+            return False
+
+        for control_id, _ in relevant:
+            scales[control_id] *= factor
+
+        return True
+
+    def _apply_legacy_charging_constraints(self, actions: Optional[Mapping[str, float]]) -> Optional[Mapping[str, float]]:
+        building = self.building
 
         if not actions:
             building._set_default_charging_headroom()
@@ -498,8 +715,13 @@ class BuildingOpsService:
                             scales[charger_id] *= phase_scale
                     violation_kw += phase_sum - limit
 
-            scaled_positive_kw = {charger_id: positive_requests[charger_id] * scales.get(charger_id, 1.0) for charger_id in positive_requests}
+            scaled_positive_kw = {
+                charger_id: positive_requests[charger_id] * scales.get(charger_id, 1.0)
+                for charger_id in positive_requests
+            }
+            used_kw = sum(scaled_positive_kw.values())
 
+            actions = dict(actions)
             for charger_id, action in list(actions.items()):
                 if action is None or action <= 0.0:
                     continue
@@ -514,7 +736,6 @@ class BuildingOpsService:
                 actions[charger_id] = max(0.0, min(action, target_kw / max_power))
 
             if getattr(building, '_expose_charging_constraints', False):
-                used_kw = sum(scaled_positive_kw.values())
                 building_headroom = None if building._building_charger_limit_kw is None else building._building_charger_limit_kw - used_kw
                 phase_headroom = {}
                 for phase in building._phase_limits:
@@ -527,14 +748,196 @@ class BuildingOpsService:
 
                 building._charging_constraints_state = {
                     'building_headroom_kw': building_headroom,
+                    'building_export_headroom_kw': None,
                     'phase_headroom_kw': phase_headroom,
+                    'phase_export_headroom_kw': {},
+                    'total_power_kw': used_kw,
+                    'phase_power_kw': {},
                 }
 
             penalty_kwh = violation_kw * (building.seconds_per_time_step / 3600)
             building._charging_constraint_penalty_kwh = penalty_kwh
             building._charging_constraint_last_penalty_kwh = penalty_kwh
+            phase_power = {}
+            if getattr(building, '_electrical_service_enabled', False):
+                phase_power = dict((building._charging_constraints_state or {}).get('phase_power_kw') or {})
+            building._record_charging_constraint_state(
+                violation_kwh=penalty_kwh,
+                total_power_kw=float((building._charging_constraints_state or {}).get('total_power_kw', used_kw)),
+                phase_power_kw=phase_power,
+            )
 
         else:
             building._set_default_charging_headroom()
+            building._record_charging_constraint_state(
+                violation_kwh=0.0,
+                total_power_kw=0.0,
+                phase_power_kw={},
+            )
 
         return actions
+
+    def _apply_electrical_service_constraints(
+        self,
+        actions: Optional[Mapping[str, float]],
+        electrical_storage_action: Optional[float],
+    ) -> Tuple[Optional[Mapping[str, float]], Optional[float]]:
+        building = self.building
+        phase_names = self._current_phase_names()
+        base_total_kw, base_phase_kw = self._estimate_non_controllable_base_power()
+        base_phase_kw = {phase: base_phase_kw.get(phase, 0.0) for phase in phase_names}
+
+        controls = {}
+        adjusted_actions = None if actions is None else dict(actions)
+
+        for charger_id, action in (actions or {}).items():
+            charger = building._charger_lookup.get(charger_id)
+            if charger is None:
+                continue
+
+            request_total_kw = self._charger_requested_power_kw(charger, action)
+            if abs(request_total_kw) <= 1e-9:
+                continue
+
+            phase_connection = building._charger_phase_map.get(charger_id)
+            request_phase_kw = self._split_power_by_connection(request_total_kw, phase_connection)
+            controls[charger_id] = {
+                'request_total_kw': request_total_kw,
+                'request_phase_kw': request_phase_kw,
+            }
+
+        storage_control_id = '__electrical_storage__'
+        request_storage_kw = self._storage_requested_power_kw(electrical_storage_action)
+        if abs(request_storage_kw) > 1e-9:
+            request_phase_kw = self._split_power_by_connection(request_storage_kw, building.electrical_storage_phase_connection)
+            controls[storage_control_id] = {
+                'request_total_kw': request_storage_kw,
+                'request_phase_kw': request_phase_kw,
+            }
+
+        scales = {control_id: 1.0 for control_id in controls}
+        total_limits = building._electrical_service_limits.get('total', {})
+        per_phase_limits = building._electrical_service_limits.get('per_phase', {})
+
+        for _ in range(8):
+            changed = False
+            total_kw, phase_kw = self._compute_totals(base_total_kw, base_phase_kw, controls, scales)
+
+            changed |= self._scale_for_import_scope(
+                total_kw,
+                total_limits.get('import_kw'),
+                controls,
+                scales,
+                component_getter=lambda c: c['request_total_kw'],
+            )
+            changed |= self._scale_for_export_scope(
+                total_kw,
+                total_limits.get('export_kw'),
+                controls,
+                scales,
+                component_getter=lambda c: c['request_total_kw'],
+            )
+
+            for phase_name in phase_names:
+                phase_limit = per_phase_limits.get(phase_name, {})
+                changed |= self._scale_for_import_scope(
+                    phase_kw.get(phase_name, 0.0),
+                    phase_limit.get('import_kw'),
+                    controls,
+                    scales,
+                    component_getter=lambda c, p=phase_name: c['request_phase_kw'].get(p, 0.0),
+                )
+                changed |= self._scale_for_export_scope(
+                    phase_kw.get(phase_name, 0.0),
+                    phase_limit.get('export_kw'),
+                    controls,
+                    scales,
+                    component_getter=lambda c, p=phase_name: c['request_phase_kw'].get(p, 0.0),
+                )
+
+            if not changed:
+                break
+
+        total_kw, phase_kw = self._compute_totals(base_total_kw, base_phase_kw, controls, scales)
+
+        if adjusted_actions is not None:
+            for charger_id in adjusted_actions:
+                charger = building._charger_lookup.get(charger_id)
+                if charger is None:
+                    continue
+                control = controls.get(charger_id)
+                target_kw = 0.0 if control is None else control['request_total_kw'] * scales.get(charger_id, 1.0)
+                adjusted_actions[charger_id] = self._charger_action_from_power_kw(charger, target_kw)
+
+        adjusted_storage_action = electrical_storage_action
+        if electrical_storage_action is not None:
+            storage_control = controls.get(storage_control_id)
+            target_kw = 0.0 if storage_control is None else storage_control['request_total_kw'] * scales.get(storage_control_id, 1.0)
+            adjusted_storage_action = self._storage_action_from_power_kw(target_kw)
+
+        violation_kw = 0.0
+        import_limit = total_limits.get('import_kw')
+        export_limit = total_limits.get('export_kw')
+        if import_limit is not None:
+            violation_kw += max(total_kw - import_limit, 0.0)
+        if export_limit is not None:
+            violation_kw += max(-total_kw - export_limit, 0.0)
+
+        phase_headroom = {}
+        phase_export_headroom = {}
+        for phase_name in phase_names:
+            phase_total = phase_kw.get(phase_name, 0.0)
+            phase_limit = per_phase_limits.get(phase_name, {})
+            phase_import_limit = phase_limit.get('import_kw')
+            phase_export_limit = phase_limit.get('export_kw')
+
+            phase_headroom[phase_name] = None if phase_import_limit is None else (phase_import_limit - phase_total)
+            phase_export_headroom[phase_name] = None if phase_export_limit is None else (phase_export_limit + phase_total)
+
+            if phase_import_limit is not None:
+                violation_kw += max(phase_total - phase_import_limit, 0.0)
+            if phase_export_limit is not None:
+                violation_kw += max(-phase_total - phase_export_limit, 0.0)
+
+        building_headroom = None if import_limit is None else (import_limit - total_kw)
+        building_export_headroom = None if export_limit is None else (export_limit + total_kw)
+        building._charging_constraints_state = {
+            'building_headroom_kw': building_headroom,
+            'building_export_headroom_kw': building_export_headroom,
+            'phase_headroom_kw': phase_headroom,
+            'phase_export_headroom_kw': phase_export_headroom,
+            'total_power_kw': total_kw,
+            'phase_power_kw': phase_kw,
+        }
+
+        penalty_kwh = violation_kw * (building.seconds_per_time_step / 3600.0)
+        building._charging_constraint_penalty_kwh = penalty_kwh
+        building._charging_constraint_last_penalty_kwh = penalty_kwh
+        building._record_charging_constraint_state(
+            violation_kwh=penalty_kwh,
+            total_power_kw=float(total_kw),
+            phase_power_kw=phase_kw,
+        )
+
+        return adjusted_actions, adjusted_storage_action
+
+    def apply_charging_constraints_to_actions(
+        self,
+        actions: Optional[Mapping[str, float]],
+        electrical_storage_action: Optional[float] = None,
+    ) -> Tuple[Optional[Mapping[str, float]], Optional[float]]:
+        """Apply configured electrical constraints and return adjusted EV/storage actions."""
+
+        building = self.building
+
+        building._charging_constraint_penalty_kwh = 0.0
+        building._charging_constraint_last_penalty_kwh = 0.0
+
+        if not building._charging_constraints_enabled:
+            return actions, electrical_storage_action
+
+        if getattr(building, '_electrical_service_enabled', False):
+            return self._apply_electrical_service_constraints(actions, electrical_storage_action)
+
+        adjusted_actions = self._apply_legacy_charging_constraints(actions)
+        return adjusted_actions, electrical_storage_action
