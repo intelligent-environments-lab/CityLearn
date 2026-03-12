@@ -830,7 +830,8 @@
           "efficiency": 0.9,
           "capacity_loss_coefficient": 1e-05,
           "loss_coefficient": 0.0,
-          "nominal_power": 5.0
+          "nominal_power": 5.0,
+          "phase_connection": "all_phases"
         }
       },
       "pv": {
@@ -852,7 +853,8 @@
             "max_charging_power": 7.4,
             "min_charging_power": 0,
             "max_discharging_power": 7.4,
-            "min_discharging_power": 0
+            "min_discharging_power": 0,
+            "phase_connection": "L1"
           }
         },
         "charger_15_2": {
@@ -866,37 +868,40 @@
             "max_charging_power": 11,
             "min_charging_power": 0,
             "max_discharging_power": 11,
-            "min_discharging_power": 0
+            "min_discharging_power": 0,
+            "phase_connection": "L2"
           }
         }
       },
-      "charging_constraints": {
-        "building_limit_kw": 12.0,
+      "electrical_service": {
+        "mode": "three_phase",
+        "default_split": "balanced",
+        "limits": {
+          "total": {
+            "import_kw": 12.0,
+            "export_kw": 12.0
+          },
+          "per_phase": {
+            "L1": {
+              "import_kw": 7.0,
+              "export_kw": 7.0
+            },
+            "L2": {
+              "import_kw": 5.0,
+              "export_kw": 5.0
+            },
+            "L3": {
+              "import_kw": 4.0,
+              "export_kw": 4.0
+            }
+          }
+        },
         "observations": {
           "headroom": true,
+          "headroom_export": true,
           "violation": true,
           "phase_encoding": true
-        },
-        "phases": [
-          {
-            "name": "phase_a",
-            "limit_kw": 7.0,
-            "chargers": [
-              "charger_15_1"
-            ]
-          },
-          {
-            "name": "phase_b",
-            "limit_kw": 5.0,
-            "chargers": [
-              "charger_15_2"
-            ]
-          },
-          {
-            "name": "phase_c",
-            "chargers": []
-          }
-        ]
+        }
       }
     },
     "Building_16": {

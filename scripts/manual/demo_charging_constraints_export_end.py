@@ -16,7 +16,7 @@ if str(ROOT) not in sys.path:
 from citylearn.agents.rbc import BasicElectricVehicleRBC_ReferenceController as Agent  # noqa: E402
 from citylearn.citylearn import CityLearnEnv  # noqa: E402
 
-SCHEMA = ROOT / "data/datasets/citylearn_charging_constraints_demo/schema.json"
+SCHEMA = ROOT / "data/datasets/citylearn_three_phase_electrical_service_demo/schema.json"
 
 
 def main() -> None:

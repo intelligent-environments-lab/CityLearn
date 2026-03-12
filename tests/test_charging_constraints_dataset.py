@@ -10,7 +10,7 @@ pytest.importorskip("gymnasium")
 from citylearn.citylearn import CityLearnEnv
 
 
-DATASET_PATH = Path(__file__).resolve().parents[1] / "data/datasets/citylearn_charging_constraints_demo/schema.json"
+DATASET_PATH = Path(__file__).resolve().parents[1] / "data/datasets/citylearn_three_phase_electrical_service_demo/schema.json"
 
 
 def _find_action_index(env, charger_id: str) -> int:

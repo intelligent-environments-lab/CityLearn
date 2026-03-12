@@ -9,7 +9,7 @@ from citylearn.agents.rbc import BasicElectricVehicleRBC_ReferenceController as 
 from citylearn.citylearn import CityLearnEnv
 
 
-SCHEMA = Path(__file__).resolve().parents[1] / "data/datasets/citylearn_charging_constraints_demo/schema.json"
+SCHEMA = Path(__file__).resolve().parents[1] / "data/datasets/citylearn_three_phase_electrical_service_demo/schema.json"
 
 
 def _zero_actions(env: CityLearnEnv):
