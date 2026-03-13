@@ -7,6 +7,7 @@ pytest.importorskip("gymnasium")
 
 from citylearn.citylearn import CityLearnEnv, EvaluationCondition
 from citylearn.cost_function import CostFunction
+from citylearn.data import ZERO_DIVISION_PLACEHOLDER
 
 
 SCHEMA = Path(__file__).resolve().parents[1] / "data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json"
@@ -165,8 +166,9 @@ def test_histories_and_kpi_consistency_with_subhour_steps(seconds_per_time_step:
         baseline = EvaluationCondition.WITHOUT_STORAGE_BUT_WITH_PV
 
         def _safe_div(control_value: float, baseline_value: float):
-            if baseline_value == 0.0:
-                return 1.0 if control_value == 0.0 else np.nan
+            eps = float(ZERO_DIVISION_PLACEHOLDER)
+            if abs(baseline_value) <= eps:
+                return 1.0 if abs(control_value) <= eps else np.nan
             return control_value / baseline_value
 
         building_ratios = []
