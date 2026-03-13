@@ -5,8 +5,11 @@ import setuptools
 ROOT = os.path.dirname(__file__)
 VERSION_RE = re.compile(r"__version__\s*=\s*['\"]([\w\.-]+)['\"]")
 DIST_NAME = os.getenv('CITYLEARN_PYPI_NAME', 'softcpsrecsimulator')
+PYPI_README = os.path.join(ROOT, 'README_PYPI.md')
 
-with open('README.md', 'r', encoding='utf-8') as fh:
+readme_path = PYPI_README if os.path.exists(PYPI_README) else os.path.join(ROOT, 'README.md')
+
+with open(readme_path, 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
 with open('requirements.txt', 'r', encoding='utf-8') as fh:
@@ -24,8 +27,8 @@ setuptools.setup(
     author='Soft-CPS Research Group, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy',
     author_email='jose@isep.ipp.pt',
     description=(
-        'An open source Farama Foundation Gymnasium environment for benchmarking distributed '
-        'energy resource control algorithms to provide energy flexibility in a district of buildings.'),
+        'SoftCPS REC Simulator: an energy-community RL simulator fork focused on EV/BESS/PV, '
+        'electrical-service constraints, and community-market experimentation.'),
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/Soft-CPS-Research-Group/Simulator',

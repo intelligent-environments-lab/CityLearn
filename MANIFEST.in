@@ -1,3 +1,4 @@
 include citylearn/assets/*
 recursive-include citylearn/misc *
 include requirements.txt
+include README_PYPI.md
