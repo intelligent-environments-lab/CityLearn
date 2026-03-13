@@ -12,7 +12,12 @@ CityLearn includes energy models of buildings and distributed energy resources (
 ## Installation
 Install latest release in PyPi with `pip`:
 ```console
-pip install CityLearn
+pip install softcpsrecsimulator
+```
+
+Python import path remains:
+```python
+from citylearn.citylearn import CityLearnEnv
 ```
 
 ## Developer Commands
@@ -45,6 +50,22 @@ CI performance smoke check command:
 
 ```console
 python scripts/ci/perf_smoke.py --episode-steps 600 --seconds 60 --baseline-file scripts/ci/perf_baseline.json
+```
+
+## Publish This Fork to PyPI
+This fork is configured to publish the distribution name `softcpsrecsimulator`.
+
+1. Create the package on PyPI (project name: `softcpsrecsimulator`).
+2. In GitHub repo settings, add secret `PYPI_API_TOKEN` with a PyPI token that can publish this project.
+3. Bump `citylearn/__init__.py` version.
+4. Push commit and create a GitHub Release (or run `Publish Python Package` workflow manually).
+5. Workflow `.github/workflows/pypi_deploy.yml` builds `dist/*` and uploads to PyPI.
+
+Optional local build check:
+```console
+python -m pip install --upgrade pip build twine
+python -m build
+python -m twine check dist/*
 ```
 
 ## Internal Architecture

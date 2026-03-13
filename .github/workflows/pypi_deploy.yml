@@ -1,4 +1,4 @@
-name: Upload Python Package
+name: Publish Python Package
 
 on:
   workflow_dispatch:
@@ -6,28 +6,49 @@ on:
     types: [published]
 
 jobs:
-  deploy:
-  
-    environment: pypi 
+  build:
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        python-version: [3.11]
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel twine
-      - name: Build and publish
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          pip install build twine
+
+      - name: Build distributions
         run: |
-          python setup.py sdist bdist_wheel
-          twine upload --verbose dist/*
+          python -m build
+          python -m twine check dist/*
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: pypi
+      url: https://pypi.org/project/softcpsrecsimulator/
+
+    steps:
+      - name: Download package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: python-dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
