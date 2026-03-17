@@ -732,33 +732,6 @@ class CityLearnEnv(Environment, Env):
         ]).sum(axis = 0, min_count = 1).to_numpy()
 
     @property
-    def net_electricity_consumption_emission_without_storage(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_emission_without_storage` time series, in [kg_co2]."""
-
-        return pd.DataFrame([
-            b.net_electricity_consumption_emission_without_storage
-                for b in self.buildings
-        ]).sum(axis = 0, min_count = 1).tolist()
-
-    @property
-    def net_electricity_consumption_cost_without_storage(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_cost_without_storage` time series, in [$]."""
-
-        return pd.DataFrame([
-            b.net_electricity_consumption_cost_without_storage
-                for b in self.buildings
-        ]).sum(axis = 0, min_count = 1).to_numpy()
-
-    @property
-    def net_electricity_consumption_without_storage(self) -> np.ndarray:
-        """Summed `Building.net_electricity_consumption_without_storage` time series, in [kWh]."""
-
-        return pd.DataFrame([
-            b.net_electricity_consumption_without_storage
-                for b in self.buildings
-        ]).sum(axis = 0, min_count = 1).to_numpy()
-
-    @property
     def net_electricity_consumption_emission(self) -> List[float]:
         """Summed `Building.net_electricity_consumption_emission` time series, in [kg_co2]."""
 
