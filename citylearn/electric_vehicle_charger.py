@@ -304,6 +304,10 @@ class Charger(Environment):
         action_value = float(np.clip(action_value, -1.0, 1.0))
 
         if action_value == 0.0:
+            # Keep EV SOC state consistent at the current timestep even when no power is requested.
+            # Without this, SOC at `time_step` can remain the zero-initialized default.
+            if self.connected_electric_vehicle is not None:
+                self.connected_electric_vehicle.battery.charge(0.0)
             self.__electricity_consumption[self.time_step] = 0
             self.__past_charging_action_values_kwh[self.time_step] = 0
             return

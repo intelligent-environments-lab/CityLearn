@@ -208,6 +208,22 @@ def test_no_ev_connected_records_zero_consumption(tracker: EpisodeTracker, charg
     assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(expected_energy)
 
 
+def test_zero_action_keeps_connected_ev_soc_consistent(tracker: EpisodeTracker, charger_simulation: ChargerSimulation):
+    ev = _make_ev(tracker, initial_soc=0.6)
+    charger = _make_charger(tracker, charger_simulation, ev=ev)
+
+    charger.time_step = 1
+    ev.time_step = 1
+    ev.battery.time_step = 1
+    ev.battery.soc[0] = 0.6
+
+    charger.update_connected_electric_vehicle_soc(0.0)
+
+    assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(0.0)
+    assert charger.electricity_consumption[charger.time_step] == pytest.approx(0.0)
+    assert ev.battery.soc[1] == pytest.approx(0.6)
+
+
 def test_past_charging_actions_track_history(charger: Charger, electric_vehicle: ElectricVehicle):
     actions = [0.25, -0.4, 0.0]
     expected = [2.5, -4.0, 0.0]
