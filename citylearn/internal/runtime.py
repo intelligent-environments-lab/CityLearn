@@ -17,6 +17,14 @@ class CityLearnRuntimeService:
     def __init__(self, env: "CityLearnEnv"):
         self.env = env
 
+    @staticmethod
+    def _ev_unconnected_drift_std(seconds_per_time_step: float) -> float:
+        """Return per-step drift std scaled by physical step duration."""
+
+        seconds = max(float(seconds_per_time_step), 1.0)
+        step_hours = seconds / 3600.0
+        return 0.2 * np.sqrt(step_hours)
+
     def step(self, actions: List[List[float]]):
         """Apply actions, update env variables/reward, then advance time."""
 
@@ -370,7 +378,8 @@ class CityLearnRuntimeService:
             if not found_in_charger:
                 if t > 0:
                     last_soc = ev.battery.soc[t - 1]
-                    variability = np.clip(random_state.normal(1.0, 0.2), 0.6, 1.4)
+                    drift_std = self._ev_unconnected_drift_std(env.seconds_per_time_step)
+                    variability = np.clip(random_state.normal(1.0, drift_std), 0.6, 1.4)
                     new_soc = np.clip(last_soc * variability, 0.0, 1.0)
                     ev.battery.force_set_soc(new_soc)
 
