@@ -52,3 +52,76 @@ def test_series_integrity_reset_and_step():
         _assert_length_consistency(env)
     finally:
         env.close()
+
+
+def test_bess_first_step_not_double_counted():
+    env = CityLearnEnv(str(SCHEMA), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        action = np.zeros(env.action_space[0].shape[0], dtype="float32")
+
+        offset = 0
+        target_building = None
+        target_action_index = None
+
+        for building in env.buildings:
+            action_count = len(building.active_actions)
+            if "electrical_storage" in building.active_actions:
+                local_index = building.active_actions.index("electrical_storage")
+                target_action_index = offset + local_index
+                target_building = building
+                break
+            offset += action_count
+
+        assert target_building is not None
+        assert target_action_index is not None
+        action[target_action_index] = 0.5
+
+        env.step([action])
+
+        t = 0
+        expected = target_building.electrical_storage.energy_balance[t]
+        actual = target_building.electrical_storage_electricity_consumption[t]
+
+        assert abs(expected) > 1e-9
+        assert actual == pytest.approx(expected, abs=1e-6)
+    finally:
+        env.close()
+
+
+def test_non_shiftable_first_step_not_double_counted():
+    env = CityLearnEnv(str(SCHEMA), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        action = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+        env.step(action)
+
+        for building in env.buildings:
+            expected = building.energy_to_non_shiftable_load[0]
+            actual = building.non_shiftable_load_electricity_consumption[0]
+            assert actual == pytest.approx(expected, abs=1e-6)
+    finally:
+        env.close()
+
+
+def test_non_shiftable_t0_update_variables_idempotent():
+    env = CityLearnEnv(str(SCHEMA), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        before = {
+            building.name: float(building.non_shiftable_load_electricity_consumption[0])
+            for building in env.buildings
+        }
+
+        env.update_variables()
+
+        after = {
+            building.name: float(building.non_shiftable_load_electricity_consumption[0])
+            for building in env.buildings
+        }
+        assert after == pytest.approx(before, abs=1e-6)
+    finally:
+        env.close()

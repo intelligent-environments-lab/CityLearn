@@ -148,6 +148,32 @@ class ElectricDevice(Device):
             f'electricity_consumption must be >= 0 but value: {electricity_consumption} was provided.'
         self.__electricity_consumption[self.time_step] += electricity_consumption
 
+    def set_electricity_consumption(
+        self,
+        electricity_consumption: float,
+        time_step: int = None,
+        enforce_polarity: bool = None,
+    ):
+        r"""Set `electricity_consumption` at a specific `time_step`.
+
+        Parameters
+        ----------
+        electricity_consumption: float
+            Absolute `electricity_consumption` value to store in [kWh] for `time_step`.
+        time_step: int, default: current `time_step`
+            Time step index to overwrite.
+        enforce_polarity: bool, default: True
+            Whether to allow only positive values.
+        """
+
+        enforce_polarity = True if enforce_polarity is None else enforce_polarity
+        assert not enforce_polarity or electricity_consumption >= 0.0, \
+            f'electricity_consumption must be >= 0 but value: {electricity_consumption} was provided.'
+
+        step = self.time_step if time_step is None else int(time_step)
+        ratio = self.time_step_ratio if self.time_step_ratio not in (None, 0) else 1.0
+        self.__electricity_consumption[step] = float(electricity_consumption) / ratio
+
     def reset(self):
         r"""Reset `ElectricDevice` to initial state and set `electricity_consumption` at `time_step` 0 to = 0.0."""
 
@@ -1139,7 +1165,7 @@ class Battery(StorageDevice, ElectricDevice):
 
         # Calculating the degradation of the battery: new max. capacity of the battery after charge/discharge
         capacity_degrade = self.capacity_loss_coefficient*self.capacity*np.abs(self.energy_balance[self.time_step])/(2*max(self.degraded_capacity, ZERO_DIVISION_PLACEHOLDER))
-        return capacity_degrade * self.time_step_ratio # Normalize with time_step_ratio (seconds_per_timestep/schema_time_delta)    
+        return capacity_degrade
     
     def autosize(
         self, demand: float, duration: Union[float, Tuple[float, float]] = None, parallel: bool = None, safety_factor: Union[float, Tuple[float, float]] = None,

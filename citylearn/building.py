@@ -797,9 +797,15 @@ class Building(Environment):
         try:
             parsed = float(value)
         except (TypeError, ValueError) as exc:
-            raise ValueError(f'{path} must be a non-negative number or null.') from exc
+            raise ValueError(f'{path} must be a finite non-negative number or null.') from exc
 
-        if parsed < 0.0:
+        if np.isnan(parsed):
+            raise ValueError(f'{path} cannot be NaN.')
+
+        if np.isposinf(parsed):
+            return None
+
+        if np.isneginf(parsed) or parsed < 0.0:
             raise ValueError(f'{path} must be >= 0.0 when provided.')
 
         return parsed
@@ -980,14 +986,20 @@ class Building(Environment):
             )
 
         else:
-            self._building_charger_limit_kw = self._charging_constraints_config.get('building_limit_kw')
+            self._building_charger_limit_kw = self._parse_non_negative_limit(
+                self._charging_constraints_config.get('building_limit_kw'),
+                'charging_constraints.building_limit_kw',
+            )
             phases = self._charging_constraints_config.get('phases', []) or []
 
-            for phase in phases:
+            for idx, phase in enumerate(phases):
                 name = phase.get('name')
                 if not name:
                     name = f"phase_{len(self._phase_limits) + 1}"
-                limit = phase.get('limit_kw')
+                limit = self._parse_non_negative_limit(
+                    phase.get('limit_kw'),
+                    f'charging_constraints.phases[{idx}].limit_kw',
+                )
                 chargers = phase.get('chargers', []) or []
                 self._phase_limits.append({'name': name, 'limit_kw': limit, 'import_kw': limit, 'export_kw': None, 'chargers': chargers})
                 for charger_id in chargers:
@@ -2398,7 +2410,7 @@ class Building(Environment):
             # cooling electricity consumption
             cooling_demand = self.__energy_from_cooling_device[self.time_step] + self.cooling_storage.energy_balance[self.time_step]
             cooling_electricity_consumption = self.cooling_device.get_input_power(cooling_demand, temperature, heating=False)
-            self.cooling_device.update_electricity_consumption(cooling_electricity_consumption)
+            self.cooling_device.set_electricity_consumption(cooling_electricity_consumption)
 
             # heating electricity consumption
             heating_demand = self.__energy_from_heating_device[self.time_step] + self.heating_storage.energy_balance[self.time_step]
@@ -2408,7 +2420,7 @@ class Building(Environment):
             else:
                 heating_electricity_consumption = self.dhw_device.get_input_power(heating_demand)
 
-            self.heating_device.update_electricity_consumption(heating_electricity_consumption)
+            self.heating_device.set_electricity_consumption(heating_electricity_consumption)
 
             # dhw electricity consumption
             dhw_demand = self.__energy_from_dhw_device[self.time_step] + self.dhw_storage.energy_balance[self.time_step]
@@ -2418,15 +2430,18 @@ class Building(Environment):
             else:
                 dhw_electricity_consumption = self.dhw_device.get_input_power(dhw_demand)
 
-            self.dhw_device.update_electricity_consumption(dhw_electricity_consumption)
+            self.dhw_device.set_electricity_consumption(dhw_electricity_consumption)
 
             # non shiftable load electricity consumption
             non_shiftable_load_electricity_consumption = self.__energy_to_non_shiftable_load[self.time_step]
-            self.non_shiftable_load_device.update_electricity_consumption(non_shiftable_load_electricity_consumption)
+            self.non_shiftable_load_device.set_electricity_consumption(non_shiftable_load_electricity_consumption)
 
             # electrical storage
-            electrical_storage_electricity_consumption = self.electrical_storage.energy_balance[self.time_step]
-            self.electrical_storage.update_electricity_consumption(electrical_storage_electricity_consumption, enforce_polarity=False)
+            # NOTE:
+            # `Battery.charge(...)` already updates electrical storage electricity consumption
+            # at the current control step. Re-applying it here causes double counting at t=0.
+            # Keep this branch intentionally no-op for electrical storage to preserve a single
+            # source of truth in the storage model update path.
 
         else:
             pass

@@ -8,7 +8,7 @@ pytest.importorskip("gymnasium")
 from citylearn.base import EpisodeTracker
 from citylearn.citylearn import CityLearnEnv
 from citylearn.data import EnergySimulation
-from citylearn.energy_model import Battery, StorageDevice
+from citylearn.energy_model import Battery, ElectricDevice, StorageDevice
 
 
 def _make_tracker(length: int) -> EpisodeTracker:
@@ -116,6 +116,28 @@ def test_storage_charge_scaling_respects_time_ratio():
     assert storage.energy_balance[0] == pytest.approx(energy_actual)
 
 
+def test_electric_device_set_electricity_consumption_is_absolute():
+    tracker = _make_tracker(4)
+    device = ElectricDevice(
+        nominal_power=10.0,
+        time_step_ratio=0.25,
+        seconds_per_time_step=900,
+        episode_tracker=tracker,
+    )
+    device.reset()
+
+    # Additive updates use dataset-resolution values when ratio != 1.
+    device.update_electricity_consumption(4.0)
+    assert device.electricity_consumption[0] == pytest.approx(1.0)
+
+    # Absolute setter must overwrite, not accumulate.
+    device.set_electricity_consumption(2.5)
+    assert device.electricity_consumption[0] == pytest.approx(2.5)
+
+    device.set_electricity_consumption(0.5)
+    assert device.electricity_consumption[0] == pytest.approx(0.5)
+
+
 def test_battery_electricity_consumption_tracks_energy_balance_in_subhour():
     tracker = _make_tracker(4)
     battery = Battery(
@@ -138,6 +160,33 @@ def test_battery_electricity_consumption_tracks_energy_balance_in_subhour():
 
     assert battery.energy_balance[0] == pytest.approx(2.5)
     assert battery.electricity_consumption[0] == pytest.approx(2.5)
+
+
+def test_battery_degradation_uses_step_energy_without_extra_ratio_scaling():
+    tracker = _make_tracker(4)
+    battery = Battery(
+        capacity=100.0,
+        nominal_power=50.0,
+        initial_soc=0.5,
+        efficiency=1.0,
+        loss_coefficient=0.0,
+        capacity_loss_coefficient=1e-5,
+        power_efficiency_curve=[[0.0, 1.0], [1.0, 1.0]],
+        capacity_power_curve=[[0.0, 1.0], [1.0, 1.0]],
+        time_step_ratio=0.25,
+        seconds_per_time_step=900,
+        episode_tracker=tracker,
+    )
+    battery.reset()
+    battery.charge(10.0)
+
+    expected = (
+        battery.capacity_loss_coefficient
+        * battery.capacity
+        * abs(battery.energy_balance[0])
+        / (2.0 * max(battery.degraded_capacity, 1e-10))
+    )
+    assert battery.degrade() == pytest.approx(expected)
 
 
 def test_env_supports_subhour_seconds_per_time_step():
