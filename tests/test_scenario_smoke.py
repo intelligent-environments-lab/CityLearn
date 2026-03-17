@@ -56,14 +56,15 @@ def test_scenario_smoke_ev_battery_pv_none_mode(seconds_per_time_step: int):
         assert any(b.pv.nominal_power > 0 for b in env.buildings)
 
         final_t = env.time_step
+        expected_building_series_len = final_t if final_t > 0 else 1
 
         for building in env.buildings:
-            assert len(building.net_electricity_consumption) >= final_t + 1
-            storage_soc = float(building.electrical_storage.soc[final_t])
+            assert len(building.net_electricity_consumption) == expected_building_series_len
+            storage_soc = float(building.electrical_storage.soc[building.time_step])
             assert 0.0 <= storage_soc <= 1.0
 
         for ev in env.electric_vehicles:
-            ev_soc = float(ev.battery.soc[final_t])
+            ev_soc = float(ev.battery.soc[ev.time_step])
             assert 0.0 <= ev_soc <= 1.0
 
         kpis = env.evaluate()

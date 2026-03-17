@@ -146,6 +146,7 @@ def test_histories_and_kpi_consistency_with_subhour_steps(seconds_per_time_step:
                 assert abs(lhs - rhs) < 1e-4
 
         final_t = env.time_step
+        committed_len = final_t if final_t > 0 else 1
         for building in env.buildings:
             if building.electric_vehicle_chargers:
                 charger_total = float(np.sum(building.chargers_electricity_consumption))
@@ -154,11 +155,11 @@ def test_histories_and_kpi_consistency_with_subhour_steps(seconds_per_time_step:
                 )
                 assert charger_total == pytest.approx(charger_components)
 
-            assert len(building.solar_generation) == final_t + 1
+            assert len(building.solar_generation) == committed_len
             assert np.all(np.isfinite(building.solar_generation))
 
         for ev in env.electric_vehicles:
-            soc = ev.battery.soc[: final_t + 1]
+            soc = ev.battery.soc[: committed_len]
             assert np.all(np.isfinite(soc))
             assert np.all((soc >= 0.0) & (soc <= 1.0))
 
