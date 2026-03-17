@@ -64,7 +64,7 @@ class CityLearnLoadingService:
         """Return env objects as defined by schema."""
 
         schema['root_directory'] = kwargs['root_directory'] if kwargs.get('root_directory') is not None else schema['root_directory']
-        schema['random_seed'] = schema.get('random_seed', None) if kwargs.get('random_seed', None) is None else schema.get('random_seed', None)
+        schema['random_seed'] = schema.get('random_seed', None) if kwargs.get('random_seed', None) is None else kwargs['random_seed']
         schema['central_agent'] = parse_bool(
             kwargs['central_agent'] if kwargs.get('central_agent') is not None else schema['central_agent'],
             default=False,
