@@ -64,7 +64,6 @@ class EpisodeExporter:
             kpis = env.evaluate()
 
         kpis = kpis.pivot(index='cost_function', columns='name', values='value').round(3)
-        kpis = kpis.dropna(how='all')
         kpis = kpis.fillna('')
         kpis = kpis.reset_index()
         kpis = kpis.rename(columns={'cost_function': 'KPI'})

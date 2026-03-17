@@ -198,5 +198,19 @@ def test_ui_export_layout_files_and_headers_contract(tmp_path):
             reader = csv.reader(handle)
             header = next(reader)
         assert header and header[0] == "KPI"
+
+        with kpis_path.open(newline="") as handle:
+            rows = list(csv.DictReader(handle))
+        kpi_names = {row["KPI"] for row in rows}
+
+        # Keep KPI CSV schema stable even when some metrics are undefined (all-NaN before CSV fill).
+        for expected_kpi in {
+            "equity_gini_benefit",
+            "equity_cr20_benefit",
+            "equity_bpr_asset_poor_over_rich",
+            "equity_losers_percent",
+            "equity_relative_benefit_percent",
+        }:
+            assert expected_kpi in kpi_names, f"Missing KPI row in export contract: {expected_kpi}"
     finally:
         env.close()
