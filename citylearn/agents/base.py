@@ -148,11 +148,12 @@ class Agent(Environment):
             deterministic = deterministic or (deterministic_finish and episode >= episodes - 1)
             observations, _ = self.env.reset()
             self.episode_time_steps = self.episode_tracker.episode_time_steps
-            terminated = False
+            terminated = self.env.terminated
+            truncated = self.env.truncated
             time_step = 0
             rewards_list = []
 
-            while not terminated:
+            while not (terminated or truncated):
                 actions = self.predict(observations, deterministic=deterministic)
 
                 # apply actions to citylearn_env
@@ -176,13 +177,23 @@ class Agent(Environment):
 
                 time_step += 1
 
-            rewards = np.array(rewards_list, dtype='float')
-            rewards_summary = {
-                'min': rewards.min(axis=0),
-                'max': rewards.max(axis=0),
-                'sum': rewards.sum(axis=0),
-                'mean': rewards.mean(axis=0)
-            }
+            if len(rewards_list) > 0:
+                rewards = np.array(rewards_list, dtype='float')
+                rewards_summary = {
+                    'min': rewards.min(axis=0),
+                    'max': rewards.max(axis=0),
+                    'sum': rewards.sum(axis=0),
+                    'mean': rewards.mean(axis=0)
+                }
+            else:
+                reward_length = len(self.action_space)
+                empty = np.zeros(reward_length, dtype='float')
+                rewards_summary = {
+                    'min': empty,
+                    'max': empty,
+                    'sum': empty,
+                    'mean': empty,
+                }
             logging.info(f'Completed episode: {episode + 1}/{episodes}, Reward: {rewards_summary}')
 
     def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:

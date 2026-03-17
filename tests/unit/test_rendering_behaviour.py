@@ -9,6 +9,7 @@ import pytest
 
 pytest.importorskip("gymnasium")
 
+from citylearn.agents.rbc import BasicElectricVehicleRBC_ReferenceController as Agent
 from citylearn.citylearn import CityLearnEnv
 
 
@@ -425,3 +426,50 @@ def test_end_mode_export_file_contract_matches_during_mode(tmp_path):
 
     assert end_files == during_files
     assert end_header == during_header
+
+
+def test_end_mode_ev_and_charger_content_matches_during_mode(tmp_path):
+    def _run(render_mode: str) -> Path:
+        env = CityLearnEnv(
+            str(DATASET),
+            central_agent=True,
+            episode_time_steps=128,
+            render_mode=render_mode,
+            render_directory=tmp_path / render_mode,
+            random_seed=7,
+        )
+        agent = Agent(env)
+
+        try:
+            observations, _ = env.reset()
+
+            while not env.terminated:
+                actions = agent.predict(observations, deterministic=True)
+                observations, _, terminated, truncated, _ = env.step(actions)
+
+                if terminated or truncated:
+                    break
+
+            return Path(env.new_folder_path)
+        finally:
+            env.close()
+
+    during_dir = _run("during")
+    end_dir = _run("end")
+
+    all_files = sorted(p.name for p in during_dir.glob("exported_data_*_ep0.csv"))
+    relevant_files = [name for name in all_files if ("charger" in name or "electric_vehicle" in name)]
+    assert relevant_files, "Expected EV/charger export files to be present."
+
+    for filename in relevant_files:
+        during_path = during_dir / filename
+        end_path = end_dir / filename
+        assert end_path.exists(), f"Missing end-mode file: {filename}"
+
+        with during_path.open(newline="") as handle:
+            during_rows = list(csv.DictReader(handle))
+
+        with end_path.open(newline="") as handle:
+            end_rows = list(csv.DictReader(handle))
+
+        assert during_rows == end_rows, f"Mismatch in EV/charger export data for file {filename}"
