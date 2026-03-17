@@ -16,6 +16,7 @@ from citylearn.internal.building_ops import BuildingOpsService
 from citylearn.occupant import LogisticRegressionOccupant, Occupant
 from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
+from citylearn.utilities import parse_bool
 
 LOGGER = logging.getLogger()
 logging.basicConfig(level=logging.INFO)
@@ -882,15 +883,35 @@ class Building(Environment):
         self._charging_constraints_enabled = bool(self._charging_constraints_config) or self._electrical_service_enabled
 
         if 'headroom' in observations_config:
-            self._expose_charging_constraints = bool(observations_config.get('headroom', False))
+            self._expose_charging_constraints = parse_bool(
+                observations_config.get('headroom', False),
+                default=False,
+                path='charging_constraints.observations.headroom',
+            )
         elif expose_flag is not None:
-            self._expose_charging_constraints = bool(expose_flag)
+            self._expose_charging_constraints = parse_bool(
+                expose_flag,
+                default=False,
+                path='charging_constraints.expose_observations',
+            )
         else:
             self._expose_charging_constraints = True
 
-        self._expose_charging_export_headroom = bool(observations_config.get('headroom_export', self._electrical_service_enabled))
-        self._expose_charging_violation = bool(observations_config.get('violation', True))
-        self._include_phase_encoding = bool(observations_config.get('phase_encoding', False))
+        self._expose_charging_export_headroom = parse_bool(
+            observations_config.get('headroom_export', self._electrical_service_enabled),
+            default=self._electrical_service_enabled,
+            path='charging_constraints.observations.headroom_export',
+        )
+        self._expose_charging_violation = parse_bool(
+            observations_config.get('violation', True),
+            default=True,
+            path='charging_constraints.observations.violation',
+        )
+        self._include_phase_encoding = parse_bool(
+            observations_config.get('phase_encoding', False),
+            default=False,
+            path='charging_constraints.observations.phase_encoding',
+        )
         self._building_charger_limit_kw = None
         self._phase_limits = []
         self._charger_phase_map: Mapping[str, str] = {}
@@ -941,6 +962,10 @@ class Building(Environment):
                 invalid = [name for name in normalized_phase_limits if name not in {None, 'L1'}]
                 if invalid:
                     raise ValueError(f'single_phase electrical service cannot define per_phase limits for: {invalid}.')
+            else:
+                invalid = [name for name in normalized_phase_limits if name not in {'L1', 'L2', 'L3'}]
+                if invalid:
+                    raise ValueError(f'three_phase electrical service only accepts per_phase keys L1/L2/L3. Invalid keys: {invalid}.')
 
             for phase_name in phase_names:
                 phase_limit_config = normalized_phase_limits.get(phase_name, {}) or {}

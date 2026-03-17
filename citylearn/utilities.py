@@ -4,6 +4,55 @@ import numpy as np
 import simplejson as json
 import yaml
 
+
+def parse_bool(value: Any, default: Any = None, path: str = 'value'):
+    """Parse boolean-like values from schema/config sources.
+
+    Accepted inputs:
+    - bool
+    - int/np.integer: 0 or 1
+    - float/np.floating: 0.0 or 1.0
+    - str (case-insensitive): true/false, 1/0, yes/no, on/off
+
+    Parameters
+    ----------
+    value: Any
+        Value to parse.
+    default: Any, optional
+        Fallback value if `value` is None.
+    path: str, default: 'value'
+        Config path used in validation error messages.
+    """
+
+    if value is None:
+        if default is None:
+            return None
+        return parse_bool(default, default=None, path=path)
+
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+
+    if isinstance(value, (int, np.integer)) and not isinstance(value, bool):
+        if int(value) in (0, 1):
+            return bool(int(value))
+        raise ValueError(f"{path} must be one of: true/false, 1/0, yes/no, on/off.")
+
+    if isinstance(value, (float, np.floating)):
+        if float(value) in (0.0, 1.0):
+            return bool(int(float(value)))
+        raise ValueError(f"{path} must be one of: true/false, 1/0, yes/no, on/off.")
+
+    if isinstance(value, str):
+        token = value.strip().lower()
+        if token in {'true', '1', 'yes', 'on'}:
+            return True
+        if token in {'false', '0', 'no', 'off'}:
+            return False
+        raise ValueError(f"{path} must be one of: true/false, 1/0, yes/no, on/off.")
+
+    raise ValueError(f"{path} must be one of: true/false, 1/0, yes/no, on/off.")
+
+
 class FileHandler:
     @staticmethod
     def read_json(filepath: str, **kwargs) -> dict:

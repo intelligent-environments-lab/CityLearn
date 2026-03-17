@@ -22,6 +22,7 @@ from citylearn.exporter import EpisodeExporter
 from citylearn.internal.kpi import CityLearnKPIService
 from citylearn.internal.loading import CityLearnLoadingService
 from citylearn.internal.runtime import CityLearnRuntimeService
+from citylearn.utilities import parse_bool
 from citylearn.reward_function import (
     MultiBuildingRewardFunction,
     RewardFunction,
@@ -179,7 +180,11 @@ class CityLearnEnv(Environment, Env):
         schema_render_mode = self.schema.get('render_mode') if isinstance(self.schema, dict) else None
         schema_export_kpis = self.schema.get('export_kpis_on_episode_end') if isinstance(self.schema, dict) else None
         if schema_export_kpis is not None and export_kpis_on_episode_end is None:
-            export_kpis_on_episode_end = bool(schema_export_kpis)
+            export_kpis_on_episode_end = parse_bool(
+                schema_export_kpis,
+                default=False,
+                path='export_kpis_on_episode_end',
+            )
         if schema_render_mode is not None:
             requested_render_mode = str(schema_render_mode).lower()
         if requested_render_mode not in {'none', 'during', 'end'}:
@@ -188,9 +193,15 @@ class CityLearnEnv(Environment, Env):
         self._buffer_render = False
         self._defer_render_flush = False
         self._render_buffer = defaultdict(list)
-        self.debug_timing = bool(self.schema.get('debug_timing', False) if debug_timing is None else debug_timing)
-        self.check_observation_limits = bool(
-            self.schema.get('check_observation_limits', False) if check_observation_limits is None else check_observation_limits
+        self.debug_timing = parse_bool(
+            self.schema.get('debug_timing', False) if debug_timing is None else debug_timing,
+            default=False,
+            path='debug_timing',
+        )
+        self.check_observation_limits = parse_bool(
+            self.schema.get('check_observation_limits', False) if check_observation_limits is None else check_observation_limits,
+            default=False,
+            path='check_observation_limits',
         )
         self.metrics_log_interval = int(self.schema.get('metrics_log_interval', 0) if metrics_log_interval is None else metrics_log_interval)
         self._observations_cache: List[List[float]] = None
@@ -264,15 +275,21 @@ class CityLearnEnv(Environment, Env):
         # rendering switch: schema['render'] overrides explicit flag, otherwise rely on render_mode defaults
         schema_render = self.schema.get('render', None) if isinstance(self.schema, dict) else None
         if schema_render is not None:
-            render_enabled_flag = bool(schema_render)
+            render_enabled_flag = parse_bool(schema_render, default=False, path='render')
         elif render_flag is not None:
-            render_enabled_flag = bool(render_flag)
+            render_enabled_flag = parse_bool(render_flag, default=False, path='render')
         else:
             render_enabled_flag = self.render_mode in {'during', 'end'}
 
         self.render_enabled = render_enabled_flag
         if export_kpis_on_episode_end is None:
             export_kpis_on_episode_end = self.render_enabled
+        else:
+            export_kpis_on_episode_end = parse_bool(
+                export_kpis_on_episode_end,
+                default=self.render_enabled,
+                path='export_kpis_on_episode_end',
+            )
         self.export_kpis_on_episode_end = export_kpis_on_episode_end
 
         # reset environment and initializes episode time steps
@@ -1229,6 +1246,8 @@ class CityLearnEnv(Environment, Env):
         self._community_market_settlement_history = []
         self._observations_cache = None
         self._observations_cache_time_step = -1
+        episode_index = int(getattr(self.episode_tracker, 'episode', 0))
+        self._ev_drift_random_state = np.random.RandomState(int(self.random_seed) + episode_index)
         self._render_buffer.clear()
         self._refresh_action_cache()
         self.update_variables()
@@ -1240,7 +1259,11 @@ class CityLearnEnv(Environment, Env):
         if isinstance(self.schema, dict):
             config = self.schema.get('community_market', {}) or {}
 
-        self.community_market_enabled = bool(config.get('enabled', False))
+        self.community_market_enabled = parse_bool(
+            config.get('enabled', False),
+            default=False,
+            path='community_market.enabled',
+        )
         ratio = config.get('intra_community_sell_ratio', 0.8)
 
         try:

@@ -189,6 +189,40 @@ def test_disabled_community_market_keeps_legacy_costs(tmp_path: Path):
         env_disabled.close()
 
 
+def test_disabled_community_market_with_string_false_keeps_legacy_costs(tmp_path: Path):
+    baseline_schema = _clone_minute_schema(tmp_path, "baseline_string_false")
+    disabled_schema = _clone_minute_schema(
+        tmp_path,
+        "disabled_market_string_false",
+        mutator=lambda s: s.update(
+            {
+                "community_market": {
+                    "enabled": "false",
+                    "intra_community_sell_ratio": 0.2,
+                    "grid_export_price": 0.9,
+                }
+            }
+        ),
+    )
+
+    env_baseline = CityLearnEnv(str(baseline_schema), central_agent=True, episode_time_steps=4, random_seed=0)
+    env_disabled = CityLearnEnv(str(disabled_schema), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        _rollout_zero_actions(env_baseline)
+        _rollout_zero_actions(env_disabled)
+
+        np.testing.assert_allclose(
+            np.asarray(env_baseline.net_electricity_consumption_cost, dtype="float64"),
+            np.asarray(env_disabled.net_electricity_consumption_cost, dtype="float64"),
+            rtol=1e-9,
+            atol=1e-9,
+        )
+    finally:
+        env_baseline.close()
+        env_disabled.close()
+
+
 def test_single_phase_rejects_non_l1_assets(tmp_path: Path):
     schema_path = _clone_minute_schema(
         tmp_path,
@@ -207,6 +241,27 @@ def test_single_phase_rejects_non_l1_assets(tmp_path: Path):
     )
 
     with pytest.raises(ValueError, match="single_phase"):
+        CityLearnEnv(str(schema_path), central_agent=True, episode_time_steps=4, random_seed=0)
+
+
+def test_three_phase_rejects_invalid_per_phase_keys(tmp_path: Path):
+    schema_path = _clone_minute_schema(
+        tmp_path,
+        "three_phase_invalid_key",
+        mutator=lambda s: s["buildings"]["Building_1"].update(
+            {
+                "electrical_service": {
+                    "mode": "three_phase",
+                    "limits": {
+                        "total": {"import_kw": 8.0, "export_kw": 8.0},
+                        "per_phase": {"L1": {"import_kw": 3.0}, "L4": {"import_kw": 3.0}},
+                    },
+                }
+            }
+        ),
+    )
+
+    with pytest.raises(ValueError, match="L1/L2/L3"):
         CityLearnEnv(str(schema_path), central_agent=True, episode_time_steps=4, random_seed=0)
 
 

@@ -4,7 +4,6 @@ from dataclasses import dataclass
 import hashlib
 import importlib
 import os
-import random
 from typing import TYPE_CHECKING, Any, List, Mapping, Tuple, Union
 
 import numpy as np
@@ -25,6 +24,7 @@ from citylearn.data import (
 from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.energy_model import Battery, PV, WashingMachine
 from citylearn.reward_function import MultiBuildingRewardFunction, RewardFunction
+from citylearn.utilities import parse_bool
 
 if TYPE_CHECKING:
     from citylearn.citylearn import CityLearnEnv
@@ -65,7 +65,11 @@ class CityLearnLoadingService:
 
         schema['root_directory'] = kwargs['root_directory'] if kwargs.get('root_directory') is not None else schema['root_directory']
         schema['random_seed'] = schema.get('random_seed', None) if kwargs.get('random_seed', None) is None else schema.get('random_seed', None)
-        schema['central_agent'] = kwargs['central_agent'] if kwargs.get('central_agent') is not None else schema['central_agent']
+        schema['central_agent'] = parse_bool(
+            kwargs['central_agent'] if kwargs.get('central_agent') is not None else schema['central_agent'],
+            default=False,
+            path='central_agent',
+        )
 
         schema['chargers_observations_helper'] = {key: value for key, value in schema["observations"].items() if "electric_vehicle_" in key}
         schema['chargers_actions_helper'] = {key: value for key, value in schema["actions"].items() if "electric_vehicle_" in key}
@@ -97,7 +101,7 @@ class CityLearnLoadingService:
                 for k, v in schema['observations'].items()
                 if not k.startswith("electric_vehicle_")
                 and "washing_machine" not in k
-                and v.get('shared_in_central_agent', False)
+                and parse_bool(v.get('shared_in_central_agent', False), default=False, path=f'observations.{k}.shared_in_central_agent')
             ]
         )
 
@@ -136,7 +140,10 @@ class CityLearnLoadingService:
                 raise Exception('Unknown buildings type. Allowed types are citylearn.building.Building, int and str.')
 
         else:
-            buildings_to_include = [b for b in buildings_to_include if schema['buildings'][b]['include']]
+            buildings_to_include = [
+                b for b in buildings_to_include
+                if parse_bool(schema['buildings'][b].get('include', True), default=True, path=f'buildings.{b}.include')
+            ]
 
         for i, building_name in enumerate(buildings_to_include):
             buildings.append(self.load_building(i, building_name, schema, episode_tracker, pv_sizing_data, battery_sizing_data, **kwargs))
@@ -148,7 +155,7 @@ class CityLearnLoadingService:
             electric_vehicle_schemas = schema.get('electric_vehicles_def', {})
 
         for electric_vehicle_name, electric_vehicle_schema in electric_vehicle_schemas.items():
-            if electric_vehicle_schema['include']:
+            if parse_bool(electric_vehicle_schema.get('include', True), default=True, path=f'electric_vehicles_def.{electric_vehicle_name}.include'):
                 time_step_ratio = buildings[0].time_step_ratio if len(buildings) > 0 else 1.0
                 electric_vehicles.append(
                     self.load_electric_vehicle(electric_vehicle_name, schema, electric_vehicle_schema, episode_tracker, time_step_ratio)
@@ -446,7 +453,11 @@ class CityLearnLoadingService:
                     'random_seed': attributes['random_seed'] if attributes.get('random_seed', None) is not None else device_random_seed,
                 }
                 device = constructor(**attributes)
-                autosize = False if building_schema[device_name].get('autosize', None) is None else building_schema[device_name]['autosize']
+                autosize = parse_bool(
+                    building_schema[device_name].get('autosize', False),
+                    default=False,
+                    path=f'buildings.{building.name}.{device_name}.autosize',
+                )
                 building.__setattr__(device_name, device)
 
                 if autosize:
@@ -481,12 +492,21 @@ class CityLearnLoadingService:
     ):
         """Build observation and action metadata for one building."""
 
-        observation_metadata = {k: v['active'] for k, v in schema['observations'].items()}
+        observation_metadata = {
+            k: parse_bool(v.get('active', False), default=False, path=f'observations.{k}.active')
+            for k, v in schema['observations'].items()
+        }
         if 'minutes' in observation_metadata and energy_simulation.minutes is None:
             observation_metadata.pop('minutes', None)
 
-        chargers_observations_metadata_helper = {k: v['active'] for k, v in schema['chargers_observations_helper'].items()}
-        washing_machine_observations_metadata_helper = {k: v['active'] for k, v in schema['washing_machine_observations_helper'].items()}
+        chargers_observations_metadata_helper = {
+            k: parse_bool(v.get('active', False), default=False, path=f'observations.{k}.active')
+            for k, v in schema['chargers_observations_helper'].items()
+        }
+        washing_machine_observations_metadata_helper = {
+            k: parse_bool(v.get('active', False), default=False, path=f'observations.{k}.active')
+            for k, v in schema['washing_machine_observations_helper'].items()
+        }
 
         if kwargs.get('active_observations') is not None:
             active_observations = kwargs['active_observations']
@@ -516,9 +536,18 @@ class CityLearnLoadingService:
             for k in washing_machine_observations_metadata_helper
         }
 
-        action_metadata = {k: v['active'] for k, v in schema['actions'].items()}
-        chargers_actions_metadata_helper = {k: v['active'] for k, v in schema['chargers_actions_helper'].items()}
-        washing_machine_actions_metadata_helper = {k: v['active'] for k, v in schema['washing_machine_actions_helper'].items()}
+        action_metadata = {
+            k: parse_bool(v.get('active', False), default=False, path=f'actions.{k}.active')
+            for k, v in schema['actions'].items()
+        }
+        chargers_actions_metadata_helper = {
+            k: parse_bool(v.get('active', False), default=False, path=f'actions.{k}.active')
+            for k, v in schema['chargers_actions_helper'].items()
+        }
+        washing_machine_actions_metadata_helper = {
+            k: parse_bool(v.get('active', False), default=False, path=f'actions.{k}.active')
+            for k, v in schema['washing_machine_actions_helper'].items()
+        }
 
         if kwargs.get('active_actions') is not None:
             active_actions = kwargs['active_actions']
@@ -596,7 +625,11 @@ class CityLearnLoadingService:
 
         capacity = electric_vehicle_schema['battery']['attributes']['capacity']
         nominal_power = electric_vehicle_schema['battery']['attributes']['nominal_power']
-        initial_soc = electric_vehicle_schema['battery']['attributes'].get('initial_soc', random.uniform(0, 1))
+        initial_soc = electric_vehicle_schema['battery']['attributes'].get('initial_soc')
+        if initial_soc is None:
+            seed_source = f"{schema['random_seed']}:{electric_vehicle_name}:initial_soc"
+            deterministic_seed = int(hashlib.md5(seed_source.encode('utf-8')).hexdigest()[:8], 16)
+            initial_soc = float(np.random.RandomState(deterministic_seed).uniform(0.0, 1.0))
         depth_of_discharge = electric_vehicle_schema['battery']['attributes'].get('depth_of_discharge', 0.10)
 
         battery = Battery(
