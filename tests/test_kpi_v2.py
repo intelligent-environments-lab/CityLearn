@@ -186,6 +186,92 @@ def _build_schema_with_manual_equity_groups(
     return schema_path
 
 
+def _build_zero_sum_pricing_schema(tmp_path: Path) -> Path:
+    dataset_dir = tmp_path / "zero_sum_pricing_dataset"
+    dataset_dir.mkdir(parents=True, exist_ok=True)
+
+    weather = pd.read_csv(MINUTE_DATASET_DIR / "weather.csv").iloc[:3].copy()
+    weather.to_csv(dataset_dir / "weather.csv", index=False)
+
+    carbon = pd.read_csv(MINUTE_DATASET_DIR / "carbon_intensity.csv").iloc[:3].copy()
+    carbon.to_csv(dataset_dir / "carbon_intensity.csv", index=False)
+
+    pricing = pd.DataFrame(
+        {
+            "electricity_pricing": [1.0, -1.0, 0.0],
+            "electricity_pricing_predicted_1": [1.0, -1.0, 0.0],
+            "electricity_pricing_predicted_2": [1.0, -1.0, 0.0],
+            "electricity_pricing_predicted_3": [1.0, -1.0, 0.0],
+        }
+    )
+    pricing.to_csv(dataset_dir / "pricing.csv", index=False)
+
+    building = pd.DataFrame(
+        {
+            "month": [1, 1, 1],
+            "hour": [0, 1, 2],
+            "minutes": [0, 0, 0],
+            "day_type": [1, 1, 1],
+            "daylight_savings_status": [0, 0, 0],
+            "indoor_dry_bulb_temperature": [21.0, 21.0, 21.0],
+            "average_unmet_cooling_setpoint_difference": [0.0, 0.0, 0.0],
+            "indoor_relative_humidity": [45.0, 45.0, 45.0],
+            "non_shiftable_load": [1.0, 2.0, 3.0],
+            "dhw_demand": [0.0, 0.0, 0.0],
+            "cooling_demand": [0.0, 0.0, 0.0],
+            "heating_demand": [0.0, 0.0, 0.0],
+            "solar_generation": [0.0, 0.0, 0.0],
+        }
+    )
+    building.to_csv(dataset_dir / "Building_1.csv", index=False)
+
+    schema = {
+        "random_seed": 0,
+        "root_directory": None,
+        "central_agent": True,
+        "simulation_start_time_step": 0,
+        "simulation_end_time_step": 2,
+        "episode_time_steps": 3,
+        "rolling_episode_split": False,
+        "random_episode_split": False,
+        "seconds_per_time_step": 3600,
+        "observations": {
+            "month": {"active": True, "shared_in_central_agent": True},
+            "hour": {"active": True, "shared_in_central_agent": True},
+            "minutes": {"active": True, "shared_in_central_agent": True},
+            "day_type": {"active": True, "shared_in_central_agent": True},
+            "outdoor_dry_bulb_temperature": {"active": True, "shared_in_central_agent": True},
+            "non_shiftable_load": {"active": True, "shared_in_central_agent": False},
+            "net_electricity_consumption": {"active": True, "shared_in_central_agent": False},
+            "electricity_pricing": {"active": True, "shared_in_central_agent": True},
+        },
+        "actions": {"electrical_storage": {"active": False}},
+        "reward_function": {"type": "citylearn.reward_function.RewardFunction", "attributes": {}},
+        "buildings": {
+            "Building_1": {
+                "include": True,
+                "energy_simulation": "Building_1.csv",
+                "weather": "weather.csv",
+                "carbon_intensity": "carbon_intensity.csv",
+                "pricing": "pricing.csv",
+                "inactive_observations": [],
+                "inactive_actions": [],
+                "pv": {
+                    "type": "citylearn.energy_model.PV",
+                    "autosize": False,
+                    "attributes": {"nominal_power": 0.0},
+                },
+            }
+        },
+    }
+
+    schema_path = dataset_dir / "schema.json"
+    with open(schema_path, "w", encoding="utf-8") as f:
+        json.dump(schema, f, indent=2)
+
+    return schema_path
+
+
 @pytest.mark.parametrize("seconds_per_time_step", [5, 10, 60, 300, 900])
 def test_daily_and_monthly_kpis_use_time_aware_windows(seconds_per_time_step: int):
     env = _run_episode(SCHEMA, seconds_per_time_step=seconds_per_time_step, episode_steps=24)
@@ -227,6 +313,42 @@ def test_daily_and_monthly_kpis_use_time_aware_windows(seconds_per_time_step: in
         assert float(district["daily_one_minus_load_factor_average"]) == pytest.approx(expected_daily)
         assert float(district["monthly_one_minus_load_factor_average"]) == pytest.approx(expected_monthly)
         assert float(district["daily_peak_average"]) == pytest.approx(expected_peak_daily)
+    finally:
+        env.close()
+
+
+def test_cost_baseline_total_eur_not_forced_to_zero_when_price_sum_is_zero(tmp_path: Path):
+    schema_path = _build_zero_sum_pricing_schema(tmp_path)
+    env = CityLearnEnv(str(schema_path), central_agent=True, episode_time_steps=3, random_seed=0)
+
+    try:
+        env.reset()
+        zeros = np.zeros(len(env.action_names[0]), dtype="float32")
+        while not env.terminated:
+            env.step([zeros])
+
+        baseline_condition = EvaluationCondition.WITHOUT_STORAGE_BUT_WITH_PV
+        baseline_series = getattr(
+            env.buildings[0],
+            f"net_electricity_consumption_cost{baseline_condition.value}",
+        )
+        baseline_array = np.asarray(baseline_series, dtype="float64")
+        expected_baseline_total = float(baseline_array[np.isfinite(baseline_array)].sum())
+
+        df = env.evaluate(
+            control_condition=EvaluationCondition.WITH_STORAGE_AND_PV,
+            baseline_condition=baseline_condition,
+        )
+        building_value = float(
+            df[(df["name"] == "Building_1") & (df["cost_function"] == "cost_baseline_total_eur")]["value"].iloc[0]
+        )
+        district_value = float(
+            df[(df["name"] == "District") & (df["cost_function"] == "cost_baseline_total_eur")]["value"].iloc[0]
+        )
+
+        assert expected_baseline_total != 0.0
+        assert building_value == pytest.approx(expected_baseline_total, abs=1e-9)
+        assert district_value == pytest.approx(expected_baseline_total, abs=1e-9)
     finally:
         env.close()
 

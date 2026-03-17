@@ -487,9 +487,9 @@ class CityLearnKPIService:
             control_cost_series = get_net_electricity_consumption_cost(building, building_control_condition)
             baseline_cost_series = get_net_electricity_consumption_cost(building, building_baseline_condition)
             cost_c_legacy = CostFunction.cost(control_cost_series)[-1]
-            cost_b_legacy = CostFunction.cost(baseline_cost_series)[-1] if sum(building.pricing.electricity_pricing) != 0 else 0
+            cost_b_legacy = CostFunction.cost(baseline_cost_series)[-1]
             cost_c_raw = self._sum_finite(control_cost_series)
-            cost_b_raw = self._sum_finite(baseline_cost_series) if sum(building.pricing.electricity_pricing) != 0 else 0.0
+            cost_b_raw = self._sum_finite(baseline_cost_series)
             equity_benefit = self._equity_relative_benefit_percent(cost_c_raw, cost_b_raw)
             equity_relative_benefit_by_building[building.name] = equity_benefit
 
