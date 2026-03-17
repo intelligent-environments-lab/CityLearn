@@ -2443,7 +2443,7 @@ class Building(Environment):
             if isinstance(self.heating_device, HeatPump):
                 heating_electricity_consumption = self.heating_device.get_input_power(heating_demand, temperature, heating=True)
             else:
-                heating_electricity_consumption = self.dhw_device.get_input_power(heating_demand)
+                heating_electricity_consumption = self.heating_device.get_input_power(heating_demand)
 
             self.heating_device.set_electricity_consumption(heating_electricity_consumption)
 

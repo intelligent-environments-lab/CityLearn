@@ -521,9 +521,12 @@ class BuildingOpsService:
             building.heating_storage.energy_balance, t, 0.0
         )
         if isinstance(building.heating_device, HeatPump):
-            heating_kw = self._safe_scalar(building.heating_device.get_input_power(heating_demand, temperature, heating=True), 0.0)
+            heating_kw = self._safe_scalar(
+                building.heating_device.get_input_power(heating_demand, temperature, heating=True),
+                0.0,
+            )
         else:
-            heating_kw = self._safe_scalar(building.dhw_device.get_input_power(heating_demand), 0.0)
+            heating_kw = self._safe_scalar(building.heating_device.get_input_power(heating_demand), 0.0)
 
         dhw_demand = self._safe_index(building.energy_from_dhw_device, t, 0.0) + self._safe_index(
             building.dhw_storage.energy_balance, t, 0.0
