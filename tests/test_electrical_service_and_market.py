@@ -210,6 +210,70 @@ def test_single_phase_rejects_non_l1_assets(tmp_path: Path):
         CityLearnEnv(str(schema_path), central_agent=True, episode_time_steps=4, random_seed=0)
 
 
+def test_electrical_service_rejects_nan_limits(tmp_path: Path):
+    def _mutate(schema):
+        building = schema["buildings"]["Building_1"]
+        building["electrical_service"] = {
+            "mode": "three_phase",
+            "limits": {
+                "total": {"import_kw": "NaN", "export_kw": 10.0},
+                "per_phase": {},
+            },
+        }
+
+    schema_path = _clone_minute_schema(tmp_path, "electrical_service_nan_limit", mutator=_mutate)
+
+    with pytest.raises(ValueError, match="cannot be NaN"):
+        CityLearnEnv(str(schema_path), central_agent=True, episode_time_steps=4, random_seed=0)
+
+
+def test_electrical_service_positive_infinite_limits_are_treated_as_unbounded(tmp_path: Path):
+    def _mutate(schema):
+        building = schema["buildings"]["Building_1"]
+        building["electrical_service"] = {
+            "mode": "three_phase",
+            "limits": {
+                "total": {"import_kw": "inf", "export_kw": "inf"},
+                "per_phase": {
+                    "L1": {"import_kw": "inf", "export_kw": "inf"},
+                    "L2": {"import_kw": "inf", "export_kw": "inf"},
+                    "L3": {"import_kw": "inf", "export_kw": "inf"},
+                },
+            },
+            "observations": {"headroom": True, "violation": True},
+        }
+        building["electrical_storage"]["attributes"]["phase_connection"] = "all_phases"
+
+    schema_path = _clone_minute_schema(tmp_path, "electrical_service_infinite_limit", mutator=_mutate)
+    env = CityLearnEnv(str(schema_path), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        action_names = env.action_names[0]
+        actions = np.zeros(len(action_names), dtype="float32")
+        actions[action_names.index("electrical_storage")] = 1.0
+        ev_action_name = next(name for name in action_names if name.startswith("electric_vehicle_storage_"))
+        actions[action_names.index(ev_action_name)] = 1.0
+        env.step([actions])
+
+        building = env.buildings[0]
+        state = building._charging_constraints_state
+        assert state is not None
+        assert state["building_headroom_kw"] is None
+        assert state["building_export_headroom_kw"] is None
+        assert state["phase_headroom_kw"]["L1"] is None
+        assert state["phase_headroom_kw"]["L2"] is None
+        assert state["phase_headroom_kw"]["L3"] is None
+        assert state["phase_export_headroom_kw"]["L1"] is None
+        assert state["phase_export_headroom_kw"]["L2"] is None
+        assert state["phase_export_headroom_kw"]["L3"] is None
+        assert np.isfinite(state["total_power_kw"])
+        assert np.isfinite(building._charging_constraint_last_penalty_kwh)
+        assert building._charging_constraint_last_penalty_kwh == pytest.approx(0.0, abs=1e-6)
+    finally:
+        env.close()
+
+
 def test_three_phase_limits_clip_controllable_actions(tmp_path: Path):
     def _mutate(schema):
         building = schema["buildings"]["Building_1"]

@@ -456,7 +456,7 @@ class BuildingOpsService:
         except (TypeError, ValueError):
             return float(default)
 
-        if np.isnan(scalar):
+        if not np.isfinite(scalar):
             return float(default)
 
         return scalar
@@ -546,6 +546,7 @@ class BuildingOpsService:
         if action is None:
             return 0.0
 
+        action = self._safe_scalar(action, 0.0)
         action = float(np.clip(action, -1.0, 1.0))
         if action > 0.0:
             max_power = self._safe_scalar(getattr(charger, 'max_charging_power', 0.0), 0.0)
@@ -583,6 +584,7 @@ class BuildingOpsService:
         building = self.building
         if action is None:
             return 0.0
+        action = self._safe_scalar(action, 0.0)
         action = float(np.clip(action, -1.0, 1.0))
         nominal_power = self._safe_scalar(getattr(building.electrical_storage, 'nominal_power', 0.0), 0.0)
         return action * nominal_power if nominal_power > 0.0 else 0.0
@@ -607,6 +609,10 @@ class BuildingOpsService:
         return total_kw, phase_kw
 
     def _scale_for_import_scope(self, current_value_kw, limit_kw, controls, scales, component_getter) -> bool:
+        limit_kw = self._safe_scalar(limit_kw, np.nan)
+        current_value_kw = self._safe_scalar(current_value_kw, 0.0)
+        if not np.isfinite(limit_kw):
+            return False
         if limit_kw is None or current_value_kw <= limit_kw + 1e-9:
             return False
 
@@ -635,6 +641,10 @@ class BuildingOpsService:
         return True
 
     def _scale_for_export_scope(self, current_value_kw, limit_kw, controls, scales, component_getter) -> bool:
+        limit_kw = self._safe_scalar(limit_kw, np.nan)
+        current_value_kw = self._safe_scalar(current_value_kw, 0.0)
+        if not np.isfinite(limit_kw):
+            return False
         if limit_kw is None:
             return False
 
@@ -692,7 +702,8 @@ class BuildingOpsService:
         if positive_requests:
             total_kw = sum(positive_requests.values())
             building_limit = building._building_charger_limit_kw
-            if building_limit is not None and building_limit >= 0.0 and total_kw > building_limit:
+            building_limit = self._safe_scalar(building_limit, np.nan)
+            if np.isfinite(building_limit) and building_limit >= 0.0 and total_kw > building_limit:
                 scale = 0.0 if building_limit == 0 else building_limit / total_kw
                 for charger_id in scales:
                     scales[charger_id] *= scale
@@ -700,7 +711,8 @@ class BuildingOpsService:
 
             for phase in building._phase_limits:
                 limit = phase.get('limit_kw')
-                if limit is None or limit < 0.0:
+                limit = self._safe_scalar(limit, np.nan)
+                if not np.isfinite(limit) or limit < 0.0:
                     continue
                 chargers = phase.get('chargers', []) or []
                 phase_sum = sum(
@@ -736,11 +748,13 @@ class BuildingOpsService:
                 actions[charger_id] = max(0.0, min(action, target_kw / max_power))
 
             if getattr(building, '_expose_charging_constraints', False):
-                building_headroom = None if building._building_charger_limit_kw is None else building._building_charger_limit_kw - used_kw
+                building_limit = self._safe_scalar(building._building_charger_limit_kw, np.nan)
+                building_headroom = None if not np.isfinite(building_limit) else building_limit - used_kw
                 phase_headroom = {}
                 for phase in building._phase_limits:
                     limit = phase.get('limit_kw')
-                    if limit is None:
+                    limit = self._safe_scalar(limit, np.nan)
+                    if not np.isfinite(limit):
                         phase_headroom[phase['name']] = None
                     else:
                         used = sum(scaled_positive_kw.get(charger_id, 0.0) for charger_id in phase.get('chargers', []))
@@ -755,7 +769,7 @@ class BuildingOpsService:
                     'phase_power_kw': {},
                 }
 
-            penalty_kwh = violation_kw * (building.seconds_per_time_step / 3600)
+            penalty_kwh = self._safe_scalar(violation_kw * (building.seconds_per_time_step / 3600), 0.0)
             building._charging_constraint_penalty_kwh = penalty_kwh
             building._charging_constraint_last_penalty_kwh = penalty_kwh
             phase_power = {}
@@ -859,6 +873,8 @@ class BuildingOpsService:
                 break
 
         total_kw, phase_kw = self._compute_totals(base_total_kw, base_phase_kw, controls, scales)
+        total_kw = self._safe_scalar(total_kw, 0.0)
+        phase_kw = {phase: self._safe_scalar(value, 0.0) for phase, value in phase_kw.items()}
 
         if adjusted_actions is not None:
             for charger_id in adjusted_actions:
@@ -876,31 +892,31 @@ class BuildingOpsService:
             adjusted_storage_action = self._storage_action_from_power_kw(target_kw)
 
         violation_kw = 0.0
-        import_limit = total_limits.get('import_kw')
-        export_limit = total_limits.get('export_kw')
-        if import_limit is not None:
+        import_limit = self._safe_scalar(total_limits.get('import_kw'), np.nan)
+        export_limit = self._safe_scalar(total_limits.get('export_kw'), np.nan)
+        if np.isfinite(import_limit):
             violation_kw += max(total_kw - import_limit, 0.0)
-        if export_limit is not None:
+        if np.isfinite(export_limit):
             violation_kw += max(-total_kw - export_limit, 0.0)
 
         phase_headroom = {}
         phase_export_headroom = {}
         for phase_name in phase_names:
-            phase_total = phase_kw.get(phase_name, 0.0)
+            phase_total = self._safe_scalar(phase_kw.get(phase_name, 0.0), 0.0)
             phase_limit = per_phase_limits.get(phase_name, {})
-            phase_import_limit = phase_limit.get('import_kw')
-            phase_export_limit = phase_limit.get('export_kw')
+            phase_import_limit = self._safe_scalar(phase_limit.get('import_kw'), np.nan)
+            phase_export_limit = self._safe_scalar(phase_limit.get('export_kw'), np.nan)
 
-            phase_headroom[phase_name] = None if phase_import_limit is None else (phase_import_limit - phase_total)
-            phase_export_headroom[phase_name] = None if phase_export_limit is None else (phase_export_limit + phase_total)
+            phase_headroom[phase_name] = None if not np.isfinite(phase_import_limit) else (phase_import_limit - phase_total)
+            phase_export_headroom[phase_name] = None if not np.isfinite(phase_export_limit) else (phase_export_limit + phase_total)
 
-            if phase_import_limit is not None:
+            if np.isfinite(phase_import_limit):
                 violation_kw += max(phase_total - phase_import_limit, 0.0)
-            if phase_export_limit is not None:
+            if np.isfinite(phase_export_limit):
                 violation_kw += max(-phase_total - phase_export_limit, 0.0)
 
-        building_headroom = None if import_limit is None else (import_limit - total_kw)
-        building_export_headroom = None if export_limit is None else (export_limit + total_kw)
+        building_headroom = None if not np.isfinite(import_limit) else (import_limit - total_kw)
+        building_export_headroom = None if not np.isfinite(export_limit) else (export_limit + total_kw)
         building._charging_constraints_state = {
             'building_headroom_kw': building_headroom,
             'building_export_headroom_kw': building_export_headroom,
@@ -910,7 +926,7 @@ class BuildingOpsService:
             'phase_power_kw': phase_kw,
         }
 
-        penalty_kwh = violation_kw * (building.seconds_per_time_step / 3600.0)
+        penalty_kwh = self._safe_scalar(violation_kw * (building.seconds_per_time_step / 3600.0), 0.0)
         building._charging_constraint_penalty_kwh = penalty_kwh
         building._charging_constraint_last_penalty_kwh = penalty_kwh
         building._record_charging_constraint_state(
