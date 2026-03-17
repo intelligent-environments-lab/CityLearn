@@ -194,6 +194,9 @@ class CityLearnRuntimeService:
         r"""Advance all buildings to next `time_step`."""
 
         env = self.env
+        current_step = int(env.time_step)
+        last_action_step = max(env.time_steps - 2, 0)
+        reached_terminal_transition = current_step >= last_action_step
 
         partial_render_time = 0.0
         if getattr(env, 'render_enabled', False):
@@ -206,16 +209,18 @@ class CityLearnRuntimeService:
                 else:
                     env.render()
 
-        for building in env.buildings:
-            building.next_time_step()
+        if not reached_terminal_transition:
+            for building in env.buildings:
+                building.next_time_step()
 
-        for electric_vehicle in env.electric_vehicles:
-            electric_vehicle.next_time_step()
+            for electric_vehicle in env.electric_vehicles:
+                electric_vehicle.next_time_step()
 
         Environment.next_time_step(env)
 
-        self.simulate_unconnected_ev_soc()
-        self.associate_chargers_to_electric_vehicles()
+        if not reached_terminal_transition:
+            self.simulate_unconnected_ev_soc()
+            self.associate_chargers_to_electric_vehicles()
 
         return partial_render_time
 
@@ -305,6 +310,12 @@ class CityLearnRuntimeService:
         """Simulate SOC changes for EVs that are not under charger control at t+1."""
 
         env = self.env
+        random_state = getattr(env, '_ev_drift_random_state', None)
+
+        if random_state is None:
+            episode_index = int(getattr(getattr(env, 'episode_tracker', None), 'episode', 0))
+            random_state = np.random.RandomState(int(env.random_seed) + episode_index)
+            env._ev_drift_random_state = random_state
 
         t = env.time_step
         if t + 1 >= env.episode_tracker.episode_time_steps:
@@ -359,7 +370,7 @@ class CityLearnRuntimeService:
             if not found_in_charger:
                 if t > 0:
                     last_soc = ev.battery.soc[t - 1]
-                    variability = np.clip(np.random.normal(1.0, 0.2), 0.6, 1.4)
+                    variability = np.clip(random_state.normal(1.0, 0.2), 0.6, 1.4)
                     new_soc = np.clip(last_soc * variability, 0.0, 1.0)
                     ev.battery.force_set_soc(new_soc)
 

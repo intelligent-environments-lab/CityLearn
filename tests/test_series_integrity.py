@@ -125,3 +125,27 @@ def test_non_shiftable_t0_update_variables_idempotent():
         assert after == pytest.approx(before, abs=1e-6)
     finally:
         env.close()
+
+
+def test_terminal_series_exclude_uncommitted_tail_slot():
+    env = CityLearnEnv(str(SCHEMA), central_agent=True, episode_time_steps=6, random_seed=0)
+
+    try:
+        env.reset()
+        zeros = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+
+        while not env.terminated:
+            _, _, terminated, truncated, _ = env.step(zeros)
+            if terminated or truncated:
+                break
+
+        assert env.time_step == env.time_steps - 1
+
+        for building in env.buildings:
+            assert building.time_step == env.time_step - 1
+            assert len(building.net_electricity_consumption) == env.time_step
+            assert len(building.net_electricity_consumption_cost) == env.time_step
+            assert len(building.net_electricity_consumption_emission) == env.time_step
+            assert len(building.electrical_storage_electricity_consumption) == env.time_step
+    finally:
+        env.close()
