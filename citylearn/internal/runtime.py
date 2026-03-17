@@ -85,11 +85,42 @@ class CityLearnRuntimeService:
 
         env = self.env
 
-        actions = list(actions)
         building_actions = []
+        cache = getattr(env, '_active_actions_cache', None)
+        cached_expected = getattr(env, '_expected_central_action_count', None)
+        current_actions = [list(b.active_actions) for b in env.buildings]
+        current_expected = sum(len(v) for v in current_actions)
+
+        if cache is None or cached_expected != current_expected or cache != current_actions:
+            env._refresh_action_cache()
+
+        def _is_scalar(value: Any) -> bool:
+            return bool(np.isscalar(value))
+
+        def _to_vector(value: Any, *, context: str) -> List[float]:
+            if isinstance(value, np.ndarray):
+                array = np.asarray(value)
+                if array.ndim == 1:
+                    return array.tolist()
+                if array.ndim == 2 and array.shape[0] == 1:
+                    return array[0].tolist()
+                raise AssertionError(f'{context} must be a 1D action vector.')
+
+            if isinstance(value, (list, tuple)):
+                if len(value) == 0:
+                    return []
+                if all(_is_scalar(v) for v in value):
+                    return list(value)
+                if len(value) == 1:
+                    inner = value[0]
+                    if isinstance(inner, (list, tuple, np.ndarray)):
+                        return _to_vector(inner, context=context)
+                raise AssertionError(f'{context} must be a 1D action vector.')
+
+            raise AssertionError(f'{context} must be a 1D action vector.')
 
         if env.central_agent:
-            actions = actions[0]
+            actions = _to_vector(actions, context='central_agent actions')
             number_of_actions = len(actions)
             expected_number_of_actions = env._expected_central_action_count
             assert number_of_actions == expected_number_of_actions, \
@@ -101,7 +132,26 @@ class CityLearnRuntimeService:
                 actions = actions[size:]
 
         else:
-            building_actions = [list(a) for a in actions]
+            if isinstance(actions, np.ndarray):
+                array = np.asarray(actions)
+                if array.ndim == 2:
+                    building_actions = [row.tolist() for row in array]
+                else:
+                    raise AssertionError(
+                        'Expected one action vector per building when central_agent=False.'
+                    )
+            elif isinstance(actions, (list, tuple)):
+                building_actions = []
+                for idx, action_vector in enumerate(actions):
+                    if isinstance(action_vector, (list, tuple, np.ndarray)):
+                        building_actions.append(_to_vector(action_vector, context=f'building action vector at index {idx}'))
+                    else:
+                        raise AssertionError(
+                            'Expected one action vector per building when central_agent=False.'
+                        )
+            else:
+                raise AssertionError('Expected one action vector per building when central_agent=False.')
+
             number_of_building_actions = len(building_actions)
             expected_building_actions = len(env.buildings)
             assert number_of_building_actions == expected_building_actions, \
@@ -351,7 +401,7 @@ class CityLearnRuntimeService:
         except (TypeError, ValueError):
             return float(default)
 
-        if np.isnan(scalar):
+        if not np.isfinite(scalar):
             return float(default)
 
         return scalar

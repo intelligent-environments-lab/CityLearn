@@ -85,6 +85,32 @@ def test_step_raises_for_invalid_central_action_count():
         env.close()
 
 
+def test_step_accepts_central_numpy_action_vector():
+    env = CityLearnEnv(str(SCHEMA), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        action = np.zeros(env.action_space[0].shape[0], dtype="float32")
+        _, _, terminated, truncated, _ = env.step(action)
+        assert not terminated
+        assert not truncated
+    finally:
+        env.close()
+
+
+def test_step_accepts_central_single_row_numpy_action_vector():
+    env = CityLearnEnv(str(SCHEMA), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        action = np.zeros((1, env.action_space[0].shape[0]), dtype="float32")
+        _, _, terminated, truncated, _ = env.step(action)
+        assert not terminated
+        assert not truncated
+    finally:
+        env.close()
+
+
 def test_step_raises_for_missing_decentralized_action_vector():
     env = CityLearnEnv(str(SCHEMA), central_agent=False, episode_time_steps=4, random_seed=0)
 
@@ -97,5 +123,18 @@ def test_step_raises_for_missing_decentralized_action_vector():
 
         with pytest.raises(AssertionError, match="building action vectors"):
             env.step(actions[:-1])
+    finally:
+        env.close()
+
+
+def test_step_accepts_valid_decentralized_action_vectors():
+    env = CityLearnEnv(str(SCHEMA), central_agent=False, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        actions = _zero_actions(env)
+        _, _, terminated, truncated, _ = env.step(actions)
+        assert not terminated
+        assert not truncated
     finally:
         env.close()

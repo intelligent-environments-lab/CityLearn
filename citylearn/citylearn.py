@@ -1230,6 +1230,7 @@ class CityLearnEnv(Environment, Env):
         self._observations_cache = None
         self._observations_cache_time_step = -1
         self._render_buffer.clear()
+        self._refresh_action_cache()
         self.update_variables()
 
         return self.observations, self.get_info()
