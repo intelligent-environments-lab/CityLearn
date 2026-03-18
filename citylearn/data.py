@@ -20,6 +20,9 @@ ZERO_DIVISION_PLACEHOLDER = 0.000001
 MISC_DIRECTORY = os.path.join(os.path.dirname(__file__), 'misc')
 QUERIES_DIRECTORY = os.path.join(MISC_DIRECTORY, 'queries')
 SETTINGS_FILEPATH = os.path.join(MISC_DIRECTORY, 'settings.yaml')
+LOCAL_DATA_MISC_DIRECTORY = os.path.normpath(
+    os.path.join(os.path.dirname(__file__), '..', 'data', 'misc')
+)
 
 def get_settings():
     directory = os.path.join(os.path.join(os.path.dirname(__file__), 'misc'))
@@ -201,6 +204,13 @@ class DataSet:
         filepath = os.path.join(misc_directory, self.PV_CHOICES_FILENAME)
         path = FileHandler.join_url(self.misc_path)
 
+        # Prefer local repository data to avoid unnecessary network usage.
+        if not os.path.isfile(filepath):
+            local_filepath = os.path.join(LOCAL_DATA_MISC_DIRECTORY, self.PV_CHOICES_FILENAME)
+
+            if os.path.isfile(local_filepath):
+                shutil.copy(local_filepath, filepath)
+
         # check that file DNE
         if not os.path.isfile(filepath):
             LOGGER.info(f'The PV sizing data DNE in cache. Will download from '
@@ -233,6 +243,13 @@ class DataSet:
         os.makedirs(misc_directory, exist_ok=True)
         filepath = os.path.join(misc_directory, self.BATTERY_CHOICES_FILENAME)
         path = FileHandler.join_url(self.misc_path)
+
+        # Prefer local repository data to avoid unnecessary network usage.
+        if not os.path.isfile(filepath):
+            local_filepath = os.path.join(LOCAL_DATA_MISC_DIRECTORY, self.BATTERY_CHOICES_FILENAME)
+
+            if os.path.isfile(local_filepath):
+                shutil.copy(local_filepath, filepath)
 
         # check that file DNE
         if not os.path.isfile(filepath):
