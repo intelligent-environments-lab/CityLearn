@@ -670,7 +670,7 @@ class StorageDevice(Device):
     def loss_coefficient(self) -> float:
         r"""Standby hourly losses."""
 
-        return self.__loss_coefficient * self.time_step_ratio
+        return self.__loss_coefficient
     
     @property
     def initial_soc(self) -> float:
@@ -687,9 +687,11 @@ class StorageDevice(Device):
     @property
     def energy_init(self) -> float:
         r"""Latest energy level after accounting for standby hourly lossses in [kWh]."""
+        time_step_loss_coefficient = 1.0 - (1.0 - self.loss_coefficient)**self.hours_per_time_step
+
         if self.time_step == 0:
-            return max(0.0, self.__soc[self.time_step]*self.capacity*(1 - self.loss_coefficient))
-        return max(0.0, self.__soc[self.time_step - 1]*self.capacity*(1 - self.loss_coefficient))
+            return max(0.0, self.__soc[self.time_step]*self.capacity*(1 - time_step_loss_coefficient))
+        return max(0.0, self.__soc[self.time_step - 1]*self.capacity*(1 - time_step_loss_coefficient))
 
     @property
     def energy_balance(self) -> np.ndarray:
