@@ -772,7 +772,7 @@ class BuildingOpsService:
                     'phase_power_kw': {},
                 }
 
-            penalty_kwh = self._safe_scalar(violation_kw * (building.seconds_per_time_step / 3600), 0.0)
+            penalty_kwh = self._safe_scalar(violation_kw * (building.hours_per_time_step), 0.0)
             building._charging_constraint_penalty_kwh = penalty_kwh
             building._charging_constraint_last_penalty_kwh = penalty_kwh
             phase_power = {}
@@ -929,7 +929,7 @@ class BuildingOpsService:
             'phase_power_kw': phase_kw,
         }
 
-        penalty_kwh = self._safe_scalar(violation_kw * (building.seconds_per_time_step / 3600.0), 0.0)
+        penalty_kwh = self._safe_scalar(violation_kw * (building.hours_per_time_step), 0.0)
         building._charging_constraint_penalty_kwh = penalty_kwh
         building._charging_constraint_last_penalty_kwh = penalty_kwh
         building._record_charging_constraint_state(

@@ -118,7 +118,7 @@ class Building(Environment):
             episode_tracker=episode_tracker,
             time_step_ratio=self.time_step_ratio,
         )
-        self.algorithm_action_based_time_step_hours_ratio = self.seconds_per_time_step / 3600
+        self.algorithm_action_based_time_step_hours_ratio = self.hours_per_time_step
         self.stochastic_power_outage_model = stochastic_power_outage_model
         self.washing_machines = washing_machines
         self.electric_vehicle_chargers = electric_vehicle_chargers
@@ -1599,7 +1599,7 @@ class Building(Environment):
         power = action * self.electrical_storage.nominal_power  # kW
 
         # Convert power (kW) to energy (kWh) based on time step duration
-        time_step_hours_ratio = self.seconds_per_time_step / 3600  # Convert seconds to fraction of hour
+        time_step_hours_ratio = self.hours_per_time_step
         energy = power * time_step_hours_ratio  # Energy in kWh
 
         # Optionally clamp to flexibility range if needed
@@ -1702,7 +1702,7 @@ class Building(Environment):
         total_charger_power_kw += sum(getattr(charger, 'max_charging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
         total_charger_power_kw += sum(getattr(charger, 'max_discharging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
         total_storage_power_kw = float(getattr(self.electrical_storage, 'nominal_power', 0.0) or 0.0)
-        max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * (self.seconds_per_time_step / 3600)
+        max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * (self.hours_per_time_step)
 
         for key in observation_names:
             if key.startswith('charging_phase_one_hot_'):
@@ -1959,7 +1959,7 @@ class Building(Environment):
             total_charger_power_kw += sum(getattr(charger, 'max_charging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
             total_charger_power_kw += sum(getattr(charger, 'max_discharging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
             total_storage_power_kw = float(getattr(self.electrical_storage, 'nominal_power', 0.0) or 0.0)
-            max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * (self.seconds_per_time_step / 3600)
+            max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * (self.hours_per_time_step)
             data['charging_constraint_violation_kwh'] = np.array([0.0, max_violation_energy], dtype='float32')
 
             phase_one_hot_keys = getattr(self, '_phase_encoding_observation_keys', []) or []
