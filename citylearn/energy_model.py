@@ -686,7 +686,7 @@ class StorageDevice(Device):
 
     @property
     def energy_init(self) -> float:
-        r"""Latest energy level after accounting for standby hourly lossses in [kWh]."""
+        r"""Latest energy level after accounting for standby losses over 1 `time_step` in [kWh]."""
         time_step_loss_coefficient = 1.0 - (1.0 - self.loss_coefficient)**self.hours_per_time_step
 
         if self.time_step == 0:

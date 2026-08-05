@@ -211,7 +211,7 @@ class Environment:
         r"""Number of seconds in 1 time step."""
 
         return self.__seconds_per_time_step
-
+    
     @property
     def hours_per_time_step(self) -> float:
         r"""Number of hours in 1 time step."""
