@@ -340,10 +340,7 @@ class Charger(Environment):
         if self.connected_electric_vehicle:
             electric_vehicle = self.connected_electric_vehicle
 
-            # Battery model expects dataset-resolution energy. Convert from control-step kWh when needed.
-            ratio = getattr(electric_vehicle.battery, 'time_step_ratio', None)
-            battery_command = battery_energy_kwh if ratio in (None, 0) else battery_energy_kwh / ratio
-            electric_vehicle.battery.charge(battery_command)
+            electric_vehicle.battery.charge(battery_energy_kwh)
 
             battery_energy_balance = electric_vehicle.battery.energy_balance[self.time_step]
             self.__electricity_consumption[self.time_step] = (
