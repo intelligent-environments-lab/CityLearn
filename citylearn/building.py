@@ -11,7 +11,7 @@ from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import CarbonIntensity, EnergySimulation, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
 from citylearn.dynamics import Dynamics, LSTMDynamics
 from citylearn.electric_vehicle_charger import Charger
-from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageDevice, StorageTank, WashingMachine
+from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageTank, WashingMachine
 from citylearn.internal.building_ops import BuildingOpsService
 from citylearn.occupant import LogisticRegressionOccupant, Occupant
 from citylearn.power_outage import PowerOutage
@@ -118,7 +118,7 @@ class Building(Environment):
             episode_tracker=episode_tracker,
             time_step_ratio=self.time_step_ratio,
         )
-        self.algorithm_action_based_time_step_hours_ratio = self.seconds_per_time_step / 3600
+        self.algorithm_action_based_time_step_hours_ratio = self.hours_per_time_step
         self.stochastic_power_outage_model = stochastic_power_outage_model
         self.washing_machines = washing_machines
         self.electric_vehicle_chargers = electric_vehicle_chargers
@@ -1478,7 +1478,7 @@ class Building(Environment):
             demand = self.cooling_demand[self.time_step]
             energy = max(-demand, energy)
 
-        self.cooling_storage.charge(self._convert_energy_for_storage(self.cooling_storage, energy))
+        self.cooling_storage.charge(energy)
         charged_energy = max(self.cooling_storage.energy_balance[self.time_step], 0.0)
         electricity_consumption = self.cooling_device.get_input_power(charged_energy, temperature, heating=False)
         self.cooling_device.update_electricity_consumption(electricity_consumption)
@@ -1527,7 +1527,7 @@ class Building(Environment):
             demand = self.heating_demand[self.time_step]
             energy = max(-demand, energy)
 
-        self.heating_storage.charge(self._convert_energy_for_storage(self.heating_storage, energy))
+        self.heating_storage.charge(energy)
         charged_energy = max(self.heating_storage.energy_balance[self.time_step], 0.0)
         electricity_consumption = self.heating_device.get_input_power(charged_energy, temperature, heating=True) \
             if isinstance(self.heating_device, HeatPump) else self.heating_device.get_input_power(charged_energy)
@@ -1572,7 +1572,7 @@ class Building(Environment):
             demand = self.dhw_demand[self.time_step]
             energy = max(-demand, energy)
 
-        self.dhw_storage.charge(self._convert_energy_for_storage(self.dhw_storage, energy))
+        self.dhw_storage.charge(energy)
         charged_energy = max(self.dhw_storage.energy_balance[self.time_step], 0.0)
         electricity_consumption = self.dhw_device.get_input_power(charged_energy, temperature, heating=True) \
             if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_input_power(charged_energy)
@@ -1599,25 +1599,13 @@ class Building(Environment):
         power = action * self.electrical_storage.nominal_power  # kW
 
         # Convert power (kW) to energy (kWh) based on time step duration
-        time_step_hours_ratio = self.seconds_per_time_step / 3600  # Convert seconds to fraction of hour
-        energy = power * time_step_hours_ratio  # Energy in kWh
+        energy = power * self.hours_per_time_step  # Energy in kWh
 
         # Optionally clamp to flexibility range if needed
         energy = min(energy, self.downward_electrical_flexibility)
 
 
-        self.electrical_storage.charge(self._convert_energy_for_storage(self.electrical_storage, energy))
-
-    @staticmethod
-    def _convert_energy_for_storage(storage: StorageDevice, energy: float) -> float:
-        """Convert energy for storage models that expect dataset-resolution values."""
-
-        ratio = getattr(storage, 'time_step_ratio', None)
-
-        if ratio in (None, 0):
-            return energy
-
-        return energy / ratio
+        self.electrical_storage.charge(energy)
 
     def ___demand_limit_check(self, end_use: str, demand: float, max_device_output: float):
         message = f'timestep: {self.time_step}, building: {self.name}, outage: {self.power_outage}, demand: {demand},' \
@@ -1702,7 +1690,7 @@ class Building(Environment):
         total_charger_power_kw += sum(getattr(charger, 'max_charging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
         total_charger_power_kw += sum(getattr(charger, 'max_discharging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
         total_storage_power_kw = float(getattr(self.electrical_storage, 'nominal_power', 0.0) or 0.0)
-        max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * (self.seconds_per_time_step / 3600)
+        max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * self.hours_per_time_step
 
         for key in observation_names:
             if key.startswith('charging_phase_one_hot_'):
@@ -1959,7 +1947,7 @@ class Building(Environment):
             total_charger_power_kw += sum(getattr(charger, 'max_charging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
             total_charger_power_kw += sum(getattr(charger, 'max_discharging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
             total_storage_power_kw = float(getattr(self.electrical_storage, 'nominal_power', 0.0) or 0.0)
-            max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * (self.seconds_per_time_step / 3600)
+            max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * self.hours_per_time_step
             data['charging_constraint_violation_kwh'] = np.array([0.0, max_violation_energy], dtype='float32')
 
             phase_one_hot_keys = getattr(self, '_phase_encoding_observation_keys', []) or []

@@ -670,7 +670,7 @@ class StorageDevice(Device):
     def loss_coefficient(self) -> float:
         r"""Standby hourly losses."""
 
-        return self.__loss_coefficient * self.time_step_ratio
+        return self.__loss_coefficient
     
     @property
     def initial_soc(self) -> float:
@@ -686,10 +686,12 @@ class StorageDevice(Device):
 
     @property
     def energy_init(self) -> float:
-        r"""Latest energy level after accounting for standby hourly lossses in [kWh]."""
+        r"""Latest energy level after accounting for standby losses over 1 `time_step` in [kWh]."""
+        time_step_loss_coefficient = 1.0 - (1.0 - self.loss_coefficient)**self.hours_per_time_step
+
         if self.time_step == 0:
-            return max(0.0, self.__soc[self.time_step]*self.capacity*(1 - self.loss_coefficient))
-        return max(0.0, self.__soc[self.time_step - 1]*self.capacity*(1 - self.loss_coefficient))
+            return max(0.0, self.__soc[self.time_step]*self.capacity*(1 - time_step_loss_coefficient))
+        return max(0.0, self.__soc[self.time_step - 1]*self.capacity*(1 - time_step_loss_coefficient))
 
     @property
     def energy_balance(self) -> np.ndarray:
@@ -755,7 +757,6 @@ class StorageDevice(Device):
         If charging, soc = min(`soc_init` + energy*`round_trip_efficiency`, `capacity`)
         If discharging, soc = max(0, `soc_init` + energy/`round_trip_efficiency`)
         """
-        energy = energy * self.time_step_ratio
         energy_init = self.energy_init
         # The initial State Of Charge (SOC) is the previous SOC minus the energy losses
         energy_final = min(energy_init + energy*self.round_trip_efficiency, self.capacity) if energy >= 0\
@@ -886,12 +887,12 @@ class StorageTank(StorageDevice):
         If charging, soc = min(`soc_init` + energy*`efficiency`, `max_input_power`, `capacity`)
         If discharging, soc = max(0, `soc_init` + energy/`efficiency`, `max_output_power`)
         """
-        energy = energy * self.time_step_ratio
-
         if energy >= 0:    
-            energy = energy if self.max_input_power is None else np.nanmin([energy, self.max_input_power])
+            energy = energy if self.max_input_power is None \
+                else np.nanmin([energy, self.max_input_power*self.hours_per_time_step])
         else:
-            energy = energy if self.max_output_power is None else np.nanmax([-self.max_output_power, energy])
+            energy = energy if self.max_output_power is None \
+                else np.nanmax([-self.max_output_power*self.hours_per_time_step, energy])
         
         super().charge(energy)
 
@@ -1063,18 +1064,19 @@ class Battery(StorageDevice, ElectricDevice):
 
         if energy >= 0:
             energy_wrt_degrade = self.degraded_capacity - self.energy_init
-            max_input_power = self.get_max_input_power()
-            energy = min(max_input_power, self.available_nominal_power, energy_wrt_degrade, energy)
-            self.efficiency = self.get_current_efficiency(min(action_energy, max_input_power))
+            max_input_energy = self.get_max_input_power() * self.hours_per_time_step
+            available_nominal_energy = self.nominal_power * self.hours_per_time_step - self.electricity_consumption[self.time_step]
+            energy = min(max_input_energy, available_nominal_energy, energy_wrt_degrade, energy)
+            self.efficiency = self.get_current_efficiency(min(action_energy, max_input_energy))
 
         else:
             soc_limit_wrt_dod = 1.0 - self.depth_of_discharge
             soc_init = self.soc[self.time_step - 1] if self.time_step > 0 else self.soc[self.time_step]
             soc_difference = soc_init - soc_limit_wrt_dod
             energy_limit_wrt_dod = max(soc_difference * self.capacity * self.round_trip_efficiency, 0.0) * -1
-            max_output_power = self.get_max_output_power()
-            energy = max(-max_output_power, energy_limit_wrt_dod, energy)
-            self.efficiency = self.get_current_efficiency(min(abs(action_energy), max_output_power))
+            max_output_energy = self.get_max_output_power() * self.hours_per_time_step
+            energy = max(-max_output_energy, energy_limit_wrt_dod, energy)
+            self.efficiency = self.get_current_efficiency(min(abs(action_energy), max_output_energy))
 
         super().charge(energy)
         degraded_capacity = max(self.degraded_capacity - self.degrade(), 0.0)
@@ -1126,7 +1128,8 @@ class Battery(StorageDevice, ElectricDevice):
         """
 
         # Calculating the maximum power rate at which the battery can be charged or discharged
-        energy_normalized = np.abs(energy)/max(self.nominal_power, ZERO_DIVISION_PLACEHOLDER)
+        energy_normalized = np.abs(energy)/max(
+            self.nominal_power * self.hours_per_time_step, ZERO_DIVISION_PLACEHOLDER)
         idx = max(0, np.argmax(energy_normalized <= self.power_efficiency_curve[0]) - 1)
         efficiency = self.power_efficiency_curve[1][idx]\
             + (energy_normalized - self.power_efficiency_curve[0][idx]

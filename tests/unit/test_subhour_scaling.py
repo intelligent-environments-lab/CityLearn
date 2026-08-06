@@ -110,8 +110,7 @@ def test_storage_charge_scaling_respects_time_ratio():
     storage.reset()
 
     energy_actual = 2.5  # kWh to add over a 15-minute step at full power
-    dataset_energy = energy_actual / storage.time_step_ratio
-    storage.charge(dataset_energy)
+    storage.charge(energy_actual)
 
     assert storage.energy_balance[0] == pytest.approx(energy_actual)
 
@@ -156,7 +155,7 @@ def test_battery_electricity_consumption_tracks_energy_balance_in_subhour():
     battery.reset()
 
     # Dataset-resolution command corresponding to 2.5 kWh over a 15-minute step.
-    battery.charge(10.0)
+    battery.charge(2.5)
 
     assert battery.energy_balance[0] == pytest.approx(2.5)
     assert battery.electricity_consumption[0] == pytest.approx(2.5)
