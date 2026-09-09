@@ -58,6 +58,28 @@ Release owner: [@calofonseca](https://github.com/calofonseca).
 - ...
 ```
 
+## v3.0.2 - 2026-09-09
+
+Responsavel pela release: [@calofonseca](https://github.com/calofonseca).
+
+### Alterado
+
+- Removidos do registry publico os 19 datasets `ALADI`, os cinco datasets
+  `rec_2023_*` e `EC_Ermesinde`.
+- As capacidades do simulador mantem-se disponiveis; foram retirados apenas os
+  dados publicos e o teste de integracao dependente de EC Ermesinde.
+
+### Impacto em datasets
+
+- A descoberta por defeito passa a devolver 32 datasets publicos.
+- Utilizadores dos datasets retirados devem fornecer localmente o schema e os
+  respetivos ficheiros.
+
+### Compatibilidade
+
+- Sem alteracoes na API Python. O pacote e o import continuam a chamar-se
+  `citylearn`.
+
 ## v1.8.0 - 2026-08-22
 
 Responsável pela release: [@calofonseca](https://github.com/calofonseca).

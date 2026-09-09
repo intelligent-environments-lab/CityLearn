@@ -16,7 +16,7 @@ from citylearn.citylearn import CityLearnEnv
 
 Default documentation is in English. Portuguese documentation is available under [docs/pt](docs/pt/).
 
-Current source release: `3.0.1`.
+Current source release: `3.0.2`.
 
 ## Start Here
 

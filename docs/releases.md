@@ -60,6 +60,28 @@ Release owner: [@calofonseca](https://github.com/calofonseca).
 - ...
 ```
 
+## v3.0.2 - 2026-09-09
+
+Release owner: [@calofonseca](https://github.com/calofonseca).
+
+### Changed
+
+- Removed the 19 `ALADI` datasets, the five `rec_2023_*` datasets and
+  `EC_Ermesinde` from the public dataset registry and release tag.
+- The supported runtime capabilities remain available; only those public data
+  artifacts and their repository-bound EC Ermesinde integration test were
+  retired.
+
+### Dataset/Schema Impact
+
+- Default discovery now returns 32 public datasets.
+- Existing users that depend on a removed dataset must provide their own local
+  schema and files rather than resolving it from the official registry.
+
+### Compatibility
+
+- No Python API change. The package and import name remain `citylearn`.
+
 ## v3.0.1 - 2026-09-09
 
 Release owner: [@calofonseca](https://github.com/calofonseca).

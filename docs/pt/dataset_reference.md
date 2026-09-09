@@ -16,9 +16,9 @@ CSV e Parquet sao intercambiaveis se:
 3. As unidades sao as mesmas.
 4. Os tipos conseguem ser convertidos para os construtores do simulador.
 
-## Suite REC anual canonica de 2023
+## Suite REC anual de 2023 retirada
 
-O repositorio inclui uma escada anual hibrida e reprodutivel de cenarios para a tese e
+As versoes 1.8.0 a 3.0.1 incluiam uma escada anual hibrida e reprodutivel de cenarios para a tese e
 para as experiencias com algoritmos. Todas as familias usam o ano completo de
 2023 em UTC, 35 040 passos de 15 minutos, atributos de calendario local de
 Lisboa e ficheiros Parquet autocontidos. O antigo cenario horario de 17
@@ -31,6 +31,11 @@ de primavera e avancada uma hora e, na hora repetida de outono, e escolhida de
 forma deterministica a primeira ocorrencia. Assim, as rotinas locais nao
 sofrem um desvio de uma hora nos dias de transicao, mantendo-se uma timeline
 fisica UTC sem ambiguidades.
+
+Os cinco datasets `rec_2023_*` foram retirados do repositorio publico e do
+registry por defeito no CityLearn 3.0.2. Esta secao e mantida apenas como
+documentacao historica do formato; os utilizadores devem fornecer os seus
+proprios dados locais.
 
 | Familia | Membros | PV | BESS | Membros com charging | Chargers | Deferrables | Variantes |
 |---|---:|---:|---:|---:|---:|---:|---|

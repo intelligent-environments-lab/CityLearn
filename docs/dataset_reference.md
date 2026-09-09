@@ -13,13 +13,17 @@ Portuguese version: [pt/dataset_reference.md](pt/dataset_reference.md).
 
 CSV and Parquet are interchangeable when the schema path is updated and columns, units and types remain equivalent.
 
-## Canonical 2023 Annual REC Suite
+## Retired 2023 Annual REC Suite
 
-The repository includes a reproducible hybrid annual scenario ladder for thesis and
+Versions 1.8.0 through 3.0.1 included a reproducible hybrid annual scenario ladder for thesis and
 algorithm experiments. Every family uses the full 2023 UTC timeline, 35,040
 15-minute steps, Lisbon local-calendar attributes and self-contained Parquet
 files. The old hourly 17-building scenario remains available for historical
 reproduction but is not part of this suite.
+
+These five `rec_2023_*` datasets were removed from the public repository and
+default dataset registry in CityLearn 3.0.2. This section is retained only as
+historical format documentation; users must supply their own local data files.
 
 Routine schedules are constructed as `Europe/Lisbon` civil wall-clock times
 before conversion to UTC. The missing spring hour is shifted forward by one
