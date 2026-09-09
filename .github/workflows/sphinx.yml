@@ -27,7 +27,9 @@ jobs:
       run: | 
         # Hosted runners may carry a temporarily inconsistent third-party Chrome
         # APT source. Documentation only needs Ubuntu packages, so exclude it.
-        sudo rm -f /etc/apt/sources.list.d/google-chrome.list
+        sudo rm -f \
+          /etc/apt/sources.list.d/google-chrome.list \
+          /etc/apt/sources.list.d/google-chrome.sources
         sudo apt-get update
         sudo apt-get install -y pandoc
         python -m pip install --upgrade pip
