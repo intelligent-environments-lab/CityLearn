@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.data &mdash; CityLearn 3.0.0 documentation</title>
+  <title>citylearn.data &mdash; CityLearn 3.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=acc74ff5"></script>
+      <script src="../../_static/documentation_options.js?v=08bfcbec"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -147,8 +147,8 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">DataSet</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""CityLearn input data set and schema class."""</span>
 
-    <span class="n">GITHUB_ACCOUNT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">'CITYLEARN_DATASET_GITHUB_ACCOUNT'</span><span class="p">,</span> <span class="s1">'Soft-CPS-Research-Group'</span><span class="p">)</span>
-    <span class="n">REPOSITORY_NAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">'CITYLEARN_DATASET_REPOSITORY'</span><span class="p">,</span> <span class="s1">'Simulator'</span><span class="p">)</span>
+    <span class="n">GITHUB_ACCOUNT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">'CITYLEARN_DATASET_GITHUB_ACCOUNT'</span><span class="p">,</span> <span class="s1">'citylearn-project'</span><span class="p">)</span>
+    <span class="n">REPOSITORY_NAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">'CITYLEARN_DATASET_REPOSITORY'</span><span class="p">,</span> <span class="s1">'CityLearn'</span><span class="p">)</span>
     <span class="n">REPOSITORY_TAG</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">'CITYLEARN_DATASET_TAG'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'v</span><span class="si">{</span><span class="n">__version__</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
     <span class="n">OFFLINE</span> <span class="o">=</span> <span class="n">_parse_env_bool</span><span class="p">(</span><span class="s1">'CITYLEARN_OFFLINE'</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="n">REPOSITORY_DATA_PATH</span> <span class="o">=</span> <span class="n">FileHandler</span><span class="o">.</span><span class="n">join_url</span><span class="p">(</span><span class="s1">'data'</span><span class="p">)</span>
