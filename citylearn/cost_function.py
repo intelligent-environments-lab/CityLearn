@@ -375,14 +375,21 @@ class CostFunction:
         """
 
         data = pd.DataFrame({
-            'expected_energy': expected_energy,
-            'served_energy': served_energy,
+            'expected_energy': np.asarray(expected_energy, dtype='float64'),
+            'served_energy': np.asarray(served_energy, dtype='float64'),
             'power_outage': [1]*len(served_energy) if power_outage is None else power_outage,
         })
-        data['unserved_energy'] = data['expected_energy'] - data['served_energy']
-        data.loc[data['power_outage']==0, ('unserved_energy', 'expected_energy')] = (0.0, 0.0)
+        data['expected_energy'] = data['expected_energy'].where(np.isfinite(data['expected_energy']), 0.0).clip(lower=0.0)
+        data['served_energy'] = data['served_energy'].where(np.isfinite(data['served_energy']), 0.0).clip(lower=0.0)
+        data['power_outage'] = pd.to_numeric(data['power_outage'], errors='coerce').fillna(0.0)
+        data['unserved_energy'] = (data['expected_energy'] - data['served_energy']).clip(lower=0.0)
+        data.loc[data['power_outage'] == 0, ['unserved_energy', 'expected_energy']] = 0.0
         data['unserved_energy'] = data['unserved_energy'].rolling(window=data.shape[0], min_periods=1).sum()
         expected_energy = data['expected_energy'].sum()
+
+        if expected_energy <= 0.0:
+            return [0.0]*data.shape[0]
+
         data['unserved_energy'] = data['unserved_energy']/expected_energy
 
         return data['unserved_energy'].tolist()

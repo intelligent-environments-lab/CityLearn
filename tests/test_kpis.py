@@ -141,7 +141,7 @@ def test_histories_and_kpi_consistency_with_subhour_steps(seconds_per_time_step:
                     + building.electrical_storage_electricity_consumption[t]
                     + building.solar_generation[t]
                     + building.chargers_electricity_consumption[t]
-                    + building.washing_machines_electricity_consumption[t]
+                    + building.deferrable_appliances_electricity_consumption[t]
                 )
                 assert abs(lhs - rhs) < 1e-4
 

@@ -1,0 +1,4551 @@
+{
+  "dataset_family": "PREMIUM-100",
+  "status": "pass",
+  "check_count": 1136,
+  "checks": [
+    {
+      "status": "pass",
+      "check": "dataset uses the frozen v1.9 quarter-hour contract"
+    },
+    {
+      "status": "pass",
+      "check": "routine schedules declare deterministic civil-time DST semantics"
+    },
+    {
+      "status": "pass",
+      "check": "calendar has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "time_step is contiguous"
+    },
+    {
+      "status": "pass",
+      "check": "UTC calendar starts at 2023-01-01"
+    },
+    {
+      "status": "pass",
+      "check": "UTC calendar ends at 2023-12-31 23:45"
+    },
+    {
+      "status": "pass",
+      "check": "UTC cadence is exactly 15 minutes"
+    },
+    {
+      "status": "pass",
+      "check": "local timezone is Europe/Lisbon"
+    },
+    {
+      "status": "pass",
+      "check": "Lisbon UTC offsets include winter and DST"
+    },
+    {
+      "status": "pass",
+      "check": "local calendar contains 363 regular, one 23-hour and one 25-hour day"
+    },
+    {
+      "status": "pass",
+      "check": "official OMIE series has 8,760 physical hours"
+    },
+    {
+      "status": "pass",
+      "check": "OMIE provenance identifies all 365 daily source files"
+    },
+    {
+      "status": "pass",
+      "check": "every OMIE daily source has a SHA-256 hash"
+    },
+    {
+      "status": "pass",
+      "check": "every OMIE source URL is official"
+    },
+    {
+      "status": "pass",
+      "check": "daily OMIE physical periods sum to 8,760"
+    },
+    {
+      "status": "pass",
+      "check": "quarter-hour pricing has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "each official hourly price is repeated four times"
+    },
+    {
+      "status": "pass",
+      "check": "EUR/MWh to EUR/kWh conversion is exact"
+    },
+    {
+      "status": "pass",
+      "check": "published OMIE values are exact at price horizon 4"
+    },
+    {
+      "status": "pass",
+      "check": "unpublished price horizon 4 uses causal daily persistence"
+    },
+    {
+      "status": "pass",
+      "check": "published OMIE values are exact at price horizon 24"
+    },
+    {
+      "status": "pass",
+      "check": "unpublished price horizon 24 uses causal daily persistence"
+    },
+    {
+      "status": "pass",
+      "check": "published OMIE values are exact at price horizon 96"
+    },
+    {
+      "status": "pass",
+      "check": "unpublished price horizon 96 uses causal daily persistence"
+    },
+    {
+      "status": "pass",
+      "check": "24-hour price bundle does not leak unpublished realised prices"
+    },
+    {
+      "status": "pass",
+      "check": "all weather forecast horizons include non-perfect scenario error"
+    },
+    {
+      "status": "pass",
+      "check": "member count matches manifest"
+    },
+    {
+      "status": "pass",
+      "check": "PV count matches manifest"
+    },
+    {
+      "status": "pass",
+      "check": "battery count matches manifest"
+    },
+    {
+      "status": "pass",
+      "check": "physical charger count matches manifest"
+    },
+    {
+      "status": "pass",
+      "check": "charging-member count matches manifest"
+    },
+    {
+      "status": "pass",
+      "check": "deferrable count matches manifest"
+    },
+    {
+      "status": "pass",
+      "check": "every member has one electrical-connection record"
+    },
+    {
+      "status": "pass",
+      "check": "electrical-connection member identities are unique"
+    },
+    {
+      "status": "pass",
+      "check": "composition matches the consolidated suite contract"
+    },
+    {
+      "status": "pass",
+      "check": "every member has an explicit routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "routine archetypes are stratified up to five classes per member category"
+    },
+    {
+      "status": "pass",
+      "check": "PV capacities are heterogeneous within each represented category"
+    },
+    {
+      "status": "pass",
+      "check": "multi-battery families contain more than one stationary-storage capacity"
+    },
+    {
+      "status": "pass",
+      "check": "stationary batteries have member-specific initial SOC values"
+    },
+    {
+      "status": "pass",
+      "check": "per-member charger multiplicity matches the catalog"
+    },
+    {
+      "status": "pass",
+      "check": "at least one declared charger is present"
+    },
+    {
+      "status": "pass",
+      "check": "the family contains a member with multiple chargers"
+    },
+    {
+      "status": "pass",
+      "check": "Premium member categories are 70/20/10"
+    },
+    {
+      "status": "pass",
+      "check": "Premium charger distribution is 36/20/24"
+    },
+    {
+      "status": "pass",
+      "check": "member identities are non-null and unique"
+    },
+    {
+      "status": "pass",
+      "check": "charger identities are non-null and unique"
+    },
+    {
+      "status": "pass",
+      "check": "EV identities are non-null and unique"
+    },
+    {
+      "status": "pass",
+      "check": "session identities are non-null and unique"
+    },
+    {
+      "status": "pass",
+      "check": "deferrable identities are non-null and unique"
+    },
+    {
+      "status": "pass",
+      "check": "every charger belongs to a known member"
+    },
+    {
+      "status": "pass",
+      "check": "every session uses a known charger"
+    },
+    {
+      "status": "pass",
+      "check": "every session uses a known EV"
+    },
+    {
+      "status": "pass",
+      "check": "all EV session deadlines follow arrival"
+    },
+    {
+      "status": "pass",
+      "check": "EV deadlines equal departure steps"
+    },
+    {
+      "status": "pass",
+      "check": "EV arrival timestamps map exactly to their quarter-hour time steps"
+    },
+    {
+      "status": "pass",
+      "check": "EV departure timestamps map exactly to their quarter-hour boundaries"
+    },
+    {
+      "status": "pass",
+      "check": "all ordinary EV sessions are individually feasible"
+    },
+    {
+      "status": "pass",
+      "check": "all EV sessions request positive energy"
+    },
+    {
+      "status": "pass",
+      "check": "EV required energy never exceeds charger-window deliverability"
+    },
+    {
+      "status": "pass",
+      "check": "EV sessions retain non-negative individual charger slack"
+    },
+    {
+      "status": "pass",
+      "check": "EV sessions retain non-negative full-power temporal slack"
+    },
+    {
+      "status": "pass",
+      "check": "every EV session retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "each EV belongs to one charger schedule"
+    },
+    {
+      "status": "pass",
+      "check": "EV sessions never overlap"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M001-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M001-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M001-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M001-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M001-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M001-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M001-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M003-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M003-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M003-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M003-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M003-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M003-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M003-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M005-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M005-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M005-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M005-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M005-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M005-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M005-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M007-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M007-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M007-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M007-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M007-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M007-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M007-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M009-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M009-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M009-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M009-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M009-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M009-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M009-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M011-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M011-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M011-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M011-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M011-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M011-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M011-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M013-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M013-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M013-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M013-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M013-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M013-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M013-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M015-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M015-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M015-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M015-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M015-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M015-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M015-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M017-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M017-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M017-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M017-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M017-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M017-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M017-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M019-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M019-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M019-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M019-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M019-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M019-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M019-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M021-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M021-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M021-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M021-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M021-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M021-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M021-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M023-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M023-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M023-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M023-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M023-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M023-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M023-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M027-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M027-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M027-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M027-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M027-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M027-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M027-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M029-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M029-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M029-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M029-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M029-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M029-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M029-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M031-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M031-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M031-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M031-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M031-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M031-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M031-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M034-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M034-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M034-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M034-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M034-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M034-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M034-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M037-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M037-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M037-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M037-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M037-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M037-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M037-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M040-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M040-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M040-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M040-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M040-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M040-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M040-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M043-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M043-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M043-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M043-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M043-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M043-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M043-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M046-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M046-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M046-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M046-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M046-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M046-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M046-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M049-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M049-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M049-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M049-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M049-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M049-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M049-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M052-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M052-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M052-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M052-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M052-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M052-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M052-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M055-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M055-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M055-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M055-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M055-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M055-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M055-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M058-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M058-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M058-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M058-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M058-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M058-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M058-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M006-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M025-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M045-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M061-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M066-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M070-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M071-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M073-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M075-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M077-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M079-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M082-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M084-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M086-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M088-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M090-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-03 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-03 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-03 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-03 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-03 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-03 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-03 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-04 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-04 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-04 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-04 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-04 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-04 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M091-04 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-03 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-03 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-03 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-03 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-03 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-03 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-03 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-04 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-04 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-04 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-04 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-04 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-04 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M093-04 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-03 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-03 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-03 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-03 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-03 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-03 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-03 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-04 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-04 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-04 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-04 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-04 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-04 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M095-04 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-03 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-03 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-03 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-03 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-03 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-03 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-03 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-04 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-04 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-04 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-04 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-04 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-04 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-04 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-05 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-05 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-05 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-05 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-05 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-05 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-05 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-06 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-06 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-06 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-06 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-06 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-06 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M097-06 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-01 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-01 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-01 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-01 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-01 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-01 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-01 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-02 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-02 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-02 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-02 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-02 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-02 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-02 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-03 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-03 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-03 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-03 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-03 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-03 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-03 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-04 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-04 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-04 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-04 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-04 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-04 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-04 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-05 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-05 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-05 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-05 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-05 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-05 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-05 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-06 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-06 sessions are connected throughout occupied windows"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-06 preserves every EV-to-session association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-06 preserves every explicit session-to-charger association"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-06 runtime session identity is complete and bijective with the catalogue"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-06 provides a feasible mid-session SOC initialization reference"
+    },
+    {
+      "status": "pass",
+      "check": "CHG-M099-06 exposes no current-SOC reference while disconnected"
+    },
+    {
+      "status": "pass",
+      "check": "Member_001 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_001 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_001 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_002 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_002 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_002 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_003 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_003 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_003 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_004 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_004 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_004 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_005 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_005 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_005 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_006 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_006 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_006 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_007 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_007 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_007 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_008 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_008 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_008 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_009 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_009 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_009 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_010 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_010 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_010 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_011 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_011 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_011 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_012 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_012 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_012 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_013 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_013 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_013 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_014 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_014 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_014 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_015 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_015 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_015 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_016 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_016 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_016 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_017 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_017 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_017 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_018 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_018 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_018 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_019 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_019 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_019 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_020 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_020 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_020 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_021 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_021 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_021 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_022 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_022 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_022 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_023 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_023 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_023 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_024 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_024 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_024 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_025 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_025 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_025 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_026 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_026 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_026 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_027 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_027 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_027 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_028 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_028 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_028 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_029 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_029 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_029 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_030 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_030 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_030 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_031 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_031 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_031 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_032 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_032 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_032 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_033 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_033 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_033 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_034 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_034 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_034 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_035 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_035 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_035 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_036 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_036 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_036 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_037 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_037 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_037 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_038 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_038 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_038 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_039 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_039 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_039 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_040 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_040 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_040 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_041 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_041 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_041 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_042 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_042 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_042 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_043 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_043 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_043 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_044 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_044 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_044 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_045 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_045 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_045 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_046 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_046 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_046 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_047 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_047 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_047 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_048 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_048 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_048 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_049 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_049 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_049 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_050 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_050 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_050 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_051 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_051 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_051 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_052 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_052 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_052 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_053 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_053 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_053 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_054 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_054 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_054 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_055 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_055 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_055 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_056 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_056 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_056 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_057 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_057 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_057 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_058 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_058 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_058 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_059 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_059 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_059 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_060 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_060 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_060 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_061 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_061 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_061 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_062 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_062 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_062 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_063 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_063 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_063 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_064 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_064 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_064 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_065 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_065 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_065 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_066 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_066 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_066 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_067 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_067 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_067 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_068 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_068 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_068 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_069 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_069 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_069 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_070 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_070 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_070 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_071 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_071 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_071 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_072 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_072 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_072 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_073 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_073 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_073 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_074 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_074 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_074 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_075 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_075 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_075 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_076 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_076 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_076 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_077 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_077 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_077 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_078 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_078 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_078 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_079 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_079 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_079 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_080 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_080 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_080 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_081 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_081 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_081 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_082 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_082 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_082 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_083 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_083 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_083 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_084 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_084 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_084 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_085 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_085 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_085 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_086 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_086 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_086 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_087 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_087 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_087 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_088 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_088 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_088 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_089 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_089 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_089 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_090 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_090 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_090 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_091 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_091 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_091 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_092 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_092 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_092 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_093 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_093 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_093 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_094 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_094 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_094 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_095 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_095 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_095 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_096 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_096 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_096 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_097 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_097 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_097 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_098 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_098 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_098 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_099 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_099 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_099 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_100 has 35,040 rows"
+    },
+    {
+      "status": "pass",
+      "check": "Member_100 load is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "Member_100 PV is non-negative"
+    },
+    {
+      "status": "pass",
+      "check": "member load traces contain no exact duplicates"
+    },
+    {
+      "status": "pass",
+      "check": "the family contains time-varying occupancy routines"
+    },
+    {
+      "status": "pass",
+      "check": "annual demand sampling creates no clipping-limit point masses"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M002-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M002-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M002-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M002-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M002-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M002-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M006-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M006-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M006-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M006-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M006-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M006-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M010-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M010-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M010-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M010-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M010-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M010-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M014-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M014-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M014-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M014-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M014-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M014-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M018-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M018-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M018-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M018-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M018-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M018-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M022-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M022-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M022-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M022-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M022-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M022-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M026-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M026-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M026-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M026-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M026-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M026-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M030-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M030-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M030-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M030-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M030-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M030-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M034-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M034-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M034-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M034-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M034-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M034-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M039-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M039-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M039-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M039-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M039-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M039-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M045-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M045-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M045-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M045-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M045-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M045-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M051-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M051-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M051-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M051-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M051-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M051-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M057-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M057-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M057-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M057-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M057-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M057-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M063-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M063-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M063-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M063-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M063-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M063-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M069-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M069-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M069-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M069-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M069-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M069-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M072-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M072-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M072-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M072-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M072-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M072-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M073-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M073-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M073-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M073-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M073-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M073-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M076-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M076-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M076-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M076-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M076-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M076-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M078-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M078-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M078-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M078-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M078-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M078-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M080-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M080-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M080-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M080-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M080-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M080-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M082-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M082-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M082-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M082-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M082-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M082-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M084-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M084-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M084-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M084-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M084-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M084-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M086-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M086-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M086-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M086-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M086-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M086-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M088-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M088-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M088-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M088-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M088-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M088-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M090-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M090-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M090-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M090-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M090-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M090-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M091-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M091-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M091-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M091-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M091-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M091-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M093-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M093-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M093-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M093-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M093-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M093-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M095-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M095-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M095-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M095-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M095-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M095-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M097-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M097-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M097-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M097-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M097-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M097-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M099-01 schedules reference known profiles"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M099-01 earliest/latest windows are ordered"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M099-01 start windows precede deadlines"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M099-01 defines must_run"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M099-01 cycle request windows do not overlap"
+    },
+    {
+      "status": "pass",
+      "check": "DEF-M099-01 retains its host routine archetype"
+    },
+    {
+      "status": "pass",
+      "check": "residential and small-service contracts use normalized Portuguese BTN levels"
+    },
+    {
+      "status": "pass",
+      "check": "high-consumption members use representative BTE-level contracted powers"
+    },
+    {
+      "status": "pass",
+      "check": "single-phase contracts do not exceed 10.35 kVA"
+    },
+    {
+      "status": "pass",
+      "check": "per-phase import limits sum to each total connection limit"
+    },
+    {
+      "status": "pass",
+      "check": "each single-phase connection is assigned to exactly one community phase"
+    },
+    {
+      "status": "pass",
+      "check": "charger phase labels use the supported electrical model"
+    },
+    {
+      "status": "pass",
+      "check": "individually connected residential chargers are balanced across L1/L2/L3"
+    },
+    {
+      "status": "pass",
+      "check": "local price is 80% of OMIE"
+    },
+    {
+      "status": "pass",
+      "check": "residual export has no remuneration"
+    },
+    {
+      "status": "pass",
+      "check": "grid-only counterfactual is declared"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-CLEAN declares the v1.9 dataset contract"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-CLEAN uses causal daily-persistence load/PV forecasts"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-CLEAN declares publication-aware causal OMIE price forecasts"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-CLEAN uses 900-second steps"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-CLEAN spans the complete year"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-CLEAN contains the complete member catalog"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-CLEAN stationary-storage attributes match the member catalog"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-ALLIN declares the v1.9 dataset contract"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-ALLIN uses causal daily-persistence load/PV forecasts"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-ALLIN declares publication-aware causal OMIE price forecasts"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-ALLIN uses 900-second steps"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-ALLIN spans the complete year"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-ALLIN contains the complete member catalog"
+    },
+    {
+      "status": "pass",
+      "check": "PREMIUM-100-ALLIN stationary-storage attributes match the member catalog"
+    },
+    {
+      "status": "pass",
+      "check": "scenario twins share identical physical files and asset identities"
+    },
+    {
+      "status": "pass",
+      "check": "dynamic variants independently remove and restore charger, PV, storage and deferrable assets"
+    },
+    {
+      "status": "pass",
+      "check": "checksum manifest covers every generated family file"
+    },
+    {
+      "status": "pass",
+      "check": "all generated family files match their SHA-256 checksums"
+    }
+  ]
+}

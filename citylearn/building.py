@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+import warnings
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Union
 from gymnasium import spaces
 import numpy as np
 import pandas as pd
@@ -11,8 +12,14 @@ from citylearn.base import Environment, EpisodeTracker
 from citylearn.data import CarbonIntensity, EnergySimulation, Pricing, TOLERANCE, Weather, ZERO_DIVISION_PLACEHOLDER
 from citylearn.dynamics import Dynamics, LSTMDynamics
 from citylearn.electric_vehicle_charger import Charger
-from citylearn.energy_model import Battery, ElectricDevice, ElectricHeater, HeatPump, PV, StorageDevice, StorageTank, WashingMachine
+from citylearn.energy_model import Battery, DeferrableAppliance, ElectricDevice, ElectricHeater, Escalator, HeatPump, PV, StorageDevice, StorageTank, WashingMachine
 from citylearn.internal.building_ops import BuildingOpsService
+from citylearn.internal.units import (
+    normalized_capacity_action_to_energy_kwh,
+    normalized_power_action_to_energy_kwh,
+    power_kw_to_energy_kwh,
+    to_dataset_resolution_energy,
+)
 from citylearn.occupant import LogisticRegressionOccupant, Occupant
 from citylearn.power_outage import PowerOutage
 from citylearn.preprocessing import Normalize, PeriodicNormalization
@@ -95,7 +102,10 @@ class Building(Environment):
         maximum_temperature_delta: float = None, observation_space_limit_delta: float = None,
         demand_observation_limit_factor: float = None, simulate_power_outage: bool = None,
         stochastic_power_outage: bool = None, stochastic_power_outage_model: PowerOutage = None,
-        electric_vehicle_chargers: List[Charger] = None, time_step_ratio: int = None, washing_machines: List[WashingMachine] = None, **kwargs: Any
+        electric_vehicle_chargers: List[Charger] = None, time_step_ratio: int = None,
+        deferrable_appliances: List[DeferrableAppliance] = None, washing_machines: List[WashingMachine] = None,
+        escalators: List[Escalator] = None,
+        **kwargs: Any
     ):
         charging_constraints = kwargs.pop('charging_constraints', None)
         electrical_service = kwargs.pop('electrical_service', None)
@@ -120,7 +130,8 @@ class Building(Environment):
         )
         self.algorithm_action_based_time_step_hours_ratio = self.seconds_per_time_step / 3600
         self.stochastic_power_outage_model = stochastic_power_outage_model
-        self.washing_machines = washing_machines
+        self.deferrable_appliances = deferrable_appliances if deferrable_appliances is not None else washing_machines
+        self.escalators = escalators
         self.electric_vehicle_chargers = electric_vehicle_chargers
         self.energy_simulation = energy_simulation
         self.weather = weather
@@ -265,10 +276,22 @@ class Building(Environment):
         return getattr(self, '_electrical_storage_phase_connection', 'L1')
     
     @property
-    def washing_machines(self) -> List[WashingMachine]:
-        """Electric Vehicle Chargers associated with the building for charging connected eletric vehicles."""
+    def deferrable_appliances(self) -> List[DeferrableAppliance]:
+        """Deferrable appliances associated with the building."""
 
-        return self.__washing_machines
+        return self.__deferrable_appliances
+
+    @property
+    def washing_machines(self) -> List[DeferrableAppliance]:
+        """Backward-compatible alias for deferrable appliances."""
+
+        return self.deferrable_appliances
+
+    @property
+    def escalators(self) -> List[Escalator]:
+        """Aggregate escalators associated with the building."""
+
+        return self.__escalators
 
     @property
     def name(self) -> str:
@@ -343,7 +366,10 @@ class Building(Environment):
     def net_electricity_consumption_cost_without_storage_and_pv(self) -> np.ndarray:
         """net_electricity_consumption_without_storage_and_pv` cost time series, in [$]."""
 
-        return self.pricing.electricity_pricing[0:self.time_step + 1] * self.net_electricity_consumption_without_storage_and_pv
+        return (
+            self.pricing.electricity_pricing[0:self.time_step + 1]
+            * np.clip(self.net_electricity_consumption_without_storage_and_pv, 0.0, None)
+        )
 
     @property
     def net_electricity_consumption_without_storage_and_pv(self) -> np.ndarray:
@@ -368,7 +394,10 @@ class Building(Environment):
     def net_electricity_consumption_cost_without_storage(self) -> np.ndarray:
         """`net_electricity_consumption_without_storage` cost time series, in [$]."""
 
-        return self.pricing.electricity_pricing[0:self.time_step + 1] * self.net_electricity_consumption_without_storage
+        return (
+            self.pricing.electricity_pricing[0:self.time_step + 1]
+            * np.clip(self.net_electricity_consumption_without_storage, 0.0, None)
+        )
 
     @property
     def net_electricity_consumption_without_storage(self) -> np.ndarray:
@@ -499,34 +528,46 @@ class Building(Environment):
         return self.__chargers_electricity_consumption[:self.time_step + 1]
     
     @property
-    def washing_machines_electricity_consumption(self) -> np.ndarray:
-        """Electricity consumption of chargers time series, in [kWh]."""
+    def deferrable_appliances_electricity_consumption(self) -> np.ndarray:
+        """Electricity consumption of deferrable appliances time series, in [kWh]."""
 
-        return self.__washing_machines_electricity_consumption[:self.time_step + 1]
+        return self.__deferrable_appliances_electricity_consumption[:self.time_step + 1]
+
+    @property
+    def washing_machines_electricity_consumption(self) -> np.ndarray:
+        """Backward-compatible alias for deferrable appliance electricity consumption."""
+
+        return self.deferrable_appliances_electricity_consumption
+
+    @property
+    def escalators_electricity_consumption(self) -> np.ndarray:
+        """Electricity consumption of escalators in [kWh]."""
+
+        return self.__escalators_electricity_consumption[:self.time_step + 1]
 
     @property
     def energy_from_cooling_device_to_cooling_storage(self) -> np.ndarray:
         """Energy supply from `cooling_device` to `cooling_storage` time series, in [kWh]."""
 
-        return self.cooling_storage.energy_balance.clip(min=0)[:self.time_step + 1]
+        return self.cooling_storage.energy_balance[:self.time_step + 1].clip(min=0)
 
     @property
     def energy_from_heating_device_to_heating_storage(self) -> np.ndarray:
         """Energy supply from `heating_device` to `heating_storage` time series, in [kWh]."""
 
-        return self.heating_storage.energy_balance.clip(min=0)[:self.time_step + 1]
+        return self.heating_storage.energy_balance[:self.time_step + 1].clip(min=0)
 
     @property
     def energy_from_dhw_device_to_dhw_storage(self) -> np.ndarray:
         """Energy supply from `dhw_device` to `dhw_storage` time series, in [kWh]."""
 
-        return self.dhw_storage.energy_balance.clip(min=0)[:self.time_step + 1]
+        return self.dhw_storage.energy_balance[:self.time_step + 1].clip(min=0)
 
     @property
     def energy_to_electrical_storage(self) -> np.ndarray:
         """Energy supply from `electrical_device` to building time series, in [kWh]."""
 
-        return self.electrical_storage.energy_balance.clip(min=0)[:self.time_step + 1]
+        return self.electrical_storage.energy_balance[:self.time_step + 1].clip(min=0)
 
     @property
     def energy_from_cooling_device(self) -> np.ndarray:
@@ -556,25 +597,25 @@ class Building(Environment):
     def energy_from_cooling_storage(self) -> np.ndarray:
         """Energy supply from `cooling_storage` to building time series, in [kWh]."""
 
-        return self.cooling_storage.energy_balance.clip(max=0)[:self.time_step + 1] * -1
+        return self.cooling_storage.energy_balance[:self.time_step + 1].clip(max=0) * -1
 
     @property
     def energy_from_heating_storage(self) -> np.ndarray:
         """Energy supply from `heating_storage` to building time series, in [kWh]."""
 
-        return self.heating_storage.energy_balance.clip(max=0)[:self.time_step + 1] * -1
+        return self.heating_storage.energy_balance[:self.time_step + 1].clip(max=0) * -1
 
     @property
     def energy_from_dhw_storage(self) -> np.ndarray:
         """Energy supply from `dhw_storage` to building time series, in [kWh]."""
 
-        return self.dhw_storage.energy_balance.clip(max=0)[:self.time_step + 1] * -1
+        return self.dhw_storage.energy_balance[:self.time_step + 1].clip(max=0) * -1
 
     @property
     def energy_from_electrical_storage(self) -> np.ndarray:
         """Energy supply from `electrical_storage` to building time series, in [kWh]."""
 
-        return self.electrical_storage.energy_balance.clip(max=0)[:self.time_step + 1] * -1
+        return self.electrical_storage.energy_balance[:self.time_step + 1].clip(max=0) * -1
 
     @property
     def indoor_dry_bulb_temperature(self) -> np.ndarray:
@@ -674,6 +715,9 @@ class Building(Environment):
         is `np.inf`.
         """
 
+        if not self.power_outage:
+            return np.inf
+
         capacity = abs(self.solar_generation[self.time_step]) - (
             self.cooling_device.electricity_consumption[self.time_step]
             + self.heating_device.electricity_consumption[self.time_step]
@@ -681,20 +725,8 @@ class Building(Environment):
             + self.non_shiftable_load_device.electricity_consumption[self.time_step]
             + self.electrical_storage.electricity_consumption[self.time_step]
         )
-        capacity = capacity if self.power_outage else np.inf
 
-        message = 'downward_electrical_flexibility must be >= 0.0!' \
-            f'time step:, {self.time_step}, outage:, {self.power_outage}, capacity:, {capacity},' \
-                f' solar:, {abs(self.solar_generation[self.time_step])},' \
-                    f' cooling:, {self.cooling_device.electricity_consumption[self.time_step]},' \
-                        f' heating:, {self.heating_device.electricity_consumption[self.time_step]},' \
-                            f'dhw:, {self.dhw_device.electricity_consumption[self.time_step]},' \
-                                f'non-shiftable:, {self.non_shiftable_load_device.electricity_consumption[self.time_step]},' \
-                                    f' battery:, {self.electrical_storage.electricity_consumption[self.time_step]}'
-        assert capacity >= 0.0 or abs(capacity) < TOLERANCE, message
-        capacity = max(0.0, capacity)
-
-        return capacity
+        return max(0.0, capacity)
 
     @property
     def power_outage(self) -> bool:
@@ -780,9 +812,17 @@ class Building(Environment):
         self.__electric_vehicle_chargers = electric_vehicle_chargers if electric_vehicle_chargers is not None else []
         self._update_charger_lookup()
 
+    @deferrable_appliances.setter
+    def deferrable_appliances(self, deferrable_appliances: List[DeferrableAppliance]):
+        self.__deferrable_appliances = deferrable_appliances if deferrable_appliances is not None else []
+
+    @escalators.setter
+    def escalators(self, escalators: List[Escalator]):
+        self.__escalators = escalators if escalators is not None else []
+
     @washing_machines.setter
     def washing_machines(self, washing_machines: List[WashingMachine]):
-        self.__washing_machines = washing_machines
+        self.deferrable_appliances = washing_machines
 
     def _update_charger_lookup(self):
         chargers = self.__electric_vehicle_chargers if hasattr(self, '_Building__electric_vehicle_chargers') else []
@@ -1178,18 +1218,27 @@ class Building(Environment):
             self._charging_constraints_state = None
             return
 
-        building_headroom = None if self._building_charger_limit_kw is None else float(self._building_charger_limit_kw)
+        base_total_kw = 0.0
+        base_phase_kw = {phase['name']: 0.0 for phase in self._phase_limits}
+        if getattr(self, '_electrical_service_enabled', False):
+            try:
+                base_total_kw, base_phase_kw = self._ops_service._estimate_base_power_at_step(self.time_step)
+            except Exception:
+                base_total_kw = 0.0
+                base_phase_kw = {phase['name']: 0.0 for phase in self._phase_limits}
+
+        building_headroom = None if self._building_charger_limit_kw is None else float(self._building_charger_limit_kw) - base_total_kw
         building_export_headroom = None
         if getattr(self, '_electrical_service_enabled', False):
             export_limit = self._electrical_service_limits.get('total', {}).get('export_kw')
-            building_export_headroom = None if export_limit is None else float(export_limit)
+            building_export_headroom = None if export_limit is None else float(export_limit) + base_total_kw
 
         phase_headroom = {
-            phase['name']: None if phase.get('import_kw') is None else float(phase.get('import_kw'))
+            phase['name']: None if phase.get('import_kw') is None else float(phase.get('import_kw')) - float(base_phase_kw.get(phase['name'], 0.0))
             for phase in self._phase_limits
         }
         phase_export_headroom = {
-            phase['name']: None if phase.get('export_kw') is None else float(phase.get('export_kw'))
+            phase['name']: None if phase.get('export_kw') is None else float(phase.get('export_kw')) + float(base_phase_kw.get(phase['name'], 0.0))
             for phase in self._phase_limits
         }
         self._charging_constraints_state = {
@@ -1197,8 +1246,8 @@ class Building(Environment):
             'building_export_headroom_kw': building_export_headroom,
             'phase_headroom_kw': phase_headroom,
             'phase_export_headroom_kw': phase_export_headroom,
-            'total_power_kw': 0.0,
-            'phase_power_kw': {phase['name']: 0.0 for phase in self._phase_limits},
+            'total_power_kw': base_total_kw,
+            'phase_power_kw': base_phase_kw,
         }
 
     def _apply_charging_constraints_to_actions(
@@ -1329,14 +1378,23 @@ class Building(Environment):
             'annual_heating_demand_estimate': self.energy_simulation.heating_demand.sum() / n_years,
             'annual_dhw_demand_estimate': self.energy_simulation.dhw_demand.sum() / n_years,
             'annual_non_shiftable_load_estimate': self.energy_simulation.non_shiftable_load.sum() / n_years,
-            'annual_solar_generation_estimate': self.pv.get_generation(self.energy_simulation.solar_generation).sum() / n_years,
+            'annual_solar_generation_estimate': self._pv_generation_to_control_step(
+                self.energy_simulation.solar_generation
+            ).sum() / n_years,
             'charging_constraints': self._charging_constraints_config,
             'electrical_service': self._electrical_service_config,
             'electrical_storage_phase_connection': self._electrical_storage_phase_connection,
             'charger_phase_map': self._charger_phase_map,
         }
 
-    def observations(self, include_all: bool = None, normalize: bool = None, periodic_normalization: bool = None, check_limits: bool = None) -> Mapping[str, float]:
+    def observations(
+        self,
+        include_all: bool = None,
+        normalize: bool = None,
+        periodic_normalization: bool = None,
+        check_limits: bool = None,
+        observation_names: Iterable[str] = None,
+    ) -> Mapping[str, float]:
         r"""Observations at current time step."""
 
         return self._ops_service.observations(
@@ -1344,6 +1402,7 @@ class Building(Environment):
             normalize=normalize,
             periodic_normalization=periodic_normalization,
             check_limits=check_limits,
+            observation_names=observation_names,
         )
 
     def update_ev_charger_observations(self, observations, valid_observations, ev_chargers, include_all: bool = False):
@@ -1356,13 +1415,27 @@ class Building(Environment):
             include_all=include_all,
         )
 
-    def update_washing_machine_observations(self, observations, valid_observations, washing_machines):
-        """Compatibility wrapper for washing-machine observation service."""
+    def update_deferrable_appliance_observations(self, observations, valid_observations, deferrable_appliances):
+        """Compatibility wrapper for deferrable-appliance observation service."""
 
-        return self._ops_service.update_washing_machine_observations(
+        return self._ops_service.update_deferrable_appliance_observations(
             observations,
             valid_observations,
-            washing_machines,
+            deferrable_appliances,
+        )
+
+    def update_washing_machine_observations(self, observations, valid_observations, washing_machines):
+        """Backward-compatible wrapper for old washing-machine integrations."""
+
+        return self.update_deferrable_appliance_observations(observations, valid_observations, washing_machines)
+
+    def update_escalator_observations(self, observations, valid_observations, escalators):
+        """Compatibility wrapper for escalator observation service."""
+
+        return self._ops_service.update_escalator_observations(
+            observations,
+            valid_observations,
+            escalators,
         )
 
     def _get_observations_data(self, include_all: bool = False) -> Mapping[str, Union[float, int]]:
@@ -1406,14 +1479,17 @@ class Building(Environment):
             'hour': range(1, 25),
             'day_type': range(1, 8),
             'month': range(1, 13),
-            'minutes': range(1, 61)
+            'minutes': range(0, 60),
+            'seconds': range(0, 60),
         }
 
     def apply_actions(self,
         cooling_or_heating_device_action: float = None,
         cooling_device_action: float = None, heating_device_action: float = None,
         cooling_storage_action: float = None, heating_storage_action: float = None,
-        dhw_storage_action: float = None, electrical_storage_action: float = None, washing_machine_actions: dict = None,
+        dhw_storage_action: float = None, electrical_storage_action: float = None,
+        deferrable_appliance_actions: dict = None, washing_machine_actions: dict = None,
+        escalator_actions: dict = None,
         electric_vehicle_storage_actions: dict = None,
     ):
         r"""Update cooling and heating demand for next timestep and charge/discharge storage devices."""
@@ -1426,9 +1502,21 @@ class Building(Environment):
             heating_storage_action=heating_storage_action,
             dhw_storage_action=dhw_storage_action,
             electrical_storage_action=electrical_storage_action,
-            washing_machine_actions=washing_machine_actions,
+            deferrable_appliance_actions=deferrable_appliance_actions if deferrable_appliance_actions is not None else washing_machine_actions,
+            escalator_actions=escalator_actions,
             electric_vehicle_storage_actions=electric_vehicle_storage_actions,
         )
+
+    def clear_step_electric_loads_for_action(self):
+        """Clear reset-populated electric loads before applying control at the current step."""
+
+        for device in (
+            self.cooling_device,
+            self.heating_device,
+            self.dhw_device,
+            self.non_shiftable_load_device,
+        ):
+            device.set_electricity_consumption(0.0, time_step=self.time_step)
 
     def update_cooling_demand(self, action: float):
         """Update space cooling demand for current time step."""
@@ -1466,7 +1554,12 @@ class Building(Environment):
             Fraction of `cooling_storage` `capacity` to charge/discharge by.
         """
 
-        energy = action * self.cooling_storage.capacity
+        energy = normalized_capacity_action_to_energy_kwh(
+            action,
+            self.cooling_storage.capacity,
+            seconds_per_time_step=self.seconds_per_time_step,
+            scale_with_time=True,
+        )
         temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
 
         if energy > 0.0:
@@ -1514,7 +1607,12 @@ class Building(Environment):
             Fraction of `heating_storage` `capacity` to charge/discharge by.
         """
 
-        energy = action * self.cooling_storage.capacity * self.algorithm_action_based_time_step_hours_ratio
+        energy = normalized_capacity_action_to_energy_kwh(
+            action,
+            self.heating_storage.capacity,
+            seconds_per_time_step=self.seconds_per_time_step,
+            scale_with_time=True,
+        )
         temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
 
         if energy > 0.0:
@@ -1559,7 +1657,12 @@ class Building(Environment):
             Fraction of `dhw_storage` `capacity` to charge/discharge by.
         """
 
-        energy = action * self.heating_storage.capacity * self.algorithm_action_based_time_step_hours_ratio
+        energy = normalized_capacity_action_to_energy_kwh(
+            action,
+            self.dhw_storage.capacity,
+            seconds_per_time_step=self.seconds_per_time_step,
+            scale_with_time=True,
+        )
         temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
 
         if energy > 0.0:
@@ -1595,15 +1698,22 @@ class Building(Environment):
             Normalized charging or discharging action (range [-1, 1]).
         """
 
-        # Convert normalized action to power (kW)
-        power = action * self.electrical_storage.nominal_power  # kW
-
-        # Convert power (kW) to energy (kWh) based on time step duration
-        time_step_hours_ratio = self.seconds_per_time_step / 3600  # Convert seconds to fraction of hour
-        energy = power * time_step_hours_ratio  # Energy in kWh
+        action = float(np.clip(action, -1.0, 1.0))
+        energy = normalized_power_action_to_energy_kwh(
+            action,
+            self.electrical_storage.nominal_power,
+            self.seconds_per_time_step,
+        )
 
         # Optionally clamp to flexibility range if needed
         energy = min(energy, self.downward_electrical_flexibility)
+        if self.power_outage and energy < 0.0:
+            try:
+                base_total_kw, _ = self._ops_service._estimate_base_power_at_step(self.time_step)
+            except Exception:
+                base_total_kw = 0.0
+            local_load_kwh = power_kw_to_energy_kwh(max(float(base_total_kw), 0.0), self.seconds_per_time_step)
+            energy = max(energy, -local_load_kwh)
 
 
         self.electrical_storage.charge(self._convert_energy_for_storage(self.electrical_storage, energy))
@@ -1613,11 +1723,70 @@ class Building(Environment):
         """Convert energy for storage models that expect dataset-resolution values."""
 
         ratio = getattr(storage, 'time_step_ratio', None)
+        return to_dataset_resolution_energy(energy, ratio)
 
-        if ratio in (None, 0):
-            return energy
+    def _dataset_energy_to_control_step(self, energy: float) -> float:
+        """Convert dataset-resolution kWh to the active control-step kWh."""
 
-        return energy / ratio
+        ratio = 1.0 if self.time_step_ratio in (None, 0) else float(self.time_step_ratio)
+        return float(energy) * ratio
+
+    def _pv_generation_to_control_step(self, solar_generation: Union[float, Iterable[float]]) -> np.ndarray:
+        """Convert PV inputs to control-step kWh."""
+
+        generation = np.array(self.pv.get_generation(solar_generation), dtype='float32')
+
+        if getattr(self.pv, 'generation_mode', 'per_kw') == 'absolute':
+            ratio = 1.0 if self.time_step_ratio in (None, 0) else float(self.time_step_ratio)
+            generation = generation * ratio
+
+        return generation
+
+    def _refresh_pv_generation_from(self, time_step: int) -> None:
+        """Commit the current PV asset's production from ``time_step`` onward.
+
+        Dynamic topology events replace the physical :class:`PV` instance at
+        runtime.  ``__solar_generation`` is otherwise calculated only during
+        reset, so changing ``self.pv`` without refreshing this series would
+        alter the topology metadata while leaving the old PV production in the
+        electrical balance.  Only the present and future are rewritten: past
+        production remains an immutable record for KPI accounting.
+        """
+
+        start = int(max(time_step, 0))
+        if start >= len(self.__solar_generation):
+            return
+
+        generation = (
+            self._pv_generation_to_control_step(self.energy_simulation.solar_generation)
+            * -1.0
+        )
+        upper = min(len(self.__solar_generation), len(generation))
+        if start < upper:
+            self.__solar_generation[start:upper] = generation[start:upper]
+
+        if upper < len(self.__solar_generation):
+            self.__solar_generation[max(start, upper):] = 0.0
+
+    def _clip_outage_electric_loads_to_local_supply(self):
+        """Clip initial electric loads to locally available islanded supply."""
+
+        if not self.power_outage:
+            return
+
+        t = self.time_step
+        available = abs(float(self.solar_generation[t])) + max(-float(self.electrical_storage.electricity_consumption[t]), 0.0)
+        for device in (
+            self.non_shiftable_load_device,
+            self.dhw_device,
+            self.heating_device,
+            self.cooling_device,
+        ):
+            current = max(float(device.electricity_consumption[t]), 0.0)
+            served = min(current, available)
+            if served < current:
+                device.set_electricity_consumption(served, time_step=t)
+            available = max(available - served, 0.0)
 
     def ___demand_limit_check(self, end_use: str, demand: float, max_device_output: float):
         message = f'timestep: {self.time_step}, building: {self.name}, outage: {self.power_outage}, demand: {demand},' \
@@ -1661,6 +1830,107 @@ class Building(Environment):
 
         return spaces.Box(low=np.array(low_limit, dtype='float32'), high=np.array(high_limit, dtype='float32'), dtype='float32')
 
+    def _ev_time_observation_high_limit(self, key: str) -> float:
+        try:
+            episode_steps = float(getattr(self.episode_tracker, 'episode_time_steps', 0) or 0)
+        except Exception:
+            episode_steps = 0.0
+        high = max(24.0, episode_steps)
+        if self.electric_vehicle_chargers is None:
+            return high
+
+        time_attributes = []
+        if 'departure_time' in key:
+            time_attributes.append('electric_vehicle_departure_time')
+        if 'estimated_arrival_time' in key:
+            time_attributes.append('electric_vehicle_estimated_arrival_time')
+
+        for charger in self.electric_vehicle_chargers:
+            simulation = getattr(charger, 'charger_simulation', None)
+            if simulation is None:
+                continue
+            for attribute in time_attributes:
+                raw_values = np.array(getattr(simulation, attribute, []), dtype='float64')
+                if raw_values.size > 0:
+                    high = max(high, float(raw_values.size))
+                values = raw_values[np.isfinite(raw_values) & (raw_values >= 0.0)]
+                if values.size > 0:
+                    high = max(high, float(np.nanmax(values)))
+
+        return high
+
+    def _deferrable_time_observation_high_limit(self) -> float:
+        try:
+            high = float(max(getattr(self.episode_tracker, 'simulation_time_steps', 0) or 0, 1))
+        except Exception:
+            high = 1.0
+
+        for appliance in self.deferrable_appliances or []:
+            simulation = getattr(appliance, 'deferrable_appliance_simulation', None)
+            for cycle in getattr(simulation, 'flexibility_schedule', []) or []:
+                for key in ('earliest_start_time_step', 'latest_start_time_step', 'deadline_time_step'):
+                    try:
+                        value = float(cycle.get(key, -1.0))
+                    except Exception:
+                        value = -1.0
+                    if np.isfinite(value) and value >= 0.0:
+                        high = max(high, value)
+
+        return high
+
+    def _deferrable_step_observation_high_limit(self) -> float:
+        high = self._deferrable_time_observation_high_limit()
+        for appliance in self.deferrable_appliances or []:
+            simulation = getattr(appliance, 'deferrable_appliance_simulation', None)
+            for cycle in getattr(simulation, 'flexibility_schedule', []) or []:
+                try:
+                    high = max(high, float(cycle.get('duration_steps', 0.0)))
+                except Exception:
+                    pass
+
+        return high
+
+    def _deferrable_power_observation_high_limit(self) -> float:
+        step_hours = max(float(self.seconds_per_time_step) / 3600.0, 1.0e-12)
+        high = 1.0
+
+        for appliance in self.deferrable_appliances or []:
+            simulation = getattr(appliance, 'deferrable_appliance_simulation', None)
+            for cycle in getattr(simulation, 'flexibility_schedule', []) or []:
+                profile = np.array(cycle.get('load_profile', []), dtype='float64')
+                if profile.size > 0:
+                    high = max(high, float(np.nanmax(profile)) / step_hours)
+
+        return high + 1.0e-6
+
+    @staticmethod
+    def _series_bound(values: Iterable[float], *, upper: bool, default: float = 0.0) -> float:
+        arr = np.asarray(values)
+        if arr.size == 0:
+            return float(default)
+
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', RuntimeWarning)
+                with np.errstate(all='ignore'):
+                    value = np.nanmax(arr) if upper else np.nanmin(arr)
+        except (TypeError, ValueError):
+            try:
+                numeric = arr.astype('float64')
+                with warnings.catch_warnings():
+                    warnings.simplefilter('ignore', RuntimeWarning)
+                    with np.errstate(all='ignore'):
+                        value = np.nanmax(numeric) if upper else np.nanmin(numeric)
+            except (TypeError, ValueError):
+                return float(default)
+
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            return float(default)
+
+        return value if np.isfinite(value) else float(default)
+
     def estimate_observation_space_limits(self, include_all: bool = None, periodic_normalization: bool = None) -> Tuple[
         Mapping[str, float], Mapping[str, float]]:
         r"""Get estimate of observation space limits.
@@ -1702,7 +1972,15 @@ class Building(Environment):
         total_charger_power_kw += sum(getattr(charger, 'max_charging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
         total_charger_power_kw += sum(getattr(charger, 'max_discharging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
         total_storage_power_kw = float(getattr(self.electrical_storage, 'nominal_power', 0.0) or 0.0)
-        max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * (self.seconds_per_time_step / 3600)
+        max_violation_energy = power_kw_to_energy_kwh(total_charger_power_kw + total_storage_power_kw, self.seconds_per_time_step)
+        cooling_device_energy_limit = power_kw_to_energy_kwh(self.cooling_device.nominal_power, self.seconds_per_time_step)
+        heating_device_energy_limit = power_kw_to_energy_kwh(self.heating_device.nominal_power, self.seconds_per_time_step)
+        dhw_device_energy_limit = power_kw_to_energy_kwh(self.dhw_device.nominal_power, self.seconds_per_time_step)
+        electrical_storage_energy_limit = power_kw_to_energy_kwh(self.electrical_storage.nominal_power, self.seconds_per_time_step)
+        escalators_energy_limit = sum(
+            power_kw_to_energy_kwh(escalator.normal_power, self.seconds_per_time_step)
+            for escalator in self.escalators or []
+        )
 
         for key in observation_names:
             if key.startswith('charging_phase_one_hot_'):
@@ -1718,21 +1996,22 @@ class Building(Environment):
             if key == 'net_electricity_consumption':
                 # assumes devices and storages have been sized
                 low_limits = data['non_shiftable_load'] - (
-                    + self.electrical_storage.nominal_power
+                    + electrical_storage_energy_limit
                     + data['solar_generation']
                 )
                 high_limits = data['non_shiftable_load'] \
-                    + self.cooling_device.nominal_power \
-                        + self.heating_device.nominal_power \
-                            + self.dhw_device.nominal_power \
-                                + self.electrical_storage.nominal_power \
-                                    - data['solar_generation']
+                    + cooling_device_energy_limit \
+                                + heating_device_energy_limit \
+                                    + dhw_device_energy_limit \
+                                        + electrical_storage_energy_limit \
+                                            + escalators_energy_limit \
+                                            - data['solar_generation']
                 low_limit[key] = min(low_limits.min(), 0.0)
                 high_limit[key] = high_limits.max()
 
             elif key == 'net_electricity_consumption_without_storage':
-                low_limit[key] = min(low_limit['net_electricity_consumption'] + self.electrical_storage.nominal_power, 0.0)
-                high_limit[key] = high_limit['net_electricity_consumption'] - self.electrical_storage.nominal_power
+                low_limit[key] = min(low_limit['net_electricity_consumption'] + electrical_storage_energy_limit, 0.0)
+                high_limit[key] = high_limit['net_electricity_consumption'] - electrical_storage_energy_limit
 
             elif key == 'net_electricity_consumption_without_storage_and_partial_load':
                 low_limit[key] = low_limit['net_electricity_consumption_without_storage']
@@ -1741,9 +2020,9 @@ class Building(Environment):
             elif key == 'net_electricity_consumption_without_storage_and_partial_load_and_pv':
                 low_limit[key] = 0.0
                 high_limits = data['non_shiftable_load'] \
-                                + self.cooling_device.nominal_power \
-                                    + self.heating_device.nominal_power \
-                                        + self.dhw_device.nominal_power
+                                + cooling_device_energy_limit \
+                                    + heating_device_energy_limit \
+                                        + dhw_device_energy_limit
                 high_limit[key] = high_limits.max()
 
             elif key in ['cooling_storage_soc', 'heating_storage_soc', 'dhw_storage_soc',
@@ -1771,7 +2050,7 @@ class Building(Environment):
 
             elif "_departure_time" in key or "_estimated_arrival_time" in key:
                 low_limit[key] = -1
-                high_limit[key] = 24
+                high_limit[key] = self._ev_time_observation_high_limit(key)
 
             elif "_soc" in key and "_electric_vehicle" in key:
                 low_limit[key] = -0.1
@@ -1789,7 +2068,7 @@ class Building(Environment):
                         elif any(value in key for value in
                                  ['electric_vehicle_departure_time', 'electric_vehicle_estimated_arrival_time']):
                             low_limit[key] = -1
-                            high_limit[key] = 24
+                            high_limit[key] = self._ev_time_observation_high_limit(key)
                         elif any(value in key for value in
                                  ['electric_vehicle_required_soc_departure', 'electric_vehicle_estimated_soc_arrival',
                                   'electric_vehicle_soc']):
@@ -1799,15 +2078,47 @@ class Building(Environment):
                             low_limit[key] = -1
                             high_limit[key] = 100
 
-            elif 'washing_machine' in key:
-                if self.washing_machines is not None:
-                    for washing_machine in self.washing_machines:
-                        if key == f'{washing_machine.name}_start_time_step':
-                            low_limit[key] = -1
-                            high_limit[key] = 24
-                        elif f'{washing_machine.name}_end_time_step' in key:
-                            low_limit[key] = -1
-                            high_limit[key] = 24
+            elif key.startswith('escalator_'):
+                low_limit[key] = 0.0
+                if key.endswith(('_state', '_requested_state')):
+                    high_limit[key] = 2.0
+                elif key.endswith(('people_detected', 'available', 'service_required', 'service_met')):
+                    high_limit[key] = 1.0
+                elif key.endswith('_power_kw'):
+                    high_limit[key] = max((e.normal_power for e in self.escalators or []), default=0.0)
+                else:
+                    source = 'minutes_to_next_train'
+                    if 'passengers_from_trains' in key:
+                        source = 'passengers_from_trains_15min'
+                    elif 'background_pedestrians' in key:
+                        source = 'background_pedestrians_15min'
+                    elif 'passengers_expected' in key or 'unserved_passengers' in key:
+                        source = 'passengers_expected_15min'
+                    elif key.endswith('passing_trains'):
+                        source = 'arriving_trains'
+                    values = [
+                        np.max(getattr(e.escalator_simulation, source))
+                        for e in self.escalators or []
+                        if getattr(e.escalator_simulation, source, None) is not None
+                    ]
+                    high_limit[key] = max([float(v) for v in values] or [1.0])
+
+            elif 'deferrable_appliance' in key:
+                low_limit[key] = -1.0
+                if key.endswith('_ratio') or key.endswith(('pending', 'running', 'can_start', 'deadline_missed')):
+                    high_limit[key] = 1.0
+                elif key.endswith('_kwh'):
+                    high_limit[key] = 1.0e6
+                elif key.endswith('_kw'):
+                    high_limit[key] = self._deferrable_power_observation_high_limit()
+                elif key.endswith('_time_step'):
+                    high_limit[key] = self._deferrable_time_observation_high_limit()
+                elif key.endswith('_steps'):
+                    high_limit[key] = self._deferrable_step_observation_high_limit()
+                elif '_hours_' in key:
+                    high_limit[key] = self._deferrable_time_observation_high_limit() * max(float(self.seconds_per_time_step) / 3600.0, 0.0)
+                else:
+                    high_limit[key] = max(self.episode_tracker.simulation_time_steps, 1)
             elif key in ['dhw_device_efficiency']:
                 if isinstance(self.dhw_device, HeatPump):
                     cop = self.dhw_device.get_cop(data['outdoor_dry_bulb_temperature'], heating=True)
@@ -1827,7 +2138,7 @@ class Building(Environment):
 
             elif key == 'comfort_band':
                 low_limit[key] = 0
-                high_limit[key] = max(data[key])
+                high_limit[key] = self._series_bound(data[key], upper=True)
 
             elif key in ['cooling_demand', 'heating_demand', 'dhw_demand']:
                 low_limit[key] = 0.0
@@ -1836,15 +2147,15 @@ class Building(Environment):
 
             elif key == 'cooling_electricity_consumption':
                 low_limit[key] = 0.0
-                high_limit[key] = self.cooling_device.nominal_power
+                high_limit[key] = cooling_device_energy_limit
 
             elif key == 'heating_electricity_consumption':
                 low_limit[key] = 0.0
-                high_limit[key] = self.heating_device.nominal_power
+                high_limit[key] = heating_device_energy_limit
 
             elif key == 'dhw_electricity_consumption':
                 low_limit[key] = 0.0
-                high_limit[key] = self.dhw_device.nominal_power
+                high_limit[key] = dhw_device_energy_limit
 
             elif key == 'cooling_storage_electricity_consumption':
                 demand = self.energy_simulation.__getattr__(
@@ -1853,8 +2164,8 @@ class Building(Environment):
                     end_time_step=self.episode_tracker.simulation_end_time_step
                 )
                 electricity_consumption = self.cooling_device.get_input_power(demand, data['outdoor_dry_bulb_temperature'], False)
-                low_limit[key] = -max(electricity_consumption)
-                high_limit[key] = self.cooling_device.nominal_power
+                low_limit[key] = -self._series_bound(electricity_consumption, upper=True)
+                high_limit[key] = cooling_device_energy_limit
 
             elif key == 'heating_storage_electricity_consumption':
                 demand = self.energy_simulation.__getattr__(
@@ -1864,8 +2175,8 @@ class Building(Environment):
                 )
                 electricity_consumption = self.heating_device.get_input_power(demand, data['outdoor_dry_bulb_temperature'], True) \
                     if isinstance(self.heating_device, HeatPump) else self.heating_device.get_input_power(demand)
-                low_limit[key] = -max(electricity_consumption)
-                high_limit[key] = self.heating_device.nominal_power
+                low_limit[key] = -self._series_bound(electricity_consumption, upper=True)
+                high_limit[key] = heating_device_energy_limit
 
             elif key == 'dhw_storage_electricity_consumption':
                 demand = self.energy_simulation.__getattr__(
@@ -1875,30 +2186,38 @@ class Building(Environment):
                 )
                 electricity_consumption = self.dhw_device.get_input_power(demand, data['outdoor_dry_bulb_temperature'], True) \
                     if isinstance(self.dhw_device, HeatPump) else self.dhw_device.get_input_power(demand)
-                low_limit[key] = -max(electricity_consumption)
-                high_limit[key] = self.dhw_device.nominal_power
+                low_limit[key] = -self._series_bound(electricity_consumption, upper=True)
+                high_limit[key] = dhw_device_energy_limit
 
             elif key == 'electrical_storage_electricity_consumption':
-                low_limit[key] = -self.electrical_storage.nominal_power
-                high_limit[key] = self.electrical_storage.nominal_power
+                low_limit[key] = -electrical_storage_energy_limit
+                high_limit[key] = electrical_storage_energy_limit
 
             elif key == 'power_outage':
                 low_limit[key] = 0.0
                 high_limit[key] = 1.0
 
             elif periodic_normalization and key in periodic_observations:
-                pn = PeriodicNormalization(max(periodic_observations[key]))
-                x_sin, x_cos = pn * np.array(list(periodic_observations[key]))
-                low_limit[f'{key}_cos'], high_limit[f'{key}_cos'] = min(x_cos), max(x_cos)
-                low_limit[f'{key}_sin'], high_limit[f'{key}_sin'] = min(x_sin), max(x_sin)
+                values = list(periodic_observations[key])
+                cycle_max = max(values) + (1 if min(values) == 0 else 0)
+                pn = PeriodicNormalization(cycle_max)
+                x_sin, x_cos = pn * np.array(values)
+                low_limit[f'{key}_cos'], high_limit[f'{key}_cos'] = (
+                    self._series_bound(x_cos, upper=False),
+                    self._series_bound(x_cos, upper=True),
+                )
+                low_limit[f'{key}_sin'], high_limit[f'{key}_sin'] = (
+                    self._series_bound(x_sin, upper=False),
+                    self._series_bound(x_sin, upper=True),
+                )
 
             elif key == 'occupant_interaction_indoor_dry_bulb_temperature_set_point_delta':
                 # will get set in the overriding  LogisticRegressionOccupantInteractionBuilding._get_observation_space_limits_data
                 pass
 
             else:
-                low_limit[key] = min(data[key])
-                high_limit[key] = max(data[key])
+                low_limit[key] = self._series_bound(data[key], upper=False)
+                high_limit[key] = self._series_bound(data[key], upper=True)
 
         low_limit = {k: v - self.observation_space_limit_delta for k, v in low_limit.items()}
         high_limit = {k: v + self.observation_space_limit_delta for k, v in high_limit.items()}
@@ -1913,11 +2232,11 @@ class Building(Environment):
                 start_time_step=self.episode_tracker.simulation_start_time_step, 
                 end_time_step=self.episode_tracker.simulation_end_time_step
             ) for k in vars(self.energy_simulation)},
-            'solar_generation':np.array(self.pv.get_generation(self.energy_simulation.__getattr__(
+            'solar_generation':self._pv_generation_to_control_step(self.energy_simulation.__getattr__(
                 'solar_generation', 
                 start_time_step=self.episode_tracker.simulation_start_time_step, 
                 end_time_step=self.episode_tracker.simulation_end_time_step
-            ))),
+            )),
             **{k.lstrip('_'): self.weather.__getattr__(
                 k.lstrip('_'), 
                 start_time_step=self.episode_tracker.simulation_start_time_step, 
@@ -1937,29 +2256,71 @@ class Building(Environment):
 
         timesteps = self.episode_tracker.simulation_time_steps
         if getattr(self, '_charging_constraints_enabled', False):
-            if getattr(self, '_expose_charging_constraints', False):
-                if self._building_charger_limit_kw is not None:
-                    data['charging_building_headroom_kw'] = np.full(timesteps, float(self._building_charger_limit_kw), dtype='float32')
-                if getattr(self, '_electrical_service_enabled', False):
-                    export_limit = self._electrical_service_limits.get('total', {}).get('export_kw')
-                    if export_limit is not None:
-                        data['charging_building_export_headroom_kw'] = np.full(timesteps, float(export_limit), dtype='float32')
-                for phase in self._phase_limits:
-                    import_limit = phase.get('import_kw')
-                    if import_limit is not None:
-                        key = f"charging_phase_{phase['name']}_headroom_kw"
-                        data[key] = np.full(timesteps, float(import_limit), dtype='float32')
-                    if getattr(self, '_electrical_service_enabled', False):
-                        export_limit = phase.get('export_kw')
-                        if export_limit is not None:
-                            key = f"charging_phase_{phase['name']}_export_headroom_kw"
-                            data[key] = np.full(timesteps, float(export_limit), dtype='float32')
-
             total_charger_power_kw = 0.0
             total_charger_power_kw += sum(getattr(charger, 'max_charging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
             total_charger_power_kw += sum(getattr(charger, 'max_discharging_power', 0.0) or 0.0 for charger in self.electric_vehicle_chargers)
             total_storage_power_kw = float(getattr(self.electrical_storage, 'nominal_power', 0.0) or 0.0)
-            max_violation_energy = (total_charger_power_kw + total_storage_power_kw) * (self.seconds_per_time_step / 3600)
+            control_margin_kw = total_charger_power_kw + total_storage_power_kw
+
+            step_seconds = max(float(self.seconds_per_time_step), 1.0e-9)
+            ratio = 1.0 if self.time_step_ratio in (None, 0) else float(self.time_step_ratio)
+
+            def _energy_series_to_power_kw(values, *, already_control_step: bool = False):
+                values = np.asarray(values, dtype='float64')
+                if values.size == 0:
+                    values = np.asarray([0.0], dtype='float64')
+                if not already_control_step:
+                    values = values * ratio
+                return values * (3600.0 / step_seconds)
+
+            non_shiftable_power_kw = _energy_series_to_power_kw(data.get('non_shiftable_load', np.zeros(timesteps)))
+            solar_power_kw = -_energy_series_to_power_kw(
+                data.get('solar_generation', np.zeros(timesteps)),
+                already_control_step=True,
+            )
+            fixed_base_power_kw = non_shiftable_power_kw + solar_power_kw
+            base_power_min_kw = self._series_bound(fixed_base_power_kw, upper=False)
+            base_power_max_kw = self._series_bound(fixed_base_power_kw, upper=True)
+            base_power_max_kw += float(getattr(self.cooling_device, 'nominal_power', 0.0) or 0.0)
+            base_power_max_kw += float(getattr(self.heating_device, 'nominal_power', 0.0) or 0.0)
+            base_power_max_kw += float(getattr(self.dhw_device, 'nominal_power', 0.0) or 0.0)
+            try:
+                base_power_max_kw += max(float(self._deferrable_power_observation_high_limit()), 0.0)
+            except Exception:
+                pass
+
+            def _headroom_bounds(limit, *, export: bool = False):
+                limit = float(limit)
+                if getattr(self, '_electrical_service_enabled', False):
+                    min_total_kw = base_power_min_kw - control_margin_kw
+                    max_total_kw = base_power_max_kw + control_margin_kw
+                    if export:
+                        bounds = [limit + min_total_kw, limit + max_total_kw]
+                    else:
+                        bounds = [limit - max_total_kw, limit - min_total_kw]
+                    return np.array([min(bounds), max(bounds)], dtype='float32')
+
+                return np.array([0.0, limit], dtype='float32')
+
+            if getattr(self, '_expose_charging_constraints', False):
+                if self._building_charger_limit_kw is not None:
+                    data['charging_building_headroom_kw'] = _headroom_bounds(self._building_charger_limit_kw)
+                if getattr(self, '_electrical_service_enabled', False):
+                    export_limit = self._electrical_service_limits.get('total', {}).get('export_kw')
+                    if export_limit is not None:
+                        data['charging_building_export_headroom_kw'] = _headroom_bounds(export_limit, export=True)
+                for phase in self._phase_limits:
+                    import_limit = phase.get('import_kw')
+                    if import_limit is not None:
+                        key = f"charging_phase_{phase['name']}_headroom_kw"
+                        data[key] = _headroom_bounds(import_limit)
+                    if getattr(self, '_electrical_service_enabled', False):
+                        export_limit = phase.get('export_kw')
+                        if export_limit is not None:
+                            key = f"charging_phase_{phase['name']}_export_headroom_kw"
+                            data[key] = _headroom_bounds(export_limit, export=True)
+
+            max_violation_energy = power_kw_to_energy_kwh(total_charger_power_kw + total_storage_power_kw, self.seconds_per_time_step)
             data['charging_constraint_violation_kwh'] = np.array([0.0, max_violation_energy], dtype='float32')
 
             phase_one_hot_keys = getattr(self, '_phase_encoding_observation_keys', []) or []
@@ -2015,12 +2376,13 @@ class Building(Environment):
                             high_limit.append(1.0)  # For discharging limit
                             low_limit.append(discharging_limit)  # For charging limit
             
-            elif 'washing_machine' in key:
-                if(self.washing_machines is not None):
-                    for wm in self.washing_machines:
-                        if key == f'{wm.name}':
-                            low_limit.append(0.0)
-                            high_limit.append(1.0)                
+            elif key.startswith('deferrable_appliance_'):
+                low_limit.append(0.0)
+                high_limit.append(1.0)
+
+            elif key.startswith('escalator_'):
+                low_limit.append(0.0)
+                high_limit.append(1.0)
 
             elif 'storage' in key:
                 if key == 'electrical_storage':
@@ -2249,6 +2611,7 @@ class Building(Environment):
         demand = demand.groupby('year')['value'].sum().mean()
         epw_filepath = kwargs.pop('epw_filepath')
         self.pv.nominal_power, solar_generation = self.pv.autosize(demand, epw_filepath, **kwargs)
+        self.pv.generation_mode = 'per_kw'
         self.energy_simulation.__setattr__('solar_generation', np.array(solar_generation, dtype='float32'))
 
     def _estimate_baseline_electricity_consumption(self) -> np.ndarray:
@@ -2328,9 +2691,11 @@ class Building(Environment):
             for c in self.electric_vehicle_chargers:
                 c.next_time_step()
 
-        if self.washing_machines is not None and len(self.washing_machines) != 0:
-            for wm in self.washing_machines:
-                wm.next_time_step()        
+        for appliance in self.deferrable_appliances or []:
+            appliance.next_time_step()
+
+        for escalator in self.escalators or []:
+            escalator.next_time_step()
 
         super().next_time_step()
 
@@ -2355,15 +2720,17 @@ class Building(Environment):
         else:
             pass
 
-        if self.washing_machines is not None and len(self.washing_machines) != 0:
-            for wm in self.washing_machines:
-                wm.reset()      
+        for appliance in self.deferrable_appliances or []:
+            appliance.reset()
+
+        for escalator in self.escalators or []:
+            escalator.reset()
 
         # variable reset
         self.reset_dynamic_variables()
         self.reset_data_sets()
         self._refresh_observation_source_cache()
-        self.__solar_generation = self.pv.get_generation(self.energy_simulation.solar_generation) * -1
+        self.__solar_generation = self._pv_generation_to_control_step(self.energy_simulation.solar_generation) * -1
         self.__energy_from_cooling_device = self.energy_simulation.cooling_demand.copy()
         self.__energy_from_heating_device = self.energy_simulation.heating_demand.copy()
         self.__energy_from_dhw_device = self.energy_simulation.dhw_demand.copy()
@@ -2373,7 +2740,27 @@ class Building(Environment):
         self.__net_electricity_consumption_cost = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__power_outage_signal = self.reset_power_outage_signal()
         self.__chargers_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
-        self.__washing_machines_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.__deferrable_appliances_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.__escalators_electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.action_feedback_electrical_storage_requested_action_normalized = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.action_feedback_electrical_storage_limited_action_normalized = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.action_feedback_electrical_storage_requested_power_kw = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.action_feedback_electrical_storage_limited_power_kw = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        for reason in (
+            'availability',
+            'power_limit',
+            'soc_limit',
+            'building_headroom',
+            'phase_headroom',
+            'export_headroom',
+            'outage',
+            'deferrable_window',
+        ):
+            setattr(
+                self,
+                f'action_feedback_electrical_storage_clip_reason_{reason}',
+                np.zeros(self.episode_tracker.episode_time_steps, dtype=bool),
+            )
         self._set_default_charging_headroom()
         self._reset_charging_constraint_histories()
 
@@ -2417,14 +2804,25 @@ class Building(Environment):
 
         start_time_step = self.episode_tracker.episode_start_time_step
         end_time_step = self.episode_tracker.episode_end_time_step
-        self.energy_simulation.start_time_step = start_time_step
-        self.weather.start_time_step = start_time_step
-        self.pricing.start_time_step = start_time_step
-        self.carbon_intensity.start_time_step = start_time_step
-        self.energy_simulation.end_time_step = end_time_step
-        self.weather.end_time_step = end_time_step
-        self.pricing.end_time_step = end_time_step
-        self.carbon_intensity.end_time_step = end_time_step
+
+        def set_data_window(data, default_start, default_end):
+            offset = int(getattr(data, 'time_step_offset', 0) or 0)
+            data.start_time_step = default_start - offset
+            data.end_time_step = default_end - offset
+
+        set_data_window(self.energy_simulation, start_time_step, end_time_step)
+        set_data_window(self.weather, start_time_step, end_time_step)
+        set_data_window(self.pricing, start_time_step, end_time_step)
+        set_data_window(self.carbon_intensity, start_time_step, end_time_step)
+
+        for charger in self.electric_vehicle_chargers or []:
+            set_data_window(charger.charger_simulation, start_time_step, end_time_step)
+
+        for escalator in self.escalators or []:
+            set_data_window(escalator.escalator_simulation, start_time_step, end_time_step)
+
+        # Deferrable appliance schedules use global time-step indices and are sparse,
+        # so no dense data-window adjustment is needed here.
 
     def update_variables(self):
         """Update cooling, heating, dhw and net electricity consumption as well as net electricity consumption cost and carbon emissions."""
@@ -2433,12 +2831,16 @@ class Building(Environment):
             temperature = self.weather.outdoor_dry_bulb_temperature[self.time_step]
 
             # cooling electricity consumption
-            cooling_demand = self.__energy_from_cooling_device[self.time_step] + self.cooling_storage.energy_balance[self.time_step]
+            cooling_demand = self._dataset_energy_to_control_step(
+                self.__energy_from_cooling_device[self.time_step]
+            ) + self.cooling_storage.energy_balance[self.time_step]
             cooling_electricity_consumption = self.cooling_device.get_input_power(cooling_demand, temperature, heating=False)
             self.cooling_device.set_electricity_consumption(cooling_electricity_consumption)
 
             # heating electricity consumption
-            heating_demand = self.__energy_from_heating_device[self.time_step] + self.heating_storage.energy_balance[self.time_step]
+            heating_demand = self._dataset_energy_to_control_step(
+                self.__energy_from_heating_device[self.time_step]
+            ) + self.heating_storage.energy_balance[self.time_step]
 
             if isinstance(self.heating_device, HeatPump):
                 heating_electricity_consumption = self.heating_device.get_input_power(heating_demand, temperature, heating=True)
@@ -2448,7 +2850,9 @@ class Building(Environment):
             self.heating_device.set_electricity_consumption(heating_electricity_consumption)
 
             # dhw electricity consumption
-            dhw_demand = self.__energy_from_dhw_device[self.time_step] + self.dhw_storage.energy_balance[self.time_step]
+            dhw_demand = self._dataset_energy_to_control_step(
+                self.__energy_from_dhw_device[self.time_step]
+            ) + self.dhw_storage.energy_balance[self.time_step]
 
             if isinstance(self.dhw_device, HeatPump):
                 dhw_electricity_consumption = self.dhw_device.get_input_power(dhw_demand, temperature, heating=True)
@@ -2458,8 +2862,11 @@ class Building(Environment):
             self.dhw_device.set_electricity_consumption(dhw_electricity_consumption)
 
             # non shiftable load electricity consumption
-            non_shiftable_load_electricity_consumption = self.__energy_to_non_shiftable_load[self.time_step]
+            non_shiftable_load_electricity_consumption = self._dataset_energy_to_control_step(
+                self.__energy_to_non_shiftable_load[self.time_step]
+            )
             self.non_shiftable_load_device.set_electricity_consumption(non_shiftable_load_electricity_consumption)
+            self._clip_outage_electric_loads_to_local_supply()
 
             # electrical storage
             # NOTE:
@@ -2485,16 +2892,17 @@ class Building(Environment):
 
         self.__chargers_electricity_consumption[self.time_step] = building_chargers_total_electricity_consumption
 
-        building_washing_machines_total_electricity_consumption = 0
+        building_deferrable_appliances_total_electricity_consumption = 0.0
+        for appliance in self.deferrable_appliances or []:
+            building_deferrable_appliances_total_electricity_consumption += appliance.electricity_consumption[self.time_step]
 
-        if self.washing_machines is not None and len(self.washing_machines) != 0:
-            for wm in self.washing_machines:
-                building_washing_machines_total_electricity_consumption = \
-                    building_washing_machines_total_electricity_consumption + wm.electricity_consumption[self.time_step]
-        else:
-            pass
+        self.__deferrable_appliances_electricity_consumption[self.time_step] = building_deferrable_appliances_total_electricity_consumption
 
-        self.__washing_machines_electricity_consumption[self.time_step] = building_washing_machines_total_electricity_consumption
+        building_escalators_total_electricity_consumption = 0.0
+        for escalator in self.escalators or []:
+            building_escalators_total_electricity_consumption += escalator.electricity_consumption[self.time_step]
+
+        self.__escalators_electricity_consumption[self.time_step] = building_escalators_total_electricity_consumption
 
         # net electricity consumption
         net_electricity_consumption = 0.0
@@ -2506,15 +2914,19 @@ class Building(Environment):
                                                 + self.non_shiftable_load_device.electricity_consumption[self.time_step] \
                                                     + self.electrical_storage.electricity_consumption[self.time_step] \
                                                         + self.solar_generation[self.time_step] \
-                                                            + self.__chargers_electricity_consumption[self.time_step] \
-                                                                + self.__washing_machines_electricity_consumption[self.time_step]
+                                                                + self.__chargers_electricity_consumption[self.time_step] \
+                                                                + self.__deferrable_appliances_electricity_consumption[self.time_step] \
+                                                                + self.__escalators_electricity_consumption[self.time_step]
         else:
             pass
 
         self.__net_electricity_consumption[self.time_step] = net_electricity_consumption
 
         # net electriciy consumption cost
-        self.__net_electricity_consumption_cost[self.time_step] = net_electricity_consumption*self.pricing.electricity_pricing[self.time_step]
+        self.__net_electricity_consumption_cost[self.time_step] = (
+            max(net_electricity_consumption, 0.0)
+            * self.pricing.electricity_pricing[self.time_step]
+        )
 
         # net electriciy consumption emission
         self.__net_electricity_consumption_emission[self.time_step] = max(0.0, net_electricity_consumption*self.carbon_intensity.carbon_intensity[self.time_step])
@@ -2667,7 +3079,10 @@ class DynamicsBuilding(Building):
     def net_electricity_consumption_cost_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
         """net_electricity_consumption_without_storage_and_partial_load_and_pv` cost time series, in [$]."""
 
-        return self.pricing.electricity_pricing[0:self.time_step + 1] * self.net_electricity_consumption_without_storage_and_partial_load_and_pv
+        return (
+            self.pricing.electricity_pricing[0:self.time_step + 1]
+            * np.clip(self.net_electricity_consumption_without_storage_and_partial_load_and_pv, 0.0, None)
+        )
 
     @property
     def net_electricity_consumption_without_storage_and_partial_load_and_pv(self) -> np.ndarray:
@@ -2694,7 +3109,10 @@ class DynamicsBuilding(Building):
     def net_electricity_consumption_cost_without_storage_and_partial_load(self) -> np.ndarray:
         """`net_electricity_consumption_without_storage_and_partial_load` cost time series, in [$]."""
 
-        return self.pricing.electricity_pricing[0:self.time_step + 1] * self.net_electricity_consumption_without_storage_and_partial_load
+        return (
+            self.pricing.electricity_pricing[0:self.time_step + 1]
+            * np.clip(self.net_electricity_consumption_without_storage_and_partial_load, 0.0, None)
+        )
 
     @property
     def net_electricity_consumption_without_storage_and_partial_load(self):

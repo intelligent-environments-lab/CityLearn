@@ -1,0 +1,135 @@
+{
+  "dataset_family": "CORE-30",
+  "dataset_contract_version": "2023-q15-v1.9",
+  "generator_version": "1.9.0",
+  "random_seed": 2023,
+  "calendar": {
+    "year": 2023,
+    "time_steps": 35040,
+    "seconds_per_time_step": 900,
+    "timeline": "UTC",
+    "local_timezone": "Europe/Lisbon"
+  },
+  "composition": {
+    "members": 30,
+    "member_categories": {
+      "high_consumption": 2,
+      "residential": 24,
+      "small_service": 4
+    },
+    "pv_assets": 15,
+    "stationary_batteries": 6,
+    "charger_equipped_members": 12,
+    "physical_chargers": 15,
+    "electric_vehicles_in_catalog": 15,
+    "annual_charging_sessions": 3774,
+    "deferrable_appliances": 8
+  },
+  "variants": {
+    "CORE-30-NOMINAL": "schemas/core_30_nominal.json",
+    "CORE-30-SAFETY": "schemas/core_30_safety.json",
+    "CORE-30-HEALTH": "schemas/core_30_health.json",
+    "CORE-30-DYNAMIC": "schemas/core_30_dynamic.json",
+    "CORE-30-COMBINED": "schemas/core_30_combined.json"
+  },
+  "default_variant": "CORE-30-NOMINAL",
+  "price_source": {
+    "provider": "OMIE",
+    "market": "Portugal day-ahead",
+    "archive_url": "https://www.omie.es/en/file-access-list?dir=+Day-ahead+market+hourly+price+in+Portugal&parents%5B0%5D=%2F&parents%5B1%5D=Day-ahead+Market&parents%5B2%5D=1.+Prices&realdir=marginalpdbcpt",
+    "mtu15_notice_url": "https://www.omie.es/sites/default/files/2025-10/2501001_go_live_mtu15_md_en_vf.pdf",
+    "source_resolution": "hourly physical market periods",
+    "quarter_hour_method": "repeat_each_physical_hour_four_times_without_interpolation",
+    "conversion": "EUR/MWh divided by 1000 to EUR/kWh"
+  },
+  "calibration_and_scope": {
+    "calendar": {
+      "routine_time_basis": "Europe/Lisbon civil wall clock localized before UTC conversion",
+      "nonexistent_spring_time_policy": "shift forward by one hour",
+      "ambiguous_autumn_time_policy": "first occurrence"
+    },
+    "demand": {
+      "method": "stratified routine-archetype profiles scaled to bounded annual target distributions",
+      "anchor_year": 2023,
+      "anchor_values_kwh_per_consumer": {
+        "residential": 2489.9,
+        "small_service_non_domestic": 16583.3,
+        "high_consumption_industry": 175891.0
+      },
+      "sources": [
+        "https://www.dgeg.gov.pt/pt/estatistica/energia/eletricidade/consumo-por-municipio-e-tipo-de-consumidor/",
+        "https://www.pordata.pt/portugal/consumo+de+energia+eletrica+por+consumidor+total+e+por+tipo+de+consumo-1231"
+      ],
+      "claim_boundary": "national category anchor, not a fitted sample of REC members"
+    },
+    "asset_heterogeneity": {
+      "pv": "annual-demand-coupled capacity, orientation, derate and shading scenario draws",
+      "stationary_battery": "product-class capacity and power sized by stratified daily-load autonomy with a host-PV floor, plus member-specific efficiency, SOC and degradation parameters",
+      "routine_archetypes": {
+        "residential": [
+          "early_commuter",
+          "standard_commuter",
+          "late_commuter",
+          "home_worker",
+          "home_day"
+        ],
+        "small_service": [
+          "office_hours",
+          "retail_six_day",
+          "clinic_split_day",
+          "hospitality_extended",
+          "workshop_early"
+        ],
+        "high_consumption": [
+          "day_process",
+          "extended_process",
+          "continuous_process",
+          "morning_intensive",
+          "evening_intensive"
+        ]
+      },
+      "claim_boundary": "controlled stratified heterogeneity, not population-frequency inference"
+    },
+    "electrical_connections": {
+      "method": "normalized Portuguese BTN levels and representative BTE connection levels",
+      "sources": [
+        "https://www.erse.pt/media/02ibhrwu/manualutilizador_pt.pdf",
+        "https://www.e-redes.pt/sites/eredes/files/2025-04/Ficha%20eletrotecnica%20-%20como%20preencher_vf.pdf"
+      ],
+      "active_power_factor_assumption": 1.0,
+      "claim_boundary": "connection and phase-headroom surrogate; no feeder voltage, reactive power or protection model"
+    },
+    "ev_charging": {
+      "power_source": "https://www.erse.pt/consumidores-de-energia/mobilidade-electrica/como-funciona/",
+      "session_model": "reproducible category-conditional scenario distributions",
+      "individual_feasibility_rule": "residential required energy <= 85% and shared-service required energy <= 72% of charger deliverable energy at 95% efficiency; all sessions <= 72% of EV capacity",
+      "claim_boundary": "mobility scenario, not a fitted national travel survey"
+    },
+    "forecasts": {
+      "weather": "future truth plus reproducible temporally correlated, horizon-dependent scenario error",
+      "load_pv": "causal previous-day persistence with current-step cold start",
+      "price": "historical day-ahead market input repeated to quarter-hours"
+    }
+  },
+  "hybrid_series": {
+    "historical": [
+      "OMIE Portugal day-ahead price 2023"
+    ],
+    "deterministic_representative": [
+      "member demand",
+      "PV",
+      "weather",
+      "carbon intensity",
+      "EV sessions",
+      "deferrables"
+    ]
+  },
+  "identity_contract": [
+    "member_id",
+    "charger_id",
+    "ev_id",
+    "session_id"
+  ],
+  "settlement_contract": "settlement_contract.json",
+  "file_integrity": "file_checksums.sha256"
+}

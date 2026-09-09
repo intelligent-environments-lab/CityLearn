@@ -187,3 +187,18 @@ SimulationData/
 results/
 runtime.csv
 *-runtime.csv
+outputs/
+tmp_entity_obs*.json
+
+# Local presentation planning notes
+docs/simulator_improvements_presentation_map.md
+docs/paper/
+
+# Local paper / Overleaf manuscript bundle
+citylearn_paper_overleaf/
+
+# Generated full-year 15-second datasets are large artifacts, not source data.
+data/datasets/citylearn_three_phase_dynamic_assets_only_demo_15s/
+data/datasets/citylearn_three_phase_electrical_service_demo_15s/
+data/datasets/citylearn_three_phase_dynamic_assets_only_demo_15s_parquet/
+data/datasets/citylearn_three_phase_electrical_service_demo_15s_parquet/

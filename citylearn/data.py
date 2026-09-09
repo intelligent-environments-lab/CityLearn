@@ -1,9 +1,10 @@
+import ast
 import logging
 import os
 from pathlib import Path
 from platformdirs import user_cache_dir
 import shutil
-from typing import Any, Iterable, Mapping, List, Optional, Union
+from typing import Any, Dict, Iterable, Mapping, List, Optional, Union
 import numpy as np
 import pandas as pd
 import requests
@@ -51,8 +52,8 @@ def get_settings():
 class DataSet:
     """CityLearn input data set and schema class."""
 
-    GITHUB_ACCOUNT = os.getenv('CITYLEARN_DATASET_GITHUB_ACCOUNT', 'intelligent-environments-lab')
-    REPOSITORY_NAME = os.getenv('CITYLEARN_DATASET_REPOSITORY', 'CityLearn')
+    GITHUB_ACCOUNT = os.getenv('CITYLEARN_DATASET_GITHUB_ACCOUNT', 'Soft-CPS-Research-Group')
+    REPOSITORY_NAME = os.getenv('CITYLEARN_DATASET_REPOSITORY', 'Simulator')
     REPOSITORY_TAG = os.getenv('CITYLEARN_DATASET_TAG', f'v{__version__}')
     OFFLINE = _parse_env_bool('CITYLEARN_OFFLINE', False)
     REPOSITORY_DATA_PATH = FileHandler.join_url('data')
@@ -515,8 +516,18 @@ class TimeSeriesData:
             variable = self.__dict__[f'_{name}']
         except KeyError:
             raise AttributeError(f'_{name}')
+        explicit_start = start_time_step is not None
+        explicit_end = end_time_step is not None
         start_time_step = self.start_time_step if start_time_step is None else start_time_step
         end_time_step = self.end_time_step if end_time_step is None else end_time_step
+        offset = int(self.__dict__.get('_time_step_offset', 0) or 0)
+
+        if offset != 0 and explicit_start:
+            start_time_step -= offset
+
+        if offset != 0 and explicit_end:
+            end_time_step -= offset
+
         return self._slice_variable(variable, start_time_step, end_time_step)
         
     def __setattr__(self, name: str, value: Any):
@@ -538,6 +549,9 @@ class EnergySimulation(TimeSeriesData):
         Hour time series value ranging from 1 - 24.
     minutes : np.array
         Minutes time series value ranging from 0 - 60.
+    seconds : np.array
+        Seconds time series value ranging from 0 - 59. Optional, but needed to
+        infer dataset cadence below one minute.
     day_type : np.array
         Numeric day of week time series ranging from 1 - 8 where 1 - 7 is Monday - Sunday and 8 is reserved for special days e.g. holiday.
     indoor_dry_bulb_temperature : np.array
@@ -589,7 +603,7 @@ class EnergySimulation(TimeSeriesData):
         self, month: Iterable[int], hour: Iterable[int], day_type: Iterable[int],
          indoor_dry_bulb_temperature: Iterable[float], 
         non_shiftable_load: Iterable[float], dhw_demand: Iterable[float], cooling_demand: Iterable[float], heating_demand: Iterable[float], solar_generation: Iterable[float], 
-        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None,  seconds_per_time_step: int = None, minutes: Iterable[int] = None, time_step_ratios: List[float] = None, noise_std = 0.0
+        daylight_savings_status: Iterable[int] = None, average_unmet_cooling_setpoint_difference: Iterable[float] = None, indoor_relative_humidity: Iterable[float] = None, occupant_count: Iterable[int] = None, indoor_dry_bulb_temperature_cooling_set_point: Iterable[int] = None, indoor_dry_bulb_temperature_heating_set_point: Iterable[int] = None, hvac_mode: Iterable[int] = None, power_outage: Iterable[int] = None, comfort_band: Iterable[float] = None, start_time_step: int = None, end_time_step: int = None,  seconds_per_time_step: int = None, minutes: Iterable[int] = None, seconds: Iterable[int] = None, time_step_ratios: List[float] = None, noise_std = 0.0
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.noise_std = noise_std
@@ -613,26 +627,40 @@ class EnergySimulation(TimeSeriesData):
 
         # optional
         self.minutes = np.array(minutes, dtype='int32') if minutes is not None else None
-        # delta between t1 and t2
-        time_delta = self.hour[1] * 60 - self.hour[0] * 60  
+        self.seconds = np.array(seconds, dtype='int32') if seconds is not None else None
+        time_delta_seconds = None
 
-        # Compute time difference if minutes exist
-        if self.minutes is not None and len(self.minutes) > 1:
-            t0 = self.hour[0] * 60 + self.minutes[0]  # Convert to total minutes
-            t1 = self.hour[1] * 60 + self.minutes[1]  # Convert to total minutes
+        if len(self.hour) > 1:
+            if self.minutes is not None and self.seconds is not None and len(self.minutes) > 1 and len(self.seconds) > 1:
+                t0 = self.hour[0] * 3600 + self.minutes[0] * 60 + self.seconds[0]
+                t1 = self.hour[1] * 3600 + self.minutes[1] * 60 + self.seconds[1]
+                time_delta_seconds = t1 - t0
 
-            time_delta = t1 - t0
+            elif self.minutes is not None and len(self.minutes) > 1:
+                t0 = self.hour[0] * 60 + self.minutes[0]
+                t1 = self.hour[1] * 60 + self.minutes[1]
+                time_delta_minutes = t1 - t0
 
-        # Fix negative difference if crossing midnight
-            # Add a full day in minutes
-        if time_delta < 0:
-                time_delta += 1440    
+                if time_delta_minutes == 0 and seconds_per_time_step is not None and float(seconds_per_time_step) < 60.0:
+                    time_delta_seconds = float(seconds_per_time_step)
+                else:
+                    time_delta_seconds = time_delta_minutes * 60
+
+            else:
+                time_delta_hours = self.hour[1] - self.hour[0]
+                time_delta_seconds = time_delta_hours * 3600
+
+        if time_delta_seconds is not None and time_delta_seconds < 0:
+            time_delta_seconds += 24 * 3600
+
+        if time_delta_seconds == 0 and seconds_per_time_step is not None:
+            time_delta_seconds = float(seconds_per_time_step)
 
         base_step_seconds = None
 
-        if time_delta is not None:
+        if time_delta_seconds is not None:
             # Convert dataset spacing to seconds (guard against zero/negative values)
-            candidate = max(1, time_delta * 60)
+            candidate = max(1, time_delta_seconds)
             base_step_seconds = candidate
 
         time_step_ratio = (
@@ -640,6 +668,7 @@ class EnergySimulation(TimeSeriesData):
             if seconds_per_time_step and base_step_seconds
             else None
         )
+        self.dataset_seconds_per_time_step = base_step_seconds
         ratios = [] if time_step_ratios is None else list(time_step_ratios)
         ratios.append(time_step_ratio)
         self.time_step_ratios = ratios
@@ -811,10 +840,10 @@ class Pricing(TimeSeriesData):
     ):
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
         self.noise_std = noise_std
-        self.electricity_pricing = np.clip(np.array(electricity_pricing, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing, self.noise_std), 0, 1)
-        self.electricity_pricing_predicted_1 = np.clip(np.array(electricity_pricing_predicted_1, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing_predicted_1, self.noise_std), 0, 1)
-        self.electricity_pricing_predicted_2 = np.clip(np.array(electricity_pricing_predicted_2, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing_predicted_2, self.noise_std), 0, 1)
-        self.electricity_pricing_predicted_3 = np.clip(np.array(electricity_pricing_predicted_3, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing_predicted_3, self.noise_std), 0, 1)
+        self.electricity_pricing = np.array(electricity_pricing, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing, self.noise_std)
+        self.electricity_pricing_predicted_1 = np.array(electricity_pricing_predicted_1, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing_predicted_1, self.noise_std)
+        self.electricity_pricing_predicted_2 = np.array(electricity_pricing_predicted_2, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing_predicted_2, self.noise_std)
+        self.electricity_pricing_predicted_3 = np.array(electricity_pricing_predicted_3, dtype='float32') + NoiseUtils.generate_gaussian_noise(electricity_pricing_predicted_3, self.noise_std)
 
     def as_dict(self, time_step) -> dict:
         """Return a dictionary representation of the current pricing data.
@@ -848,7 +877,7 @@ class CarbonIntensity(TimeSeriesData):
     def __init__(self, carbon_intensity: Iterable[float], start_time_step: int = None, end_time_step: int = None, noise_std: float = 0.0):
         self.noise_std = noise_std
         super().__init__(start_time_step=start_time_step, end_time_step=end_time_step)
-        self.carbon_intensity = np.clip(np.array(carbon_intensity, dtype='float32') + NoiseUtils.generate_gaussian_noise(carbon_intensity, self.noise_std),0,1)
+        self.carbon_intensity = np.array(carbon_intensity, dtype='float32') + NoiseUtils.generate_gaussian_noise(carbon_intensity, self.noise_std)
 
 class ChargerSimulation(TimeSeriesData):
     """Charger-centric electric vehicle simulation data class.
@@ -865,6 +894,10 @@ class ChargerSimulation(TimeSeriesData):
             3: 'Commuting (vehicle is away)'
     electric_vehicle_id : np.array
         Identifier for the electric vehicle.
+    electric_vehicle_session_id : np.array
+        Identifier for the charging session. This remains distinct from the EV
+        identifier because the same vehicle may begin a new session without an
+        intervening disconnected charger row.
     electric_vehicle_departure_time : np.array
         Number of time steps expected until the EV departs from the charger (only for state 1).
         Defaults to -1 when not present.
@@ -889,6 +922,7 @@ class ChargerSimulation(TimeSeriesData):
         electric_vehicle_required_soc_departure: Iterable[float],
         electric_vehicle_estimated_arrival_time: Iterable[float],
         electric_vehicle_estimated_soc_arrival: Iterable[float],
+        electric_vehicle_session_id: Iterable[str] = None,
         start_time_step: int = None,
         end_time_step: int = None,
         noise_std: float = 1.0,
@@ -904,42 +938,345 @@ class ChargerSimulation(TimeSeriesData):
         self.electric_vehicle_charger_state = np.array([
             int(str(s)) if str(s).isdigit() else np.nan
             for s in electric_vehicle_charger_state
-        ], dtype=float)
+        ], dtype='float32')
 
         self.electric_vehicle_id = np.array(electric_vehicle_id, dtype=object)
+        self.electric_vehicle_session_id = np.array(
+            [""] * len(self.electric_vehicle_id)
+            if electric_vehicle_session_id is None
+            else electric_vehicle_session_id,
+            dtype=object,
+        )
 
 
-        departure_time_arr = np.array(electric_vehicle_departure_time, dtype=float)
+        departure_time_arr = np.array(electric_vehicle_departure_time, dtype='float32')
         self.electric_vehicle_departure_time = np.where(
             np.isnan(departure_time_arr), default_time_value, departure_time_arr
-        ).astype(int)
+        ).astype('int32')
 
-        arrival_time_arr = np.array(electric_vehicle_estimated_arrival_time, dtype=float)
+        arrival_time_arr = np.array(electric_vehicle_estimated_arrival_time, dtype='float32')
         self.electric_vehicle_estimated_arrival_time = np.where(
             np.isnan(arrival_time_arr), default_time_value, arrival_time_arr
-        ).astype(int)
+        ).astype('int32')
 
-        required_soc_arr = np.array(electric_vehicle_required_soc_departure, dtype=float)
-        required_soc_arr = np.where(np.isnan(required_soc_arr), default_soc_value, required_soc_arr)
-        self.electric_vehicle_required_soc_departure = np.where(
-            required_soc_arr != default_soc_value,
-            np.clip(
-                required_soc_arr / 100 + (NoiseUtils.generate_gaussian_noise(required_soc_arr, self.noise_std) / 100),
-                0, 1
-            ),
-            required_soc_arr
+        self.electric_vehicle_required_soc_departure = self.normalize_soc_series(
+            electric_vehicle_required_soc_departure,
+            default_soc_value=default_soc_value,
+            noise_std=self.noise_std,
         )
 
-        estimated_soc_arrival_arr = np.array(electric_vehicle_estimated_soc_arrival, dtype=float)
-        estimated_soc_arrival_arr = np.where(np.isnan(estimated_soc_arrival_arr), default_soc_value, estimated_soc_arrival_arr)
-        self.electric_vehicle_estimated_soc_arrival = np.where(
-            estimated_soc_arrival_arr != default_soc_value,
-            np.clip(
-                estimated_soc_arrival_arr / 100 + (NoiseUtils.generate_gaussian_noise(estimated_soc_arrival_arr, self.noise_std) / 100),
-                0, 1
-            ),
-            estimated_soc_arrival_arr
+        self.electric_vehicle_estimated_soc_arrival = self.normalize_soc_series(
+            electric_vehicle_estimated_soc_arrival,
+            default_soc_value=default_soc_value,
+            noise_std=self.noise_std,
         )
+
+    @staticmethod
+    def normalize_soc_series(
+        values: Iterable[float],
+        default_soc_value: float = -0.1,
+        noise_std: float = 0.0,
+    ) -> np.ndarray:
+        """Normalize SOC inputs that may be fractions or percentages."""
+
+        raw = np.array(values, dtype='float32')
+        raw = np.where(np.isnan(raw), default_soc_value, raw)
+        normalized = np.full(raw.shape, float(default_soc_value), dtype='float32')
+
+        valid = (raw != default_soc_value) & (raw >= 0.0)
+        fraction = valid & (raw >= 0.0) & (raw <= 1.0)
+        percent = valid & (raw > 1.0)
+
+        normalized[fraction] = raw[fraction]
+        normalized[percent] = raw[percent] / 100.0
+
+        if noise_std and np.any(valid):
+            noise = NoiseUtils.generate_gaussian_noise(normalized, noise_std) / 100.0
+            normalized[valid] = normalized[valid] + noise[valid]
+
+        normalized[valid] = np.clip(normalized[valid], 0.0, 1.0)
+        return normalized.astype('float32')
+
+class EscalatorSimulation(TimeSeriesData):
+    """Time series inputs for an escalator controlled at each simulation step.
+
+    The model deliberately stays aggregate: passengers are a demand signal, not
+    individual agents or queues.  This makes it suitable for energy-management
+    experiments while preserving a traceable service KPI when an escalator is
+    left in standby while passengers are expected.
+    """
+
+    REQUIRED_COLUMNS = {
+        'time_step',
+        'passengers_from_trains_15min',
+        'background_pedestrians_15min',
+        'passengers_expected_15min',
+        'people_detected',
+        'arriving_trains',
+        'departing_trains',
+        'minutes_to_next_train',
+        'available',
+    }
+
+    @classmethod
+    def from_dataframe(cls, dataframe: pd.DataFrame, source_label: str = None) -> 'EscalatorSimulation':
+        """Validate and construct an escalator simulation from a CSV dataframe."""
+
+        source_label = source_label or 'escalator'
+        missing = cls.REQUIRED_COLUMNS.difference(dataframe.columns)
+        if missing:
+            raise ValueError(f'{source_label} is missing columns: {sorted(missing)}.')
+
+        frame = dataframe.copy()
+        numeric_columns = list(cls.REQUIRED_COLUMNS)
+        for column in numeric_columns:
+            frame[column] = pd.to_numeric(frame[column], errors='coerce')
+
+        if frame[numeric_columns].isna().any().any() or not np.isfinite(frame[numeric_columns].to_numpy(dtype='float64')).all():
+            raise ValueError(f'{source_label} contains non-finite values in required columns.')
+
+        time_steps = frame['time_step'].to_numpy(dtype='int64')
+        if not np.array_equal(time_steps, np.arange(len(frame), dtype='int64')):
+            raise ValueError(f'{source_label}.time_step must be contiguous and start at 0.')
+
+        non_negative = (
+            'passengers_from_trains_15min', 'background_pedestrians_15min',
+            'passengers_expected_15min', 'arriving_trains', 'departing_trains',
+            'minutes_to_next_train',
+        )
+        if (frame[list(non_negative)] < 0.0).any().any():
+            raise ValueError(f'{source_label} has a negative demand, train-count or time-to-train value.')
+
+        for column in ('people_detected', 'available'):
+            values = frame[column].to_numpy(dtype='float64')
+            if not np.isin(values, (0.0, 1.0)).all():
+                raise ValueError(f'{source_label}.{column} must contain only 0 or 1.')
+
+        expected = frame['passengers_from_trains_15min'] + frame['background_pedestrians_15min']
+        if not np.allclose(
+            frame['passengers_expected_15min'].to_numpy(dtype='float64'),
+            expected.to_numpy(dtype='float64'), rtol=1.0e-5, atol=1.0e-4,
+        ):
+            raise ValueError(
+                f'{source_label}.passengers_expected_15min must equal '
+                'passengers_from_trains_15min + background_pedestrians_15min.'
+            )
+
+        instance = cls()
+        for column in dataframe.columns:
+            values = frame[column].to_numpy(copy=False)
+            if column in ('people_detected', 'available', 'arriving_trains', 'departing_trains', 'time_step'):
+                values = values.astype('int32')
+            elif np.issubdtype(values.dtype, np.number):
+                values = values.astype('float32')
+            setattr(instance, column, values)
+        return instance
+
+
+class DeferrableApplianceSimulation:
+    """Sparse deferrable-appliance cycle catalogue and flexibility schedule.
+
+    Cycle profile energy values are always interpreted as kWh per simulation step.
+    Schedule time fields are global simulation time-step indices.
+    """
+
+    PROFILE_REQUIRED_COLUMNS = {
+        'profile_id',
+        'duration_steps',
+        'total_energy_kwh',
+        'load_profile',
+    }
+    SCHEDULE_REQUIRED_COLUMNS = {
+        'cycle_id',
+        'profile_id',
+        'earliest_start_time_step',
+        'latest_start_time_step',
+        'deadline_time_step',
+        'priority',
+        'must_run',
+    }
+
+    def __init__(
+        self,
+        *,
+        cycle_profiles: Mapping[str, Mapping[str, Any]],
+        flexibility_schedule: Iterable[Mapping[str, Any]],
+        source_label: str = None,
+    ):
+        self.source_label = source_label or 'deferrable_appliance'
+        self.cycle_profiles = dict(cycle_profiles)
+        self.flexibility_schedule = list(flexibility_schedule)
+        self._validate_non_overlapping_schedule()
+
+    @classmethod
+    def from_dataframes(
+        cls,
+        *,
+        cycle_profiles: pd.DataFrame,
+        flexibility_schedule: pd.DataFrame,
+        source_label: str = None,
+    ) -> 'DeferrableApplianceSimulation':
+        source_label = source_label or 'deferrable_appliance'
+        missing_profiles = cls.PROFILE_REQUIRED_COLUMNS.difference(set(cycle_profiles.columns))
+        if missing_profiles:
+            raise ValueError(f'{source_label}.cycle_profiles is missing columns: {sorted(missing_profiles)}.')
+
+        missing_schedule = cls.SCHEDULE_REQUIRED_COLUMNS.difference(set(flexibility_schedule.columns))
+        if missing_schedule:
+            raise ValueError(f'{source_label}.flexibility_schedule is missing columns: {sorted(missing_schedule)}.')
+
+        profiles: Dict[str, Mapping[str, Any]] = {}
+        for row_index, row in cycle_profiles.iterrows():
+            profile_id = str(row['profile_id']).strip()
+            if profile_id == '' or profile_id.lower() == 'nan':
+                raise ValueError(f'{source_label}.cycle_profiles[{row_index}].profile_id is required.')
+            if profile_id in profiles:
+                raise ValueError(f"{source_label}.cycle_profiles contains duplicate profile_id '{profile_id}'.")
+
+            load_profile = cls.parse_load_profile(row['load_profile'])
+            if load_profile.size == 0:
+                raise ValueError(f"{source_label}.cycle_profiles profile '{profile_id}' has an empty load_profile.")
+
+            try:
+                duration_steps = int(row['duration_steps'])
+            except Exception as exc:
+                raise ValueError(f"{source_label}.cycle_profiles profile '{profile_id}' duration_steps must be an integer.") from exc
+
+            if duration_steps <= 0:
+                raise ValueError(f"{source_label}.cycle_profiles profile '{profile_id}' duration_steps must be > 0.")
+            if duration_steps != int(load_profile.size):
+                raise ValueError(
+                    f"{source_label}.cycle_profiles profile '{profile_id}' duration_steps={duration_steps} "
+                    f"does not match load_profile length={load_profile.size}."
+                )
+
+            try:
+                total_energy = float(row['total_energy_kwh'])
+            except Exception as exc:
+                raise ValueError(f"{source_label}.cycle_profiles profile '{profile_id}' total_energy_kwh must be numeric.") from exc
+
+            if not np.isfinite(total_energy) or total_energy < 0.0:
+                raise ValueError(f"{source_label}.cycle_profiles profile '{profile_id}' total_energy_kwh must be finite and >= 0.")
+
+            profile_sum = float(np.sum(load_profile))
+            if abs(profile_sum - total_energy) > max(1.0e-6, 1.0e-5 * max(abs(total_energy), 1.0)):
+                raise ValueError(
+                    f"{source_label}.cycle_profiles profile '{profile_id}' total_energy_kwh={total_energy} "
+                    f"does not match load_profile sum={profile_sum}."
+                )
+
+            profiles[profile_id] = {
+                'profile_id': profile_id,
+                'duration_steps': duration_steps,
+                'total_energy_kwh': total_energy,
+                'load_profile': load_profile.astype('float32'),
+            }
+
+        schedule = []
+        seen_cycle_ids = set()
+        for row_index, row in flexibility_schedule.iterrows():
+            cycle_id = str(row['cycle_id']).strip()
+            if cycle_id == '' or cycle_id.lower() == 'nan':
+                raise ValueError(f'{source_label}.flexibility_schedule[{row_index}].cycle_id is required.')
+            if cycle_id in seen_cycle_ids:
+                raise ValueError(f"{source_label}.flexibility_schedule contains duplicate cycle_id '{cycle_id}'.")
+            seen_cycle_ids.add(cycle_id)
+
+            profile_id = str(row['profile_id']).strip()
+            if profile_id not in profiles:
+                raise ValueError(
+                    f"{source_label}.flexibility_schedule cycle '{cycle_id}' references unknown profile_id '{profile_id}'."
+                )
+            profile = profiles[profile_id]
+
+            try:
+                earliest = int(row['earliest_start_time_step'])
+                latest = int(row['latest_start_time_step'])
+                deadline = int(row['deadline_time_step'])
+            except Exception as exc:
+                raise ValueError(
+                    f"{source_label}.flexibility_schedule cycle '{cycle_id}' time-step fields must be integers."
+                ) from exc
+
+            if earliest < 0 or latest < 0 or deadline < 0:
+                raise ValueError(f"{source_label}.flexibility_schedule cycle '{cycle_id}' time-step fields must be >= 0.")
+            if earliest > latest:
+                raise ValueError(
+                    f"{source_label}.flexibility_schedule cycle '{cycle_id}' earliest_start_time_step "
+                    f"cannot be greater than latest_start_time_step."
+                )
+            if latest + int(profile['duration_steps']) - 1 > deadline:
+                raise ValueError(
+                    f"{source_label}.flexibility_schedule cycle '{cycle_id}' cannot finish by deadline when "
+                    f"started at latest_start_time_step."
+                )
+
+            try:
+                priority = float(row['priority'])
+            except Exception as exc:
+                raise ValueError(f"{source_label}.flexibility_schedule cycle '{cycle_id}' priority must be numeric.") from exc
+            if not np.isfinite(priority):
+                raise ValueError(f"{source_label}.flexibility_schedule cycle '{cycle_id}' priority must be finite.")
+
+            schedule.append({
+                'cycle_id': cycle_id,
+                'profile_id': profile_id,
+                'earliest_start_time_step': earliest,
+                'latest_start_time_step': latest,
+                'deadline_time_step': deadline,
+                'priority': float(np.clip(priority, 0.0, 1.0)),
+                'must_run': parse_bool(row['must_run'], default=True, path=f'{source_label}.flexibility_schedule.{cycle_id}.must_run'),
+                'duration_steps': int(profile['duration_steps']),
+                'total_energy_kwh': float(profile['total_energy_kwh']),
+                'load_profile': profile['load_profile'],
+            })
+
+        schedule.sort(key=lambda item: (item['earliest_start_time_step'], item['latest_start_time_step'], item['cycle_id']))
+        return cls(cycle_profiles=profiles, flexibility_schedule=schedule, source_label=source_label)
+
+    @staticmethod
+    def parse_load_profile(profile) -> np.ndarray:
+        if profile is None:
+            return np.array([], dtype='float32')
+
+        if isinstance(profile, (list, tuple, np.ndarray)):
+            try:
+                values = np.array(profile, dtype='float32').flatten()
+            except (TypeError, ValueError):
+                return np.array([], dtype='float32')
+        else:
+            text = str(profile).strip()
+            if text == '' or text.lower() in {'nan', 'none'} or text == '-1':
+                return np.array([], dtype='float32')
+            try:
+                parsed = ast.literal_eval(text)
+            except (SyntaxError, ValueError):
+                return np.array([], dtype='float32')
+            if np.isscalar(parsed):
+                parsed = [parsed]
+            try:
+                values = np.array(parsed, dtype='float32').flatten()
+            except (TypeError, ValueError):
+                return np.array([], dtype='float32')
+
+        if values.size == 0:
+            return np.array([], dtype='float32')
+
+        values = values[np.isfinite(values)]
+        if values.size == 0 or np.any(values < 0.0):
+            return np.array([], dtype='float32')
+
+        return values.astype('float32')
+
+    def _validate_non_overlapping_schedule(self):
+        previous = None
+        for cycle in self.flexibility_schedule:
+            if previous is not None and int(cycle['earliest_start_time_step']) <= int(previous['deadline_time_step']):
+                raise ValueError(
+                    f"{self.source_label}.flexibility_schedule has overlapping cycles for one appliance: "
+                    f"'{previous['cycle_id']}' and '{cycle['cycle_id']}'."
+                )
+            previous = cycle
 
 class WashingMachineSimulation(TimeSeriesData):
     """Washing Machine Simulation data class.
@@ -973,22 +1310,64 @@ class WashingMachineSimulation(TimeSeriesData):
 
         default_time_value = -1
 
-        self.day_type = np.array(day_type, dtype=int)
-        self.hour = np.array(hour, dtype=int)
+        self.day_type = np.array(day_type, dtype='int32')
+        self.hour = np.array(hour, dtype='int32')
 
         start_time_step_arr = np.array(wm_start_time_step, dtype=float)
         end_time_step_arr = np.array(wm_end_time_step, dtype=float)
         
 
-        self.wm_start_time_step = np.where(np.isnan(start_time_step_arr), default_time_value, start_time_step_arr).astype(int)
-        self.wm_end_time_step = np.where(np.isnan(end_time_step_arr), default_time_value, end_time_step_arr).astype(int)
+        self.wm_start_time_step = np.where(np.isnan(start_time_step_arr), default_time_value, start_time_step_arr).astype('int32')
+        self.wm_end_time_step = np.where(np.isnan(end_time_step_arr), default_time_value, end_time_step_arr).astype('int32')
 
-        # Parse load_profile strings like '[10,20,30]' into lists of floats
+        # Parse load_profile strings like '[10,20,30]' into lists of floats.
+        empty_profile = np.array([], dtype=float)
+        profile_cache = {}
+
         def parse_profile(profile_str):
+            if profile_str is None:
+                return empty_profile
+
+            if isinstance(profile_str, (list, tuple, np.ndarray)):
+                try:
+                    return np.array(profile_str, dtype=float).flatten()
+                except (TypeError, ValueError):
+                    return empty_profile
+
+            text = str(profile_str).strip()
+            if text == '' or text.lower() in {'nan', 'none'} or text == '-1':
+                return empty_profile
+
+            cached = profile_cache.get(text)
+            if cached is not None:
+                return cached
+
             try:
-                return np.array(eval(profile_str), dtype=float)
-            except:
-                return np.array([], dtype=float)
-            
+                parsed = ast.literal_eval(text)
+            except (SyntaxError, ValueError):
+                return empty_profile
+
+            if np.isscalar(parsed):
+                try:
+                    value = float(parsed)
+                except (TypeError, ValueError):
+                    return empty_profile
+
+                if not np.isfinite(value) or value < 0.0:
+                    return empty_profile
+
+                values = np.array([value], dtype=float)
+                profile_cache[text] = values
+                return values
+
+            try:
+                values = np.array(parsed, dtype=float).flatten()
+            except (TypeError, ValueError):
+                return empty_profile
+
+            values = values[np.isfinite(values)]
+            values = values[values >= 0.0]
+            profile_cache[text] = values
+            return values
 
         self.load_profile = np.array([parse_profile(lp) for lp in load_profile], dtype=object)

@@ -1,15 +1,19 @@
+import json
 import numpy as np
 import pandas as pd
 import pytest
 
 from glob import glob
+from pathlib import Path
 
 pytest.importorskip("gymnasium")
 
 from citylearn.citylearn import CityLearnEnv
+from citylearn.data import ChargerSimulation
 
 
 SCHEMA_PATH = "data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json"
+MINUTE_SCHEMA_PATH = Path("tests/data/minute_ev_demo/schema.json")
 
 
 def _zero_actions(env: CityLearnEnv):
@@ -74,18 +78,208 @@ def test_ev_soc_matches_dataset_on_arrival(from_state: int):
             estimated_soc = float(candidate_value)
 
     if estimated_soc is None:
-        fallback_index = step if step < len(sim.electric_vehicle_required_soc_departure) else step - 1
-        fallback_value = sim.electric_vehicle_required_soc_departure[fallback_index]
-        assert (
-            isinstance(fallback_value, (float, np.floating))
-            and not np.isnan(fallback_value)
-            and fallback_value >= 0
-        ), "Expected fallback SOC from required departure."
-        expected_soc = float(fallback_value)
-    else:
-        expected_soc = estimated_soc
+        expected_soc = float(ev.battery.soc[step - 1])
+        required_soc = float(sim.electric_vehicle_required_soc_departure[step])
+        assert float(ev.battery.soc[env.time_step]) == pytest.approx(expected_soc, abs=1e-6)
+        if not np.isclose(expected_soc, required_soc):
+            assert float(ev.battery.soc[env.time_step]) != pytest.approx(required_soc, abs=1e-6)
+        return
+
+    expected_soc = estimated_soc
 
     assert pytest.approx(expected_soc, abs=1e-6) == float(ev.battery.soc[env.time_step])
+
+
+def test_connected_ev_without_arrival_soc_uses_initial_soc_on_reset():
+    env = CityLearnEnv(str(MINUTE_SCHEMA_PATH), central_agent=True, random_seed=0)
+    env.reset()
+
+    ev = env.electric_vehicles[0]
+    charger = env.buildings[0].electric_vehicle_chargers[0]
+
+    assert charger.connected_electric_vehicle is ev
+    assert charger.charger_simulation.electric_vehicle_required_soc_departure[0] == pytest.approx(0.8)
+    assert ev.battery.initial_soc == pytest.approx(0.4)
+    assert float(ev.battery.soc[0]) == pytest.approx(ev.battery.initial_soc)
+
+
+def test_charger_simulation_soc_fields_accept_fraction_and_percent_units():
+    simulation = ChargerSimulation(
+        electric_vehicle_charger_state=[1, 1, 2, 2, 3],
+        electric_vehicle_id=["EV"] * 5,
+        electric_vehicle_departure_time=[1, 1, -1, -1, -1],
+        electric_vehicle_required_soc_departure=[0.8, 80.0, np.nan, -0.1, 150.0],
+        electric_vehicle_estimated_arrival_time=[-1, -1, 1, 1, -1],
+        electric_vehicle_estimated_soc_arrival=[0.4, 40.0, np.nan, -0.1, 125.0],
+        noise_std=0.0,
+    )
+
+    np.testing.assert_allclose(
+        simulation.electric_vehicle_required_soc_departure,
+        [0.8, 0.8, -0.1, -0.1, 1.0],
+        atol=1.0e-6,
+    )
+    np.testing.assert_allclose(
+        simulation.electric_vehicle_estimated_soc_arrival,
+        [0.4, 0.4, -0.1, -0.1, 1.0],
+        atol=1.0e-6,
+    )
+
+
+def test_ev_battery_schema_attributes_are_loaded(tmp_path):
+    schema = json.loads(MINUTE_SCHEMA_PATH.read_text())
+    schema["root_directory"] = str(MINUTE_SCHEMA_PATH.parent.resolve())
+
+    attrs = schema["electric_vehicles_def"]["Electric_Vehicle_1"]["battery"]["attributes"]
+    attrs.update(
+        {
+            "efficiency": 1.0,
+            "capacity_loss_coefficient": 0.0,
+            "power_efficiency_curve": [[0.0, 1.0], [1.0, 1.0]],
+            "capacity_power_curve": [[0.0, 1.0], [1.0, 1.0]],
+        }
+    )
+
+    schema_path = tmp_path / "schema.json"
+    schema_path.write_text(json.dumps(schema))
+
+    env = CityLearnEnv(str(schema_path), central_agent=True, random_seed=0)
+    env.reset()
+
+    battery = env.electric_vehicles[0].battery
+    assert battery.efficiency == pytest.approx(1.0)
+    assert battery.capacity_loss_coefficient == pytest.approx(0.0)
+    assert np.allclose(battery.power_efficiency_curve, np.array([[0.0, 1.0], [1.0, 1.0]]).T)
+    assert np.allclose(battery.capacity_power_curve, np.array([[0.0, 1.0], [1.0, 1.0]]).T)
+
+
+def test_connected_ev_soc_carries_forward_to_current_observations():
+    env = CityLearnEnv(str(MINUTE_SCHEMA_PATH), central_agent=True, random_seed=0)
+    env.reset()
+
+    charger = env.buildings[0].electric_vehicle_chargers[0]
+    ev = charger.connected_electric_vehicle
+    initial_soc = float(ev.battery.soc[env.time_step])
+
+    env.step(_zero_actions(env))
+
+    assert charger.connected_electric_vehicle is ev
+    assert float(ev.battery.soc[env.time_step]) == pytest.approx(initial_soc)
+
+    observations = env.buildings[0].observations(
+        include_all=True,
+        normalize=False,
+        periodic_normalization=False,
+        check_limits=True,
+    )
+    soc_key = f"connected_electric_vehicle_at_charger_{charger.charger_id}_soc"
+    assert observations[soc_key] == pytest.approx(initial_soc)
+
+
+def test_connected_ev_current_soc_reference_does_not_overwrite_runtime_control():
+    env = CityLearnEnv(str(MINUTE_SCHEMA_PATH), central_agent=True, random_seed=0)
+    env.reset()
+
+    charger = env.buildings[0].electric_vehicle_chargers[0]
+    ev = charger.connected_electric_vehicle
+    assert ev is not None
+    initial_soc = float(ev.battery.soc[env.time_step])
+    forced_reference = min(initial_soc + 0.35, 0.95)
+    current_soc = np.full(
+        len(charger.charger_simulation.electric_vehicle_charger_state),
+        -0.1,
+        dtype="float32",
+    )
+    current_soc[1] = forced_reference
+    charger.charger_simulation.electric_vehicle_current_soc = current_soc
+
+    env.step(_zero_actions(env))
+
+    assert charger.connected_electric_vehicle is ev
+    assert float(ev.battery.soc[env.time_step]) == pytest.approx(initial_soc)
+    assert float(ev.battery.soc[env.time_step]) != pytest.approx(forced_reference)
+    env.close()
+
+
+@pytest.mark.parametrize("explicit_session_identity", [False, True])
+def test_back_to_back_session_of_same_ev_reinitializes_arrival_soc_once(
+    explicit_session_identity: bool,
+):
+    env = CityLearnEnv(str(MINUTE_SCHEMA_PATH), central_agent=True, random_seed=0)
+    env.reset()
+
+    charger = env.buildings[0].electric_vehicle_chargers[0]
+    ev = charger.connected_electric_vehicle
+    assert ev is not None
+    sim = charger.charger_simulation
+    sim.electric_vehicle_charger_state[:2] = 1
+    sim.electric_vehicle_id[:2] = ev.name
+    sim.electric_vehicle_session_id[:2] = (
+        ["SESSION_1", "SESSION_2"] if explicit_session_identity else ["", ""]
+    )
+    sim.electric_vehicle_departure_time[:2] = [1, 4]
+    sim.electric_vehicle_current_soc = np.full(
+        len(sim.electric_vehicle_charger_state), -0.1, dtype="float32"
+    )
+    sim.electric_vehicle_current_soc[1] = 0.25
+
+    env.step(_zero_actions(env))
+
+    assert charger.connected_electric_vehicle is ev
+    assert float(ev.battery.soc[env.time_step]) == pytest.approx(0.25)
+    env.close()
+
+
+def test_static_battery_soc_carries_forward_to_current_observations(tmp_path):
+    schema = json.loads(MINUTE_SCHEMA_PATH.read_text())
+    schema["root_directory"] = str(MINUTE_SCHEMA_PATH.parent.resolve())
+    schema["buildings"]["Building_1"]["electrical_storage"]["attributes"]["loss_coefficient"] = 0.0
+
+    schema_path = tmp_path / "schema.json"
+    schema_path.write_text(json.dumps(schema))
+
+    env = CityLearnEnv(str(schema_path), central_agent=True, random_seed=0)
+    env.reset()
+
+    building = env.buildings[0]
+    initial_soc = float(building.electrical_storage.soc[env.time_step])
+
+    env.step(_zero_actions(env))
+
+    assert float(building.electrical_storage.soc[env.time_step]) == pytest.approx(initial_soc)
+    observations = building.observations(
+        include_all=True,
+        normalize=False,
+        periodic_normalization=False,
+        check_limits=True,
+    )
+    assert observations["electrical_storage_soc"] == pytest.approx(initial_soc)
+
+
+def test_storage_observation_bounds_are_scaled_to_control_step_energy(tmp_path):
+    schema = json.loads(MINUTE_SCHEMA_PATH.read_text())
+    schema["root_directory"] = str(MINUTE_SCHEMA_PATH.parent.resolve())
+    schema["observations"]["electrical_storage_electricity_consumption"] = {
+        "active": True,
+        "shared_in_central_agent": False,
+    }
+
+    schema_path = tmp_path / "schema.json"
+    schema_path.write_text(json.dumps(schema))
+
+    env = CityLearnEnv(str(schema_path), central_agent=True, random_seed=0)
+    env.reset()
+
+    building = env.buildings[0]
+    low, high = building.estimate_observation_space_limits(
+        include_all=True,
+        periodic_normalization=False,
+    )
+    expected_limit = building.electrical_storage.nominal_power * building.seconds_per_time_step / 3600.0
+    delta = building.observation_space_limit_delta
+
+    assert low["electrical_storage_electricity_consumption"] == pytest.approx(-expected_limit - delta)
+    assert high["electrical_storage_electricity_consumption"] == pytest.approx(expected_limit + delta)
 
 
 def test_ev_kpi_evaluation_with_evs_and_chargers():
@@ -130,3 +324,44 @@ def test_ev_current_soc_overrides_arrival_estimate_when_present():
     connected_ev = target_charger.connected_electric_vehicle
     assert connected_ev is not None, "Expected EV to be connected at the transition step."
     assert float(connected_ev.battery.soc[env.time_step]) == pytest.approx(forced_soc, abs=1e-6)
+
+
+def test_current_soc_initializes_runtime_reconnection_inside_occupied_window():
+    csv_path, transition_index = _find_transition(2)
+    charger_id = csv_path.split("/")[-1].replace(".csv", "")
+    env = CityLearnEnv(SCHEMA_PATH, central_agent=True, random_seed=0)
+    env.reset()
+
+    for _ in range(transition_index + 2):
+        env.step(_zero_actions(env))
+
+    target_charger = next(
+        charger
+        for building in env.buildings
+        for charger in (building.electric_vehicle_chargers or [])
+        if charger.charger_id == charger_id
+    )
+    sim = target_charger.charger_simulation
+    assert sim.electric_vehicle_charger_state[env.time_step - 1] == 1
+    assert sim.electric_vehicle_charger_state[env.time_step] == 1
+
+    forced_soc = 0.42
+    current_soc = np.full(len(sim.electric_vehicle_charger_state), -0.1, dtype="float32")
+    current_soc[env.time_step] = forced_soc
+    sim.electric_vehicle_current_soc = current_soc
+    target_charger.connected_electric_vehicle = None
+    # A newly activated/recommissioned charger has no committed association at
+    # the preceding runtime step even if its annual schedule says occupied.
+    target_charger.past_connected_evs[env.time_step - 1] = None
+
+    env.associate_chargers_to_electric_vehicles()
+
+    connected_ev = target_charger.connected_electric_vehicle
+    assert connected_ev is not None
+    assert float(connected_ev.battery.soc[env.time_step]) == pytest.approx(forced_soc, abs=1e-6)
+    env.close()
+
+
+def test_negative_soc_sentinels_remain_missing_values():
+    values = ChargerSimulation.normalize_soc_series([-1.0, -0.1, np.nan, 0.0, 1.0, 80.0, 150.0])
+    assert values.tolist() == pytest.approx([-0.1, -0.1, -0.1, 0.0, 1.0, 0.8, 1.0])

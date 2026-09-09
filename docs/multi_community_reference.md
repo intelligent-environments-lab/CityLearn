@@ -1,0 +1,156 @@
+# Multi-Community Reference
+
+`MultiCommunityEnv` orchestrates several independent `CityLearnEnv` instances with one child environment per community. V1 is synchronization and portfolio reporting only: there is no global physics layer, inter-community market, global DSO/TSO coordination or building mixing across communities.
+
+Portuguese version: [pt/multi_community_reference.md](pt/multi_community_reference.md).
+
+## Quickstart
+
+```python
+import numpy as np
+from citylearn.multi_community import MultiCommunityEnv
+
+env = MultiCommunityEnv(
+    communities=[
+        {
+            "community_id": "community_a",
+            "schema": "data/datasets/community_a/schema.json",
+            "env_kwargs": {"interface": "entity", "episode_time_steps": 48},
+            "weight": 1.0,
+        },
+        {
+            "community_id": "community_b",
+            "schema": "data/datasets/community_b/schema.json",
+            "env_kwargs": {"interface": "entity", "episode_time_steps": 48},
+            "weight": 2.0,
+        },
+    ],
+    render_directory="outputs/runs",
+    render_session_name="portfolio_001",
+)
+
+observations, info = env.reset(seed=0)
+terminated = truncated = False
+
+while not (terminated or truncated):
+    actions = {
+        community_id: {
+            "tables": {
+                table: np.zeros(space.shape, dtype="float32")
+                for table, space in child.action_space["tables"].items()
+            }
+        }
+        for community_id, child in env.envs.items()
+    }
+    observations, rewards, terminated, truncated, info = env.step(actions)
+
+kpis = env.evaluate_v2(include_business_as_usual=False)
+```
+
+## Constructor
+
+```python
+MultiCommunityEnv(
+    communities=[
+        {
+            "community_id": "community_a",
+            "schema": "path/or/dataset/name/schema.json",
+            "env_kwargs": {"interface": "entity", "episode_time_steps": 48},
+            "weight": 1.0,
+        }
+    ],
+    render_directory=None,
+    render_session_name=None,
+)
+```
+
+`community_id` must be unique, non-empty and safe as a relative path component. It may contain only letters, numbers, `_`, `-` and `.`. `weight` defaults to `1.0`, must be finite and non-negative, and at least one community must have a positive weight.
+
+`env_kwargs` are passed to the child `CityLearnEnv`. The wrapper sets each child export session to `<render_session_name>/<community_id>` so render and KPI files are separated by community.
+
+## Reset And Step
+
+`reset()` returns child observations by community plus wrapper info:
+
+```python
+observations = {"community_a": child_observations, "community_b": child_observations}
+info = {"communities": {...}, "time_step": 0}
+```
+
+`step(actions)` expects one child action payload per community:
+
+```python
+actions = {"community_a": child_actions, "community_b": child_actions}
+```
+
+It returns:
+
+```python
+observations_by_community,
+rewards_by_community,
+terminated,
+truncated,
+info
+```
+
+`info` includes:
+
+| Key | Meaning |
+|---|---|
+| `community_rewards_scalar` | Finite sum of each child reward payload. |
+| `reward_total` | `sum(weight * community_reward_scalar)`. |
+| `reward_mean_weighted` | `reward_total / sum(weights)`. |
+| `terminated_by_community` | Child termination flags. |
+| `truncated_by_community` | Child truncation flags. |
+
+If any child terminates or truncates, the wrapper terminates or truncates too. This prevents the communities from drifting into different episode positions.
+
+## Synchronization Contract
+
+All child environments must use:
+
+| Requirement | Reason |
+|---|---|
+| Same `seconds_per_time_step` | Keeps step time aligned. |
+| Same effective episode length | Keeps training batches rectangular. |
+| Same `interface` | Keeps observation/action payload contracts stable. |
+| Same `central_agent` mode | Avoids mixing centralized and decentralized reward/action semantics. |
+
+The wrapper validates these conditions at construction and again after reset.
+
+## Demand Response
+
+Demand response remains local to each community. If a child schema has `demand_response.enabled=true`, that child loads its own `requests_file`, exposes its own request metadata in entity observations, and computes local settlement/KPIs. `MultiCommunityEnv` does not coordinate DSO/TSO requests across communities in v1.
+
+## KPI Aggregation
+
+`evaluate_v2()` concatenates the child KPI tables and adds a `community_id` column. It also adds portfolio rows:
+
+```text
+level = "portfolio"
+name = "Portfolio"
+community_id = "__portfolio__"
+```
+
+Only district-level child KPIs are aggregated:
+
+| KPI suffix | Portfolio rule |
+|---|---|
+| `_kwh`, `_eur`, `_kgco2`, `_count` | Sum across communities. |
+| `_ratio`, `_percent` | Weighted mean using community `weight`. |
+| `_kw`, `_c`, `_hours` and other point metrics | Not aggregated in v1. |
+
+Portfolio KPI names replace a leading `district_` prefix with `portfolio_`, for example `district_demand_response_revenue_total_eur` becomes `portfolio_demand_response_revenue_total_eur`.
+
+## Export
+
+`export_final_kpis()` writes each child export in its own subfolder and writes a global CSV in the wrapper session folder:
+
+```text
+<render_directory>/<render_session_name>/
+  exported_kpis_multi_community.csv
+  community_a/exported_kpis.csv
+  community_b/exported_kpis.csv
+```
+
+The global CSV keeps the long `evaluate_v2()` format with local and portfolio rows.

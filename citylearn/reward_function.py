@@ -1,4 +1,4 @@
-from typing import Any, List, Mapping, Tuple, Union
+from typing import Any, Iterable, List, Mapping, Optional, Set, Tuple, Union
 import numpy as np
 from citylearn.building import Building
 from citylearn.data import ZERO_DIVISION_PLACEHOLDER
@@ -62,6 +62,11 @@ class RewardFunction:
 
         pass
 
+    def get_required_observation_names(self) -> Optional[Iterable[str]]:
+        """Return minimal observation names for this reward, or None if unknown."""
+
+        return None
+
     def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
         r"""Calculates reward.
 
@@ -106,6 +111,17 @@ class MultiBuildingRewardFunction(RewardFunction):
         for rf in self.reward_functions.values():
             rf.reset()
 
+    def get_required_observation_names(self) -> Optional[Iterable[str]]:
+        required: Set[str] = set()
+
+        for rf in self.reward_functions.values():
+            names = rf.get_required_observation_names()
+            if names is None:
+                return None
+            required.update(names)
+
+        return required
+
     @property
     def env_metadata(self):
         return self._env_metadata
@@ -128,6 +144,9 @@ class MARL(RewardFunction):
 
     def __init__(self, env_metadata: Mapping[str, Any]):
         super().__init__(env_metadata)
+
+    def get_required_observation_names(self) -> Optional[Iterable[str]]:
+        return ('net_electricity_consumption',)
 
     def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
         net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
@@ -155,6 +174,9 @@ class IndependentSACReward(RewardFunction):
     
     def __init__(self, env_metadata: Mapping[str, Any]):
         super().__init__(env_metadata)
+
+    def get_required_observation_names(self) -> Optional[Iterable[str]]:
+        return ('net_electricity_consumption',)
 
     def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
         net_electricity_consumption = [o['net_electricity_consumption'] for o in observations]
@@ -185,6 +207,15 @@ class SolarPenaltyReward(RewardFunction):
 
     def __init__(self, env_metadata: Mapping[str, Any]):
         super().__init__(env_metadata)
+
+    def get_required_observation_names(self) -> Optional[Iterable[str]]:
+        return (
+            'net_electricity_consumption',
+            'cooling_storage_soc',
+            'heating_storage_soc',
+            'dhw_storage_soc',
+            'electrical_storage_soc',
+        )
 
     def calculate(self, observations: List[Mapping[str, Union[int, float]]]) -> List[float]:
         reward_list = []
@@ -332,6 +363,17 @@ class ComfortReward(RewardFunction):
             reward = reward_list
 
         return reward
+
+    def get_required_observation_names(self) -> Optional[Iterable[str]]:
+        return (
+            'heating_demand',
+            'cooling_demand',
+            'hvac_mode',
+            'indoor_dry_bulb_temperature',
+            'indoor_dry_bulb_temperature_cooling_set_point',
+            'indoor_dry_bulb_temperature_heating_set_point',
+            'comfort_band',
+        )
     
 class SolarPenaltyAndComfortReward(RewardFunction):
     """Addition of :py:class:`citylearn.reward_function.SolarPenaltyReward` and :py:class:`citylearn.reward_function.ComfortReward`.
@@ -384,6 +426,17 @@ class SolarPenaltyAndComfortReward(RewardFunction):
         reward = reward.sum(axis=0).tolist()
 
         return reward
+
+    def get_required_observation_names(self) -> Optional[Iterable[str]]:
+        required: Set[str] = set()
+
+        for function in self.__functions:
+            names = function.get_required_observation_names()
+            if names is None:
+                return None
+            required.update(names)
+
+        return required
 
 
 class Electric_Vehicles_Reward_Function(MARL):
@@ -443,6 +496,13 @@ class Electric_Vehicles_Reward_Function(MARL):
         LOGGER.debug(f"Calculated EV reward: {total_reward}")
         return total_reward
 
+    def get_required_observation_names(self) -> Optional[Iterable[str]]:
+        return (
+            'net_electricity_consumption',
+            'electric_vehicles_chargers_dict',
+            'charging_constraint_violation_kwh',
+        )
+
     def calculate_ev_penalty(self, o: Mapping[str, Union[int, float, dict]], current_reward: float) -> float:
 
         penalty_total = 0.0
@@ -456,9 +516,11 @@ class Electric_Vehicles_Reward_Function(MARL):
             contributions = {k: 0.0 for k in self.weights.keys()}
 
             if not data["connected"]:
-                if data["last_charged_kwh"] and abs(data["last_charged_kwh"]) > 0.1:
+                last_charged_kwh = data.get("last_charged_kwh", 0.0) or 0.0
+                if abs(last_charged_kwh) > 0.1:
                     contributions["no_car_charging"] += self.weights["no_car_charging"] * penalty_multiplier
                 LOGGER.debug(f"Charger {charger_id} | EV not connected | Contributions: {contributions}")
+                penalty_total += sum(contributions.values())
                 continue
 
             # Extract values
@@ -487,10 +549,11 @@ class Electric_Vehicles_Reward_Function(MARL):
                 soc_diff = soc_now - required_soc
                 soc_diff_kWh = soc_diff * capacity
 
-                max_possible_charge = max_charging_power * hours_until_departure
-                max_possible_discharge = max_discharging_power * hours_until_departure
+                max_possible_charge = max(max_charging_power, 0.0) * max(hours_until_departure, 0.0)
+                max_possible_discharge = max(max_discharging_power, 0.0) * max(hours_until_departure, 0.0)
 
-                if soc_diff_kWh > max_possible_charge:
+                soc_deficit_kwh = max(required_soc - soc_now, 0.0) * capacity
+                if soc_deficit_kwh > max_possible_charge:
                     contributions["soc_impossible"] += self.weights["soc_impossible"] * penalty_multiplier
 
                 if hours_until_departure == 0:

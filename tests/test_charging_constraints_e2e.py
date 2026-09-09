@@ -19,6 +19,7 @@ def _zero_actions(env: CityLearnEnv):
 def test_charging_constraint_demo_rollout(tmp_path):
     env = CityLearnEnv(
         str(SCHEMA),
+        interface="flat",
         central_agent=True,
         render_mode="during",
         render_directory=tmp_path / "SimulationData",
@@ -38,6 +39,7 @@ def test_charging_constraint_demo_rollout(tmp_path):
 def test_charging_constraint_demo_zero_actions():
     env = CityLearnEnv(
         str(SCHEMA),
+        interface="flat",
         central_agent=True,
         episode_time_steps=12,
         random_seed=0,

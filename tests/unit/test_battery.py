@@ -110,6 +110,50 @@ class TestBattery(unittest.TestCase):
         self.assertEqual(self.battery.capacity_history[0], 100.0)
         self.assertEqual(self.battery.degraded_capacity, 100.0)  # Initial value should equal capacity
 
+    def test_next_time_step_carries_soc_with_standby_loss_without_energy_balance(self):
+        battery = Battery(
+            capacity=10.0,
+            nominal_power=5.0,
+            initial_soc=0.5,
+            efficiency=1.0,
+            loss_coefficient=0.1,
+            capacity_loss_coefficient=0.0,
+            power_efficiency_curve=[[0.0, 1.0], [1.0, 1.0]],
+            capacity_power_curve=[[0.0, 1.0], [1.0, 1.0]],
+            seconds_per_time_step=3600,
+        )
+        battery.episode_tracker = MagicMock()
+        battery.episode_tracker.episode_time_steps = 3
+        battery.reset()
+
+        battery.next_time_step()
+
+        self.assertAlmostEqual(float(battery.soc[1]), 0.45)
+        self.assertAlmostEqual(float(battery.energy_balance[1]), 0.0)
+
+    def test_zero_charge_does_not_apply_standby_loss_twice(self):
+        battery = Battery(
+            capacity=10.0,
+            nominal_power=5.0,
+            initial_soc=1.0,
+            efficiency=1.0,
+            loss_coefficient=0.1,
+            capacity_loss_coefficient=0.0,
+            power_efficiency_curve=[[0.0, 1.0], [1.0, 1.0]],
+            capacity_power_curve=[[0.0, 1.0], [1.0, 1.0]],
+            seconds_per_time_step=3600,
+        )
+        battery.episode_tracker = MagicMock()
+        battery.episode_tracker.episode_time_steps = 3
+        battery.reset()
+        battery.update_electricity_consumption = MagicMock()
+
+        battery.charge(0.0)
+        self.assertAlmostEqual(float(battery.soc[0]), 1.0)
+
+        battery.next_time_step()
+        self.assertAlmostEqual(float(battery.soc[1]), 0.9)
+
     def test_property_setters(self):
         """Test property setters update values correctly"""
         self.battery.capacity = 150.0
@@ -131,6 +175,16 @@ class TestBattery(unittest.TestCase):
         self.battery.capacity_power_curve = new_capacity_curve
         self.assertTrue(np.array_equal(self.battery.capacity_power_curve[0], np.array([0, 0.5, 1])))
         self.assertTrue(np.array_equal(self.battery.capacity_power_curve[1], np.array([0.9, 0.8, 0.1])))
+
+    def test_invalid_physical_battery_parameters_are_rejected(self):
+        with self.assertRaises(AssertionError):
+            Battery(depth_of_discharge=1.2, random_seed=42)
+        with self.assertRaises(AssertionError):
+            Battery(depth_of_discharge=-0.2, random_seed=42)
+        with self.assertRaises(AssertionError):
+            Battery(capacity_loss_coefficient=-0.001, random_seed=42)
+        with self.assertRaises(AssertionError):
+            Battery(efficiency=1.21, random_seed=42)
 
     def test_charge_positive_energy(self):
         """Test the charge method with positive energy (charging)"""
@@ -173,6 +227,29 @@ class TestBattery(unittest.TestCase):
         # Check that SOC didn't go below DoD limit
         min_allowed_soc = 1.0 - self.battery.depth_of_discharge
         self.assertGreaterEqual(self.battery.soc[self.battery.time_step], min_allowed_soc - 1e-2)
+
+    def test_standby_loss_cannot_push_battery_below_depth_of_discharge_limit(self):
+        battery = Battery(
+            capacity=100.0,
+            nominal_power=100.0,
+            initial_soc=1.0,
+            depth_of_discharge=0.8,
+            efficiency=1.0,
+            loss_coefficient=0.1,
+            capacity_loss_coefficient=0.0,
+            power_efficiency_curve=[[0.0, 1.0], [1.0, 1.0]],
+            capacity_power_curve=[[0.0, 1.0], [1.0, 1.0]],
+            seconds_per_time_step=3600,
+        )
+        battery.episode_tracker = MagicMock()
+        battery.episode_tracker.episode_time_steps = 3
+        battery.reset()
+        battery.update_electricity_consumption = MagicMock()
+
+        battery.charge(-100.0)
+
+        self.assertGreaterEqual(float(battery.soc[0]), 0.2 - 1e-9)
+        self.assertAlmostEqual(float(battery.soc[0]), 0.2, places=6)
 
     def test_capacity_limit(self):
         """Test that the battery respects the capacity limit when charging"""

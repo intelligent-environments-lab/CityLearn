@@ -223,6 +223,37 @@ def test_disabled_community_market_with_string_false_keeps_legacy_costs(tmp_path
         env_disabled.close()
 
 
+def test_disabled_community_market_does_not_credit_building_exports(tmp_path: Path):
+    schema_path = _build_two_building_market_schema(tmp_path)
+    with open(schema_path, "r", encoding="utf-8") as f:
+        schema = json.load(f)
+
+    schema["community_market"]["enabled"] = False
+    schema["community_market"]["grid_export_price"] = 0.9
+    with open(schema_path, "w", encoding="utf-8") as f:
+        json.dump(schema, f, indent=2)
+
+    env = CityLearnEnv(str(schema_path), central_agent=True, episode_time_steps=2, random_seed=0)
+
+    try:
+        env.reset()
+        env.step([np.zeros(len(env.action_names[0]), dtype="float32")])
+        t = env.time_step - 1
+
+        expected_total = 0.0
+        for building in env.buildings:
+            net = float(building.net_electricity_consumption[t])
+            price = float(building.pricing.electricity_pricing[t])
+            expected_cost = max(net, 0.0) * price
+            assert building.net_electricity_consumption_cost[t] == pytest.approx(expected_cost, abs=1e-6)
+            expected_total += expected_cost
+
+        assert expected_total > 0.0
+        assert env.net_electricity_consumption_cost[t] == pytest.approx(expected_total, abs=1e-6)
+    finally:
+        env.close()
+
+
 def test_single_phase_rejects_non_l1_assets(tmp_path: Path):
     schema_path = _clone_minute_schema(
         tmp_path,
@@ -330,17 +361,20 @@ def test_electrical_service_positive_infinite_limits_are_treated_as_unbounded(tm
 
 
 def test_three_phase_limits_clip_controllable_actions(tmp_path: Path):
+    total_import_limit_kw = 5.0
+    per_phase_import_limit_kw = 2.0
+
     def _mutate(schema):
         building = schema["buildings"]["Building_1"]
         building["electrical_service"] = {
             "mode": "three_phase",
             "default_split": "balanced",
             "limits": {
-                "total": {"import_kw": 2.5, "export_kw": 2.5},
+                "total": {"import_kw": total_import_limit_kw, "export_kw": 2.5},
                 "per_phase": {
-                    "L1": {"import_kw": 1.0, "export_kw": 1.0},
-                    "L2": {"import_kw": 1.0, "export_kw": 1.0},
-                    "L3": {"import_kw": 1.0, "export_kw": 1.0},
+                    "L1": {"import_kw": per_phase_import_limit_kw, "export_kw": 1.0},
+                    "L2": {"import_kw": per_phase_import_limit_kw, "export_kw": 1.0},
+                    "L3": {"import_kw": per_phase_import_limit_kw, "export_kw": 1.0},
                 },
             },
             "observations": {"headroom": True, "violation": True},
@@ -363,16 +397,22 @@ def test_three_phase_limits_clip_controllable_actions(tmp_path: Path):
         building = env.buildings[0]
         state = building._charging_constraints_state
         assert state is not None
-        assert state["total_power_kw"] <= 2.5 + 1e-6
-        assert state["phase_power_kw"]["L1"] <= 1.0 + 1e-6
-        assert state["phase_power_kw"]["L2"] <= 1.0 + 1e-6
-        assert state["phase_power_kw"]["L3"] <= 1.0 + 1e-6
-        assert building._charging_constraint_last_penalty_kwh == pytest.approx(0.0, abs=1e-6)
+        assert state["total_power_kw"] <= total_import_limit_kw + 1e-6
+        assert state["phase_power_kw"]["L1"] <= per_phase_import_limit_kw + 1e-6
+        assert state["phase_power_kw"]["L2"] <= per_phase_import_limit_kw + 1e-6
+        assert state["phase_power_kw"]["L3"] <= per_phase_import_limit_kw + 1e-6
+        assert building._charging_constraint_last_penalty_kwh > 0.0
 
         t = building.time_step - 1
         charger = building.electric_vehicle_chargers[0]
         commanded_kwh = charger.past_charging_action_values_kwh[t]
         assert commanded_kwh < (charger.max_charging_power * (building.seconds_per_time_step / 3600.0))
+
+        district = env.evaluate_v2()
+        district = district[(district["level"] == "district") & (district["name"] == "District")]
+        values = district.set_index("cost_function")["value"]
+        assert values["district_electrical_service_phase_requested_pressure_energy_total_kwh"] > 0.0
+        assert values["district_electrical_service_phase_violations_energy_total_kwh"] == pytest.approx(0.0, abs=1e-6)
     finally:
         env.close()
 
@@ -405,6 +445,45 @@ def test_residual_violation_when_non_controllable_exceeds_limit(tmp_path: Path):
         assert state["total_power_kw"] > 0.1
         obs = building.observations(include_all=True, normalize=False, periodic_normalization=False)
         assert obs["charging_constraint_violation_kwh"] > 0.0
+
+        district = env.evaluate_v2()
+        district = district[(district["level"] == "district") & (district["name"] == "District")]
+        values = district.set_index("cost_function")["value"]
+        assert values["district_electrical_service_phase_requested_pressure_energy_total_kwh"] > 0.0
+        assert values["district_electrical_service_phase_violations_energy_total_kwh"] > 0.0
+    finally:
+        env.close()
+
+
+def test_electrical_service_headroom_observations_stay_inside_space_bounds(tmp_path: Path):
+    def _mutate(schema):
+        building = schema["buildings"]["Building_1"]
+        building["electrical_service"] = {
+            "mode": "single_phase",
+            "limits": {"total": {"import_kw": 6.0, "export_kw": 6.0}},
+            "observations": {"headroom": True, "headroom_export": True, "violation": True},
+        }
+
+    schema_path = _clone_minute_schema(tmp_path, "electrical_service_headroom_bounds", mutator=_mutate)
+    env = CityLearnEnv(str(schema_path), central_agent=True, episode_time_steps=4, random_seed=0)
+
+    try:
+        env.reset()
+        building = env.buildings[0]
+        low, high = building.estimate_observation_space_limits(include_all=True, periodic_normalization=False)
+        keys = ["charging_building_headroom_kw", "charging_building_export_headroom_kw"]
+
+        def assert_headroom_in_bounds():
+            obs = building.observations(include_all=True, normalize=False, periodic_normalization=False)
+            for key in keys:
+                assert low[key] <= obs[key] <= high[key], (key, low[key], obs[key], high[key])
+
+        assert_headroom_in_bounds()
+
+        actions = np.zeros(len(env.action_names[0]), dtype="float32")
+        actions[env.action_names[0].index("electrical_storage")] = 1.0
+        env.step([actions])
+        assert_headroom_in_bounds()
     finally:
         env.close()
 

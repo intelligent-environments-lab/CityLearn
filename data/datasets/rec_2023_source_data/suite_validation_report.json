@@ -1,0 +1,26 @@
+{
+  "status": "pass",
+  "check_count": 5,
+  "checks": [
+    {
+      "status": "pass",
+      "check": "CORE-15-STRIPPED is a byte-identical physical subset of CORE-30"
+    },
+    {
+      "status": "pass",
+      "check": "Premium Clean and AllIn use identical topology events"
+    },
+    {
+      "status": "pass",
+      "check": "Premium active population remains between 70 and 100 and reaches 100"
+    },
+    {
+      "status": "pass",
+      "check": "Premium has six permanent departures and no state-resetting member re-entry"
+    },
+    {
+      "status": "pass",
+      "check": "Premium AllIn adds health faults while Clean does not"
+    }
+  ]
+}

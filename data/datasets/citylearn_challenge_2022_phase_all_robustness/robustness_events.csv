@@ -1,0 +1,5 @@
+event_id,module,target_type,target_id,target_feature,start_time_step,end_time_step,mode,value,std,min_value,max_value,replacement_value,delay_steps
+obs_missing_building_1,observation,building,Building_1,non_shiftable_load,24,27,missing,,,,,-9999.0,
+forecast_bias_price,forecast,district,*,electricity_pricing_predicted_1,48,55,bias,0.05,,,,,
+storage_action_dropout,action,storage,*,electrical_storage,72,75,dropout,,,,,,
+storage_asset_outage,asset,storage,*,both,96,99,unavailable,,,,,-9999.0,

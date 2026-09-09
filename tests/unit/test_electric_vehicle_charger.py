@@ -179,7 +179,7 @@ def test_charger_discharging_updates_ev_soc_and_tracking(charger: Charger, elect
     )
 
 
-def test_update_soc_respects_minimum_power_limits(tracker: EpisodeTracker, charger_simulation: ChargerSimulation):
+def test_update_soc_respects_minimum_power_deadband(tracker: EpisodeTracker, charger_simulation: ChargerSimulation):
     ev = _make_ev(tracker)
     charger = _make_charger(
         tracker,
@@ -191,11 +191,21 @@ def test_update_soc_respects_minimum_power_limits(tracker: EpisodeTracker, charg
         min_discharging_power=1.0,
     )
 
+    assert charger.get_requested_power_kw(0.05) == pytest.approx(0.0)
     charger.update_connected_electric_vehicle_soc(0.05)
+    assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(0.0)
+
+    assert charger.get_requested_power_kw(0.1) == pytest.approx(1.0)
+    charger.update_connected_electric_vehicle_soc(0.1)
     assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(1.0)
 
     ev.battery.force_set_soc(0.6)
+    assert charger.get_requested_power_kw(-0.03) == pytest.approx(0.0)
     charger.update_connected_electric_vehicle_soc(-0.03)
+    assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(0.0)
+
+    assert charger.get_requested_power_kw(-0.1) == pytest.approx(-1.0)
+    charger.update_connected_electric_vehicle_soc(-0.1)
     assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(-1.0)
 
 
@@ -279,7 +289,7 @@ def test_subhour_energy_exchange_matches_power_times_delta_t(
     assert ev.battery.energy_balance[ev.time_step] == pytest.approx(expected_energy)
 
 
-def test_subhour_minimum_power_limit_is_scaled_by_timestep(
+def test_subhour_minimum_power_deadband_is_scaled_by_timestep(
     tracker: EpisodeTracker,
     charger_simulation: ChargerSimulation,
 ):
@@ -301,7 +311,11 @@ def test_subhour_minimum_power_limit_is_scaled_by_timestep(
         seconds_per_time_step=seconds_per_time_step,
     )
 
-    charger.update_connected_electric_vehicle_soc(0.01)
+    charger.update_connected_electric_vehicle_soc(0.19)
+    assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(0.0)
+    assert charger.electricity_consumption[charger.time_step] == pytest.approx(0.0)
+
+    charger.update_connected_electric_vehicle_soc(0.2)
     expected_energy = 2.0 * (seconds_per_time_step / 3600.0)
 
     assert charger.past_charging_action_values_kwh[charger.time_step] == pytest.approx(expected_energy)

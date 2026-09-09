@@ -21,8 +21,8 @@ class Noise:
 
         arr = np.asarray(input_data)  # Handles both ndarray and Iterable
         if noise_std <= 0:
-            return np.zeros(arr.shape)
-        return np.random.normal(loc=0, scale=noise_std, size=arr.shape)
+            return np.zeros(arr.shape, dtype=np.float32)
+        return np.random.normal(loc=0, scale=noise_std, size=arr.shape).astype(np.float32, copy=False)
 
     @staticmethod
     def generate_scaled_noise(input_data: Union[np.ndarray, Iterable[float]], noise_std: float, scale: float = 1.0) -> np.ndarray:

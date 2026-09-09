@@ -85,3 +85,19 @@ def test_rbc_sets_ev_actions_positive():
             assert actions[0][idx] > 0.0
     finally:
         env.close()
+
+
+def test_rbc_requires_flat_interface():
+    env = CityLearnEnv(
+        str(SCHEMA),
+        interface="entity",
+        central_agent=True,
+        episode_time_steps=4,
+        random_seed=0,
+    )
+
+    try:
+        with pytest.raises(ValueError, match="interface='flat'"):
+            Agent(env)
+    finally:
+        env.close()

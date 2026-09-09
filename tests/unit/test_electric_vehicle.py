@@ -24,6 +24,7 @@ def mock_battery():
     battery.energy_balance = np.zeros(24)
     battery.efficiency = 0.9
     battery.round_trip_efficiency = 0.9**0.5
+    battery.loss_coefficient = 0.0
     battery.time_step = 0
     def force_set_soc_side_effect(new_soc):
         battery.soc[battery.time_step] = new_soc
@@ -67,6 +68,34 @@ def test_next_time_step_basic(electric_vehicle, mock_battery):
     electric_vehicle.next_time_step()
     assert mock_battery.next_time_step.called
     assert electric_vehicle.time_step == 1
+
+
+def test_next_time_step_carries_soc_after_standby_loss():
+    tracker = _make_real_tracker()
+    battery = Battery(
+        capacity=10.0,
+        nominal_power=5.0,
+        initial_soc=0.5,
+        efficiency=1.0,
+        loss_coefficient=0.1,
+        capacity_loss_coefficient=0.0,
+        power_efficiency_curve=[[0.0, 1.0], [1.0, 1.0]],
+        capacity_power_curve=[[0.0, 1.0], [1.0, 1.0]],
+        seconds_per_time_step=3600,
+        episode_tracker=tracker,
+    )
+    battery.reset()
+    ev = ElectricVehicle(
+        episode_tracker=tracker,
+        battery=battery,
+        name="LossyEV",
+        seconds_per_time_step=3600,
+    )
+    ev.reset()
+
+    ev.next_time_step()
+
+    assert float(ev.battery.soc[1]) == pytest.approx(0.45)
 
 def test_reset(electric_vehicle, mock_battery):
     electric_vehicle.time_step = 5

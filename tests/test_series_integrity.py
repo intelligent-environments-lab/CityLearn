@@ -21,7 +21,7 @@ def _assert_length_consistency(env: CityLearnEnv):
         assert len(building.non_shiftable_load_electricity_consumption) == t + 1
         assert len(building.electrical_storage_electricity_consumption) == t + 1
         assert len(building.chargers_electricity_consumption) == t + 1
-        assert len(building.washing_machines_electricity_consumption) == t + 1
+        assert len(building.deferrable_appliances_electricity_consumption) == t + 1
 
 
 def test_series_integrity_reset_and_step():

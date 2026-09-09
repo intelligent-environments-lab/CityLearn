@@ -25,6 +25,7 @@ def main() -> None:
     render_root = ROOT / "SimulationData"
     env = CityLearnEnv(
         str(SCHEMA),
+        interface="flat",
         central_agent=True,
         render_mode="end",
         render_directory=render_root,

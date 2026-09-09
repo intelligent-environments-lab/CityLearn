@@ -18,6 +18,8 @@ class RBC(Agent):
     """
     
     def __init__(self, env: CityLearnEnv, **kwargs: Any):
+        if str(getattr(env, 'interface', 'flat')).lower() != 'flat':
+            raise ValueError("RBC controllers require interface='flat'.")
         super().__init__(env, **kwargs)
 
 class HourRBC(RBC):
@@ -504,7 +506,7 @@ class BasicElectricVehicleRBC_ReferenceController(BasicRBC): #change the name
                         value = 1
                         action_map[n][hour] = value
 
-                elif "washing_machine" in n:
+                elif "deferrable_appliance" in n:
                     for hour in Building.get_periodic_observation_metadata()['hour']:
                         value = 1
                         action_map[n][hour] = value        

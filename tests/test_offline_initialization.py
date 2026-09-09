@@ -1,3 +1,4 @@
+import json
 import shutil
 from pathlib import Path
 
@@ -59,3 +60,28 @@ def test_offline_initialization_skips_sizing_data_when_autosize_disabled(tmp_pat
     env = CityLearnEnv(str(MINUTE_SCHEMA), offline=True, central_agent=True, episode_time_steps=2, render_mode="none")
 
     assert len(env.buildings) == 1
+
+
+def test_schema_relative_root_directory_is_resolved_from_schema_file(tmp_path):
+    dataset_dir = tmp_path / "portable_dataset"
+    shutil.copytree(MINUTE_SCHEMA.parent, dataset_dir)
+    schema = json.loads((dataset_dir / "schema.json").read_text(encoding="utf-8"))
+    schema["root_directory"] = ".."
+    variants_dir = dataset_dir / "schemas"
+    variants_dir.mkdir()
+    variant_path = variants_dir / "variant.json"
+    variant_path.write_text(json.dumps(schema), encoding="utf-8")
+
+    env = CityLearnEnv(
+        str(variant_path),
+        offline=True,
+        central_agent=True,
+        episode_time_steps=2,
+        render_mode="none",
+    )
+
+    try:
+        assert len(env.buildings) == 1
+        assert Path(env.root_directory) == dataset_dir.resolve()
+    finally:
+        env.close()

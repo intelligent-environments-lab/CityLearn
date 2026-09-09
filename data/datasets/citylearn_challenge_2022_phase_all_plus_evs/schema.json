@@ -190,22 +190,77 @@
       "active": true,
       "shared_in_central_agent": true
     },
-    "washing_machine_start_time_step": {
+    "deferrable_appliance_pending": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "washing_machine_end_time_step": {
+    "deferrable_appliance_running": {
       "active": true,
       "shared_in_central_agent": true
     },
-    "washing_machine_load_profile": {
+    "deferrable_appliance_can_start": {
       "active": true,
-      "stochaicity:": "0.0",
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_deadline_missed": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_earliest_start_time_step": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_latest_start_time_step": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_deadline_time_step": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_hours_until_latest_start": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_hours_until_deadline": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_slack_steps": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_slack_ratio": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_urgency_ratio": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_cycle_duration_steps": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_cycle_energy_kwh": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_remaining_energy_kwh": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_current_step_energy_kwh": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "deferrable_appliance_priority": {
+      "active": true,
       "shared_in_central_agent": true
     }
   },
   "actions": {
-      "cooling_storage": {
+    "cooling_storage": {
       "active": false
     },
     "heating_storage": {
@@ -220,19 +275,37 @@
     "electric_vehicle_storage": {
       "active": true
     },
-    "washing_machine": {
+    "deferrable_appliance": {
+      "active": true
+    }
+  },
+  "observation_bundles": {
+    "entity_core_electrical": {
+      "active": true
+    },
+    "entity_community_operational": {
+      "active": true
+    },
+    "entity_forecasts_existing": {
+      "active": true
+    },
+    "entity_forecasts_derived": {
+      "active": true
+    },
+    "entity_temporal_derived": {
+      "active": true
+    },
+    "entity_action_feedback": {
       "active": true
     }
   },
   "agent": {
     "type": "citylearn.agents.rbc.BasicElectricVehicleRBC_ReferenceController",
-    "attributes": {
-    }
+    "attributes": {}
   },
   "reward_function": {
     "type": "citylearn.reward_function.Electric_Vehicles_Reward_Function",
-    "attributes": {
-    }  
+    "attributes": {}
   },
   "electric_vehicles_def": {
     "Electric_Vehicle_1": {
@@ -256,7 +329,7 @@
         "attributes": {
           "capacity": 50,
           "nominal_power": 50,
-          "depth_of_discharge": 0.90
+          "depth_of_discharge": 0.9
         }
       }
     },
@@ -268,7 +341,7 @@
         "attributes": {
           "capacity": 75,
           "nominal_power": 50,
-          "depth_of_discharge": 0.80
+          "depth_of_discharge": 0.8
         }
       }
     },
@@ -280,7 +353,7 @@
         "attributes": {
           "capacity": 45,
           "nominal_power": 50,
-          "depth_of_discharge": 0.90
+          "depth_of_discharge": 0.9
         }
       }
     },
@@ -304,7 +377,7 @@
         "attributes": {
           "capacity": 100,
           "nominal_power": 50,
-          "depth_of_discharge": 0.90
+          "depth_of_discharge": 0.9
         }
       }
     },
@@ -355,13 +428,6 @@
           "nominal_power": 5.0
         }
       },
-      "washing_machines": {
-        "washing_machine_1": {
-          "type": "citylearn.energy_model.WashingMachine",
-          "autosize": false,
-          "washing_machine_energy_simulation": "Washing_Machine_1.csv"
-        }
-      },
       "pv": {
         "type": "citylearn.energy_model.PV",
         "autosize": false,
@@ -383,6 +449,14 @@
             "max_discharging_power": 7.2,
             "min_discharging_power": 0.0
           }
+        }
+      },
+      "deferrable_appliances": {
+        "deferrable_appliance_1": {
+          "type": "citylearn.energy_model.DeferrableAppliance",
+          "autosize": false,
+          "cycle_profiles_file": "deferrable_appliance_1_cycle_profiles.csv",
+          "flexibility_schedule_file": "deferrable_appliance_1_flexibility_schedule.csv"
         }
       }
     },
@@ -586,7 +660,7 @@
           "autosize": false,
           "attributes": {
             "nominal_power": 11,
-            "efficiency": 0.90,
+            "efficiency": 0.9,
             "charger_type": 1,
             "max_charging_power": 11,
             "min_charging_power": 0,

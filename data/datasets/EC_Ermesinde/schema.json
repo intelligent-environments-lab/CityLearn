@@ -1,0 +1,294 @@
+{
+  "random_seed": 0,
+  "root_directory": null,
+  "central_agent": false,
+  "simulation_start_time_step": 0,
+  "simulation_end_time_step": 35039,
+  "episode_time_steps": null,
+  "rolling_episode_split": false,
+  "random_episode_split": false,
+  "seconds_per_time_step": 900.0,
+  "observations": {
+    "month": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "day_type": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "hour": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_dry_bulb_temperature": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "outdoor_relative_humidity": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "diffuse_solar_irradiance": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "direct_solar_irradiance": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "non_shiftable_load": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "solar_generation": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "cooling_demand": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "heating_demand": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "net_electricity_consumption": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "electricity_pricing": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "indoor_dry_bulb_temperature": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "occupant_count": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "carbon_intensity": {
+      "active": false,
+      "shared_in_central_agent": true
+    },
+    "cooling_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "dhw_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "electrical_storage_soc": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "cooling_device_efficiency": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "heating_device_efficiency": {
+      "active": false,
+      "shared_in_central_agent": false
+    },
+    "minutes": {
+      "active": true,
+      "shared_in_central_agent": true
+    },
+    "escalator_passengers_from_trains_15min": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_background_pedestrians_15min": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_passengers_expected_15min": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_people_detected": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_passing_trains": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_minutes_to_next_train": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_available": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_state": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_requested_state": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_power_kw": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_service_required": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_service_met": {
+      "active": true,
+      "shared_in_central_agent": false
+    },
+    "escalator_unserved_passengers_15min": {
+      "active": true,
+      "shared_in_central_agent": false
+    }
+  },
+  "actions": {
+    "cooling_storage": {
+      "active": false
+    },
+    "heating_storage": {
+      "active": false
+    },
+    "dhw_storage": {
+      "active": false
+    },
+    "electrical_storage": {
+      "active": false
+    },
+    "cooling_device": {
+      "active": false
+    },
+    "heating_device": {
+      "active": false
+    },
+    "cooling_or_heating_device": {
+      "active": false
+    },
+    "escalator": {
+      "active": true
+    }
+  },
+  "agent": {
+    "type": "citylearn.agents.base.BaselineAgent",
+    "attributes": null
+  },
+  "reward_function": {
+    "type": "citylearn.reward_function.RewardFunction",
+    "attributes": null
+  },
+  "buildings": {
+    "Building_1": {
+      "include": true,
+      "energy_simulation": "Building_1.csv",
+      "weather": "weather.csv",
+      "carbon_intensity": null,
+      "pricing": "pricing.csv",
+      "type": "citylearn.building.Building",
+      "cooling_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 16.0,
+          "efficiency": 0.29,
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "heating_device": {
+        "type": "citylearn.energy_model.HeatPump",
+        "autosize": false,
+        "attributes": {
+          "nominal_power": 13.0,
+          "efficiency": 0.37,
+          "target_cooling_temperature": 8.0,
+          "target_heating_temperature": 45.0
+        }
+      },
+      "inactive_observations": [],
+      "inactive_actions": [
+        "cooling_storage",
+        "heating_storage",
+        "dhw_storage",
+        "electrical_storage",
+        "cooling_device",
+        "heating_device"
+      ],
+      "escalators": {
+        "EscadaRolante_1": {
+          "type": "citylearn.energy_model.Escalator",
+          "simulation": "EscadaRolante_1.csv",
+          "attributes": {
+            "standby_power": 0.08,
+            "slow_power": 0.42,
+            "normal_power": 2.1,
+            "minimum_state_steps": 1,
+            "service_threshold_passengers": 0.5
+          }
+        },
+        "EscadaRolante_2": {
+          "type": "citylearn.energy_model.Escalator",
+          "simulation": "EscadaRolante_2.csv",
+          "attributes": {
+            "standby_power": 0.08,
+            "slow_power": 0.42,
+            "normal_power": 2.1,
+            "minimum_state_steps": 1,
+            "service_threshold_passengers": 0.5
+          }
+        },
+        "EscadaRolante_3": {
+          "type": "citylearn.energy_model.Escalator",
+          "simulation": "EscadaRolante_3.csv",
+          "attributes": {
+            "standby_power": 0.1,
+            "slow_power": 0.52,
+            "normal_power": 2.62,
+            "minimum_state_steps": 1,
+            "service_threshold_passengers": 0.5
+          }
+        },
+        "EscadaRolante_4": {
+          "type": "citylearn.energy_model.Escalator",
+          "simulation": "EscadaRolante_4.csv",
+          "attributes": {
+            "standby_power": 0.1,
+            "slow_power": 0.52,
+            "normal_power": 2.62,
+            "minimum_state_steps": 1,
+            "service_threshold_passengers": 0.5
+          }
+        },
+        "EscadaRolante_5": {
+          "type": "citylearn.energy_model.Escalator",
+          "simulation": "EscadaRolante_5.csv",
+          "attributes": {
+            "standby_power": 0.1,
+            "slow_power": 0.52,
+            "normal_power": 2.62,
+            "minimum_state_steps": 1,
+            "service_threshold_passengers": 0.5
+          }
+        },
+        "EscadaRolante_6": {
+          "type": "citylearn.energy_model.Escalator",
+          "simulation": "EscadaRolante_6.csv",
+          "attributes": {
+            "standby_power": 0.1,
+            "slow_power": 0.52,
+            "normal_power": 2.62,
+            "minimum_state_steps": 1,
+            "service_threshold_passengers": 0.5
+          }
+        }
+      }
+    }
+  }
+}

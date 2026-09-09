@@ -119,17 +119,22 @@ def dataset_dataloader(x: np.ndarray, y: np.ndarray, batch_size: int, shuffle: b
     return tensor, loader
 
 def sliding_windows(data: np.ndarray, seq_length: int, output_len: int):
-    """
-    Create sliding window input/output arrays.
+    """Create lookback/output windows where target is the last column.
 
-    The target variable is expected to be the last column in ``data``.
+    Parameters
+    ----------
+    data : np.ndarray
+        Input array where the prediction target is the last column.
+    seq_length : int
+        Number of lookback time steps.
+    output_len : int
+        Number of future target steps to predict.
 
-    :param data: Input array.
-    :param seq_length: Number of lookback time steps.
-    :param output_len: Number of time steps ahead to predict.
-    :return: Tuple ``(x, y)`` where ``x`` has shape
-        ``[num_steps - seq_length, seq_length, num_input_variables]`` and
-        ``y`` has shape ``[num_steps - seq_length, output_len]``.
+    Returns
+    -------
+    Tuple[np.ndarray, np.ndarray]
+        ``x`` with shape ``[num_steps - lookback, lookback, num_input_features]``
+        and ``y`` with shape ``[num_steps - lookback, num_output_features]``.
     """
     
     x = []

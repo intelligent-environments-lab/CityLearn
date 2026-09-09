@@ -1,0 +1,2490 @@
+{
+  "actions": {
+    "building": {
+      "features": [
+        "electrical_storage"
+      ],
+      "ids": [
+        "Building_1",
+        "Building_2",
+        "Building_3",
+        "Building_4",
+        "Building_5",
+        "Building_6",
+        "Building_7",
+        "Building_8",
+        "Building_9",
+        "Building_10",
+        "Building_11",
+        "Building_12",
+        "Building_13",
+        "Building_14",
+        "Building_15",
+        "Building_16",
+        "Building_17"
+      ],
+      "units": [
+        "scalar"
+      ]
+    },
+    "charger": {
+      "features": [
+        "electric_vehicle_storage"
+      ],
+      "ids": [
+        "Building_1/charger_1_1",
+        "Building_4/charger_4_1",
+        "Building_5/charger_5_1",
+        "Building_7/charger_7_1",
+        "Building_10/charger_10_1",
+        "Building_12/charger_12_1",
+        "Building_15/charger_15_1",
+        "Building_15/charger_15_2"
+      ],
+      "units": [
+        "scalar"
+      ]
+    },
+    "deferrable_appliance": {
+      "features": [
+        "start"
+      ],
+      "ids": [
+        "Building_1/deferrable_appliance_1"
+      ],
+      "units": [
+        "scalar"
+      ]
+    }
+  },
+  "edges": {
+    "building_to_charger": {
+      "source": "building",
+      "target": "charger"
+    },
+    "building_to_deferrable_appliance": {
+      "source": "building",
+      "target": "deferrable_appliance"
+    },
+    "building_to_pv": {
+      "source": "building",
+      "target": "pv"
+    },
+    "building_to_storage": {
+      "source": "building",
+      "target": "storage"
+    },
+    "charger_to_ev_connected": {
+      "source": "charger",
+      "target": "ev"
+    },
+    "charger_to_ev_incoming": {
+      "source": "charger",
+      "target": "ev"
+    },
+    "district_to_building": {
+      "source": "district",
+      "target": "building"
+    }
+  },
+  "normalization": {
+    "dynamic_topology": {
+      "relation_masks": [
+        "charger_to_ev_connected_mask",
+        "charger_to_ev_incoming_mask"
+      ],
+      "running_stats_recommendation": "maintain_per_feature_stats_externally_and_ignore_inactive_ids",
+      "stable_ids": true,
+      "variable_size_tables": false
+    },
+    "encoding": {
+      "categorical": "numeric_or_binary_from_dataset",
+      "ids": "stable_canonical_ids",
+      "time": "raw_indices_unwrapped"
+    },
+    "policy": "external_running_stats",
+    "simulator_applies_normalization": false
+  },
+  "observation_bundles": {
+    "entity_action_feedback": {
+      "active": true
+    },
+    "entity_base": {
+      "active": true
+    },
+    "entity_community_operational": {
+      "active": true
+    },
+    "entity_core_electrical": {
+      "active": true
+    },
+    "entity_demand_response": {
+      "active": false
+    },
+    "entity_forecasts_derived": {
+      "active": true
+    },
+    "entity_forecasts_existing": {
+      "active": true
+    },
+    "entity_robustness": {
+      "active": false
+    },
+    "entity_temporal_derived": {
+      "active": true
+    }
+  },
+  "tables": {
+    "building": {
+      "feature_metadata": {
+        "bess_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "bess_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "building_export_headroom_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "building_import_headroom_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "charging_total_service_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "day_type_cos": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "day_type_sin": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "electrical_storage_soc": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "ratio"
+        },
+        "electrical_storage_soc_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "ev_charging_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "ev_charging_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "export_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "export_energy_prev_1_kwh_step": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "export_phase_headroom_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "export_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "flexible_charge_energy_capacity_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "flexible_charge_power_capacity_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "flexible_discharge_energy_capacity_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "flexible_discharge_power_capacity_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "flexible_energy_available_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "flexible_energy_to_full_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "forecast_load_next_15m_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_load_next_1h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_load_next_24h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_load_next_3h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_load_next_6h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_net_next_15m_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_net_next_1h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_net_next_24h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_net_next_3h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_net_next_6h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_pv_next_15m_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_pv_next_1h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_pv_next_24h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_pv_next_3h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_pv_next_6h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "hour_cos": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "hour_sin": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "import_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "import_energy_prev_1_kwh_step": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "import_phase_headroom_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "import_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "is_weekend": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "load_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "load_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "month_cos": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "month_sin": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "net_electricity_consumption": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "kwh"
+        },
+        "net_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "net_energy_prev_1_kwh_step": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "net_energy_prev_3_mean_kwh_step": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "net_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "non_shiftable_load": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "pv_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "pv_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "pv_surplus_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "pv_surplus_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "seconds_of_day_cos": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "seconds_of_day_sin": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "solar_generation": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "kwh"
+        }
+      },
+      "features": [
+        "non_shiftable_load",
+        "solar_generation",
+        "electrical_storage_soc",
+        "net_electricity_consumption",
+        "net_power_kw",
+        "net_energy_kwh_step",
+        "import_power_kw",
+        "import_energy_kwh_step",
+        "export_power_kw",
+        "export_energy_kwh_step",
+        "load_power_kw",
+        "load_energy_kwh_step",
+        "pv_power_kw",
+        "pv_energy_kwh_step",
+        "pv_surplus_power_kw",
+        "pv_surplus_energy_kwh_step",
+        "bess_power_kw",
+        "bess_energy_kwh_step",
+        "ev_charging_power_kw",
+        "ev_charging_energy_kwh_step",
+        "electrical_storage_soc_ratio",
+        "charging_total_service_power_kw",
+        "building_import_headroom_kw",
+        "building_export_headroom_kw",
+        "import_phase_headroom_kw",
+        "export_phase_headroom_kw",
+        "flexible_charge_power_capacity_kw",
+        "flexible_discharge_power_capacity_kw",
+        "flexible_charge_energy_capacity_kwh_step",
+        "flexible_discharge_energy_capacity_kwh_step",
+        "flexible_energy_to_full_kwh",
+        "flexible_energy_available_kwh",
+        "net_energy_prev_1_kwh_step",
+        "net_energy_prev_3_mean_kwh_step",
+        "import_energy_prev_1_kwh_step",
+        "export_energy_prev_1_kwh_step",
+        "hour_sin",
+        "hour_cos",
+        "day_type_sin",
+        "day_type_cos",
+        "month_sin",
+        "month_cos",
+        "seconds_of_day_sin",
+        "seconds_of_day_cos",
+        "is_weekend",
+        "forecast_load_next_15m_kw",
+        "forecast_pv_next_15m_kw",
+        "forecast_net_next_15m_kw",
+        "forecast_load_next_1h_kw",
+        "forecast_pv_next_1h_kw",
+        "forecast_net_next_1h_kw",
+        "forecast_load_next_3h_kw",
+        "forecast_pv_next_3h_kw",
+        "forecast_net_next_3h_kw",
+        "forecast_load_next_6h_kw",
+        "forecast_pv_next_6h_kw",
+        "forecast_net_next_6h_kw",
+        "forecast_load_next_24h_kw",
+        "forecast_pv_next_24h_kw",
+        "forecast_net_next_24h_kw"
+      ],
+      "ids": [
+        "Building_1",
+        "Building_2",
+        "Building_3",
+        "Building_4",
+        "Building_5",
+        "Building_6",
+        "Building_7",
+        "Building_8",
+        "Building_9",
+        "Building_10",
+        "Building_11",
+        "Building_12",
+        "Building_13",
+        "Building_14",
+        "Building_15",
+        "Building_16",
+        "Building_17"
+      ],
+      "units": [
+        "scalar",
+        "kwh",
+        "ratio",
+        "kwh",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "ratio",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kwh_step",
+        "kwh_step",
+        "kwh",
+        "kwh",
+        "kwh_step",
+        "kwh_step",
+        "kwh_step",
+        "kwh_step",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "flag",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw"
+      ]
+    },
+    "charger": {
+      "feature_metadata": {
+        "applied_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "applied_energy_prev_15m_kwh": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "applied_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "applied_power_mean_prev_15m_kw": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "available_charge_action_normalized": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "available_charge_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "available_discharge_action_normalized": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "available_discharge_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "avg_power_to_departure_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "can_charge": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "can_discharge": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "charge_efficiency_at_max_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "charger_efficiency_ratio": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "charging_priority_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "charging_slack_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "clip_reason_availability": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_building_headroom": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_deferrable_window": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_export_headroom": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_outage": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_phase_headroom": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_power_limit": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_soc_limit": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "commanded_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "connected_ev_battery_capacity_kwh": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "kwh"
+        },
+        "connected_ev_departure_time_step": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "time_step"
+        },
+        "connected_ev_energy_available_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "connected_ev_energy_to_full_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "connected_ev_required_soc_departure": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "connected_ev_soc": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "ratio"
+        },
+        "connected_ev_soc_min_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "connected_state": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "departure_energy_margin_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "departure_feasibility_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "discharge_efficiency_at_max_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "energy_to_required_soc_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "hours_until_departure": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "h"
+        },
+        "incoming_ev_departure_time_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "time_step"
+        },
+        "incoming_ev_estimated_arrival_time_step": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "time_step"
+        },
+        "incoming_ev_estimated_soc_arrival": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "incoming_ev_hours_until_departure": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "incoming_ev_required_soc_departure": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "incoming_ev_time_until_departure_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "incoming_state": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "last_applied_power_kw": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "last_charged_kwh": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "kwh"
+        },
+        "last_limited_action_normalized": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "last_limited_power_kw": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "last_projection_error_kw": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "last_requested_action_normalized": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "last_requested_power_kw": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "max_charging_power_kw": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "kw"
+        },
+        "max_deliverable_energy_until_departure_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "max_discharging_power_kw": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "kw"
+        },
+        "min_charging_power_kw": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "min_discharging_power_kw": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "min_required_action_normalized": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "required_average_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "time_since_last_nonzero_action_hours": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "h"
+        },
+        "time_until_departure_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        }
+      },
+      "features": [
+        "connected_state",
+        "incoming_state",
+        "connected_ev_soc",
+        "connected_ev_required_soc_departure",
+        "connected_ev_battery_capacity_kwh",
+        "connected_ev_departure_time_step",
+        "incoming_ev_estimated_soc_arrival",
+        "incoming_ev_estimated_arrival_time_step",
+        "last_charged_kwh",
+        "max_charging_power_kw",
+        "max_discharging_power_kw",
+        "min_charging_power_kw",
+        "min_discharging_power_kw",
+        "charger_efficiency_ratio",
+        "commanded_power_kw",
+        "applied_power_kw",
+        "applied_energy_kwh_step",
+        "hours_until_departure",
+        "time_until_departure_ratio",
+        "energy_to_required_soc_kwh",
+        "required_average_power_kw",
+        "avg_power_to_departure_kw",
+        "charging_slack_kw",
+        "charging_priority_ratio",
+        "connected_ev_soc_min_ratio",
+        "connected_ev_energy_available_kwh",
+        "connected_ev_energy_to_full_kwh",
+        "can_charge",
+        "can_discharge",
+        "available_charge_power_kw",
+        "available_discharge_power_kw",
+        "available_charge_action_normalized",
+        "available_discharge_action_normalized",
+        "max_deliverable_energy_until_departure_kwh",
+        "departure_energy_margin_kwh",
+        "departure_feasibility_ratio",
+        "min_required_action_normalized",
+        "charge_efficiency_at_max_ratio",
+        "discharge_efficiency_at_max_ratio",
+        "incoming_ev_required_soc_departure",
+        "incoming_ev_departure_time_step",
+        "incoming_ev_hours_until_departure",
+        "incoming_ev_time_until_departure_ratio",
+        "last_requested_action_normalized",
+        "last_limited_action_normalized",
+        "last_requested_power_kw",
+        "last_limited_power_kw",
+        "last_applied_power_kw",
+        "last_projection_error_kw",
+        "applied_energy_prev_15m_kwh",
+        "applied_power_mean_prev_15m_kw",
+        "time_since_last_nonzero_action_hours",
+        "clip_reason_availability",
+        "clip_reason_power_limit",
+        "clip_reason_soc_limit",
+        "clip_reason_building_headroom",
+        "clip_reason_phase_headroom",
+        "clip_reason_export_headroom",
+        "clip_reason_outage",
+        "clip_reason_deferrable_window"
+      ],
+      "ids": [
+        "Building_1/charger_1_1",
+        "Building_4/charger_4_1",
+        "Building_5/charger_5_1",
+        "Building_7/charger_7_1",
+        "Building_10/charger_10_1",
+        "Building_12/charger_12_1",
+        "Building_15/charger_15_1",
+        "Building_15/charger_15_2"
+      ],
+      "units": [
+        "scalar",
+        "scalar",
+        "ratio",
+        "scalar",
+        "kwh",
+        "time_step",
+        "scalar",
+        "time_step",
+        "kwh",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "ratio",
+        "kw",
+        "kw",
+        "kwh_step",
+        "h",
+        "ratio",
+        "kwh",
+        "kw",
+        "kw",
+        "kw",
+        "ratio",
+        "ratio",
+        "kwh",
+        "kwh",
+        "flag",
+        "flag",
+        "kw",
+        "kw",
+        "ratio",
+        "ratio",
+        "kwh",
+        "kwh",
+        "ratio",
+        "ratio",
+        "ratio",
+        "ratio",
+        "scalar",
+        "time_step",
+        "scalar",
+        "ratio",
+        "ratio",
+        "ratio",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kwh",
+        "kw",
+        "h",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag"
+      ]
+    },
+    "deferrable_appliance": {
+      "feature_metadata": {
+        "can_start": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "clip_reason_availability": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_building_headroom": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_deferrable_window": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_export_headroom": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_outage": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_phase_headroom": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_power_limit": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_soc_limit": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "current_step_energy_kwh": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "current_step_power_kw": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "cycle_average_power_kw": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "cycle_duration_steps": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "cycle_energy_kwh": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "cycle_load_factor_ratio": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "cycle_peak_power_kw": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "cycle_peak_step_offset_ratio": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "cycle_remaining_fraction_ratio": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "deadline_missed": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "deadline_time_step": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "time_step"
+        },
+        "earliest_start_time_step": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "time_step"
+        },
+        "hours_until_deadline": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "h"
+        },
+        "hours_until_earliest_start": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "h"
+        },
+        "hours_until_latest_start": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "h"
+        },
+        "last_start_applied": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "last_start_requested": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "latest_start_time_step": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "time_step"
+        },
+        "must_run": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "must_start_now": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "pending": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "priority": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "remaining_average_power_kw": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "remaining_duration_hours": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "h"
+        },
+        "remaining_duration_steps": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "remaining_energy_kwh": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "running": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "slack_ratio": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "slack_steps": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "start_blocked": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "start_energy_kwh_step": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "start_power_kw": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "start_window_width_hours": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "h"
+        },
+        "urgency_ratio": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "ratio"
+        }
+      },
+      "features": [
+        "pending",
+        "running",
+        "can_start",
+        "deadline_missed",
+        "earliest_start_time_step",
+        "latest_start_time_step",
+        "deadline_time_step",
+        "hours_until_latest_start",
+        "hours_until_deadline",
+        "slack_steps",
+        "slack_ratio",
+        "urgency_ratio",
+        "cycle_duration_steps",
+        "cycle_energy_kwh",
+        "remaining_energy_kwh",
+        "current_step_energy_kwh",
+        "priority",
+        "must_run",
+        "cycle_average_power_kw",
+        "cycle_peak_power_kw",
+        "cycle_load_factor_ratio",
+        "cycle_peak_step_offset_ratio",
+        "remaining_duration_steps",
+        "remaining_duration_hours",
+        "cycle_remaining_fraction_ratio",
+        "hours_until_earliest_start",
+        "start_window_width_hours",
+        "start_energy_kwh_step",
+        "start_power_kw",
+        "must_start_now",
+        "remaining_average_power_kw",
+        "current_step_power_kw",
+        "last_start_requested",
+        "last_start_applied",
+        "start_blocked",
+        "clip_reason_availability",
+        "clip_reason_power_limit",
+        "clip_reason_soc_limit",
+        "clip_reason_building_headroom",
+        "clip_reason_phase_headroom",
+        "clip_reason_export_headroom",
+        "clip_reason_outage",
+        "clip_reason_deferrable_window"
+      ],
+      "ids": [
+        "Building_1/deferrable_appliance_1"
+      ],
+      "units": [
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "time_step",
+        "time_step",
+        "time_step",
+        "h",
+        "h",
+        "scalar",
+        "ratio",
+        "ratio",
+        "scalar",
+        "kwh",
+        "kwh",
+        "kwh",
+        "scalar",
+        "scalar",
+        "kw",
+        "kw",
+        "ratio",
+        "ratio",
+        "scalar",
+        "h",
+        "ratio",
+        "h",
+        "h",
+        "kwh_step",
+        "kw",
+        "flag",
+        "kw",
+        "kw",
+        "scalar",
+        "scalar",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag"
+      ]
+    },
+    "district": {
+      "feature_metadata": {
+        "active_buildings_count": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "count"
+        },
+        "active_chargers_count": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "count"
+        },
+        "active_evs_count": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "count"
+        },
+        "carbon_intensity": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "community_bess_energy_kwh_step": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "community_bess_power_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_building_export_headroom_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_building_headroom_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_ev_energy_kwh_step": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "community_ev_power_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_export_energy_kwh_step": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "community_export_power_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_flexible_charge_energy_capacity_kwh_step": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "community_flexible_charge_power_capacity_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_flexible_discharge_energy_capacity_kwh_step": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "community_flexible_discharge_power_capacity_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_flexible_energy_available_kwh": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "community_flexible_energy_to_full_kwh": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "community_import_energy_kwh_step": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "community_import_power_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_net_energy_kwh_step": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "community_net_power_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_net_prev_1_kwh_step": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "community_net_prev_3_mean_kwh_step": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "community_phase_export_headroom_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_phase_headroom_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "community_pv_energy_kwh_step": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "community_pv_power_kw": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "day_type": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "index"
+        },
+        "day_type_cos": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "day_type_sin": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "diffuse_solar_irradiance": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "diffuse_solar_irradiance_predicted_1": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "diffuse_solar_irradiance_predicted_2": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "diffuse_solar_irradiance_predicted_3": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "direct_solar_irradiance": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "direct_solar_irradiance_predicted_1": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "direct_solar_irradiance_predicted_2": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "direct_solar_irradiance_predicted_3": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "electricity_pricing": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "electricity_pricing_predicted_1": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "electricity_pricing_predicted_2": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "electricity_pricing_predicted_3": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "forecast_community_load_next_15m_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_load_next_1h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_load_next_24h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_load_next_3h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_load_next_6h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_net_next_15m_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_net_next_1h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_net_next_24h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_net_next_3h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_net_next_6h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_pv_next_15m_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_pv_next_1h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_pv_next_24h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_pv_next_3h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_community_pv_next_6h_kw": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "forecast_price_next_15m": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "forecast_price_next_1h": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "forecast_price_next_24h": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "forecast_price_next_3h": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "forecast_price_next_6h": {
+          "bundle": "entity_forecasts_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "hour": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "index"
+        },
+        "hour_cos": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "hour_sin": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "is_weekend": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "month": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "index"
+        },
+        "month_cos": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "month_sin": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "outdoor_dry_bulb_temperature": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "outdoor_dry_bulb_temperature_predicted_1": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "outdoor_dry_bulb_temperature_predicted_2": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "outdoor_dry_bulb_temperature_predicted_3": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "outdoor_relative_humidity": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "outdoor_relative_humidity_predicted_1": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "outdoor_relative_humidity_predicted_2": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "outdoor_relative_humidity_predicted_3": {
+          "bundle": "entity_forecasts_existing",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "seconds_of_day_cos": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "seconds_of_day_sin": {
+          "bundle": "entity_temporal_derived",
+          "legacy": false,
+          "unit": "scalar"
+        },
+        "topology_version": {
+          "bundle": "entity_community_operational",
+          "legacy": false,
+          "unit": "scalar"
+        }
+      },
+      "features": [
+        "month",
+        "day_type",
+        "hour",
+        "outdoor_dry_bulb_temperature",
+        "outdoor_dry_bulb_temperature_predicted_1",
+        "outdoor_dry_bulb_temperature_predicted_2",
+        "outdoor_dry_bulb_temperature_predicted_3",
+        "outdoor_relative_humidity",
+        "outdoor_relative_humidity_predicted_1",
+        "outdoor_relative_humidity_predicted_2",
+        "outdoor_relative_humidity_predicted_3",
+        "diffuse_solar_irradiance",
+        "diffuse_solar_irradiance_predicted_1",
+        "diffuse_solar_irradiance_predicted_2",
+        "diffuse_solar_irradiance_predicted_3",
+        "direct_solar_irradiance",
+        "direct_solar_irradiance_predicted_1",
+        "direct_solar_irradiance_predicted_2",
+        "direct_solar_irradiance_predicted_3",
+        "carbon_intensity",
+        "electricity_pricing",
+        "electricity_pricing_predicted_1",
+        "electricity_pricing_predicted_2",
+        "electricity_pricing_predicted_3",
+        "community_net_power_kw",
+        "community_net_energy_kwh_step",
+        "community_import_power_kw",
+        "community_import_energy_kwh_step",
+        "community_export_power_kw",
+        "community_export_energy_kwh_step",
+        "community_pv_power_kw",
+        "community_pv_energy_kwh_step",
+        "community_bess_power_kw",
+        "community_bess_energy_kwh_step",
+        "community_ev_power_kw",
+        "community_ev_energy_kwh_step",
+        "community_building_headroom_kw",
+        "community_building_export_headroom_kw",
+        "community_phase_headroom_kw",
+        "community_phase_export_headroom_kw",
+        "community_flexible_charge_power_capacity_kw",
+        "community_flexible_discharge_power_capacity_kw",
+        "community_flexible_charge_energy_capacity_kwh_step",
+        "community_flexible_discharge_energy_capacity_kwh_step",
+        "community_flexible_energy_to_full_kwh",
+        "community_flexible_energy_available_kwh",
+        "active_buildings_count",
+        "active_chargers_count",
+        "active_evs_count",
+        "topology_version",
+        "community_net_prev_1_kwh_step",
+        "community_net_prev_3_mean_kwh_step",
+        "hour_sin",
+        "hour_cos",
+        "day_type_sin",
+        "day_type_cos",
+        "month_sin",
+        "month_cos",
+        "seconds_of_day_sin",
+        "seconds_of_day_cos",
+        "is_weekend",
+        "forecast_price_next_15m",
+        "forecast_community_load_next_15m_kw",
+        "forecast_community_pv_next_15m_kw",
+        "forecast_community_net_next_15m_kw",
+        "forecast_price_next_1h",
+        "forecast_community_load_next_1h_kw",
+        "forecast_community_pv_next_1h_kw",
+        "forecast_community_net_next_1h_kw",
+        "forecast_price_next_3h",
+        "forecast_community_load_next_3h_kw",
+        "forecast_community_pv_next_3h_kw",
+        "forecast_community_net_next_3h_kw",
+        "forecast_price_next_6h",
+        "forecast_community_load_next_6h_kw",
+        "forecast_community_pv_next_6h_kw",
+        "forecast_community_net_next_6h_kw",
+        "forecast_price_next_24h",
+        "forecast_community_load_next_24h_kw",
+        "forecast_community_pv_next_24h_kw",
+        "forecast_community_net_next_24h_kw"
+      ],
+      "ids": [
+        "district_0"
+      ],
+      "units": [
+        "index",
+        "index",
+        "index",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kwh_step",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kwh_step",
+        "kwh_step",
+        "kwh",
+        "kwh",
+        "count",
+        "count",
+        "count",
+        "scalar",
+        "kwh_step",
+        "kwh_step",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "scalar",
+        "flag",
+        "scalar",
+        "kw",
+        "kw",
+        "kw",
+        "scalar",
+        "kw",
+        "kw",
+        "kw",
+        "scalar",
+        "kw",
+        "kw",
+        "kw",
+        "scalar",
+        "kw",
+        "kw",
+        "kw",
+        "scalar",
+        "kw",
+        "kw",
+        "kw"
+      ]
+    },
+    "ev": {
+      "feature_metadata": {
+        "battery_capacity_kwh": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "kwh"
+        },
+        "depth_of_discharge_ratio": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "ratio"
+        },
+        "energy_available_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "energy_to_full_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "soc": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "soc_max_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "soc_min_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "soc_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        }
+      },
+      "features": [
+        "soc",
+        "battery_capacity_kwh",
+        "depth_of_discharge_ratio",
+        "soc_ratio",
+        "soc_min_ratio",
+        "soc_max_ratio",
+        "energy_available_kwh",
+        "energy_to_full_kwh"
+      ],
+      "ids": [
+        "Electric_Vehicle_1",
+        "Electric_Vehicle_2",
+        "Electric_Vehicle_3",
+        "Electric_Vehicle_4",
+        "Electric_Vehicle_5",
+        "Electric_Vehicle_6",
+        "Electric_Vehicle_7",
+        "Electric_Vehicle_8"
+      ],
+      "units": [
+        "scalar",
+        "kwh",
+        "ratio",
+        "ratio",
+        "ratio",
+        "ratio",
+        "kwh",
+        "kwh"
+      ]
+    },
+    "pv": {
+      "feature_metadata": {
+        "generation_capacity_factor_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "generation_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "generation_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "installed_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        }
+      },
+      "features": [
+        "generation_power_kw",
+        "generation_energy_kwh_step",
+        "installed_power_kw",
+        "generation_capacity_factor_ratio"
+      ],
+      "ids": [
+        "Building_1/pv",
+        "Building_2/pv",
+        "Building_3/pv",
+        "Building_4/pv",
+        "Building_5/pv",
+        "Building_6/pv",
+        "Building_7/pv",
+        "Building_8/pv",
+        "Building_9/pv",
+        "Building_10/pv",
+        "Building_11/pv",
+        "Building_12/pv",
+        "Building_13/pv",
+        "Building_14/pv",
+        "Building_15/pv",
+        "Building_16/pv",
+        "Building_17/pv"
+      ],
+      "units": [
+        "kw",
+        "kwh_step",
+        "kw",
+        "ratio"
+      ]
+    },
+    "storage": {
+      "feature_metadata": {
+        "applied_energy_prev_15m_kwh": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "applied_power_mean_prev_15m_kw": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "available_charge_action_normalized": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "available_charge_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "available_charge_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "available_discharge_action_normalized": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "available_discharge_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "available_discharge_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "can_charge": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "can_discharge": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "capacity_kwh": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "kwh"
+        },
+        "charge_headroom_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "clip_reason_availability": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_building_headroom": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_deferrable_window": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_export_headroom": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_outage": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_phase_headroom": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_power_limit": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "clip_reason_soc_limit": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "flag"
+        },
+        "current_efficiency_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "degraded_capacity_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "discharge_available_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "efficiency_ratio": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "electrical_storage_soc_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "electricity_consumption_kwh": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "kwh"
+        },
+        "energy_available_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "energy_to_full_kwh": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh"
+        },
+        "last_applied_power_kw": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "last_limited_action_normalized": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "last_limited_power_kw": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "last_projection_error_kw": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "last_requested_action_normalized": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "last_requested_power_kw": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "max_charge_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "max_charge_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "max_discharge_energy_kwh_step": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kwh_step"
+        },
+        "max_discharge_power_kw": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "min_charge_power_kw": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "min_discharge_power_kw": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "kw"
+        },
+        "nominal_power_kw": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "kw"
+        },
+        "round_trip_efficiency_ratio": {
+          "bundle": "entity_base",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "soc": {
+          "bundle": "legacy",
+          "legacy": true,
+          "unit": "scalar"
+        },
+        "soc_min_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        },
+        "time_since_last_nonzero_action_hours": {
+          "bundle": "entity_action_feedback",
+          "legacy": false,
+          "unit": "h"
+        },
+        "usable_soc_ratio": {
+          "bundle": "entity_core_electrical",
+          "legacy": false,
+          "unit": "ratio"
+        }
+      },
+      "features": [
+        "soc",
+        "capacity_kwh",
+        "nominal_power_kw",
+        "electricity_consumption_kwh",
+        "min_charge_power_kw",
+        "min_discharge_power_kw",
+        "efficiency_ratio",
+        "round_trip_efficiency_ratio",
+        "electrical_storage_soc_ratio",
+        "max_charge_power_kw",
+        "max_discharge_power_kw",
+        "energy_to_full_kwh",
+        "energy_available_kwh",
+        "can_charge",
+        "can_discharge",
+        "available_charge_power_kw",
+        "available_discharge_power_kw",
+        "available_charge_action_normalized",
+        "available_discharge_action_normalized",
+        "available_charge_energy_kwh_step",
+        "available_discharge_energy_kwh_step",
+        "max_charge_energy_kwh_step",
+        "max_discharge_energy_kwh_step",
+        "charge_headroom_ratio",
+        "discharge_available_ratio",
+        "usable_soc_ratio",
+        "current_efficiency_ratio",
+        "degraded_capacity_kwh",
+        "soc_min_ratio",
+        "last_requested_action_normalized",
+        "last_limited_action_normalized",
+        "last_requested_power_kw",
+        "last_limited_power_kw",
+        "last_applied_power_kw",
+        "last_projection_error_kw",
+        "applied_energy_prev_15m_kwh",
+        "applied_power_mean_prev_15m_kw",
+        "time_since_last_nonzero_action_hours",
+        "clip_reason_availability",
+        "clip_reason_power_limit",
+        "clip_reason_soc_limit",
+        "clip_reason_building_headroom",
+        "clip_reason_phase_headroom",
+        "clip_reason_export_headroom",
+        "clip_reason_outage",
+        "clip_reason_deferrable_window"
+      ],
+      "ids": [
+        "Building_1/electrical_storage",
+        "Building_2/electrical_storage",
+        "Building_3/electrical_storage",
+        "Building_4/electrical_storage",
+        "Building_5/electrical_storage",
+        "Building_6/electrical_storage",
+        "Building_7/electrical_storage",
+        "Building_8/electrical_storage",
+        "Building_9/electrical_storage",
+        "Building_10/electrical_storage",
+        "Building_11/electrical_storage",
+        "Building_12/electrical_storage",
+        "Building_13/electrical_storage",
+        "Building_14/electrical_storage",
+        "Building_15/electrical_storage",
+        "Building_16/electrical_storage",
+        "Building_17/electrical_storage"
+      ],
+      "units": [
+        "scalar",
+        "kwh",
+        "kw",
+        "kwh",
+        "kw",
+        "kw",
+        "ratio",
+        "ratio",
+        "ratio",
+        "kw",
+        "kw",
+        "kwh",
+        "kwh",
+        "flag",
+        "flag",
+        "kw",
+        "kw",
+        "ratio",
+        "ratio",
+        "kwh_step",
+        "kwh_step",
+        "kwh_step",
+        "kwh_step",
+        "ratio",
+        "ratio",
+        "ratio",
+        "ratio",
+        "kwh",
+        "ratio",
+        "ratio",
+        "ratio",
+        "kw",
+        "kw",
+        "kw",
+        "kw",
+        "kwh",
+        "kw",
+        "h",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag",
+        "flag"
+      ]
+    }
+  },
+  "temporal_semantics": {
+    "endogenous": "t_minus_1_settled",
+    "event_boundary": "events_at_k_apply_after_transition_k_minus_1_to_k_before_observation_k",
+    "exogenous": "t"
+  },
+  "topology": {
+    "active_ids": {
+      "building": [
+        "Building_1",
+        "Building_2",
+        "Building_3",
+        "Building_4",
+        "Building_5",
+        "Building_6",
+        "Building_7",
+        "Building_8",
+        "Building_9",
+        "Building_10",
+        "Building_11",
+        "Building_12",
+        "Building_13",
+        "Building_14",
+        "Building_15",
+        "Building_16",
+        "Building_17"
+      ],
+      "charger": [
+        "Building_1/charger_1_1",
+        "Building_4/charger_4_1",
+        "Building_5/charger_5_1",
+        "Building_7/charger_7_1",
+        "Building_10/charger_10_1",
+        "Building_12/charger_12_1",
+        "Building_15/charger_15_1",
+        "Building_15/charger_15_2"
+      ],
+      "deferrable_appliance": [
+        "Building_1/deferrable_appliance_1"
+      ],
+      "ev": [
+        "Electric_Vehicle_1",
+        "Electric_Vehicle_2",
+        "Electric_Vehicle_3",
+        "Electric_Vehicle_4",
+        "Electric_Vehicle_5",
+        "Electric_Vehicle_6",
+        "Electric_Vehicle_7",
+        "Electric_Vehicle_8"
+      ],
+      "pv": [
+        "Building_1/pv",
+        "Building_2/pv",
+        "Building_3/pv",
+        "Building_4/pv",
+        "Building_5/pv",
+        "Building_6/pv",
+        "Building_7/pv",
+        "Building_8/pv",
+        "Building_9/pv",
+        "Building_10/pv",
+        "Building_11/pv",
+        "Building_12/pv",
+        "Building_13/pv",
+        "Building_14/pv",
+        "Building_15/pv",
+        "Building_16/pv",
+        "Building_17/pv"
+      ],
+      "storage": [
+        "Building_1/electrical_storage",
+        "Building_2/electrical_storage",
+        "Building_3/electrical_storage",
+        "Building_4/electrical_storage",
+        "Building_5/electrical_storage",
+        "Building_6/electrical_storage",
+        "Building_7/electrical_storage",
+        "Building_8/electrical_storage",
+        "Building_9/electrical_storage",
+        "Building_10/electrical_storage",
+        "Building_11/electrical_storage",
+        "Building_12/electrical_storage",
+        "Building_13/electrical_storage",
+        "Building_14/electrical_storage",
+        "Building_15/electrical_storage",
+        "Building_16/electrical_storage",
+        "Building_17/electrical_storage"
+      ]
+    },
+    "lifecycle_fields": [
+      "born_at",
+      "removed_at",
+      "active"
+    ],
+    "member_lifecycle": {},
+    "mode": "static",
+    "version": 0
+  },
+  "version": "entity_v1"
+}

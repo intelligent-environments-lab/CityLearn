@@ -139,6 +139,117 @@ def test_none_mode_can_auto_export_kpis_when_enabled(tmp_path):
         env.close()
 
 
+def test_auto_kpi_export_reports_debug_timing(tmp_path, monkeypatch):
+    env = CityLearnEnv(
+        str(DATASET),
+        central_agent=True,
+        episode_time_steps=4,
+        render_mode="none",
+        render_directory=tmp_path,
+        export_kpis_on_episode_end=True,
+        debug_timing=True,
+        random_seed=0,
+    )
+    calls = 0
+
+    def _export_final_kpis(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        env._final_kpis_exported = True
+
+    monkeypatch.setattr(env, "export_final_kpis", _export_final_kpis)
+
+    try:
+        env.reset()
+        zeros = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+        info = {}
+        while not env.terminated:
+            _, _, terminated, truncated, info = env.step(zeros)
+            if terminated or truncated:
+                break
+
+        assert calls == 1
+        assert info["end_export_time"] == pytest.approx(0.0)
+        assert info["final_kpi_export_time"] >= 0.0
+        assert info["terminal_export_time"] == pytest.approx(info["final_kpi_export_time"])
+    finally:
+        _cleanup_env(env)
+        env.close()
+
+
+def test_debug_timing_reports_step_breakdown():
+    env = CityLearnEnv(
+        str(DATASET),
+        central_agent=True,
+        episode_time_steps=3,
+        render_mode="none",
+        debug_timing=True,
+        random_seed=0,
+    )
+
+    try:
+        env.reset()
+        zeros = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+        _, _, _, _, info = env.step(zeros)
+
+        expected_keys = [
+            "step_total_time",
+            "parse_actions_time",
+            "apply_actions_time",
+            "update_variables_time",
+            "reward_observations_time",
+            "reward_calculation_time",
+            "next_time_step_time",
+            "next_observations_time",
+            "building_observations_retrieval_time",
+        ]
+        for key in expected_keys:
+            assert key in info
+            assert info[key] >= 0.0
+
+        assert info["building_observations_retrieval_time"] == pytest.approx(
+            info["reward_observations_time"]
+        )
+        assert info["step_total_time"] >= info["apply_actions_time"]
+    finally:
+        _cleanup_env(env)
+        env.close()
+
+
+def test_reward_observation_names_attribute_limits_reward_payload():
+    env = CityLearnEnv(
+        str(DATASET),
+        central_agent=True,
+        episode_time_steps=3,
+        render_mode="none",
+        random_seed=0,
+    )
+
+    class _ExternalReward:
+        required_observation_names = ("net_electricity_consumption",)
+
+        def __init__(self):
+            self.keys = None
+
+        def calculate(self, observations):
+            self.keys = [tuple(sorted(o.keys())) for o in observations]
+            return [0.0]
+
+    reward = _ExternalReward()
+
+    try:
+        env.reset()
+        env.reward_function = reward
+        zeros = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+        env.step(zeros)
+
+        assert reward.keys
+        assert set(reward.keys[0]) == {"net_electricity_consumption"}
+    finally:
+        _cleanup_env(env)
+        env.close()
+
+
 def test_during_mode_can_disable_auto_kpi_export(tmp_path):
     env = CityLearnEnv(
         str(DATASET),
@@ -165,6 +276,109 @@ def test_during_mode_can_disable_auto_kpi_export(tmp_path):
     finally:
         _cleanup_env(env)
         env.close()
+
+
+def test_agent_learn_exports_only_final_episode_by_default(tmp_path, monkeypatch):
+    env = CityLearnEnv(
+        str(DATASET),
+        central_agent=True,
+        episode_time_steps=4,
+        render_mode="during",
+        render_directory=tmp_path,
+        random_seed=0,
+    )
+    export_calls = []
+    original_export_final_kpis = env.export_final_kpis
+
+    def _export_final_kpis(*args, **kwargs):
+        export_calls.append(env.episode_tracker.episode)
+        return original_export_final_kpis(*args, **kwargs)
+
+    monkeypatch.setattr(env, "export_final_kpis", _export_final_kpis)
+
+    try:
+        controller = Agent(env)
+        controller.learn(episodes=2, logging_level=50)
+
+        outputs_path = Path(env.new_folder_path)
+        assert export_calls == [1]
+        assert not any(outputs_path.glob("exported_data_*_ep0.csv"))
+        assert (outputs_path / "exported_data_community_ep1.csv").is_file()
+        assert (outputs_path / "exported_data_business_as_usual_ep1.csv").is_file()
+        assert not (outputs_path / "exported_data_business_as_usual_ep0.csv").exists()
+        assert (outputs_path / "exported_kpis.csv").is_file()
+    finally:
+        _cleanup_env(env)
+        env.close()
+
+
+def test_parquet_render_format_writes_chunked_exports_and_kpis(tmp_path):
+    pd = pytest.importorskip("pandas")
+    pytest.importorskip("pyarrow")
+
+    env = CityLearnEnv(
+        str(DATASET),
+        central_agent=True,
+        episode_time_steps=4,
+        render_mode="end",
+        render_file_format="parquet",
+        render_chunk_size=2,
+        render_directory=tmp_path,
+        random_seed=0,
+    )
+
+    try:
+        env.reset()
+        zeros = [np.zeros(env.action_space[0].shape[0], dtype="float32")]
+        while not env.terminated:
+            _, _, terminated, truncated, _ = env.step(zeros)
+            if terminated or truncated:
+                break
+
+        outputs_path = Path(env.new_folder_path)
+        parquet_files = sorted(outputs_path.glob("*.parquet"))
+        assert parquet_files
+        assert any(path.name.startswith("exported_data_community_ep0_part") for path in parquet_files)
+        assert any("business_as_usual" in path.name for path in parquet_files)
+        assert (outputs_path / "exported_kpis.parquet").is_file()
+        assert not (outputs_path / "exported_kpis.csv").exists()
+        assert len(pd.read_parquet(outputs_path / "exported_kpis.parquet")) > 0
+    finally:
+        env.close()
+        _cleanup_env(env)
+
+
+def test_parquet_render_normalizes_mixed_numeric_string_and_numpy_scalars(tmp_path):
+    pd = pytest.importorskip("pandas")
+    pytest.importorskip("pyarrow")
+    env = CityLearnEnv(
+        str(DATASET),
+        central_agent=True,
+        episode_time_steps=2,
+        render_mode="end",
+        render_file_format="parquet",
+        render_directory=tmp_path,
+        random_seed=0,
+    )
+
+    try:
+        env.reset()
+        env._episode_exporter.ensure_output_dir()
+        env._episode_exporter.write_render_rows(
+            "mixed_numeric.parquet",
+            [
+                {"state": "-1.00", "name": ""},
+                {"state": np.float32(1.0), "name": "EV-1"},
+            ],
+        )
+        output = next(Path(env.new_folder_path).glob("mixed_numeric_part*.parquet"))
+        frame = pd.read_parquet(output)
+        assert frame["state"].tolist() == pytest.approx([-1.0, 1.0])
+        assert pd.isna(frame.loc[0, "name"])
+        assert frame.loc[1, "name"] == "EV-1"
+    finally:
+        env.close()
+        _cleanup_env(env)
 
 
 def test_render_directory_override(tmp_path):

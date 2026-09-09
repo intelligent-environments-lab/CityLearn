@@ -1,10 +1,14 @@
 import inspect
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import numpy as np
 from citylearn.base import Environment, EpisodeTracker
 from citylearn.electric_vehicle import ElectricVehicle
 from citylearn.data import ChargerSimulation
 from citylearn.data import ZERO_DIVISION_PLACEHOLDER
+from citylearn.internal.units import (
+    normalized_power_action_to_energy_kwh,
+    to_dataset_resolution_energy,
+)
 np.seterr(divide='ignore', invalid='ignore')
 
 class Charger(Environment):
@@ -292,6 +296,53 @@ class Charger(Environment):
         power_levels, efficiencies = efficiency_curve  # Unpack rows
         return np.interp(power, power_levels, efficiencies)  # Interpolated efficiency
 
+    @staticmethod
+    def _deadband_power_kw(action_value: float, max_power_kw: float, min_power_kw: float) -> float:
+        """Return requested power after enforcing charger minimum-power deadband."""
+
+        max_power_kw = max(float(max_power_kw), 0.0)
+        min_power_kw = max(min(float(min_power_kw), max_power_kw), 0.0)
+
+        if max_power_kw <= 0.0:
+            return 0.0
+
+        requested_power_kw = abs(float(action_value)) * max_power_kw
+        if requested_power_kw < min_power_kw:
+            return 0.0
+
+        return min(requested_power_kw, max_power_kw)
+
+    def _signed_power_from_action(self, action_value: float) -> Tuple[float, bool]:
+        try:
+            action_value = float(np.clip(float(action_value), -1.0, 1.0))
+        except (TypeError, ValueError):
+            return 0.0, True
+
+        if not np.isfinite(action_value):
+            return 0.0, True
+
+        if action_value > 0.0:
+            return self._deadband_power_kw(
+                action_value,
+                self.max_charging_power,
+                self.min_charging_power,
+            ), True
+
+        if action_value < 0.0:
+            return -self._deadband_power_kw(
+                action_value,
+                self.max_discharging_power,
+                self.min_discharging_power,
+            ), False
+
+        return 0.0, True
+
+    def get_requested_power_kw(self, action_value: float) -> float:
+        """Return the signed charger power request in kW after min-power deadband."""
+
+        signed_power_kw, _ = self._signed_power_from_action(action_value)
+        return signed_power_kw
+
     def update_connected_electric_vehicle_soc(self, action_value: float):
         """
         Updates the SOC of the connected electric vehicle based on the charging/discharging action.
@@ -301,9 +352,9 @@ class Charger(Environment):
         action_value : float
             The normalized charging or discharging action (range [-1, 1]).
         """
-        action_value = float(np.clip(action_value, -1.0, 1.0))
+        signed_power_kw, charging = self._signed_power_from_action(action_value)
 
-        if action_value == 0.0:
+        if signed_power_kw == 0.0:
             # Keep EV SOC state consistent at the current timestep even when no power is requested.
             # Without this, SOC at `time_step` can remain the zero-initialized default.
             if self.connected_electric_vehicle is not None:
@@ -312,27 +363,25 @@ class Charger(Environment):
             self.__past_charging_action_values_kwh[self.time_step] = 0
             return
 
-        time_step_hours = self.algorithm_action_based_time_step_hours_ratio
-        charging = action_value > 0
-        efficiency = self.get_efficiency(abs(action_value), charging)
-
         if charging:
-            requested_power_kw = action_value * self.max_charging_power
-            if self.max_charging_power <= 0.0:
-                applied_power_kw = 0.0
-            else:
-                lower_bound_kw = min(self.min_charging_power, self.max_charging_power)
-                applied_power_kw = max(min(requested_power_kw, self.max_charging_power), lower_bound_kw)
-            commanded_energy_kwh = applied_power_kw * time_step_hours
+            applied_power_kw = abs(signed_power_kw)
+            normalized_power = applied_power_kw / max(self.max_charging_power, ZERO_DIVISION_PLACEHOLDER)
+            efficiency = self.get_efficiency(normalized_power, charging)
+            commanded_energy_kwh = normalized_power_action_to_energy_kwh(
+                normalized_power,
+                self.max_charging_power,
+                self.seconds_per_time_step,
+            )
             battery_energy_kwh = commanded_energy_kwh * efficiency
         else:
-            requested_power_kw = abs(action_value) * self.max_discharging_power
-            if self.max_discharging_power <= 0.0:
-                applied_power_kw = 0.0
-            else:
-                lower_bound_kw = min(self.min_discharging_power, self.max_discharging_power)
-                applied_power_kw = max(min(requested_power_kw, self.max_discharging_power), lower_bound_kw)
-            commanded_energy_kwh = -applied_power_kw * time_step_hours
+            applied_power_kw = abs(signed_power_kw)
+            normalized_power = applied_power_kw / max(self.max_discharging_power, ZERO_DIVISION_PLACEHOLDER)
+            efficiency = self.get_efficiency(normalized_power, charging)
+            commanded_energy_kwh = -normalized_power_action_to_energy_kwh(
+                normalized_power,
+                self.max_discharging_power,
+                self.seconds_per_time_step,
+            )
             battery_energy_kwh = commanded_energy_kwh / max(efficiency, ZERO_DIVISION_PLACEHOLDER)
 
         self.__past_charging_action_values_kwh[self.time_step] = commanded_energy_kwh
@@ -342,7 +391,7 @@ class Charger(Environment):
 
             # Battery model expects dataset-resolution energy. Convert from control-step kWh when needed.
             ratio = getattr(electric_vehicle.battery, 'time_step_ratio', None)
-            battery_command = battery_energy_kwh if ratio in (None, 0) else battery_energy_kwh / ratio
+            battery_command = to_dataset_resolution_energy(battery_energy_kwh, ratio)
             electric_vehicle.battery.charge(battery_command)
 
             battery_energy_balance = electric_vehicle.battery.energy_balance[self.time_step]
@@ -371,6 +420,25 @@ class Charger(Environment):
         self.__electricity_consumption = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__past_charging_action_values_kwh = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
         self.__past_connected_evs = [None] * self.episode_tracker.episode_time_steps
+        self.action_feedback_requested_action_normalized = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.action_feedback_limited_action_normalized = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.action_feedback_requested_power_kw = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        self.action_feedback_limited_power_kw = np.zeros(self.episode_tracker.episode_time_steps, dtype='float32')
+        for reason in (
+            'availability',
+            'power_limit',
+            'soc_limit',
+            'building_headroom',
+            'phase_headroom',
+            'export_headroom',
+            'outage',
+            'deferrable_window',
+        ):
+            setattr(
+                self,
+                f'action_feedback_clip_reason_{reason}',
+                np.zeros(self.episode_tracker.episode_time_steps, dtype=bool),
+            )
 
     def __str__(self):
         return str(self.as_dict())

@@ -55,7 +55,7 @@ def test_timestep_and_chargers():
             + building.electrical_storage_electricity_consumption[t]
             + building.solar_generation[t]
             + building.chargers_electricity_consumption[t]
-            + building.washing_machines_electricity_consumption[t]
+            + building.deferrable_appliances_electricity_consumption[t]
         )
         assert abs(lhs - rhs) < 1e-4
 

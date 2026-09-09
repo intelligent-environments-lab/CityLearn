@@ -1,0 +1,4 @@
+request_id,issuer,direction,start_time_step,end_time_step,target_power_kw,activation_price_eur_per_kwh,shortfall_penalty_eur_per_kwh,tolerance_power_kw
+dr_day_002_evening_down,dso,down,24,26,20.0,0.35,1.20,1.0
+dr_day_004_midday_up,tso,up,84,86,10.0,0.25,0.80,0.5
+dr_day_008_evening_down,dso,down,168,171,25.0,0.40,1.50,1.0

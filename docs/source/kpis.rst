@@ -22,7 +22,7 @@ V2 groups metrics by ``building_*`` and ``district_*`` prefixes, then by family:
 * ``energy_grid``: import, export, net exchange, ratios to baseline, and shape-quality KPIs.
 * ``emissions``: control, baseline, and delta totals and daily averages in ``kgco2``.
 * ``solar_self_consumption``: PV generation, export, and self-consumption KPIs.
-* ``ev``: departure counts, success/tolerance ratios, SOC deficit, charge, and V2G export.
+* ``ev``: departure counts, strict success, minimum acceptable service, symmetric tolerance accuracy, SOC error diagnostics, charge, and V2G export.
 * ``battery``: charge, discharge, throughput, equivalent full cycles, and capacity fade.
 * ``electrical_service_phase``: violation totals, event counts, phase imbalance, and phase peaks.
 * ``equity``: relative benefit, Gini, top-20 concentration, losers percentage, and BPR.
@@ -32,10 +32,14 @@ The EV block currently exposed in the tree includes, for example:
 
 * ``district_ev_events_departure_count``
 * ``district_ev_events_departure_met_count``
+* ``district_ev_events_departure_min_acceptable_count``
 * ``district_ev_events_departure_within_tolerance_count``
 * ``district_ev_performance_departure_success_ratio``
+* ``district_ev_performance_departure_min_acceptable_ratio``
 * ``district_ev_performance_departure_within_tolerance_ratio``
 * ``district_ev_performance_departure_soc_deficit_mean_ratio``
+* ``district_ev_performance_departure_shortfall_beyond_tolerance_mean_ratio``
+* ``district_ev_performance_departure_soc_absolute_error_mean_ratio``
 * ``district_ev_total_charge_kwh``
 * ``district_ev_total_v2g_export_kwh``
 

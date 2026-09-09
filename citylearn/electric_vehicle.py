@@ -65,7 +65,7 @@ class ElectricVehicle(Environment):
         else:
             self.__battery = battery
 
-    def next_time_step(self) -> Mapping[int, str]:        
+    def next_time_step(self) -> Mapping[int, str]:
         self.battery.next_time_step()
         super().next_time_step()
 
@@ -155,8 +155,3 @@ class ElectricVehicle(Environment):
             "data": time_steps
         }
         return result
-
-
-
-
-

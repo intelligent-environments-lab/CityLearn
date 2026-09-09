@@ -4,11 +4,10 @@ import setuptools
 
 ROOT = os.path.dirname(__file__)
 VERSION_RE = re.compile(r"__version__\s*=\s*['\"]([\w\.-]+)['\"]")
-
-with open('README.md', 'r') as fh:
+with open(os.path.join(ROOT, 'README.md'), 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
-with open('requirements.txt', 'r') as fh:
+with open('requirements.txt', 'r', encoding='utf-8') as fh:
    requirements = fh.readlines()
    requirements = [requirement.strip().replace('\n','').replace('\r','') for requirement in requirements]
    requirements = [requirement for requirement in requirements if len(requirement) != 0 and requirement[0] != '#']
@@ -20,21 +19,27 @@ def get_version():
 setuptools.setup(
     name='citylearn',
     version=get_version(),
-    author='Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy',
-    author_email='nweye@utexas.edu',
+    author='Soft-CPS Research Group, Jose Ramon Vazquez-Canteli, Kingsley Nweye, Zoltan Nagy',
+    author_email='jose@isep.ipp.pt',
     description=(
-        'An open source Farama Foundation Gymnasium environment for benchmarking distributed '
-        'energy resource control algorithms to provide energy flexibility in a district of buildings.'),
+        'CityLearn: an energy-community reinforcement-learning environment focused on EV/BESS/PV, '
+        'electrical-service constraints, dynamic topology and community-market experimentation.'),
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/intelligent-environments-lab/CityLearn',
+    url='https://github.com/citylearn-project/CityLearn',
+    license='MIT',
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=requirements,
     extras_require={
+        'parquet': ['pyarrow'],
         'pysam': ['nrel-pysam'],
     },
     entry_points={'console_scripts': ['citylearn = citylearn.__main__:main']},
+    project_urls={
+        'Source': 'https://github.com/citylearn-project/CityLearn',
+        'Documentation': 'https://www.citylearn.net/',
+    },
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',

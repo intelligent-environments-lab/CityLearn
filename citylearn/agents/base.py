@@ -144,57 +144,67 @@ class Agent(Environment):
         deterministic = False if deterministic is None else deterministic
         self.__set_logger(logging_level)
 
-        for episode in range(episodes):
-            deterministic = deterministic or (deterministic_finish and episode >= episodes - 1)
-            observations, _ = self.env.reset()
-            self.episode_time_steps = self.episode_tracker.episode_time_steps
-            terminated = self.env.terminated
-            truncated = self.env.truncated
-            time_step = 0
-            rewards_list = []
+        env = self.env.unwrapped
+        previous_final_export_episode_index = (
+            env.plan_final_episode_exports(episodes)
+            if hasattr(env, 'plan_final_episode_exports') else None
+        )
 
-            while not (terminated or truncated):
-                actions = self.predict(observations, deterministic=deterministic)
+        try:
+            for episode in range(episodes):
+                deterministic = deterministic or (deterministic_finish and episode >= episodes - 1)
+                observations, _ = self.env.reset()
+                self.episode_time_steps = self.episode_tracker.episode_time_steps
+                terminated = self.env.terminated
+                truncated = self.env.truncated
+                time_step = 0
+                rewards_list = []
 
-                # apply actions to citylearn_env
-                next_observations, rewards, terminated, truncated, _ = self.env.step(actions)
-                rewards_list.append(rewards)
+                while not (terminated or truncated):
+                    actions = self.predict(observations, deterministic=deterministic)
 
-                # update
-                if not deterministic:
-                    self.update(observations, actions, rewards, next_observations, terminated=terminated, truncated=truncated)
+                    # apply actions to citylearn_env
+                    next_observations, rewards, terminated, truncated, _ = self.env.step(actions)
+                    rewards_list.append(rewards)
+
+                    # update
+                    if not deterministic:
+                        self.update(observations, actions, rewards, next_observations, terminated=terminated, truncated=truncated)
+                    else:
+                        pass
+
+                    observations = [o for o in next_observations]
+
+                    logging.debug(
+                        f'Time step: {time_step + 1}/{self.episode_time_steps},'\
+                            f' Episode: {episode + 1}/{episodes},'\
+                                f' Actions: {actions},'\
+                                    f' Rewards: {rewards}'
+                    )
+
+                    time_step += 1
+
+                if len(rewards_list) > 0:
+                    rewards = np.array(rewards_list, dtype='float')
+                    rewards_summary = {
+                        'min': rewards.min(axis=0),
+                        'max': rewards.max(axis=0),
+                        'sum': rewards.sum(axis=0),
+                        'mean': rewards.mean(axis=0)
+                    }
                 else:
-                    pass
-
-                observations = [o for o in next_observations]
-
-                logging.debug(
-                    f'Time step: {time_step + 1}/{self.episode_time_steps},'\
-                        f' Episode: {episode + 1}/{episodes},'\
-                            f' Actions: {actions},'\
-                                f' Rewards: {rewards}'
-                )
-
-                time_step += 1
-
-            if len(rewards_list) > 0:
-                rewards = np.array(rewards_list, dtype='float')
-                rewards_summary = {
-                    'min': rewards.min(axis=0),
-                    'max': rewards.max(axis=0),
-                    'sum': rewards.sum(axis=0),
-                    'mean': rewards.mean(axis=0)
-                }
-            else:
-                reward_length = len(self.action_space)
-                empty = np.zeros(reward_length, dtype='float')
-                rewards_summary = {
-                    'min': empty,
-                    'max': empty,
-                    'sum': empty,
-                    'mean': empty,
-                }
-            logging.info(f'Completed episode: {episode + 1}/{episodes}, Reward: {rewards_summary}')
+                    reward_length = len(self.action_space)
+                    empty = np.zeros(reward_length, dtype='float')
+                    rewards_summary = {
+                        'min': empty,
+                        'max': empty,
+                        'sum': empty,
+                        'mean': empty,
+                    }
+                logging.info(f'Completed episode: {episode + 1}/{episodes}, Reward: {rewards_summary}')
+        finally:
+            if hasattr(env, 'plan_final_episode_exports'):
+                env._final_export_episode_index = previous_final_export_episode_index
 
     def predict(self, observations: List[List[float]], deterministic: bool = None) -> List[List[float]]:
         """Provide actions for current time step.
@@ -247,7 +257,7 @@ class Agent(Environment):
         self.__actions = [[[]] for _ in self.action_space]
 
 class BaselineAgent(Agent):
-    r"""Agent class for business-as-usual simulation where the storage systems and heat pumps are not controlled.
+    r"""Passive no-control baseline where active control actions are disabled.
 
     This agent will provide results for when there is no storage for load shifting and no heat pump partial load. 
     The storage actions prescribed will be 0.0 and the heat pump will have no action, i.e. `None`, causing it to 
@@ -257,8 +267,8 @@ class BaselineAgent(Agent):
     will be set to have no active actions. This means that you must initialize a new `env` if you want to simulate
     with a new agent type. 
     
-    This agent class is best used to establish a baseline simulation that can then be compared 
-    to RBC, RLC, or MPC control algorithms.
+    Use :class:`citylearn.agents.baseline.BusinessAsUsualAgent` for the native operational
+    business-as-usual baseline that charges EVs, starts deferrables, and controls BESS.
 
     Parameters
     ----------

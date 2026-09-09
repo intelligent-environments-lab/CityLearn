@@ -7,7 +7,7 @@ All KPI names in `evaluate_v2()` follow:
 `level_family_subfamily_metric_variant_unit`
 
 - `level`: `building` or `district`
-- `family`: `cost`, `energy_grid`, `emissions`, `solar_self_consumption`, `ev`, `battery`, `electrical_service_phase`, `equity`, `comfort_resilience`
+- `family`: `cost`, `energy_grid`, `emissions`, `solar_self_consumption`, `ev`, `battery`, `electrical_service_phase`, `equity`, `comfort_resilience`, `deferrable_appliance`, `demand_response`
 - `subfamily`: e.g. `total`, `daily_average`, `ratio_to_baseline`, `shape_quality`, `community_market`, `events`, `performance`, `health`, `violations`, `imbalance`, `phase_peaks`, `benefit`, `distribution`, `discomfort`, `resilience`
 - `variant`: optional (e.g. `control`, `baseline`, `delta`, `min`, `max`, `average`, `total`, `daily_average`)
 - `unit`: optional and always at the end (e.g. `eur`, `kwh`, `kgco2`, `kw`, `count`, `percent`, `ratio`, `c`)
@@ -21,6 +21,7 @@ Examples:
 - `district_energy_grid_community_market_local_traded_total_kwh`
 - `district_solar_self_consumption_total_generation_kwh`
 - `district_solar_self_consumption_community_market_import_share_ratio`
+- `district_demand_response_net_revenue_total_eur`
 
 ---
 
@@ -101,16 +102,33 @@ Community market (conditional):
 - `district_solar_self_consumption_daily_average_export_kwh`
 - `district_solar_self_consumption_ratio_self_consumption_ratio`
 
+District `export` is PV-backed net export to outside the district/community after same-timestep member imports and exports are balanced. Building `export` remains the member-level PV-backed net export.
+
 Community market (conditional):
 - `district_solar_self_consumption_community_market_import_share_ratio`
 
 ### `ev`
 - `district_ev_events_departure_count`
 - `district_ev_events_departure_met_count`
+- `district_ev_events_departure_min_acceptable_count`
 - `district_ev_events_departure_within_tolerance_count`
+- `district_ev_events_departure_target_feasible_count`
+- `district_ev_events_departure_target_infeasible_count`
+- `district_ev_events_departure_min_acceptable_feasible_count`
+- `district_ev_events_departure_min_acceptable_infeasible_count`
+- `district_ev_events_departure_within_tolerance_feasible_count`
+- `district_ev_events_departure_within_tolerance_infeasible_count`
 - `district_ev_performance_departure_success_ratio`
+- `district_ev_performance_departure_min_acceptable_ratio`
 - `district_ev_performance_departure_within_tolerance_ratio`
+- `district_ev_performance_departure_success_feasible_ratio`
+- `district_ev_performance_departure_min_acceptable_feasible_ratio`
+- `district_ev_performance_departure_within_tolerance_feasible_ratio`
 - `district_ev_performance_departure_soc_deficit_mean_ratio`
+- `district_ev_performance_departure_shortfall_beyond_tolerance_mean_ratio`
+- `district_ev_performance_departure_soc_surplus_mean_ratio`
+- `district_ev_performance_departure_soc_absolute_error_mean_ratio`
+- `district_ev_performance_departure_tolerance_ratio`
 - `district_ev_total_charge_kwh`
 - `district_ev_total_v2g_export_kwh`
 
@@ -124,6 +142,8 @@ Community market (conditional):
 ### `electrical_service_phase`
 - `district_electrical_service_phase_violations_energy_total_kwh`
 - `district_electrical_service_phase_violations_event_count`
+- `district_electrical_service_phase_requested_pressure_energy_total_kwh`
+- `district_electrical_service_phase_requested_pressure_event_count`
 - `district_electrical_service_phase_imbalance_phase_average_ratio`
 - `district_electrical_service_phase_phase_peaks_import_peak_l1_kw`
 - `district_electrical_service_phase_phase_peaks_import_peak_l2_kw`
@@ -131,6 +151,14 @@ Community market (conditional):
 - `district_electrical_service_phase_phase_peaks_export_peak_l1_kw`
 - `district_electrical_service_phase_phase_peaks_export_peak_l2_kw`
 - `district_electrical_service_phase_phase_peaks_export_peak_l3_kw`
+
+The `violations` rows measure post-projection residual exceedance of the
+declared total and per-phase active-power limits. The `requested_pressure`
+rows instead measure how far the controller's unprojected request would have
+exceeded those limits. Keeping both prevents constraint activation from being
+misreported as an applied-power safety failure. Post-projection exceedances at
+or below `1e-5 kW` per checked limit are treated as numerical noise from the
+single-precision runtime histories.
 
 ### `equity`
 - `district_equity_distribution_gini_benefit_ratio`
@@ -152,6 +180,18 @@ Community market (conditional):
 - `district_comfort_resilience_resilience_unserved_energy_outage_normalized_ratio`
 - `district_comfort_resilience_resilience_unserved_energy_annual_normalized_ratio`
 
+### `demand_response`
+- `district_demand_response_events_count`
+- `district_demand_response_active_time_step_count`
+- `district_demand_response_requested_total_kwh`
+- `district_demand_response_delivered_total_kwh`
+- `district_demand_response_shortfall_total_kwh`
+- `district_demand_response_compliance_ratio`
+- `district_demand_response_revenue_total_eur`
+- `district_demand_response_penalty_total_eur`
+- `district_demand_response_net_revenue_total_eur`
+- `district_demand_response_invalid_baseline_time_step_count`
+
 ---
 
 ## B1 (Single Building)
@@ -165,8 +205,13 @@ Main pattern examples:
 - `building_energy_grid_total_import_control_kwh`
 - `building_solar_self_consumption_total_generation_kwh`
 - `building_equity_benefit_relative_percent`
+- `building_ev_events_departure_min_acceptable_count`
+- `building_ev_performance_departure_min_acceptable_ratio`
 - `building_ev_events_departure_within_tolerance_count`
 - `building_ev_performance_departure_within_tolerance_ratio`
+- `building_ev_events_departure_target_infeasible_count`
+- `building_ev_performance_departure_min_acceptable_feasible_ratio`
+- `building_demand_response_net_revenue_total_eur`
 
 ---
 
@@ -184,6 +229,7 @@ These are different KPIs and should not be merged.
 - KPI: `*_solar_self_consumption_ratio_self_consumption_ratio`
 - Formula: `(generation_total - export_total) / generation_total`
 - Meaning: fraction of PV generation consumed locally (solar-centric KPI)
+- District meaning: fraction of PV generation consumed inside the district/community, including same-timestep intra-community PV transfers.
 - Availability: independent of community market (exists with market ON or OFF)
 
 ### 2) Community market import share
@@ -196,17 +242,52 @@ These are different KPIs and should not be merged.
 
 ---
 
-## EV Tolerance KPI (±5%)
+## EV Departure SOC KPIs
 
+Default tolerances are `0.05`.
+
+Strict target fulfillment:
+- KPI (count): `*_ev_events_departure_met_count`
+- KPI (ratio): `*_ev_performance_departure_success_ratio`
+- Condition: `soc_departure >= soc_target_departure`
+- Feasible KPI (ratio): `*_ev_performance_departure_success_feasible_ratio`
+- Feasibility counts:
+  - `*_ev_events_departure_target_feasible_count`
+  - `*_ev_events_departure_target_infeasible_count`
+
+Minimum acceptable user service:
+- KPI (count): `*_ev_events_departure_min_acceptable_count`
+- KPI (ratio): `*_ev_performance_departure_min_acceptable_ratio`
+- Condition: `soc_departure >= soc_target_departure - ev_departure_service_tolerance`
+- Shortfall KPI: `*_ev_performance_departure_shortfall_beyond_tolerance_mean_ratio`
+- Feasible KPI (ratio): `*_ev_performance_departure_min_acceptable_feasible_ratio`
+- Feasibility counts:
+  - `*_ev_events_departure_min_acceptable_feasible_count`
+  - `*_ev_events_departure_min_acceptable_infeasible_count`
+
+Symmetric target accuracy:
 - KPI (count): `*_ev_events_departure_within_tolerance_count`
 - KPI (ratio): `*_ev_performance_departure_within_tolerance_ratio`
-- Condition per departure event:
-  - `abs(soc_departure - soc_target_departure) <= 0.05`
-- Meaning:
-  - counts/ratio of departures where SOC is within ±5 percentage points of target.
-- Relation with strict success:
-  - `departure_within_tolerance_count <= departure_count`
-  - `departure_met_count` and `departure_within_tolerance_count` are not ordered in general.
+- Condition: `abs(soc_departure - soc_target_departure) <= ev_departure_within_tolerance`
+- Feasible KPI (ratio): `*_ev_performance_departure_within_tolerance_feasible_ratio`
+- Feasibility counts:
+  - `*_ev_events_departure_within_tolerance_feasible_count`
+  - `*_ev_events_departure_within_tolerance_infeasible_count`
+
+Feasible ratios exclude departures where the relevant threshold could not be reached from arrival SOC by charging at maximum charger/battery power during the connected interval. Missing charger, battery or arrival-SOC data is treated as feasible for backward compatibility.
+
+Error diagnostics:
+- `*_ev_performance_departure_soc_deficit_mean_ratio`
+- `*_ev_performance_departure_soc_surplus_mean_ratio`
+- `*_ev_performance_departure_soc_absolute_error_mean_ratio`
+- `*_ev_performance_departure_tolerance_ratio`
+
+Relation between counts:
+- `departure_min_acceptable_count <= departure_count`
+- `departure_within_tolerance_count <= departure_count`
+- `departure_*_feasible_count + departure_*_infeasible_count = departure_count`
+- `departure_met_count <= departure_min_acceptable_count`
+- `departure_met_count` and `departure_within_tolerance_count` are not ordered in general.
 
 ---
 
