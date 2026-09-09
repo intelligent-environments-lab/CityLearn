@@ -60,6 +60,23 @@ Release owner: [@calofonseca](https://github.com/calofonseca).
 - ...
 ```
 
+## v3.0.1 - 2026-09-09
+
+Release owner: [@calofonseca](https://github.com/calofonseca).
+
+### Fixed
+
+- Points the installed package's default dataset registry at the official
+  `citylearn-project/CityLearn` repository and matching release tag. Version
+  3.0.0 incorrectly retained the Simulator fork as its default registry.
+- Installs `twine` in the dedicated PyPI publication job before upload.
+
+### Validation
+
+- Clean PyPI installation with full runtime dependencies.
+- Remote dataset discovery against the official Version 3 tag.
+- Environment reset and simulation-step smoke test using a downloaded dataset.
+
 ## v3.0.0 - 2026-09-09
 
 Release owner: [@calofonseca](https://github.com/calofonseca).

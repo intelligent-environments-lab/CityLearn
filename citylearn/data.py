@@ -52,8 +52,8 @@ def get_settings():
 class DataSet:
     """CityLearn input data set and schema class."""
 
-    GITHUB_ACCOUNT = os.getenv('CITYLEARN_DATASET_GITHUB_ACCOUNT', 'Soft-CPS-Research-Group')
-    REPOSITORY_NAME = os.getenv('CITYLEARN_DATASET_REPOSITORY', 'Simulator')
+    GITHUB_ACCOUNT = os.getenv('CITYLEARN_DATASET_GITHUB_ACCOUNT', 'citylearn-project')
+    REPOSITORY_NAME = os.getenv('CITYLEARN_DATASET_REPOSITORY', 'CityLearn')
     REPOSITORY_TAG = os.getenv('CITYLEARN_DATASET_TAG', f'v{__version__}')
     OFFLINE = _parse_env_bool('CITYLEARN_OFFLINE', False)
     REPOSITORY_DATA_PATH = FileHandler.join_url('data')
