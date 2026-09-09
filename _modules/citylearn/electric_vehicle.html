@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.electric_vehicle &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>citylearn.electric_vehicle &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=6c54da93"></script>
+      <script src="../../_static/documentation_options.js?v=acc74ff5"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -102,7 +102,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">episode_tracker</span><span class="p">:</span> <span class="n">EpisodeTracker</span><span class="p">,</span>
                  <span class="n">battery</span><span class="p">:</span> <span class="n">Battery</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the EVCar class.</span>
 
 <span class="sd">        Parameters</span>
@@ -116,13 +116,13 @@
 <span class="sd">        ----------------</span>
 <span class="sd">        **kwargs : dict</span>
 <span class="sd">            Other keyword arguments used to initialize super class.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">seconds_per_time_step</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;seconds_per_time_step&#39;</span><span class="p">),</span>
-            <span class="n">random_seed</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;random_seed&#39;</span><span class="p">),</span>
+            <span class="n">seconds_per_time_step</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'seconds_per_time_step'</span><span class="p">),</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'random_seed'</span><span class="p">),</span>
             <span class="n">episode_tracker</span><span class="o">=</span><span class="n">episode_tracker</span><span class="p">,</span>
             <span class="n">time_step_ratio</span><span class="o">=</span><span class="n">battery</span><span class="o">.</span><span class="n">time_step_ratio</span>
         <span class="p">)</span>
@@ -133,13 +133,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unique building name.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Unique building name."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">battery</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Battery</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Battery for Electric_Vehicle.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Battery for Electric_Vehicle."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__battery</span>
 
@@ -150,13 +150,13 @@
     <span class="nd">@battery</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">battery</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">battery</span><span class="p">:</span> <span class="n">Battery</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">battery</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Battery set to None&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"Battery set to None"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__battery</span> <span class="o">=</span> <span class="n">battery</span>
 
 <div class="viewcode-block" id="ElectricVehicle.next_time_step">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.next_time_step">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>        
+    <span class="k">def</span><span class="w"> </span><span class="nf">next_time_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">next_time_step</span><span class="p">()</span></div>
 
@@ -164,9 +164,9 @@
 <div class="viewcode-block" id="ElectricVehicle.reset">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.reset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Reset the EVCar to its initial state.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
@@ -175,7 +175,7 @@
 <div class="viewcode-block" id="ElectricVehicle.observations">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.observations">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">observations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Observations at current time step.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Observations at current time step.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -183,17 +183,17 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        observations</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">unwanted_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;electric_vehicle_charger_state&quot;</span><span class="p">,</span> <span class="s2">&quot;charger&quot;</span><span class="p">,</span> <span class="s2">&quot;electric_vehicle_soc_arrival&quot;</span><span class="p">]</span>
+<span class="sd">        """</span>
+        <span class="n">unwanted_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"electric_vehicle_charger_state"</span><span class="p">,</span> <span class="s2">"charger"</span><span class="p">,</span> <span class="s2">"electric_vehicle_soc_arrival"</span><span class="p">]</span>
 
         <span class="n">observations</span> <span class="o">=</span> <span class="p">{</span>
             <span class="o">**</span><span class="p">{</span>
-                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span> <span class="n">v</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+                <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">'_'</span><span class="p">):</span> <span class="n">v</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unwanted_keys</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">'_'</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">unwanted_keys</span>
                 <span class="c1"># Ensure filtering is done after stripping</span>
             <span class="p">},</span>
-            <span class="s1">&#39;electric_vehicle_soc&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
+            <span class="s1">'electric_vehicle_soc'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">]</span>
         <span class="p">}</span>
 
         <span class="k">return</span> <span class="n">observations</span></div>
@@ -202,20 +202,20 @@
     <span class="c1"># --- String / Object Representation Methods ---</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return a text representation of the current state.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
 
 <div class="viewcode-block" id="ElectricVehicle.as_dict">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.as_dict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return a dictionary representation of the current state for use in rendering or logging.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s1">&#39;Battery capacity&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="o">.</span><span class="n">capacity</span><span class="p">,</span>  
+            <span class="s1">'name'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s1">'Battery capacity'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="o">.</span><span class="n">capacity</span><span class="p">,</span>  
             <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">observations</span><span class="p">()</span> 
         <span class="p">}</span></div>
 
@@ -223,7 +223,7 @@
 <div class="viewcode-block" id="ElectricVehicle.render_simulation_end_data">
 <a class="viewcode-back" href="../../api/citylearn.electric_vehicle.html#citylearn.electric_vehicle.ElectricVehicle.render_simulation_end_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">render_simulation_end_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return a dictionary containing all simulation data across all time steps.</span>
 <span class="sd">        The returned dictionary is structured with a general simulation name and, for each time step,</span>
 <span class="sd">        a dictionary with the simulation data and battery data.</span>
@@ -232,7 +232,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        result : dict</span>
 <span class="sd">            A JSON-like dictionary with the simulation name and per-time-step data.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Determine the number of time steps.</span>
         <span class="n">num_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">episode_tracker</span><span class="o">.</span><span class="n">episode_time_steps</span>
 
@@ -240,30 +240,25 @@
         <span class="c1"># Build a list of dictionaries for each time step.</span>
         <span class="n">time_steps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_steps</span><span class="p">):</span>
-            <span class="n">step_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;time_step&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s2">&quot;battery&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+            <span class="n">step_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"time_step"</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s2">"battery"</span><span class="p">:</span> <span class="p">{}}</span>
 
             <span class="c1"># Add battery data for this time step.</span>
             <span class="n">soc_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="o">.</span><span class="n">soc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">soc_value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">):</span>
                 <span class="n">soc_value</span> <span class="o">=</span> <span class="n">soc_value</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-            <span class="n">step_data</span><span class="p">[</span><span class="s2">&quot;battery&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;soc&quot;</span><span class="p">:</span> <span class="n">soc_value</span><span class="p">,</span>
-                <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="o">.</span><span class="n">capacity</span>  <span class="c1"># capacity is assumed constant over time.</span>
+            <span class="n">step_data</span><span class="p">[</span><span class="s2">"battery"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">"soc"</span><span class="p">:</span> <span class="n">soc_value</span><span class="p">,</span>
+                <span class="s2">"capacity"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="o">.</span><span class="n">capacity</span>  <span class="c1"># capacity is assumed constant over time.</span>
             <span class="p">}</span>
 
             <span class="n">time_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step_data</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;simulation_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span> <span class="s2">&quot;ElectricVehicleSimulation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">time_steps</span>
+            <span class="s2">"simulation_name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="k">else</span> <span class="s2">"ElectricVehicleSimulation"</span><span class="p">,</span>
+            <span class="s2">"data"</span><span class="p">:</span> <span class="n">time_steps</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">result</span></div>
 </div>
-
-
-
-
-
 
 </pre></div>
 

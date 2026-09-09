@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.end_use_load_profiles.lstm_model.preprocessing &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>citylearn.end_use_load_profiles.lstm_model.preprocessing &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
   
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=6c54da93"></script>
+      <script src="../../../../_static/documentation_options.js?v=acc74ff5"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -107,7 +107,7 @@
     <span class="n">test_references</span> <span class="o">=</span> <span class="p">[</span><span class="n">partial_references</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="k">if</span> <span class="n">test_references</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">test_references</span>
     
     <span class="c1"># observation names</span>
-    <span class="n">observation_names</span> <span class="o">=</span> <span class="n">get_settings</span><span class="p">()[</span><span class="s1">&#39;schema&#39;</span><span class="p">][</span><span class="s1">&#39;template&#39;</span><span class="p">][</span><span class="s1">&#39;buildings&#39;</span><span class="p">][</span><span class="s1">&#39;Building_1&#39;</span><span class="p">][</span><span class="s1">&#39;dynamics&#39;</span><span class="p">][</span><span class="s1">&#39;attributes&#39;</span><span class="p">][</span><span class="s1">&#39;input_observation_names&#39;</span><span class="p">]</span>
+    <span class="n">observation_names</span> <span class="o">=</span> <span class="n">get_settings</span><span class="p">()[</span><span class="s1">'schema'</span><span class="p">][</span><span class="s1">'template'</span><span class="p">][</span><span class="s1">'buildings'</span><span class="p">][</span><span class="s1">'Building_1'</span><span class="p">][</span><span class="s1">'dynamics'</span><span class="p">][</span><span class="s1">'attributes'</span><span class="p">][</span><span class="s1">'input_observation_names'</span><span class="p">]</span>
     <span class="n">target</span> <span class="o">=</span> <span class="n">observation_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">periodic_observations</span> <span class="o">=</span> <span class="n">Building</span><span class="o">.</span><span class="n">get_periodic_observation_metadata</span><span class="p">()</span>
     
@@ -115,8 +115,8 @@
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">periodic_observations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">*</span><span class="n">PeriodicNormalization</span><span class="p">(</span><span class="n">x_max</span><span class="o">=</span><span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_sin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_cos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_sin'</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">_cos'</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="c1"># set min-max normalization limits</span>
     <span class="n">normalization_minimum</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">observation_names</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
@@ -127,75 +127,75 @@
         <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">*</span><span class="n">Normalize</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
 
     <span class="c1"># check to make share there is 1-year worth of data</span>
-    <span class="n">months</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Expected 12 months, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">)</span><span class="si">}</span><span class="s1"> months.&#39;</span>
+    <span class="n">months</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'month'</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'Expected 12 months, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">)</span><span class="si">}</span><span class="s1"> months.'</span>
     
     <span class="c1"># training data are ideal load data for every three month step beginning from January</span>
     <span class="c1"># and free-float load and 2 partial load datasets for entire year</span>
     <span class="n">train_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-        <span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">ideal_reference</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">months</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">),</span> <span class="mi">3</span><span class="p">)])))</span>
-        <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">train_references</span><span class="p">))</span>
+        <span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s1">'reference'</span><span class="p">]</span><span class="o">==</span><span class="n">ideal_reference</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'month'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">months</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">),</span> <span class="mi">3</span><span class="p">)])))</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'reference'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">train_references</span><span class="p">))</span>
     <span class="p">][</span><span class="n">observation_names</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span> <span class="o">=</span> <span class="n">sliding_windows</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;lb&#39;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">train_df</span><span class="p">,</span> <span class="n">train_loader</span> <span class="o">=</span> <span class="n">dataset_dataloader</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">])</span>
+    <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span> <span class="o">=</span> <span class="n">sliding_windows</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">config</span><span class="p">[</span><span class="s1">'lb'</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">train_df</span><span class="p">,</span> <span class="n">train_loader</span> <span class="o">=</span> <span class="n">dataset_dataloader</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">'batch_size'</span><span class="p">])</span>
     
     <span class="c1"># validation data are ideal load data for every three month step beginning from February</span>
     <span class="c1"># and free-float load and 1 partial load dataset for entire year</span>
     <span class="n">validation_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-        <span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">ideal_reference</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">months</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">),</span> <span class="mi">3</span><span class="p">)])))</span>
-        <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">validation_references</span><span class="p">))</span>
+        <span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s1">'reference'</span><span class="p">]</span><span class="o">==</span><span class="n">ideal_reference</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'month'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">months</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">),</span> <span class="mi">3</span><span class="p">)])))</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'reference'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">validation_references</span><span class="p">))</span>
     <span class="p">][</span><span class="n">observation_names</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="n">sliding_windows</span><span class="p">(</span><span class="n">validation_df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;lb&#39;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">val_df</span><span class="p">,</span> <span class="n">val_loader</span> <span class="o">=</span> <span class="n">dataset_dataloader</span><span class="p">(</span><span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">])</span>
+    <span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span> <span class="o">=</span> <span class="n">sliding_windows</span><span class="p">(</span><span class="n">validation_df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">config</span><span class="p">[</span><span class="s1">'lb'</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">val_df</span><span class="p">,</span> <span class="n">val_loader</span> <span class="o">=</span> <span class="n">dataset_dataloader</span><span class="p">(</span><span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">'batch_size'</span><span class="p">])</span>
 
     <span class="c1"># test data are ideal load data for every three month step beginning from March</span>
     <span class="c1"># and free-float load and 1 partial load dataset for entire year</span>
     <span class="n">test_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-        <span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">ideal_reference</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">months</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">),</span> <span class="mi">3</span><span class="p">)])))</span>
-        <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">test_references</span><span class="p">))</span>
+        <span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s1">'reference'</span><span class="p">]</span><span class="o">==</span><span class="n">ideal_reference</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'month'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">months</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">),</span> <span class="mi">3</span><span class="p">)])))</span>
+        <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'reference'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">test_references</span><span class="p">))</span>
     <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">test_df_by_season</span> <span class="o">=</span> <span class="n">test_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">test_df</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="n">observation_names</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">sliding_windows</span><span class="p">(</span><span class="n">test_df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;lb&#39;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">test_df</span><span class="p">,</span> <span class="n">test_loader</span> <span class="o">=</span> <span class="n">dataset_dataloader</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">])</span>
+    <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">sliding_windows</span><span class="p">(</span><span class="n">test_df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">config</span><span class="p">[</span><span class="s1">'lb'</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">test_df</span><span class="p">,</span> <span class="n">test_loader</span> <span class="o">=</span> <span class="n">dataset_dataloader</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s1">'batch_size'</span><span class="p">])</span>
     
     <span class="c1"># seasonal test data is same as test data but in 3-month sequences</span>
     <span class="n">test_df_by_season</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">test_df_by_season</span><span class="p">[</span><span class="n">test_df_by_season</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">months</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">])][</span><span class="n">observation_names</span><span class="p">]</span> 
+        <span class="n">test_df_by_season</span><span class="p">[</span><span class="n">test_df_by_season</span><span class="p">[</span><span class="s1">'month'</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">months</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">])][</span><span class="n">observation_names</span><span class="p">]</span> 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">months</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="n">test_loader_by_season</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset_dataloader</span><span class="p">(</span>
-        <span class="o">*</span><span class="n">sliding_windows</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;lb&#39;</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> 
-        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span>
+        <span class="o">*</span><span class="n">sliding_windows</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">config</span><span class="p">[</span><span class="s1">'lb'</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> 
+        <span class="n">config</span><span class="p">[</span><span class="s1">'batch_size'</span><span class="p">]</span>
     <span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">test_df_by_season</span><span class="p">]</span>
     
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s1">&#39;temp_limits&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">normalization_minimum</span><span class="p">[</span><span class="n">observation_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">target</span><span class="p">)],</span>
-            <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">normalization_maximum</span><span class="p">[</span><span class="n">observation_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">target</span><span class="p">)]</span>
+        <span class="s1">'temp_limits'</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">'min'</span><span class="p">:</span> <span class="n">normalization_minimum</span><span class="p">[</span><span class="n">observation_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">target</span><span class="p">)],</span>
+            <span class="s1">'max'</span><span class="p">:</span> <span class="n">normalization_maximum</span><span class="p">[</span><span class="n">observation_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">target</span><span class="p">)]</span>
         <span class="p">},</span>
-        <span class="s1">&#39;loaders&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">train_loader</span><span class="p">,</span>
-            <span class="s1">&#39;val&#39;</span><span class="p">:</span> <span class="n">val_loader</span><span class="p">,</span>
-            <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">test_loader</span><span class="p">,</span>
-            <span class="s1">&#39;test_by_season&#39;</span><span class="p">:</span>  <span class="n">test_loader_by_season</span>
+        <span class="s1">'loaders'</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">'train'</span><span class="p">:</span> <span class="n">train_loader</span><span class="p">,</span>
+            <span class="s1">'val'</span><span class="p">:</span> <span class="n">val_loader</span><span class="p">,</span>
+            <span class="s1">'test'</span><span class="p">:</span> <span class="n">test_loader</span><span class="p">,</span>
+            <span class="s1">'test_by_season'</span><span class="p">:</span>  <span class="n">test_loader_by_season</span>
         <span class="p">},</span>
-        <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">X_train</span><span class="p">,</span>
-            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y_train</span>
+        <span class="s1">'train'</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">'X'</span><span class="p">:</span> <span class="n">X_train</span><span class="p">,</span>
+            <span class="s1">'y'</span><span class="p">:</span> <span class="n">y_train</span>
         <span class="p">},</span>
-        <span class="s1">&#39;val&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">X_val</span><span class="p">,</span>
-            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y_val</span>
+        <span class="s1">'val'</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">'X'</span><span class="p">:</span> <span class="n">X_val</span><span class="p">,</span>
+            <span class="s1">'y'</span><span class="p">:</span> <span class="n">y_val</span>
         <span class="p">},</span>
-        <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">X_test</span><span class="p">,</span>
-            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y_test</span>
+        <span class="s1">'test'</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">'X'</span><span class="p">:</span> <span class="n">X_test</span><span class="p">,</span>
+            <span class="s1">'y'</span><span class="p">:</span> <span class="n">y_test</span>
         <span class="p">},</span>
-        <span class="s1">&#39;observation_metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;input_observation_names&#39;</span><span class="p">:</span> <span class="n">observation_names</span><span class="p">,</span>
-            <span class="s1">&#39;input_normalization_minimum&#39;</span><span class="p">:</span> <span class="n">normalization_minimum</span><span class="p">,</span>
-            <span class="s1">&#39;input_normalization_maximum&#39;</span><span class="p">:</span> <span class="n">normalization_maximum</span><span class="p">,</span> 
+        <span class="s1">'observation_metadata'</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">'input_observation_names'</span><span class="p">:</span> <span class="n">observation_names</span><span class="p">,</span>
+            <span class="s1">'input_normalization_minimum'</span><span class="p">:</span> <span class="n">normalization_minimum</span><span class="p">,</span>
+            <span class="s1">'input_normalization_maximum'</span><span class="p">:</span> <span class="n">normalization_maximum</span><span class="p">,</span> 
         <span class="p">}</span>
     <span class="p">}</span></div>
 
@@ -214,18 +214,23 @@
 <div class="viewcode-block" id="sliding_windows">
 <a class="viewcode-back" href="../../../../api/citylearn.end_use_load_profiles.lstm_model.preprocessing.html#citylearn.end_use_load_profiles.lstm_model.preprocessing.sliding_windows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">sliding_windows</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">seq_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">output_len</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create sliding window input/output arrays.</span>
+<span class="w">    </span><span class="sd">"""Create lookback/output windows where target is the last column.</span>
 
-<span class="sd">    The target variable is expected to be the last column in ``data``.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : np.ndarray</span>
+<span class="sd">        Input array where the prediction target is the last column.</span>
+<span class="sd">    seq_length : int</span>
+<span class="sd">        Number of lookback time steps.</span>
+<span class="sd">    output_len : int</span>
+<span class="sd">        Number of future target steps to predict.</span>
 
-<span class="sd">    :param data: Input array.</span>
-<span class="sd">    :param seq_length: Number of lookback time steps.</span>
-<span class="sd">    :param output_len: Number of time steps ahead to predict.</span>
-<span class="sd">    :return: Tuple ``(x, y)`` where ``x`` has shape</span>
-<span class="sd">        ``[num_steps - seq_length, seq_length, num_input_variables]`` and</span>
-<span class="sd">        ``y`` has shape ``[num_steps - seq_length, output_len]``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[np.ndarray, np.ndarray]</span>
+<span class="sd">        ``x`` with shape ``[num_steps - lookback, lookback, num_input_features]``</span>
+<span class="sd">        and ``y`` with shape ``[num_steps - lookback, num_output_features]``.</span>
+<span class="sd">    """</span>
     
     <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>

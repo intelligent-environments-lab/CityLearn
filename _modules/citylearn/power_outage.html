@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.power_outage &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>citylearn.power_outage &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=6c54da93"></script>
+      <script src="../../_static/documentation_options.js?v=acc74ff5"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -92,7 +92,7 @@
 <div class="viewcode-block" id="PowerOutage">
 <a class="viewcode-back" href="../../api/citylearn.power_outage.html#citylearn.power_outage.PowerOutage">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PowerOutage</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base stochastic power outage model class.</span>
+<span class="w">    </span><span class="sd">"""Base stochastic power outage model class.</span>
 <span class="sd">    </span>
 <span class="sd">    Randomly assigns power outage signal to time steps.</span>
 
@@ -100,7 +100,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    random_seed: int, optional</span>
 <span class="sd">        Pseudorandom number generator seed for repeatable results.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">random_seed</span> 
@@ -116,7 +116,7 @@
 <div class="viewcode-block" id="PowerOutage.get_signals">
 <a class="viewcode-back" href="../../api/citylearn.power_outage.html#citylearn.power_outage.PowerOutage.get_signals">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns power outage signal time series.</span>
+<span class="w">        </span><span class="sd">"""Returns power outage signal time series.</span>
 
 <span class="sd">        Returns time series with randomly selected time steps set as candidates for power outage.</span>
 
@@ -136,7 +136,7 @@
 <span class="sd">        signals: np.ndarray</span>
 <span class="sd">            Power outage time series signal where value of 0 indicates no power outage at time step index </span>
 <span class="sd">            whereas value of 1 indicates a power outage at said time step.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">nprs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span>
         <span class="n">signals</span> <span class="o">=</span> <span class="n">nprs</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">time_steps</span><span class="p">)</span> 
@@ -148,7 +148,7 @@
 <div class="viewcode-block" id="ReliabilityMetricsPowerOutage">
 <a class="viewcode-back" href="../../api/citylearn.power_outage.html#citylearn.power_outage.ReliabilityMetricsPowerOutage">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ReliabilityMetricsPowerOutage</span><span class="p">(</span><span class="n">PowerOutage</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Power outage signal stochastic model based on Distribution System Reliability Metrics.</span>
+<span class="w">    </span><span class="sd">"""Power outage signal stochastic model based on Distribution System Reliability Metrics.</span>
 
 <span class="sd">    Generates time series of power outage signals based on System Average Interruption Frequency Index (SAIFI)</span>
 <span class="sd">    and Customer Average Interruption Duration Index (CAIDI). The signal is generated by sampling `n` instances </span>
@@ -180,7 +180,7 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The reliability metrics are sourced from https://www.eia.gov/electricity/annual/html/epa_11_01.html.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saifi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">caidi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start_time_steps</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -215,7 +215,7 @@
 <div class="viewcode-block" id="ReliabilityMetricsPowerOutage.get_signals">
 <a class="viewcode-back" href="../../api/citylearn.power_outage.html#citylearn.power_outage.ReliabilityMetricsPowerOutage.get_signals">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seconds_per_time_step</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns power outage signal time series.</span>
+<span class="w">        </span><span class="sd">"""Returns power outage signal time series.</span>
 
 <span class="sd">        Returns time series with randomly selected time steps set as candidates for power outage.</span>
 
@@ -237,7 +237,7 @@
 <span class="sd">        signals: np.ndarray</span>
 <span class="sd">            Power outage time series signal where value of 0 indicates no power outage at time step index </span>
 <span class="sd">            whereas value of 1 indicates a power outage at said time step.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">nprs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span>
         <span class="n">days_per_year</span> <span class="o">=</span> <span class="mf">365.0</span>

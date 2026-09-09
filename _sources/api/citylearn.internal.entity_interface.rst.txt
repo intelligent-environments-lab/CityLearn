@@ -1,0 +1,7 @@
+citylearn.internal.entity\_interface module
+===========================================
+
+.. automodule:: citylearn.internal.entity_interface
+   :members:
+   :show-inheritance:
+   :undoc-members:

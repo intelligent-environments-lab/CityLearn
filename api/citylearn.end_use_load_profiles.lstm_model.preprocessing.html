@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.end_use_load_profiles.lstm_model.preprocessing module &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>citylearn.end_use_load_profiles.lstm_model.preprocessing module &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -17,7 +17,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6c54da93"></script>
+      <script src="../_static/documentation_options.js?v=acc74ff5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -118,20 +118,21 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="citylearn.end_use_load_profiles.lstm_model.preprocessing.sliding_windows">
 <span class="sig-prename descclassname"><span class="pre">citylearn.end_use_load_profiles.lstm_model.preprocessing.</span></span><span class="sig-name descname"><span class="pre">sliding_windows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/end_use_load_profiles/lstm_model/preprocessing.html#sliding_windows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.end_use_load_profiles.lstm_model.preprocessing.sliding_windows" title="Link to this definition"></a></dt>
-<dd><p>Create sliding window input/output arrays.</p>
-<p>The target variable is expected to be the last column in <code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
+<dd><p>Create lookback/output windows where target is the last column.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – Input array.</p></li>
-<li><p><strong>seq_length</strong> – Number of lookback time steps.</p></li>
-<li><p><strong>output_len</strong> – Number of time steps ahead to predict.</p></li>
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – Input array where the prediction target is the last column.</p></li>
+<li><p><strong>seq_length</strong> (<em>int</em>) – Number of lookback time steps.</p></li>
+<li><p><strong>output_len</strong> (<em>int</em>) – Number of future target steps to predict.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span></code> where <code class="docutils literal notranslate"><span class="pre">x</span></code> has shape
-<code class="docutils literal notranslate"><span class="pre">[num_steps</span> <span class="pre">-</span> <span class="pre">seq_length,</span> <span class="pre">seq_length,</span> <span class="pre">num_input_variables]</span></code> and
-<code class="docutils literal notranslate"><span class="pre">y</span></code> has shape <code class="docutils literal notranslate"><span class="pre">[num_steps</span> <span class="pre">-</span> <span class="pre">seq_length,</span> <span class="pre">output_len]</span></code>.</p>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">x</span></code> with shape <code class="docutils literal notranslate"><span class="pre">[num_steps</span> <span class="pre">-</span> <span class="pre">lookback,</span> <span class="pre">lookback,</span> <span class="pre">num_input_features]</span></code>
+and <code class="docutils literal notranslate"><span class="pre">y</span></code> with shape <code class="docutils literal notranslate"><span class="pre">[num_steps</span> <span class="pre">-</span> <span class="pre">lookback,</span> <span class="pre">num_output_features]</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[np.ndarray, np.ndarray]</p>
 </dd>
 </dl>
 </dd></dl>

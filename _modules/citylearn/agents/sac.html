@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.sac &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>citylearn.agents.sac &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=6c54da93"></script>
+      <script src="../../../_static/documentation_options.js?v=acc74ff5"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -95,7 +95,7 @@
     <span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">optim</span>
 <span class="k">except</span> <span class="p">(</span><span class="ne">ModuleNotFoundError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org.&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"This functionality requires you to install torch. You can install torch by : pip install torch torchvision, or for more detailed instructions please visit https://pytorch.org."</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.agents.rbc</span><span class="w"> </span><span class="kn">import</span> <span class="n">RBC</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.agents.rlc</span><span class="w"> </span><span class="kn">import</span> <span class="n">RLC</span>
@@ -107,7 +107,7 @@
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SAC</span><span class="p">(</span><span class="n">RLC</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Custom soft actor-critic algorithm.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Custom soft actor-critic algorithm.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -118,14 +118,14 @@
 <span class="sd">        ----------------</span>
 <span class="sd">        **kwargs : Any</span>
 <span class="sd">            Other keyword arguments used to initialize super class.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># internally defined</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">normalized</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">soft_q_criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">SmoothL1Loss</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">'cuda'</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">'cpu'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">replay_buffer</span> <span class="o">=</span> <span class="p">[</span><span class="n">ReplayBuffer</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replay_buffer_capacity</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">soft_q_net1</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">soft_q_net2</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">]</span>
@@ -145,7 +145,7 @@
 <div class="viewcode-block" id="SAC.update">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.update">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">actions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">reward</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">next_observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">terminated</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">truncated</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update replay buffer.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Update replay buffer.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -161,7 +161,7 @@
 <span class="sd">            Indication that episode has ended.</span>
 <span class="sd">        truncated : bool</span>
 <span class="sd">            If episode truncates due to a time limit or a reason that is not defined as part of the task MDP.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># Run once the regression model has been fitted</span>
         <span class="c1"># Normalize all the observations using periodical normalization, one-hot encoding, or -1, 1 scaling. It also removes observations that are not necessary (solar irradiance if there are no solar PV panels).</span>
@@ -204,7 +204,7 @@
 
                 <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_per_time_step</span><span class="p">):</span>
                     <span class="n">o</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">replay_buffer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
-                    <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">FloatTensor</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;cuda&#39;</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span>
+                    <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">FloatTensor</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">'cuda'</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span>
                     <span class="n">o</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">(</span><span class="n">o</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
                     <span class="n">n</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
                     <span class="n">a</span> <span class="o">=</span> <span class="n">tensor</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
@@ -259,7 +259,7 @@
 <div class="viewcode-block" id="SAC.predict">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.predict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Provide actions for current time step.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Provide actions for current time step.</span>
 
 <span class="sd">        Will return randomly sampled actions from `action_space` if :attr:`end_exploration_time_step` &lt;= :attr:`time_step` </span>
 <span class="sd">        else will use policy to sample actions.</span>
@@ -275,7 +275,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        actions: List[float]</span>
 <span class="sd">            Action values</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">deterministic</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">deterministic</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">deterministic</span>
 
@@ -293,7 +293,7 @@
 <div class="viewcode-block" id="SAC.get_post_exploration_prediction">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_post_exploration_prediction">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_post_exploration_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Action sampling using policy, post-exploration time step&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Action sampling using policy, post-exploration time step"""</span>
 
         <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -311,7 +311,7 @@
 <div class="viewcode-block" id="SAC.get_exploration_prediction">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SAC.get_exploration_prediction">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_exploration_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return randomly sampled actions from `action_space` multiplied by :attr:`action_scaling_coefficient`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return randomly sampled actions from `action_space` multiplied by :attr:`action_scaling_coefficient`."""</span>
 
         <span class="c1"># random actions</span>
         <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_scaling_coefficient</span><span class="o">*</span><span class="n">s</span><span class="o">.</span><span class="n">sample</span><span class="p">())</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_space</span><span class="p">]</span></div>
@@ -330,9 +330,9 @@
             <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm_mean</span><span class="p">[</span><span class="n">index</span><span class="p">])</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_std</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="c1"># self.time_step &gt;= self.standardize_start_time_step and self.batch_size &lt;= len(self.replay_buffer[i])</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;obs:&#39;</span><span class="p">,</span><span class="n">observations</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;mean:&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_mean</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;std:&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_std</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'obs:'</span><span class="p">,</span><span class="n">observations</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'mean:'</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_mean</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'std:'</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_std</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">standardize_start_time_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replay_buffer</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
             <span class="k">assert</span> <span class="kc">False</span></div>
 
@@ -377,7 +377,7 @@
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">observation_names</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="s1">&#39;net_electricity_consumption&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="s1">'net_electricity_consumption'</span><span class="p">:</span>
                     <span class="n">encoders</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">RemoveFeature</span><span class="p">()</span>
             
                 <span class="k">else</span><span class="p">:</span>
@@ -390,7 +390,7 @@
 <div class="viewcode-block" id="SACRBC">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SACRBC">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SACRBC</span><span class="p">(</span><span class="n">SAC</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Uses :py:class:`citylearn.agents.rbc.RBC` to select actions during exploration before using :py:class:`citylearn.agents.sac.SAC`.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Uses :py:class:`citylearn.agents.rbc.RBC` to select actions during exploration before using :py:class:`citylearn.agents.sac.SAC`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -403,7 +403,7 @@
 <span class="sd">    ----------------</span>
 <span class="sd">    **kwargs : Any</span>
 <span class="sd">        Other keyword arguments used to initialize super class.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">:</span> <span class="n">CityLearnEnv</span><span class="p">,</span> <span class="n">rbc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RBC</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -411,8 +411,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">rbc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RBC</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;:py:class:`citylearn.agents.rbc.RBC` class child class or string path to an RBC </span>
-<span class="sd">        class e.g. &#39;citylearn.agents.rbc.RBC&#39;, used to select actions during exploration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""":py:class:`citylearn.agents.rbc.RBC` class child class or string path to an RBC </span>
+<span class="sd">        class e.g. 'citylearn.agents.rbc.RBC', used to select actions during exploration."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rbc</span>
     
@@ -434,7 +434,7 @@
 <div class="viewcode-block" id="SACRBC.get_exploration_prediction">
 <a class="viewcode-back" href="../../../api/citylearn.agents.sac.html#citylearn.agents.sac.SACRBC.get_exploration_prediction">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_exploration_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return actions using :class:`RBC`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return actions using :class:`RBC`."""</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rbc</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span></div>
 </div>

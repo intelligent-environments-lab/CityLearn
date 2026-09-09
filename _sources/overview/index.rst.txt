@@ -8,6 +8,7 @@ Overview
    environment
    observations
    actions
+   entity_v1_contract
    reward_function
    agents
    dataset

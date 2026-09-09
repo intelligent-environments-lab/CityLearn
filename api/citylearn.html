@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn package &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>citylearn package &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -17,7 +17,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6c54da93"></script>
+      <script src="../_static/documentation_options.js?v=acc74ff5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -76,6 +76,7 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.electric_vehicle_charger.html">citylearn.electric_vehicle_charger module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.energy_model.html">citylearn.energy_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.exporter.html">citylearn.exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.multi_community.html">citylearn.multi_community module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.occupant.html">citylearn.occupant module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.power_outage.html">citylearn.power_outage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
@@ -130,6 +131,19 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.agents.base.html">citylearn.agents.base module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.Agent"><code class="docutils literal notranslate"><span class="pre">Agent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.agents.base.html#citylearn.agents.base.BaselineAgent"><code class="docutils literal notranslate"><span class="pre">BaselineAgent</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.agents.baseline.html">citylearn.agents.baseline module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.BusinessAsUsualAgent"><code class="docutils literal notranslate"><span class="pre">BusinessAsUsualAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.CommunityAwareBaselineAgent"><code class="docutils literal notranslate"><span class="pre">CommunityAwareBaselineAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.GridAwareBaselineAgent"><code class="docutils literal notranslate"><span class="pre">GridAwareBaselineAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.NormalNoBatteryPolicy"><code class="docutils literal notranslate"><span class="pre">NormalNoBatteryPolicy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.NormalPolicy"><code class="docutils literal notranslate"><span class="pre">NormalPolicy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.RBCBasicPolicy"><code class="docutils literal notranslate"><span class="pre">RBCBasicPolicy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.RBCCommunityPolicy"><code class="docutils literal notranslate"><span class="pre">RBCCommunityPolicy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.RBCSmartPolicy"><code class="docutils literal notranslate"><span class="pre">RBCSmartPolicy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.ServiceOnlyBaselineAgent"><code class="docutils literal notranslate"><span class="pre">ServiceOnlyBaselineAgent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.ZeroActionBaselineAgent"><code class="docutils literal notranslate"><span class="pre">ZeroActionBaselineAgent</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.agents.marlisa.html">citylearn.agents.marlisa module</a><ul>
@@ -193,8 +207,26 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="citylearn.internal.html">citylearn.internal package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.internal.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.internal.baseline.html">citylearn.internal.baseline module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.baseline.html#citylearn.internal.baseline.BusinessAsUsualBaselineResult"><code class="docutils literal notranslate"><span class="pre">BusinessAsUsualBaselineResult</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.baseline.html#citylearn.internal.baseline.CityLearnBusinessAsUsualBaselineService"><code class="docutils literal notranslate"><span class="pre">CityLearnBusinessAsUsualBaselineService</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.internal.building_ops.html">citylearn.internal.building_ops module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.internal.building_ops.html#citylearn.internal.building_ops.BuildingOpsService"><code class="docutils literal notranslate"><span class="pre">BuildingOpsService</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.internal.demand_response.html">citylearn.internal.demand_response module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.demand_response.html#citylearn.internal.demand_response.CityLearnDemandResponseService"><code class="docutils literal notranslate"><span class="pre">CityLearnDemandResponseService</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.demand_response.html#citylearn.internal.demand_response.DemandResponseRequest"><code class="docutils literal notranslate"><span class="pre">DemandResponseRequest</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.internal.entity_interface.html">citylearn.internal.entity_interface module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.entity_interface.html#citylearn.internal.entity_interface.ChargerRef"><code class="docutils literal notranslate"><span class="pre">ChargerRef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.entity_interface.html#citylearn.internal.entity_interface.CityLearnEntityInterfaceService"><code class="docutils literal notranslate"><span class="pre">CityLearnEntityInterfaceService</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.entity_interface.html#citylearn.internal.entity_interface.DeferrableApplianceRef"><code class="docutils literal notranslate"><span class="pre">DeferrableApplianceRef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.entity_interface.html#citylearn.internal.entity_interface.PVRef"><code class="docutils literal notranslate"><span class="pre">PVRef</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.entity_interface.html#citylearn.internal.entity_interface.StorageRef"><code class="docutils literal notranslate"><span class="pre">StorageRef</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.internal.kpi.html">citylearn.internal.kpi module</a><ul>
@@ -206,8 +238,31 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.internal.loading.html#citylearn.internal.loading.LoadContext"><code class="docutils literal notranslate"><span class="pre">LoadContext</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.internal.physics_invariants.html">citylearn.internal.physics_invariants module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.physics_invariants.html#citylearn.internal.physics_invariants.CityLearnPhysicsInvariantService"><code class="docutils literal notranslate"><span class="pre">CityLearnPhysicsInvariantService</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.internal.robustness.html">citylearn.internal.robustness module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.robustness.html#citylearn.internal.robustness.CityLearnRobustnessService"><code class="docutils literal notranslate"><span class="pre">CityLearnRobustnessService</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.robustness.html#citylearn.internal.robustness.RobustnessEvent"><code class="docutils literal notranslate"><span class="pre">RobustnessEvent</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.internal.runtime.html">citylearn.internal.runtime module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.internal.runtime.html#citylearn.internal.runtime.CityLearnRuntimeService"><code class="docutils literal notranslate"><span class="pre">CityLearnRuntimeService</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.internal.topology.html">citylearn.internal.topology module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.topology.html#citylearn.internal.topology.CityLearnTopologyService"><code class="docutils literal notranslate"><span class="pre">CityLearnTopologyService</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.topology.html#citylearn.internal.topology.TopologyEvent"><code class="docutils literal notranslate"><span class="pre">TopologyEvent</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.internal.units.html">citylearn.internal.units module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.units.html#citylearn.internal.units.energy_kwh_to_power_kw"><code class="docutils literal notranslate"><span class="pre">energy_kwh_to_power_kw()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.units.html#citylearn.internal.units.normalized_capacity_action_to_energy_kwh"><code class="docutils literal notranslate"><span class="pre">normalized_capacity_action_to_energy_kwh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.units.html#citylearn.internal.units.normalized_power_action_to_energy_kwh"><code class="docutils literal notranslate"><span class="pre">normalized_power_action_to_energy_kwh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.units.html#citylearn.internal.units.power_kw_to_energy_kwh"><code class="docutils literal notranslate"><span class="pre">power_kw_to_energy_kwh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.units.html#citylearn.internal.units.seconds_to_hours"><code class="docutils literal notranslate"><span class="pre">seconds_to_hours()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.internal.units.html#citylearn.internal.units.to_dataset_resolution_energy"><code class="docutils literal notranslate"><span class="pre">to_dataset_resolution_energy()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -272,6 +327,7 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.charger_phase_map"><code class="docutils literal notranslate"><span class="pre">Building.charger_phase_map</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.chargers_electricity_consumption"><code class="docutils literal notranslate"><span class="pre">Building.chargers_electricity_consumption</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.charging_building_limit_kw"><code class="docutils literal notranslate"><span class="pre">Building.charging_building_limit_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.clear_step_electric_loads_for_action"><code class="docutils literal notranslate"><span class="pre">Building.clear_step_electric_loads_for_action()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.comfort_band"><code class="docutils literal notranslate"><span class="pre">Building.comfort_band</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.consume_charging_constraint_penalty"><code class="docutils literal notranslate"><span class="pre">Building.consume_charging_constraint_penalty()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.cooling_demand"><code class="docutils literal notranslate"><span class="pre">Building.cooling_demand</span></code></a></li>
@@ -280,6 +336,8 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.cooling_electricity_consumption"><code class="docutils literal notranslate"><span class="pre">Building.cooling_electricity_consumption</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.cooling_storage"><code class="docutils literal notranslate"><span class="pre">Building.cooling_storage</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.cooling_storage_electricity_consumption"><code class="docutils literal notranslate"><span class="pre">Building.cooling_storage_electricity_consumption</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.deferrable_appliances"><code class="docutils literal notranslate"><span class="pre">Building.deferrable_appliances</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.deferrable_appliances_electricity_consumption"><code class="docutils literal notranslate"><span class="pre">Building.deferrable_appliances_electricity_consumption</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.demand_observation_limit_factor"><code class="docutils literal notranslate"><span class="pre">Building.demand_observation_limit_factor</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.dhw_demand"><code class="docutils literal notranslate"><span class="pre">Building.dhw_demand</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.dhw_device"><code class="docutils literal notranslate"><span class="pre">Building.dhw_device</span></code></a></li>
@@ -308,6 +366,8 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.energy_to_electrical_storage"><code class="docutils literal notranslate"><span class="pre">Building.energy_to_electrical_storage</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.energy_to_non_shiftable_load"><code class="docutils literal notranslate"><span class="pre">Building.energy_to_non_shiftable_load</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.episode_tracker"><code class="docutils literal notranslate"><span class="pre">Building.episode_tracker</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.escalators"><code class="docutils literal notranslate"><span class="pre">Building.escalators</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.escalators_electricity_consumption"><code class="docutils literal notranslate"><span class="pre">Building.escalators_electricity_consumption</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.estimate_action_space"><code class="docutils literal notranslate"><span class="pre">Building.estimate_action_space()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.estimate_observation_space"><code class="docutils literal notranslate"><span class="pre">Building.estimate_observation_space()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.estimate_observation_space_limits"><code class="docutils literal notranslate"><span class="pre">Building.estimate_observation_space_limits()</span></code></a></li>
@@ -360,11 +420,13 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.time_step_ratio"><code class="docutils literal notranslate"><span class="pre">Building.time_step_ratio</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_cooling_demand"><code class="docutils literal notranslate"><span class="pre">Building.update_cooling_demand()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_cooling_storage"><code class="docutils literal notranslate"><span class="pre">Building.update_cooling_storage()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_deferrable_appliance_observations"><code class="docutils literal notranslate"><span class="pre">Building.update_deferrable_appliance_observations()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_dhw_storage"><code class="docutils literal notranslate"><span class="pre">Building.update_dhw_storage()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_electrical_storage"><code class="docutils literal notranslate"><span class="pre">Building.update_electrical_storage()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_energy_from_cooling_device"><code class="docutils literal notranslate"><span class="pre">Building.update_energy_from_cooling_device()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_energy_from_dhw_device"><code class="docutils literal notranslate"><span class="pre">Building.update_energy_from_dhw_device()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_energy_from_heating_device"><code class="docutils literal notranslate"><span class="pre">Building.update_energy_from_heating_device()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_escalator_observations"><code class="docutils literal notranslate"><span class="pre">Building.update_escalator_observations()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_ev_charger_observations"><code class="docutils literal notranslate"><span class="pre">Building.update_ev_charger_observations()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_heating_demand"><code class="docutils literal notranslate"><span class="pre">Building.update_heating_demand()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.building.html#citylearn.building.Building.update_heating_storage"><code class="docutils literal notranslate"><span class="pre">Building.update_heating_storage()</span></code></a></li>
@@ -431,6 +493,7 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.associate_chargers_to_electric_vehicles"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.associate_chargers_to_electric_vehicles()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.buildings"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.buildings</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.central_agent"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.central_agent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.close"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.close()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.cooling_demand"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.cooling_demand</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.cooling_electricity_consumption"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.cooling_electricity_consumption</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.cooling_storage_electricity_consumption"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.cooling_storage_electricity_consumption</span></code></a></li>
@@ -451,6 +514,7 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.energy_from_heating_storage"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.energy_from_heating_storage</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.energy_to_electrical_storage"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.energy_to_electrical_storage</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.energy_to_non_shiftable_load"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.energy_to_non_shiftable_load</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.entity_specs"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.entity_specs</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.episode"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.episode</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.episode_rewards"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.episode_rewards</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.episode_time_steps"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.episode_time_steps</span></code></a></li>
@@ -459,12 +523,16 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate_v2"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.evaluate_v2()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.export_final_kpis"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.export_final_kpis()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.export_kpis_on_episode_end"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.export_kpis_on_episode_end</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.export_only_final_episode"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.export_only_final_episode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.flat_action_space"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.flat_action_space</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.flat_observation_space"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.flat_observation_space</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_default_shared_observations"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.get_default_shared_observations()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_info"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.get_info()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.get_metadata"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.get_metadata()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.heating_demand"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.heating_demand</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.heating_electricity_consumption"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.heating_electricity_consumption</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.heating_storage_electricity_consumption"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.heating_storage_electricity_consumption</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.interface"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.interface</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.load_agent"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.load_agent()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.net_electricity_consumption"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.net_electricity_consumption</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.net_electricity_consumption_cost"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.net_electricity_consumption_cost</span></code></a></li>
@@ -487,6 +555,7 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.observation_space"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.observation_space</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.observations"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.observations</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.offline"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.offline</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.plan_final_episode_exports"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.plan_final_episode_exports()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.power_outage"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.power_outage</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.process_metadata"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.process_metadata()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.random_episode_split"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.random_episode_split</span></code></a></li>
@@ -499,14 +568,20 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.rewards"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.rewards</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.rolling_episode_split"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.rolling_episode_split</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.root_directory"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.root_directory</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.run_business_as_usual_baseline"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.run_business_as_usual_baseline()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.schema"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.schema</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.shared_observations"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.shared_observations</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.simulate_unconnected_ev_soc"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.simulate_unconnected_ev_soc()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.solar_generation"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.solar_generation</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.step_many"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.step_many()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.terminated"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.terminated</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.time_step_ratio"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.time_step_ratio</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.time_steps"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.time_steps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.topology_event_log"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.topology_event_log</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.topology_member_lifecycle"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.topology_member_lifecycle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.topology_mode"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.topology_mode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.topology_version"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.topology_version</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.total_self_consumption"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.total_self_consumption</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.truncated"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.truncated</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.update_variables"><code class="docutils literal notranslate"><span class="pre">CityLearnEnv.update_variables()</span></code></a></li>
@@ -548,10 +623,12 @@
 <li class="toctree-l2"><a class="reference internal" href="citylearn.data.html#citylearn.data.ChargerSimulation"><code class="docutils literal notranslate"><span class="pre">ChargerSimulation</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.ChargerSimulation.electric_vehicle_charger_state"><code class="docutils literal notranslate"><span class="pre">ChargerSimulation.electric_vehicle_charger_state</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.ChargerSimulation.electric_vehicle_id"><code class="docutils literal notranslate"><span class="pre">ChargerSimulation.electric_vehicle_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.ChargerSimulation.electric_vehicle_session_id"><code class="docutils literal notranslate"><span class="pre">ChargerSimulation.electric_vehicle_session_id</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.ChargerSimulation.electric_vehicle_departure_time"><code class="docutils literal notranslate"><span class="pre">ChargerSimulation.electric_vehicle_departure_time</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.ChargerSimulation.electric_vehicle_required_soc_departure"><code class="docutils literal notranslate"><span class="pre">ChargerSimulation.electric_vehicle_required_soc_departure</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.ChargerSimulation.electric_vehicle_estimated_arrival_time"><code class="docutils literal notranslate"><span class="pre">ChargerSimulation.electric_vehicle_estimated_arrival_time</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.ChargerSimulation.electric_vehicle_estimated_soc_arrival"><code class="docutils literal notranslate"><span class="pre">ChargerSimulation.electric_vehicle_estimated_soc_arrival</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.ChargerSimulation.normalize_soc_series"><code class="docutils literal notranslate"><span class="pre">ChargerSimulation.normalize_soc_series()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.data.html#citylearn.data.DataSet"><code class="docutils literal notranslate"><span class="pre">DataSet</span></code></a><ul>
@@ -586,9 +663,21 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.DataSet.tag"><code class="docutils literal notranslate"><span class="pre">DataSet.tag</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="citylearn.data.html#citylearn.data.DeferrableApplianceSimulation"><code class="docutils literal notranslate"><span class="pre">DeferrableApplianceSimulation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.DeferrableApplianceSimulation.PROFILE_REQUIRED_COLUMNS"><code class="docutils literal notranslate"><span class="pre">DeferrableApplianceSimulation.PROFILE_REQUIRED_COLUMNS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.DeferrableApplianceSimulation.SCHEDULE_REQUIRED_COLUMNS"><code class="docutils literal notranslate"><span class="pre">DeferrableApplianceSimulation.SCHEDULE_REQUIRED_COLUMNS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.DeferrableApplianceSimulation.from_dataframes"><code class="docutils literal notranslate"><span class="pre">DeferrableApplianceSimulation.from_dataframes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.DeferrableApplianceSimulation.parse_load_profile"><code class="docutils literal notranslate"><span class="pre">DeferrableApplianceSimulation.parse_load_profile()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.data.html#citylearn.data.EnergySimulation"><code class="docutils literal notranslate"><span class="pre">EnergySimulation</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.EnergySimulation.DEFUALT_COMFORT_BAND"><code class="docutils literal notranslate"><span class="pre">EnergySimulation.DEFUALT_COMFORT_BAND</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.EnergySimulation.time_step_ratios"><code class="docutils literal notranslate"><span class="pre">EnergySimulation.time_step_ratios</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="citylearn.data.html#citylearn.data.EscalatorSimulation"><code class="docutils literal notranslate"><span class="pre">EscalatorSimulation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.EscalatorSimulation.REQUIRED_COLUMNS"><code class="docutils literal notranslate"><span class="pre">EscalatorSimulation.REQUIRED_COLUMNS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.data.html#citylearn.data.EscalatorSimulation.from_dataframe"><code class="docutils literal notranslate"><span class="pre">EscalatorSimulation.from_dataframe()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.data.html#citylearn.data.LogisticRegressionOccupantParameters"><code class="docutils literal notranslate"><span class="pre">LogisticRegressionOccupantParameters</span></code></a></li>
@@ -652,6 +741,7 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.efficiency"><code class="docutils literal notranslate"><span class="pre">Charger.efficiency</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.electricity_consumption"><code class="docutils literal notranslate"><span class="pre">Charger.electricity_consumption</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.get_efficiency"><code class="docutils literal notranslate"><span class="pre">Charger.get_efficiency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.get_requested_power_kw"><code class="docutils literal notranslate"><span class="pre">Charger.get_requested_power_kw()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.incoming_electric_vehicle"><code class="docutils literal notranslate"><span class="pre">Charger.incoming_electric_vehicle</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.max_charging_power"><code class="docutils literal notranslate"><span class="pre">Charger.max_charging_power</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.electric_vehicle_charger.html#citylearn.electric_vehicle_charger.Charger.max_discharging_power"><code class="docutils literal notranslate"><span class="pre">Charger.max_discharging_power</span></code></a></li>
@@ -695,6 +785,24 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Battery.time_step_ratio"><code class="docutils literal notranslate"><span class="pre">Battery.time_step_ratio</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.SENTINEL_TIME_STEP"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.SENTINEL_TIME_STEP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.as_dict"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.as_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.cancel_pending_and_running"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.cancel_pending_and_running()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.cycle_state"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.cycle_state</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.deferrable_appliance_simulation"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.deferrable_appliance_simulation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.name"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.next_time_step"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.next_time_step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.observations"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.observations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.past_action_values"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.past_action_values</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.preview_start_energy_kwh"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.preview_start_energy_kwh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.preview_start_profile_kwh"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.preview_start_profile_kwh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.reset"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.service_summary"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.service_summary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.skip_cycles_before"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.skip_cycles_before()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.DeferrableAppliance.start_cycle"><code class="docutils literal notranslate"><span class="pre">DeferrableAppliance.start_cycle()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Device"><code class="docutils literal notranslate"><span class="pre">Device</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Device.autosize_config"><code class="docutils literal notranslate"><span class="pre">Device.autosize_config</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Device.efficiency"><code class="docutils literal notranslate"><span class="pre">Device.efficiency</span></code></a></li>
@@ -718,6 +826,22 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.ElectricHeater.get_max_output_power"><code class="docutils literal notranslate"><span class="pre">ElectricHeater.get_max_output_power()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator"><code class="docutils literal notranslate"><span class="pre">Escalator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.STATE_NAMES"><code class="docutils literal notranslate"><span class="pre">Escalator.STATE_NAMES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.STATE_NORMAL"><code class="docutils literal notranslate"><span class="pre">Escalator.STATE_NORMAL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.STATE_SLOW"><code class="docutils literal notranslate"><span class="pre">Escalator.STATE_SLOW</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.STATE_STANDBY"><code class="docutils literal notranslate"><span class="pre">Escalator.STATE_STANDBY</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.action_to_state"><code class="docutils literal notranslate"><span class="pre">Escalator.action_to_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.get_metadata"><code class="docutils literal notranslate"><span class="pre">Escalator.get_metadata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.observations"><code class="docutils literal notranslate"><span class="pre">Escalator.observations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.requested_state"><code class="docutils literal notranslate"><span class="pre">Escalator.requested_state</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.reset"><code class="docutils literal notranslate"><span class="pre">Escalator.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.service_summary"><code class="docutils literal notranslate"><span class="pre">Escalator.service_summary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.set_state"><code class="docutils literal notranslate"><span class="pre">Escalator.set_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.state"><code class="docutils literal notranslate"><span class="pre">Escalator.state</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.Escalator.state_name"><code class="docutils literal notranslate"><span class="pre">Escalator.state_name</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.HeatPump"><code class="docutils literal notranslate"><span class="pre">HeatPump</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.HeatPump.autosize"><code class="docutils literal notranslate"><span class="pre">HeatPump.autosize()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.HeatPump.efficiency"><code class="docutils literal notranslate"><span class="pre">HeatPump.efficiency</span></code></a></li>
@@ -731,7 +855,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.PV"><code class="docutils literal notranslate"><span class="pre">PV</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.PV.autosize"><code class="docutils literal notranslate"><span class="pre">PV.autosize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.PV.generation_mode"><code class="docutils literal notranslate"><span class="pre">PV.generation_mode</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.PV.get_generation"><code class="docutils literal notranslate"><span class="pre">PV.get_generation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.PV.get_metadata"><code class="docutils literal notranslate"><span class="pre">PV.get_metadata()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.StorageDevice"><code class="docutils literal notranslate"><span class="pre">StorageDevice</span></code></a><ul>
@@ -745,6 +871,7 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.StorageDevice.get_metadata"><code class="docutils literal notranslate"><span class="pre">StorageDevice.get_metadata()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.StorageDevice.initial_soc"><code class="docutils literal notranslate"><span class="pre">StorageDevice.initial_soc</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.StorageDevice.loss_coefficient"><code class="docutils literal notranslate"><span class="pre">StorageDevice.loss_coefficient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.StorageDevice.next_time_step"><code class="docutils literal notranslate"><span class="pre">StorageDevice.next_time_step()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.StorageDevice.reset"><code class="docutils literal notranslate"><span class="pre">StorageDevice.reset()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.StorageDevice.round_trip_efficiency"><code class="docutils literal notranslate"><span class="pre">StorageDevice.round_trip_efficiency</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.energy_model.html#citylearn.energy_model.StorageDevice.set_energy_balance"><code class="docutils literal notranslate"><span class="pre">StorageDevice.set_energy_balance()</span></code></a></li>
@@ -777,6 +904,7 @@
 <li class="toctree-l2"><a class="reference internal" href="citylearn.exporter.html#citylearn.exporter.EpisodeExporter"><code class="docutils literal notranslate"><span class="pre">EpisodeExporter</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.exporter.html#citylearn.exporter.EpisodeExporter.DEFAULT_RENDER_START_DATE"><code class="docutils literal notranslate"><span class="pre">EpisodeExporter.DEFAULT_RENDER_START_DATE</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.exporter.html#citylearn.exporter.EpisodeExporter.ensure_output_dir"><code class="docutils literal notranslate"><span class="pre">EpisodeExporter.ensure_output_dir()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.exporter.html#citylearn.exporter.EpisodeExporter.export_business_as_usual_timeseries"><code class="docutils literal notranslate"><span class="pre">EpisodeExporter.export_business_as_usual_timeseries()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.exporter.html#citylearn.exporter.EpisodeExporter.export_episode_render_data"><code class="docutils literal notranslate"><span class="pre">EpisodeExporter.export_episode_render_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.exporter.html#citylearn.exporter.EpisodeExporter.export_final_kpis"><code class="docutils literal notranslate"><span class="pre">EpisodeExporter.export_final_kpis()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.exporter.html#citylearn.exporter.EpisodeExporter.flush_render_buffer"><code class="docutils literal notranslate"><span class="pre">EpisodeExporter.flush_render_buffer()</span></code></a></li>
@@ -788,6 +916,37 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.exporter.html#citylearn.exporter.EpisodeExporter.restore_render_time_step"><code class="docutils literal notranslate"><span class="pre">EpisodeExporter.restore_render_time_step()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.exporter.html#citylearn.exporter.EpisodeExporter.save_to_csv"><code class="docutils literal notranslate"><span class="pre">EpisodeExporter.save_to_csv()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.exporter.html#citylearn.exporter.EpisodeExporter.write_render_rows"><code class="docutils literal notranslate"><span class="pre">EpisodeExporter.write_render_rows()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citylearn.multi_community.html">citylearn.multi_community module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.PORTFOLIO_COMMUNITY_ID"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.PORTFOLIO_COMMUNITY_ID</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.PORTFOLIO_NAME"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.PORTFOLIO_NAME</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.action_space"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.action_space</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.central_agent"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.central_agent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.close"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.close()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.community_ids"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.community_ids</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.entity_specs"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.entity_specs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.episode_time_steps"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.episode_time_steps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.evaluate_v2"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.evaluate_v2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.export_final_kpis"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.export_final_kpis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.get_metadata"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.get_metadata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.interface"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.interface</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.observation_space"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.observation_space</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.observations"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.observations</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.render"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.render()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.reset"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.rewards"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.rewards</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.seconds_per_time_step"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.seconds_per_time_step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.step"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.terminated"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.terminated</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.time_step"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.time_step</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.time_steps"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.time_steps</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.truncated"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.truncated</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.unwrapped"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.unwrapped</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.multi_community.html#citylearn.multi_community.MultiCommunityEnv.weights"><code class="docutils literal notranslate"><span class="pre">MultiCommunityEnv.weights</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -836,6 +995,7 @@
 <li class="toctree-l2"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.ComfortReward"><code class="docutils literal notranslate"><span class="pre">ComfortReward</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.ComfortReward.band"><code class="docutils literal notranslate"><span class="pre">ComfortReward.band</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.ComfortReward.calculate"><code class="docutils literal notranslate"><span class="pre">ComfortReward.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.ComfortReward.get_required_observation_names"><code class="docutils literal notranslate"><span class="pre">ComfortReward.get_required_observation_names()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.ComfortReward.higher_exponent"><code class="docutils literal notranslate"><span class="pre">ComfortReward.higher_exponent</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.ComfortReward.lower_exponent"><code class="docutils literal notranslate"><span class="pre">ComfortReward.lower_exponent</span></code></a></li>
 </ul>
@@ -843,19 +1003,23 @@
 <li class="toctree-l2"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.Electric_Vehicles_Reward_Function"><code class="docutils literal notranslate"><span class="pre">Electric_Vehicles_Reward_Function</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.Electric_Vehicles_Reward_Function.calculate"><code class="docutils literal notranslate"><span class="pre">Electric_Vehicles_Reward_Function.calculate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.Electric_Vehicles_Reward_Function.calculate_ev_penalty"><code class="docutils literal notranslate"><span class="pre">Electric_Vehicles_Reward_Function.calculate_ev_penalty()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.Electric_Vehicles_Reward_Function.get_required_observation_names"><code class="docutils literal notranslate"><span class="pre">Electric_Vehicles_Reward_Function.get_required_observation_names()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.IndependentSACReward"><code class="docutils literal notranslate"><span class="pre">IndependentSACReward</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.IndependentSACReward.calculate"><code class="docutils literal notranslate"><span class="pre">IndependentSACReward.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.IndependentSACReward.get_required_observation_names"><code class="docutils literal notranslate"><span class="pre">IndependentSACReward.get_required_observation_names()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.MARL"><code class="docutils literal notranslate"><span class="pre">MARL</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.MARL.calculate"><code class="docutils literal notranslate"><span class="pre">MARL.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.MARL.get_required_observation_names"><code class="docutils literal notranslate"><span class="pre">MARL.get_required_observation_names()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.MultiBuildingRewardFunction"><code class="docutils literal notranslate"><span class="pre">MultiBuildingRewardFunction</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.MultiBuildingRewardFunction.calculate"><code class="docutils literal notranslate"><span class="pre">MultiBuildingRewardFunction.calculate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.MultiBuildingRewardFunction.env_metadata"><code class="docutils literal notranslate"><span class="pre">MultiBuildingRewardFunction.env_metadata</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.MultiBuildingRewardFunction.get_required_observation_names"><code class="docutils literal notranslate"><span class="pre">MultiBuildingRewardFunction.get_required_observation_names()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.MultiBuildingRewardFunction.reset"><code class="docutils literal notranslate"><span class="pre">MultiBuildingRewardFunction.reset()</span></code></a></li>
 </ul>
 </li>
@@ -865,6 +1029,7 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.RewardFunction.charging_constraint_penalty_coefficient"><code class="docutils literal notranslate"><span class="pre">RewardFunction.charging_constraint_penalty_coefficient</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.RewardFunction.env_metadata"><code class="docutils literal notranslate"><span class="pre">RewardFunction.env_metadata</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.RewardFunction.exponent"><code class="docutils literal notranslate"><span class="pre">RewardFunction.exponent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.RewardFunction.get_required_observation_names"><code class="docutils literal notranslate"><span class="pre">RewardFunction.get_required_observation_names()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.RewardFunction.reset"><code class="docutils literal notranslate"><span class="pre">RewardFunction.reset()</span></code></a></li>
 </ul>
 </li>
@@ -872,10 +1037,12 @@
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyAndComfortReward.calculate"><code class="docutils literal notranslate"><span class="pre">SolarPenaltyAndComfortReward.calculate()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyAndComfortReward.coefficients"><code class="docutils literal notranslate"><span class="pre">SolarPenaltyAndComfortReward.coefficients</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyAndComfortReward.env_metadata"><code class="docutils literal notranslate"><span class="pre">SolarPenaltyAndComfortReward.env_metadata</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyAndComfortReward.get_required_observation_names"><code class="docutils literal notranslate"><span class="pre">SolarPenaltyAndComfortReward.get_required_observation_names()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyReward"><code class="docutils literal notranslate"><span class="pre">SolarPenaltyReward</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyReward.calculate"><code class="docutils literal notranslate"><span class="pre">SolarPenaltyReward.calculate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="citylearn.reward_function.html#citylearn.reward_function.SolarPenaltyReward.get_required_observation_names"><code class="docutils literal notranslate"><span class="pre">SolarPenaltyReward.get_required_observation_names()</span></code></a></li>
 </ul>
 </li>
 </ul>

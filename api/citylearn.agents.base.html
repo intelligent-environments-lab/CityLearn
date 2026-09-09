@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.agents.base module &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>citylearn.agents.base module &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -17,7 +17,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6c54da93"></script>
+      <script src="../_static/documentation_options.js?v=acc74ff5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -26,7 +26,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="citylearn.agents.marlisa module" href="citylearn.agents.marlisa.html" />
+    <link rel="next" title="citylearn.agents.baseline module" href="citylearn.agents.baseline.html" />
     <link rel="prev" title="citylearn.agents package" href="citylearn.agents.html" /> 
 </head>
 
@@ -238,15 +238,15 @@
 <dt class="sig sig-object py" id="citylearn.agents.base.BaselineAgent">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.agents.base.</span></span><span class="sig-name descname"><span class="pre">BaselineAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv" title="citylearn.citylearn.CityLearnEnv"><span class="pre">CityLearnEnv</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/agents/base.html#BaselineAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.agents.base.BaselineAgent" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.agents.base.Agent" title="citylearn.agents.base.Agent"><code class="xref py py-class docutils literal notranslate"><span class="pre">Agent</span></code></a></p>
-<p>Agent class for business-as-usual simulation where the storage systems and heat pumps are not controlled.</p>
+<p>Passive no-control baseline where active control actions are disabled.</p>
 <p>This agent will provide results for when there is no storage for load shifting and no heat pump partial load.
 The storage actions prescribed will be 0.0 and the heat pump will have no action, i.e. <cite>None</cite>, causing it to
 deliver the ideal load in the building time series files.</p>
 <p>To ensure that the environment does not expect non-zero and non-null actions, the buildings in the parsed <cite>env</cite>
 will be set to have no active actions. This means that you must initialize a new <cite>env</cite> if you want to simulate
 with a new agent type.</p>
-<p>This agent class is best used to establish a baseline simulation that can then be compared
-to RBC, RLC, or MPC control algorithms.</p>
+<p>Use <a class="reference internal" href="citylearn.agents.baseline.html#citylearn.agents.baseline.BusinessAsUsualAgent" title="citylearn.agents.baseline.BusinessAsUsualAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">citylearn.agents.baseline.BusinessAsUsualAgent</span></code></a> for the native operational
+business-as-usual baseline that charges EVs, starts deferrables, and controls BESS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -291,7 +291,7 @@ to RBC, RLC, or MPC control algorithms.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="citylearn.agents.html" class="btn btn-neutral float-left" title="citylearn.agents package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="citylearn.agents.marlisa.html" class="btn btn-neutral float-right" title="citylearn.agents.marlisa module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="citylearn.agents.baseline.html" class="btn btn-neutral float-right" title="citylearn.agents.baseline module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

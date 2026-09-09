@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KPIs &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>KPIs &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -17,7 +17,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=6c54da93"></script>
+      <script src="_static/documentation_options.js?v=acc74ff5"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -110,7 +110,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">energy_grid</span></code>: import, export, net exchange, ratios to baseline, and shape-quality KPIs.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">emissions</span></code>: control, baseline, and delta totals and daily averages in <code class="docutils literal notranslate"><span class="pre">kgco2</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">solar_self_consumption</span></code>: PV generation, export, and self-consumption KPIs.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ev</span></code>: departure counts, success/tolerance ratios, SOC deficit, charge, and V2G export.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ev</span></code>: departure counts, strict success, minimum acceptable service, symmetric tolerance accuracy, SOC error diagnostics, charge, and V2G export.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">battery</span></code>: charge, discharge, throughput, equivalent full cycles, and capacity fade.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">electrical_service_phase</span></code>: violation totals, event counts, phase imbalance, and phase peaks.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">equity</span></code>: relative benefit, Gini, top-20 concentration, losers percentage, and BPR.</p></li>
@@ -120,10 +120,14 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">district_ev_events_departure_count</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">district_ev_events_departure_met_count</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">district_ev_events_departure_min_acceptable_count</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">district_ev_events_departure_within_tolerance_count</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">district_ev_performance_departure_success_ratio</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">district_ev_performance_departure_min_acceptable_ratio</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">district_ev_performance_departure_within_tolerance_ratio</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">district_ev_performance_departure_soc_deficit_mean_ratio</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">district_ev_performance_departure_shortfall_beyond_tolerance_mean_ratio</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">district_ev_performance_departure_soc_absolute_error_mean_ratio</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">district_ev_total_charge_kwh</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">district_ev_total_v2g_export_kwh</span></code></p></li>
 </ul>
@@ -147,12 +151,12 @@
 <h2>Old vs New API<a class="headerlink" href="#old-vs-new-api" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s1">'none'</span><span class="p">)</span>
 
 <span class="n">legacy_kpis</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>  <span class="c1"># Legacy naming, kept for compatibility</span>
 <span class="n">v2_kpis</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">evaluate_v2</span><span class="p">()</span>  <span class="c1"># V2 naming used by the UI/export</span>
 
-<span class="n">env</span><span class="o">.</span><span class="n">export_final_kpis</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s1">&#39;exported_kpis.csv&#39;</span><span class="p">)</span>  <span class="c1"># Defaults to V2</span>
+<span class="n">env</span><span class="o">.</span><span class="n">export_final_kpis</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s1">'exported_kpis.csv'</span><span class="p">)</span>  <span class="c1"># Defaults to V2</span>
 </pre></div>
 </div>
 </section>

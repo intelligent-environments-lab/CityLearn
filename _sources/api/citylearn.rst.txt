@@ -32,6 +32,7 @@ Submodules
    citylearn.electric_vehicle_charger
    citylearn.energy_model
    citylearn.exporter
+   citylearn.multi_community
    citylearn.occupant
    citylearn.power_outage
    citylearn.preprocessing

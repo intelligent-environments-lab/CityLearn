@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reward Function &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>Reward Function &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -17,7 +17,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6c54da93"></script>
+      <script src="../_static/documentation_options.js?v=acc74ff5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -29,7 +29,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Agents" href="agents.html" />
-    <link rel="prev" title="Actions" href="actions.html" /> 
+    <link rel="prev" title="Entity v1 Contract" href="entity_v1_contract.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -58,6 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="environment.html">Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="observations.html">Observations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="actions.html">Actions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="entity_v1_contract.html">Entity v1 Contract</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Reward Function</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-point-to-the-reward-function">How to Point to the Reward Function</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-define-a-custom-reward-function">How to Define a Custom Reward Function</a></li>
@@ -157,8 +158,8 @@
 <p>The reward function to use in a simulation is defined in the <code class="code docutils literal notranslate"><span class="pre">reward_function</span></code> key-value of the schema:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">   </span><span class="err">...</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;reward_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;citylearn.reward_function.RewardFunction&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"reward_function"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"citylearn.reward_function.RewardFunction"</span><span class="p">,</span>
 <span class="w">      </span><span class="err">...</span>
 <span class="w">   </span><span class="p">},</span>
 <span class="w">   </span><span class="err">...</span>
@@ -173,7 +174,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.reward_function</span><span class="w"> </span><span class="kn">import</span> <span class="n">RewardFunction</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CustomReward</span><span class="p">(</span><span class="n">RewardFunction</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates custom user-defined multi-agent reward.</span>
+<span class="w">    </span><span class="sd">"""Calculates custom user-defined multi-agent reward.</span>
 
 <span class="sd">    Reward is the :py:attr:`net_electricity_consumption_emission`</span>
 <span class="sd">    for entire district if central agent setup otherwise it is the</span>
@@ -183,13 +184,13 @@
 <span class="sd">    ----------</span>
 <span class="sd">    env_metadata: Mapping[str, Any]:</span>
 <span class="sd">        General static information about the environment.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_metadata</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">env_metadata</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Calculates reward.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Calculates reward.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -200,9 +201,9 @@
 <span class="sd">        -------</span>
 <span class="sd">        reward: List[float]</span>
 <span class="sd">            Reward for transition to current timestep.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">net_electricity_consumption_emission</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;net_electricity_consumption_emission&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">observations</span><span class="p">]</span>
+        <span class="n">net_electricity_consumption_emission</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="s1">'net_electricity_consumption_emission'</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">observations</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">central_agent</span><span class="p">:</span>
             <span class="n">reward</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="nb">sum</span><span class="p">(</span><span class="n">net_electricity_consumption_emission</span><span class="p">)]</span>
@@ -215,8 +216,8 @@
 <p>The schema must then be updated to reference the custom reward function:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">   </span><span class="err">...</span><span class="p">,</span>
-<span class="w">   </span><span class="nt">&quot;reward_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;custom_module.CustomReward&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"reward_function"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"custom_module.CustomReward"</span><span class="p">,</span>
 <span class="w">      </span><span class="err">...</span>
 <span class="w">   </span><span class="p">},</span>
 <span class="w">   </span><span class="err">...</span>
@@ -230,7 +231,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="actions.html" class="btn btn-neutral float-left" title="Actions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="entity_v1_contract.html" class="btn btn-neutral float-left" title="Entity v1 Contract" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="agents.html" class="btn btn-neutral float-right" title="Agents" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

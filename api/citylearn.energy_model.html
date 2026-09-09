@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>citylearn.energy_model module &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>citylearn.energy_model module &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -17,7 +17,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6c54da93"></script>
+      <script src="../_static/documentation_options.js?v=acc74ff5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -73,6 +73,7 @@
 <li class="toctree-l4"><a class="reference internal" href="citylearn.electric_vehicle_charger.html">citylearn.electric_vehicle_charger module</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">citylearn.energy_model module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.exporter.html">citylearn.exporter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="citylearn.multi_community.html">citylearn.multi_community module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.occupant.html">citylearn.occupant module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.power_outage.html">citylearn.power_outage module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="citylearn.preprocessing.html">citylearn.preprocessing module</a></li>
@@ -189,7 +190,7 @@ a building’s battery. If the dataframe is not provided it is read in using
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.capacity_history">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">capacity_history</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.Battery.capacity_history" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">capacity_history</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.Battery.capacity_history" title="Link to this definition"></a></dt>
 <dd><p>Time series of maximum amount of energy the storage device can store in [kWh].</p>
 </dd></dl>
 
@@ -251,7 +252,7 @@ limitations, losses to the environment quantified by <cite>efficiency</cite>, <c
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.efficiency_history">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">efficiency_history</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.Battery.efficiency_history" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">efficiency_history</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.Battery.efficiency_history" title="Link to this definition"></a></dt>
 <dd><p>Time series of technical efficiency.</p>
 </dd></dl>
 
@@ -270,7 +271,7 @@ bypassing restrictions such as efficiency losses, power limits, and degradation.
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.get_current_efficiency">
-<span class="sig-name descname"><span class="pre">get_current_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.get_current_efficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.get_current_efficiency" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_current_efficiency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.get_current_efficiency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.get_current_efficiency" title="Link to this definition"></a></dt>
 <dd><p>Get technical efficiency while considering <cite>power_efficiency_curve</cite> limitations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -284,7 +285,7 @@ bypassing restrictions such as efficiency losses, power limits, and degradation.
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.get_max_input_power">
-<span class="sig-name descname"><span class="pre">get_max_input_power</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.get_max_input_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.get_max_input_power" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_max_input_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_init</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.get_max_input_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.get_max_input_power" title="Link to this definition"></a></dt>
 <dd><p>Get maximum input power while considering <cite>capacity_power_curve</cite> limitations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -298,7 +299,7 @@ bypassing restrictions such as efficiency losses, power limits, and degradation.
 
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.get_max_output_power">
-<span class="sig-name descname"><span class="pre">get_max_output_power</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.get_max_output_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.get_max_output_power" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_max_output_power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_init</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Battery.get_max_output_power"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Battery.get_max_output_power" title="Link to this definition"></a></dt>
 <dd><p>Get maximum output power while considering <cite>capacity_power_curve</cite> limitations if defined otherwise, returns <cite>nominal_power</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -338,6 +339,102 @@ bypassing restrictions such as efficiency losses, power limits, and degradation.
 <dt class="sig sig-object py" id="citylearn.energy_model.Battery.time_step_ratio">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">time_step_ratio</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.energy_model.Battery.time_step_ratio" title="Link to this definition"></a></dt>
 <dd><p>Maximum power of the battery as a function of its current state of charge.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.energy_model.</span></span><span class="sig-name descname"><span class="pre">DeferrableAppliance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deferrable_appliance_simulation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.data.html#citylearn.data.DeferrableApplianceSimulation" title="citylearn.data.DeferrableApplianceSimulation"><span class="pre">DeferrableApplianceSimulation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trigger_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.energy_model.ElectricDevice" title="citylearn.energy_model.ElectricDevice"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectricDevice</span></code></a></p>
+<p>Generic deferrable appliance with sparse cycle requests and fixed kWh/step profiles.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.SENTINEL_TIME_STEP">
+<span class="sig-name descname"><span class="pre">SENTINEL_TIME_STEP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1.0</span></em><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.SENTINEL_TIME_STEP" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.as_dict">
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance.as_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.as_dict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.cancel_pending_and_running">
+<span class="sig-name descname"><span class="pre">cancel_pending_and_running</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance.cancel_pending_and_running"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.cancel_pending_and_running" title="Link to this definition"></a></dt>
+<dd><p>Cancel future service after a dynamic topology removal.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.cycle_state">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cycle_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.cycle_state" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.deferrable_appliance_simulation">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deferrable_appliance_simulation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="citylearn.data.html#citylearn.data.DeferrableApplianceSimulation" title="citylearn.data.DeferrableApplianceSimulation"><span class="pre">DeferrableApplianceSimulation</span></a></em><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.deferrable_appliance_simulation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.name">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.next_time_step">
+<span class="sig-name descname"><span class="pre">next_time_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance.next_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.next_time_step" title="Link to this definition"></a></dt>
+<dd><p>Advance to next <cite>time_step</cite> value.</p>
+<p class="rubric">Notes</p>
+<p>Override in subclass for custom implementation when advancing to next <cite>time_step</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.observations">
+<span class="sig-name descname"><span class="pre">observations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance.observations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.observations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.past_action_values">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">past_action_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.past_action_values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.preview_start_energy_kwh">
+<span class="sig-name descname"><span class="pre">preview_start_energy_kwh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance.preview_start_energy_kwh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.preview_start_energy_kwh" title="Link to this definition"></a></dt>
+<dd><p>Return current-step energy that would be added if <code class="docutils literal notranslate"><span class="pre">action_value</span></code> starts a cycle.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.preview_start_profile_kwh">
+<span class="sig-name descname"><span class="pre">preview_start_profile_kwh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance.preview_start_profile_kwh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.preview_start_profile_kwh" title="Link to this definition"></a></dt>
+<dd><p>Return the full profile that would be added if <code class="docutils literal notranslate"><span class="pre">action_value</span></code> starts a cycle.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.reset" title="Link to this definition"></a></dt>
+<dd><p>Reset <cite>ElectricDevice</cite> to initial state and set <cite>electricity_consumption</cite> at <cite>time_step</cite> 0 to = 0.0.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.service_summary">
+<span class="sig-name descname"><span class="pre">service_summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance.service_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.service_summary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.skip_cycles_before">
+<span class="sig-name descname"><span class="pre">skip_cycles_before</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance.skip_cycles_before"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.skip_cycles_before" title="Link to this definition"></a></dt>
+<dd><p>Exclude requests that expired before an asset/member became active.</p>
+<p>Dynamic topology may introduce a member or reinstall an appliance after
+the episode has started.  Requests whose admissible start window has
+already closed were never offered to the controller and must therefore
+not be reported as missed service, even when their completion deadline
+lies after activation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.DeferrableAppliance.start_cycle">
+<span class="sig-name descname"><span class="pre">start_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#DeferrableAppliance.start_cycle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.DeferrableAppliance.start_cycle" title="Link to this definition"></a></dt>
+<dd><p>Start next pending cycle when the ON command is active and the request is feasible.</p>
 </dd></dl>
 
 </dd></dl>
@@ -537,6 +634,88 @@ allow electricity discharge thus, cause negative electricity consumption.</p></l
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.energy_model.</span></span><span class="sig-name descname"><span class="pre">Escalator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">escalator_simulation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="citylearn.data.html#citylearn.data.EscalatorSimulation" title="citylearn.data.EscalatorSimulation"><span class="pre">EscalatorSimulation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standby_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slow_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_state_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_threshold_passengers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Escalator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Escalator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#citylearn.energy_model.ElectricDevice" title="citylearn.energy_model.ElectricDevice"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectricDevice</span></code></a></p>
+<p>Aggregate escalator with three directly controllable operating states.</p>
+<p>Actions in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> map to standby, slow and normal operation.  Passenger
+values are not used to force a state: they only determine whether the chosen
+state meets the simple aggregate service requirement.  This deliberately
+avoids an unsupported queueing model while making the energy/service tradeoff
+explicit to an agent.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.STATE_NAMES">
+<span class="sig-name descname"><span class="pre">STATE_NAMES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('standby',</span> <span class="pre">'slow',</span> <span class="pre">'normal')</span></em><a class="headerlink" href="#citylearn.energy_model.Escalator.STATE_NAMES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.STATE_NORMAL">
+<span class="sig-name descname"><span class="pre">STATE_NORMAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#citylearn.energy_model.Escalator.STATE_NORMAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.STATE_SLOW">
+<span class="sig-name descname"><span class="pre">STATE_SLOW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#citylearn.energy_model.Escalator.STATE_SLOW" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.STATE_STANDBY">
+<span class="sig-name descname"><span class="pre">STATE_STANDBY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#citylearn.energy_model.Escalator.STATE_STANDBY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.action_to_state">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action_to_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Escalator.action_to_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Escalator.action_to_state" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.get_metadata">
+<span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Escalator.get_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Escalator.get_metadata" title="Link to this definition"></a></dt>
+<dd><p>Returns general static information.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.observations">
+<span class="sig-name descname"><span class="pre">observations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Escalator.observations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Escalator.observations" title="Link to this definition"></a></dt>
+<dd><p>Return current aggregate operating and demand observations.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.requested_state">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">requested_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.energy_model.Escalator.requested_state" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Escalator.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Escalator.reset" title="Link to this definition"></a></dt>
+<dd><p>Reset <cite>ElectricDevice</cite> to initial state and set <cite>electricity_consumption</cite> at <cite>time_step</cite> 0 to = 0.0.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.service_summary">
+<span class="sig-name descname"><span class="pre">service_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_time_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Escalator.service_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Escalator.service_summary" title="Link to this definition"></a></dt>
+<dd><p>Return cumulative service and energy indicators for reporting.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.set_state">
+<span class="sig-name descname"><span class="pre">set_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#Escalator.set_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.Escalator.set_state" title="Link to this definition"></a></dt>
+<dd><p>Apply the normalized action and record current-step power/service.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.state">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#citylearn.energy_model.Escalator.state" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.Escalator.state_name">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">state_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#citylearn.energy_model.Escalator.state_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="citylearn.energy_model.HeatPump">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.energy_model.</span></span><span class="sig-name descname"><span class="pre">HeatPump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nominal_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">efficiency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_heating_temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_cooling_temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#HeatPump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.HeatPump" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.energy_model.ElectricDevice" title="citylearn.energy_model.ElectricDevice"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectricDevice</span></code></a></p>
@@ -677,13 +856,17 @@ cooling_cop = (<cite>t_target_cooling</cite> + 273.15)*`efficiency`/(outdoor_dry
 
 <dl class="py class">
 <dt class="sig sig-object py" id="citylearn.energy_model.PV">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.energy_model.</span></span><span class="sig-name descname"><span class="pre">PV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nominal_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#PV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.PV" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">citylearn.energy_model.</span></span><span class="sig-name descname"><span class="pre">PV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nominal_power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#PV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.PV" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#citylearn.energy_model.ElectricDevice" title="citylearn.energy_model.ElectricDevice"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectricDevice</span></code></a></p>
 <p>Base photovoltaic array class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nominal_power</strong> (<em>float</em><em>, </em><em>default: 0.0</em>) – PV array output power in [kW]. Must be &gt;= 0.</p></li>
+<li><p><strong>generation_mode</strong> (<em>str</em><em>, </em><em>default: 'per_kw'</em>) – How to interpret the <cite>solar_generation</cite> input passed to
+<a class="reference internal" href="#citylearn.energy_model.PV.get_generation" title="citylearn.energy_model.PV.get_generation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_generation()</span></code></a>. In <code class="docutils literal notranslate"><span class="pre">'per_kw'</span></code> mode, the input is inverter AC
+output per kW of installed PV capacity in [W/kW]. In <code class="docutils literal notranslate"><span class="pre">'absolute'</span></code>
+mode, the input is already absolute PV generation in [kWh/step].</p></li>
 <li><p><strong>**kwargs</strong> (<em>Any</em>) – Other keyword arguments used to initialize super class.</p></li>
 </ul>
 </dd>
@@ -724,16 +907,24 @@ a building’s PV. If the dataframe is not provided it is read in using
 <p>Data source: <a class="reference external" href="https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/lbl-tracking_the_sun_res-pv.csv">https://github.com/intelligent-environments-lab/CityLearn/tree/master/citylearn/data/misc/lbl-tracking_the_sun_res-pv.csv</a>.</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="citylearn.energy_model.PV.generation_mode">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generation_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#citylearn.energy_model.PV.generation_mode" title="Link to this definition"></a></dt>
+<dd><p>Mode used to interpret the PV generation input series.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.energy_model.PV.get_generation">
 <span class="sig-name descname"><span class="pre">get_generation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inverter_ac_power_per_kw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#PV.get_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.PV.get_generation" title="Link to this definition"></a></dt>
-<dd><p>Get solar generation output.</p>
+<dd><p>Get solar generation output in kWh per active time step.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>inverter_ac_power_perk_w</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Iterable</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Inverter AC power output per kW of PV capacity in [W/kW].</p>
+<dd class="field-odd"><p><strong>inverter_ac_power_perk_w</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>Iterable</em><em>[</em><em>float</em><em>]</em><em>]</em>) – Inverter AC power output per kW of PV capacity in [W/kW] when
+<code class="docutils literal notranslate"><span class="pre">generation_mode='per_kw'</span></code>. Absolute PV generation in [kWh/step]
+when <code class="docutils literal notranslate"><span class="pre">generation_mode='absolute'</span></code>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>generation</strong> – Solar generation as single value or time series depending on input parameter types.</p>
+<dd class="field-even"><p><strong>generation</strong> – Solar generation in [kWh/step] as single value or time series depending on input parameter types.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Union[float, Iterable[float]]</p>
@@ -741,7 +932,13 @@ a building’s PV. If the dataframe is not provided it is read in using
 </dl>
 <p class="rubric">Notes</p>
 <div class="math notranslate nohighlight">
-\[\textrm{generation} = \frac{\textrm{capacity} \times \textrm{inverter_ac_power_per_w}}{1000}\]</div>
+\[\textrm{generation} = \frac{\textrm{capacity} \times \textrm{inverter_ac_power_per_w}}{1000} \times \Delta t\]</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.PV.get_metadata">
+<span class="sig-name descname"><span class="pre">get_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/citylearn/energy_model.html#PV.get_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.PV.get_metadata" title="Link to this definition"></a></dt>
+<dd><p>Returns general static information.</p>
 </dd></dl>
 
 </dd></dl>
@@ -794,16 +991,7 @@ a building’s PV. If the dataframe is not provided it is read in using
 <dl class="py method">
 <dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.charge">
 <span class="sig-name descname"><span class="pre">charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#StorageDevice.charge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.StorageDevice.charge" title="Link to this definition"></a></dt>
-<dd><p>Charges or discharges storage with respect to specified energy while considering <cite>capacity</cite> and <cite>soc_init</cite> limitations and, energy losses to the environment quantified by <cite>round_trip_efficiency</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>energy</strong> (<em>float</em>) – Energy to charge if (+) or discharge if (-) in [kWh].</p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>If charging, soc = min(<cite>soc_init</cite> + energy*`round_trip_efficiency`, <cite>capacity</cite>)
-If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>round_trip_efficiency</cite>)</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.efficiency">
@@ -820,7 +1008,7 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>round_trip_eff
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.energy_init">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">energy_init</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.energy_model.StorageDevice.energy_init" title="Link to this definition"></a></dt>
-<dd><p>Latest energy level after accounting for standby hourly lossses in [kWh].</p>
+<dd><p>Latest energy level available at the current time step in [kWh].</p>
 </dd></dl>
 
 <dl class="py method">
@@ -843,7 +1031,15 @@ If discharging, soc = max(0, <cite>soc_init</cite> + energy/<cite>round_trip_eff
 <dl class="py property">
 <dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.loss_coefficient">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loss_coefficient</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#citylearn.energy_model.StorageDevice.loss_coefficient" title="Link to this definition"></a></dt>
-<dd><p>Standby hourly losses.</p>
+<dd><p>Effective standby loss ratio for the active physical timestep.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="citylearn.energy_model.StorageDevice.next_time_step">
+<span class="sig-name descname"><span class="pre">next_time_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/citylearn/energy_model.html#StorageDevice.next_time_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#citylearn.energy_model.StorageDevice.next_time_step" title="Link to this definition"></a></dt>
+<dd><p>Advance to next <cite>time_step</cite> value.</p>
+<p class="rubric">Notes</p>
+<p>Override in subclass for custom implementation when advancing to next <cite>time_step</cite>.</p>
 </dd></dl>
 
 <dl class="py method">

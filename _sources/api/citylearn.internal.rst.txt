@@ -12,7 +12,14 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   citylearn.internal.baseline
    citylearn.internal.building_ops
+   citylearn.internal.demand_response
+   citylearn.internal.entity_interface
    citylearn.internal.kpi
    citylearn.internal.loading
+   citylearn.internal.physics_invariants
+   citylearn.internal.robustness
    citylearn.internal.runtime
+   citylearn.internal.topology
+   citylearn.internal.units

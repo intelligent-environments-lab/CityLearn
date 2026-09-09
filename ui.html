@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CityLearn UI &mdash; CityLearn 2.6.0b2 documentation</title>
+  <title>CityLearn UI &mdash; CityLearn 3.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -17,7 +17,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=6c54da93"></script>
+      <script src="_static/documentation_options.js?v=acc74ff5"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -137,22 +137,22 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
-<span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json&#39;</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="s1">'data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json'</span>
 
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span>
     <span class="n">schema</span><span class="p">,</span>
     <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">episode_time_steps</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
-    <span class="n">render_mode</span><span class="o">=</span><span class="s1">&#39;during&#39;</span><span class="p">,</span>
-    <span class="n">render_directory</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;outputs/ui_exports&#39;</span><span class="p">),</span>  <span class="c1"># optional custom base folder</span>
-    <span class="n">render_session_name</span><span class="o">=</span><span class="s1">&#39;my_first_run&#39;</span><span class="p">,</span>  <span class="c1"># optional custom subfolder</span>
+    <span class="n">render_mode</span><span class="o">=</span><span class="s1">'during'</span><span class="p">,</span>
+    <span class="n">render_directory</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">'outputs/ui_exports'</span><span class="p">),</span>  <span class="c1"># optional custom base folder</span>
+    <span class="n">render_session_name</span><span class="o">=</span><span class="s1">'my_first_run'</span><span class="p">,</span>  <span class="c1"># optional custom subfolder</span>
 <span class="p">)</span>
 
 <span class="n">observations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 <span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
     <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">()]</span>
     <span class="n">observations</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">terminated</span><span class="p">,</span> <span class="n">truncated</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
-    <span class="c1"># CSV rows are appended at each step when render_mode=&#39;during&#39;.</span>
+    <span class="c1"># CSV rows are appended at each step when render_mode='during'.</span>
 </pre></div>
 </div>
 <p>The code above writes per-step CSV files into <code class="docutils literal notranslate"><span class="pre">outputs/ui_exports/&lt;timestamp&gt;/</span></code>. Omitting <code class="docutils literal notranslate"><span class="pre">render_directory</span></code> stores the results in <code class="docutils literal notranslate"><span class="pre">SimulationData/&lt;timestamp&gt;/</span></code> by default, and the episode summary KPIs are written automatically to <code class="docutils literal notranslate"><span class="pre">exported_kpis.csv</span></code>.</p>
@@ -161,7 +161,7 @@
 <h3>Export-at-the-End Example<a class="headerlink" href="#export-at-the-end-example" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
-<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">episode_time_steps</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">render_mode</span><span class="o">=</span><span class="s1">'none'</span><span class="p">)</span>
 <span class="n">observations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 <span class="k">while</span> <span class="ow">not</span> <span class="n">env</span><span class="o">.</span><span class="n">terminated</span><span class="p">:</span>
     <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">()]</span>
@@ -173,8 +173,8 @@
 <span class="n">model</span> <span class="o">=</span> <span class="n">_Model</span><span class="p">()</span>
 <span class="n">model</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span>
 
-<span class="n">env</span><span class="o">.</span><span class="n">export_final_kpis</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="s1">&#39;exported_kpis.csv&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Render folder:&#39;</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">new_folder_path</span><span class="p">)</span>
+<span class="n">env</span><span class="o">.</span><span class="n">export_final_kpis</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="s1">'exported_kpis.csv'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Render folder:'</span><span class="p">,</span> <span class="n">env</span><span class="o">.</span><span class="n">new_folder_path</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This pattern keeps rendering off (fastest) and emits only the KPI CSV once the run completes. Because timestep histories are not written, the resulting folder can be used with the <strong>KPIs</strong> page of the UI but not with the full time-series explorer. The KPI CSV is generated from <a class="reference internal" href="api/citylearn.citylearn.html#citylearn.citylearn.CityLearnEnv.evaluate_v2" title="citylearn.citylearn.CityLearnEnv.evaluate_v2"><code class="xref py py-meth docutils literal notranslate"><span class="pre">evaluate_v2()</span></code></a>, so the export follows the V2 naming tree by default.</p>
@@ -184,15 +184,15 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">citylearn.citylearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CityLearnEnv</span>
 
-<span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json&#39;</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="s1">'data/datasets/citylearn_challenge_2022_phase_all_plus_evs/schema.json'</span>
 
 <span class="n">env</span> <span class="o">=</span> <span class="n">CityLearnEnv</span><span class="p">(</span>
     <span class="n">schema</span><span class="p">,</span>
     <span class="n">central_agent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">episode_time_steps</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
-    <span class="n">render_mode</span><span class="o">=</span><span class="s1">&#39;end&#39;</span><span class="p">,</span>
-    <span class="n">render_directory</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;outputs/ui_exports&#39;</span><span class="p">),</span>
-    <span class="n">render_session_name</span><span class="o">=</span><span class="s1">&#39;buffered_run&#39;</span><span class="p">,</span>
+    <span class="n">render_mode</span><span class="o">=</span><span class="s1">'end'</span><span class="p">,</span>
+    <span class="n">render_directory</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">'outputs/ui_exports'</span><span class="p">),</span>
+    <span class="n">render_session_name</span><span class="o">=</span><span class="s1">'buffered_run'</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">observations</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
