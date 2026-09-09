@@ -80,6 +80,13 @@ Responsavel pela release: [@calofonseca](https://github.com/calofonseca).
 - Sem alteracoes na API Python. O pacote e o import continuam a chamar-se
   `citylearn`.
 
+### Validacao
+
+- Suite local completa: 457 testes passaram.
+- Regras criticas de lint: passaram.
+- Build de wheel e source archive e `twine check`: passaram.
+- Verificacao do repositorio: 32 datasets e nenhum nome retirado.
+
 ## v1.8.0 - 2026-08-22
 
 Responsável pela release: [@calofonseca](https://github.com/calofonseca).

@@ -11,6 +11,13 @@ CityLearn 3.0.2 retires selected datasets from the official public registry.
 
 Dataset discovery against the matching release tag now returns 32 datasets.
 
+## Validation
+
+- Full local test suite: 457 passed.
+- Critical lint checks: passed.
+- Wheel and source archive build and metadata checks: passed.
+- Dataset-retirement regression test: passed.
+
 ## Installation
 
 ```console

@@ -82,6 +82,13 @@ Release owner: [@calofonseca](https://github.com/calofonseca).
 
 - No Python API change. The package and import name remain `citylearn`.
 
+### Validation
+
+- Full local suite: 457 tests passed.
+- Critical lint rules: passed.
+- Wheel and source archive build plus `twine check`: passed.
+- Repository scan: 32 discoverable datasets and no retired dataset names.
+
 ## v3.0.1 - 2026-09-09
 
 Release owner: [@calofonseca](https://github.com/calofonseca).
