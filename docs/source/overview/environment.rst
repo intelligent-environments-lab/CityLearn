@@ -2,24 +2,57 @@
 Environment
 ===========
 
-CityLearn includes energy models of buildings and distributed energy resources (DER) including air-to-water heat pumps, electric heaters and batteries. A collection of building energy models makes up a virtual district (a.k.a neighborhood or community). In each building, space cooling, space heating and domestic hot water end-use loads may be independently satisfied through air-to-water heat pumps. Alternatively, space heating and domestic hot water loads can be satisfied through electric heaters. 
+A CityLearn environment combines buildings, devices, input time series and a
+controller interface. The schema selects the equipment and services present in
+each scenario. At every timestep, controllers receive observations and return
+actions; the environment applies those actions, advances device and service
+states, and returns observations, rewards and episode status.
+
+Buildings and devices
+=====================
+
+Buildings have non-shiftable electricity demand and may include PV, batteries,
+EV chargers, flexible appliances and cooling, heating or domestic-hot-water
+systems. Heat pumps and electric heaters supply thermal demand; thermal storage
+shifts part of that supply in time. The diagram below describes the building's
+thermal and electrical energy paths.
 
 .. image:: ../../../assets/images/environment.jpg
-   :alt: CityLearn building model including electricity sources that power controllable DERs including electric devices and ESSs, used to satisfy thermal and electrical loads as well as provide the grid with energy flexibility. A distinction is made between environment and control aspects of a building to show the transfer of actions from the control agent and reception of measurable observations by the control agent that quantifies the building's states.
+   :alt: Building thermal and electrical devices, energy flows and the controller interface.
    :align: center
 
-Buildings may have a combination of thermal storage tanks and batteries for active energy storage that provide continuous load shifting energy flexibility services. These storage devices may be used at peak or expensive periods to meet space cooling, space heating, domestic hot water and non-shiftable (plug) loads. The storage devices are charged by the cooling or heating devices (heat pump or electric heater) that satisfies the end-use the stored energy is for. All electric devices as well as plug loads consume electricity from the main grid. Photovoltaic (PV) arrays may be included in the buildings to offset all or part of the electricity consumption from the grid by allowing the buildings to generate their own electricity.
+Thermal demand can come from precomputed or measured profiles. Dynamic-temperature
+building models instead use a learned temperature model to relate supplied
+heating or cooling to indoor conditions :cite:p:`PINTO2021117642`. This permits
+partial-load control and evaluation of its comfort consequences. Device
+autosizing is available through the building API, including
+:meth:`citylearn.building.Building.autosize_electrical_storage` and
+:meth:`citylearn.building.Building.autosize_pv`.
 
-The building devices can be autosized to meet the building's needs (see :py:meth:`citylearn.building.Building.autosize_cooling_device`, :py:meth:`citylearn.building.Building.autosize_heating_device`, :py:meth:`citylearn.building.Building.autosize_dhw_device`, :py:meth:`citylearn.building.Building.autosize_cooling_storage`, :py:meth:`citylearn.building.Building.autosize_heating_storage`, :py:meth:`citylearn.building.Building.autosize_dhw_storage`, :py:meth:`citylearn.building.Building.autosize_electrical_storage`, :py:meth:`citylearn.building.Building.autosize_pv`).
+Communities and services
+========================
 
-An internal backup controller guarantees that the cooling and heating devices prioritize satisfying the building loads before storing energy in the storage devices. The backup controller also guarantees that the storage devices do not discharge more energy than is needed to meet the unsatisfied building loads.
+In v3, scenarios can also configure total and per-phase electrical-service
+limits, local energy sharing and settlement, demand-response requests, changing
+members or assets, and observation or equipment failures. These features are
+enabled explicitly; they are not automatically present in every dataset.
+The :doc:`../guides/features` guide links each feature to its configuration,
+actions and performance indicators.
 
-The legacy CityLearn guarantees that, at any time, the ideal space cooling, space heating, domestic hot water and non-shiftable building loads are satisfied by utilizing pre-computed or pre-measured demand of the buildings. Thus, ideal indoor dry-bulb temperature is always maintained and load shedding is not possible.
+Power outages constrain available grid supply. Outside an outage, a scenario
+without configured electrical-service limits has an unconstrained grid
+connection. Configured limits model active-power service constraints, not
+distribution-network voltage or AC power flow.
 
-Since CityLearn version :code:`2.0.0`, building indoor dry-bulb temperature can be dynamic to provide load shedding energy flexibility services compared to earlier versions where the temperature was pre-computed/pre=measured and remained static during simulation. This is achieved through an LSTM model that encodes a building's temperature evolution as a result of supplied cooling or heating energy :cite:p:`PINTO2021117642`. Thus, partial load satisfaction is made possible by controlling the cooling and heating device power which then influences temperature change.
+Controller interface
+====================
 
-Since CityLearn version :code:`2.1.0`, power outages can be simulated where buildings can only make of their available distributed energy resources including storage devices and PV system to satisfy end-use loads otherwise, risk thermal discomfort and unserved energy during the outage period. During normal operation i.e., when there is no power outage, there is unlimited supply from the grid.
+Use flat mode for fixed observation/action vectors and standard RL wrappers.
+Entity mode exposes identified tables, masks and relationships and supports
+dynamic topology. Central-agent mode combines the buildings' control into one
+agent interface; decentralized mode provides an interface per building.
+See :doc:`../guides/interfaces_flat_entity` for the exact contracts.
 
-Since CityLearn version :code:`2.2.0`, schema datasets can be generated using the End Use Load Profiles for the U.S. Building Stock dataset. Also, electric vehicle (EV) loads and occupant thermostat overrides have been modeled and can be included in the schema and control simulation.
-
-RBC, RL or MPC agent(s) control the active storage devices by determining how much energy to store or release, and the cooling and heating device by determining their supply power at each control time step.
+:doc:`../quickstart` provides a complete reset--step--evaluate loop.
+:doc:`../guides/multi_community_reference` extends it to synchronized independent
+communities with local and portfolio-level results.

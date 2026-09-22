@@ -4,49 +4,65 @@ on:
   push:
     branches:
     - master
+  pull_request:
+    branches:
+    - master
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  update:
-
-    environment: github-pages
+  build:
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        python-version: [3.11]
-
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.11'
     - name: Install dependencies
-      run: | 
-        # Hosted runners may carry a temporarily inconsistent third-party Chrome
-        # APT source. Documentation only needs Ubuntu packages, so exclude it.
+      run: |
+        # Documentation only needs Ubuntu's Pandoc package.
         sudo rm -f \
           /etc/apt/sources.list.d/google-chrome.list \
           /etc/apt/sources.list.d/google-chrome.sources
         sudo apt-get update
         sudo apt-get install -y pandoc
         python -m pip install --upgrade pip
-        python -m pip install flake8
-        pip install -r requirements.txt
-        pip install -r test_requirements.txt
-        pip install -r docs/requirements.txt
-    - name: Build HTML
+        python -m pip install -r requirements.txt -r test_requirements.txt -r docs/requirements.txt
+    - name: Test documentation examples
+      run: python -m pytest -q tests/test_documentation_examples.py
+    - name: Build and check HTML
       run: |
         sphinx-apidoc citylearn -o docs/source/api -e -M
-        sphinx-build -b html docs/source/ docs/build/html
+        sphinx-build -b html docs/source docs/build/html
+        python scripts/ci/check_docs.py docs/build/html
+    - name: Save documentation preview
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation-html
+        path: docs/build/html
+        retention-days: 7
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-24.04
+    environment: github-pages
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v4
+      with:
+        name: documentation-html
+        path: docs/build/html
     - name: Add CNAME
-      run: |
-        echo ${{ secrets.CUSTOM_DOMAIN }} > docs/build/html/CNAME
+      env:
+        CUSTOM_DOMAIN: ${{ secrets.CUSTOM_DOMAIN }}
+      run: printf '%s\n' "$CUSTOM_DOMAIN" > docs/build/html/CNAME
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/master'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: docs/build/html

@@ -6,10 +6,13 @@ Portuguese version: [pt/developer_guide.md](pt/developer_guide.md).
 
 ## Local Environment
 
-Use the repository virtual environment when available:
+Create an isolated environment from a repository checkout:
 
 ```console
-.venv/bin/pip install -e .
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt -r test_requirements.txt
+python -m pip install -e .
 ```
 
 Optional dependencies:
@@ -81,7 +84,28 @@ Public APIs remain centered on `CityLearnEnv` and `Building`. Internal orchestra
 | `kpi.py` | KPI/evaluation pipeline. |
 | `entity_interface.py` | Entity tables, edges, action specs and observation bundles. |
 
-## Development Rules
+## Build and check the documentation
+
+The canonical English guides are `docs/*.md`. The Sphinx extension copies them
+into the generated `docs/source/guides/` directory at build time, preserving
+cross-links and publishing the same text as the repository. Do not edit the
+generated directory. The scorecard name list is generated from the runtime
+selection. Historical releases appear under Project, not in the README.
+
+```console
+python -m pip install -r docs/requirements.txt
+sphinx-apidoc citylearn -o docs/source/api -e -M
+sphinx-build -b html docs/source docs/build/html
+python scripts/ci/check_docs.py docs/build/html
+python -m pytest -q tests/test_documentation_examples.py
+```
+
+Install Pandoc for the retained notebook tutorials. Use the `sphinx-build`
+executable: the current CLI reference detects that executable when returning
+its argument parser. Documentation examples are tested separately; the site
+build does not train learning agents.
+
+## Development rules
 
 | Rule | Reason |
 |---|---|

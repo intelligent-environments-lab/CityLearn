@@ -2,10 +2,33 @@
 Agents
 ======
 
-CityLearn supports centralized, decentralized-independent and decentralized-coordinated control architectures. In the centralized architecture, 1 agent controls all storage, cooling and heating devices i.e. provides as many actions as storage, cooling and heating devices in the district. In the decentralized-independent architecture, each building has it's own unique agent and building agents do not share information i.e. each agent acts in isolation and provides as many actions as storage, cooling and heating devices in the building it controls. The decentralized-coordinated architecture is similar to the decentralized-independent architecture with the exception of information sharing amongst agents.
+An agent maps observations to actions. In flat mode with ``central_agent=True``,
+one action vector covers the community. In decentralized flat mode, the environment uses
+one vector per building. Whether those decisions share information depends on
+the controller, not just the number of vectors.
 
-CityLearn provides implementations of rule-based control (RBC) and reinforcement learning control (RLC) algorithms. The rule-based control algorithms are in the :py:mod:`citylearn.agents.rbc` module, while there are two reinforcement learning modules: :py:mod:`citylearn.agents.sac` and :py:mod:`citylearn.agents.marlisa`. The table below summarizes which control architectures the control algorithms support:
+Controller choices
+******************
 
-.. csv-table::
-   :file: ../../../assets/tables/citylearn_agents.csv
-   :header-rows: 1
+* :py:class:`citylearn.agents.baseline.BusinessAsUsualAgent`: the operational
+  reference described in :doc:`../guides/baselines`.
+* :py:mod:`citylearn.agents.rbc`: rule-based controllers.
+* :py:mod:`citylearn.agents.q_learning`: tabular Q-learning.
+* :py:mod:`citylearn.agents.sac`: Soft Actor-Critic.
+* :py:mod:`citylearn.agents.marlisa`: coordinated multi-agent learning.
+* A custom agent or an external learning library using a compatible wrapper.
+
+The classic RL agents/wrappers use flat spaces. Entity-mode controllers consume
+tables, masks and edges and must handle the active population and action
+contract. The native BAU accepts both interfaces through its flat action path.
+
+Create your own
+***************
+
+Start with :doc:`../usage/custom_controller`: a complete agent/reward example
+with the correct reset/step loop. For the base lifecycle, see
+:py:class:`citylearn.agents.base.Agent`.
+
+Use :doc:`../usage/agents` for learning-agent notebooks. Select the reward
+separately from the controller and evaluate final results using
+:doc:`../kpis`.

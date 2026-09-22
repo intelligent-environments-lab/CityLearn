@@ -11,6 +11,21 @@ Portuguese version: [pt/kpis_reference.md](pt/kpis_reference.md).
 
 For the full v2 naming tree, see [KPI_V2_TREE.md](KPI_V2_TREE.md).
 
+Start with [How to read the scorecard](scorecard.md) for a compact selection,
+baseline interpretation and an executable table-selection example. The `v2`
+method name denotes the KPI interface, not CityLearn version 2.
+
+To list the exact names available in your own configured run:
+
+```python
+kpis = env.evaluate_v2()
+catalogue = kpis[["cost_function", "level"]].drop_duplicates().sort_values("cost_function")
+print(catalogue.to_string(index=False))
+```
+
+Feature-specific KPI availability follows the schema. A missing/undefined value
+is not a zero measurement; preserve it when exporting or comparing.
+
 ## Units
 
 | Unit suffix | Meaning |
@@ -71,7 +86,8 @@ ratio_to_business_as_usual_x = control_x / business_as_usual_x
 self_consumption = (solar_generation_total - export_total) / solar_generation_total
 ```
 
-Safe division returns `None` or a safe placeholder when the denominator is not physically meaningful.
+For a denominator within the numerical zero tolerance, safe division returns
+`1.0` if the numerator is also effectively zero, and `None` otherwise.
 
 ## KPI Families
 
@@ -186,7 +202,8 @@ Names are prefixed with `district_` or `building_`, for example `district_robust
 
 | Concept | Unit | Meaning |
 |---|---:|---|
-| violation total | kWh | Energy above service/phase limits. |
+| violation total | kWh | Residual energy above service/phase limits after projection. |
+| requested pressure total | kWh | Excess associated with the unprojected controller request. |
 | violation timestep count | count | Number of timesteps with a violation. |
 | phase imbalance average | ratio | Average phase imbalance. |
 | phase import/export peak L1/L2/L3 | kW | Import/export peaks per phase. |

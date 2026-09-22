@@ -478,7 +478,6 @@ Metadata is exposed under `observations["meta"]["robustness"]`.
 "community_market": {
   "enabled": true,
   "local_price_ratio_to_grid_import": 0.8,
-  "grid_export_price": 0.0,
   "import_member_weights": {
     "Building_1": 1.0,
     "Building_2": 2.0
@@ -495,12 +494,17 @@ Metadata is exposed under `observations["meta"]["robustness"]`.
 | `enabled` | `false` | Enables local settlement. |
 | `local_price_ratio_to_grid_import` | `0.8` | Local price relative to grid import price. |
 | `intra_community_sell_ratio` | alias | Legacy name for the same ratio. |
-| `grid_export_price` | `0.0` | Grid export price. |
+| Residual grid-export remuneration | fixed `0.0` | Runtime settlement currently uses zero; `grid_export_price` is not a configurable tariff. |
 | `import_member_weights` | `{}` | Weights for allocating local energy among importers. |
 | `kpis.community_local_traded_enabled` | `true` | Enables local traded energy KPI. |
 | `kpis.community_self_consumption_enabled` | `true` | Enables local import-share KPI. |
 
 ## Important Combinations
+
+The local price ratio is clipped to `[0, 1]`. The legacy
+`intra_community_sell_ratio` key is an alias. Local settlement values
+same-timestep member imports and exports; it does not change the physical
+device dispatch.
 
 | Case | Configuration |
 |---|---|

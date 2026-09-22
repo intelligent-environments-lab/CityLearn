@@ -12,13 +12,13 @@ env = MultiCommunityEnv(
     communities=[
         {
             "community_id": "community_a",
-            "schema": "data/datasets/community_a/schema.json",
+            "schema": "citylearn_challenge_2022_phase_all_plus_evs",
             "env_kwargs": {"interface": "entity", "episode_time_steps": 48},
             "weight": 1.0,
         },
         {
             "community_id": "community_b",
-            "schema": "data/datasets/community_b/schema.json",
+            "schema": "citylearn_challenge_2022_phase_all",
             "env_kwargs": {"interface": "entity", "episode_time_steps": 48},
             "weight": 2.0,
         },
@@ -43,6 +43,8 @@ while not (terminated or truncated):
     observations, rewards, terminated, truncated, info = env.step(actions)
 
 kpis = env.evaluate_v2(include_business_as_usual=False)
+print(kpis.loc[kpis["level"] == "portfolio"].head())
+env.close()
 ```
 
 ## Constructor

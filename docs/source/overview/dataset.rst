@@ -4,14 +4,25 @@
 Dataset
 =======
 
-CityLearn makes use of datasets that are a collection of data files. The data files are used to define the simulation environment as well as provide some observation values. See :ref:`dataset-data-files-section` for more information.
+A CityLearn dataset combines a JSON schema with the time series and optional
+models needed by a scenario. Load a public dataset by name, a local schema path
+or an in-memory schema dictionary; see :doc:`../usage/load_environment`.
+
+V3 supports CSV and Parquet time series with the same column contract. The CSV
+snippets below illustrate the main inputs; :doc:`../guides/dataset_reference`
+also covers EV schedules, flexible-appliance cycles, topology events and
+demand-response requests. Match the timestep and energy units to
+:doc:`../guides/data_unit_contract`.
 
 .. _dataset-data-files-section:
 
 Data Files
 **********
 
-The data files refer to flat files containing time series data that are used to set observations that are agent action agnostic (i.e. observations that are not a function of the control actions). These files are referenced in the environment :code:`schema.json` and read when :py:class:`citylearn.citylearn.CityLearnEnv` is initialized. The data files are desrcribes as follows:
+The schema references the input files read when
+:class:`citylearn.citylearn.CityLearnEnv` is initialized. They provide exogenous
+inputs such as demand, weather and prices; device states and action-dependent
+outputs are computed during the simulation.
 
 Building Data File
 ==================
@@ -59,5 +70,5 @@ Schema Data File
 
 The schema file is a :code:`.json` file that references all other data files and is used to define the simulation environment. Refer to :ref:`schema-page` for more information.
 
-.. warning::
-   If using version ``2.1.2`` or earlier, do not change the order of columns in any of the :code:`.csv` data files!
+Use the column names documented in :doc:`../guides/dataset_reference` and ensure
+all time-series inputs cover the requested simulation interval.

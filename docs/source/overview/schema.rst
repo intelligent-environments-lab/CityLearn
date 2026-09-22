@@ -4,21 +4,33 @@
 Schema
 ======
 
-The schema is a :file:`.json` file containing key-value pairs that define the parameters to use in constructing a :py:class:`citylearn.citylearn.CityLearnEnv` object (environment). The aim of the schema is to provide an interface that is analogous to the :file:`.idf` used to define an `EnergyPlus <https://energyplus.net>`_ model.
+A schema is the JSON configuration used to construct
+:py:class:`citylearn.citylearn.CityLearnEnv`. It selects members, data files,
+equipment, observations, actions, reward and optional services.
 
-Schema Definition
+Start from a public dataset's schema, then change the sections required for
+your experiment. File paths are resolved against the dataset root. The
+:doc:`../guides/schema_reference` gives the supported fields and defaults;
+:doc:`../guides/dataset_reference` describes the referenced data.
+
+Load a schema by dataset name, local path or a Python dictionary as shown in
+:doc:`../usage/load_environment`. Configuration is part of the simulator's
+Python/JSON workflow. CityLearn UI is for exploring exported results.
+
+Example structure
 *****************
 
-The key-value pairs in the schema are summarized in the table:
+.. code-block:: text
 
-.. csv-table::
-   :file: ../../../assets/tables/citylearn_schema_definition.csv
-   :header-rows: 1
+   schema.json
+   ├── simulation window and timestep
+   ├── observations and actions
+   ├── reward_function
+   ├── buildings: data files, devices and electrical_service
+   ├── electric_vehicles_def
+   └── optional community_market, demand_response, topology and robustness
 
-An Example Schema
-*****************
-
-An example schema is shown below:
+A complete existing schema is provided below:
 
 .. include:: ../../../data/datasets/baeda_3dem/schema.json
-    :code: json
+   :code: json

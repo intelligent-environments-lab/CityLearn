@@ -1,5 +1,8 @@
 # Documentacao em Portugues
 
+Para a introdução revista da v3, consultar o [guia da primeira simulação](https://www.citylearn.net/quickstart.html),
+o [guia de funcionalidades](../features.md) e o [scorecard](../scorecard.md) em inglês.
+
 Esta pasta contem a versao portuguesa das paginas de referencia principais. A documentacao default do repositorio fica em ingles nos ficheiros em `docs/*.md`.
 
 | Pagina | Tema |

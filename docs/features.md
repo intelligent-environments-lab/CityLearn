@@ -1,128 +1,189 @@
-# Simulator Features
+# Features and configuration
 
-This page summarizes the simulator capabilities, including features that are easy to miss when reading only the README.
+Start with the [first simulation](https://www.citylearn.net/quickstart.html),
+then choose the conditions your controller should handle. Features are configured
+in the schema or environment arguments; the same simulation loop runs the episode.
 
-Portuguese version: [pt/features.md](pt/features.md).
+## Buildings, thermal systems and storage
 
-## Core Simulation
+A community contains buildings with electricity demand and optional cooling,
+heating and domestic-hot-water systems. Thermal storage shifts when energy is
+supplied; dynamic-temperature building models allow HVAC control to affect indoor
+temperature. Comfort and outage indicators report the resulting service.
 
-| Feature | What it provides |
-|---|---|
-| Gymnasium environment | Standard `reset/step`, action spaces and observation spaces. |
-| Multi-building district | Community-level simulation with multiple buildings and DERs. |
-| Multi-agent or central-agent | One vector per building or one centralized controller. |
-| HVAC and thermal storage | Cooling, heating and domestic hot water with storage. |
-| BESS | Electrical storage with SOC, efficiency, power curves and degradation. |
-| PV | Generation in normalized per-kW mode or absolute measured-energy mode. |
-| EVs and chargers | Charger-centric schedules, connected/incoming EVs, V2G-capable action path. |
-| Deferrable appliances | Normalized cycles, flexibility windows and service KPIs. |
-| Demand response | Dataset-driven DSO/TSO flexibility requests with entity observations, settlement and KPIs. |
-| Multi-community orchestration | Runs multiple synchronized `CityLearnEnv` communities and reports portfolio KPIs. |
-| Robustness events | Optional dataset-driven degradation of observations, forecasts, actions and logical asset availability. |
+Choose devices under each building's schema entry and enable their actions.
+[Device configuration](schema_reference.md#device-sections),
+[action meanings](actions_reference.md#flat-actions) and
+[comfort KPIs](kpis_reference.md#kpi-families) provide the details.
 
-## Physics and Units
+## Photovoltaics and batteries
 
-| Feature | Why it matters |
-|---|---|
-| Sub-hourly support | Tested support for 1h, 15min, 5min, 1min and 15s scenarios. |
-| Explicit unit contract | Dataset energy is `kWh/step`; power limits are `kW`. |
-| Step-aware action conversion | Power actions are converted to step energy using `seconds_per_time_step`. |
-| PV absolute mode | Real measured PV generation can be used directly. |
-| Physics invariant checks | Optional runtime physical consistency checks. |
-| Audit scripts | `audit_physics.py` and `audit_entity_contract.py --strict`. |
+![PV generation, battery charge/discharge, building demand and grid exchange share the building connection.](../assets/images/pv-storage-flow.svg)
 
-## Entity Interface
+PV can use a normalized per-kW generation profile or measured generation in
+`kWh/step` with `generation_mode="absolute"`. Stationary batteries have capacity,
+SOC, charging/discharging power, efficiency and degradation parameters. Positive
+storage actions charge and negative actions discharge; physical and connection
+limits determine the applied energy.
 
-| Feature | Why it matters |
-|---|---|
-| Entity tables | `district`, `building`, `charger`, `ev`, `storage`, `pv`, `deferrable_appliance`. |
-| Relational edges | Ready for GraphRL/GNN models. |
-| Stable IDs | Enables memory per entity and dynamic topology. |
-| Observation bundles | Controls the richness and cost of observations. |
-| Demand response bundle | Adds active request, baseline, prices and previous delivery/shortfall to the district table. |
-| Robustness bundle | Adds active robustness state and previous-step corruption counters to the district table. |
-| Machine-readable specs | `env.entity_specs` exposes IDs, features, units and bundles. |
-| Observation copies | Prevents agents from mutating internal simulator state by accident. |
+See [PV configuration](schema_reference.md#pv), the
+[unit contract](data_unit_contract.md) and [storage actions](actions_reference.md#physical-conversion).
 
-## Dynamic Topology
+## Electric vehicles and chargers
 
-| Feature | What it does |
-|---|---|
-| `add_member` / `remove_member` | Buildings can enter or leave the community. |
-| `add_asset` / `remove_asset` | Chargers, PV, BESS and deferrables can change mid-episode. |
-| Space/spec refresh | Action spaces, observation spaces and entity specs follow topology changes. |
-| Lifecycle metadata | `born_at`, `removed_at`, `active`. |
-| Safe deferrable removal | Cancels pending/running cycles and clears future consumption. |
+![An EV's connection window runs from arrival SOC to a required departure SOC, with charging actions while connected.](../assets/images/ev-service-window.svg)
 
-## Three-Phase Electrical Service
+Charger schedules identify connected and incoming EVs, arrival/departure times
+and required departure SOC. Charger-centric actions control the connected EV;
+negative actions permit V2G when discharging power is available. EV and charger
+identities remain separate so different vehicles can use the same charger.
 
-| Feature | What it measures or controls |
-|---|---|
-| Phase connection | Chargers and storage can use `L1`, `L2`, `L3` or `all_phases`. |
-| Headroom observations | Import/export headroom by building and phase. |
-| Phase power observations | Current phase power in the entity core bundle. |
-| Violation KPIs | Total violation energy and event count. |
-| Phase imbalance KPI | Average imbalance across phases. |
-| Phase peak KPIs | Import/export peaks for L1/L2/L3. |
+Configure [chargers](schema_reference.md#chargers) and
+[EV definitions](schema_reference.md#ev-definitions). Read minimum departure
+service and symmetric target accuracy separately in the [scorecard](scorecard.md).
+A runnable public example is `citylearn_challenge_2022_phase_all_plus_evs`.
 
-## Community Market and KPIs
+## Flexible appliances
 
-| Feature | What it provides |
-|---|---|
-| Local settlement | Local matching between exporters and importers. |
-| Weighted imports | Import allocation by member weights. |
-| Market savings | Settled cost compared with counterfactual grid settlement. |
-| Community self-consumption | Local import share and traded energy KPIs. |
-| KPI v2 naming tree | Structured KPI names by level/family/subfamily/metric/unit. |
-| Golden tests | Hand-calculated KPI tests for critical metrics. |
+A normalized cycle catalogue describes consumption over a cycle. A separate
+schedule gives the earliest start, latest start and completion deadline.
+The action requests a start; the simulator checks that the complete cycle fits
+the window and episode before applying it. Completion, missed cycles and delay
+are recorded as service indicators.
 
-## Multi-Community
+See [configuration](schema_reference.md#deferrable-appliances) and
+[start logic](actions_reference.md#deferrable-appliance-start-logic).
+The public EV example above includes flexible-appliance configuration.
 
-| Feature | What it provides |
-|---|---|
-| `MultiCommunityEnv` | Public wrapper in `citylearn.multi_community` for multiple independent communities. |
-| Synchronized stepping | Every child community must share `seconds_per_time_step`, episode length, interface and `central_agent` mode. |
-| Independent DR | Each community keeps its own demand-response requests, observations, settlement and KPIs. |
-| Portfolio KPI rows | `evaluate_v2()` adds `level="portfolio"` rows with summed totals and weighted ratios. |
-| Export layout | Child KPIs go to per-community subfolders, with a global `exported_kpis_multi_community.csv`. |
+## Escalators
 
-## Robustness
+The flat interface supports an aggregate standby/slow/normal escalator model.
+A normalized action selects one of those states; demand and availability inputs
+determine passenger-service indicators and energy use. This is a state-and-demand
+model, not an individual passenger or queue simulation.
 
-| Feature | What it provides |
-|---|---|
-| Dataset events | CSV/Parquet event files configure deterministic perturbations. |
-| Modular switches | Observations, forecasts, actions and assets can be enabled independently. |
-| Real-state separation | Observation/forecast corruption does not change rewards, DR settlement or physical KPIs. |
-| Imperfect action channel | Dropout, noise, bias, stuck, delay and clip can change the applied control action. |
-| Logical asset outage | Assets stay in the topology, while telemetry and/or control can become unavailable. |
-| Robustness KPIs | Counts event coverage, corruptions, missing observations and action dropouts. |
+Provide your own schedule using the [escalator schema](schema_reference.md#escalators-flat-interface).
+The [actions guide](actions_reference.md#escalator-control) explains state
+thresholds.
 
-## Dataset and Performance
+## Electrical-service and phase limits
 
-| Feature | Benefit |
-|---|---|
-| CSV and Parquet | Same data contract with efficient storage options. |
-| Windowed loader | Loads only the requested simulation window. |
-| Shared time-series cache | Reuses weather/pricing/carbon across buildings. |
-| 15s fixtures | Tests small energy values and rounding behavior. |
-| Render modes | `none`, `during`, `end` balance training speed and debugging output. |
+Buildings can have total and per-phase active-power import/export limits.
+Storage and chargers can be assigned phase connections. The simulator records
+requested, limited and applied actions alongside headroom and phase power,
+allowing a study to distinguish an excessive request from a residual exceedance
+after constraint handling.
 
-## UI and Export
+Configure `buildings.<name>.electrical_service` using the
+[schema reference](schema_reference.md#buildings). Start with
+`citylearn_three_phase_electrical_service_demo`. These are active-power
+connection constraints; they do not calculate feeder voltage or AC power flow.
+See [electrical KPIs](kpis_reference.md#electrical-service-and-phase-kpis).
 
-| Feature | What it enables |
-|---|---|
-| Render/export CSV | Post-episode inspection. |
-| KPI export | Dashboard and worker integration. |
-| CityLearn UI compatibility | Consumption of `evaluate_v2()` outputs. |
-| Start date | Human-readable timestamps in outputs. |
+## Local energy sharing and settlement
 
-## Testing and Production Readiness
+Enable `community_market.enabled` to match same-timestep surplus and demand
+among members. Local prices and importer weights determine financial allocation;
+exports expose settled costs, the grid-only counterfactual and savings for each
+member and the community. Settlement values the recorded physical trajectory.
 
-| Area | Coverage |
-|---|---|
-| Sub-hourly | 1min, 5min, 15min, 1h and 15s. |
-| KPIs | Golden and sanity tests. |
-| Entity contract | Strict audit and snapshots. |
-| Dynamic topology | Add/remove members/assets and action-space refresh. |
-| Deferrables | Parser, actions, KPIs and topology add/remove. |
-| Market/phases | Conservation and coherence checks for import/export/phases. |
+Configure the [community market](schema_reference.md#community-market).
+Residual grid exports currently receive zero remuneration. Local settlement
+is within a community; multi-community reporting is described below.
+
+## Demand-response requests
+
+A requests file supplies DSO/TSO activation windows, direction, target power,
+payment, tolerance and shortfall penalty. Use entity mode and enable the
+`entity_demand_response` observation bundle to expose active requests.
+Controllers respond through the existing storage, EV and flexible-load actions.
+
+The baseline is the mean net power over the configured pre-event history window,
+frozen for that request. Delivered energy, credited response and penalized
+shortfall are separate quantities. See the [request format and baseline](schema_reference.md#demand-response)
+and [settlement KPIs](kpis_reference.md#demand-response-kpis).
+Use `citylearn_challenge_2022_phase_all_demand_response` for a public example.
+
+## Changing members and assets
+
+With `interface="entity"` and `topology_mode="dynamic"`, scheduled events add or
+remove members, chargers, PV, storage and flexible appliances. Stable identifiers,
+lifecycle metadata and refreshed spaces/specifications let controllers track
+these changes. Reset reconstructs the initial scenario for the next episode.
+
+See [topology events](schema_reference.md#dynamic-topology) and
+[entity specifications](interfaces_flat_entity.md).
+Public examples include `citylearn_three_phase_dynamic_topology_demo` and
+`citylearn_three_phase_dynamic_asset_changes_demo_15s_parquet`.
+
+## Data and equipment failures
+
+Optional robustness events alter controller-visible measurements or forecasts,
+drop/delay/corrupt actions, or make asset channels unavailable. The event file
+sets targets, time windows and perturbations. Measurement corruption leaves the
+physical state intact; action-channel changes can affect actual consumption.
+
+See the [robustness guide](robustness_reference.md) for all supported modes and
+the distinction between missing values and physical zero. The public example is
+`citylearn_challenge_2022_phase_all_robustness`.
+
+## Time resolution and dataset formats
+
+Use hourly or sub-hourly scenarios, including 15-minute, 5-minute, 1-minute and
+15-second data. Match the schema timestep to the input cadence and supply energy
+columns in `kWh/step`. Changing the timestep alone does not create measured
+high-frequency detail from hourly data.
+
+CSV and Parquet use the same column contract; Parquet is useful for large
+datasets. See the [dataset guide](dataset_reference.md) and
+[unit contract](data_unit_contract.md). Begin large simulations with a short window.
+
+## Flat vectors and entity tables
+
+Flat mode provides vectors per building, or a combined vector in central-agent
+mode. Entity mode provides identified tables, features, masks and relational
+edges. Observation bundles select forecasts, electrical headroom, service
+deadlines and action feedback. These inputs can be used by graph or
+Transformer controllers supplied by the researcher.
+
+The [interface guide](interfaces_flat_entity.md),
+[observation reference](observations_reference.md) and
+[action reference](actions_reference.md) define the contracts.
+
+## Multiple communities
+
+`MultiCommunityEnv` steps independent communities in lockstep and reports local
+and portfolio results. Children share timestep, episode length, interface and
+central-agent mode. Each keeps its own physical state, DR requests and settlement.
+The wrapper aggregates results; it does not physically transfer energy between
+communities or optimize inter-community dispatch.
+
+The [multi-community guide](multi_community_reference.md) includes a complete
+example using available public datasets.
+
+## Controllers, rewards and repeated actions
+
+Use the built-in business-as-usual and rule-based agents, implement a custom
+controller, or integrate a learning algorithm. A reward guides training; KPIs
+evaluate the completed run. They need not optimize the same quantity.
+Check each controller/wrapper's supported interface; classic RBC and standard
+RL wrappers use flat mode.
+
+`step_many()` repeats an action while still advancing physics and services at
+every internal timestep. It returns accumulated rewards and the executed step
+count. See [simulation options](running_simulations.md) and the
+[controller tutorials](https://www.citylearn.net/usage/agents.html).
+
+## Evaluation, exports and performance
+
+`evaluate_v2()` provides structured building/community KPIs. The
+[scorecard](scorecard.md) introduces a compact selection; the
+[KPI reference](kpis_reference.md) and [naming catalogue](KPI_V2_TREE.md)
+cover the wider output. Normalized ratios accompany raw energy, cost and service
+quantities rather than replacing them.
+
+Use `render_mode="none"` during training, or `"end"` for episode-end exports.
+Windowed loading, shared input caches, Parquet and selectable observation bundles
+help control runtime and memory costs. See [export options](running_simulations.md#render-and-export),
+[CityLearn UI](https://www.citylearn.net/ui.html) and the
+[developer guide](developer_guide.md) for validation and profiling.

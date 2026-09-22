@@ -1,64 +1,13 @@
 # Releases
 
-This is the operational changelog for CityLearn. Every version bump should explain what changed, user impact, dataset/schema impact, validation and compatibility risk.
+Release notes for the official CityLearn v3 line appear first. Older entries
+record the Soft-CPS development line integrated into v3; they are not a
+replacement for the historical CityLearn v1/v2 changelogs.
 
 Portuguese version: [pt/releases.md](pt/releases.md).
 
-Default release owner: [@calofonseca](https://github.com/calofonseca).
-
-## Version Policy
-
-| Type | Use when | Example |
-|---|---|---|
-| Patch | Compatible fixes and additive features. | `0.4.1 -> 0.4.2`. |
-| Minor | New major capability or schema/API change. | `0.3.x -> 0.4.0`. |
-| Major | Broad breaking changes. | `0.x -> 1.0`. |
-
-## Release Checklist
-
-1. Update `citylearn/__init__.py`.
-2. Update this file.
-3. Update README when relevant features change.
-4. Update affected reference pages when schema/action/observation/KPI contracts change.
-5. Run validation:
-   - `.venv/bin/pytest -q`
-   - `.venv/bin/python scripts/audit/audit_entity_contract.py --strict`
-   - `.venv/bin/python scripts/audit/audit_physics.py`
-6. Run at least one representative smoke simulation.
-7. Commit and tag.
-8. Publish package when applicable.
-
-## Template
-
-```markdown
-## vX.Y.Z - YYYY-MM-DD
-
-Release owner: [@calofonseca](https://github.com/calofonseca).
-
-### Summary
-- ...
-
-### Added
-- ...
-
-### Changed
-- ...
-
-### Fixed
-- ...
-
-### Dataset/Schema Impact
-- ...
-
-### Compatibility
-- ...
-
-### Validation
-- `...`: pass
-
-### Migration Notes
-- ...
-```
+For package publication, version policy and the release checklist, see the
+[publishing guide](publishing.md).
 
 ## v3.0.2 - 2026-09-09
 

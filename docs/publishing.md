@@ -59,3 +59,59 @@ Before publishing, make sure `docs/releases.md` states:
 | Compatibility | Whether algorithms/wrappers need changes. |
 | Validation | Commands or simulations that passed. |
 | Migration notes | User-facing actions required after upgrade. |
+
+## Release-note checklist and template
+
+### Version policy
+
+| Type | Use when | Example |
+|---|---|---|
+| Patch | Compatible fixes and additive features. | `0.4.1 -> 0.4.2`. |
+| Minor | New major capability or schema/API change. | `0.3.x -> 0.4.0`. |
+| Major | Broad breaking changes. | `0.x -> 1.0`. |
+
+### Release checklist
+
+1. Update `citylearn/__init__.py`.
+2. Update this file.
+3. Update README when relevant features change.
+4. Update affected reference pages when schema/action/observation/KPI contracts change.
+5. Run validation:
+   - `.venv/bin/pytest -q`
+   - `.venv/bin/python scripts/audit/audit_entity_contract.py --strict`
+   - `.venv/bin/python scripts/audit/audit_physics.py`
+6. Run at least one representative smoke simulation.
+7. Commit and tag.
+8. Publish package when applicable.
+
+### Template
+
+```markdown
+## vX.Y.Z - YYYY-MM-DD
+
+Release owner: [@calofonseca](https://github.com/calofonseca).
+
+### Summary
+- ...
+
+### Added
+- ...
+
+### Changed
+- ...
+
+### Fixed
+- ...
+
+### Dataset/Schema Impact
+- ...
+
+### Compatibility
+- ...
+
+### Validation
+- `...`: pass
+
+### Migration Notes
+- ...
+```

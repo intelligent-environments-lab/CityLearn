@@ -434,7 +434,6 @@ Metadata fica em `observations["meta"]["robustness"]`.
 "community_market": {
   "enabled": true,
   "local_price_ratio_to_grid_import": 0.8,
-  "grid_export_price": 0.0,
   "import_member_weights": {
     "Building_1": 1.0,
     "Building_2": 2.0
@@ -451,7 +450,7 @@ Metadata fica em `observations["meta"]["robustness"]`.
 | `enabled` | `false` | Ativa settlement local. |
 | `local_price_ratio_to_grid_import` | `0.8` | Preco local relativo ao preco de import grid. |
 | `intra_community_sell_ratio` | alias | Nome legacy para o mesmo ratio. |
-| `grid_export_price` | `0.0` | Preco para export grid. Pode ser escalar/serie conforme configuracao. |
+| Remuneração da exportação residual | fixa em `0.0` | O runtime usa zero; `grid_export_price` não configura uma tarifa. |
 | `import_member_weights` | `{}` | Pesos para repartir energia local entre importadores. |
 | `kpis.community_local_traded_enabled` | `true` | Ativa KPI v2 de energia local transacionada. |
 | `kpis.community_self_consumption_enabled` | `true` | Ativa KPI v2 de import share local. |
